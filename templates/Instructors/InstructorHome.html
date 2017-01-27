@@ -52,9 +52,9 @@
 							{% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
 		                     <tr>
 		                        <div id={{announcement_ID}}>
-		                           	<td align="right" style="padding: .25em 1em .25em 0em">{{announcement_course}}: </td>
-		                           	<td align="left">{{subject}}</td>
-                    				<td align="right">{{start_timestamp}}</td>
+		                           	<td class="left">{{announcement_course}}: </td>
+		                           	<td class="left">{{subject}}</td>
+                    				<td class="left">{{start_timestamp}}</td>
 		                           <!-- td style="padding:.25em 0em .35em 0em">{{skill_Name}}</td  -->
 		                        </div>
 		                     </tr>
@@ -67,8 +67,8 @@
             			<th> </th> <!-- This is needed to fill in the th above the buttons -->
                				{% for i,course_ID,course_Name in course_range %}
                			<tr>
-            			<td style="padding-top:0em">{{course_Name}}</td>
-               			<td align="left" style="padding:.25em 0em 0em 0em"><form action="/oneUp/setCourse" method="POST">
+            			<td class="left">{{course_Name}}</td>
+               			<td class="left"><form action="/oneUp/setCourse" method="POST">
                        	 {% csrf_token %}                                                                        
                         	<input type="hidden" name="courseID" value="{{course_ID}}">
                        	 <input type="submit" name="submit" value="Select">                           
@@ -87,9 +87,9 @@
 								{% for i,chall_ID,chall_course,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
 			                     <tr>
 			                        <div id={{chall_ID}}>
-			                           	<td align="right" style="padding: .25em 1em .25em 0em">{{chall_course}}: </td>
-			                           	<td align="left">{{chall_Name}}</td>
-	                    				<td align="right">{{end_Timestamp}}</td>
+			                           	<td class="left">{{chall_course}}: </td>
+			                           	<td class="left">{{chall_Name}}</td>
+	                    				<td class="left">{{end_Timestamp}}</td>
 			                           <!-- td style="padding:.25em 0em .35em 0em">{{skill_Name}}</td  -->
 			                        </div>
 			                     </tr>

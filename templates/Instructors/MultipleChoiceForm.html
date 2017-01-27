@@ -26,6 +26,7 @@
 		<script>
       /* Should always hold the number of answers displayed. */
       var numAnswers = {{num_answers}};
+      var numberOfItems = 0;
 
       /* Adds a new blank answer */
       function addAnswer() {
@@ -76,6 +77,58 @@
           document.getElementById('removeAnswer').style.display = 'none';
         }
       }
+      
+      // Adds a skill into the 'Added Skills' box (AH)
+      function addSkill() {
+    	    var x = document.getElementById("SelectedSkill");
+    	    var e = document.getElementById("SelectSkill");
+    	    var option = document.createElement("option");
+    	    if(document.getElementById("SP").value && e.options[e.selectedIndex].value != ""){
+    	    	//console.log("Skill added");
+    	    	option.text = e.options[e.selectedIndex].text + " (" + document.getElementById("SP").value + ")";
+    	    	option.value = e.options[e.selectedIndex].value;
+    	    	x.add(option);
+    	    }
+    	    
+    	    numberOfItems = x.options.length;
+
+    	    if(numberOfItems <= 0){
+    	    	document.getElementById('removeSkills').style.display = 'none';
+    	    }
+    	    else{
+    	    	document.getElementById('removeSkills').style.display = 'initial';
+    	    }
+    	}
+      // Removes skill from 'Added Skills' box (AH)
+      function removeSkill() {
+    	    var x = document.getElementById("SelectedSkill");
+    	   
+    	    if(x.options.length){
+    	    	if(!x.options[x.selectedIndex])
+    	    		alert('Skill to remove is not selected!');
+    	    	x.remove(x.selectedIndex);
+    	    }
+    	    numberOfItems = x.options.length;
+    	    if(numberOfItems <= 0){
+    	    	document.getElementById('removeSkills').style.display = 'none';
+    	    }
+    	    else
+    	    	document.getElementById('removeSkills').style.display = 'initial';
+    	}
+      // Format 'Added Skills' box to a string (AH)
+      // Ex. SQL (10), Database (20), etc. (AH)
+      function prepareSubmit(){
+    	  var x = document.getElementById("SelectedSkill");
+    	  var txt = "";
+    	  for(var i =0; i < x.options.length; i++){
+    		  if(i < x.options.length-1)
+    		  	txt += x.options[i].text + ",";
+    		  else
+    			txt += x.options[i].text;
+    	  }
+    	  
+    	  document.getElementById("newSkills").value=txt;
+      }
       </script>
    </head>
    <body>
@@ -102,6 +155,7 @@
                      {% if challengeID %}
                      <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
                      {% endif %}
+                     <input type="hidden" name="newSkills" id="newSkills" value="">
                      <table class="bg">
                         <tr>
                            <td>Preview <span>*</span></td>
@@ -207,7 +261,7 @@
                          <tr>
                            <td>
                               Add New Skill<br> 
-                              <select name="Skill" id="SelectSkill" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" style="width: 180px">
+                              <select name="Skill" id="SelectSkill" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" style="width:150px">
                                  <option value="" selected>Select Skill</option>
                                  {% for i,skill_ID,skill_Name in skill_range %}
                                  <div id="skill{{i}}">
@@ -216,17 +270,25 @@
                                  {% endfor %}
                               </select>
                               <div id="SkillPoints">
-                              Skill Points for New Skill<span>*</span><br />
-                              <input style="max-width: 4em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" min="1" max="9999" id="SP" name="q_skill_points" value="{{q_skill_Points}}" required>
+                              Skill Points for New Skill<span>*</span><br>
+                              <input style="max-width: 4em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" min="1" max="9999" id="SP" name="q_skill_points">
                           	  </div>
+                          	  
+	    					 Added Skills<br> 
+                              <select id="SelectedSkill" name="S_Skill" font-family= "Tahoma, Geneva, sans-serif" style="width:150px; height:100px;" size="8">
+                                 {% for i, skill_ID, skill_Name, skill_Points in all_Skills %}
+                                 	<option value={{skill_ID}}>{{skill_Name}} ({{skill_Points}})</option>
+                                 {% endfor %}
+                              </select>
                            </td>
                         </tr>
                         <tr>
-                           <td>
-                              Skills Selected Previously <br>
-                              <input style="border: solid 1px rgba(128, 128, 128, 0.5);" type="text" name="all_Skills" size="20" value="{{all_Skills}}">
-                           </td>
+                        	<td>
+                        		<button type="button" id="addSkills" onclick="addSkill()">Add Skill</button>
+	    						<button type="button" id="removeSkills" onclick="removeSkill()">Remove Skill</button>
+                        	</td>
                         </tr>
+
                         {% endif %}                                               
                         <tr>
                            <td>Tags</td>
@@ -247,11 +309,11 @@
                      	
                         {% elif challenge %}
                         <ul class="actions">
-                        <li style="margin:0" ><input type="submit" name="submit" value="Submit" class="button" onclick="return check();"></li>
+                        <li style="margin:0" ><input type="submit" name="submit" value="Submit" class="button" onclick="prepareSubmit()></li>
                         <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}"><button type="button" class="button special" value="Reset">Cancel</button></a>
                         {% else %}	
                         <ul class="actions">
-                        <li><input type="submit" name="submit" value="Submit" class="button" onclick="return check();"></li>
+                        <li><input type="submit" name="submit" value="Submit" class="button" onclick="prepareSubmit()></li>
                         <a href="/oneUp/instructors/questionList"><button type="button" class="button special" value="Reset">Cancel</button></a>
                         {% endif %}  
 <script>

@@ -1,8 +1,8 @@
-Admin interface: http://127.0.0.1:8000/admin/ 
+Admin interface: http://127.0.0.1:80XX/admin/ 
 
-New index page: http://127.0.0.1:8000/oneUp/home.html  
+New index page: http://127.0.0.1:80XX/oneUp/home.html  
 
-http://127.0.0.1:8000/oneUp/administrators/createCourse 
+http://127.0.0.1:80XX/oneUp/administrators/createCourse 
 
 Call Chains:
 -------------

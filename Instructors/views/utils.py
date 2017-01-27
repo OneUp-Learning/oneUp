@@ -210,7 +210,7 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
                 
             #split string into an array 
             skillsList = skillstring.split(',')
-            
+            #print(skillsList)
             #Break the elements in skillslist of name and skill points
             for skill in skillsList:
                 #skillName, skillPoints = skill.word_tokenize()
@@ -229,14 +229,23 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
   
                               
                 # now add the new skill for this question                 
-                # create a new skill-question object              
-                newQSkillsObject = QuestionsSkills()
-                newQSkillsObject.questionID = question
-                newQSkillsObject.challengeID = challenge
-                newQSkillsObject.questionSkillPoints = int(skillPoints)
-                newQSkillsObject.skillID = Skills(skillID)                
-               
-                newQSkillsObject.save()
+                # Check if skill is created of same type (AH)
+                createdSkill = QuestionsSkills.objects.filter(skillID = skillID, questionID = question.questionID, challengeID = challenge.challengeID)
+                
+                if (createdSkill):
+                    # Update skill with the new skillPoints (AH)
+                    skillObj = createdSkill[0]
+                    skillObj.questionSkillPoints = int(skillPoints)
+                    skillObj.save()
+                else:              
+                    # create a new skill-question object
+                    newQSkillsObject = QuestionsSkills()
+                    newQSkillsObject.questionID = question
+                    newQSkillsObject.challengeID = challenge
+                    newQSkillsObject.questionSkillPoints = int(skillPoints)
+                    newQSkillsObject.skillID = Skills(skillID)                
+                   
+                    newQSkillsObject.save()
         else:
             # delete all previous skill for this question and course                            #AA 3/24/15
             resourceSkills = QuestionsSkills.objects.filter(questionID = question.questionID).delete()                                           
@@ -307,19 +316,22 @@ def extractSkills(resource, resourceIndicator):
     if resourceIndicator == "question":
         resourceSkills = QuestionsSkills.objects.filter(questionID = resource.questionID)
      
-    skillstring = ""
-    commaCheck = False
-
+    skill_ID = []
+    skill_Name = []
+    skill_Points = []
+    count = 1
+    
+    # Add skills to the list with id, name, and points that will be used for HTML display(AH)
     for skill in resourceSkills:
-        #split tag string to get just tag ID
-        if commaCheck:
-            skillstring = str(skillstring + ", ")  
-        skillName = skill.skillID.skillName
-        skillpoints = str(skill.questionSkillPoints)
-        skillstring = str(skillstring + skillName + " (" + skillpoints+ ")")        
-        commaCheck = True 
+              
+        sID = str(skill.skillID)
+        skill_ID.append(sID[:1])
+        skill_Name.append(skill.skillID.skillName)
+        skill_Points.append(str(skill.questionSkillPoints))
+               
+        count+=1
                                                     
-    return skillstring    
+    return zip(range(1,count),skill_ID,skill_Name, skill_Points)  
 
 def extractTopics(resource, resourceIndicator):   
 

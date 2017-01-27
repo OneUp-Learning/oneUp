@@ -108,18 +108,9 @@ def essayForm(request):
                 courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
                 
                 # Processing and saving skills for the question in DB
-                skillString = request.POST.get('all_Skills', "default")
+                skillString = request.POST.get('newSkills', "default")
                 utils.saveQuestionSkills(skillString, question, challenge)
     
-                skillIDselected = request.POST.get('Skill')
-                if not skillIDselected == "":
-                    questionSkill = QuestionsSkills()
-                    questionSkill.skillID = Skills(skillIDselected)
-                    questionSkill.questionID = Questions(question.questionID)
-                    #questionSkill.courseID = courseID
-                    questionSkill.challengeID = challenge
-                    questionSkill.questionSkillPoints = int(request.POST['q_skill_points'])
-                    questionSkill.save()
 
         # Processing and saving tags in DB                        #AA 3/24/15
         tagString = request.POST.get('tags', "default")

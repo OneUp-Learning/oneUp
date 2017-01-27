@@ -16,6 +16,11 @@
                  <li class="nav_top_level_items"> 
                       <a href="/oneUp/contact-us">Contact Us</a>
                  </li>
+                 {% if logged_in %}
+				<a class="nav_avatar" href="" title="avatar" style="border-bottom:0">
+					<img src="/static/images/avatars/25.png" alt="Avatar" width="54" height="54" style="border:1px solid black">
+				</a>
+				{% endif %}
                </ul>               
                </div>
                <div class="Nav_Bottom">

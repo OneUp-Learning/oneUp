@@ -2,7 +2,9 @@
 <html lang="en">
    <head>
       <meta charset="utf-8">
-      
+      <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+      <link rel="stylesheet" type="text/css" media="screen"
+      href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">
        {% include 'scripts.html' %}
       
       <!--[if lt IE 7]>
@@ -11,26 +13,7 @@
       <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
       <![endif]-->
       <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-    <script type="text/javascript">
-      $(function() {
-        $('#datetimepicker2').datetimepicker({
-          language: 'en',
-          pick12HourFormat: true,
-          startDate:new Date()
-        });
-      });
-    </script>
-    <script type="text/javascript">
-      $(function() {
-        $('#datetimepicker3').datetimepicker({
-          language: 'en',
-          pick12HourFormat: true,
-          startDate: new Date()
-        });
-      });
-    </script> 
-    
-    <script type="text/javascript"
+        <script type="text/javascript"
      src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js">
     </script> 
     <script type="text/javascript"
@@ -43,11 +26,29 @@
      src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
     </script>
     <script type="text/javascript">
-      $('#datetimepicker').datetimepicker({
-        format: 'dd/MM/yyyy hh:mm:ss',
-        language: 'pt-BR'
+       $('#datetimepicker').datetimepicker({
+         format: 'dd/MM/yyyy hh:mm:ss',
+         language: 'pt-BR'
+       });
+    </script>  
+    <script type="text/javascript">
+    // This script handels the datetime fields (AH)
+      $(function() {
+    	  $('#datetimepicker2').datetimepicker({
+              language: 'en',
+              pickDate: false,
+              pickTime: false
+            
+            });
+         $('#datetimepicker3').datetimepicker({
+           language: 'en',
+           pickDate: false,
+           pickTime: false
+           
+         });
+        
       });
-    </script>
+    </script> 
   
       <script type="text/javascript">
          function goToNewPage()
@@ -117,21 +118,24 @@
         			<tr>
                     	<td>
 							{% if isVisible %}
-							<input type="checkbox" name ="isVisible" value="True" checked="true" document.getElementById('isAvailable').disabled = this.checked;> &nbsp;&nbsp;Make challenge available</input>
+							<input style="vertical-align: initial" type="checkbox" name ="isVisible" value="true" checked="true""document.getElementById('isAvailable').disabled = this.checked;> &nbsp;&nbsp;Make challenge available
 							{% else %}
-        					<input type="checkbox" name ="isVisible">&nbsp;&nbsp;Make challenge available</input>
+        					<input type="checkbox" name ="isVisible">&nbsp;&nbsp;Make challenge available
         					{% endif %}
-                    	<br><br>Display From
-                    	<div id="datetimepicker2" class="input-append">
-                        	<input id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
-                            <span class="add-on">
-                            	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
-                            </span>               
-                        </div> 
-                    	<br>Display Until<div id="datetimepicker3" class="input-append">
-                        	<input id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
-                            <span class="add-on">
-                            	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                    		<br>
+                    		Display From:<div id="datetimepicker2" class="input-append">
+
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
+
+                            <span class="add-on" style="height:2.75em; line-height:2em">
+                            	<i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    		Display Until:<div id="datetimepicker3" class="input-append">
+
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                            <span class="add-on" style="height:2.75em; line-height:2em">
+                            	<i class="fa fa-calendar" aria-hidden="true"></i>
                             </span>
                         </div>
                     </td>
@@ -196,7 +200,7 @@
 							onchange="document.getElementById('sendTopic').disabled = this.checked; 
 							document.getElementById('sendTopic2').disabled = this.checked;"> Is this challenge going to be graded? 
         				{% else %}
-        					<input type="checkbox" name ="isGraded">Is this challenge going to be graded?
+        					<input type="checkbox" name ="isGraded">&nbsp;&nbsp;Is this challenge going to be graded?
         				{% endif %}
 						</td>
 					</tr>
@@ -205,30 +209,30 @@
         			</tr>
         			{% if feedbackOption1 %}
             		<tr>
-						<td><input type="checkbox" name="feedbackOption1" value="true" checked="true">Display Correct Answer</td>
+						<td><input type="checkbox" name="feedbackOption1" value="true" checked="true">&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% else %}
 					<tr>
-						<td><input type="checkbox" name="feedbackOption1">Display Correct Answer</td>
+						<td><input type="checkbox" name="feedbackOption1">&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% endif %}
 					
 					{% if feedbackOption2 %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2"value="true" checked="true"/>Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="feedbackOption2"value="true" checked="true"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% else %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2"  />Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="feedbackOption2"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% endif %}
 					{% if feedbackOption3 %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption3" value="true" checked="true"/>Display Incorrect Answer Feedback</td>
+						<td><input type="checkbox" name="feedbackOption3" value="true" checked="true"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
 					</tr>
 					{% else %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption3"  />Display Incorrect Answer Feedback</td>
+						<td><input type="checkbox" name="feedbackOption3"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
 					</tr>
 					{% endif %}	
 				</table>	
@@ -243,7 +247,7 @@
 			<div id="question{{i}}">
 				<th> {{question.preview}}</th><th></th></tr>									
 							
-							{% if question.typeID == 1 %}
+							{% if question.typeID == '1' %}
 							<!-- multiple choice question -->
 							{% for count,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in radio buttons -->						
 								<tr><td colspan="2">{% for j,answer in question.answers_with_count %}	
@@ -256,14 +260,15 @@
 								{% endfor %}					
 							{% endif %}				
 								</td></tr>	
-							{% if question.typeID == 2 %}
+							{% if question.typeID == '2' %}
 							<!-- multiple answer question -->
 								<tr><td colspan="2">
 								{% for k,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in checkbox buttons -->						
 								{% for j,answer in question.answers_with_count %}
+									
 									<input type="checkbox" name="{{question.questionID}}" value="{{answer.answerText}}"
 									{% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
-									{% else %}disabled="disabled"
+									{% else %}
 								{% endifequal %}
 									>{{answer.answerText}}<br />
 								{% endfor %}
@@ -271,7 +276,7 @@
 							{% endif %}		
 							</td></tr>
 						
-							{% if question.typeID == 3 %}
+							{% if question.typeID == '3' %}
 							<!-- matching question -->
 							<tr><td width="50%">{% for match_count,match_answer in question.match_with_count %}
 								<!-- use a for loop and display the answers in the matching form-->
@@ -286,7 +291,7 @@
 							{% endfor %}
 							{% endif %}			
 									</td></tr>	
-							{% if question.typeID == 4 %}
+							{% if question.typeID == '4' %}
 							<!-- true/false question -->
 							{% for count,correct_answer in question.correct_answers %}
 							<tr><td colspan="2"><input type="radio" name="{{question.questionID}}" value="True" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "true" %}checked{% else %}disabled="disabled"{% endifequal %}>True<br />
@@ -294,7 +299,7 @@
 							{% endfor %}
 							</td></tr>
 							{% endif %}
-							{% if question.typeID == 5 %}
+							{% if question.typeID == '5' %}
 							<!-- Essay question -->
 							<tr><td colspan="2"><textarea name="{{question.questionID}}" rows="5" width="auto" placeholder="<Enter Answer Here>" readonly></textarea>
 							</td></tr>{% endif %}

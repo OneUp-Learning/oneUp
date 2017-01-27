@@ -219,21 +219,18 @@ class CourseConfigParams(models.Model):
     
     badgesUsed = models.BooleanField(default=False)                   ## The badgesUsed is for instructor dashboard purposes and system uses as well
     studCanChangeBadgeVis = models.BooleanField(default=False)        ## The studCanChangeBadgeVis is for allowing student to configure student dashboard visibility only
+    numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
 
     levelingUsed = models.BooleanField(default=False)                 ## 
-    # studCanChangelevelingVis = models.BooleanField(default=False)   ## Not decided
 
     leaderboardUsed = models.BooleanField(default=False)              ##
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
-    numStudentToppersDisplayed = models.IntegerField(default=0)       ## This is used to display the number of students in the leaderboard dashboard html table
+    numStudentsDisplayed = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
 
 
     classSkillsDisplayed = models.BooleanField(default=False)         ## The classSkillsDisplayed is only for dashboard purposes for the instructor
     studCanChangeClassSkillsVis = models.BooleanField(default=False)  ## The classSkillsDisplayed is only for dashboard purposes for the student
     numStudentBestSkillsDisplayed = models.IntegerField(default=0)    ## This is used to display the number of students in the Skills dashboard html table
-
-    classRankingDisplayed = models.BooleanField(default=False)        ##
-    studCanChangeClassRankingVis = models.BooleanField(default=False) ##
 
     ## Other fields for rule based configurations
     virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
@@ -242,31 +239,30 @@ class CourseConfigParams(models.Model):
     studCanChangeclassAverageVis = models.BooleanField(default=False) ## The student can suppress visibility in the dashboard
     
     ##XP(Experience) Points
-    courseStartDate=models.DateField(default=datetime.min)                                ##
-    courseEndDate=models.DateField(default=datetime.min)                                  ##
-    leaderBoardUpdateFreq=models.IntegerField(default=1)              ## Frequency in days, minimum 1 and maximum 365 days
+    courseStartDate=models.DateField(default=datetime.min)            ##
+    courseEndDate=models.DateField(default=datetime.min)              ##
+    leaderboardUpdateFreq=models.IntegerField(default=1)              ## Frequency in days, minimum 1 and maximum 365 days
     
     def __str__(self):
         return str(self.ccpID)  +","
         +str(self.courseID) +","
         +str(self.badgesUsed) +","
         +str(self.studCanChangeBadgeVis) +","
+        +str(self.numBadgesDisplayed) +","
         +str(self.levelingUsed) +","
-        +str(self.leaderBoardUsed) +","
+        +str(self.leaderboardUsed) +","
         +str(self.studCanChangeLeaderBoardVis) +","
-        +str(self.numStudentToppersDisplayed) +","
+        +str(self.numStudentsDisplayed) +","
         +str(self.classSkillsDisplayed) +","
         +str(self.studCanChangeClassSkillsVis) +","
         +str(self.numStudentBestSkillsDisplayed) +","
-        +str(self.classRankingDisplayed) +","
-        +str(self.studCanChangeClassRankingVis) +","
         +str(self.virtualCurrencyUsed) +","
         +str(self.avatarUsed) +","
         +str(self.classAverageUsed) +","
         +str(self.studCanChangeclassAverageVis) +","
         +str(self.courseStartDate) +","
         +str(self.courseEndDate) +","
-        +str(self.leaderBoardUpdateFreq)
+        +str(self.leaderboardUpdateFreq)
 
 # # '''
 # # Configuration parameters

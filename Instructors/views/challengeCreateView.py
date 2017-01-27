@@ -291,6 +291,7 @@ def challengeCreateView(request):
                 questdict['challengeID']= challengeId
                 
                 correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
+                print(correct_answers)
                 canswer_range = range(1,len(correct_answers)+1)
                 questdict['correct_answers'] = zip(canswer_range,correct_answers)
                 

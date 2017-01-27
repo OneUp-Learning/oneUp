@@ -2420,6 +2420,21 @@ body.homepage #header h1 {
     color: rgba(245, 245, 245, 0.5);
     text-decoration: none;
 }
+.nav_top_level a.nav_avatar {
+     height: 54px;
+    /* Container size. Not actual size of the bulb */
+    
+    width: 64px;
+    right: 25px;
+    position:absolute;
+    /* Distance between bulb and top navigation links*/
+    float: left;
+    text-align: center;
+    margin-top: -10px;
+    margin-left: 10px;
+    color: rgba(245, 245, 245, 0.5);
+    text-decoration: none;
+}
 /* Change bulb color on hover */
 
 .nav_top_level > a.nav_bulb:hover {
@@ -2432,7 +2447,7 @@ body.homepage #header h1 {
     display: block;
     padding: 15px 4px 0 0;
     /* padding: top-right-bottom-left */
-    
+    width:100%;
     list-style: none;
 }
 /* Style for each list item (link) on the top level */

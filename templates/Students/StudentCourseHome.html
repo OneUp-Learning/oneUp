@@ -57,8 +57,8 @@
                             {% for i,announcement_ID,author_ID,start_Timestamp, end_Timestamp, subject, message in announcement_range %}
                             <tr>
                                 <div id={{announcement_ID}}>
-                                    <td align="right" style="padding: 0em 8em 0em 0em">{{subject}}</td>
-                                    <td align="right" style="padding: .25em 1em .25em 0em">{{start_Timestamp}}</td>
+                                    <td class="left" style="padding: 0em 8em 0em 1.5em">{{subject}}</td>
+                                    <td class="left" style="padding: .25em 1em .25em 1.5em">{{start_Timestamp}}</td>
                                 </div>
                             </tr>
                             {% endfor %}
@@ -75,8 +75,8 @@
                             {% for i,chall_ID,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
                             <tr>
                                 <div id={{chall_ID}}>
-                                    <td align="left">{{chall_Name}}</td>
-                                    <td align="right">{{end_Timestamp}}</td>
+                                    <td class="left">{{chall_Name}}</td>
+                                    <td class="left">{{end_Timestamp}}</td>
                                 </div>
                             </tr>
                             {% endfor %}
@@ -96,8 +96,8 @@
                             {% for i,avatarImage,gradeTotal in user_range %}
                             <tr>
                                 <div id="student{{i}}">
-                                    <td><img alt="Avatar Image" width="46px" height="46px" src="{{avatarImage}}"></td>
-                                    <td>{{gradeTotal}}</td>
+                                    <td class="left"><img alt="Avatar Image" width="36px" height="36px" src="{{avatarImage}}"></td>
+                                    <td class="left">{{gradeTotal}}</td>
                                 </div>
                             </tr>
                             {% endfor %}
@@ -111,10 +111,10 @@
                             <th> </th>
                             {% for skill in skills %}
                             <tr>
-                                <td align="right" style="padding: 0em .25em 0em 0em">{{skill.skillName}} </td>
-                                <td>
+                                <td class="left">{{skill.skillName}} </td>
+                                <td class="left">
                                     {% for usi in skill.usersInfo %} 
-                                    <img alt="Avatar Image" width="26px" height="26px" src="{{usi.avatarImage}}">
+                                    <img alt="Avatar Image" width="36px" height="36px" src="{{usi.avatarImage}}">
                                     {{usi.skillPoints}}  &nbsp;&nbsp;&nbsp;&nbsp;
                                     {% endfor %}
                                 </td>
@@ -130,7 +130,7 @@
                     <table class="bg" id="bglinks" style="margin-bottom: 15px;">
                         <th> Latest Badges </th>
                         <tr>
-                            <td>
+                            <td class="left">
                                 {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}                                                       
                                 <img src="/static/images/badges/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
                                 <img alt="Avatar Image" width="26px" height="26px" src="{{avatarImage}}">

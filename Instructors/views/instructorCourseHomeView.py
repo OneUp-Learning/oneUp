@@ -46,9 +46,9 @@ def instructorCourseHome(request):
             context_dict["badgesUsed"]=ccparams.badgesUsed
             context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
             context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
-            context_dict["classRankingDisplayed "]=ccparams.classRankingDisplayed
-            context_dict["numStudentToppersDisplayed"]=ccparams.numStudentToppersDisplayed
+            context_dict["numStudentsDisplayed"]=ccparams.numStudentsDisplayed
             context_dict["numStudentBestSkillsDisplayed"] = ccparams.numStudentBestSkillsDisplayed
+            context_dict["numBadgesDisplayed"]=ccparams.numBadgesDisplayed
             
         #Leaderboard Badges
 #         StudentBadges(models.Model):
@@ -88,7 +88,7 @@ def instructorCourseHome(request):
 #                 timestamp.append(badge.timestamp)
                           
             # The range part is the index numbers.
-        context_dict['badgesInfo'] = zip(range(1,badges.count()),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
+        context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
         print (badgeID)
         print(studentID)
         print (badgeName)
@@ -131,13 +131,15 @@ def instructorCourseHome(request):
                      skillPoints += sRecord.skillPoints
                 if skillPoints > 0:
 #                     skill_Points.append(skillPoints)
-                    uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':u.avatarImage} 
-                    print("userSkillLst",uSkillInfo)
-                    usersInfo.append(uSkillInfo)
-            skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo}
-#             context_dict['usersSkillsInfo'] = zip(range(1,len(usersSkillsInfo)),uSkillInfo)
+                    uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':u.avatarImage}
+                    print("userSkillLst",lineno(),uSkillInfo)
+                    #Sort and Splice here
+                    usersInfo.append(uSkillInfo) 
+            skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentsDisplayed]}
+            print("skillInfo",lineno(),skillInfo)
             context_dict['skills'].append(skillInfo)
 
+## Do the first list into a loop and slice and get the k elements
       
     # Leaderboard based on XP Points
     #Displaying the list of challenges from database

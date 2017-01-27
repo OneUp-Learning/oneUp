@@ -24,8 +24,6 @@ SECRET_KEY = '6l1(5i-qm34-eb!@un9gc%(g$o^=rgw8l++0!o9t6-^($qi6&k'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 # Including the static folder to access it in the urls.py
@@ -71,21 +69,13 @@ DATABASES = {
     }
 }
 
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')   # DD
-
-TEMPLATE_DIRS = (                   # DD
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    TEMPLATE_PATH,
-)
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS' : [ TEMPLATE_PATH ],
+        'DIRS' : [ os.path.join(BASE_DIR, 'templates') ],
         'APP_DIRS': True,
         'OPTIONS': {
+            'debug':True,
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',

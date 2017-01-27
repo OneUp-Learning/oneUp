@@ -47,8 +47,9 @@ def StudentCourseHome(request):
             context_dict["levelingUsed"]=cparams.levelingUsed
             context_dict["leaderboardUsed"]=cparams.leaderboardUsed
             context_dict["classSkillsDisplayed"]=cparams.classSkillsDisplayed
-            context_dict["numStudentToppersDisplayed"]=cparams.numStudentToppersDisplayed
+            context_dict["numStudentsDisplayed"]=cparams.numStudentsDisplayed
             context_dict["numStudentBestSkillsDisplayed"]=cparams.numStudentBestSkillsDisplayed
+            context_dict["numBadgesDisplayed"]=cparams.numBadgesDisplayed
             
         scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)    
         if len(scparamsList) > 0:
@@ -159,7 +160,7 @@ def StudentCourseHome(request):
         print(studentID)
         print (badgeName)
                 # The range part is the index numbers.
-        context_dict['badgesInfo'] = zip(range(1,badges.count()+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
+        context_dict['badgesInfo'] = zip(range(1,cparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
         print (badgeID)
         print (studentID)
         print (badgeName)
