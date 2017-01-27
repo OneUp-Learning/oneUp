@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 from Instructors.models import Courses, Challenges
 from Badges.models import ActionArguments, Conditions, Rules, Badges, BadgeChallenges, RuleEvents
 from Badges.enums import Action, Event, OperandTypes , SystemVariable
+from Badges.conditions_util import get_events_for_system_variable
 
 from django.contrib.auth.decorators import login_required
 
@@ -37,33 +38,9 @@ def DeleteBadge(badgeId):
     # Delete associated rule
     
 def DetermineEvent(conditionOperandValue):
-    
-    #Determine the appropriate event type for each System Variable
-    if int(conditionOperandValue) == SystemVariable.numAttempts:
-        #eventID = Event.startChallenge
-        eventID = Event.endChallenge
-    elif int(conditionOperandValue) == SystemVariable.testScore:
-        eventID = Event.endChallenge
-    elif int(conditionOperandValue) == SystemVariable.percentageCorrect:
-        eventID = Event.endChallenge
-    elif int(conditionOperandValue) == SystemVariable.maxTestScore:
-        eventID = Event.challengeExpiration
-    elif int(conditionOperandValue) == SystemVariable.minTestScore:
-        eventID = Event.challengeExpiration
-    elif int(conditionOperandValue) == SystemVariable.dateOfFirstAttempt:
-        eventID = Event.startChallenge
-    elif int(conditionOperandValue) == SystemVariable.timeSpentOnChallenges:
-        eventID = Event.endChallenge
-    elif int(conditionOperandValue) == SystemVariable.timeSpentOnQuestions:
-        eventID = Event.endQuestion
-    elif int(conditionOperandValue) == SystemVariable.consecutiveDaysLoggedIn:
-        eventID = Event.userLogin
-    elif int(conditionOperandValue) == SystemVariable.activitiesCompleted:
-        eventID = Event.participationNoted
-    elif int(conditionOperandValue) == SystemVariable.challengeId:
-        eventID = Event.endChallenge #Not sure what the appropriate event would be for this system variable
-    return eventID
-    
+    # Note: This should be effectively removed soon and also can break for certain inputs.
+    return get_events_for_system_variable(conditionOperandValue)[0]
+
 def SaveBadge(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.

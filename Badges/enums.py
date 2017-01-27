@@ -171,67 +171,78 @@ class SystemVariable():
                                     'index': numAttempts,
                                     'name':'numAttempts',
                                     'displayName':'Number of Attempts',
-                                    'description':'The total number of attempts that a student has given to a challenge'
+                                    'description':'The total number of attempts that a student has given to a challenge',
+                                    'eventsWhichCanChangeThis':[Event.endChallenge]
                                     },
                        testScore:{
                                   'index': testScore,
                                   'name':'testScore',
                                   'displayName':'Challenge Score',
-                                  'description':'The score for the challenge'
+                                  'description':'The score for the challenge',
+                                  'eventsWhichCanChangeThis':[Event.endChallenge]
                                   },
                        percentageCorrect:{
                                           'index': percentageCorrect,
                                           'name':'percentageCorrect',
                                           'displayName':'Percentage Correct',
-                                          'description':'The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge'
+                                          'description':'The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge',
+                                          'eventsWhichCanChangeThis':[Event.endChallenge]
                                           },
                        maxTestScore:{
                                      'index': maxTestScore,
                                      'name':'maxTestScore',
                                      'displayName':'Maximum Challenge Score',
-                                     'description':"The maximum of the test scores of all the student's attempts for a particular challenge"
+                                     'description':"The maximum of the test scores of all the student's attempts for a particular challenge",
+                                     'eventsWhichCanChangeThis':[Event.challengeExpiration]
                                      },
                        minTestScore:{
                                      'index': minTestScore,
                                      'name':'minTestScore',
                                      'displayName':'Minimum Challenge Score',
-                                     'description':"The minimum of the test scores of all the student's attempts for a particular challenge"
+                                     'description':"The minimum of the test scores of all the student's attempts for a particular challenge",
+                                     'eventsWhichCanChangeThis':[Event.challengeExpiration]
                                      },
                        dateOfFirstAttempt:{
                                            'index': dateOfFirstAttempt,
                                            'name':'dateOfFirstAttempt',
                                            'displayName':'Date of First Attempt',
-                                           'description':'The date on which the student has attempted a particular challenge for the first time.'
+                                           'description':'The date on which the student has attempted a particular challenge for the first time.',
+                                           'eventsWhichCanChangeThis':[Event.startChallenge]
                                            },
                        timeSpentOnChallenges:{
                                        'index': timeSpentOnChallenges,
                                        'name':'timeSpentOnChallenges',
                                        'displayName':'Time Spent On Challenges',
-                                       'description':'Total time spent in the Challenges section for a particular course.'
+                                       'description':'Total time spent in the Challenges section for a particular course.',
+                                       'eventsWhichCanChangeThis':[Event.endChallenge]
                                        },
                        timeSpentOnQuestions:{
                                        'index': timeSpentOnQuestions,
                                        'name':'timeSpentOnQuestions',
                                        'displayName':'Time Spent On Questions',
-                                       'description':'Total time spent in the Questions section for a particular course.'
+                                       'description':'Total time spent in the Questions section for a particular course.',
+                                       'eventsWhichCanChangeThis':[Event.endQuestion] #I'm not sure this makes sense - Keith
                                        },
                        consecutiveDaysLoggedIn:{
                                         'index':consecutiveDaysLoggedIn,
                                         'name':'consecutiveDaysLoggedIn',
                                         'displayName':'Consecutive Days Logged In',
-                                        'description':'The number of consecutive days a student logs in to the One Up website.'        
+                                        'description':'The number of consecutive days a student logs in to the One Up website.',
+                                        'eventsWhichCanChangeThis':[Event.userLogin]
                                         },
                        activitiesCompleted:{
                                         'index':activitiesCompleted,
                                         'name':'activitiesCompleted',
                                         'displayName':'Activities Completed',
-                                        'description':'The number of activities a student has completed for a particular course.'  
+                                        'description':'The number of activities a student has completed for a particular course.',
+                                        'eventsWhichCanChangeThis':[Event.participationNoted]
                                         },
                        challengeId:{
                                     'index': challengeId,
                                     'name':'challengeId',
                                     'displayName':'Challenge ID',
-                                    'description':'The challenge ID if a badge is to be awarded for a specific challenge'
+                                    'description':'The challenge ID if a badge is to be awarded for a specific challenge',
+                                    'eventsWhichCanChangeThis':[]
                                     }
                        }
 
