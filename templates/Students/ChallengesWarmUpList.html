@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+    <meta charset="utf-8">
+    
+        {% include 'scripts.html' %}
+        
+         
+     </head>
+      <body>
+      <div id="page-wrapper">
+
+            {% include 'stheading.html' %}
+
+            <div class="frame" id="grad" align="center">
+         	<div class="container">
+         	<div class="row">
+         	<div class="12u">
+         		 <h1> Warm Up Challenges</h1>
+			</div>
+			</div>
+<!-- INSERTED DYNAMIC TABLE --> 
+       		<div class="row">
+         	<div class="3u 12u(mobile)" align="left">
+         	
+        <font color="#0000FF ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Above Average</font><br>
+        <font color="#00ace6 ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Average</font><br>
+        <font color="#80dfff ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Below Average</font><br>
+        <font color="#FFFF00 ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Not attempted</font>
+        	</div></div>
+    		<div class="row">
+         	<div class="12u">
+     {% if course_notselected %}
+        <p> Please select a course to view the challenges associated with it.</p>
+       {% elif no_challenge %} 
+       <p> {{no_challenge}} </p>
+       {% else %}
+     
+        <table class="bg">
+           <tr>
+        		<th> <span style="color: red; font-weight: bolder;">***</span>Click the bullet symbol <font color="#0000FF ">&#9724;
+        		</font> to view your attempt (if any) or click the actual link to take the warm up
+        		<span style="color: red; font-weight: bolder;">***</span></th>
+        		
+        	</tr>
+
+		{% for i,topic_ID,topic_Name, all_challenges in topic_range %}
+
+		<tr> 
+		<input type="hidden" name="topicID" value="{{topic_ID}}">
+		<td><b>{{topic_Name}}</b>
+		{% for challenge_Name,challenge_ID,score in all_challenges %}
+		<input type="hidden" name="score" value="{{score}}">
+		<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		
+				{% if score == 1 %} <!-- If is empty -->
+				**No challenges available for this topic.**
+				
+				{% elif score == 2 %}  <!-- If score have not been taken -->
+				<font color="#FFFF00 ">&#9724;</font>
+				
+				{% elif score == 3 %} <!-- If score equals Above Average -->
+				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp" style="text-decoration:none;">
+				<font color="#0000FF "> &#9724;</font></a>
+				
+				{% elif score == 4 %} <!-- If score equals Average -->
+				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp" style="text-decoration:none;">
+				<font color="#00ace6 "> &#9724;</font></a>
+				
+				{% else %} <!-- If score equals Below Average -->
+				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp" style="text-decoration:none;">
+				<font color="#80dfff "> &#9724;</font></a>
+				{% endif %}
+				 
+				 <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
+				 <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}" >
+				 <font color="Black "> {{challenge_Name}}</font></a> 
+				{% endfor %}	
+				</td>
+								
+			
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %} 
+<!-- END DYNAMIC TABLE --> 
+            </div></div></div>
+            </div>
+         </div>
+         <!-- Footer -->
+
+        {% include 'footer.html' %}
+
+      <script type="text/javascript"> Cufon.now(); </script>
+      </body>
+   </html>

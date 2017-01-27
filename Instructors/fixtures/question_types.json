@@ -1,0 +1,44 @@
+[
+	{
+		"model": "Instructors.QuestionTypes",
+		"pk": 1,
+		"fields": {
+			"typeName": "Multiple Choice Questions"
+		}
+	},
+	{
+		"model": "Instructors.QuestionTypes",
+		"pk": 2,
+		"fields": {
+			"typeName": "Multiple Answer Questions"
+		}
+	},
+	{
+		"model": "Instructors.QuestionTypes",
+		"pk": 3,
+		"fields": {
+			"typeName": "Matching Questions"
+		}
+	},
+	{
+		"model": "Instructors.QuestionTypes",
+		"pk": 4,
+		"fields": {
+			"typeName": "True/False Questions"
+		}
+	},
+	{
+		"model": "Instructors.QuestionTypes",
+		"pk": 5,
+		"fields": {
+			"typeName": "Essay Questions"
+		}
+	},
+	{
+		"model": "Instructors.QuestionTypes",
+		"pk": 6,
+		"fields": {
+			"typeName": "Dynamic Questions"
+		}
+	}
+]

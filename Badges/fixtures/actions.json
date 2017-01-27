@@ -1,0 +1,50 @@
+[
+	{
+		"model": "Badges.Actions",
+		"pk": 1,
+		"fields": {
+			"actionName": "Giving a Badge",
+			"actionDescription": "When a student has started to attempt a particular challenge"
+		}
+	},
+	{
+		"model": "Badges.Actions",
+		"pk": 2,
+		"fields": {
+			"actionName": "Creating a Notification",
+			"actionDescription": "When a student has finished to attempt and has submitted a particular challenge"
+		}
+	},
+	{
+		"model": "Badges.Actions",
+		"pk": 3,
+		"fields": {
+			"actionName": "Locking",
+			"actionDescription": "When a student completes answering a particular question in a particular challenge"
+		}
+	},
+	{
+		"model": "Badges.Actions",
+		"pk": 4,
+		"fields": {
+			"actionName": "Unlocking",
+			"actionDescription": "When an instructor enters some information for a particular activity"
+		}
+	},
+	{
+		"model": "Badges.Actions",
+		"pk": 5,
+		"fields": {
+			"actionName": "Setting a value",
+			"actionDescription": "when certain period of time passes after starting an event"
+		}
+	},
+	{
+		"model": "Badges.Actions",
+		"pk": 6,
+		"fields": {
+			"actionName": "Adding skill points to skills",
+			"actionDescription": "When the value of a particular variable in a particular challenge is changed"
+		}
+	}
+]

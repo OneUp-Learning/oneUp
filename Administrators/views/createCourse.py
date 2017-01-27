@@ -1,0 +1,89 @@
+from django.template import RequestContext
+from django.shortcuts import render, redirect
+
+from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges
+from Badges.models import CourseConfigParams
+
+from django.contrib.auth.decorators import login_required
+from datetime import datetime
+
+from Instructors.constants import unassigned_problems_challenge_name
+from django.contrib.auth.models import User
+
+@login_required
+def courseCreateView(request):
+    
+        context_dict = { }
+        context_dict["logged_in"]=request.user.is_authenticated()
+        if request.user.is_authenticated():
+            user = request.user
+        context_dict["username"]=user.username
+                
+        # Add users who are instructors to the instructors list (AH)
+        instructors = []
+        users = User.objects.all()
+        for u in users:
+             if u.groups.filter(name='Teachers').exists():
+                 instructors.append(u)
+
+        context_dict['instructors'] = instructors
+        
+        # Get all courses (AH)
+        courses = Courses.objects.all()
+        print("Courses:", courses)
+        course_ID = []
+        course_Name = []
+        for c in courses:
+            course_ID.append(c.courseID)
+            course_Name.append(c.courseName)
+        
+        context_dict['courses'] = zip(range(1, len(courses)+1), course_ID, course_Name)
+            
+        if request.method=='GET':
+            return render(request,'Administrators/createCourse.html',context_dict) 
+        else: # Method is POST
+            name = request.POST['name']
+            description = request.POST['description']
+            instructor_username = request.POST['instructor_username']
+            
+            course = Courses()
+            course.courseName = name
+            course.courseDescription = description
+            course.save()
+            
+            instructor = User.objects.get(username=instructor_username)
+            
+            irc = InstructorRegisteredCourses()
+            irc.instructorID = instructor
+            irc.courseID = course
+            irc.save()
+            
+            ccp = CourseConfigParams()
+            ccp.courseID = course
+            if 'course_start_date' in request.POST and request.POST['course_start_date']:
+                if(request.POST['course_start_date'] == ""):
+                    ccp.courseStartDate = (datetime.strptime("2999/12/31","%Y-%m-%d"))
+                else:
+                    ccp.courseStartDate = datetime.strptime(request.POST['course_start_date'], "%m/%d/%Y %I:%M:%S %p")
+                    print(ccp.courseStartDate)
+
+                print(request.POST['course_start_date'])
+                #ccp.courseStartDate = datetime(request.POST['course_start_date'])
+            if 'course_end_date' in request.POST and request.POST['course_end_date']:
+                if(request.POST['course_end_date'] == ""):
+                    ccp.courseEndDate = (datetime.strptime("2999/12/31","%Y-%m-%d"))
+                else:
+                    ccp.courseEndDate = datetime.strptime(request.POST['course_end_date'], "%m/%d/%Y %I:%M:%S %p")
+                    print(ccp.courseEndDate)
+                #ccp.courseStartDate = datetime(request.POST['course_end_date'])
+            ccp.save()
+            
+            unassigned_problem_challenge = Challenges()
+            unassigned_problem_challenge.challengeName = unassigned_problems_challenge_name
+            unassigned_problem_challenge.courseID = course
+            unassigned_problem_challenge.numberAttempts = 0
+            unassigned_problem_challenge.timeLimit = 0
+            unassigned_problem_challenge.save()
+            
+            return render(request,'Administrators/createCourse.html',context_dict)
+            

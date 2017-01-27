@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+         {% include 'scripts.html' %}
+      
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+     <div>
+
+         {% include 'heading.html' %}
+ 
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+         	<div class="12u">
+               <h1>Skills</h1>
+               <br />
+                  <!-- INSERTED DYNAMIC TABLE --> 
+                  <a href="/oneUp/instructors/skillsCreate"><input type="button" value="Add New Skill"></a>
+                  <br /><br />
+                  <table class="bg">
+                     <tr>
+                        <th>Skill Name</th>
+                        <th> </th>
+                     </tr>
+                     {% for i,skill_ID,skill_Name in skill_range %}
+                     <tr>
+                        <div id="skills{{i}}">
+                           <td>{{skill_Name}}</td>
+                           <td align="right">
+                              <form action="/oneUp/instructors/deleteSkill " method="POST">
+                                 {% csrf_token %}                                                                        
+                                 <input type="hidden" name="skillID" value="{{skill_ID}}">                           
+                                 <a href="/oneUp/instructors/skillsCreate?skillID={{skill_ID}}"><input type="button" value="Edit"></a>
+                                 <input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
+                              </form>
+                           </td>
+                        </div>
+                     </tr>
+                     {% endfor %}
+                  </table>
+                  <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+      
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

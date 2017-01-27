@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+        
+        {% include 'scripts.html' %}
+        
+      </head>
+      <body>
+      	<div id="page-wrapper">
+
+          {% include 'stheading0.html' %}
+
+          <div class="frame" id="grad" align="center">
+         <div class="container">
+ 			<!-- This row below is used to give the space between this and the nav bar -->        
+         	<div class="row">
+                  <div class="12u">
+                     
+
+                  </div>
+               </div>
+         <div class="row">
+         		<div class="6u 12u(mobile)" >
+         			<table class="bg" id="bglinks">
+         				<th>Latest Announcements</th>
+         				<th> </th>
+         				<th> </th>
+							{% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
+		                     <tr>
+		                        <div id={{announcement_ID}}>
+		                           	<td align="right" style="padding: .25em 1em .7em 0em">{{announcement_course}}: </td>
+		                           	<td align="left">{{subject}}</td>
+                    				<td align="right">{{start_timestamp}}</td>
+		                           <!-- td style="padding:.25em 0em .35em 0em">{{skill_Name}}</td  -->
+		                        </div>
+		                     </tr>
+                     		{% endfor %}
+         			</table>
+         		</div>
+         		<div class="6u 12u(mobile)">
+           			<table class="bg" id="bglinks">
+            			<th>Your Courses</th>
+            			<th> </th> <!-- This is needed to fill in the th above the buttons -->
+               				{% for i,course_ID,course_Name in course_range %}
+               			<tr>
+            			<td style="padding-top:0em">{{course_Name}}</td>
+               			<td align="left" style="padding:.25em 0em .5em 0em"><form action="/oneUp/setCourse" method="POST">
+                       	 {% csrf_token %}                                                                        
+                        	<input type="hidden" name="courseID" value="{{course_ID}}">
+                       	 <input type="submit" name="submit" value="Select">                           
+                     	</form></td>
+            			</tr>
+               				{% endfor %}
+         			</table>
+            	</div>
+         	</div>
+         </div>
+         </div>
+         <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+      </body>
+   </html>

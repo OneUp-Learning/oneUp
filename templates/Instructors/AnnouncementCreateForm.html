@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+       <meta charset="utf-8">
+      
+             {% include 'scripts.html' %}
+               
+      <!--[if lt IE 7]>
+      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
+      <script type="text/javascript" src="/static/js/ie_png.js"></script>
+      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
+      <![endif]-->
+      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
+      <!-- SCRIPTS/STYLESHEETS FOR THE DATE-TIME PICKER -->
+<!--     https://tarruda.github.io/bootstrap-datetimepicker/ -->
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="screen" href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">  
+    <link rel="stylesheet" href="/static/assets/css/main.css" />
+    <link rel="icon" type="image/x-icon" href="../../static/images/lightbulb-o.ico"/>
+    <script type="text/javascript">
+      $(function() {
+        $('#datetimepicker2').datetimepicker({
+          language: 'en',
+          pick12HourFormat: true
+        });
+      });
+    </script> 
+    <script type="text/javascript"
+     src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+    </script> 
+    <script type="text/javascript"
+     src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js">
+    </script>
+    <script type="text/javascript"
+     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">
+    </script>
+    <script type="text/javascript"
+     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
+    </script>
+    <script type="text/javascript">
+      $('#datetimepicker').datetimepicker({
+        format: 'dd/MM/yyyy hh:mm:ss',
+        language: 'pt-BR'
+      });
+    </script>
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }            
+         }
+      </script>
+   </head>
+   <body>
+      <div>
+      
+         {% include 'heading.html' %}
+  
+         <!-- START PAGE SOURCE -->
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+            <h1>Create Announcement</h1>
+			<p><span>*</span> Denotes Required Fields.</p>
+            <!-- INSERTED DYNAMIC TABLE -->
+            <form name="announcement" action="/oneUp/instructors/announcementCreate" method="POST">
+            {% csrf_token %}
+            {% if announcementID %}
+                <input type="hidden" name="announcementID" id="announcementID" value="{{announcementID}}">
+            {% endif %}
+            <table class="bg">
+                <tr>
+                    <td>Announcement Subject <span>*</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input style="font-size: 100%"id="mediumFormBox" type="text" name="subject" maxlength="25" value="{{subject}}" required></input>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Announcement Message <span>*</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea style="border: solid 1px rgba(128, 128, 128, 0.5);" name="message" rows="4" maxlength="300" required>{{message}}</textarea>
+                    	<p style="font-size:.8em">(Max of 300 characters)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Announcement Expiration</td>
+                </tr>
+                <tr>
+                    <td>
+                    	<div class="well">
+                    	<div id="datetimepicker2" class="input-append">
+                        	{% if endTimestamp != "12/31/2999 11:59:59 PM" %}
+                                <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                            {% else %}
+                                <input id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value=""></input>
+                            {% endif %}
+                            <span class="add-on" style="height:2.75em; line-height:2em">
+                            	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                            </span>
+                        </div> 
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <input type="submit" name="submit" value="Submit" class="button">
+            <a href="/oneUp/instructors/announcementList"><button type="button" class="button special" value="Reset">Cancel</button></a>
+            </form>
+            <br>
+            <!-- END DYNAMIC TABLE -->
+         </div></div></div>
+         </div>
+         <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

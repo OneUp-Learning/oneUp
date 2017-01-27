@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+   {% include 'scripts.html' %}
+   
+</head>
+<body>
+	<div id="page-wrapper">
+
+         {% include 'stheading.html' %}
+   
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Course Badges</h1>
+		</div>
+		</div>
+       <!-- INSERTED DYNAMIC TABLE --> 
+        <div class="row">
+        <div class="12u"> 
+            <br />
+            <table class="bg">
+        		<tr>
+        			<th>Name</th>
+        			<th>Badge</th>
+        			<th>Badge Description</th>
+        		</tr>
+        		{% for i,badgeId,badgeName,badgeImage,badgeDescription in badgesInfo %}
+        		<tr> 
+        			<td style="vertical-align:middle">{{badgeName}}</td>
+        			<td><img src="/static/images/badges/{{badgeImage}}" alt="Badge Image" width="76px" height="76px"/></td>				
+        			<td style="vertical-align:middle">{{badgeDescription}}
+        			{% csrf_token %} </td>
+        		</tr>
+        		{% endfor %}
+        	</table>
+        <!-- END DYNAMIC TABLE -->
+		</div>
+        </div>
+        </div>
+      	</div>
+	<!-- Footer -->
+
+      {% include 'footer.html' %}
+
+	</div>
+	<script type="text/javascript">	Cufon.now(); </script>
+</body>
+</html>

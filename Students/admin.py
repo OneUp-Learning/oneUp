@@ -1,0 +1,18 @@
+from django.contrib import admin
+
+# Register your models here.
+from Students.models import Student, StudentRegisteredCourses, StudentChallenges, StudentChallengeQuestions, StudentBadges
+from Students.models import StudentChallengeAnswers, MatchShuffledAnswers, StudentCourseSkills
+from Students.models import StudentEventLog,StudentConfigParams,Leaderboards
+
+admin.site.register(Student)
+admin.site.register(StudentChallenges)
+admin.site.register(StudentBadges)
+admin.site.register(StudentChallengeQuestions)
+admin.site.register(StudentChallengeAnswers)
+admin.site.register(MatchShuffledAnswers)
+admin.site.register(StudentCourseSkills)
+admin.site.register(StudentEventLog)
+admin.site.register(StudentRegisteredCourses)
+admin.site.register(StudentConfigParams)
+admin.site.register(Leaderboards)

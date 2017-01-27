@@ -1,0 +1,21 @@
+
+# The database
+db.sqlite3
+
+# Pycache are temporary files generated in python compilation.
+# They should not go into version control
+**/__pycache__
+
+# SVN Stuff
+**/svn-commit.tmp~
+**/svn-commit.tmp
+.svn/*
+
+# Emacs backups
+**/*~
+
+# Eclipse configuration files.
+.project
+.pydevproject
+.settings/*
+

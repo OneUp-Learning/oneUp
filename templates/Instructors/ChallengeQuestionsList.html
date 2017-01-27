@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      
+        {% include 'scripts.html' %}
+      
+      <!--[if lt IE 7]>
+      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
+      <script type="text/javascript" src="/static/js/ie_png.js"></script>
+      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
+      <![endif]-->
+      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+   </head>
+   
+   <body>
+      <div id="page-wrapper">
+
+         {% include 'heading.html' %}
+  
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+         	<div class="12u">
+            {% if unassign %}  
+     			<h1>{{challengeName}}</h1>
+     		{% else %}
+     			<h1>Problems for <span>{{challengeName}}</span></h1>
+     		{% endif %}
+               <br /> 
+<!-- INSERTED PAGE CONTENT -->
+     	<div id="element2"> 
+     	<form name="menuform">
+        	{% if challenge %} 
+            <select name="menu1" style="background:rgba(255,255,255,.75); width:230px" required>
+            	<option value="" disabled selected>Select Problem Type</option>
+                <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False</option>
+                <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
+                <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
+                <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
+                <option value="/oneUp/instructors/forms/EssayForm?challengeID={{challengeID}}">Essay</option>
+        	</select>
+            {%else%} 
+            <select name="menu1" style="background:rgba(255,255,255,.75); width:230px" required>
+            	<option value="" disabled selected>Select Problem Type</option>
+                <option value="/oneUp/instructors/forms/TrueFalseForm">True/False</option>
+                <option value="/oneUp/instructors/forms/MultipleChoiceForm">Multiple Choice</option>
+                <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
+                <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
+                <option value="/oneUp/instructors/forms/EssayForm">Essay</option>
+            </select>                           						
+    		{%endif%}
+   		</div>
+        <div id="element3"> <a><input type="button" name="Submit" value="Create Problem" 
+        	onClick="top.location.href = this.form.menu1.options[this.form.menu1.selectedIndex].value;
+            return false;"></a> 
+        </form>
+        </div>
+        {% if unassign != 1%} 
+		<div style="text-align:left;padding-bottom:.5em">
+		<a href="/oneUp/instructors/search?challengeID={{challengeID}}">
+        <input type="button" value="Filter Problems"></a>
+        </div>
+        {% else %}<br><br>
+        {% endif %}
+        <table class="bg">
+		<tr>
+                <th>Problem Name</th>
+                <th>Problem Type</th>
+                <th></th>
+            </tr>
+    		{% for i,q_ID,q_preview,q_type,q_type_name,q_difficulty in question_range %}
+    		<tr> 		
+    				<td> {{q_preview}}</td>
+    				<td> {{q_type_name}}</td>
+    				<td align="right">	
+    					<form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
+    						{% csrf_token %} 				
+    				
+    						{% if q_type == 1 %}
+    						<a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}"><button type="button">Edit</button></a>
+    						{%endif%}				
+    						{% if q_type == 2 %}
+    						<a href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
+    						{%endif%}	
+    						{% if q_type == 3 %}
+    						<a href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
+    						{%endif%}								
+    						{% if q_type == 4 %}
+    						<a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
+    						{%endif%}
+    						{% if q_type == 5 %}
+    						<a href="/oneUp/instructors/forms/EssayForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
+    						{%endif%}
+
+    						{% if challenge %}    						
+    						<input type="hidden" name="challengeID" value="{{challengeID}}">
+    						{%endif%}
+    																	    
+    						<input type="hidden" name="questionId" value="{{q_ID}}">
+    						<input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
+     					</form>
+    				</td>								
+    		</tr>				
+    		{% endfor %}
+    	</table>
+    	{% if warmUp %}
+            <a href="/oneUp/instructors/challengesList?warmUp">
+        	<input type="button" value="Back" class="button"></a>
+        {% elif serious %}
+        	<a href="/oneUp/instructors/challengesList">
+            <input type="button" value="Back" class="button"></a>
+        {% elif unassign %}
+            <!-- (display nothing) this "elif" can be left out, but it was kept for clarity -->
+        {% endif %}
+        
+		<!-- END INSERTED PAGE CONTENT -->
+         </div></div></div></div>
+         </div>
+         <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

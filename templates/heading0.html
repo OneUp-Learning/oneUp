@@ -1,0 +1,40 @@
+                  <header>
+            <nav class="Navigation">
+               <div class="Nav_Top">
+                  <ul class="nav_top_level">
+                     <a class="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
+                     <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
+                     <li class="nav_top_level_items">
+                        <a href="/oneUp/home.html">Home</a>
+                     </li>
+                     <li class="nav_top_level_items">
+                        <a href="/oneUp/aboutUs">About OneUp</a>
+                     </li>
+                     <li class="nav_top_level_items">
+                        <a href="/oneUp/sitemap">Resources</a>
+                     </li>
+                     <li class="nav_top_level_items">
+                        <a href="/oneUp/contact-us">Contact Us</a>
+                     </li>
+                  </ul>
+               </div>
+               <div class="Nav_Bottom">
+                  {% if logged_in %}
+                  <!--   <p>Home</p> -->
+                  <ul class="nav_login">
+                     <li class="nav_login_items">
+                        <a href="#">Welcome, {{username}}   <i class="fa fa-chevron-down"></i></a>
+                        <ul class="nav_login_second_level">
+                           <li class="nav_login_second_level_items">
+                              <a href="/oneUp/administrators/courses">Change Course</a>
+                           </li>
+                           <li class="nav_login_second_level_items">
+                              <a href="/oneUp/students/Logout">Logout</a>
+                           </li>
+                        </ul>
+                     </li>
+                  </ul>
+                  {% endif %}
+               </div>
+            </nav>
+         </header>

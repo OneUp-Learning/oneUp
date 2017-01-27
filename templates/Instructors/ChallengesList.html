@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+         {% include 'scripts.html' %}
+      
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   
+   <body>
+     <div>
+
+        {% include 'heading.html' %}
+            
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+         	<div class="12u">
+               {% if warmUp %}
+               <h1>Warm Up <span>Challenges</span></h1>
+               {% else %}
+               <h1>Serious <span>Challenges</span></h1>
+               {% endif %}
+               <br />
+                  <!-- INSERTED DYNAMIC TABLE -->  
+                  {% if warmUp %}      
+                  <a href="/oneUp/instructors/challengeCreate?warmUp"><input type="button" value="Add New Warm Up Challenge"></a>
+                  {% else %}
+                  <a href="/oneUp/instructors/challengeCreate"><input type="button" value="Add New Challenge"></a>
+                  {% endif %}
+                  <br /><br />
+                  <table class="bg">
+                     <tr>
+                        <th>Name</th>
+                        <th>Difficulty</th>
+                        <th>Status</th>
+                        <th>Display From</th>
+                        <th>Display Until</th>
+                        <th></th>
+                     </tr>
+                     {% for i,chall_ID,chall_Name, chall_Difficulty, chall_visible,start_Timestamp,end_Timestamp in challenge_range %}
+                     <tr>
+                        <div id="challenges{{i}}">
+                           <td>{{chall_Name}}</td>
+                           <td>{{chall_Difficulty}}</td>
+                           <td>{{chall_visible}}</td>
+                           <td>{{start_Timestamp}}</td>
+                           <td>{{end_Timestamp}}</td>
+                           <td align="right">
+                           {% if warmUp %}
+                              <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
+                              {% csrf_token %} 
+                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><button type="button">View</button></a>                 
+                                 <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><button type="button">Edit</button></a> 
+                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a>                             
+                           {% else %}
+                              <form action="/oneUp/instructors/deleteChallenge" method="POST">
+                              {% csrf_token %} 
+                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view"><button type="button">View</button></a> 
+                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}"><button type="button">Edit</button></a>
+                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a>                                              
+                           {% endif %}                                 
+                                 <input type="hidden" name="challengeID" value="{{chall_ID}}">
+                                 <input id="smallButton" type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                              </form>
+                           </td>
+                        </div>
+                     </tr>
+                     {% endfor %}
+                  </table>
+                  <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

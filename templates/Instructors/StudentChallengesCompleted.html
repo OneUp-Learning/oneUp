@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+        {% include 'scripts.html' %}
+      
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+     <div>
+
+         {% include 'heading.html' %}
+ 
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+         	<div class="12u">
+               {% for first_Name,last_Name in user_name %}
+               {%  if not page  %}
+               <h1>{{first_Name}} {{last_Name}}'s <span>Completed Challenges</span></h1>
+               {%  elif page  == '3'  %}
+               <h1>{{first_Name}} {{last_Name}}'s <span>Completed Challenges</span></h1>
+               {%  else  %}
+               <h1>{{first_Name}} {{last_Name}}'s <span>Warm Up Challenges</span></h1>
+               {% endif %}
+               {% endfor %}
+               <br />
+                  <!-- INSERTED DYNAMIC TABLE -->  
+               <table class="bg">
+                        <th>Name</th>
+                        <th>Difficulty</th>
+                        <th>Time Taken</th>
+                        <th>Score </th>
+                        <th>Total</th>
+                        <th></th>
+                     </tr>
+                     {% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in challenge_range %}
+                     <tr>
+                        <td>{{chall_Name}}</td>
+                        <td>{{chall_Difficulty}}</td>
+                        <td>{{dateTaken}}</td>
+                        <td>{{score}}</td>
+                        <td>{{total}}</td>
+                        <td align="center">
+                           {% csrf_token %} 
+                           <div>
+                              {%  if page %}
+                              <a href="/oneUp/instructors/studentGradedChallenge?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{userID}}&page={{page}}">
+                              <button class="button">View</button>
+                              {%  else  %}
+                              <a href="/oneUp/instructors/studentGradedChallenge?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{userID}}">
+                              <button class="button">View</button>
+                              {% endif %}
+                              </a>
+                           </div>
+                           <input type="hidden" name="studentChallengeID" value="{{studentChall_ID}}">
+                        </td>
+                     </tr>
+                     {% endfor %}
+                  </table>
+          
+                  {% if not page %}
+                  <a href="/oneUp/instructors/classAchievements"><button type="button" value="Reset">Back</button></a>
+                  {% elif page == '2'  %}
+                  <a href="/oneUp/instructors/studentTopics?userID={{userID}}&page={{page}}""><button type="button" value="Reset">Back</button></a>
+                  {% else %}
+                  <a href="/oneUp/instructors/studentAchievements"><button type="button" value="Reset">Back</button></a>
+                  {% endif %}
+                 
+               <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

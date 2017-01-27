@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+        {% include 'scripts.html' %}
+      
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+     <div>
+
+          {% include 'heading.html' %}
+   
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>Challenge: <span>{{chall_Name}}</span></h1>
+               <br />
+                  	<!-- INSERTED DYNAMIC TABLE -->  
+                  	<table class="bg">
+                    {% for i,question,user,match_shuffled,score,total in question_range %}
+                        <tr>
+						<div id="question{{i}}">
+                        	<td colspan="3"><font style="font-weight:600">{{i}}. {{question.preview}}</font></td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3">Your Answer:</td>
+                        	
+					{% if question.typeID == 1 %}
+                    <!-- multiple choice question -->
+                        <tr>
+                        	<td colspan="3">
+                        {% for j,answer in question.answers_with_count %}	
+                        <!-- use a for loop and display the answers in radio buttons -->
+                        	<input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}" {% for j in user %} {% ifequal answer.answerText|stringformat:"s" j|stringformat:"s" %}checked{% else %}disabled="disabled"{% endifequal %}{% endfor %}>{{answer.answerText}}<br>
+                        {% endfor %}</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3">Correct Answer:<br /> 
+                        {% for count,correct_answer in question.correct_answers %}
+                        <!-- use a for loop and display the answers in radio buttons -->
+                        	{{correct_answer.answerID.answerText}}<br>
+                        {% endfor %}</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td>
+                        </tr>
+					{% endif %}	
+					
+                    {% if question.typeID == 2 %}
+                    <!-- multiple answer question -->
+                        <tr>
+                        	<td colspan="3">
+                        {% for j,answer in question.answers_with_count %}
+                        <!-- use a for loop and display the answers in the check box -->
+                       		<input type="checkbox" name="{{question.questionID}}" value="{{answer.answerText}}"{% for user_answer in user %}{% ifequal answer.answerText|stringformat:"s" user_answer|stringformat:"s" %}checked{% endifequal %}{% endfor %}>{{answer.answerText}}<br />
+                        {% endfor %}</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3">Correct Answer(s):<br />
+                        {% for count,correct_answer in question.correct_answers %}
+                        	{{correct_answer.answerID.answerText}}<br>
+                        {% endfor %}</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td>
+                        </tr>
+                    {% endif %}	
+                    
+                    {% if question.typeID == 3 %}
+                    <!-- matching question -->
+                        <tr>
+                        	<td>
+                        {% for j,answer in question.answers_with_count %}
+                        <!-- use a for loop and display the answers in the matching form -->
+                        	{{j}} .&nbsp;{{answer.answerText}}<br />
+                        {% endfor %}</td>
+                        	<td>
+                        {% for user_match_answer in user %}
+                        	<input type="text" value={{user_match_answer}} style="width:3em; height:initial;display:initial" disabled="disabled"><br />
+                        {% endfor %}</td>
+                        	<td style="text-align: left;">
+                        {% for match in match_shuffled %}
+                        	{{match}}<br />	
+                        {% endfor %}</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3">Correct Answer:</td>
+                        </tr>
+                        <tr>
+                        	<td width="50%">
+                        {% for match_count,match_answer in question.match_with_count %}
+                        <!-- use a for loop and display the answers in the matching form-->
+                        	{{match_count}} . &nbsp{{match_answer.answerText}}<br />
+                        {% endfor %}</td>
+                        	<td colspan="2" style="text-align: left;">
+                        {% for match in question.matches %}
+                        	{{match.matchingAnswerText}}<br />	
+                        {% endfor %}</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td>
+                        </tr>
+                    {% endif %}
+                    
+                    {% if question.typeID == 4 %}
+                    <!-- true/false question -->
+                        <tr>
+                        	<td colspan="3"><input type="radio" name="{{question.questionID}}" value="True" {% for j in user %}{% ifequal j|stringformat:"s" "True" %}checked{% else %}disabled="disabled"{% endifequal %}{% endfor %}>True<br />
+                        <input type="radio" name="{{question.questionID}}" value="False" {% for j in user %}{% ifequal j|stringformat:"s" "False" %}checked{% else %}disabled="disabled"{% endifequal %}{% endfor %}>False</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3">Correct Answer:<br /> 
+                        {% for count,correct_answer in question.correct_answers %}
+                        	{{correct_answer.answerID.answerText}}
+                        {% endfor %}</td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td>
+                        </tr>
+                    {% endif %}
+                    
+                    {% if question.typeID == 5 %}
+                        <!-- Essay question -->
+                        <tr>
+                        	<td colspan="3"><textarea name="{{question.questionID}}" rows="10" cols="90" disabled="disabled">
+                        {% for j in user %} 
+                        	{{j}} 
+                        {% endfor %}</textarea></td>
+                        </tr>
+                        <tr>
+                        	<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td>
+                        </tr>
+                    {% endif %}
+                        <tr>
+                        	<td><input type="hidden" name="questionId" value="{{question.questionID}}"></td>
+                        </tr>
+                        </div> 
+                        <input type="hidden" name="challengeId" value="{{question.challengeID}}">		
+                    {% endfor %}
+                    </table>
+                     
+                     {% if not page %}
+                     <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&challengeID={{challengeID}}"><button type="button" value="Reset">Back</button></a>
+                     {%  elif page == '2'%}
+                     <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&challengeID={{challengeID}}&page={{page}}"><button type="button" value="Reset">Back</button></a>
+                     {% else %}
+                     <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&page={{page}}"><button type="button" value="Reset">Back</button></a>
+                     {% endif %}
+                     <!-- END DYNAMIC TABLE -->
+      <br><br>
+      </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

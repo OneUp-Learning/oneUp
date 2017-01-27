@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+      
+         {% include 'scripts.html' %}
+         
+      </head>
+      <body>
+      <div id="page-wrapper">
+
+          {% include 'stheading.html' %}
+
+            <div class="frame" id="grad" align="center">
+         	<div class="container">
+         	<div class="row">
+         	<div class="12u">
+         		 <h1>Challenges Completed</h1>
+         	</div></div>
+<!-- INSERTED DYNAMIC TABLE --> 
+        	<div class="row">
+         	<div class="12u">
+        	<table class="bg">
+        		<tr id="headerRow">
+        			<th>Name</th>
+        			<!-- <th>Difficulty<th>-->
+        			<th>Time Taken</th>
+        			<th>Your Score </th>
+        			<th>Max Score</th>
+        			<th></th>
+        		</tr>
+        		
+        		{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in challenge_range %}
+        		<tr class="{% cycle 'bgcolor1' 'bgcolor2' %}"> 			
+        			<td>{{chall_Name}}</td>
+        			<!--<td>{{chall_Difficulty}}</td>	-->
+        			<td>{{dateTaken}}</td>
+        			<td>{{score}}</td>
+        			<td>{{total}}</td>			
+        			<td align="center">
+        				{% csrf_token %} 
+        				<div>
+        				{% if warmUp %}
+                            <a href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&warmUp">
+                        {% else %}
+                        <a href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}">
+                        {% endif %}
+                                <button class="button">View</button>
+                            </a>
+                        </div>															
+        				<input type="hidden" name="studentChallengeID" value="{{studentChall_ID}}">
+        			</td> 
+        		</tr>				
+        		{% endfor %}
+        	</table>
+        	{% if warmUp %}
+			<a href="/oneUp/students/ChallengesWarmUpList"><button type="button" value="Reset">Back</button></a>
+			{% else %}
+			<a href="/oneUp/students/ChallengesList"><button type="button" value="Reset">Back</button></a>
+			{% endif %}
+			<br>
+        <!-- END DYNAMIC TABLE --> 
+         </div></div></div>
+            </div>
+         </div>
+         <!-- Footer -->
+
+        {% include 'footer.html' %}
+
+      <script type="text/javascript"> Cufon.now(); </script>
+      </body>
+   </html>

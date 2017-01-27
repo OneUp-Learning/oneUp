@@ -1,0 +1,65 @@
+[
+	{
+		"model": "Badges.SystemVariables",
+		"pk": 1,
+		"fields": {
+			"variableName": "Number of Attempts",
+			"variableDescription": "The total number of attempts that a student has given to a challenge",
+			"readOnlyIndicator": "True"
+		}
+	},
+	{
+		"model": "Badges.SystemVariables",
+		"pk": 2,
+		"fields": {
+			"variableName": "Test Score",
+			"variableDescription": "The average of the test scores of all the student's attempts for a particular challenge",
+			"readOnlyIndicator": "True"
+		}
+	},
+	{
+		"model": "Badges.SystemVariables",
+		"pk": 3,
+		"fields": {
+			"variableName": "Percentage of correct answers",
+			"variableDescription": "The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge",
+			"readOnlyIndicator": "True"
+		}
+	},
+	{
+		"model": "Badges.SystemVariables",
+		"pk": 4,
+		"fields": {
+			"variableName": "Maximum of Test Scores",
+			"variableDescription": "The maximum of the test scores of all the student's attempts for a particular challenge",
+			"readOnlyIndicator": "True"
+		}
+	},
+	{
+		"model": "Badges.SystemVariables",
+		"pk": 5,
+		"fields": {
+			"variableName": "Minimum of Test Scores",
+			"variableDescription": "The minimum of the test scores of all the student's attempts for a particular challenge",
+			"readOnlyIndicator": "True"
+		}
+	},
+	{
+		"model": "Badges.SystemVariables",
+		"pk": 6,
+		"fields": {
+			"variableName": "Date of First Attempt",
+			"variableDescription": "The date on which the student has attempted a particular challenge for the first time.",
+			"readOnlyIndicator": "True"
+		}
+	},
+	{
+		"model": "Badges.SystemVariables",
+		"pk": 7,
+		"fields": {
+			"variableName": "Time Taken to Submit a Challenge",
+			"variableDescription": "The time taken for a student to attempt and submit a particular challenge",
+			"readOnlyIndicator": "True"
+		}
+	}
+]

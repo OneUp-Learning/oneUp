@@ -1,0 +1,74 @@
+Admin interface: http://127.0.0.1:8000/admin/ 
+
+New index page: http://127.0.0.1:8000/oneUp/home.html  
+
+http://127.0.0.1:8000/oneUp/administrators/createCourse 
+
+Call Chains:
+-------------
+GET /oneUp/instructors/challengesList  --> Click 'New'   -> GET /oneUp/instructors/challengeCreate (challengeCreateView)
+
+View 'challengeCreateView' -->  return render_to_response('Instructors/TestCreateForm.html', context_dict)
+
+Form Instructors/ChallengeCreateForm.html  --> Next - POST /oneUp/instructors/challengeSaveView 
+
+View '/oneUp/instructors/challengeSaveView'  -->  return render_to_response('Instructors/ChallengeAddQuestions.html', context_dict)
+
+Form ChallengeAddQuestions.html --> Next --> POST /oneUp/instructors/challengeAddQuestions 
+
+View 'challengeAddQuestionsView' -->  return render_to_response('Instructors/ChallengeReuseQuestions.html', context_dict)
+
+Form ChallengeReuseQuestions.html  -->  Submit -> 
+
+	<hr>   
+	<table>
+		<tr>
+			<td align="right">
+				<a href="/oneUp/instructors/testSetup?challengeID={{chall_ID}}"><button type="button">Save and Create Questions</button></a>																		
+				<input type="hidden" name="challengeID" value="{{chall_ID}}">
+				<input type="submit" name="submit" value="Save and Reuse Questions" class="button">
+			</form>	
+			</td>
+		</tr>
+	</table>	
+
+	TestQuestionView -> challengeSaveView
+	challengeReuseQuestions -> challengeAddQuestions
+	TestQuestionsForm.html -> ChallengeReuseQuestions	    public void removeDuplicates() {
+
+	    	private Node firstNodeChain2 = null; 
+	    	private int numberOfEntriesChain2 = 0;
+	    	
+	    	
+	    	
+	    	 Node currentNode = firstNode;
+	    	 boolean isDuplicate;
+	    	 while(currentNode != null)
+	    	 {
+	    		 while(currentNode2 != null&& !isDuplicate)
+	    		 {
+	    			 if(currentNode2.data.equals(currentNode.data))
+	    			 { 
+	    				 isDuplicate = true; 
+	    			 }
+	    			 else
+	    				  // add to beginning of chain:
+	    			        Node newNode2 = new Node();
+	    			        newNode2.next = firstNodeChain2; // make new node reference rest of chain
+	    			        // (firstNode is null if chain is empty)
+	    			        firstNodeChain2 = newNode2; // new node is at beginning of chain
+	    			        numberOfEntriesChain2++;
+	    			        return false;
+	    		 }
+	    		 currentNode = currentNode.next;
+	    	 }
+
+	    }  // end removeDuplicates
+	  
+	}
+
+}privaterm.html -> ChallengeCreateForm
+	testSetup -> challengeCreate
+	testQuestionsProcessing -> challengeSaveSelectedQuestions
+	tQuestionsProcess -> 
+	

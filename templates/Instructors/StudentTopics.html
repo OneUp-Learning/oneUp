@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+        {% include 'scripts.html' %}
+      
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+     <div>
+
+          {% include 'heading.html' %}
+   
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>{{name}}'s <span>Challenges</span></h1>
+            </div></div>
+            <div class="row">
+            <div class=12u>
+                  <!-- INSERTED DYNAMIC TABLE -->  
+               <div align="left">
+               <font color="#0000FF ">&#9724; </font><font style="font-size:.9em;font-weight:500;line-height:0">Above Average</font><br>
+               <font color="#00ace6 ">&#9724; </font><font style="font-size:.9em;font-weight:500;line-height:0">Average</font><br>
+               <font color="#80dfff ">&#9724; </font><font style="font-size:.9em;font-weight:500;line-height:0">Below Average</font><br>
+               <font color="#FFFF00 ">&#9724; </font><font style="font-size:.9em;font-weight:500;line-height:0">Not attempted</font><br>
+               </div>
+               <table class="bg">
+                  <tr>
+                     <th>Topic</th>
+                     <th></th>
+                     <td> <br /></td>
+                  </tr>
+                  {% for i,topic_ID,topic_Name, all_challenges in topic_range %}
+                  <tr>
+                     <input type="hidden" name="topicID" value="{{topic_ID}}">
+                     <td>
+                        {{topic_Name}}
+                        {% for challenge_Name,challenge_ID,score in all_challenges %}
+                        <input type="hidden" name="score" value="{{score}}">
+                        <br>
+                        {% if score == 1 %} <!-- If is empty -->
+                        **No Challenge has been assign**
+                        
+                        {% elif score == 2 %}  <!-- If score have not been taken -->
+                        <font color="FFFF00 ">&#9724;</font> 
+                        {{challenge_Name}}
+                        
+                        {% elif score == 3 %} <!-- If score equals Above Average -->
+                        <font color="#0000FF "> &#9724;</font>
+                        <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&challengeID={{challenge_ID}}&page={{page}}" >
+                        <font color="Black "> {{challenge_Name}}</font></a>
+                        
+                        {% elif score == 4 %} <!-- If score equals Average -->
+                        <font color="#00ace6 "> &#9724;</font>
+                        <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&challengeID={{challenge_ID}}&page={{page}}" >
+                        <font color="Black "> {{challenge_Name}}</font></a>
+                        
+                        {% else %} <!-- If score equals Below Average -->
+                        <font color="#FFFF00 "> &#9724;</font>
+                        <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&challengeID={{challenge_ID}}&page={{page}}" >
+                        <font color="Black "> {{challenge_Name}}</font></a>
+                        {% endif %}
+                        {% endfor %}	
+                     </td>
+                     <td></td>
+                     <td></td>
+                     {% csrf_token %} 
+                     </td>
+                  </tr>
+                  {% endfor %}
+               </table>
+               <a href="/oneUp/instructors/studentAchievements"><button type="button" value="Reset">Back</button></a>
+         <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

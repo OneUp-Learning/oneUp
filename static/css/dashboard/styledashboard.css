@@ -1,0 +1,142 @@
+
+header {
+    background-color:black;
+    color:white;
+    text-align:left;
+    padding:5px;
+    height:100px;	 
+}
+
+nav2 {
+    line-height:50px;    
+    height:40px;
+    width:40.2%;
+    float:left;
+    padding:5px;	      
+}
+nav3 {
+    line-height:30px;
+    background-color:white;
+    height:200px;
+    width:81%;
+    float:left;
+    padding:5px;	      
+}
+nav4 {
+        
+    height:40px;
+    width:40%;
+    float:left;
+    padding:5px;
+    	      
+}
+
+nav5 {
+    line-height:30px;
+    
+    height:150px;
+    width:81%;
+    float:left;
+    padding:5px;	      
+}
+nav6 {
+   
+    height:40px;
+    width:100%;
+    float:center;
+    padding:5px;	      
+}
+nav7 {
+    height:40px;
+    width:100%;
+    float:left;
+    padding:5px;	      
+}
+section{
+	line-height:30px;
+    width:1090px;
+    float:left;
+    padding:4px;
+    height:100px;	     	 
+}
+
+footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px;	 	 
+}
+.rcorners1 {
+    background-color: white;   
+    padding: 0px;
+    border: 1px;
+    margin: 0px;25px;
+    height: 10px;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 1.2em; 
+}
+.rcorners11 {
+    background-color: white;   
+    padding: 0px;
+    border: 1px solid navy;
+    margin: 0px;25px;
+    height: 20px;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 1.2em; 
+}
+.rcorners12 {
+    
+    padding: 0px;
+    border: 1px solid navy;
+    margin: 0px;25px;
+    height: 10px;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 1.2em; 
+}
+#rcorners2 {
+    border-radius: 25px;
+    background: #0080c0;
+    padding: 10px; 
+    height: 230px;
+    margin: 15px;
+}
+#rcorners3 {
+    border-radius: 25px;
+    background: white;
+    padding: 20px; 
+    height: 430px;
+}
+.rcorners4 {
+    
+    width: 300px;
+    padding: 3px;
+    border: 1px ;
+    margin: 25px;
+    height: 10px;
+    font-size:0.8em;
+}
+.rcorners5 {
+	line-height:30px;
+    border-radius: 0px;
+    border: 1px solid navy;
+    background: white;
+    padding: 1px; 
+    height: 280px;
+    margin:0px;
+    width:540px;
+    font-size:0.8em;
+}
+#rcorners6 {
+     background-color: white;
+    width: 300px;
+    padding: 0px;
+    margin:0px;
+}
+.rcorners7 {     
+    padding: 0px;    
+    margin: 0px;25px;
+    height: 10px;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 1.2em; 
+}

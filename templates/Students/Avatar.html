@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   {% include 'scripts.html' %}
+ 
+</head>
+<body>
+	<div id="page-wrapper">
+
+         {% include 'stheading.html' %}
+ 
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Avatar Selection </h1>
+		</div>
+		</div>
+		</br>
+		<form action="/oneUp/students/avatarView " method="POST">
+		{% csrf_token %}
+       <!-- INSERTED DYNAMIC TABLE --> 
+            <table class="bg">
+        		<!-- <p id="pics"></p>
+        		<scrpit>
+        		 	for(i=1; i=28; i++ ){
+        				if(i <= 9){ -->
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/1.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/1.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/2.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/2.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/3.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/3.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/4.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/4.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/5.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/5.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/6.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/6.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/8.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/8.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/9.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/9.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/10.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/10.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/11.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/11.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/12.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/12.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/13.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/13.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/14.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/14.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/15.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/15.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/16.gif"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/16.gif" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/17.gif"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/17.gif" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/18.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/18.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/19.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/19.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/20.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/20.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/21.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/21.jpg"name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/22.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/22.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/23.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/23.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/24.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox"value="/static/images/avatars/24.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/25.png"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/25.png" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/26.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/26.jpg" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/27.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/27.jpg"name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<tr>
+        					<td><img alt="Avatar Image" width="76px" height="76px" src="/static/images/avatars/28.jpg"></td>
+        					<td style="vertical-align:middle"><input type="checkbox" value="/static/images/avatars/28.jpg"name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+        				</tr>
+        				<!--  }
+        			}
+        		</scrpit> -->
+        	</table>
+        	 <input type="submit" name="submit" value="Save" class="button"> <!-- Make sure that this acutally saves the inforamtion selected --> 
+        	 <a href="/oneUp/students/StudentCourseHome"><input type="button" class="special" value="Cancel"></a> 
+            <br><br>
+        <!-- END DYNAMIC TABLE -->
+        </form>
+		</div>
+        </div>
+        </div>
+      	</div>
+	<!-- Footer -->
+
+     {% include 'footer.html' %}
+
+	</div>
+	<script type="text/javascript">
+		Cufon.now();
+	</script>
+</body>
+</html>

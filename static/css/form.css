@@ -1,0 +1,68 @@
+    table
+    {
+     width:100%;
+     border-collapse:separate;
+     /*border-spacing:0 10px; */
+    }
+    form table tr{
+        height:40px;
+    }
+    
+    
+    
+    /* FOR TITLE ROWS */
+    
+    .bgcolor2
+    { 
+     background:-webkit-linear-gradient(#008CC4, #1F6FB9);
+     color: #FFFFFF;
+     height:40px;
+    }
+    .bgcolor2 span{
+        color: red;
+        font-weight: bolder;                    /* for the required asterisk */
+    }
+    .bgcolor2 td{
+        padding-left:10px;
+        vertical-align: middle;
+    }
+    
+    
+    
+    
+    /* FOR ROWS WITH INPUT FIELDS */
+    
+    .otherRow td{
+        padding-top:15px;
+        padding-bottom:15px;
+    }
+     
+     
+    /* FOR SUBMIT/CANCEL BUTTONS */
+     
+    .button 
+    {
+        /*color:#fff;
+        text-decoration:none;
+        background:-webkit-linear-gradient(#008CC4, #1F6FB9);
+        padding:3px 11px 0 11px;                                        OLD STYLE
+        height:25px;
+        border: 0; 
+        width:120px; */
+        
+        color:#fff;
+        border:1px solid #26b6e8;
+        text-decoration:none;
+        background-color:#006caa;
+        padding:10px;
+        width:120px;
+    }
+    .button:hover 
+    {
+        /* background-color:#47b6e5; */
+        border-color:#fff;
+        font-weight:bold;
+    }
+    .inputField{
+        width:300px;
+    }

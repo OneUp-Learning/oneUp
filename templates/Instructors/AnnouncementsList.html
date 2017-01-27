@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      
+         {% include 'scripts.html' %}
+         
+      <!--[if lt IE 7]>
+      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
+      <script type="text/javascript" src="/static/js/ie_png.js"></script>
+      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
+      <![endif]-->
+      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+   </head>
+   <body>
+      <div>
+
+         {% include 'heading.html' %}
+  
+         <!-- START PAGE SOURCE -->
+         <div class="frame" id="grad" align="center">
+			<div class="container">
+			<div class="row">
+            <div class="12u">  
+            <h1>Class Announcements</h1>
+            </div></div>
+            <div class="row">
+            <div class="12u">
+            <!-- INSERTED DYNAMIC TABLE -->
+            <a href="/oneUp/instructors/announcementCreateView">
+            	<input type="button" value="Create Announcement"></a>
+            <br /> 
+            <br />
+            <table class="bg">
+           		<tr>
+                	<th>Announcement</th>
+                    <th>Instructor</th>
+                    <th>Post Date</th>
+                    <th> </th>
+                </tr>
+                {% for i,announcement_ID,author_ID,start_Timestamp, end_Timestamp, subject, message in announcement_range %}
+                <tr>
+                    <div id="challenges{{i}}">
+                    <td>{{message}}</td>
+                    <td>{{author_ID}}</td>
+                    <td>{{start_Timestamp}}</td>
+                    <td align="right">
+                    	<form action="/oneUp/instructors/deleteAnnouncement" method="POST">
+                {% csrf_token %} 
+                        	<a href="/oneUp/instructors/announcementCreate?announcementID={{announcement_ID}}">
+                            	<button type="button">Edit</button></a>                                                                       
+                            <input type="hidden" name="announcementID" value="{{announcement_ID}}">
+                            <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                    	</form>
+                    </td>
+                    </div>
+                 </tr>
+                {% endfor %}
+            </table>
+         	<!-- END DYNAMIC TABLE -->
+         </div></div></div>
+         </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

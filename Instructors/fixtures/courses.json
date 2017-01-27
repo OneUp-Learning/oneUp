@@ -1,0 +1,36 @@
+[
+	{
+		"model": "Instructors.Courses",
+		"pk": 1,
+		"fields": {
+			"courseName": "Database Management Systems"
+		}
+	},
+	{
+		"model": "Instructors.Courses",
+		"pk": 2,
+		"fields": {
+			"courseName": "Data Structures"
+		}
+	},
+	{
+        "model": "Instructors.CourseConfigParams",
+        "pk": 1,
+        "fields": {
+            "courseID": "1",
+            "courseBucks":"0",
+            "isClassAverageDisplayed":"True",
+            "areBadgesDisplayed":"True"
+        }
+    },
+    {
+        "model": "Instructors.CourseConfigParams",
+        "pk": 2,
+        "fields": {
+            "courseID": "2",
+            "courseBucks":"0",
+            "isClassAverageDisplayed":"True",
+            "areBadgesDisplayed":"True"
+        }
+    }
+]

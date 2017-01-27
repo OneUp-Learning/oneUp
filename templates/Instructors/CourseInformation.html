@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+
+   {% include 'scripts.html' %}
+ 
+</head>
+
+<body>
+	<div>
+
+       {% include 'heading.html' %}
+
+		<div class="frame" id="grad" align="center">
+			<!-- Body -->
+			<div class="container">
+				<div class="row">
+					<div class="12u">
+
+						<br>
+						<h1>
+							<span>{{course_Name}} Course Description</span>
+						</h1>
+						<br>
+
+						<!-- Main body to be added -->
+						<table class="bg">
+							<tr>
+								<td style="padding-bottom:40px;padding-left:25px;" >
+									<form name="coursedescr"
+										action="/oneUp/instructors/courseInformation" method="POST">
+										{% csrf_token %} <br />
+
+										<textarea style="margin-bottom: 0" id="mediumFormBox"
+											name="courseDescr" value="course_Description">{{course_Description}}</textarea>
+								</td>
+							</tr>
+							</table>
+										<input type="submit" name="submit" value="Save" class="button" />
+										<a href="/oneUp/instructors/instructorCourseHome"><input
+											type="button" value="Cancel" /></a>
+									
+						</form>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Footer -->
+
+     {% include 'footer.html' %}
+
+	</div>
+	<script type="text/javascript">
+		Cufon.now();
+	</script>
+</body>
+</html>

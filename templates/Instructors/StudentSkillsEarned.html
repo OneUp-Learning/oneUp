@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+         {% include 'scripts.html' %}
+      
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+     <div>
+
+         {% include 'heading.html' %}
+ 
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>{{name}}'s <span>Skills</span></h1>
+               <br />
+                  <!-- INSERTED DYNAMIC TABLE -->  
+        <table class="bg">	
+           	<tr>
+        		<th style="text-align:center">Skill</th>
+        		<th style="text-align:center">Skill Points</th>
+        		<th width="1px"></th>
+        	</tr>
+		{% for i,skill_ID,skill_Name,skill_Points in skill_range %}
+			<tr> 
+				<td>{{skill_Name}}</td>
+				<td style="text-align:center">{{skill_Points}}</td>			
+				<td>
+					{% csrf_token %} 
+					<input type="hidden" name="skillID" value="{{skill_ID}}">
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<a href="/oneUp/instructors/studentAchievements"><button type="button" value="Reset">Back</button></a>
+<!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

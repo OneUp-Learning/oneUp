@@ -1,0 +1,50 @@
+[
+	{
+		"model": "Badges.Events",
+		"pk": 1,
+		"fields": {
+			"eventName": "Starting a Test",
+			"eventDescription": "When a student has started to attempt a particular challenge"
+		}
+	},
+	{
+		"model": "Badges.Events",
+		"pk": 2,
+		"fields": {
+			"eventName": "Finishing a Test",
+			"eventDescription": "When a student has finished to attempt and has submitted a particular challenge"
+		}
+	},
+	{
+		"model": "Badges.Events",
+		"pk": 3,
+		"fields": {
+			"eventName": "Completing  a Question",
+			"eventDescription": "When a student completes answering a particular question in a particular challenge"
+		}
+	},
+	{
+		"model": "Badges.Events",
+		"pk": 4,
+		"fields": {
+			"eventName": "Instructor Entering Information for an Activity",
+			"eventDescription": "When an instructor enters some information for a particular activity"
+		}
+	},
+	{
+		"model": "Badges.Events",
+		"pk": 5,
+		"fields": {
+			"eventName": "Passing Certain Time",
+			"eventDescription": "when certain period of time passes after starting an event"
+		}
+	},
+	{
+		"model": "Badges.Events",
+		"pk": 6,
+		"fields": {
+			"eventName": "Change Value",
+			"eventDescription": "When the value of a particular variable in a particular challenge is changed"
+		}
+	}
+]

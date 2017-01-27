@@ -1,0 +1,132 @@
+from django.conf.urls import include, url
+from django.contrib import admin
+from django.views.generic import RedirectView
+
+from Instructors.views.activityAssignPointsView import activityAssignPointsView
+from Instructors.views.activityCreateView import activityCreateView
+from Instructors.views.activityListView import activityList
+from Instructors.views.activityListVizView import activityListViz
+from Instructors.views.announcementCreateView import announcementCreateView
+from Instructors.views.announcementListView import announcementList
+from Instructors.views.allAnnouncementsView import allAnnouncements
+ 
+from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
+from Instructors.views.challengeCreateView import challengeCreateView
+from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
+from Instructors.views.challengeEditView import challengeEditView
+from Instructors.views.challengeListView import ChallengesList
+from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
+from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
+from Instructors.views.challengeSaveView import challengeSaveView
+
+from Instructors.views.classAchievementsView import classAchievements
+from Instructors.views.classAchievementsVizView import classAchievementsViz
+from Instructors.views.createStudentListView import createStudentListView
+from Instructors.views.createStudentView import createStudentViewUnchecked
+from Instructors.views.classSeriousAchievementsVizView import classSeriousAchievementsViz
+from Instructors.views.classWarmupAchievementsVizView import classWarmupAchievementsViz
+
+from Instructors.views.classSkillsVizView import classSkillsViz
+from Instructors.views.courseInfoView import courseInformation
+from Instructors.views.createStudentListView import createStudentListView
+from Instructors.views.createStudentView import createStudentViewUnchecked
+
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteActivity, deleteAnnouncement, deleteMilestone
+
+from Instructors.views.essayView import  essayForm
+from Instructors.views.gameRulesView import gameRulesView
+from Instructors.views.instructorCourseHomeView import instructorCourseHome
+from Instructors.views.instructorHomeView import instructorHome
+#from Instructors.views.instructorQuestionsView import InstructorQuestions
+
+from Instructors.views.matchingView import matchingForm
+from Instructors.views.milestoneCreateView import milestoneCreateView
+from Instructors.views.milestoneListView import milestoneList
+from Instructors.views.multipleAnswersView import multipleAnswersForm
+from Instructors.views.multipleChoiceView import multipleChoiceForm
+from Instructors.views.preferencesView import preferencesView
+
+#from Instructors.views.questionListView import questionListView
+from Instructors.views.searchQuestionsView import searchQuestions
+from Instructors.views.searchResultsView import searchResults
+from Instructors.views.skillsCreateView import skillsCreateView
+from Instructors.views.skillsListView import skillsListView
+from Instructors.views.studentAchievementsView import studentAchievements
+from Instructors.views.studentChallengesCompletedView import studentChallengesCompleted
+from Instructors.views.studentGradedChallengeView import studentGradedChallenge
+from Instructors.views.studentSkillsEarnedView import studentSkillsEarned
+from Instructors.views.studentTopicsView import studentTopics
+
+from Instructors.views.topicsCreateView import topicsCreateView
+from Instructors.views.topicsListView import topicsListView
+from Instructors.views.trueFalseView import trueFalseNewForm
+from Instructors.views.views import index
+
+
+admin.autodiscover()
+
+urlpatterns = [
+
+    url(r'^activityAssignPoints', activityAssignPointsView, name='activityAssignPointsView'),
+    url(r'^activitiesList',activityList, name='activityList'),
+    url(r'^announcementCreate', announcementCreateView, name='announcementCreateView'),
+    url(r'^announcementList', announcementList, name='announcementListView'),           
+    url(r'^challengeAddQuestions',challengeAddQuestionsView, name='challengeAddQuestionsView'),
+    url(r'^announcements', allAnnouncements, name='allAnnouncements'),           
+    url(r'^announcementList', announcementList, name='announcementListView'),           
+
+    url(r'^challengeCreate',challengeCreateView, name='challengeCreateView'),
+    url(r'^challengeQuestionsList',challengeEditQuestionsView, name='challengeEditQuestionsView'),
+    url(r'^challengeEdit',challengeEditView, name='challengeEditView'),
+    url(r'^challengesList',ChallengesList, name='ChallengesList'),
+    url(r'^challengeSaveSelectedQuestions',challengeSaveSelectedQuestions, name='challengeSaveSelectedQuestions'),
+    url(r'^challengeSave',challengeSaveView, name='challengeSaveView'),
+    url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='ChallengesList'),
+
+    url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
+    url(r'^classSeriousAchievementsViz',classSeriousAchievementsViz, name='classSeriousAchievementsViz'),
+    url(r'^classWarmupAchievementsViz',classWarmupAchievementsViz, name='classWarmupAchievementsViz'),
+    url(r'^classActivityAchievementsViz',activityListViz, name='activityListViz'),
+    url(r'^classAchievements',classAchievements, name='classAchievements'),
+    url(r'^createActivity',activityCreateView,name='activityCreateView'),
+    url(r'^classSkillsViz',classSkillsViz,name='classSkillsViz'),
+    url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
+    url(r'^courseInformation',courseInformation,name='courseInformation'),
+    #url(r'^saveCourseInformation',saveCourseInformation,name='saveCourseInformation'),
+    url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
+    url(r'^createStudentList',createStudentListView,name='createStudentListView'),
+    url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
+    url(r'^deleteActivity',deleteActivity, name='deleteActivity'),
+    url(r'^deleteAnnouncement',deleteAnnouncement, name='deleteAnnouncement'),
+    url(r'^deleteChallenge',deleteChallenge, name='deleteChallenge'),
+    url(r'^deleteMilestone',deleteMilestone, name='deleteMilestone'),
+    url(r'^deleteQuestionFromChallenge',deleteQuestionFromChallenge, name='deleteQuestionFromChallenge'),
+    url(r'^deleteQuestion',deleteQuestion, name='deleteQuestion'),
+    url(r'^deleteSkill',deleteSkill, name='deleteSkill'),
+    url(r'^deleteTopic',deleteTopic, name='deleteTopic'),
+    url(r'^deleteUser',deleteUser, name='deleteUser'),
+    url(r'^gameRules',gameRulesView,name='gameRulesView'),
+    url(r'^$', index, name='home'),
+    url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
+    url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
+    url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
+    url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),
+    url(r'^forms/TrueFalseForm', trueFalseNewForm, name='newTrueFalseForm'),
+    url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
+    url(r'^instructorHome',instructorHome,name='instructorHome'),
+    #url(r'^InstructorQuestions',InstructorQuestions,name='InstructorQuestions'),    
+    url(r'^milestonesList',milestoneList, name='milestoneList'),    
+    url(r'^preferences',preferencesView, name='preferencesView'),
+    url(r'^search',searchQuestions, name='searchQuestions'),
+    url(r'^skillsCreate',skillsCreateView, name='skillsCreateView'),
+    url(r'^skillsList',skillsListView, name='skillsListView'),
+    url(r'^sresults',searchResults, name='searchResults'), 
+    url(r'^studentAchievements',studentAchievements, name='studentAchievements'),
+    url(r'^studentChallengesCompleted',studentChallengesCompleted, name='studentChallengesCompleted'),
+    url(r'^studentGradedChallenge',studentGradedChallenge, name='studentGradedChallenge'),
+    url(r'^studentSkillsEarned',studentSkillsEarned, name='studentSkillsEarned'),
+    url(r'^studentTopics',studentTopics, name='studentTopics'),
+    url(r'^topicsCreate',topicsCreateView, name='topicsCreateView'),
+    url(r'^topicsList',topicsListView, name='topicsListView'),
+
+]

@@ -1,0 +1,122 @@
+  <header>
+            <nav class="Navigation">
+               <div class="Nav_Top">
+                  <ul class="nav_top_level">
+                     <a class="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
+                     <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
+                     <li class="nav_top_level_items">
+                        <a href="#">Course Tools</a>
+                        <ul class="nav_second_level">
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/instructorCourseHome">Home</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/announcementList">Announcements</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/courseInformation">Email</a>
+                           </li>                           
+                        </ul>
+                     </li>
+                     <li class="nav_top_level_items">
+                        <a href="#">Course Information</a>
+                        <ul class="nav_second_level">
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/courseInformation">Course Description</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/topicsList">Course Topics</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/skillsList">Targeted Skills</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/milestonesList">Course Milestones</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/createStudentListView">Students</a>
+                           </li>
+                           
+                        </ul>
+                     </li>                     
+                     <li class="nav_top_level_items">
+                        <a href="#">Course Content</a>
+                        <ul class="nav_second_level">
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/activitiesList">Activities</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/challengesList">Serious Challenges</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/challengesList?warmUp">Warm Up Challenges</a>
+                           </li>
+                        </ul>
+                     </li>
+                     <li class="nav_top_level_items">
+                        <a href="#">Course Reports</a>
+                        <ul class="nav_second_level">
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/studentAchievements">Student Achievements</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/classAchievements">Class Achievements</a>
+                           </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/challengesList">Visualization</a>
+                              <ul class="nav_third_level">
+                                 <li class="nav_third_level_items">
+                                    <a href="/oneUp/instructors/classSeriousAchievementsViz">Class Serious Achievements</a>
+                                 </li>
+                                 <li class="nav_third_level_items">
+                                    <a href="/oneUp/instructors/classWarmupAchievementsViz">Class Warmup Achievements</a>
+                                 </li>
+                              </ul>
+                           </li>
+                        </ul>
+                     </li>
+                     <li class="nav_top_level_items">
+                        <a href="#">Game Features</a>
+                        <ul class="nav_second_level">
+                          <li class="nav_second_level_items">
+                              <a href="/oneUp/badges/Badges">Badges</a>
+                          </li>
+                          <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/createStudentView">Leveling</a>
+                           </li>
+                         <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/createStudentView">Leader-board</a>
+                           </li>                           
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/skillsList">Virtual Currency</a>
+                            </li>
+                           <li class="nav_second_level_items">
+                              <a href="/oneUp/instructors/preferences">Gamification Configuration</a>
+                           </li>
+                        </ul>
+                     </li>
+                  </ul>
+               </div>
+               <div class="Nav_Bottom">
+                  {% if logged_in %}
+                  <p>Course: {{course_Name}}</p>
+                  <ul class="nav_login">
+                     <li class="nav_login_items">
+                        <a href="#">Welcome, {{username}}<i class="fa fa-chevron-down"></i></a>
+                        <ul class="nav_login_second_level">
+                           <li class="nav_login_second_level_items">
+                              <a href="/oneUp/administrators/courses">Change Course</a>
+                           </li>
+                           <li class="nav_login_second_level_items">
+                              <a href="/oneUp/students/Logout">Logout</a>
+                           </li>
+                        </ul>
+                     </li>
+                  </ul>
+                  {% endif %}
+               </div>
+            </nav>
+         </header>

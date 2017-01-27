@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<!--
+   Helios by HTML5 UP
+   html5up.net | @n33co
+   Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+   Useful Websites:
+   Badges: https://www.openbadges.me
+   Idea: https://codyhouse.co/gem/parallax-hero-image/
+   Icons: https://fortawesome.github.io/Font-Awesome/icons/
+   HTML Formatter: http://www.freeformatter.com/html-formatter.html
+   -->
+<html>
+   <head>
+      
+        {% include 'scripts.html' %}
+      
+   </head>
+   <body class="homepage">
+      <div id="page-wrapper">
+      
+         {% include 'heading0.html' %}
+ 
+         <!-- Header -->
+         <div id="header">
+         <!-- Inner -->
+         <div class="heading container">
+            <div class="row" style="padding-top: 0px;">
+               <div class="4u 12u(mobile)">&nbsp;</div>
+               <div class="4u 12u(mobile)">
+                  <div style="background:linear-gradient(transparent, rgba(0, 0, 0, 0.2));border-radius:15px;padding:20px;margin:0 2em;">
+                     <h1 style="text-shadow:0 -3px 10px rgba(0, 0, 0, 1)">OneUp</h1>
+                     <h2 style="text-shadow:0 -3px 10px rgba(0, 0, 0, 1); font-size: 40px; padding-top:10px;">Learning</h2>
+                     <br />
+                     {% if not logged_in %}
+                  </div>
+                  <form id="login_form" name="login_form" method="post" action="/login">
+                     {% csrf_token %}
+                     <p style="margin:0;color:#2A333E">Username:</p>
+                     <input id="username" name="username" type="text" placeholder= "Enter Your User-Id Here" class="text" style="background: rgba(255, 255, 255, 0.27);"required>
+                     <p style="margin:0;color:#2A333E">Password:</p>
+                     <input id="password" name="password" type="password" placeholder= "Enter Your Password Here" class="text" style="background: rgba(255, 255, 255, 0.27);"required>
+                     <input type="hidden" id="next" name="next" value="/oneUp/courses">
+                     {% if login_form.errors %}
+                     <p style="color: #ff7b01;">Your username and password didn't match. Please try again.</p>
+                     {% endif %}
+                     <br>
+                     <div style="background:linear-gradient(rgba(0, 0, 0, 0.2),transparent);border-radius:15px;padding:20px;margin:0 2em;">
+                        <ul class="actions">
+                           <li><input type="submit" name="login" value="Login"/></li>
+                           <li><a href="/oneUp/administrators/changePassword.html"><input type="button" class="special" value="Forgot Password?"></a></li>
+                        </ul>
+                        <br><br><br>
+                     </div>
+                     {% else %}
+                     <h3 style="text-shadow:0 0 10px rgba(255, 255, 255, .4)">Welcome, {{username}}</h3>
+                     </form>
+               </div>
+               <br />
+               <div style="background:linear-gradient(rgba(0, 0, 0, 0.2),transparent);border-radius:15px;padding:20px;margin:0 2em;">
+               <!--  a href="/oneUp/courses"><input type="button" value="View Courses"></a -->
+               <a href="/oneUp/user"><input type="button" value="View Courses"></a>
+               <a href="/oneUp/students/Logout"><input class="special" type="button" value="Logout"></a>
+               <br><br><br><br>
+               </div>
+               {% endif %}	
+               
+            </div>
+         </div>
+      </div>
+      </div>
+      <!-- Footer -->
+
+    {% include 'footer.html' %}
+
+   </body>
+</html>

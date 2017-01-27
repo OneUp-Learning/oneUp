@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+         {% include 'scripts.html' %}
+      
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+     <div>
+
+          {% include 'heading.html' %}
+ 
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+         	<div class="12u">
+               <h1>Student Achievements</h1>
+               <br />
+                  <!-- INSERTED DYNAMIC TABLE --> 
+                  <table class="bg">
+                     <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th></th>
+                     </tr>
+                     {% for i,first_Name,last_Name,user_Email,userID in user_range %}
+                     <tr>
+                        <div id="student{{i}}">
+                           <td>{{first_Name}}</td>
+                           <td>{{last_Name}}</td>
+                           <td>{{user_Email}}</td>
+                           <td align="right">
+                              <a href="/oneUp/instructors/studentSkillsEarned?userID={{userID}}"><button type="button" >Skills </button></a>                                                                        
+                              <a href="/oneUp/instructors/studentTopics?userID={{userID}}&page={{2}}"><button type="button" >Warm Ups </button></a>     
+                              <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&page={{3}}"><button type="button" >Challenges </button></a> 
+                              <a href="/oneUp/students/achievements?userID={{userID}}$page{{4}}"><button type="button">Dashboard</button></a>
+                              <!-- <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&page={{4}}"><button type="button" style="width:105px;">Warm Ups </button></a>  -->  
+                              </form> 
+                           </td>
+                        </div>
+                     </tr>
+                     {% endfor %}
+                  </table>
+                  <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

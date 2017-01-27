@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+         
+           {% include 'scripts.html' %}
+           
+         <script>
+			window.location.hash="no-back-button";
+			window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+			window.onhashchange=function(){window.location.hash="no-back-button";}
+			</script>
+      </head>
+      <body>
+      <div>
+
+          {% include 'stheading.html' %}
+
+            <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+         	<div class="12u">
+			<h1> Results for Challenge<span> {{challengeName}}</span></h1>
+			<br>
+			<table class="bg">
+			{% for score in score_range %}
+			{% for total in total_range %}
+				<tr style="font-size: 1.2em">
+					<td colspan="3">You scored <span>{{score}}</span> points out of <span>{{total}}</span> points in this challenge.</td>
+				</tr> 
+			{% endfor %}
+			{% endfor %}
+		{% for i,question,user,match_shuffled,question_score,question_total in question_range %}
+				<tr id="question"> 
+			<div id="question{{i}}">
+					<td colspan="3"><font style="font-weight:600">{{i}}. {{question.preview}}</font></td>
+				</tr>									
+				<tr>
+					<td colspan="3">Your Answer:</td>
+				</tr>
+				
+		{% if question.typeID == 1 %}
+		<!-- multiple choice question -->
+				<tr><td colspan="3"> 
+			{% for j,answer in question.answers_with_count %}	
+			<!-- use a for loop and display the answers in radio buttons -->
+					<input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}" {% ifequal answer.answerText|stringformat:"s" user|stringformat:"s" %}checked{% else %}disabled="disabled"{% endifequal %}>{{answer.answerText}}<br>
+			{% endfor %}</td>
+				</tr>
+				<tr>
+					<td colspan="3">Correct Answer:<br>
+				{% for count,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in radio buttons -->
+					{{correct_answer.answerID.answerText}}<br>
+				{% endfor %}</td>
+				</tr>
+				<tr>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)</td>
+				</tr>
+		{% endif %}	
+		
+		{% if question.typeID == 2 %}
+		<!-- multiple answer question -->
+				<tr>
+					<td colspan="3">
+				{% for j,answer in question.answers_with_count %}
+			<!-- use a for loop and display the answers in the check box -->
+					<input type="checkbox" name="{{question.questionID}}" value="{{answer.answerText}}"{% for user_answer in user %}{% ifequal answer.answerText|stringformat:"s" user_answer|stringformat:"s" %}checked{% endifequal %}{% endfor %}>{{answer.answerText}}<br />
+				{% endfor %}</td>
+				</tr>
+				<tr>
+					<td colspan="3">Correct Answer(s):<br />
+				{% for count,correct_answer in question.correct_answers %}
+					{{correct_answer.answerID.answerText}}<br>
+				{% endfor %}</td>
+				</tr>
+				<tr>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)<br /></td>
+				</tr>
+		{% endif %}	
+		
+		{% if question.typeID == 3 %}
+		<!-- matching question -->
+				<tr>
+					<td>
+				{% for j,answer in question.answers_with_count %}
+			<!-- use a for loop and display the answers in the matching form -->
+					{{j}} .&nbsp;{{answer.answerText}}<br />
+				{% endfor %}</td>
+					<td>
+				{% for user_match_answer in user %}
+					<input type="text" value={{user_match_answer}} style="height:initial; width:3em" disabled="disabled"><br />
+				{% endfor %}</td>
+					<td style="text-align: left;">
+				{% for match in match_shuffled %}
+					{{match}}<br />	
+				{% endfor %}</td>
+				</tr>
+				<tr>
+					<td colspan="3">Correct Answer:</td>
+				</tr>
+				<tr>
+					<td width="50%">
+				{% for match_count,match_answer in question.match_with_count %}
+			<!-- use a for loop and display the answers in the matching form-->
+					{{match_count}} . &nbsp{{match_answer.answerText}}<br />
+				{% endfor %}</td>
+					<td colspan="2" style="text-align: left;">
+        		{% for match in question.matches %}
+        			{{match.matchingAnswerText}}<br />	
+				{% endfor %}</td>
+				</tr>
+				<tr>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)</td>
+				</tr>
+		{% endif %}	
+			
+		{% if question.typeID == 4 %}
+		<!-- true/false question -->
+				<tr>
+					<td colspan="3"><input type="radio" name="{{question.questionID}}" value="True" {% ifequal user|stringformat:"s" "True" %}checked{% else %}disabled="disabled"{% endifequal %}>True<br />
+					<input type="radio" name="{{question.questionID}}" value="False" {% ifequal user|stringformat:"s" "False" %}checked{% else %}disabled="disabled"{% endifequal %}>False</td>
+				</tr>
+				<tr>
+					<td colspan="3">Correct Answer: <br>
+				{% for count,correct_answer in question.correct_answers %}
+					{{correct_answer.answerID.answerText}}
+				{% endfor %}</td>
+				</tr>
+				<tr>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)</td>
+				</tr>
+		{% endif %}
+		
+		{% if question.typeID == 5 %}
+		<!-- Essay question -->
+				<tr>
+					<td colspan="3"><textarea name="{{question.questionID}}" rows="10" cols="90" disabled="disabled">{{user}}</textarea></td>
+				</tr>
+				<tr>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)</td>
+				</tr>
+		{% endif %}
+				<tr>
+					<td><input type="hidden" name="questionId" value="{{question.questionID}}"></td>
+				</tr>
+			</div> 
+  		<input type="hidden" name="challengeId" value="{{question.challengeID}}">		
+		{% endfor %}
+			</table>	
+	{% if warmUp %}
+	<a href="/oneUp/students/ChallengesWarmUpList"><button type="button" value="Reset">OK</button></a>
+	{% else %}
+	<a href="/oneUp/students/ChallengesList"><button type="button" value="Reset">OK</button></a>
+	{% endif %}
+		<br><br>
+   		 </div></div></div></div>
+         </div>
+         <!-- Footer -->
+
+        {% include 'footer.html' %}
+
+      <script type="text/javascript"> Cufon.now(); </script>
+      </body>
+   </html>

@@ -1,0 +1,78 @@
+button, input[type="button"], input[type="submit"]{
+    /*padding:10px;
+    background:-webkit-linear-gradient(#008CC4, #1F6FB9);
+    font-family: Tahoma, Geneva, sans-serif;                    OLD STYLE
+    font-size: 12px;
+    color:white; */
+    color:#fff;
+    border:1px solid #26b6e8;
+    text-decoration:none;
+    background-color:#006caa;
+    padding:10px;
+}
+button:hover{
+    border-color:#fff;
+    font-weight:bold;
+}
+input[type="button"]:hover{
+    border-color:#fff;
+    font-weight:bold;
+}
+input[type="submit"]:hover{
+    border-color:#fff;
+    font-weight:bold;
+}
+
+
+
+                  
+body{
+    background-image: url("/static/MenuBacking.gif");
+}
+                  
+table
+{
+    background:-webkit-linear-gradient(white, #A0A0A0);
+    box-shadow: 10px 10px 5px #888888;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 1.2em; 
+    width: 96%;
+}
+                  
+tr td{
+    padding-left:10px;
+    padding-top:5px;
+    padding-bottom:5px;
+    vertical-align:middle;
+    font-size:0.8em;
+}
+            
+div.a{
+    width:100px;
+}
+                  
+#headerRow{
+    height:2em;
+    color:white;
+    background-color: #585858;
+}
+#headerRow th{
+    vertical-align:middle;
+    text-align:left;
+    padding-left:30px;
+    font-weight:600;
+}      
+      
+                  
+textarea{
+    resize:none;
+    font-family: Tahoma, Geneva, sans-serif;
+}
+                    
+.bgcolor1{
+    background-color: #e5e5e5;
+}
+                    
+.bgcolor2{
+    background-color: #cccccc;
+}

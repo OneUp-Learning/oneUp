@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    {% include 'scripts.html' %}
+
+</head>
+<body>
+	<div id="page-wrapper">
+		
+		 {% include 'stheading.html' %}
+		 
+		<div class="frame" id="grad" align="center">
+			<!-- Body -->
+
+
+			<div class="container">
+				<div class="row">
+					<div class="12u">
+
+						<br>
+						<h1>
+							<span>Course Information</span>
+						</h1>
+						<br>
+						<center>
+							<table style="width: 700px; ">
+
+								<tr>
+									<td><center><h3 style="font-size: 20pt;">Course Description</h3></center>
+									</td>
+								</tr>
+								<tr>
+								<table style="width: 700px;" class ="bg">
+									<tr>
+										<td	style="padding-bottom: 40px; padding-left: 25px; font-size: 12pt;"><br>
+
+
+											<textarea
+												style="margin-bottom: 0; color: #5b5b5b; font-size: 12pt; line-height: 1.85em; font-family: 'Source Sans Pro', sans-serif; font-weight: 400; height: 100%; width: 100%;"
+												id="mediumFormBox" name="courseDescr"
+												value="course_Description" id=bglinks>{{course_Description}}</textarea>
+
+										</td>
+									</tr>
+								</table>
+								</tr>
+								<tr>
+									<td><h3 style="font-size: 20pt;">Targetted Skills</h3></td>
+									<br>
+								</tr>
+								<tr>
+									<td>
+									<!-- INSERTED DYNAMIC TABLE -->
+
+									<table class="bg" style="width: 700px;">
+
+										{% for i,skill_ID,skill_Name in skill_range %}
+										<tr>
+											<div id="skills{{i}}">
+												<td style="font-size: 12pt;">{{skill_Name}}</td>
+
+											</div>
+										</tr>
+										{% endfor %}
+									</table>
+									</td>
+								</tr>
+
+								</td>
+
+								</tr>
+							</table>
+						</center>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Footer -->
+
+      {% include 'footer.html' %}
+
+	</div>
+	<script type="text/javascript">	Cufon.now(); </script>
+</body>
+</html>
