@@ -13,6 +13,7 @@ from Badges.models import Badges, CourseConfigParams
 from Students.views import classResults
 from Students.models import StudentConfigParams
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 @login_required
 def achievements(request):
@@ -23,9 +24,15 @@ def achievements(request):
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
-        
-    studentId = Student.objects.filter(user=request.user)
-    
+    if 'userID' in request.GET:    
+        stud = User.objects.filter(username=request.GET['userID'])
+        context_dict["is_teacher"] = True
+    else:
+        context_dict["is_student"] = True
+        stud = request.user
+  
+
+    studentId = Student.objects.filter(user=stud)
     # check if course was selected
     if not 'currentCourseID' in request.session:
         context_dict['course_Name'] = 'Not Selected'
@@ -56,7 +63,7 @@ def achievements(request):
         context_dict['is_ClassAverage_Displayed'] = str(curentStudentConfigParams.displayClassAverage)
         context_dict['are_Badges_Displayed'] = str(curentStudentConfigParams.displayBadges)
         context_dict['course_Bucks'] = str(curentStudentConfigParams.courseBucks)
-        print ('courseBucks   ' + str(curentStudentConfigParams.courseBucks))
+        #print ('courseBucks   ' + str(curentStudentConfigParams.courseBucks))
         
         #configParam_isClassAverageDisplayed = 'False'
         #configParam_areBadgesDisplayed = 'True'                  
@@ -102,7 +109,7 @@ def achievements(request):
                 studentGradedChallenges.append(st_challenge)
                          
         if not studentGradedChallenges:
-            print('No challenge')
+            #print('No challenge')
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'
         else:
             for item in studentGradedChallenges:
