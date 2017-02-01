@@ -35,3 +35,5 @@ def get_events_for_condition(cond):
     else:
         return "ERROR: Invalid operator in condition.  Should be one of '==','<','>','<=','>=','!='."
     
+
+def 
