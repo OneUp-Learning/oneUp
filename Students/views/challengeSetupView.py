@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.template import RequestContext
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+import random 
 
 from Instructors.models import Challenges, Courses, Answers
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
-import random 
-from django.contrib.auth.decorators import login_required
+from Students.models import Student
 from Badges.events import register_event
 from Badges.enums import Event
 
@@ -17,6 +18,8 @@ def ChallengeSetup(request):
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
+        sID = Student.objects.get(user=request.user)
+        context_dict['avatar'] = sID.avatarImage        
     
     # check if course was selected
     if not 'currentCourseID' in request.session:

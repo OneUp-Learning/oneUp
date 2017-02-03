@@ -221,7 +221,7 @@ def deleteActivity(request):
     context_dict = { }
 
     if request.POST:
-
+        print("Deleting Activity")
         # If there's an existing question, we wish to edit it.  If new question,
         # create a new Question object.
         try:

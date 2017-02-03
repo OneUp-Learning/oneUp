@@ -6,13 +6,15 @@ Created on Oct 15, 2014
 from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Skills, Courses, CoursesSkills
-
+from Students.models import Student
 
 def CourseInformation(request):
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
+        sID = Student.objects.get(user=request.user)
+        context_dict['avatar'] = sID.avatarImage        
         
     if 'currentCourseID' in request.session:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))

@@ -99,11 +99,11 @@ chk[i].checked = false ;
                                  <!-- leaderboardUsed Checkbox-->
                                 {% if leaderboardUsed %}
                                 <tr>
-                                   <td> Enable leaderboard</td>  
-                                   <td><input type="checkbox" align="left" name="leaderboardUsed" value="true" checked="true"></td>
+                                   <td class="left"> Enable leaderboard</td>  
+                                   <td><input type="checkbox" align="right" name="leaderboardUsed" value="true" checked="true"></td>
                                 <tr>
                                 <tr>
-                                   <td> Number of top students to be displayed on the leaderboard </td>
+                                   <td class="left"> Number of top students to be displayed on the leaderboard </td>
                                     <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
                                    <!-- <td> Enable students to change leaderboard visibility</td>
                                    <td><input type="checkbox" align="left" name="studCanChangeLeaderboardVis" value="true"></td> -->
@@ -111,12 +111,12 @@ chk[i].checked = false ;
                                 </tr>
                                 {% else %}
                                 <tr>
-                                   <td> Enable leaderboard</td>  
+                                   <td class="left"> Enable leaderboard</td>  
                                  <!--   <td><input type="checkbox" name="Check_ctr" value="yes" onClick="Check(document.myform.check_list)"></td>  -->
                                    <td><input type="checkbox" align="left" name="leaderboardUsed"></td>
                                 </tr>
                                 <tr>
-                                   <td> Number of top students to be displayed on the leaderboard </td>
+                                   <td class="left"> Number of top students to be displayed on the leaderboard </td>
                                     <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
                                    <!-- <td> Enable students to change leaderboard visibility</td>
                                    <td><input type="checkbox" align="left" name="check_list" disabled></td> -->
@@ -141,22 +141,22 @@ chk[i].checked = false ;
 
                                 {% if classSkillsDisplayed %}
                                 <tr>
-                                   <td> Display class skills on course dashboard</td>  
+                                   <td class="left"> Display class skills on course dashboard</td>  
                                    <td><input type="checkbox" align="left" name="classSkillsDisplayed" value="true" checked="true" ></td>
                                 </tr>
                                 <tr>
-                                   <td> Number of top students for each skill to be displayed on course dashboard</td>
+                                   <td class="left"> Number of top students for each skill to be displayed on course dashboard</td>
                                     <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
                                    
                                 </tr>
                                 
                                 {% else %}
                                 <tr>
-                                   <td> Display class skills on course dashboard</td>  
+                                   <td class="left"> Display class skills on course dashboard</td>  
                                    <td><input type="checkbox" align="left" name="classSkillsDisplayed" value="true" ></td>
                                 </tr>
                                 <tr>
-                                   <td> Number of top students for each skill to be displayed on course dashboard</td>
+                                   <td class="left"> Number of top students for each skill to be displayed on course dashboard</td>
                                     <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
                                    <!-- <td>Enable students to change class skills visibility on course dashboard</td></td>  
                                    <td><input type="checkbox" align="left" name="studCanChangeClassSkillsVis" disabled></td> -->
@@ -177,11 +177,11 @@ chk[i].checked = false ;
                                 
                                {% if badgesUsed %}
                                  <tr>
-                                    <td> Enable the use of badges</td>  
-                                    <td><input type="checkbox" id="ck1" align="left" name="badgesUsed" value="true" checked="true"></td>
+                                    <td class="left"> Enable the use of badges</td>  
+                                    <td><input type="checkbox" id="ck1" align="right" name="badgesUsed" value="true" checked="true"></td>
                                  </tr>
                                    <tr>
-                                   <td> Number of top badges to be displayed on the leaderboard </td>
+                                   <td class="left"> Number of top badges to be displayed on the leaderboard </td>
                                     <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
                                  
                                    
@@ -189,11 +189,11 @@ chk[i].checked = false ;
                                 </tr>
                                 {% else %}
                                 <tr>
-                                   <td> Enable the use of badges</td>  
+                                   <td class="left"> Enable the use of badges</td>  
                                    <td><input type="checkbox" align="left" name="badgesUsed" ></td>
                                 </tr>
                                 <tr>
-                                   <td> Number of top badges to be displayed on the leaderboard </td>
+                                   <td class="left"> Number of top badges to be displayed on the leaderboard </td>
                                     <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
                                   
                                    
@@ -215,13 +215,13 @@ chk[i].checked = false ;
                                   {% if leaderboardUsed and studCanChangeLeaderboardVis %}
                                 <tr>
                                     
-                                    <td> Students can Change leaderboard visibility</td>  
-                                    <td><input type="checkbox" align="left" name="studCanChangeLeaderboardVis" value="true" checked="true"></td>
+                                    <td class="left"> Students can Change leaderboard visibility</td>  
+                                    <td ><input type="checkbox" align="left" name="studCanChangeLeaderboardVis" value="true" checked="true"></td>
                                    
                                 </tr>
                                 {% else %}
                                  <tr>
-                                    <td> Students can Change leaderboard visibility</td>  
+                                    <td class="left"> Students can Change leaderboard visibility</td>  
                                     <td><input type="checkbox" align="left" name="studCanChangeLeaderboardVis"></td>
                                  </tr>
                                  {% endif %}
@@ -229,14 +229,14 @@ chk[i].checked = false ;
                                  {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
                                 <tr>
                                 
-                                    <td>Students can Change class skills visibility in the leaderboard</td></td>  
+                                    <td class="left">Students can Change class skills visibility in the leaderboard</td></td>  
                                     <td><input type="checkbox" align="left" name="studCanChangeClassSkillsVis" value="true" checked="true"></td> 
                                     
                                 </tr>
                                  {% else %}
                                    <tr>
                                 
-                                    <td>Students can Change class skills visibility in the leaderboard </td></td>  
+                                    <td class="left">Students can Change class skills visibility in the leaderboard </td></td>  
                                     <td><input type="checkbox" align="left" name="studCanChangeClassSkillsVis"></td> 
                                     
                                 </tr>
@@ -245,13 +245,13 @@ chk[i].checked = false ;
                                   {% if badgesUsed and studCanChangeBadgeVis %}
                                 <tr>
                                    
-                                    <td> Students can change badge visibility</td>  
+                                    <td class="left"> Students can change badge visibility</td>  
                                     <td><input type="checkbox" align="left" name="studCanChangeBadgeVis" value="true" checked="true"></td>
                                 </tr>
                                   {% else %}
                                   <tr>
                                    
-                                    <td> Students can change badge visibility</td>  
+                                    <td class="left"> Students can change badge visibility</td>  
                                     <td><input type="checkbox" align="left" name="studCanChangeBadgeVis"></td>
                                 </tr>
                                   {% endif %}
@@ -268,12 +268,12 @@ chk[i].checked = false ;
                                 <!-- levelingUsed Checkbox-->
                                  {% if levelingUsed %}
                                 <tr>
-                                    <td> Enable leveling</td>  
+                                    <td class="left"> Enable leveling</td>  
                                     <td><input type="checkbox" align="left" name="levelingUsed" value="true" checked="true"></td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                   <td> Enable leveling</td>  
+                                   <td class="left"> Enable leveling</td>  
                                    <td><input type="checkbox" align="left" name="levelingUsed"></td>
                                 </tr>
                                 {% endif %}
@@ -305,12 +305,12 @@ chk[i].checked = false ;
                                 <!-- virtualCurrencyUsed Checkbox-->
                                  {% if virtualCurrencyUsed %}
                                 <tr>
-                                    <td> Enable virtual currency</td>  
-                                    <td><input type="checkbox" align="left" name="virtualCurrencyUsed" value="true" checked="true"></td>
+                                    <td class="left"> Enable virtual currency</td>  
+                                    <td><input type="checkbox" align="right" name="virtualCurrencyUsed" value="true" checked="true"></td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                   <td> Enable virtual currency</td>  
+                                   <td class="left"> Enable virtual currency</td>  
                                    <td><input type="checkbox" align="left" name="virtualCurrencyUsed"></td>
                                 </tr>
                                 {% endif %}
@@ -319,12 +319,12 @@ chk[i].checked = false ;
                                 <!-- avatarUsed Checkbox-->
                                  {% if avatarUsed %}
                                 <tr>
-                                    <td> Enable the use of avatars</td>  
+                                    <td class="left"> Enable the use of avatars</td>  
                                     <td><input type="checkbox" align="left" name="avatarUsed" value="true" checked="true"></td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                   <td> Enable the use of avatars</td>  
+                                   <td class="left"> Enable the use of avatars</td>  
                                    <td><input type="checkbox" align="left" name="avatarUsed"></td>
                                 </tr>
                                 {% endif %}
@@ -333,23 +333,23 @@ chk[i].checked = false ;
                                 <!-- classAverageUsed Checkbox-->
                                  {% if classAverageUsed %}
                                 <tr>
-                                    <td> Display class average on student achievement page</td>  
+                                    <td class="left"> Display class average on student achievement page</td>  
                                     <td><input type="checkbox" align="left" name="classAverageUsed" value="true" checked="true"></td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td> Display class average on student achievement page</td>    
+                                    <td class="left"> Display class average on student achievement page</td>    
                                    <td><input type="checkbox" align="left" name="classAverageUsed"></td>
                                 </tr>
                                 {% endif %}
                                  {% if studCanChangeclassAverageVis %}
                                 <tr>
-                                    <td> Enable students to change class average visibility on student achievement page</td>  
+                                    <td class="left"> Enable students to change class average visibility on student achievement page</td>  
                                     <td><input type="checkbox" align="left" name="studCanChangeclassAverageVis" value="true" checked="true"></td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                   <td> Enable students to change class average visibility on student achievement page</td>  
+                                   <td class="left"> Enable students to change class average visibility on student achievement page</td>  
                                    <td><input type="checkbox" align="left" name="studCanChangeclassAverageVis"></td>
                                 </tr>
                                 {% endif %}
@@ -357,15 +357,15 @@ chk[i].checked = false ;
                                 <!-- End classAverageUsed Checkbox-->
                                 <!-- courseStartDate courseEndDate Checkbox-->
                                 <tr>
-                                    <td> Set course start date</td>  
+                                    <td class="left"> Set course start date</td>  
                                     <td><input type="date" align="left" name="courseStartDate"></td>
                                 </tr>
                                 <tr>
-                                   <td> Set course end date</td>  
+                                   <td class="left"> Set course end date</td>  
                                    <td><input type="date" align="left" name="courseEndDate"></td>
                                 </tr> 
                                 <tr>
-                                    <td> Set leaderboard update frequency</td>
+                                    <td class="left"> Set leaderboard update frequency</td>
                                     <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="leaderboardUpdateFreq" value="{{leaderboardUpdateFreq}}" required></td>
                                 </tr>    
                                 <!-- End courseStartDate courseEndDate Checkbox-->

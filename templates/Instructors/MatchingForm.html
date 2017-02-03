@@ -47,7 +47,7 @@
          var newElement = '<tr id="ans'+numAnswers+'"><td>Question '+numAnswers+' <br><textarea style="display:inline-block;'+
         'border: solid 1px rgba(128, 128, 128, 0.5); width: 25em;" name="answer'+numAnswers+'" rows="1" required>{{ansValue}}</textarea>'+
  		'<input type="hidden" name="ansPK'+numAnswers+'" value="{{ansPK}}"></td>'+
- 		'<td>Matching Answer '+numAnswers+'<br><textarea style="display:inline-block; border: solid 1px rgba(128, 128, 128, 0.5); width: 25em;" name="matchingAnswer'+numAnswers+'" rows="1">{{match}}</textarea></td></tr>';
+ 		'<td>Matching Answer '+numAnswers+'<br><textarea style="display:inline-block; border: solid 1px rgba(128, 128, 128, 0.5); width: 25em;" name="matchingAnswer'+numAnswers+'" rows="1" required>{{match}}</textarea></td></tr>';
          
          
          
@@ -181,7 +181,7 @@
                             {% for i,ansValue,ansPK,ansChecked,matchText in answer_range %}
                             <tr id="ans{{i}}"><td>Question {{i}} <br><textarea style="display:inline-block; border: solid 1px rgba(128, 128, 128, 0.5); width: 25em;" name="answer{{i}}" rows="1" required>{{ansValue}}</textarea>
 				      		<input type="hidden" name="ansPK{{i}}" value="{{ansPK}}"></td>
-				      		<td>Matching Answer for Question {{i}}<br><textarea style="display:inline-block; border: solid 1px rgba(128, 128, 128, 0.5); width: 25em;" name="matchingAnswer{{i}}" rows="1">{{matchText}}</textarea></td>
+				      		<td>Matching Answer for Question {{i}}<br><textarea style="display:inline-block; border: solid 1px rgba(128, 128, 128, 0.5); width: 25em;" name="matchingAnswer{{i}}" rows="1" required>{{matchText}}</textarea></td>
 				      		</tr>                            
                             {% endfor %}
                             </div></td>
