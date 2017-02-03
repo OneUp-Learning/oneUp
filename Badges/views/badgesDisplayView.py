@@ -7,6 +7,7 @@ Created on Nov 3, 2016
 from django.shortcuts import render
 
 from Badges.models import Badges, Courses
+from Students.models import Student
 
 from django.contrib.auth.decorators import login_required
 
@@ -18,6 +19,8 @@ def BadgesDisplay(request):
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
+        sID = Student.objects.get(user=request.user)
+        context_dict['avatar'] = sID.avatarImage          
     
     # check if course was selected
     if 'currentCourseID' in request.session:

@@ -30,16 +30,37 @@ def activityAssignPointsView(request):
         
         if 'studentSelect[]' and 'activity' and 'points' in request.POST:
             studentList = request.POST.getlist('studentSelect[]')
+            # Get assigned activities for current activity being submitted (AH)
+            # Filter by the name of the activity/ID (AH)
+            assignments = AssignedActivities.objects.filter(activityID = Activities.objects.get(activityName = request.POST['activity']))
             for si in studentList:
-                assignment = AssignedActivities()
-                assignment.activityID = Activities.objects.get(activityName = request.POST['activity'])
-                assignment.recipientStudentID = Student.objects.get(pk = si)
-                assignment.pointsReceived = request.POST['points']
-                assignment.save()
-                
-                #Register event for participationNoted
-                register_event(Event.participationNoted, request, assignment.recipientStudentID, assignment.activityID.activityID)
-                print("Registered Event: Participation Noted Event, Student: " + str(assignment.recipientStudentID) + ", Activity Assignment: " + str(assignment.activityAssigmentID))
+                studentID = Student.objects.get(pk = si)
+                noStudent = True
+                # If at least one activity of that name is saved in AssignedActivities (AH)
+                if(assignments):
+                    # Loop through and check if the assigned activity and student is in the AssignedActivities (AH)
+                    for assign in assignments:
+                        if assign.recipientStudentID == studentID:
+                            # Override the activity with the points (AH)
+                            assign.pointsReceived = request.POST['points']
+                            assign.save()
+                            # The student is assigned an activity; no need to create a new one (AH)
+                            noStudent = False
+                            #Register event for participationNoted
+                            register_event(Event.participationNoted, request, assign.recipientStudentID, assign.activityID.activityID)
+                            print("Registered Event: Participation Noted Event, Student: " + str(assign.recipientStudentID) + ", Activity Assignment: " + str(assign.activityAssigmentID))
+                # If there are no assigned activities of this name or
+                # If the student is not assigned to an activity but the activity is assigned to other students (AH)
+                if noStudent == True or not assignments:
+                    # Create new activity if there are none of this activity type in assigned activities (AH)
+                    assignment = AssignedActivities()
+                    assignment.activityID = Activities.objects.get(activityName = request.POST['activity'])
+                    assignment.recipientStudentID = studentID
+                    assignment.pointsReceived = request.POST['points']
+                    assignment.save()
+                    #Register event for participationNoted
+                    register_event(Event.participationNoted, request, assignment.recipientStudentID, assignment.activityID.activityID)
+                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.recipientStudentID) + ", Activity Assignment: " + str(assignment.activityAssigmentID))
 
     
     # prepare context for Activity Assignment List      
