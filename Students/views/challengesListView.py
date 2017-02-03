@@ -23,6 +23,8 @@ def ChallengesList(request):
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
+        sID = Student.objects.get(user=request.user)
+        context_dict['avatar'] = sID.avatarImage        
     
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']

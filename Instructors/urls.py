@@ -31,7 +31,7 @@ from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteActivity, deleteAnnouncement, deleteMilestone
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteActivity, deleteActivityAssignment, deleteAnnouncement, deleteMilestone
 
 from Instructors.views.essayView import  essayForm
 from Instructors.views.gameRulesView import gameRulesView
@@ -101,6 +101,7 @@ urlpatterns = [
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     url(r'^createStudentList',createStudentListView,name='createStudentListView'),
     url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
+    url(r'^deleteActivityAssignment',deleteActivityAssignment, name='deleteActivityAssignment'),
     url(r'^deleteActivity',deleteActivity, name='deleteActivity'),
     url(r'^deleteAnnouncement',deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge',deleteChallenge, name='deleteChallenge'),

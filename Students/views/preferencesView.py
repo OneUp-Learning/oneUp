@@ -22,6 +22,7 @@ def preferencesView(request):
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
+        context_dict['avatar'] = sID.avatarImage        
         print(sID)
         
     # check if course was selected

@@ -23,13 +23,16 @@ def achievements(request):
     
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+        context_dict["username"]=request.user.username     
     if 'userID' in request.GET:    
         stud = User.objects.filter(username=request.GET['userID'])
         context_dict["is_teacher"] = True
     else:
         context_dict["is_student"] = True
         stud = request.user
+        sID = Student.objects.get(stud)
+        context_dict['avatar'] = sID.avatarImage        
+
   
 
     studentId = Student.objects.filter(user=stud)
