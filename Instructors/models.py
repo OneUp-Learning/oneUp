@@ -269,3 +269,8 @@ class Milestones(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
     def __str__(self):              
         return str(self.milestoneID)+","+self.milestoneName
+
+#Dynamic Questions Stuff
+class DynamicQuestions(Questions):
+    numParts = models.IntegerField()
+    code = models.CharField(max_length=10000)

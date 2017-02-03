@@ -62,6 +62,11 @@ from Instructors.views.topicsListView import topicsListView
 from Instructors.views.trueFalseView import trueFalseNewForm
 from Instructors.views.views import index
 
+#Dynamic Questions Stuff
+from Instructors.views.dynamicQuestionView import dynamicQuestionForm
+from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
+from Instructors.views.luaTestView import luaTestView
+
 
 admin.autodiscover()
 
@@ -112,6 +117,7 @@ urlpatterns = [
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
     url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),
     url(r'^forms/TrueFalseForm', trueFalseNewForm, name='newTrueFalseForm'),
+    url(r'^forms/DynamicQuestionForm',dynamicQuestionForm, name='Dynamic QuestionForm'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
     url(r'^instructorHome',instructorHome,name='instructorHome'),
     #url(r'^InstructorQuestions',InstructorQuestions,name='InstructorQuestions'),    
@@ -128,5 +134,8 @@ urlpatterns = [
     url(r'^studentTopics',studentTopics, name='studentTopics'),
     url(r'^topicsCreate',topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList',topicsListView, name='topicsListView'),
+    url(r'^forms/doDynamicQuestion',dynamicQuestionPartAJAX,name="dynamic question engine AJAX"),
+    url(r'^luaTestView',luaTestView,name="Lua Test View")
+
 
 ]
