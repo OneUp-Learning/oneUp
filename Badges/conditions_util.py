@@ -50,7 +50,7 @@ def get_mandatory_conditions(cond):
 # Assuming that we start out with a big subtree of conditions joined by ANDs (in any shape)
 # this finds all the leafs of that subtree and returns it.
 # Any conditions joined via OR or NOT are trimmed off.
-def get_mandatory_conditions_without_or_and_not():
+def get_mandatory_conditions_without_or_and_not(cond):
     if cond.operation == 'AND':
         mc1 = get_mandatory_conditions(Conditions.objects.get(pk=cond.operand1Value))
         mc2 = get_mandatory_conditions(Conditions.objects.get(pk=cond.operand2Value))
