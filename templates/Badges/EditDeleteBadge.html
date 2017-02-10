@@ -391,10 +391,10 @@
 	                             <input type="radio" name="assignChallenges" value="2" class="selectChallenges" {% ifequal badge.assignToChallenges|stringformat:"s" "2" %}checked="checked"{% endifequal %}/> Specific Challenges 		
                               </div>
                               <ol id="specChall" name="specChall" class="formset">
-                                 <li><strong>Choose Challenges to which the Badge has to be applied:</strong></li>
+                                 <li><strong>Choose the Challenge to which the Badge should be applied:</strong></li>
                                  <li>
                                  <div class="select-wrapper">
-                                 <select style="height: 200px; width: 200px" name="specChallenges" id="specChallenges" multiple>
+                                 <select style="height: 200px; width: 200px" name="specChallenge" id="specChallenge">
                                     {% for j, challenge in challenges %}
                                     <option value="{{challenge.challengeID}}" {% ifequal badge.assignToChallenges|stringformat:"s" "2" %}
                                     										  	{% for a, assignChallenge in assignChallenges %}
