@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      
+          {% include 'scripts.html' %}
+          
+        <!--[if lt IE 7]>
+      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
+      <script type="text/javascript" src="/static/js/ie_png.js"></script>
+      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
+      <![endif]-->
+      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }            
+         }
+      </script>
+   </head>
+   <body>
+      <div>
+       
+       {% include 'heading.html' %}
+       
+         <!-- START PAGE SOURCE -->
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>{{activityName}}</h1>
+			</div></div>
+			<div class="row">
+            <div class="12u">
+            <br/>
+                    <!-- INSERTED ASSIGN FORM -->
+                    <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
+                        {% csrf_token %} 
+                        {% if activityID %} 
+                            <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
+                        {% endif %}
+                        <table class="bg">
+                        <tr>
+                            <th>Student(s)</th>
+                            <th>Points</th>
+                        </tr>
+                        {% for i, student_ID, student_Name, student_Points in assignedActivityPoints_range %}
+                        <tr>
+                            <td>{{student_Name}}</td> 
+                            <td>
+                               <input id="extraSmallFormBox" type="number" name="{{student_ID}}" value="{{student_Points}}" min="0" required>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </table>
+                        <input type="submit" name="submit" value="Save" class="button">								
+			            <a href="/oneUp/instructors/activitiesList">
+						<input type="button" class="special" value="Cancel"></a>
+                    </form>
+                    <!-- END ASSIGN FORM -->
+				</div></div>
+				
+         </div></div>
+         <!-- Footer -->
+   
+       {% include 'footer.html' %}
+    
+      </div>
+   </body>
+</html>

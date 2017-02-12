@@ -169,33 +169,34 @@
                         </div>
                     	</td>
             		</tr>
+  
         			<tr>
-        			
-        			{% if warmUp %}
             			<th>Number of Attempts</th> 
         			</tr>
             		<tr>
-	                    <td><input id="extraSmallFormBox" type="number" name="numberAttempts" value="{{numberAttempts}}" min="1" max="999"></td>
+	                    <td><input id="extraSmallFormBox" type="number" name="numberAttempts" value="{{numberAttempts}}" min="0" max="999" style="vertical-align: -1px" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            				{% if unlimittedAttempts %}
+            				<input type="checkbox" name="unlimittedAttempts" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;Unlimited Attempts						
+							{% else %}
+							<input type="checkbox" name="unlimittedAttempts" style="vertical-align: -2px" value ="true"/>&nbsp;Unlimited Attempts					
+							{% endif %}
+	                    </td>
             		</tr>
-       				<tr>
-       				
+       				<tr>      				
             			<th>Time Limit (in minutes)</th> 
         			</tr>
+        			
             		<tr>
-                    	<td><input id="extraSmallFormBox" type="number" name="timeLimit" value="{{timeLimit}}" min="1" max="999"></td>
+                    	<td><input id="extraSmallFormBox" type="number" name="timeLimit" value="{{timeLimit}}" min="0" max="999" style="vertical-align: -1px" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            				{% if unlimittedTime %}
+            				<input type="checkbox" name="unlimittedTime" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;Unlimited Time						
+							{% else %}
+							<input type="checkbox" name="unlimittedTime" style="vertical-align: -2px" value ="true"/>&nbsp;Unlimited Time</td>					
+							{% endif %}
+	                    </td>	                    
             		</tr>
-            		{% else %}
-            		<th>Number of Attempts<span>*</span></th> 
-        			</tr>
-            		<tr>
-	                    <td><input id="extraSmallFormBox" type="number" name="numberAttempts" value="{{numberAttempts}}" min="1" max="999" required></td>
-            		</tr>
-            			<th>Time Limit (in minutes) <span>*</span></th> 
-        			</tr>
-            		<tr>
-                    	<td><input id="extraSmallFormBox" type="number" name="timeLimit" value="{{timeLimit}}" min="1" max="999" required></td>
-            		</tr>
-            		{% endif %}
+            		
 		 			<tr>
             			<th>Password </th> 
         			</tr>
@@ -210,18 +211,18 @@
                     	<font style="font-size:.8em;">Enter tags separated by commas (,)</font></td>
             		</tr>
 					<tr>
-					{% if warmUp %}
-                    	<th>Topics </th>
+
+                    <th>Topics </th>
                 	</tr> 
                 		<tr>
 		 				<td>Add New Topic<br> 
-						<select name="Topic" id="sendTopic2" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" required>
+						<select name="Topic" id="sendTopic2" accesskey="target" font-family= "Tahoma, Geneva, sans-serif">
 					  	<option  value="" selected>Select Topic</option>
-					{% for i,topic_ID,topic_Name in topic_range %}
-						<div id="topic{{i}}">
-							<option value="{{topic_ID}}">{{topic_Name}}</option>							  	
-						</div>
-					{% endfor %}
+						  {% for i,topic_ID,topic_Name in topic_range %}
+							<div id="topic{{i}}">
+								<option value="{{topic_Name}}">{{topic_Name}}</option>							  	
+							</div>
+						  {% endfor %}
 						</select>
 						</td>
 					</tr>
@@ -230,9 +231,10 @@
                 		<input id="mediumFormBox" type="text" name="all_Topics" size="20" id="sendTopic"  value="{{all_Topics}}" ></td>
                 	</tr>
 		 		
-					{% else %}
+					{% if not warmUp %}
 					<input type="hidden" name ="isGraded" value="true">
 					{% endif %}
+					
 					<tr>
             			<th>Feedback Options</th>
         			</tr>

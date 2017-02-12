@@ -2029,12 +2029,12 @@ table.new th {
 .badge-selector input {
     /* Hides the input radio */
     
-    margin: 0;
+      margin: 0;
     padding: 0;
-    -webkit-apperance: none;
-    -moz-appearance: none;
-    apperarance: none;
-    display: none;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+    
 }
 .badge-selector input:active + .badge {
     opacity: 0.9;

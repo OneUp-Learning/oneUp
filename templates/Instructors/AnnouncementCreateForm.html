@@ -104,7 +104,7 @@
                     <td>
                     	<div class="well">
                     	<div id="datetimepicker2" class="input-append">
-                        	{% if endTimestamp != "12/31/2999 11:59:59 PM" %}
+                        	{% if endTimestamp != "" %}
                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
                             {% else %}
                                 <input id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value=""></input>

@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django import template
 
-from Instructors.models import Questions, Answers, CorrectAnswers, Challenges, Courses
+from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Challenges, Courses
 from Instructors.models import ChallengesQuestions, MatchingAnswers, QuestionsSkills
 
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
@@ -391,7 +391,9 @@ def ChallengeResults(request):
                     questionId = q.questionID
                     questionScore_list.append(questionScore_dict.get(questionId))
                     questionTotal_list.append(questionTotal_dict.get(questionId))
-                        
+
+                    staticQuestion = StaticQuestions.objects.get(pk=questionId)
+                    questdict['questionText']=staticQuestion.questionText                       
                     questdict['typeID']=str(q.type)
                     questdict['challengeID']= challengeId
                     #questdict['score']=score

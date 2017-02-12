@@ -2,7 +2,7 @@
 <html lang="en">
       <head>
          
-           {% include 'scripts.html' %}
+         {% include 'scripts.html' %}
            
          <script>
 			window.location.hash="no-back-button";
@@ -29,21 +29,23 @@
 				</tr> 
 			{% endfor %}
 			{% endfor %}
-		{% for i,question,user,match_shuffled,question_score,question_total in question_range %}
+			{% for i,question,user,match_shuffled,question_score,question_total in question_range %}
 				<tr id="question"> 
 			<div id="question{{i}}">
-					<td colspan="3"><font style="font-weight:600">{{i}}. {{question.preview}}</font></td>
+					<td colspan="3"><font style="font-weight:600">{{i}}. {{question.questionText}}</font></td>
 				</tr>									
 				<tr>
 					<td colspan="3">Your Answer:</td>
 				</tr>
 				
-		{% if question.typeID == 1 %}
+		{% if question.typeID == '1' %}
 		<!-- multiple choice question -->
 				<tr><td colspan="3"> 
 			{% for j,answer in question.answers_with_count %}	
 			<!-- use a for loop and display the answers in radio buttons -->
-					<input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}" {% ifequal answer.answerText|stringformat:"s" user|stringformat:"s" %}checked{% else %}disabled="disabled"{% endifequal %}>{{answer.answerText}}<br>
+					<input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}" 
+					{% ifequal answer.answerText|stringformat:"s" user|stringformat:"s" %}checked{% else %}disabled="disabled"{% endifequal %}>
+					{{answer.answerText}}<br>
 			{% endfor %}</td>
 				</tr>
 				<tr>
@@ -57,7 +59,7 @@
 				</tr>
 		{% endif %}	
 		
-		{% if question.typeID == 2 %}
+		{% if question.typeID == '2' %}
 		<!-- multiple answer question -->
 				<tr>
 					<td colspan="3">
@@ -77,7 +79,7 @@
 				</tr>
 		{% endif %}	
 		
-		{% if question.typeID == 3 %}
+		{% if question.typeID == '3' %}
 		<!-- matching question -->
 				<tr>
 					<td>
@@ -85,11 +87,11 @@
 			<!-- use a for loop and display the answers in the matching form -->
 					{{j}} .&nbsp;{{answer.answerText}}<br />
 				{% endfor %}</td>
-					<td>
+					<td  width="1%" !important>
 				{% for user_match_answer in user %}
-					<input type="text" value={{user_match_answer}} style="height:initial; width:3em" disabled="disabled"><br />
+					<input type="text" value={{user_match_answer}} style="height:1.6em; width:2.5em; border-bottom: 2px solid white;"  disabled="disabled">
 				{% endfor %}</td>
-					<td style="text-align: left;">
+					<td style="text-align: left;" !important >
 				{% for match in match_shuffled %}
 					{{match}}<br />	
 				{% endfor %}</td>
@@ -113,9 +115,9 @@
 				</tr>
 		{% endif %}	
 			
-		{% if question.typeID == 4 %}
+		{% if question.typeID == '4' %}
 		<!-- true/false question -->
-				<tr>
+				<tr>				
 					<td colspan="3"><input type="radio" name="{{question.questionID}}" value="True" {% ifequal user|stringformat:"s" "True" %}checked{% else %}disabled="disabled"{% endifequal %}>True<br />
 					<input type="radio" name="{{question.questionID}}" value="False" {% ifequal user|stringformat:"s" "False" %}checked{% else %}disabled="disabled"{% endifequal %}>False</td>
 				</tr>
@@ -130,7 +132,7 @@
 				</tr>
 		{% endif %}
 		
-		{% if question.typeID == 5 %}
+		{% if question.typeID == '5' %}
 		<!-- Essay question -->
 				<tr>
 					<td colspan="3"><textarea name="{{question.questionID}}" rows="10" cols="90" disabled="disabled">{{user}}</textarea></td>

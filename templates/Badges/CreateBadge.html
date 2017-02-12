@@ -149,7 +149,24 @@
 //             	}
             	
 //             }
-      </script>
+	</script>
+      
+      <script type="text/javascript">
+		function validateForm() {
+    		var x = document.forms["createBadge"]["cond1_operand2Value"].value;
+    		var y = document.forms["createBadge"]["cond1_operand2TypeSelector"].value;
+    		var z = document.forms["createBadge"]["assignChallenges"].value;
+    		if ( x == "" && y == "constant") {
+        		alert("The condition must be filled out.");
+        		return false;
+    		}
+    		if ( z == "") {
+        		alert("One of: \"All challenges\" or \"Specific challenges\" must be selected.");
+        		return false;
+    		}
+		}
+	</script>
+	
    </head>
    <body>
      <div class="page-wrapper">
@@ -281,7 +298,7 @@
 		               <div class="12u">
                	<h1>Create/Edit <span>Badge</span></h1>
                	<p><span>*</span> Denotes Required Fields.</p>
-               	<form id="createBadge" name="createBadge" action="/oneUp/badges/SaveBadge" method="POST">
+               	<form id="createBadge" name="createBadge" action="/oneUp/badges/SaveBadge" onsubmit="return validateForm()" method="POST">
                	    {% csrf_token %}
                		<input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
                		<table class="bg">
@@ -307,27 +324,27 @@
                            <td colspan="5">
                               <!-- New Badges -->
                               <div class="badge-selector">
-                              	<input type="radio" id="NoviceBadge" name="badgeImage" value="NoviceBdg.png" /> 
+                              	<input type="radio" id="NoviceBadge" name="badgeImage" value="NoviceBdg.png" required/> 
                               	<label class="badge" for="NoviceBadge"><img src="/static/images/badges/NoviceBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              	&nbsp;&nbsp;&nbsp;
                               	<input type="radio" id="JourneymanBadge" name="badgeImage" value="JourneymanBdg.png" />
                               	<label class="badge" for="JourneymanBadge"><img src="/static/images/badges/JourneymanBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              	&nbsp;&nbsp;&nbsp;
                               	<input type="radio" id="ExpertBadge" name="badgeImage" value="ExpertBdg.png" />
                               	<label class="badge" for="ExpertBadge"><img src="/static/images/badges/ExpertBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              	&nbsp;&nbsp;&nbsp;
                               	<input type="radio" id="MasterBadge" name="badgeImage" value="MasterBdg.png" />
                               	<label class="badge" for="MasterBadge"><img src="/static/images/badges/MasterBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              	&nbsp;&nbsp;&nbsp;
                               	<input type="radio" id="ST1Badge" name="badgeImage" value="ST1Bdg.png" />
                               	<label class="badge" for="ST1Badge"><img src="/static/images/badges/ST1Bdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              	&nbsp;&nbsp;&nbsp;
                               	<input type="radio" id="ST5Badge" name="badgeImage" value="ST5Bdg.png" />
                               	<label class="badge" for="ST5Badge"><img src="/static/images/badges/ST5Bdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              	&nbsp;&nbsp;&nbsp;
                               	<input type="radio" id="ST10Badge" name="badgeImage" value="ST10Bdg.png" />
                               	<label class="badge" for="ST10Badge"><img src="/static/images/badges/ST10Bdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              	&nbsp;&nbsp;&nbsp;
                               	<input type="radio" id="ST25Badge" name="badgeImage" value="ST25Bdg.png" />
                               	<label class="badge" for="ST25Badge"><img src="/static/images/badges/ST25Bdg.png" alt="Choose an image for badge"></label>
                               </div>
@@ -363,7 +380,7 @@
 	                            			</div>
 				                            <div id="selector1">
 					                            <div class="three-columns">
-				                            	<input type="radio" name="cond1_operand2TypeSelector"  value="constant" checked/>
+				                            	 <input type="radio" name="cond1_operand2TypeSelector"  value="constant" checked/>
 				                            		<i>Enter a constant</i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>OR</strong> 
 				                            		<input style="border: solid 1px rgba(128, 128, 128, 0.5); width:100%; height: 40px;" type="text" name="cond1_operand2Value" id="cond1_operand2Value" />
 	                             					<input type="radio" name="cond1_operand2TypeSelector"  value="sysvariable" /> 

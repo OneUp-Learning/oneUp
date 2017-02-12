@@ -11,8 +11,12 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import oneUp
-from django.conf.global_settings import LOGIN_URL
+from django.conf.global_settings import LOGIN_URL, STATIC_ROOT
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+#This is used for uploading AvatarImages
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #This is for the sever
+MEDIA_URL =  'media/' #This is for the html
 
 
 # Quick-start development settings - unsuitable for production
@@ -24,12 +28,14 @@ SECRET_KEY = '6l1(5i-qm34-eb!@un9gc%(g$o^=rgw8l++0!o9t6-^($qi6&k'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+TEMPLATE_DEBUG = True
+
 ALLOWED_HOSTS = []
 
 # Including the static folder to access it in the urls.py
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_URL = '/static/'
-ADMIN_MEDIA_PREFIX = '/media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
+#MEDIA_URL = '/static/'
+#ADMIN_MEDIA_PREFIX = '/media/'
 
 # Application definition=
 INSTALLED_APPS = (
@@ -69,13 +75,21 @@ DATABASES = {
     }
 }
 
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')   # DD
+
+TEMPLATE_DIRS = (                   # DD
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    TEMPLATE_PATH,
+)
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS' : [ os.path.join(BASE_DIR, 'templates') ],
+        'DIRS' : [ TEMPLATE_PATH ],
         'APP_DIRS': True,
         'OPTIONS': {
-            'debug':True,
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -89,6 +103,8 @@ TEMPLATES = [
 FIXTURE_DIRS = ()
 
 STATIC_PATH = os.path.join(BASE_DIR,'static')
+
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 STATIC_URL = '/OneUp/' # You may find this is already defined as such.
 

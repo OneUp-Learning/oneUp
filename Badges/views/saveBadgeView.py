@@ -78,6 +78,8 @@ def SaveBadge(request):
             if request.POST['cond1_operand2TypeSelector'] == 'constant':
                 conditionOperand2Type = OperandTypes.immediateInteger
                 conditionOperand2Value = request.POST['cond1_operand2Value'] 
+                if  conditionOperand2Value =='':
+                    conditionOperand2Value ='0'
             else:
                 conditionOperand2Type =  OperandTypes.systemVariable   
                 conditionOperand2Value = request.POST['cond1_operand2Variable']

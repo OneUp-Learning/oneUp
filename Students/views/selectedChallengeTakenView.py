@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.template import RequestContext
 from django.shortcuts import render
 
-from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Courses, Challenges
+from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Courses, Challenges, StaticQuestions
 from Students.models import Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
 import random 
 from _ctypes import Array
@@ -110,7 +110,8 @@ def SelectedChallengeTaken(request):
                 questdict['answers_with_count'] = zip(answer_range,answers)  
                 questdict['match_with_count'] = zip(answer_range,answers) 
                 
-                
+                staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
+                questdict['questionText']=staticQuestion.questionText                                       
                 questdict['typeID']=str(q.type)
                 questdict['challengeID']= challengeId
                 

@@ -1,13 +1,13 @@
 from django.template import RequestContext
 from django.shortcuts import render, redirect
 
-from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges
+from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics
 from Badges.models import CourseConfigParams
 
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 
-from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name
 from django.contrib.auth.models import User
 
 @login_required
@@ -84,6 +84,16 @@ def courseCreateView(request):
             unassigned_problem_challenge.numberAttempts = 0
             unassigned_problem_challenge.timeLimit = 0
             unassigned_problem_challenge.save()
+            
+            # Add a default topic for this course
+            topic = Topics()
+            topic.topicName = unspecified_topic_name
+            topic.save()
+            
+            courseTopic = CoursesTopics()
+            courseTopic.topicID = topic
+            courseTopic.courseID = course
+            courseTopic.save()
             
             return render(request,'Administrators/createCourse.html',context_dict)
             
