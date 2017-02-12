@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.views import login
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 import django.views.static
 
 admin.autodiscover()
@@ -34,5 +35,6 @@ urlpatterns = [
 #settings to include the static folder using the MEDIA_ROOT declared in the settings.py file
 if settings.DEBUG:
     urlpatterns += [
-        url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.MEDIA_ROOT}),
+        url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
+        url(r'^media/(?P<path>.*)$', django.views.static.serve,{'document_root': settings.MEDIA_ROOT}),
     ]

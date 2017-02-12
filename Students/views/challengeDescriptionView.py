@@ -43,14 +43,14 @@ def ChallengeDescription(request):
                 challenge = Challenges.objects.get(pk=int(challengeId))
                 
                 data = getattr(challenge,'timeLimit')
-                if data == 999999:
+                if data == 99999:
                     context_dict['timeLimit'] = "no time limit"
                 else:
                     context_dict['timeLimit']= data
                     
                 data = getattr(challenge,'numberAttempts')
                 print(str(data))
-                if data == 999999:
+                if data == 99999:
                     context_dict['numberAttempts'] = "unlimited"
                 else:
                     context_dict['numberAttempts']= data
@@ -61,7 +61,7 @@ def ChallengeDescription(request):
                     context_dict[attr] = getattr(challenge, attr)
 
                 total_attempts = challenge.numberAttempts
-                if data == 999999:
+                if data == 99999:
                     context_dict['more_attempts'] = "unlimited"
                 else:                             
                     # getting the number of attempts to check if the student is out of attempts

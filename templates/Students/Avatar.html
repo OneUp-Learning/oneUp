@@ -18,6 +18,16 @@
 		</div>
 		</div>
 		</br>
+		
+		<div>
+		<form id="uploadbanner" action="/oneUp/students/avatarUploadView" enctype="multipart/form-data" method="POST" >
+			{% csrf_token %}
+   			<input id="fileupload" name="myfile" type="file" /> <!-- i need action to call funciton in python  -->
+   			<input type="submit" value="Upload" id="Upload" />
+		</form>
+		</div>
+		<br/>
+		
 		<form action="/oneUp/students/avatarView " method="POST">
 		{% csrf_token %}
        <!-- INSERTED DYNAMIC TABLE --> 

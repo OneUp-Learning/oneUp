@@ -4,12 +4,15 @@ Created on May 1, 2014
 @author: iiscs
 '''
 from django.conf.urls import include, url
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import RedirectView
 
 from Students.views.achievementsView import achievements
 from Students.views.allAnnouncementsView import allAnnouncements
 from Students.views.avatarView import avatar
+from Students.views.avatarUploadView import avatarUpload
 from Students.views.challengesListView import ChallengesList
 from Students.views.challengesWarmUpListView import ChallengesWarmUpList
 from Students.views.challengeDescriptionView import ChallengeDescription
@@ -29,6 +32,7 @@ admin.autodiscover()
 
 urlpatterns = [    
     url(r'^achievements',achievements,name='achievements'),
+    url(r'^avatarUpload', avatarUpload, name='avatarUpload'),
     url(r'^avatar',avatar,name='avatar'),
     url(r'^ChallengesWarmUpList',ChallengesWarmUpList, name='ChallengesWarmUpList'),
     url(r'^ChallengesList',ChallengesList, name='ChallengesList'),
