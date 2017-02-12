@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from Instructors.views.activityAssignPointsView import activityAssignPointsView
+from Instructors.views.activityAssignPointsView import assignedPointsList, activityAssignPointsView
 from Instructors.views.activityCreateView import activityCreateView
 from Instructors.views.activityListView import activityList
 from Instructors.views.activityListVizView import activityListViz
@@ -13,7 +13,7 @@ from Instructors.views.allAnnouncementsView import allAnnouncements
 from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
 from Instructors.views.challengeCreateView import challengeCreateView
 from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
-from Instructors.views.challengeEditView import challengeEditView
+#from Instructors.views.challengeEditView import challengeEditView
 from Instructors.views.challengeListView import ChallengesList
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
@@ -71,8 +71,9 @@ from Instructors.views.luaTestView import luaTestView
 admin.autodiscover()
 
 urlpatterns = [
-
-    url(r'^activityAssignPoints', activityAssignPointsView, name='activityAssignPointsView'),
+    
+    url(r'^activityAssignPointsForm', assignedPointsList, name='activityAssignPointsForm'),
+    url(r'^activityAssignPoints', activityAssignPointsView, name='activityAssignPoints'),
     url(r'^activitiesList',activityList, name='activityList'),
     url(r'^announcementCreate', announcementCreateView, name='announcementCreateView'),
     url(r'^announcementList', announcementList, name='announcementListView'),           
@@ -82,7 +83,7 @@ urlpatterns = [
 
     url(r'^challengeCreate',challengeCreateView, name='challengeCreateView'),
     url(r'^challengeQuestionsList',challengeEditQuestionsView, name='challengeEditQuestionsView'),
-    url(r'^challengeEdit',challengeEditView, name='challengeEditView'),
+#    url(r'^challengeEdit',challengeEditView, name='challengeEditView'),
     url(r'^challengesList',ChallengesList, name='ChallengesList'),
     url(r'^challengeSaveSelectedQuestions',challengeSaveSelectedQuestions, name='challengeSaveSelectedQuestions'),
     url(r'^challengeSave',challengeSaveView, name='challengeSaveView'),

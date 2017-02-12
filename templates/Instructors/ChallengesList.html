@@ -71,16 +71,16 @@
                               {% csrf_token %} 
                                  <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><button type="button">View</button></a>                 
                                  <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><button type="button">Edit</button></a> 
-                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a>                             
+                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a> &nbsp;&nbsp;                            
                            {% else %}
                               <form action="/oneUp/instructors/deleteChallenge" method="POST">
                               {% csrf_token %} 
                                  <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view"><button type="button">View</button></a> 
                                  <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}"><button type="button">Edit</button></a>
-                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a>                                              
+                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a> &nbsp;&nbsp;                                             
                            {% endif %}                                 
                                  <input type="hidden" name="challengeID" value="{{chall_ID}}">
-                                 <input id="smallButton" type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                                 <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
                               </form>
                            </td>
                         </div>

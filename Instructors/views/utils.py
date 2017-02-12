@@ -1,5 +1,6 @@
 #import nltk
 from Instructors.models import Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics
+from Instructors.constants import unspecified_topic_name
 import re
 import string
 def saveTags(tagString, resource, resourceIndicator):
@@ -114,8 +115,6 @@ def saveChallengeTags(tagString, challenge):        #DD 02/24/2015
                 tword = tword.strip()
                 if tword != "":
                     tagsList2.append(tword)
-                
-            print ("in utils:  end of split list")
             
             for tagWord in tagsList2:
                 
@@ -250,7 +249,7 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
             # delete all previous skill for this question and course                            #AA 3/24/15
             resourceSkills = QuestionsSkills.objects.filter(questionID = question.questionID).delete()                                           
 
-def saveChallengesTopics(topicstring, challenge):        #10/01/2015
+def saveChallengesTopics(topicstring, challenge):        
 
         #if topicstring is not null or empty
         if not topicstring == "":
@@ -261,26 +260,26 @@ def saveChallengesTopics(topicstring, challenge):        #10/01/2015
             #split string into an array 
             topicsList = topicstring.split(',')
             
-            #Break the elements in topicsList of name
+            topicNames = set()
             for topic in topicsList:
-                topicName  = topic.strip()
-                
-                # find the skillID for this skillName
-                for t in Topics.objects.all():
-                    print(t.topicName)
-                    if topicName == t.topicName:
-                        topicID = t.topicID
-                        print(topicID)
-                              
-                # now add the new topic for this challenge                 
-                # create a new topic-challenge object              
+                topicNames.add(topic.strip())
+            print(topicNames)
+            
+            # remove duplicates
+            #uniqueTopicNames = set(topicNames)
+            if len(topicNames) > 1:
+                topicNames.discard(unspecified_topic_name)
+                print(topicNames)
+            for topicName in topicNames:               
+                topic = Topics.objects.filter(topicName=topicName)               
+
+                # now add the new topic for this challenge                              
                 newCTopicsObject = ChallengesTopics()
                 newCTopicsObject.challengeID = challenge
-                newCTopicsObject.topicID = Topics(topicID)                
-               
+                newCTopicsObject.topicID = topic[0]              
                 newCTopicsObject.save()
         else:
-            # delete all previous skill for this question and course                    
+            # delete all previous topics for this challenge                    
             resourceTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID).delete()               
                                                                 
 def extractTags(resource, resourceIndicator):   
@@ -349,4 +348,4 @@ def extractTopics(resource, resourceIndicator):
         commaCheck = True 
                                                     
     return topicstring      
-                           
+                                                      

@@ -1,4 +1,4 @@
-from Badges.models import Rules, ActionArguments, Conditions, Badges, BadgeChallenges
+from Badges.models import Rules, ActionArguments, Conditions, Badges
 from Badges.models import FloatConstants, StringConstants
 from Badges.enums import OperandTypes, ObjectTypes, Event, SystemVariable, Action
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student

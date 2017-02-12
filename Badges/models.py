@@ -201,12 +201,12 @@ class CourseMechanics(models.Model):
         return str(self.courseID)+","+str(self.gameMechanismID)
 
 # This table has the information about the badges and assigned challenges
-class BadgeChallenges(models.Model):
-    badgeChallengeID = models.AutoField(primary_key=True)
-    badgeID = models.ForeignKey(Badges, verbose_name="the related badge", db_index=True)
-    challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
-    def __str__(self):              
-        return str(self.badgeID)+","+str(self.challengeID)
+#class BadgeChallenges(models.Model):
+#    badgeChallengeID = models.AutoField(primary_key=True)
+#    badgeID = models.ForeignKey(Badges, verbose_name="the related badge", db_index=True)
+#    challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
+#    def __str__(self):              
+#        return str(self.badgeID)+","+str(self.challengeID)
      
 # '''
 # Course Configuration parameters (goes into Badges.models.py)

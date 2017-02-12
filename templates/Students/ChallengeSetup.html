@@ -128,14 +128,15 @@
 	         <!-- Set time out for the test if the time limit has reached -->
 		  	var duration = {{question.testDuration}}; //time limit in minutes from database
 		  	var milli = now.getMilliseconds(); //current time in milliseconds
-		  	var limit = milli+(duration*1000*60) // test time duration in milliseconds (current time + time limit in milliseconds)
-		
+		  	var limit = milli+(duration*1000*60); // test time duration in milliseconds (current time + time limit in milliseconds)
+		  
 			setTimeout("formSubmit()", limit); //if the time limit of the test has reached, the test will be submitted automatically
 		
 		    function formSubmit()
 			{
 				document.getElementById('submit_hidden').click()
 			};
+			
 		  	</script>		
 		{% endfor %}
 				</table>
@@ -146,6 +147,7 @@
          </div></div></div>
          	</div>   
          </div>
+         
          <!-- Footer -->
 
         {% include 'footer.html' %}

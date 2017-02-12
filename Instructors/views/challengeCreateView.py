@@ -1,13 +1,13 @@
 from django.template import RequestContext
 from django.shortcuts import render, redirect
 from Instructors.models import Answers, CorrectAnswers, Courses
-from Instructors.models import Challenges,  Topics, CoursesTopics, ChallengesTopics
+from Instructors.models import Challenges,  Topics, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import utils, challengeListView
 from django.contrib.auth.decorators import login_required
-from _datetime import datetime, tzinfo
-from time import time, strptime, struct_time
-from time import strftime
+from Instructors.constants import unspecified_topic_name
+
+from time import time
 import datetime
 
 
@@ -21,15 +21,14 @@ def challengeCreateView(request):
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
-
+  
     # check if course was selected
     if 'currentCourseID' in request.session:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
     else:
         context_dict['course_Name'] = 'Not Selected'
-        
-            
+                   
     questionObjects= []
     qlist = []
     topic_ID = []
@@ -55,8 +54,7 @@ def challengeCreateView(request):
     
     if request.POST:
 
-        # Check whether a new challenge or editing an existing challenge        
-        #if 'challengeID' in request.POST: 
+        # Check whether a new challenge or editing an existing challenge         
         if request.POST['challengeID']:
             challenge = Challenges.objects.get(pk=int(request.POST['challengeID']))
         else:
@@ -133,19 +131,29 @@ def challengeCreateView(request):
             else:
                 challenge.endTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
         
-        num = request.POST['numberAttempts']  #empty string and number 0 evaluate to false
-        if not num:
-            challenge.numberAttempts = 999999
+        # Number of attempts
+        num = str(request.POST.get('unlimittedAttempts','false'))
+        if num == str("true"):
+            challenge.numberAttempts = 99999   # unlimited attempts
         else:
-            numberAttempts = int(request.POST.get("numberAttempts", 1))
-            challenge.numberAttempts = numberAttempts
+            num = request.POST['numberAttempts']  #empty string and number 0 evaluate to false
+            if not num:
+                challenge.numberAttempts = 99999
+            else:
+                numberAttempts = int(request.POST.get("numberAttempts", 1))
+                challenge.numberAttempts = numberAttempts
         
-        num = request.POST['timeLimit']    
-        if not num:
-            challenge.timeLimit = 999999
+        # Time to complete the challenge
+        time = str(request.POST.get('unlimittedTime','false'))
+        if time == str("true"):
+            challenge.timeLimit = 99999   # unlimited time
         else:
-            timeLimit = int(request.POST.get("timeLimit", 45))
-            challenge.timeLimit = timeLimit
+            time = request.POST['timeLimit']    #empty string and number 0 evaluate to false
+            if not time:
+                challenge.timeLimit = 99999
+            else:
+                timeLimit = int(request.POST.get("timeLimit", 45))
+                challenge.timeLimit = timeLimit
         
 #         challengePassword = request.POST.get("challengePassword")
 #         challenge.challengePassword = challengePassword
@@ -156,7 +164,7 @@ def challengeCreateView(request):
 #             challenge.feedbackOption = 0
                               
         # check if course was selected
-        if 'currentCourseID' in request.session:                        # 03/17/2015
+        if 'currentCourseID' in request.session:                        
             currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
             challenge.courseID = currentCourse
             context_dict['course_Name'] = currentCourse.courseName
@@ -166,23 +174,20 @@ def challengeCreateView(request):
                        
         challenge.save();  #Save challenge to database
         
-        # save Challenges Topics pair to db        
-        # first need to check whether a new topic is selected 
-        #if request.session['currentCourseID']:          # DD 12/09/15
-            #courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
-            
-        if str(request.POST.get('isGraded','false')) == 'false':
-            # Processing and saving topics for the challenge in DB
-            topicString = request.POST.get('all_Topics', "default")
-            utils.saveChallengesTopics(topicString, challenge)
-
-            topicIDselected = request.POST.get('Topic')
-            if not topicIDselected == "":
-                challengeTopic = ChallengesTopics()
-                challengeTopic.topicID = Topics(topicIDselected)
-                challengeTopic.challengeID = challenge
-                challengeTopic.save()
-                    
+        # Processing and saving topics for the challenge in DB
+        topicsString = request.POST.get('all_Topics', "")
+        topicSelected = request.POST.get('Topic')
+        
+        if topicsString == "":
+            if topicSelected == "":
+                topicsString = unspecified_topic_name
+            else:
+                topicsString = topicSelected  
+        else:
+            if not topicSelected == "":
+                topicsString = topicsString + ',' +  topicSelected
+                
+        utils.saveChallengesTopics(topicsString, challenge)                   
                         
         # Processing and saving tags in DB
         tagString = request.POST.get('tags', "default")
@@ -195,7 +200,8 @@ def challengeCreateView(request):
             return redirect('/oneUp/instructors/challengesList?warmUp')
         else:
             return redirect('/oneUp/instructors/challengesList')
-            
+    
+    # GET        
     if request.GET:
         # In case we specify a different number of blanks
         if 'num_answers' in request.GET:
@@ -220,10 +226,21 @@ def challengeCreateView(request):
             
             for attr in string_attributes:
                 data = getattr(challenge,attr)
-                if data == 999999:
+                if data == 99999:
                     context_dict[attr] = ""
                 else:
                     context_dict[attr]= data
+                          
+            if challenge.numberAttempts == 99999:
+                context_dict['unlimittedAttempts']=True
+            else:
+                context_dict['unlimittedAttempts']=False 
+            
+            if challenge.timeLimit == 99999:
+                context_dict['unlimittedTime']=True
+            else:
+                context_dict['unlimittedTime']=False 
+            
                           
             if challenge.endTimestamp.strftime("%Y") < ("2900"):    
                 context_dict['endTimestamp']=getattr(challenge, 'endTimestamp').strftime("%m/%d/%Y %I:%M:%S %p")
@@ -273,9 +290,9 @@ def challengeCreateView(request):
             #getting all the questions of the challenge except the matching question
             challengeDetails = Challenges.objects.filter(challengeID = challengeId)
             
-            if not challenge.isGraded:
+            #if not challenge.isGraded:
                 # Extract the topics                                       
-                context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
+            context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
             
                         
             for q in questionObjects:
@@ -286,7 +303,9 @@ def challengeCreateView(request):
                 questdict['answers_with_count'] = zip(answer_range,answers)  
                 questdict['match_with_count'] = zip(answer_range,answers) 
                 
-                
+                staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
+                questdict['questionText']=staticQuestion.questionText
+
                 questdict['typeID']=str(q.type)
                 questdict['challengeID']= challengeId
                 

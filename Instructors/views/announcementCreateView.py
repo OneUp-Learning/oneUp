@@ -91,7 +91,18 @@ def announcementCreateView(request):
                 
                 for attr in string_attributes:
                     context_dict[attr]=getattr(announcement,attr)
+
+                # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
+                defaultTime = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+                announceEndTime = getattr(announcement, 'endTimestamp') 
+ 
+                if (announceEndTime.year < defaultTime.year):
+                    displayEndTime = announceEndTime.strftime("%m/%d/%Y %I:%M:%S %p")  
+                else:
+                    displayEndTime = ""
                     
-                context_dict['endTimestamp']=getattr(announcement, 'endTimestamp').strftime("%m/%d/%Y %I:%M:%S %p")
+                context_dict['endTimestamp']=displayEndTime
+                #context_dict['endTimestamp']=getattr(announcement, 'endTimestamp').strftime("%m/%d/%Y %I:%M:%S %p")
+                
 
     return render(request,'Instructors/AnnouncementCreateForm.html', context_dict)

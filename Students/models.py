@@ -1,9 +1,16 @@
+import os
+
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities
 from Badges.models import Badges
 from Badges.enums import Event, OperandTypes, SystemVariable, Action
 from datetime import datetime
+from distutils.command.upload import upload
+from django.template.defaultfilters import default
+from django.conf.global_settings import MEDIA_URL
+from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
+from cgi import maxlen
 
 # Create your models here.
  
@@ -25,9 +32,16 @@ class Student(models.Model):
     # date_joined DateTime of creation 
     universityID = models.CharField(max_length=100)
     avatarImage= models.CharField(max_length=200, default='')
+        
     def __str__(self):              
         #return str(self.studentID)+","+self.name+self.name
         return str(self.user.username)
+  
+#class for Avatar Images
+class UploadedAvatarImage(models.Model):
+        avatarImage = models.FileField(max_length=500, upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedAvatarImages'))
+        avatarImageFileName = models.CharField(max_length=200, default='')
+
     
 # Table listing all the students and the respective courses they are currently registered for   
 class StudentRegisteredCourses(models.Model):

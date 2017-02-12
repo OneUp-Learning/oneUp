@@ -30,7 +30,7 @@ def achievements(request):
     else:
         context_dict["is_student"] = True
         stud = request.user
-        sID = Student.objects.get(stud)
+        sID = Student.objects.get(user=stud)
         context_dict['avatar'] = sID.avatarImage        
 
   

@@ -5,20 +5,14 @@
 from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from Students.models import StudentActivities, Student
+from Students.models import StudentRegisteredCourses, Student
 from Instructors.models import Courses, Activities
 from Instructors.models import AssignedActivities
 from Badges.events import register_event
 from Badges.enums import Event
 from Instructors.views.activityListView import createContextForActivityList
 
-@login_required
 def activityAssignPointsView(request):
-    #request the context of the request
-    #The request contains information such as the client's machine details, for example.
- 
-    context_dict = { }
-    
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
@@ -26,91 +20,90 @@ def activityAssignPointsView(request):
     
     
     if request.method == 'POST':
-        #Assign points to each checked student for completing an activity
-        
-        if 'studentSelect[]' and 'activity' and 'points' in request.POST:
-            studentList = request.POST.getlist('studentSelect[]')
-            # Get assigned activities for current activity being submitted (AH)
-            # Filter by the name of the activity/ID (AH)
-            assignments = AssignedActivities.objects.filter(activityID = Activities.objects.get(activityName = request.POST['activity']))
-            for si in studentList:
-                studentID = Student.objects.get(pk = si)
-                noStudent = True
-                # If at least one activity of that name is saved in AssignedActivities (AH)
-                if(assignments):
-                    # Loop through and check if the assigned activity and student is in the AssignedActivities (AH)
-                    for assign in assignments:
-                        if assign.recipientStudentID == studentID:
-                            # Override the activity with the points (AH)
-                            assign.pointsReceived = request.POST['points']
-                            assign.save()
-                            # The student is assigned an activity; no need to create a new one (AH)
-                            noStudent = False
-                            #Register event for participationNoted
-                            register_event(Event.participationNoted, request, assign.recipientStudentID, assign.activityID.activityID)
-                            print("Registered Event: Participation Noted Event, Student: " + str(assign.recipientStudentID) + ", Activity Assignment: " + str(assign.activityAssigmentID))
-                # If there are no assigned activities of this name or
-                # If the student is not assigned to an activity but the activity is assigned to other students (AH)
-                if noStudent == True or not assignments:
-                    # Create new activity if there are none of this activity type in assigned activities (AH)
+        # Get all students assigned to the current course (AH)
+        studentList = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
+        for student in studentList:
+            # See if a student is assigned to this activity (AH)
+            # Should only be one match (AH)
+            assignments = AssignedActivities.objects.filter(activityID = request.POST['activityID'], recipientStudentID = student.studentID.id).first()
+            studentPoints = request.POST[str(student.studentID.id)]
+            #print("Student Points: " + studentPoints)
+            
+            # If student is assigned to this activity...
+            if assignments:
+                # Check if the student has points wanting to be assigned (AH)
+                if not studentPoints == '0':
+                    # Override the activity with the student points (AH)
+                    assignments.pointsReceived = request.POST[str(student.studentID.id)]
+                    assignments.save()
+                    #print("Override")
+                    #Register event for participationNoted
+                    register_event(Event.participationNoted, request, assignments.recipientStudentID, assignments.activityID.activityID)
+                    print("Registered Event: Participation Noted Event, Student: " + str(assignments.recipientStudentID) + ", Activity Assignment: " + str(assignments.activityAssigmentID))
+                else:
+                    # Delete activity assignment if student points is empty = 0 (AH)
+                    assignments.delete()       
+                    #print("Deleted")
+            else:
+                # Create new assigned activity object for the student if it has points wanting to be assigned (AH)
+                if not studentPoints == '0':
+                    # Create new activity (AH)
                     assignment = AssignedActivities()
-                    assignment.activityID = Activities.objects.get(activityName = request.POST['activity'])
-                    assignment.recipientStudentID = studentID
-                    assignment.pointsReceived = request.POST['points']
+                    assignment.activityID = Activities.objects.get(activityID = request.POST['activityID'])
+                    assignment.recipientStudentID = Student.objects.get(pk = student.studentID.id)
+                    assignment.pointsReceived = request.POST[str(student.studentID.id)]
                     assignment.save()
+                    #print("New")
                     #Register event for participationNoted
                     register_event(Event.participationNoted, request, assignment.recipientStudentID, assignment.activityID.activityID)
-                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.recipientStudentID) + ", Activity Assignment: " + str(assignment.activityAssigmentID))
-
-    
-    # prepare context for Activity Assignment List      
-    context_dict = createContextForPointsAssignment()
        
+                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.recipientStudentID) + ", Activity Assignment: " + str(assignment.activityAssigmentID))                           
+    
+    # prepare context for Activity List      
+    context_dict = createContextForActivityList(request) 
+
+    context_dict["logged_in"]=request.user.is_authenticated()
+    if request.user.is_authenticated():
+        context_dict["username"]=request.user.username
+        
     return redirect('/oneUp/instructors/activitiesList', context_dict)    
         
         
-def createContextForPointsAssignment():
+def createContextForPointsAssignment(request):
     context_dict = { }
-
-    student_Activity_Assignment_ID = []      
     student_ID = []
     student_Name = []
-    activity_ID = []
-    activity_Name = []
-    course_ID = []
-    assignment_Timestamp = []
-    activity_Score = []
-    instructor_Feedback = []
+    student_Points = []
+    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
     
+    for student in studentCourse:
+        student_ID.append(student.studentID.id)
+        student_Name.append((student.studentID).user.get_full_name())
+        if AssignedActivities.objects.filter(activityID = request.GET['activityID'], recipientStudentID = student.studentID.id).exists():
+            student_Points.append(AssignedActivities.objects.get(activityID = request.GET['activityID'], recipientStudentID = student.studentID.id).pointsReceived)
+        else:
+            student_Points.append("0")
         
-    assignedActivityScores = StudentActivities.objects.all().order_by('-timestamp')
-    
-    for assignedScore in assignedActivityScores:
-        student_Activity_Assignment_ID.append(assignedScore.studentActivityAssignmentID) #pk
-        student_ID.append(assignedScore.studentID) 
-        student_Name.append(assignedScore.studentName)
-        activity_ID.append(assignedScore.activityID)
-        nameOfActivity = Activities.objects.get(pk = assignedScore.activityID)
-        activity_Name.append(nameOfActivity)
-        course_ID.append(assignedScore.courseID)
-        assignment_Timestamp.append(assignedScore.timestamp)
-        activity_Score.append(assignedScore.activityScore)
-        instructor_Feedback.append(assignedScore.instructorFeedback[:200])
-    
-      
-    # The range part is the index numbers.
-    context_dict['assignedActivityPoints_range'] = zip(range(1,assignedActivityScores.count()+1),student_Activity_Assignment_ID,student_ID,student_Name,activity_ID,activity_Name,course_ID,assignment_Timestamp,activity_Score,instructor_Feedback)
+    context_dict['activityID'] = request.GET['activityID']
+    context_dict['activityName'] = Activities.objects.get(activityID = request.GET['activityID']).activityName
+    context_dict['assignedActivityPoints_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points)
     return context_dict
-
     
 @login_required
 def assignedPointsList(request):
 
-    context_dict = createContextForPointsAssignment()
+    context_dict = createContextForPointsAssignment(request)
 
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username        
+        context_dict["username"]=request.user.username
+
+    # check if course was selected
+    if 'currentCourseID' in request.session:
+        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+        context_dict['course_Name'] = currentCourse.courseName
+    else:
+        context_dict['course_Name'] = 'Not Selected'        
 
     return render(request,'Instructors/ActivityAssignPointsForm.html', context_dict)
 
