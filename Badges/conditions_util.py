@@ -87,22 +87,22 @@ def cond_from_mandatory_cond_list(cond_list):
 # Given a condition we find the mandatory subcondition which says which challenge this is connected to.
 # We assume for this that the condition will have an associated challenge somewhere in the initial
 # subtree with all of the ANDs.
-def get_associated_challenge(cond):
+def get_associated_challenge_if_exists(cond):
     mand_conds = get_mandatory_conditions(cond)
     for mc in mand_conds:
         if (    mc.operand1Type == OperandTypes.systemVariable
                 and mc.operand1Value == SystemVariable.challengeId
                 and mc.operand2Type == OperandTypes.immediateInteger
         ):
-            return mc.operand2Value
+            return (True,mc.operand2Value)
         if (    mc.operand2Type == OperandTypes.systemVariable
                 and mc.operand2Value == SystemVariable.challengeId
                 and mc.operand2Type == OperandTypes.immediateInteger
         ):
-            return mc.operand1Value
+            return (True,mc.operand1Value)
 
     # We have finished the whole loop and found nothing/
-    return "No associated challenge found"
+    return (False,"No associated challenge found")
 
 # Takes a list of conditions and removes any which associate with a challenge
 def filter_out_associated_challenges(cond_list):

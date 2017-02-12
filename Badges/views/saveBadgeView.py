@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges
-from Badges.models import ActionArguments, Conditions, Rules, Badges, BadgeChallenges, RuleEvents
+from Badges.models import ActionArguments, Conditions, Rules, Badges, RuleEvents
 from Badges.enums import Action, Event, OperandTypes , SystemVariable
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
     cond_from_mandatory_cond_list
@@ -124,7 +124,7 @@ def SaveBadge(request):
                 challenge_cond.operand1Type = OperandTypes.systemVariable
                 challenge_cond.operand1Value = SystemVariable.challengeId
                 challenge_cond.operand2Type = OperandTypes.immediateInteger
-                challenge_cond.operand2Value = challenge
+                challenge_cond.operand2Value = challenge.challengeID
                 challenge_cond.save()
                 conditions.append(challenge_cond)
                 

@@ -274,7 +274,6 @@
                   <p><span>*</span> Denotes Required Fields.</p>
                   <form id= "editBadge" name= "editBadge" action="/oneUp/badges/SaveBadge" method="POST">
                      {% csrf_token %}
-                     {% for b, badge in badges %}
                      <input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
                      <input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
                      <table class="bg">
@@ -387,29 +386,26 @@
                         <tr>
                            <td colspan="5">
                               <div class="two-columns">
-	                             <input type="radio" name="assignChallenges" value="1" class="selectChallenges" {% ifequal badge.assignToChallenges|stringformat:"s" "1" %}checked="checked"{% endifequal %}/> All Challenges
-	                             <input type="radio" name="assignChallenges" value="2" class="selectChallenges" {% ifequal badge.assignToChallenges|stringformat:"s" "2" %}checked="checked"{% endifequal %}/> Specific Challenges 		
+	                             <input type="radio" name="assignChallenges" value="1" class="selectChallenges" {% if has_challenge is False %}checked="checked"{% endif %}/> All Challenges
+	                             <input type="radio" name="assignChallenges" value="2" class="selectChallenges" {% if has_challegen is True %}checked="checked"{% endif %}/> Specific Challenge 		
                               </div>
                               <ol id="specChall" name="specChall" class="formset">
                                  <li><strong>Choose the Challenge to which the Badge should be applied:</strong></li>
                                  <li>
                                  <div class="select-wrapper">
-                                 <select style="height: 200px; width: 200px" name="specChallenge" id="specChallenge">
+                                 <select name="specChallenge" id="specChallenge">
                                     {% for j, challenge in challenges %}
-                                    <option value="{{challenge.challengeID}}" {% ifequal badge.assignToChallenges|stringformat:"s" "2" %}
-                                    										  	{% for a, assignChallenge in assignChallenges %}
-                                    										  		{% ifequal challenge.challengeID|stringformat:"s" assignChallenge|stringformat:"s"  %}
+                                    <option value="{{challenge.challengeID}}" {% if has_challenge is True %}
+                                    										  		{% ifequal challenge.challengeID|stringformat:"s" associated_challenge|stringformat:"s"  %}
                                     										  			selected
                                     										  		{% endifequal %}
-                                    										  	{% endfor %}
-                                    										  {% endifequal %}
+                                    										  {% endif %}
                                     										  >{{challenge.challengeName}}</option>	
-                                    {% endfor %}
                                     {% endfor %} 
                                     </select>
                                     </div>
                                  </li>
-                                 <li><font style="font-size:.8em;">Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</font></li>
+                                 <li><font style="font-size:.8em;"><!--Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.--></font></li>
                               </ol>
                            </td>
                         </tr>
