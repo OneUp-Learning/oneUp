@@ -9,14 +9,13 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from Instructors.models import DynamicQuestions
-from Instructors.models import QuestionTypes
-
 from Instructors.lupaQuestion import LupaQuestion
+
+from Badges.enums import QuestionTypes
 
 from django.views.decorators.csrf import csrf_exempt
 import sys
 
-DynamicQuestionType = QuestionTypes.objects.get(pk=6)
 
 def dynamicQuestionForm(request):
     # Request the context of the request.
@@ -44,7 +43,7 @@ def dynamicQuestionForm(request):
             setattr(question,attr,request.POST[attr])
                    
         # Fix the question type
-        question.type = DynamicQuestionType
+        question.type = QuestionTypes.dynamic
         question.save();  #Writes to database.
     
     elif request.method == 'GET':
@@ -79,7 +78,7 @@ end
     #question = LupaQuestion(code,[],5,"edit",1)
     #context_dict["test"] = question.getQuestionPart(1);
 
-    return render_to_response('Instructors/DynamicQuestionForm.html', context_dict, context)
+    return render(request,'Instructors/DynamicQuestionForm.html', context_dict)
 
 def makePartHTMLwithForm(question,part):
     formHead = '<form name="'+question.uniqid+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+question.uniqid+'\');return false;" >'
@@ -97,10 +96,11 @@ def dynamicQuestionGetPartNonAJAX():
     return ""
 
 def makeLibs(dynamicQuestion):
-    libs = LibraryToQuestion.objects.filter(question=dynamicQuestion)
+# Dynamic Library support is incomplete.  We'll add this soon.  For now we just return an empty list.
+#    libs = LibraryToQuestion.objects.filter(question=dynamicQuestion)
     output = []
-    for lib in libs:
-        output.append(lib.name)
+#    for lib in libs:
+#        output.append(lib.name)
     return output
 
 def dynamicQuestionPartAJAX(request):
@@ -164,9 +164,8 @@ def dynamicQuestionPartAJAX(request):
         context_dict['part'] = part
         context_dict['type'] = requesttype
         
-        context = RequestContext(request)
         if (part==1):
-            return render_to_response('Instructors/DynamicQuestionAJAX.html',context_dict,context)
+            return render(request,'Instructors/DynamicQuestionAJAX.html',context_dict)
         else:
-            return render_to_response('Instructors/DynamicQuestionAJAXResult.html',context_dict,context)
+            return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
         

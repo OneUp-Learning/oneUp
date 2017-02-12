@@ -1,0 +1,89 @@
+<html>
+  <head>
+    
+    {% load staticfiles %}
+    <script src="{% static "AJAXgetquerystring.js" %}" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+
+    	function testQuestion() {
+    		var xmlhttp;
+			if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+  				xmlhttp=new XMLHttpRequest();
+  			} else {// code for IE6, IE5 
+  				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  			}
+  			  			
+  			xmlhttp.open("POST","doDynamicQuestion",true);
+  			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+  			xmlhttp.onreadystatechange =
+  				function () {
+  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+  						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
+  					}
+  				}
+  			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
+  						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
+  				         '&_code='+encodeURIComponent(document.question.code.value)+'&csrfmiddlewaretoken={{ csrf_token }}');
+    	}
+    </script> 
+    
+  </head>
+  <body>
+
+    <form name="question" action="" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="whichform" value="questionedit">
+      <center><h1>Dynamic Question</h1></center>
+      Dynamic questions allow instructors to write questions and evaluate answers programmatically using Lua code.
+      The code, when run should define the following:
+      	<ul>
+      	<li> <b> part_1_text </b> A function which takes no input and produces a string which represents the HTML for the first question.
+      				If you have more than one part to this problem, you should also define similar functions call part_2_text, part_3_text, etc.
+      	<li> <b> evaluate_answer_1 </b> A function which takes in a table which maps the names of the form inputs from part 1 to values which are
+      				the answers provided for those form inputs by the user and returns a table which maps the names of the form inputs to 
+      				a table containing two values, "success" which maps to a boolean indicating whether or not the answer was sufficient to continue to the next part
+      				and "value" which maps to a floating point number indicating how many points were awarded for that answer.  
+      	<li> <b> part_1_max_points </b> A function which takes no input and returns a table which maps the name of each input to the maximum possible number
+      				of points a student could earn for that question.
+  		</ul>	
+      <br><br>
+      <ul>
+
+
+	Preview: <input type="text" name="preview" 
+			value="{{preview}}"><br>
+	Question Text: <input type="text" name="questionText"
+			      value="{{questionText}}"><br>
+	Difficulty: <input type="text" name="difficulty"
+			   value="{{difficulty}}"><br>
+	Feedback for Correct Answer:
+	  <input type="text" name="correctAnswerFeedback"
+		 value="{{correctAnswerFeedback}}"><br>
+	Feedback for Incorrect Answer:
+	  <input type="text" name="incorrectAnswerFeedback"
+		 value="{{incorrectAnswerFeedback}}"><br>
+	Instructor Notes: <input type="text" name="instructorNotes"
+				 value="{{instructorNotes}}"><br>
+	Author: <input type="text" name="author"
+		       value="{{author}}"><br>
+	Number of Parts: <input type="text" name="numParts" value="{{numParts}}"><br>
+	Code: <br><textarea rows="20" cols="80" name="code" id="code">{{code}}
+		</textarea>
+	
+      <input type="submit" name="submit" value="Submit" class="button">
+      
+      </ul>
+    </form>
+
+	<form name="trial" id="trial" action="doDynamicQuestion" method="POST" onSubmit="testQuestion();return false;">
+		{% csrf_token %}
+		<input type="number" name="seed" min="0" max="1000000000" value="0">
+		<input type="submit" name="test" value="Try Out Question" class="button">
+	</form>
+	<div id="codeResults">
+	</div>
+	
+  </body>
+  
+</html>
