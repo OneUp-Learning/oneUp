@@ -73,7 +73,8 @@
 								</td>
 								<td>
 								{% for user_match_answer in user %}
-									<input type="text" value={{user_match_answer}} style="height:initial; width:2.5    em" disabled="disabled"><br />
+									<!--  input type="text" value={{user_match_answer}} style="height:initial; width:3em" disabled="disabled"><br / -->
+								    {{user_match_answer}}. <br /> 
 								{% endfor %}</td>
 								<td style="text-align: left;">
         						{% for match in match_shuffled %}
