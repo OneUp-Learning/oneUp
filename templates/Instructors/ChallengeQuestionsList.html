@@ -57,7 +57,9 @@
                 <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
                 <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
                 <option value="/oneUp/instructors/forms/EssayForm?challengeID={{challengeID}}">Essay</option>
-                <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Lua)</option>
+                {%if lupa_available%}
+                  <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Lua)</option>
+                {%endif%}
         	</select>
             {%else%} 
             <select name="menu1" style="background:rgba(255,255,255,.75); width:230px" required>
@@ -67,7 +69,9 @@
                 <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
                 <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
                 <option value="/oneUp/instructors/forms/EssayForm">Essay</option>
-                <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Lua)</option>
+                {%if lupa_available%}
+                  <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Lua)</option>
+                {%endif%}
             </select>                           						
     		{%endif%}
    		</div>

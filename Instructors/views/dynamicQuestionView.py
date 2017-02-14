@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from Instructors.models import DynamicQuestions
-from Instructors.lupaQuestion import LupaQuestion
+from Instructors.lupaQuestion import LupaQuestion, lupa_available
 
 from Badges.enums import QuestionTypes
 
@@ -105,6 +105,9 @@ def makeLibs(dynamicQuestion):
 
 def dynamicQuestionPartAJAX(request):
     context_dict = { }
+    if not lupa_available:
+        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server adminstrator to install it to enable dynamic problems.</B>"
+        return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
         uniqid = request.POST['_uniqid']

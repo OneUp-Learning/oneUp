@@ -3,12 +3,13 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Challenges, Courses
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
-
+from Instructors.lupaQuestion import lupa_available
 
 @login_required
 def challengeEditQuestionsView(request):
  
     context_dict = { }
+    context_dict['lupa_available'] = lupa_available
         
     if 'challengeID' in request.GET:   
         challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))    
