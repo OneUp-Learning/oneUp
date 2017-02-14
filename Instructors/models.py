@@ -272,5 +272,5 @@ class Milestones(models.Model):
 
 #Dynamic Questions Stuff
 class DynamicQuestions(Questions):
-    numParts = models.IntegerField()
-    code = models.CharField(max_length=10000)
+    numParts = models.IntegerField(default=1)
+    code = models.CharField(max_length=20000)
