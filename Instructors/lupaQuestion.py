@@ -1,8 +1,7 @@
 import pkgutil
 lupa_loader = pkgutil.find_loader('lupa')
 lupa_available = True
-#if lupa_loader is None:
-if True:
+if lupa_loader is None:
     # We are on a platform with no lupa installed.  Ooops.
     # We note this and then make stub methods to make sure everything still compiles right even though it can't run correctly.
     lupa_available = False
