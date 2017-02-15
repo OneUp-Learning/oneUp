@@ -75,9 +75,6 @@ class StaticQuestions(Questions):
     correctAnswerFeedback = models.CharField(max_length=200)
     incorrectAnswerFeedback = models.CharField(max_length=200)
 
-class DynamicQuestions(Questions):
-    code = models.CharField(max_length=10000)
-
 class CodeLibrary(models.Model):
     name = models.CharField(max_length=200)
     fileName = models.CharField(max_length=1000)
