@@ -5,6 +5,7 @@ Last modified: 09/02/2016
 '''
 from django.template import RequestContext
 from django.shortcuts import render
+import glob, os
 from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Challenges, Courses
@@ -18,6 +19,9 @@ from Badges.enums import SystemVariable, dict_dict_to_zipped_list
 def CreateBadge(request):
     
     context_dict = { }
+    
+    extractPaths(context_dict)
+    
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
@@ -48,3 +52,13 @@ def CreateBadge(request):
     context_dict['num_Conditions'] = "1";
 
     return render(request,'Badges/CreateBadge.html', context_dict)
+
+def extractPaths(context_dict): #funcation used to get the names from the file locaiton
+    imagePath = []
+    
+    for name in glob.glob('static/images/badges/*'):
+        name = name.replace("\\","/")
+        imagePath.append(name)
+        print(name)
+    
+    context_dict["imagePaths"] = zip(range(1,len(imagePath)+1), imagePath)

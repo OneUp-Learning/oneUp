@@ -61,6 +61,8 @@ def ChallengesList(request):
         gradeFirst = []
         gradeMax = []
         gradeMin = []
+        
+        numberOfAttempts = []
 
         for j in range(0, num_challs):  
             if StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenges[j]) :
@@ -73,6 +75,8 @@ def ChallengesList(request):
                 gradeFirst.append(str(earliestSC.testScore) + " / " + str(earliestSC.testTotal))
 
                 gradeID  = []
+                
+                numberOfAttempts.append(len(sChallenges))
                 
                 for sc in sChallenges:
                     gradeID.append(int(sc.testScore))
@@ -88,6 +92,7 @@ def ChallengesList(request):
                 gradeFirst.append('Not Completed')
                 gradeMax.append('Not Completed')
                 gradeMin.append('Not Completed')
+                numberOfAttempts.append("0")
 
         if optionSelected == '1':
             grade = gradeLast
@@ -111,6 +116,6 @@ def ChallengesList(request):
                 chall_Difficulty.append(item.challengeDifficulty)
              
             # The range part is the index numbers.
-            context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,chall_Difficulty,grade)
+            context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,chall_Difficulty,grade, numberOfAttempts)
 
     return render(request,'Students/ChallengesList.html', context_dict)

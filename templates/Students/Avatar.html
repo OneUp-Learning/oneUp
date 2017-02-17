@@ -20,6 +20,7 @@
 		</br>
 		
 		<div>
+		
 		<form id="uploadbanner" action="/oneUp/students/avatarUploadView" enctype="multipart/form-data" method="POST" >
 			{% csrf_token %}
    			<input id="fileupload" name="myfile" type="file" /> <!-- i need action to call funciton in python  -->
@@ -36,6 +37,13 @@
             	<tr>
 					<td><img alt="Avatar Image" width="76px" height="76px" src="/{{avatar}}"></td>
 					<td style="vertical-align:middle"><input type="checkbox" value="/{{avatar}}" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
+		 		</tr>
+		 		{% endfor %}
+		 		
+		 		{% for i, upload in uploadedAvatarPaths %}
+            	<tr>
+					<td><img alt="Avatar Image" width="76px" height="76px" src="/{{upload}}"></td>
+					<td style="vertical-align:middle"><input type="checkbox" value="/{{upload}}" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
 		 		</tr>
 		 		{% endfor %}
         	</table>

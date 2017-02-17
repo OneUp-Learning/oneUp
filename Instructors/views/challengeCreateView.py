@@ -178,15 +178,9 @@ def challengeCreateView(request):
         topicsString = request.POST.get('all_Topics', "")
         topicSelected = request.POST.get('Topic')
         
-        if topicsString == "":
-            if topicSelected == "":
-                topicsString = unspecified_topic_name
-            else:
-                topicsString = topicSelected  
-        else:
-            if not topicSelected == "":
-                topicsString = topicsString + ',' +  topicSelected
-                
+        if not topicSelected == "":
+            topicsString = topicsString + ',' +  topicSelected
+            
         utils.saveChallengesTopics(topicsString, challenge)                   
                         
         # Processing and saving tags in DB
