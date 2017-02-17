@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <title>OneUp | Instructors</title>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="stylesheet" href="/static/assets/css/main.css" />
-      <link rel="icon" type="image/x-icon" href="../../static/images/lightbulb-o.ico"/>
+
+        {% include 'scripts.html' %}
      
       <!-- Scripts -->
       <script src="/static/assets/js/jquery.min.js"></script>
@@ -143,129 +140,10 @@
    </head>
    <body>
       <!-- START PAGE SOURCE -->
-      <div class="page-wrapper">
-       <header>
-            <nav class="Navigation">
-               <div class="Nav_Top">
-                  <ul class="nav_top_level">
-                     <a class="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
-                     <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Tools</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/instructorCourseHome">Home</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/announcementList">Announcements</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/courseInformation">Email</a>
-                           </li>                           
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Information</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/courseInformation">Course Description</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/topicsList">Course Topics</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/skillsList">Targeted Skills</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/milestonesList">Course Milestones</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/createStudentListView">Students</a>
-                           </li>
-                           
-                        </ul>
-                     </li>                     
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Content</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/activitiesList">Activities</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengesList">Serious Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengesList?warmUp">Warm Up Challenges</a>
-                           </li>
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Reports</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/studentAchievements">Student Achievements</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/classAchievements">Class Achievements</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengesList">Visualization</a>
-                              <ul class="nav_third_level">
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classSeriousAchievementsViz">Class Serious Achievements</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classWarmupAchievementsViz">Class Warmup Achievements</a>
-                                 </li>
-                              </ul>
-                           </li>
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Game Features</a>
-                        <ul class="nav_second_level">
-                          <li class="nav_second_level_items">
-                              <a href="/oneUp/badges/Badges">Badges</a>
-                          </li>
-                          <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/createStudentView">Leveling</a>
-                           </li>
-                         <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/createStudentView">Leader-board</a>
-                           </li>                           
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/skillsList">Virtual Currency</a>
-                            </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/preferences">Gamification Configuration</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-               </div>
-               <div class="Nav_Bottom">
-                  {% if logged_in %}
-                  <p>Course: {{course_Name}}</p>
-                  <ul class="nav_login">
-                     <li class="nav_login_items">
-                        <a href="#">Welcome, {{username}}<i class="fa fa-chevron-down"></i></a>
-                        <ul class="nav_login_second_level">
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/administrators/courses">Change Course</a>
-                           </li>
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/students/Logout">Logout</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-                  {% endif %}
-               </div>
-            </nav>
-         </header>
+<!--       <div class="page-wrapper"> -->
+      
+      {% include 'heading.html' %}
+
       <div class="frame" id="grad" align="center">
          <div class="container">
             <div class="row">
@@ -298,32 +176,18 @@
                         <tr>
                            <td colspan="5">
                               <!-- New Badges -->
+                              
                               <div class="badge-selector">
-                              	<input type="radio" id="NoviceBadge" name="badgeImage" value="NoviceBdg.png" {% ifequal badge.badgeImage|stringformat:"s" "NoviceBdg.png" %}checked{% endifequal %} /> 
-                              	<label class="badge" for="NoviceBadge"><img src="/static/images/badges/NoviceBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                              	<input type="radio" id="JourneymanBadge" name="badgeImage" value="JourneymanBdg.png" {% ifequal badge.badgeImage|stringformat:"s" "JourneymanBdg.png" %}checked{% endifequal %}/>
-                              	<label class="badge" for="JourneymanBadge"><img src="/static/images/badges/JourneymanBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                              	<input type="radio" id="ExpertBadge" name="badgeImage" value="ExpertBdg.png" {% ifequal badge.badgeImage|stringformat:"s" "ExpertBdg.png" %}checked{% endifequal %}/>
-                              	<label class="badge" for="ExpertBadge"><img src="/static/images/badges/ExpertBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                              	<input type="radio" id="MasterBadge" name="badgeImage" value="MasterBdg.png" {% ifequal badge.badgeImage|stringformat:"s" "MasterBdg.png" %}checked{% endifequal %}/>
-                              	<label class="badge" for="MasterBadge"><img src="/static/images/badges/MasterBdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                              	<input type="radio" id="ST1Badge" name="badgeImage" value="ST1Bdg.png" {% ifequal badge.badgeImage|stringformat:"s" "ST1Bdg.png" %}checked{% endifequal %}/>
-                              	<label class="badge" for="ST1Badge"><img src="/static/images/badges/ST1Bdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                              	<input type="radio" id="ST5Badge" name="badgeImage" value="ST5Bdg.png" {% ifequal badge.badgeImage|stringformat:"s" "ST5Bdg.png" %}checked{% endifequal %}/>
-                              	<label class="badge" for="ST5Badge"><img src="/static/images/badges/ST5Bdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                              	<input type="radio" id="ST10Badge" name="badgeImage" value="ST10Bdg.png" {% ifequal badge.badgeImage|stringformat:"s" "ST10Bdg.png" %}checked{% endifequal %}/>
-                              	<label class="badge" for="ST10Badge"><img src="/static/images/badges/ST10Bdg.png" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                              	<input type="radio" id="ST25Badge" name="badgeImage" value="ST25Bdg.png" {% ifequal badge.badgeImage|stringformat:"s" "ST25Bdg.png" %}checked{% endifequal %}/>
-                              	<label class="badge" for="ST25Badge"><img src="/static/images/badges/ST25Bdg.png" alt="Choose an image for badge"></label>
-                              </div>
-                           </td>
+                              
+                              {% for i, image in imagePaths %}
+                                <input type="radio" id="Badge{{i}}" name="badgeImage" value="{{image}}" {% if badge.badgeImage == image %}checked{% endif %}/> 
+                              	<label class="badge" for="Badge{{i}}"><img src="/{{image}}" alt="Choose an image for badge"></label>
+                              	&nbsp;&nbsp;&nbsp;
+
+		 					  {% endfor %}
+                              
+ 							  </div>
+                          </td>
                         </tr>
                         <tr>
                         	<td><br/></td>
@@ -338,14 +202,14 @@
 	                           		<div id="cond{{c}}">
 	                           			<div class="row" style="padding-top: 0px;">
 	                              			<div class="select-wrapper">
-					                        	<select name="cond{{c}}_operand1Value" id="cond{{c}}_operand1Value" style="font-size: 1em;"/>
+					                        	<select name="cond{{c}}_operand1Value" id="cond{{c}}_operand1Value" style="font-size: 1em;">
 					                            {% for i, n, sysVars in systemVariables %}
 					                            	<option value="{{i}}" {% ifequal condition.0 n %}selected {% endifequal %}>{{sysVars}}</option>								
 					                            {% endfor %}
 					                            </select>
 	                              			</div>
 	                            			<div class="select-wrapper">
-				                            	<select name="cond{{c}}_operation" id="cond{{c}}_operation" style="font-size: 1em;"/>
+				                            	<select name="cond{{c}}_operation" id="cond{{c}}_operation" style="font-size: 1em;">
 					                            	<option value="==" {% ifequal condition.1|stringformat:"s" "==" %}selected{% endifequal %}>&#61;</option>
 					                            	<option value=">"  {% ifequal condition.1|stringformat:"s" ">" %}selected{% endifequal %}>&#62;</option>
 					                              	<option value="<"  {% ifequal condition.1|stringformat:"s" "<" %}selected{% endifequal %}>&#60;</option>
@@ -363,7 +227,7 @@
 						                            <i>Select a system variable</i>
 							                            <div class="three-columns">
 							                            	<div class="select-wrapper" id="operand2SysVars{{c}}">
-									                        	<select name="cond{{c}}_operand2Variable" id="cond{{c}}_operand2Variable" style="font-size: 1em; width: 100%;"/>
+									                        	<select name="cond{{c}}_operand2Variable" id="cond{{c}}_operand2Variable" style="font-size: 1em; width: 100%;">
 									                            {% for i, n, sysVars in systemVariables %}
 							                            			<option value="{{i}}" {% ifequal condition.3 'systemVariable' %} {% ifequal condition.2 n %}selected {% endifequal %}{% endifequal %}>{{sysVars}}</option>								
 									                            {% endfor %}
@@ -381,13 +245,13 @@
                           </td>
                         </tr>
                         <tr>
-                           <td colspan="5" class="formset">Assign This Badge to <span style="color: red; font-weight: bolder;">*</span></td>
+                           <td colspan="5" class="formset">Check the conditions of this badge for <span style="color: red; font-weight: bolder;">*</span></td>
                         </tr>
                         <tr>
                            <td colspan="5">
                               <div class="two-columns">
 	                             <input type="radio" name="assignChallenges" value="1" class="selectChallenges" {% if has_challenge is False %}checked="checked"{% endif %}/> All Challenges
-	                             <input type="radio" name="assignChallenges" value="2" class="selectChallenges" {% if has_challegen is True %}checked="checked"{% endif %}/> Specific Challenge 		
+	                             <input type="radio" name="assignChallenges" value="2" class="selectChallenges" {% if has_challegen is True %}checked="checked"{% endif %}/> Specific Challenges 		
                               </div>
                               <ol id="specChall" name="specChall" class="formset">
                                  <li><strong>Choose the Challenge to which the Badge should be applied:</strong></li>
@@ -396,11 +260,11 @@
                                  <select name="specChallenge" id="specChallenge">
                                     {% for j, challenge in challenges %}
                                     <option value="{{challenge.challengeID}}" {% if has_challenge is True %}
-                                    										  		{% ifequal challenge.challengeID|stringformat:"s" associated_challenge|stringformat:"s"  %}
-                                    										  			selected
-                                    										  		{% endifequal %}
-                                    										  {% endif %}
-                                    										  >{{challenge.challengeName}}</option>	
+                                    	{% ifequal challenge.challengeID|stringformat:"s" associated_challenge|stringformat:"s"  %}
+                                    		selected
+                                    	{% endifequal %}
+                                    	{% endif %}
+                                    	>{{challenge.challengeName}}</option>	
                                     {% endfor %} 
                                     </select>
                                     </div>
@@ -421,33 +285,9 @@
             </div>
          </div>
       </div>
-      <!-- Footer -->
-      <div id="footer">
-         <div class="container">
-            <div class="row">
-               <div class="12u">
-                  <!-- Contact -->
-                  <section class="contact">
-                     <ul class="icons">
-                        <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-                        <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
-                        <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-                        <li><a href="#" class="icon fa-pinterest"><span class="label">Pinterest</span></a></li>
-                        <li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
-                        <li><a href="#" class="icon fa-linkedin"><span class="label">Linkedin</span></a></li>
-                     </ul>
-                  </section>
-                  <!-- Copyright -->
-                  <div class="copyright">
-                     <ul class="menu">
-                        <li>Copyright &copy; 2014 OneUp. All rights reserved.</li>
-                        <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-                     </ul>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
+          <!-- Footer -->      
+          {% include 'footer.html' %}
+
       </div>
    </body>
 </html>
