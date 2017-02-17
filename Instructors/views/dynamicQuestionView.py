@@ -110,6 +110,7 @@ def dynamicQuestionPartAJAX(request):
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
+        print(request.POST)
         uniqid = request.POST['_uniqid']
         if ('_testeval' in request.POST):
             part = int(request.POST['_part'])
@@ -125,6 +126,7 @@ def dynamicQuestionPartAJAX(request):
             part = 1
             requesttype = '_testeval'
         elif ('_init' in request.POST):
+            print("We are in INIT")
             questionID = request.POST['questionID']
             seed = request.POST['seed']
             dynamicQuestion = DynamicQuestions.objects.get(pk=questionID)
@@ -139,12 +141,10 @@ def dynamicQuestionPartAJAX(request):
                 request.session['lupaQuestions'] = {}
             
             lupaQuestionTable = request.session['lupaQuestions']
-            if ('uniqid' not in lupaQuestionTable):
-                lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
-                lupaQuestionTable[uniqid]=lupaQuestion.serialize()
-                request.session['lupaQuestions']=lupaQuestionTable
-            else:
-                lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
+            
+            lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
+            lupaQuestionTable[uniqid]=lupaQuestion.serialize()
+            request.session['lupaQuestions']=lupaQuestionTable
             theresult = ''
         else:
             lupaQuestion = LupaQuestion.createFromDump(request.session['lupaQuestions'][uniqid])

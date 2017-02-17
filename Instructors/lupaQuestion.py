@@ -201,13 +201,7 @@ else:
             self.numParts = numParts
             self.error = None
             runtime = LupaRuntimeLink(libs,seed)
-            try:
-                runtime.execute(code)
-            except LuaError as e:
-                error_mess = e.message
-                error_mess = re.sub(r'\[string "<python>"\]:','',error_mess)
-                self.error = 'LuaError: '+error_mess
-            runtime.execute('''\
+            runtime.execute('''
     _output = ""
     print =
         function (s)
@@ -242,13 +236,16 @@ else:
     
             ''')
             
-            set_uniqid = runtime.eval('_set_uniqid')
-            set_uniqid(self.uniqid)
+            runtime.execute('_set_uniqid("'+self.uniqid+'")')
+            runtime.execute('_init_inputs('+self.numParts+')')
             
-            init_inputs = runtime.eval('_init_inputs')
-            init_inputs(int(numParts))
-            
-            runtime.execute(code)
+            try:
+                runtime.execute(code)
+            except LuaError as e:
+                error_mess = str(e)
+                error_mess = re.sub(r'\[string "<python>"\]:','',error_mess)
+                self.error = 'LuaError: '+error_mess
+                
             self.lupaid = runtime.getIdentifier()
             self.lupadump = runtime.dump()
     
