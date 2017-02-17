@@ -204,7 +204,7 @@ else:
             try:
                 runtime.execute(code)
             except LuaError as e:
-                error_mess = e.message
+                error_mess = str(e)
                 error_mess = re.sub(r'\[string "<python>"\]:','',error_mess)
                 self.error = 'LuaError: '+error_mess
             runtime.execute('''\
