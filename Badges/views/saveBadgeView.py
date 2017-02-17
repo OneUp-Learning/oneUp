@@ -34,9 +34,9 @@ def DeleteBadge(badgeId):
         actionArg.delete()
 
     # Delete  badge-challenges relationships from the BadgeChallenges table
-    badgeChalls = BadgeChallenges.objects.filter(badgeID=badgeId)
-    for chall in badgeChalls:
-        chall.delete()                     
+#     badgeChalls = BadgeChallenges.objects.filter(badgeID=badgeId)
+#     for chall in badgeChalls:
+#         chall.delete()                     
             
 def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.

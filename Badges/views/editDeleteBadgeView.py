@@ -9,6 +9,7 @@ from django.shortcuts import render
 from Badges.models import Badges, Conditions, FloatConstants, StringConstants
 from Instructors.models import Challenges,Courses
 from Badges.enums import SystemVariable, dict_dict_to_zipped_list, OperandTypes
+from Badges.views import createBadgeView
 
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import get_mandatory_conditions_without_or_and_not, filter_out_associated_challenges, leaf_condition_to_tuple,\
@@ -63,6 +64,8 @@ def EditDeleteBadge(request):
     
     badgeObjects = []
     conditions = []
+    
+    createBadgeView.extractPaths(context_dict)
     
     if request.GET:
 
