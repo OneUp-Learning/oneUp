@@ -32,7 +32,7 @@ def BadgesMain(request):
     badgeImage = []
         
         #Displaying the list of challenges from database
-    badges = Badges.objects.all()
+    badges = Badges.objects.filter(courseID=currentCourse)
     for badge in badges:
         badgeId.append(badge.badgeID)
         badgeName.append(badge.badgeName)

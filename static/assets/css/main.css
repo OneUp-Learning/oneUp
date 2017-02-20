@@ -1608,7 +1608,7 @@ article.special > footer {
     text-align: inherit;
 }
 footer {
-    margin: 2.5em 0 0 0;
+    margin: 1.5em 0 0 0;
 }
 /* Image */
 
@@ -2312,7 +2312,7 @@ header {
     background: rgba(192, 192, 192, 0.35);
 }
 #header footer {
-    margin: 1em 0 0 0;
+    margin: 0.5em 0 0 0;
 }
 body.homepage #header {
     /*height: 100vh;*/
@@ -3006,7 +3006,7 @@ in second and third dropdowns */
     /* Footer */
     
     #footer {
-        padding: 4em 2em 4em 2em;
+        padding: 2em 1em 2em 1em;
     }
     /* Carousel */
     
