@@ -3,8 +3,9 @@
    <head>
       <meta charset="utf-8" />
       
-        {% include 'scripts.html' %}
-      
+      {% include 'scripts.html' %}
+      <script src="/static/thirdparty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
+            
       <script type="text/javascript">
          function goToNewPage()
          {
@@ -78,6 +79,19 @@
     	  document.getElementById("newSkills").value=txt;
       }
       </script>      
+      
+      <script type="text/javascript">
+		function validateForm() {
+    		var x = document.forms["question"]["Skill"].value;
+    		var y = document.forms["question"]["q_skill_points"].value;
+    		
+    		if ( x !== "" && y == "") {
+        		alert("The skill points for new skill must be filled out.");
+        		return false;
+    		}
+    		
+		}
+	</script>
    </head>
    <body>
       <!-- START PAGE SOURCE -->
@@ -94,7 +108,7 @@
                	<h3>Create/Edit <span>True or False Question</span></h3>            
                	<p><span>*</span> Denotes Required Fields.</p>
             <!-- INSERTED PAGE CONTENT -->
-                  <form name="question" action="/oneUp/instructors/forms/TrueFalseForm" method="POST">
+                  <form name="question" action="/oneUp/instructors/forms/TrueFalseForm" onsubmit="return validateForm()"  method="POST">
                      {% csrf_token %}
                      {% if questionId %}
                      <input type="hidden" name="questionId" id="questionId"
@@ -123,6 +137,11 @@
                            <td>
                               <textarea name="questionText" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="" required>{{questionText}}</textarea>
                            </td>
+                           <script type="text/javascript" >
+                				// Replace the <textarea id="questionText"> with a CKEditor instance, using default configuration.
+                				CKEDITOR.replace( 'questionText' );
+            				</script>
+            				                        	                           
                         </tr>
                         <tr>
                            <td>Answer <span>*</span></td>

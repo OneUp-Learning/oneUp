@@ -2,8 +2,9 @@
 <html lang="en">
       <head>
       
-          {% include 'scripts.html' %}
-          
+      {% include 'scripts.html' %}
+      <script src="/static/thirdparty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
+                    
       </head>
       <body>
       <div>
@@ -16,7 +17,7 @@
          	<div class="12u">
          	
             	<h1>Challenges</h1>
-         		<h3>{{challengeName}}!</h3>
+         		<h3>{{challengeName}}</h3>
          	</div></div>
          	<div class="row">
          	<div class="12u">	
@@ -30,7 +31,13 @@
 			{% for i,question in question_range %}
                 	
                 	<tr id="question" style="background-color: rgba(144, 144, 144, 0.075);">   
-                		<td colspan="2">{{i}}. {{question.questionText}}</td>
+                		<td colspan="2" style="text-align:left"> 
+    
+                		{% autoescape off %} 
+                		   {{i}}.{{question.questionText}}
+                		{% endautoescape %}
+                		</td>             		
+                		
                 	</tr>					
             {% if question.typeID == '1' %}
                   	<tr style="background-color: #fff;">
@@ -92,7 +99,15 @@
 			{% endif %}
 						
 			{% if question.typeID == '5' %}
-					<tr style="background-color: #fff;"><td colspan="2"><textarea style="border:solid 1px rgba(128, 128, 128, 0.5)" name="{{question.questionID}}" rows="10" cols="90"></textarea></td></tr>
+					<tr style="background-color: #fff;"><td colspan="2">
+					<textarea style="border:solid 1px rgba(128, 128, 128, 0.5)" name="{{question.questionID}}" rows="10" cols="90">
+					</textarea>
+                    <script type="text/javascript" >
+                		// Replace the <textarea id="questionText"> with a CKEditor instance, using default configuration.
+                		CKEDITOR.replace( "{{question.questionID}}" );
+            		</script>                        	
+					
+					</td></tr>
 			{% endif %}
 																	    
 					<input type="hidden" name="questionId" value="{{question.questionID}}">
