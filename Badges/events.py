@@ -187,9 +187,11 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
     
     #return the oldest date from the event log with matching object ID (looking at only the endChallenge event trigger 802)
     if (varIndex == SystemVariable.dateOfFirstAttempt):
-        firstAttemptDate = StudentEventLog.objects.filter(course = course, student = student,objectType = objectType,objectID = objectID, event = Event.endChallenge).order_by('-timestamp')[0]
-        return firstAttemptDate
-
+        attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectType = objectType,objectID = objectID, event = Event.endChallenge).order_by('-timestamp')
+        if len(attemptObjectsByDate) > 0:
+            return attemptObjectsByDate[0].timestamp
+        else:
+            return datetime(2000,1,1,0,0,0)
 
     #return the sum of delta times between StartChallenge and End Challenge events   
     if (varIndex == SystemVariable.timeSpentOnChallenges):
