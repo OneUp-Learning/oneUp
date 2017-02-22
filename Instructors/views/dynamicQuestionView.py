@@ -33,7 +33,7 @@ def dynamicQuestionForm(request):
 
         # If there's an existing question, we wish to edit it.  If new question,
         # create a new Question object.
-        if request.POST['questionId']:
+        if 'questionId' in request.POST:
             question = DynamicQuestions.objects.get(pk=int(request.POST['questionId']))
         else:
             question = DynamicQuestions()
