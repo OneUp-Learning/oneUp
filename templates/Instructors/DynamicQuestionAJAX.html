@@ -1,6 +1,22 @@
-<div id="{{uniqid}}div">
-{{formhead|safe}}
-{% csrf_token %}
-<input name="{{type}}" type="hidden" value="yup">
+<!DOCTYPE HTML>
+
+<htmL>
+ <head>
+	{% include 'scripts.html' %}
+ </head>
+ 
+ <body>
+ 	<div id="page-wrapper">
+	{% include 'heading0.html' %}
+ 	
+ 
+ 	<div id="{{uniqid}}div">
+		{{formhead|safe}}
+		{% csrf_token %}
+		<input name="{{type}}" type="hidden" value="yup">
 {{formbody|safe}}
 </div>
+</div>
+ </body>
+</htmL>
+

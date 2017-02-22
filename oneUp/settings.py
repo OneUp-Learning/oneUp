@@ -35,7 +35,7 @@ ALLOWED_HOSTS = []
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 #MEDIA_URL = '/static/'
-#ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/static/'
 
 # Application definition=
 INSTALLED_APPS = (
@@ -109,7 +109,6 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATIC_URL = '/OneUp/' # You may find this is already defined as such.
 
 STATICFILES_DIRS = (
-    STATIC_PATH,
 )
 
 # Internationalization

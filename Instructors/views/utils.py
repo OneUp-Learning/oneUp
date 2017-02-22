@@ -259,10 +259,12 @@ def saveChallengesTopics(topicstring, challenge):
                 
             #split string into an array 
             topicsList = topicstring.split(',')
+            print(topicsList)
             
             topicNames = set()
             for topic in topicsList:
-                topicNames.add(topic.strip())
+                if not topic == '':
+                    topicNames.add(topic.strip())
             print(topicNames)
             
             # remove duplicates
@@ -270,7 +272,8 @@ def saveChallengesTopics(topicstring, challenge):
             if len(topicNames) > 1:
                 topicNames.discard(unspecified_topic_name)
                 print(topicNames)
-            for topicName in topicNames:               
+            for topicName in topicNames:
+                print(topicName)               
                 topic = Topics.objects.filter(topicName=topicName)               
 
                 # now add the new topic for this challenge                              

@@ -71,8 +71,8 @@ def instructorCourseHome(request):
         date_N_days_ago = datetime.now() - timedelta(days=N)
 
         #print ( datetime.now())
-        print ("date_N_days_Ago")
-        print (date_N_days_ago)
+        #print ("date_N_days_Ago")
+        #print (date_N_days_ago)
         
         
         #Displaying the list of challenges from database
@@ -89,9 +89,9 @@ def instructorCourseHome(request):
                           
             # The range part is the index numbers.
         context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
-        print (badgeID)
-        print(studentID)
-        print (badgeName)
+        #print (badgeID)
+        #print(studentID)
+        #print (badgeName)
 #         print (badge.timestamp)  
             ## Leaderboard Points
             
