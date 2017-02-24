@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.models import Courses
+from Instructors import constants
 from Students.models import Student, StudentRegisteredCourses
 
 @login_required
@@ -63,6 +64,7 @@ def createStudentViewUnchecked(request):
             student = Student()
             student.user = user
             student.universityID = email
+            student.avatarImage = constants.anonymous_avatar
             student.save()
             
             context_dict['message'] = '<B>New Student '+uname+' created!</B>'

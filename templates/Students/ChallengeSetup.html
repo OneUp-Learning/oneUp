@@ -21,8 +21,9 @@
          	</div></div>
          	<div class="row">
          	<div class="12u">	
-                <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
+            <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
 			 		<p><input type="hidden" name="startTime" id="startTime"></p>
+			 		 <input type="hidden" name="challengeId" value="">
 			
 			{% csrf_token %}
 			 	
@@ -110,9 +111,13 @@
 					</td></tr>
 			{% endif %}
 																	    
-					<input type="hidden" name="questionId" value="{{question.questionID}}">
-                  	<input type="hidden" name="challengeId" value="{{question.challengeID}}">
-		  			<script type="text/javascript">
+			<input type="hidden" name="questionId" value="{{question.questionID}}">
+            <input type="hidden" name="challengeId" value="{{question.challengeID}}">
+            
+            {{question.challengeID}}
+            
+            
+		  	<script type="text/javascript">
 		  	<!-- the current time when navigated to this page is taken as the start time of the test -->
 		  	<!-- The start time is in yyyy-mm-dd hh:mm:ss format similar to the end time in view file -->
 		  		var now     = new Date(); 

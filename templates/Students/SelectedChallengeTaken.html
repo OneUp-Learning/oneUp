@@ -2,7 +2,8 @@
 <html lang="en">
       <head>
          
-         {% include 'scripts.html' %}
+      {% include 'scripts.html' %}
+      <script src="/static/thirdparty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
          
       </head>
       <body>
@@ -30,7 +31,12 @@
 		<tr id="question">  
 		
 			<div id="question{{i}}">
-				<td colspan="3"><font style="font-weight:600">{{i}}. {{question.questionText}}</font></td>
+				<td colspan="3"><font style="font-weight:600">
+				
+				{% autoescape off %}
+					{{i}}. {{question.questionText}}
+				{% endautoescape %}
+				</font></td>
 		</tr>									
 					<tr><td colspan="3">Your Answer:</td></tr>		
 							{% if question.typeID == '1' %}

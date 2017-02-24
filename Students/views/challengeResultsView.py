@@ -68,8 +68,14 @@ def ChallengeResults(request):
         score=0
         total=0
         
-        if request.POST:        
-            if request.POST['challengeId']:
+        if request.POST:      
+            
+            if request.POST['challengeId'] == "":
+                # Challenge without questions
+                 return redirect('/oneUp/students/ChallengesList')
+            
+            else: 
+                request.POST['challengeId']
                 studentId = Student.objects.get(user=request.user)
                 #print (studentId)
                 

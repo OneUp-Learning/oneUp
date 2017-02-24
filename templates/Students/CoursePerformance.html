@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+         
+         {% include 'scripts.html' %}
+         
+      </head>
+      <body>
+      <div id="page-wrapper">
+
+            {% include 'stheading.html' %}
+
+            <div class="frame" id="grad" align="center">
+         	<div class="container">
+         	<div class="row">
+         	<div class="12u">
+         		 <h1>Course Performance</h1>
+			</div></div>
+<!-- INSERTED DYNAMIC TABLE --> 
+			<div class="row">
+         	<div class="12u">
+    <div id="element2"><td align="left">
+    <form name="menuform">
+                     <select name="menu1" style="background:rgba(255,255,255,.75)">
+                        <option value="/oneUp/students/ChallengesList?ID={{1}}">Latest Score</option>
+                        {% if ID == '2' %}
+                        <option value="/oneUp/students/ChallengesList?ID={{2}}" selected>Earliest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{3}}">Highest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{4}}">Lowest Score</option>
+                        {% elif ID == '3' %}
+                        <option value="/oneUp/students/ChallengesList?ID={{2}}">Earliest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{3}}" selected>Highest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{4}}">Lowest Score</option>
+                        {% elif ID == '4' %}
+                        <option value="/oneUp/students/ChallengesList?ID={{2}}">Earliest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{3}}">Highest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{4}}" selected>Lowest Score</option>
+                        {% else %}
+                        <option value="/oneUp/students/ChallengesList?ID={{2}}">Earliest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{3}}">Highest Score</option>
+                        <option value="/oneUp/students/ChallengesList?ID={{4}}">Lowest Score</option>
+                        {% endif %}
+                     </select></div>
+                     <div id="element2"><a><input type="button" name="Submit" value="Display" 
+                        onClick="top.location.href = this.form.menu1.options[this.form.menu1.selectedIndex].value;
+                        return false;"></a></td>
+                  </form></div>
+                  
+                  <br /><br />
+        
+            <table class="bg">
+                <tr>
+                    <th>Name</th>
+                    <th>Difficulty</th>
+                    <th>Score</th>
+                    <th>Number of Attempts</th>
+                    <th> </th>
+                </tr>
+                
+                {% for i,chall_ID,chall_Name, chall_Difficulty,grade, numberOfAttempts in challenge_range %}
+                <tr> 
+                    <td>{{chall_Name}}</td>
+                    <td>{{chall_Difficulty}}</td>	
+                    <td>{{grade}}</td>
+                    <td>{{numberOfAttempts}}</td>			
+                    <td align="right">
+                        {% csrf_token %} 
+                        <div>
+                            <a href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}">
+                                <button class="button">Take</button>
+                            </a>
+                            <a href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}">
+                                <button class="button">View</button>
+                            </a>
+                        </div>															
+                        <input type="hidden" name="challengeID" value="{{chall_ID}}">
+				    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <a href="/oneUp/students/ChallengesTaken">
+            <button class="button">View All Completed Challenges</button></a>
+            
+            <a href="/oneUp/students/StudentCourseHome">
+            <button class="button">Back</button></a> 
+            <br><br>
+       <!-- END DYNAMIC TABLE --> 
+         </div></div></div>
+            </div>
+         </div>
+         <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      <script type="text/javascript"> Cufon.now(); </script>
+      </body>
+   </html>
