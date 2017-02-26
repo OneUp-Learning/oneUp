@@ -1,7 +1,14 @@
+import os
+
 from django.db import models
+from django import forms
+
 from django.contrib.auth.models import User
 from django.template.defaultfilters import default
 from datetime import datetime
+
+from django.conf.global_settings import MEDIA_URL
+from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 
 
 # DO NOT USE (Instructors Table is replaced by general User table)
@@ -211,16 +218,7 @@ class Activities(models.Model):
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              
         return str(self.activityID)+","+self.activityName
-    
-class AssignedActivities(models.Model):
-    activityAssigmentID = models.AutoField(primary_key=True)
-    activityID = models.ForeignKey(Activities, verbose_name = "Activity ID", db_index=True)
-    recipientStudentID = models.ForeignKey('Students.Student', verbose_name = "Recipient Student ID")
-    pointsReceived = models.IntegerField()
-    def __str__(self):
-        return str(self.activityAssigmentID)+","+str(self.activityID)+","+str(self.recipientStudentID)+","+str(self.pointsReceived)
-
-    
+        
 class Announcements(models.Model):
     announcementID = models.AutoField(primary_key=True)
     authorID = models.ForeignKey(User, verbose_name="Author", db_index=True)
@@ -231,12 +229,6 @@ class Announcements(models.Model):
     message = models.CharField(max_length=300)
     def __str__(self):              
         return str(self.announcementID)+","+str(self.authorID)+","+str(self.startTimestamp)
-    
-# class CoursesQuestions(models.Model):
-#     courseID = models.ForeignKey('Instructors.Courses', verbose_name="course")
-#     questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
-#     def __str__(self):              
-#         return str(self.courseID)+","+str(self.questionID)
 
 class Topics(models.Model):
     topicID = models.AutoField(primary_key=True)
@@ -267,7 +259,23 @@ class Milestones(models.Model):
     def __str__(self):              
         return str(self.milestoneID)+","+self.milestoneName
 
+#Uploaded Images
+class UploadedImages(models.Model):
+    imageID = models.AutoField(primary_key=True)
+    # image = models.ImageField(upload_to = 'images/uploadedInstructorImages', default = 'images/uploadedInstructorImages')
+    imageFile = models.FileField(max_length=500, upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedInstructorImages'))
+    imageFileName = models.CharField(max_length=200, default='')
+    imageDescription = models.CharField(max_length=200, default='')
+    imageCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+    def __str__(self):              
+        return str(self.imageID)+","+self.imageFile+","+self.imageDescription
+    
+    def delete(self):
+        self.imageFile.delete()
+        super(UploadedImages, self).delete()
+   
 #Dynamic Questions Stuff
 class DynamicQuestions(Questions):
     numParts = models.IntegerField(default=1)
     code = models.CharField(max_length=20000)
+    

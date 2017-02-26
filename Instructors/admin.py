@@ -3,8 +3,8 @@ from django.contrib import admin
 # Register your models here.
 from django.contrib import admin
 from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags
-from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers
-from Instructors.models import Skills, Activities, AssignedActivities, Prompts, Goals, Announcements, Milestones, Instructors
+from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages
+from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors
 
 admin.site.register(Announcements)
 admin.site.register(Activities)
@@ -29,5 +29,6 @@ admin.site.register(ChallengeTags)
 admin.site.register(Milestones)
 # admin.site.register(CourseConfigParams)
 admin.site.register(InstructorRegisteredCourses)
-admin.site.register(AssignedActivities)
+admin.site.register(UploadedImages)
 admin.site.register(Instructors)
+

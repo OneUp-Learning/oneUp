@@ -112,10 +112,9 @@ class StudentActivities(models.Model):
     studentActivityAssignmentID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True, default=1)
     timestamp = models.DateTimeField()
     activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
-    instructorFeedback = models.CharField(max_length=200)
+    instructorFeedback = models.CharField(max_length=200, default="  ")
     def __str__(self):              
         return str(self.studentActivityAssignmentID) +"," + str(self.studentID) +","+str(self.challengeID)    
     

@@ -11,7 +11,7 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from Students.models import StudentBadges, StudentEventLog, Student
 
-from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, Announcements, Activities, AssignedActivities, Milestones
+from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, Announcements, Activities, Milestones
 
 from django.contrib.auth.decorators import login_required
 
@@ -235,29 +235,6 @@ def deleteActivity(request):
         context_dict['message']=message
         
     return redirect('/oneUp/instructors/activitiesList', context_dict)
-
-def deleteActivityAssignment(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
- 
-    context_dict = { }
-
-    if request.POST:
-
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
-        try:
-            if request.POST['activityAssignmentID']:
-                activityAssignment = AssignedActivities.objects.get(pk=int(request.POST['activityAssignmentID']))            
-                message = "Assignment Name"+str(activityAssignment.activityID.activityName) + "was successfully deleted."#+": For student "+str(activityAssignment.recipientStudentID)+" worth "+str(activityAssignment.pointsReceived)+" points was successfully removed"
-                activityAssignment.delete()
-        except AssignedActivities.DoesNotExist:
-            message = "There was a problem deleting Activity #"+str(activityAssignment)
-
-        context_dict['message']=message
-        
-    return redirect('/oneUp/instructors/activitiesList', context_dict)
-
 
 def deleteAnnouncement(request):
     # Request the context of the request.

@@ -5,7 +5,6 @@ from django.views.generic import RedirectView
 from Instructors.views.activityAssignPointsView import assignedPointsList, activityAssignPointsView
 from Instructors.views.activityCreateView import activityCreateView
 from Instructors.views.activityListView import activityList
-from Instructors.views.activityListVizView import activityListViz
 from Instructors.views.announcementCreateView import announcementCreateView
 from Instructors.views.announcementListView import announcementList
 from Instructors.views.allAnnouncementsView import allAnnouncements
@@ -31,10 +30,13 @@ from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteActivity, deleteActivityAssignment, deleteAnnouncement, deleteMilestone
-
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 from Instructors.views.essayView import  essayForm
+#from Instructors.views.filesListView import  filesList
 from Instructors.views.gameRulesView import gameRulesView
+
+from Instructors.views.imageView import imageUpload, imageDelete, imageList
+
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
 #from Instructors.views.instructorQuestionsView import InstructorQuestions
@@ -92,17 +94,15 @@ urlpatterns = [
     url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
     url(r'^classSeriousAchievementsViz',classSeriousAchievementsViz, name='classSeriousAchievementsViz'),
     url(r'^classWarmupAchievementsViz',classWarmupAchievementsViz, name='classWarmupAchievementsViz'),
-    url(r'^classActivityAchievementsViz',activityListViz, name='activityListViz'),
     url(r'^classAchievements',classAchievements, name='classAchievements'),
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
     url(r'^classSkillsViz',classSkillsViz,name='classSkillsViz'),
-    url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     url(r'^courseInformation',courseInformation,name='courseInformation'),
+    url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     #url(r'^saveCourseInformation',saveCourseInformation,name='saveCourseInformation'),
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     url(r'^createStudentList',createStudentListView,name='createStudentListView'),
     url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
-    url(r'^deleteActivityAssignment',deleteActivityAssignment, name='deleteActivityAssignment'),
     url(r'^deleteActivity',deleteActivity, name='deleteActivity'),
     url(r'^deleteAnnouncement',deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge',deleteChallenge, name='deleteChallenge'),
@@ -113,16 +113,19 @@ urlpatterns = [
     url(r'^deleteTopic',deleteTopic, name='deleteTopic'),
     url(r'^deleteUser',deleteUser, name='deleteUser'),
     url(r'^gameRules',gameRulesView,name='gameRulesView'),
-    url(r'^$', index, name='home'),
+    url(r'^$', index, name='home'),    
     url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
     url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),
     url(r'^forms/TrueFalseForm', trueFalseNewForm, name='newTrueFalseForm'),
     url(r'^forms/DynamicQuestionForm',dynamicQuestionForm, name='Dynamic QuestionForm'),
+    url(r'^imageDelete',imageDelete,name='imageDelete'),
+    url(r'^imageList', imageList, name='imageList'),
+    url(r'^imageUpload',imageUpload,name='imageUpload'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
-    url(r'^instructorHome',instructorHome,name='instructorHome'),
-    #url(r'^InstructorQuestions',InstructorQuestions,name='InstructorQuestions'),    
+    url(r'^instructorHome',instructorHome,name='instructorHome'), 
+       
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
     url(r'^preferences',preferencesView, name='preferencesView'),
     url(r'^search',searchQuestions, name='searchQuestions'),

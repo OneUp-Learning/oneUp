@@ -26,7 +26,7 @@ def dynamicQuestionForm(request):
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
-    string_attributes = ['preview','questionText','difficulty','correctAnswerFeedback', # 04/09
+    string_attributes = ['preview','difficulty','correctAnswerFeedback', # 04/09
                          'instructorNotes','author','code','numParts'];
 
     if request.POST:
@@ -41,7 +41,8 @@ def dynamicQuestionForm(request):
         # Copy all strings from POST to database object.
         for attr in string_attributes:
             setattr(question,attr,request.POST[attr])
-                   
+          
+        question.questonText = ''           
         # Fix the question type
         question.type = QuestionTypes.dynamic
         question.save();  #Writes to database.
