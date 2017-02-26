@@ -85,11 +85,11 @@ end
 
 def makePartHTMLwithForm(question,part):
     formHead = ('<form name="'+question.uniqid+'-'+str(part)+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+
-                question.uniqid+'\','+str(part)+');disable_'+question.uniqid+'_'+str(part)+'();return false;" >')
+                question.uniqid+'\','+str(part)+');disableDiv(\''+question.uniqid+'-'+str(part)+'\');return false;" >')
     formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
     formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
     formBody += question.getQuestionPart(part)
-    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form><div id="'+question.uniqid+'-'+str(part+1)+'-results"></div>'
+    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form>'
     return (formHead,formBody)
 
 def makePartHTMLwithoutForm(question,part):

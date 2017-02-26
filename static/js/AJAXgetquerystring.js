@@ -52,7 +52,6 @@ function getquerystring(formName) {
 
 function submit_form(uniqid,part) {
 	var query = getquerystring(uniqid+'-'+part);
-	alert(query);
 	
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange =

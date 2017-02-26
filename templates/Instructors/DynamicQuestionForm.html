@@ -7,7 +7,6 @@
     {% include 'scripts.html' %}  
     {% load staticfiles %}
     
-    <script src="/static/assets/js/jquery.min.js"></script>
     <script src="/static/js/AJAXgetquerystring.js" type="text/javascript"></script>
     
     <script type="text/javascript">
@@ -32,6 +31,22 @@
   						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
   				         '&_code='+encodeURIComponent(document.question.code.value)+'&csrfmiddlewaretoken={{ csrf_token }}');
     	}
+    	
+    	function disableDiv(name) {
+    		var darkLayer = document.getElementById(name+"-darkLayer");
+    		darkLayer.style.display="";
+    		var element = document.getElementById(name+"-exact");
+    		var descendents = element.getElementsByTagName("*");
+    		var i, e;
+			for (i = 0; i < descendents.length; i++) {
+    			e = descendents[i];
+    			if ((e.tagName == "INPUT") || (e.tagName == "TEXTAREA") || (e.tagName == "BUTTON") || (e.tagName == "SELECT") ||
+    				(e.tagName == "OPTION") || (e.tagName == "OPTGROUP") || (e.tagName == "FIELDSET")) {
+    				e.disabled = "disabled";
+    			}
+    		}
+    	}
+    		
     </script> 
       
   </head>
