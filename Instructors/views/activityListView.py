@@ -7,8 +7,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Activities, Courses
-from Students.models import StudentRegisteredCourses, Student
-from Instructors.models import AssignedActivities
+from Students.models import StudentRegisteredCourses, Student, StudentActivities
 
 def createContextForActivityList(request):
     context_dict = { }
@@ -49,12 +48,12 @@ def createContextForActivityList(request):
     assignment_Recipient = []
     assignment_Points = []
     
-    assignments = AssignedActivities.objects.all().order_by('-activityAssigmentID')
+    assignments = StudentActivities.objects.all().order_by('-studentActivityAssignmentID')
     for assignment in assignments:
-        assignment_ID.append(assignment.activityAssigmentID) #pk
+        assignment_ID.append(assignment.studentActivityAssignmentID) #pk
         assignment_Name.append(assignment.activityID.activityName)
-        assignment_Recipient.append(assignment.recipientStudentID)
-        assignment_Points.append(assignment.pointsReceived)
+        assignment_Recipient.append(assignment.studentID)
+        assignment_Points.append(assignment.activityScore)
     context_dict['assignment_history_range'] = zip(range(1,assignments.count()+1),assignment_Name,assignment_Recipient,assignment_Points, assignment_ID)
 
     return context_dict

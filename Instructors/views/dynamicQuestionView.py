@@ -41,7 +41,6 @@ def dynamicQuestionForm(request):
         # Copy all strings from POST to database object.
         for attr in string_attributes:
             setattr(question,attr,request.POST[attr])
-        
         question.questionText = ""
         # Fix the question type
         question.type = QuestionTypes.dynamic

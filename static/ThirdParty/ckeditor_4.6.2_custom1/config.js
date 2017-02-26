@@ -28,14 +28,24 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Remove some buttons provided by the standard plugins, which are
 	// not needed in the Standard(s) toolbar.
-	// config.removeButtons = 'Underline,Subscript,Superscript';   // Comented out by DD
+	// config.removeButtons = 'Underline,Subscript,Superscript';   // Commented out by DD
 
 	// Set the most common block elements.
 	config.format_tags = 'p;h1;h2;h3;pre';
 
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
+
 	
 	// Add line height in 'em' rather that integer numbers      # Added by DD
 	config.line_height="0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em" ;
+	
+	config.filebrowserImageBrowseUrl = '';
+	
+	// increase the area of the CKEditor	# Added by DD  - seems this is not needed since without it a scrollbar appears when more text is inserted
+	//config.extraPlugins = 'autogrow';
+	//config.autoGrow_minHeight = 200;
+	//config.autoGrow_maxHeight = 600;
+	//config.autoGrow_bottomSpace = 50;
+	
 };
