@@ -50,16 +50,14 @@ function getquerystring(formName) {
 
 }
 
-function submit_form(uniqid) {
-	var query = getquerystring(uniqid);
+function submit_form(uniqid,part) {
+	var query = getquerystring(uniqid+'-'+part);
 	alert(query);
 	
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange =
 		function() {
-			//if (xhttp.readyState == 4 && xhttp.status == 200) {
-				document.getElementById(uniqid+"div").innerHTML = xhttp.responseText;
-			//}
+				document.getElementById(uniqid+"-"+(part+1)+"-results").innerHTML = xhttp.responseText;
 	    };
 	xhttp.open("POST","doDynamicQuestion",true);
 	xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');

@@ -26,7 +26,7 @@ def dynamicQuestionForm(request):
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
-    string_attributes = ['preview','questionText','difficulty','correctAnswerFeedback', # 04/09
+    string_attributes = ['preview','difficulty','correctAnswerFeedback', # 04/09
                          'instructorNotes','author','code','numParts'];
 
     if request.POST:
@@ -41,7 +41,8 @@ def dynamicQuestionForm(request):
         # Copy all strings from POST to database object.
         for attr in string_attributes:
             setattr(question,attr,request.POST[attr])
-                   
+        
+        question.questionText = ""
         # Fix the question type
         question.type = QuestionTypes.dynamic
         question.save();  #Writes to database.
@@ -74,6 +75,8 @@ end
 '''
             context_dict["code"] = code
             context_dict["numParts"] = 1
+            context_dict['difficulty']="Easy"
+
 
     #question = LupaQuestion(code,[],5,"edit",1)
     #context_dict["test"] = question.getQuestionPart(1);
@@ -81,11 +84,12 @@ end
     return render(request,'Instructors/DynamicQuestionForm.html', context_dict)
 
 def makePartHTMLwithForm(question,part):
-    formHead = '<form name="'+question.uniqid+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+question.uniqid+'\');return false;" >'
+    formHead = ('<form name="'+question.uniqid+'-'+str(part)+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+
+                question.uniqid+'\','+str(part)+');disable_'+question.uniqid+'_'+str(part)+'();return false;" >')
     formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
     formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
     formBody += question.getQuestionPart(part)
-    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form><div id="phase2"></div>'
+    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form><div id="'+question.uniqid+'-'+str(part+1)+'-results"></div>'
     return (formHead,formBody)
 
 def makePartHTMLwithoutForm(question,part):
@@ -165,6 +169,7 @@ def dynamicQuestionPartAJAX(request):
         context_dict['formbody'] = formbody
         context_dict['uniqid'] = uniqid
         context_dict['part'] = part
+        context_dict['partplusone'] = part+1
         context_dict['type'] = requesttype
         
         if (part==1):
