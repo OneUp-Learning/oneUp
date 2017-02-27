@@ -44,6 +44,10 @@
     				(e.tagName == "OPTION") || (e.tagName == "OPTGROUP") || (e.tagName == "FIELDSET")) {
     				e.disabled = "disabled";
     			}
+    			if ((e.tagName == "INPUT") && (e.type.toUpperCase() == "SUBMIT")) {
+    				e.value = "Submitted";
+    			}
+    			
     		}
     	}
     		

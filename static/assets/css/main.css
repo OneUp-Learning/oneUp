@@ -2178,6 +2178,14 @@ input[type="button"]:active,
     transform: scale(.6, .6);
     padding
 }
+input[type="submit"]:disabled,
+input[type="reset"]:disabled,
+input[type="button"]:disabled,
+button:disabled {
+    background: #F5F5F5;
+    color : #000000;
+}
+
 /* Post */
 
 .post.stub {
