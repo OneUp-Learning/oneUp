@@ -58,7 +58,8 @@
                 <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
                 <option value="/oneUp/instructors/forms/EssayForm?challengeID={{challengeID}}">Essay</option>
                 {%if lupa_available%}
-                  <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Lua)</option>
+                  <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Template)</option>
+                  <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Raw Lua)</option>
                 {%endif%}
         	</select>
             {%else%} 
@@ -70,7 +71,8 @@
                 <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
                 <option value="/oneUp/instructors/forms/EssayForm">Essay</option>
                 {%if lupa_available%}
-                  <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Lua)</option>
+				  <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)</option>
+                  <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
                 {%endif%}
             </select>                           						
     		{%endif%}

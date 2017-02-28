@@ -66,6 +66,7 @@ from Instructors.views.views import index
 
 #Dynamic Questions Stuff
 from Instructors.views.dynamicQuestionView import dynamicQuestionForm
+from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
 
@@ -120,6 +121,7 @@ urlpatterns = [
     url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),
     url(r'^forms/TrueFalseForm', trueFalseNewForm, name='newTrueFalseForm'),
     url(r'^forms/DynamicQuestionForm',dynamicQuestionForm, name='Dynamic QuestionForm'),
+    url(r'^forms/TemplateDynamicQuestionForm',templateDynamicQuestionForm, name='Template Dynamic QuestionForm'),
     url(r'^imageDelete',imageDelete,name='imageDelete'),
     url(r'^imageList', imageList, name='imageList'),
     url(r'^imageUpload',imageUpload,name='imageUpload'),
