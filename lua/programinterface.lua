@@ -15,6 +15,8 @@ uniqid = "UNIQID_GOES_HERE"
 seed = 0
 username = "USERNAME_GOES_HERE"
 
+pathsep = package.config[0]
+
 programInterface.initialize =
    function(_uniqid,_seed,_username)
       uniqid = _uniqid
@@ -55,7 +57,7 @@ local makeWorkingDir = function(rootDir,modelDir,newDir)
    end
 end
 
-local concatFile = function(filename,text)
+local concatFile = function(filename,text,workingDirName)
    cp(filename..".head",filename)
    local outfile = io.open(filename,"a")
    outfile:write(text)
@@ -67,11 +69,13 @@ local concatFile = function(filename,text)
 end
 
 programInterface.programChecker =
-   function (text,rootdir,filename,commands,resultsFiles)
+   function (text,rootdir,filename,tests)
       local workingDirName = uniqid..'_'..seed..'_'..username
       makeWorkingDir(rootdir,workingDirName)
-      cd(workingDirName)
-      concatFile(filename,text)
+      concatFile(filename,text,workingDirName)
+      for test in tests do
+	 outputFileHandle = io.popen(test[command])
+      
       
 
 return prograInterface
