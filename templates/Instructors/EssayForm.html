@@ -83,6 +83,20 @@
       	  document.getElementById("newSkills").value=txt;
         }
     </script>  
+    
+    <script type="text/javascript">
+		function validateForm() {
+    		var x = document.forms["question"]["Skill"].value;
+    		var y = document.forms["question"]["q_skill_points"].value;
+    		
+    		if ( x !== "" && y == "") {
+        		alert("The skill points for new skill must be filled out.");
+        		return false;
+    		}
+    		
+		}
+	</script>
+	
    </head>
    <body>
       <!-- START PAGE SOURCE -->
@@ -99,7 +113,7 @@
             	<h3>Create/Edit <span>Essay Question</span></h3>
             <p><span>*</span> Denotes Required Fields.</p>
             <!-- INSERTED PAGE CONTENT -->
-                  <form name="question" action="/oneUp/instructors/forms/EssayForm" method="POST">
+                  <form name="question" action="/oneUp/instructors/forms/EssayForm" onsubmit="return validateForm()"  method="POST">
                      {% csrf_token %}
                      {% if questionId %}
                      <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">

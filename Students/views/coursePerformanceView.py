@@ -4,8 +4,8 @@ Created on Feb 22, 2017
 '''
 from django.template import RequestContext
 from django.shortcuts import render
-from Students.models import StudentChallenges, Student
-from Instructors.models import Challenges, Courses
+from Students.models import StudentChallenges, Student, StudentActivities
+from Instructors.models import Challenges, Courses, Activities
 from time import strftime
 import datetime
 from django.db.models import Q
@@ -23,8 +23,8 @@ def CoursePerformance(request):
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
-    
+        context_dict['avatar'] = sID.avatarImage              
+  
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
         context_dict['ID'] = request.GET['ID']
@@ -39,14 +39,32 @@ def CoursePerformance(request):
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         print('current course:'+str(currentCourse))
         context_dict['course_Name'] = currentCourse.courseName
-            
+        
+        studentId = Student.objects.filter(user=request.user)
+                   
+        #Displaying the list of Activities from database        
+        act_ID = []
+        act_name = []
+        act_points = []
+        act_time = []
+        act_feedback = []
+                        
+        stud_activities = StudentActivities.objects.filter(studentID=studentId, courseID=currentCourse)
+        for sa in stud_activities:
+            act_ID.append(sa.studentActivityID)
+            act_points.append(sa.activityScore)
+            act_time.append(sa.timestamp)
+            act_feedback.append(sa.instructorFeedback)
+            a = Activities.objects.get(pk=sa.activityID.activityID)
+            act_name.append(a.activityName)
+
+                
+        
+        #Displaying the list of challenges from database
         chall_ID = []      
         chall_Name = []         
         chall_Difficulty = []
-        
-        studentId = Student.objects.filter(user=request.user)
-        #Displaying the list of challenges from database
-        
+                
         # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
         defaultTime = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
         currentTime = strftime("%Y-%m-%d %H:%M:%S")
@@ -117,4 +135,5 @@ def CoursePerformance(request):
             # The range part is the index numbers.
             context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,chall_Difficulty,grade, numberOfAttempts)
 
+    
     return render(request,'Students/ChallengesList.html', context_dict)

@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses
+from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses
 from Instructors.lupaQuestion import LupaQuestion, lupa_available 
 
 from Instructors.views import utils
@@ -20,7 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 import sys
 
 
-def dynamicQuestionForm(request):
+def templateDynamicQuestionForm(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
     context = RequestContext(request)
@@ -41,21 +41,23 @@ def dynamicQuestionForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','difficulty','correctAnswerFeedback', # 04/09
-                         'instructorNotes','code','numParts'];
+                         'instructorNotes','code','templateQuestion','numParts'];
 
     if request.POST:
-
+        
         # If there's an existing question, we wish to edit it.  If new question,
         # create a new Question object.
         if 'questionId' in request.POST:
-            question = DynamicQuestions.objects.get(pk=int(request.POST['questionId']))
+            question = TemplateDynamicQuestions.objects.get(pk=int(request.POST['questionId']))
         else:
-            question = DynamicQuestions()
+            question = TemplateDynamicQuestions()
 
         # Copy all strings from POST to database object.
         for attr in string_attributes:
             setattr(question,attr,request.POST[attr])
-        question.questionText = ""  
+        
+        #used to fill in info for question text 
+        question.questonText = ''  
         
         # get the author                            # 03/10/2015
         if request.user.is_authenticated():
@@ -70,7 +72,6 @@ def dynamicQuestionForm(request):
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved        # 02/28/2015    
             
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
                 challenge_question.delete()
@@ -111,7 +112,7 @@ def dynamicQuestionForm(request):
                 
         # If questionId is specified then we load for editing.
         if 'questionId' in request.GET:
-            question = DynamicQuestions.objects.get(pk=int(request.GET['questionId']))
+            question = TemplateDynamicQuestions.objects.get(pk=int(request.GET['questionId']))
             
             # Copy all of the attribute values into the context_dict to
             # display them on the page.
@@ -119,6 +120,8 @@ def dynamicQuestionForm(request):
             for attr in string_attributes:
                 context_dict[attr]=getattr(question,attr)
         else:
+            #NOTE WE NEED THE CODE FOR THE templeateQuestins
+            
             code = '''\
 part_1_text = function ()
     return 'What is 1+1?' .. make_input('answer1','int',10)
@@ -135,25 +138,23 @@ end
 '''
             context_dict["code"] = code
             context_dict["numParts"] = 1
-            context_dict['difficulty']="Easy"
-
-
-
+            
+        
+    
     #question = LupaQuestion(code,[],5,"edit",1)
     #context_dict["test"] = question.getQuestionPart(1);
     
     if 'questionId' in request.POST:         
             return redirect('challengesView')
             
-    return render(request,'Instructors/DynamicQuestionForm.html', context_dict)
+    return render(request,'Instructors/TemplateDynamicQuestionForm.html', context_dict)
 
 def makePartHTMLwithForm(question,part):
-    formHead = ('<form name="'+question.uniqid+'-'+str(part)+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+
-                question.uniqid+'\','+str(part)+');disableDiv(\''+question.uniqid+'-'+str(part)+'\');return false;" >')
+    formHead = '<form name="'+question.uniqid+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+question.uniqid+'\');return false;" >'
     formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
     formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
     formBody += question.getQuestionPart(part)
-    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form>'
+    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form><div id="phase2"></div>'
     return (formHead,formBody)
 
 def makePartHTMLwithoutForm(question,part):
@@ -175,7 +176,7 @@ def dynamicQuestionPartAJAX(request):
     context_dict = { }
     if not lupa_available:
         context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server adminstrator to install it to enable dynamic problems.</B>"
-        return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
+        return render(request,'Instructors/TemplateDynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
         print(request.POST)
@@ -197,7 +198,7 @@ def dynamicQuestionPartAJAX(request):
             print("We are in INIT")
             questionID = request.POST['questionID']
             seed = request.POST['seed']
-            dynamicQuestion = DynamicQuestions.objects.get(pk=questionID)
+            dynamicQuestion = TemplateDynamicQuestions.objects.get(pk=questionID)
             code = dynamicQuestion.code
             numParts = dynamicQuestion.num_parts
             libs = makeLibs(dynamicQuestion)
@@ -233,7 +234,6 @@ def dynamicQuestionPartAJAX(request):
         context_dict['formbody'] = formbody
         context_dict['uniqid'] = uniqid
         context_dict['part'] = part
-        context_dict['partplusone'] = part+1
         context_dict['type'] = requesttype
         
         if (part==1):
@@ -241,3 +241,5 @@ def dynamicQuestionPartAJAX(request):
         else:
             return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
         
+def templateToCode(arg):
+    return arg

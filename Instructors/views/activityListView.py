@@ -48,9 +48,9 @@ def createContextForActivityList(request):
     assignment_Recipient = []
     assignment_Points = []
     
-    assignments = StudentActivities.objects.all().order_by('-studentActivityAssignmentID')
+    assignments = StudentActivities.objects.all().order_by('-studentActivityID')
     for assignment in assignments:
-        assignment_ID.append(assignment.studentActivityAssignmentID) #pk
+        assignment_ID.append(assignment.studentActivityID) #pk
         assignment_Name.append(assignment.activityID.activityName)
         assignment_Recipient.append(assignment.studentID)
         assignment_Points.append(assignment.activityScore)

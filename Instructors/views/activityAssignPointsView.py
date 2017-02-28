@@ -17,7 +17,8 @@ def activityAssignPointsView(request):
     
     if request.method == 'POST':
         # Get all students assigned to the current course (AH)
-        studentList = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
+        currentCourse = request.session['currentCourseID']
+        studentList = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
         for student in studentList:
             # See if a student is graded for this activity (AH)
             # Should only be one match (AH)
@@ -36,7 +37,7 @@ def activityAssignPointsView(request):
 
                     #Register event for participationNoted
                     register_event(Event.participationNoted, request, assignment.studentID, assignment.activityID.activityID)
-                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.studentID) + ", Activity Assignment: " + str(assignment.studentActivityAssignmentID))
+                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.studentID) + ", Activity Assignment: " + str(assignment.studentActivityID))
                 else:
                     # Delete activity assignment if student points is empty = 0 (AH)
                     assignment.delete()       
@@ -50,12 +51,13 @@ def activityAssignPointsView(request):
                     assignment.activityScore = studentPoints
                     assignment.timestamp = datetime.now()
                     assignment.instructorFeedback =  request.POST['student_Feedback' + str(student.studentID.id)]
+                    assignment.courseID = Courses.objects.get(courseID=currentCourse)
                     assignment.save()
 
                     #Register event for participationNoted
                     register_event(Event.participationNoted, request, assignment.studentID, assignment.activityID.activityID)
        
-                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.studentID) + ", Activity Assignment: " + str(assignment.studentActivityAssignmentID))                           
+                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.studentID) + ", Activity Assignment: " + str(assignment.studentActivityID))                           
     
     # prepare context for Activity List      
     context_dict = createContextForActivityList(request) 

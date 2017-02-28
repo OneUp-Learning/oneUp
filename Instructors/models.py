@@ -278,4 +278,8 @@ class UploadedImages(models.Model):
 class DynamicQuestions(Questions):
     numParts = models.IntegerField(default=1)
     code = models.CharField(max_length=20000)
+
+class TemplateDynamicQuestions(DynamicQuestions): 
+    templateText = models.CharField(max_length=20000) 
+
     

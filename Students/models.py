@@ -109,14 +109,15 @@ class StudentBadges(models.Model):
         return str(self.studentBadgeID) +"," + str(self.studentID) +"," + str(self.badgeID) +"," + str(self.timestamp)
     
 class StudentActivities(models.Model):
-    studentActivityAssignmentID = models.AutoField(primary_key=True)
+    studentActivityID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
+    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
     timestamp = models.DateTimeField()
     activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="  ")
     def __str__(self):              
-        return str(self.studentActivityAssignmentID) +"," + str(self.studentID) +","+str(self.challengeID)    
+        return str(self.studentActivityID) +"," + str(self.studentID) +","+str(self.challengeID)    
     
 class StudentEventLog(models.Model):
     student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
