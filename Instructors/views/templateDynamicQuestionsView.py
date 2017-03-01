@@ -42,7 +42,7 @@ def templateDynamicQuestionForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','difficulty','correctAnswerFeedback', # 04/09
-                         'instructorNotes','setupCode','templateQuestion','numParts'];
+                         'instructorNotes','setupCode','templateText','numParts'];
 
     if request.POST:
         
@@ -125,7 +125,7 @@ def templateDynamicQuestionForm(request):
                 context_dict[attr]=getattr(question,attr)
         else:
             context_dict["setupCode"] = "r1 = math.random(10) + 1 \nr2 = math.random(10) + 1"
-            context_dict["templateQuestion"] = "What is [{print(r1)}] + [{print(r2)}]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
+            context_dict["templateText"] = "What is [{print(r1)}] + [{print(r2)}]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
             context_dict["numParts"] = 1
             
         
@@ -137,21 +137,16 @@ def templateDynamicQuestionForm(request):
             return redirect('challengesView')
             
     return render(request,'Instructors/TemplateDynamicQuestionForm.html', context_dict)
-
-def makePartHTMLwithForm(question,part):
-    formHead = '<form name="'+question.uniqid+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+question.uniqid+'\');return false;" >'
-    formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
-    formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
-    formBody += question.getQuestionPart(part)
-    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form><div id="phase2"></div>'
-    return (formHead,formBody)
     
-# First we set up a regular expression to separate the templateQuestion into parts.
+# First we set up a regular expression to separate the templateText into parts.
 # We do this here rather than in the function because we would rather have it only run once
 # since the regular expression is always the same.
-templateRegex = re.compile(r"\[\{(.*?)\}\]",re.DOTALL)
-def templateToCode(setupCode,templateQuestion):
-    pieces = re.split(templateRegex,templateQuestion)
+templateSplitRegex = re.compile(r"\[\{(.*?)\}\]",re.DOTALL)
+def templateToCode(setupCode,templateText):
+    templateText = templateText.replace(r"&#39;","'",10000)
+    templateText = templateText.replace(r'&quot;','"',10000)
+    print(templateText)
+    pieces = re.split(templateSplitRegex,templateText)
     i = 1
     code = '''
         exact_equality = function(a)
@@ -197,7 +192,7 @@ part_1_text = function ()
     while i<l:
         code += pieces[i] + "\n"
         i += 1
-        code += "print('"+pieces[i]+"')\n"
+        code += "print([======["+pieces[i]+"]======])\n"
         i += 1
     code += ' _debug_print("answer checkers") _debug_print(_answer_checkers["ans1"]) '
     code += 'end'

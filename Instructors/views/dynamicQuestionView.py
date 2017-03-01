@@ -190,7 +190,7 @@ def dynamicQuestionPartAJAX(request):
             if '_code' in request.POST:
                 code = request.POST['_code']
             else:
-                code = templateToCode(request.POST['_setupCode'],request.POST['_templateQuestion'])
+                code = templateToCode(request.POST['_setupCode'],request.POST['_templateText'])
             seed = request.POST['_seed']
             numParts = request.POST['_numParts']
             libs = []
