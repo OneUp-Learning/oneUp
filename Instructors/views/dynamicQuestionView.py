@@ -12,7 +12,7 @@ from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions,
 from Instructors.lupaQuestion import LupaQuestion, lupa_available 
 
 from Instructors.views import utils
-
+from Instructors.views.templateDynamicQuestionsView import templateToCode
 
 from Badges.enums import QuestionTypes
 
@@ -187,7 +187,10 @@ def dynamicQuestionPartAJAX(request):
             part = int(request.POST['_part'])
             requesttype = '_eval'
         elif ('_test' in request.POST):
-            code = request.POST['_code']
+            if '_code' in request.POST:
+                code = request.POST['_code']
+            else:
+                code = templateToCode(request.POST['_setupCode'],request.POST['_templateQuestion'])
             seed = request.POST['_seed']
             numParts = request.POST['_numParts']
             libs = []
@@ -211,11 +214,10 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestionTable = request.session['lupaQuestions']
             
             lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
-            lupaQuestionTable[uniqid]=lupaQuestion.serialize()
-            request.session['lupaQuestions']=lupaQuestionTable
             theresult = ''
         else:
-            lupaQuestion = LupaQuestion.createFromDump(request.session['lupaQuestions'][uniqid])
+            lupaQuestionTable = request.session['lupaQuestions']
+            lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
             # And now we need to evaluate the previous answers.
             answers = {}
             for value in request.POST:
@@ -227,8 +229,12 @@ def dynamicQuestionPartAJAX(request):
                 theresult += "You got "+str(evaluations[answer]['value'])+" points on answer "+answer
             print(theresult)
                    
-        context_dict['theresult'] = theresult           
+        context_dict['theresult'] = theresult
+        
         formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
+        lupaQuestionTable[uniqid]=lupaQuestion.serialize()
+        request.session['lupaQuestions']=lupaQuestionTable
+        
         context_dict['formhead'] = formhead
         context_dict['formbody'] = formbody
         context_dict['uniqid'] = uniqid

@@ -74,7 +74,8 @@ else:
                         "deg","exp","floor","fmod","frexp","huge","ldexp","log",
                         "log10","max","min","modf","pi","pow","rad","random",
                         "sin","sinh","sqrt","tan","tanh"},
-                "os":{"clock","difftime","time"}
+                "os":{"clock","difftime","time"},
+                "python":{"iter"}
     }
     
     def sandboxLupaWithLibraries(libs,seed):
@@ -202,6 +203,8 @@ else:
             self.error = None
             runtime = LupaRuntimeLink(libs,seed)
             runtime.execute('''
+    _debug_print = print
+    _debug_print_table = function (t) for k,v in pairs(t) do _debug_print(k..'='..v) end end 
     _output = ""
     print =
         function (s)
@@ -223,15 +226,15 @@ else:
         end
         
     make_input =
-        function (name,t,s)
-            _inputs[_current_part] = t
+        function (name,type,size)
+            _inputs[_current_part][name] = type
             local by_type = {
                 ["int"] =
                     function ()
                         return '<input type="text" name="'.._uniqid..'_'..name..'">'
                     end
             }
-            return by_type[t]()
+            return by_type[type]()
         end
     
             ''')
@@ -262,19 +265,23 @@ else:
                 self.updateRuntime(runtime)
                 return "No question part "+str(n)+" defined."
             runtime.execute('_output = ""')
-            runtime.execute('_qtext = tostring(part_'+str(n)+'_text())')
+            runtime.execute('_qtext = part_'+str(n)+'_text()')
+            runtime.execute('if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end')
             result = runtime.eval('_output .. _qtext')
             self.updateRuntime(runtime)
+            print(self.lupaid)
             return result
         
         def answerQuestionPart(self,n,answer_dict):
+            print(self.lupaid)
             runtime = self.getRuntime()
+            print(runtime.getIdentifier())
             evalAnswerFunc = runtime.eval('evaluate_answer_'+str(n)+'')
             if evalAnswerFunc is None:
                 self.updateRuntime(runtime)
                 return "No answer evaluator for part "+str(n)+" is defined."
+            print("answer_dict:"+str(answer_dict))
             result = evalAnswerFunc(answer_dict)
-            self.updateRuntime(runtime)
             return result
         
         def getPartWeight(self,n):

@@ -18,6 +18,7 @@ from Badges.enums import QuestionTypes
 
 from django.views.decorators.csrf import csrf_exempt
 import sys
+import re
 
 
 def templateDynamicQuestionForm(request):
@@ -41,7 +42,7 @@ def templateDynamicQuestionForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','difficulty','correctAnswerFeedback', # 04/09
-                         'instructorNotes','code','templateQuestion','numParts'];
+                         'instructorNotes','setupCode','templateQuestion','numParts'];
 
     if request.POST:
         
@@ -65,6 +66,8 @@ def templateDynamicQuestionForm(request):
         else:
             question.author = ""
                  
+        question.code = templateToCode(question.setupCode,question.templateText)
+    
         # Fix the question type
         question.type = QuestionTypes.dynamic
         question.save();  #Writes to database.
@@ -108,6 +111,7 @@ def templateDynamicQuestionForm(request):
                 chall = Challenges.objects.get(pk=int(request.GET['challengeID']))
                 context_dict['challengeName'] = chall.challengeName
                 context_dict['challenge'] = True    
+                context_dict['difficulty'] = 'Easy'
     
                 
         # If questionId is specified then we load for editing.
@@ -120,23 +124,8 @@ def templateDynamicQuestionForm(request):
             for attr in string_attributes:
                 context_dict[attr]=getattr(question,attr)
         else:
-            #NOTE WE NEED THE CODE FOR THE templeateQuestins
-            
-            code = '''\
-part_1_text = function ()
-    return 'What is 1+1?' .. make_input('answer1','int',10)
-end
-evaluate_answer_1 = function(answers)
-    if (tonumber(answers.answer1)==2)
-       then return {answer1={success=true,value=10}}
-       else return {answer1={success=false,value=0}}      
-    end
-end
-part_1_max_points = function()
-    return {answer1=10}
-end
-'''
-            context_dict["code"] = code
+            context_dict["setupCode"] = "r1 = math.random(10) + 1 \nr2 = math.random(10) + 1"
+            context_dict["templateQuestion"] = "What is [{print(r1)}] + [{print(r2)}]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
             context_dict["numParts"] = 1
             
         
@@ -156,90 +145,62 @@ def makePartHTMLwithForm(question,part):
     formBody += question.getQuestionPart(part)
     formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form><div id="phase2"></div>'
     return (formHead,formBody)
-
-def makePartHTMLwithoutForm(question,part):
-    qhtml = question.getQuestionPart(part)
-    return qhtml
-
-def dynamicQuestionGetPartNonAJAX():
-    return ""
-
-def makeLibs(dynamicQuestion):
-# Dynamic Library support is incomplete.  We'll add this soon.  For now we just return an empty list.
-#    libs = LibraryToQuestion.objects.filter(question=dynamicQuestion)
-    output = []
-#    for lib in libs:
-#        output.append(lib.name)
-    return output
-
-def dynamicQuestionPartAJAX(request):
-    context_dict = { }
-    if not lupa_available:
-        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server adminstrator to install it to enable dynamic problems.</B>"
-        return render(request,'Instructors/TemplateDynamicQuestionAJAXResult.html',context_dict)
-
-    if request.method == 'POST':
-        print(request.POST)
-        uniqid = request.POST['_uniqid']
-        if ('_testeval' in request.POST):
-            part = int(request.POST['_part'])
-            requesttype = '_testeval'
-        elif ('_eval' in request.POST):
-            part = int(request.POST['_part'])
-            requesttype = '_eval'
-        elif ('_test' in request.POST):
-            code = request.POST['_code']
-            seed = request.POST['_seed']
-            numParts = request.POST['_numParts']
-            libs = []
-            part = 1
-            requesttype = '_testeval'
-        elif ('_init' in request.POST):
-            print("We are in INIT")
-            questionID = request.POST['questionID']
-            seed = request.POST['seed']
-            dynamicQuestion = TemplateDynamicQuestions.objects.get(pk=questionID)
-            code = dynamicQuestion.code
-            numParts = dynamicQuestion.num_parts
-            libs = makeLibs(dynamicQuestion)
-            part = 1
-            requesttype = '_eval'
-        
-        if (part == 1):
-            if ('lupaQuestions' not in request.session):
-                request.session['lupaQuestions'] = {}
+    
+# First we set up a regular expression to separate the templateQuestion into parts.
+# We do this here rather than in the function because we would rather have it only run once
+# since the regular expression is always the same.
+templateRegex = re.compile(r"\[\{(.*?)\}\]",re.DOTALL)
+def templateToCode(setupCode,templateQuestion):
+    pieces = re.split(templateRegex,templateQuestion)
+    i = 1
+    code = '''
+        exact_equality = function(a)
+            return function(b,pts)
+                if tonumber(a)==tonumber(b) then
+                    return {success=true,value=pts}
+                else
+                    return {success=false,value=0}
+                end
+            end
+        end
             
-            lupaQuestionTable = request.session['lupaQuestions']
-            
-            lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
-            lupaQuestionTable[uniqid]=lupaQuestion.serialize()
-            request.session['lupaQuestions']=lupaQuestionTable
-            theresult = ''
-        else:
-            lupaQuestion = LupaQuestion.createFromDump(request.session['lupaQuestions'][uniqid])
-            # And now we need to evaluate the previous answers.
-            answers = {}
-            for value in request.POST:
-                if (value.startswith(uniqid+"_")): 
-                    answers[value[len(uniqid)+1:]] = request.POST[value]
-            evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
-            theresult = ''
-            for answer in evaluations:
-                theresult += "You got "+str(evaluations[answer]['value'])+" points on answer "+answer
-            print(theresult)
-                   
-        context_dict['theresult'] = theresult           
-        formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
-        context_dict['formhead'] = formhead
-        context_dict['formbody'] = formbody
-        context_dict['uniqid'] = uniqid
-        context_dict['part'] = part
-        context_dict['type'] = requesttype
-        
-        if (part==1):
-            return render(request,'Instructors/DynamicQuestionAJAX.html',context_dict)
-        else:
-            return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
-        
-def templateToCode(arg):
-    return arg
+        _answer_checkers = {}
+        _pts = {}
+        make_answer = function(name,type,size,checker,pts)
+            _answer_checkers[name] = checker
+            _pts[name] = pts
+            print(make_input(name,type,size))
+        end
+        part_1_max_points = function()
+            local sum = 0
+            for k,v in pairs(_pts) do
+                sum = sum + v
+            end
+            return sum
+        end
+        evaluate_answer_1 = function(answers)
+            results = {}
+            for inputName in python.iter(answers) do
+                results[inputName] = _answer_checkers[inputName](answers[inputName],_pts[inputName])
+            end
+            return results
+        end
+    '''
+    code += setupCode + "\n" # Newline added to help readability
+    code += '''
+part_1_text = function ()
+    output = ""
+    '''
+    #TODO: escape quotation marks from pieces
+    code += "print('"+pieces[0]+"')\n"
+    l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
+    while i<l:
+        code += pieces[i] + "\n"
+        i += 1
+        code += "print('"+pieces[i]+"')\n"
+        i += 1
+    code += ' _debug_print("answer checkers") _debug_print(_answer_checkers["ans1"]) '
+    code += 'end'
+    print("CODE")
+    print(code)
+    return code

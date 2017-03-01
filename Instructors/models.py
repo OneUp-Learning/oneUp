@@ -280,6 +280,7 @@ class DynamicQuestions(Questions):
     code = models.CharField(max_length=20000)
 
 class TemplateDynamicQuestions(DynamicQuestions): 
-    templateText = models.CharField(max_length=20000) 
+    templateText = models.CharField(max_length=20000)
+    setupCode = models.CharField(max_length=20000, default="")
 
     
