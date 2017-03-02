@@ -70,7 +70,7 @@ def dynamicQuestionForm(request):
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved        # 02/28/2015    
             
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
                 challenge_question.delete()
@@ -224,9 +224,18 @@ def dynamicQuestionPartAJAX(request):
                 if (value.startswith(uniqid+"_")): 
                     answers[value[len(uniqid)+1:]] = request.POST[value]
             evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
-            theresult = ''
+            
+            #starts of making the table for the web page 
+            theresult = '<table class="bg">'
             for answer in evaluations:
-                theresult += "You got "+str(evaluations[answer]['value'])+" points on answer "+answer
+                theresult+= '<tr><td> '
+                if(evaluations[answer]['success']):
+                    theresult += " <span style='color: green;'>&#10004;</span>You got "+str(evaluations[answer]['value'])+" points on answer "+answer #prints with an check 
+                else:
+                    theresult += " <span style='color: red;'>&#10006;</span>You got "+str(evaluations[answer]['value'])+" points on answer "+answer #prints with an X  
+                theresult+='</tr></td>'
+            
+            theresult+= '</table>'
             print(theresult)
                    
         context_dict['theresult'] = theresult
