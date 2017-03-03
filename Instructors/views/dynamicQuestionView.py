@@ -18,6 +18,7 @@ from Badges.enums import QuestionTypes
 
 from django.views.decorators.csrf import csrf_exempt
 import sys
+from xml.dom.expatbuilder import theDOMImplementation
 
 
 def dynamicQuestionForm(request):
@@ -234,12 +235,18 @@ def dynamicQuestionPartAJAX(request):
                 else:
                     theresult += " <span style='color: red;'>&#10006;</span>You got "+str(evaluations[answer]['value'])+" points on answer "+answer #prints with an X  
                 if 'details' in evaluations[answer]:
+                    theresult += "<ul>"
+                    nbsp = '&nbsp;'
                     details = evaluations[answer]["details"]
                     for testName in details.keys():
-                        print(details[testName]['success'])
-                        print(details[testName]['value'])
-                        print(details[testName]['max_points'])
-                        
+                        theresult += "<li>"
+                        if(details[testName]['success']):
+                            theresult += ""+nbsp*12+" <span style='color: green;'>&#10004;</span>"+str(details[testName]['value'])+"/"+str(details[testName]['max_points'])+" points for criteria "+testName #prints with an check 
+                        else:
+                            theresult += ""+nbsp*12+" <span style='color: red;'>&#10006;</span>"+str(details[testName]['value'])+"/"+str(details[testName]['max_points'])+" points on criteria "+testName #prints with an X  
+                            
+                        theresult += "</li>"
+                    theresult += "</ul>"   
                 theresult+='</tr></td>'
             
             theresult+= '</table>'
