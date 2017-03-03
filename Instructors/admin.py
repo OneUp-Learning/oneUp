@@ -2,9 +2,11 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags
+from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags,\
+    TemplateDynamicQuestions
 from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages
 from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors
+from django.template.backends.django import Template
 
 admin.site.register(Announcements)
 admin.site.register(Activities)
@@ -13,6 +15,7 @@ admin.site.register(CoursesSkills)
 admin.site.register(Questions)
 admin.site.register(StaticQuestions)
 admin.site.register(DynamicQuestions)
+admin.site.register(TemplateDynamicQuestions)
 admin.site.register(QuestionsSkills)
 admin.site.register(Answers)
 admin.site.register(CorrectAnswers)
