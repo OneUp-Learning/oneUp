@@ -232,6 +232,14 @@ else:
                 ["int"] =
                     function ()
                         return '<input type="text" name="'.._uniqid..'_'..name..'">'
+                    end,
+                ["string"] = 
+                    function ()
+                        return '<input type="text" name="'.._uniqid..'_'..name..'">'
+                    end,
+                ["code"] = 
+                    function ()
+                        return '<textarea name="'.._uniqid..'_'..name..'">'
                     end
             }
             return by_type[type]()

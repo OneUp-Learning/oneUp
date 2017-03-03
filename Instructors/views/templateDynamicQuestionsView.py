@@ -169,6 +169,19 @@ def templateToCode(setupCode,templateText):
                 end
             end
         end
+
+    approximateEquality =
+    function(a,fudgefraction)
+    local check = function(b,pts)
+    local diff = math.abs(a-b)
+    if diff/a<fudgeFraction then
+    return {correct=true,points=pts}
+    else
+    return {correct=false,points=0}
+    end
+    end
+    end
+
             
         _answer_checkers = {}
         _pts = {}
