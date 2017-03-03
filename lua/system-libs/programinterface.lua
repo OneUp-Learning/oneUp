@@ -69,13 +69,37 @@ local concatFile = function(filename,text,workingDirName)
 end
 
 programInterface.programChecker =
-   function (text,rootdir,filename,tests)
-      local workingDirName = uniqid..'_'..seed..'_'..username
-      makeWorkingDir(rootdir,workingDirName)
-      concatFile(filename,text,workingDirName)
-      for test in tests do
-	 outputFileHandle = io.popen(test[command])
-      
-      
-
-return prograInterface
+   function (rootdir,filename,total_max_pts,tests)
+      return function (text,pts)
+	 local workingDirName = uniqid..'_'..seed..'_'..username
+	 makeWorkingDir(rootdir,workingDirName)
+	 concatFile(filename,text,workingDirName)
+	 local success = true
+	 local value = 0
+	 local ptsratio = total_max_pts/pts
+	 local detail = {}
+	 for test in tests do
+	    local outputFileHandle = io.popen(test['command'],'r')
+	    local firstLine = outputFileHandle:read("*l")
+	    local testpoints = 0
+	    local testsuccess = false
+	    if str.match(string.upper(firstLine),"SUCCESS") ~= nil then
+	       testpoints = test['points']*ptsratio
+	       value = value + testpoints
+	       testsuccess = true
+	    else
+	       success = false
+	    end
+	    detail[test['name']] =
+	       {
+		  name=test[name],
+		  points=testpoints,
+		  max_points=test['points']*ptsratio
+		  success=testsuccess
+	       }
+	 end
+	 return {success=success,value=value,detail=detail}
+      end
+   end	 
+		  
+return programInterface
