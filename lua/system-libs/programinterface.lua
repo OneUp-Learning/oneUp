@@ -11,7 +11,7 @@ else
    ostype = "unknown"
 end
 
-local programInterface = {}
+local programinterface = {}
 
 uniqid = "UNIQID_GOES_HERE"
 seed = 0
@@ -19,7 +19,7 @@ username = "USERNAME_GOES_HERE"
 
 pathsep = package.config:sub(1,1)
 
-programInterface.initialize =
+programinterface.initialize =
    function(_uniqid,_seed,_username)
       uniqid = _uniqid
       seed = _seed
@@ -76,7 +76,7 @@ local concatFile = function(filename,text,workingDirName)
    tailfile:close()
 end
 
-programInterface.programChecker =
+programinterface.program_checker =
    function (rootdir,filename,compile_cmd,total_max_pts,tests)
       return function (text,pts)
 	 local workingDirName = uniqid..'_'..seed..'_'..username
@@ -115,4 +115,4 @@ programInterface.programChecker =
       end
    end	 
 		  
-return programInterface
+return programinterface

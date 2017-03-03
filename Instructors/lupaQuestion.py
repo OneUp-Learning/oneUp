@@ -1,4 +1,7 @@
 import importlib
+from oneUp.settings import BASE_DIR
+import os
+
 lupa_spec = importlib.util.find_spec('lupa')
 lupa_available = True
 if lupa_spec is None:
@@ -81,6 +84,8 @@ else:
     def sandboxLupaWithLibraries(libs,seed):
         lua = LuaRuntime()
         
+        # TODO: Remove once real lib support on problem creation pages is in place.
+        
         # We need to change the seed for the random function now because the sandboxing
         # will remove that ability (not so much for security reasons, although it might
         # be possible that an obscure attack exists, but for reasons of preventing the
@@ -94,7 +99,6 @@ else:
         # we're using, but the overhead of generating one additional random number is so
         # small that it's worth doing just in case.
         lua.eval("math.random()")
-        
         sandbox = lua.eval("{}")
         
         globalstuff = lua.globals()
@@ -107,7 +111,10 @@ else:
             for fun in modules[name]:
                 setattr(table,fun,getattr(getattr(globalstuff,name),fun))
             setattr(sandbox,name,table)
-                
+        
+        lua.execute("package.path = package.path .. ';"+BASE_DIR+os.sep+"lua"+os.sep+"system-libs/?.lua'")
+        libs.append("programinterface")
+        print(lua.eval("package.path"))
         for lib in libs:
             libTable = lua.eval('require "'+lib+'"')
             setattr(sandbox,lib,libTable)
