@@ -170,17 +170,16 @@ def templateToCode(setupCode,templateText):
             end
         end
 
-    approximate_equality =
-    function(a,fudgefraction)
-    return function(b,pts)
-    local diff = math.abs(a-b)
-    if diff/a<fudgeFraction then
-    return {correct=true,points=pts}
-    else
-    return {correct=false,points=0}
-    end
-    end
-    end
+        approximate_equality = function(a,fudgefraction)
+            return function(b,pts)
+                local diff = math.abs(a-b)
+                if diff/a<fudgefraction then
+                    return {correct=true,points=pts}
+                else
+                    return {correct=false,points=0}
+                end
+            end
+        end
 
             
         _answer_checkers = {}

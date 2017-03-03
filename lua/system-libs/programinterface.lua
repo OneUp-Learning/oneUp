@@ -87,7 +87,7 @@ programInterface.programChecker =
 	 local success = true
 	 local value = 0
 	 local ptsratio = total_max_pts/pts
-	 local detail = {}
+	 local details = {}
 	 for i,test in ipairs(tests) do
 	    local outputFileHandle = io.popen(test['command'],'r')
 	    local firstLine = outputFileHandle:read("*l")
@@ -102,17 +102,16 @@ programInterface.programChecker =
 	    else
 	       success = false
 	    end
-	    detail[test['name']] =
+	    details[test['name']] =
 	       {
-		  name=test[name],
-		  points=testpoints,
+		  value=testpoints,
 		  max_points=test['points']*ptsratio,
 		  success=testsuccess
 	       }
 	 end
 	 lfs.chdir("..")
 	 killdir(workingDirName)
-	 return {success=success,value=value,detail=detail}
+	 return {success=success,value=value,details=details}
       end
    end	 
 		  

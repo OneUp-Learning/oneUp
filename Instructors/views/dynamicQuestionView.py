@@ -233,6 +233,13 @@ def dynamicQuestionPartAJAX(request):
                     theresult += " <span style='color: green;'>&#10004;</span>You got "+str(evaluations[answer]['value'])+" points on answer "+answer #prints with an check 
                 else:
                     theresult += " <span style='color: red;'>&#10006;</span>You got "+str(evaluations[answer]['value'])+" points on answer "+answer #prints with an X  
+                if 'details' in evaluations[answer]:
+                    details = evaluations[answer]["details"]
+                    for testName in details.keys():
+                        print(details[testName]['success'])
+                        print(details[testName]['value'])
+                        print(details[testName]['max_points'])
+                        
                 theresult+='</tr></td>'
             
             theresult+= '</table>'
