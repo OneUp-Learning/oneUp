@@ -38,8 +38,13 @@
   			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
   						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
   				         '&_setupCode='+encodeURIComponent(editor.getValue())+
-  				         '&_templateText='+encodeURIComponent(CKEDITOR.instances.templateText.getData())+
+  				         '&_templateText='+encodeURIComponent(CKEDITOR.instances.templateTextVisible.getData())+
   				         '&csrfmiddlewaretoken={{ csrf_token }}');
+    	}
+    	
+    	function copyContentsToHidden() {
+    	    document.question.setupCode.value = editor.getValue();
+    	    document.question.templateText.value = CKEDITOR.instances.templateTextVisible.getData();
     	}
     	
     	function disableDiv(name) {
@@ -86,25 +91,38 @@
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
             <p><span>*</span> Denotes Required Fields.</p>
   
-    <form name="question" action="" onsubmit="return validateForm()" method="POST">
+    <form name="question" action="" onsubmit="copyContentsToHidden();return validateForm()" method="POST">
       {% csrf_token %}
+      {% if questionId %}
+           <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">
+      {% endif %}
+      {% if challengeID %}
+           <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+      {% endif %}
       <table class="bg">
       	<tr>
       	</tr>
       	<tr>
       		<td>
-      			Dynamic questions allow instructors to write questions and evaluate answers programmatically using Lua code.
-      			The code, when run should define the following:
-      		<ul>
-      			<li> <b> part_1_text </b> A function which takes no input and produces a string which represents the HTML for the first question.
-      				If you have more than one part to this problem, you should also define similar functions call part_2_text, part_3_text, etc.
-      			<li> <b> evaluate_answer_1 </b> A function which takes in a table which maps the names of the form inputs from part 1 to values which are
-      				the answers provided for those form inputs by the user and returns a table which maps the names of the form inputs to 
-      				a table containing two values, "success" which maps to a boolean indicating whether or not the answer was sufficient to continue to the next part
-      				and "value" which maps to a floating point number indicating how many points were awarded for that answer.  
-      			<li> <b> part_1_max_points </b> A function which takes no input and returns a table which maps the name of each input to the maximum possible number
-      				of points a student could earn for that question.
-  			</ul>	
+      			Templated dynamic questions allow instructors to write questions and evaluate answers programmatically using Lua code.
+      			Lua code to set up any needed variables and perform any complex math should be included
+      			in the SetupCode section.
+      			The problem itself should be below.
+      			Inside the problem area, if you wish to display a variable, simply enclose it in [| and |].
+      			For example, to display the variable x, you would type [|x|].
+      			To include Lua code, simply enclose it in [{ and }].
+      			One bit of Lua code which you will need to include for any problem is a call to the
+      			make_answer function which is used to create answer blanks.
+      			Use of this function is required (although it is possible to make answer spaces appear
+      			by adding HTML code directly, answer spaces added that way will not function properly in
+      			the system).
+      			make_answer takes five arguments. The first is the name of the answer blank.
+      			This name will be displayed to students when describing their results.
+      			The second is the type of the answer blank. The third is the size.
+      			The fourth is the answer checking function which will be used.
+      			There are several standard answer checking functions provided.
+      			The fifth is the maximum number of points which the student can receive for
+      			their answer in this blank.
       	</td>
       </tr>
 	<tr>
@@ -134,19 +152,6 @@
 	</tr>
 	<tr>
 		 <td>Feedback for Correct Answer</td>
-	</tr>
-	<tr>
-		<td>  
-			<textarea name="correctAnswerFeedback" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="correctAnswerFeedback">{{correctAnswerFeedback}}</textarea>
-		</td>
-	</tr>
-	<tr>
-		<td>Feedback for Incorrect Answer</td>
-	</tr>
-	<tr>
-		<td>
-			<textarea name="incorrectAnswerFeedback" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="{{incorrectAnswerFeedback}}">{{incorrectAnswerFeedback}}</textarea>
-		</td>
 	</tr>
 	<tr>
 		<td>Instructor Notes</td>
@@ -179,6 +184,7 @@
 				    editor.setTheme("ace/theme/chrome");
 				    editor.session.setMode("ace/mode/lua");
 			</script>
+			<input type="hidden" name="setupCode" style="display: none;" />
 		</td>
 	</tr>
 	<tr>
@@ -186,11 +192,13 @@
 	</tr>
 	<tr>
 		<td>
-			<textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="10" cols="70" name="templateText" id="templateText" >{{templateText}}</textarea>
+			<textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="10" cols="70" name="templateTextVisible" id="templateTextVisible" >{{templateText}}</textarea>
 			<script type="text/javascript" >
-                // Replace the <textarea id="templateText"> with a CKEditor instance, using default configuration.
-                CKEDITOR.replace( 'templateText' );
-             </script>          
+                // Replace the <textarea id="templateTextVisible"> with a CKEditor instance, using default configuration.
+                CKEDITOR.replace( 'templateTextVisible' );
+             </script> 
+             <input type="hidden" name="templateText" style="display: none;" />
+             
 		</td>
 	</tr>
  </table>

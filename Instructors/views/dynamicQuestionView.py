@@ -41,7 +41,7 @@ def dynamicQuestionForm(request):
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
-    string_attributes = ['preview','difficulty','correctAnswerFeedback', # 04/09
+    string_attributes = ['preview','difficulty',
                          'instructorNotes','code','numParts'];
 
     if request.POST:
@@ -78,7 +78,8 @@ def dynamicQuestionForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']))
+            #TODO: calculate actual number of points.
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, 0)
 
             # save question-skill pair to db                    # 03/01/2015
             # first need to check whether a new skill is selected 
@@ -88,7 +89,8 @@ def dynamicQuestionForm(request):
                 
                 # Processing and saving skills for the question in DB
                 skillString = request.POST.get('newSkills', "default")
-                utils.saveQuestionSkills(skillString, question, challenge)
+                #TODO: fix skills
+                #utils.saveQuestionSkills(skillString, question, challenge)
     
             # Processing and saving tags in DB
             tagString = request.POST.get('tags', "default")

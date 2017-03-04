@@ -34,6 +34,10 @@
   				         '&_code='+encodeURIComponent(editor.getValue())+'&csrfmiddlewaretoken={{ csrf_token }}');
     	}
     	
+    	function copyContentsToHidden() {
+    	    document.question.code.value = editor.getValue();
+    	}
+    	
     	function disableDiv(name) {
     		var darkLayer = document.getElementById(name+"-darkLayer");
     		darkLayer.style.display="";
@@ -79,8 +83,14 @@
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
             <p><span>*</span> Denotes Required Fields.</p>
   
-    <form name="question" action="" method="POST">
+    <form name="question" action="" method="POST" onclick="copyContentsToHidden();return validateForm()">
       {% csrf_token %}
+      {% if questionId %}
+           <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">
+      {% endif %}
+      {% if challengeID %}
+           <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+      {% endif %}
       <table class="bg">
       	<tr>
       	</tr>
@@ -126,22 +136,6 @@
 		</td>
 	</tr>
 	<tr>
-		 <td>Feedback for Correct Answer</td>
-	</tr>
-	<tr>
-		<td>  
-			<textarea name="correctAnswerFeedback" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="correctAnswerFeedback">{{correctAnswerFeedback}}</textarea>
-		</td>
-	</tr>
-	<tr>
-		<td>Feedback for Incorrect Answer</td>
-	</tr>
-	<tr>
-		<td>
-			<textarea name="incorrectAnswerFeedback" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="{{incorrectAnswerFeedback}}">{{incorrectAnswerFeedback}}</textarea>
-		</td>
-	</tr>
-	<tr>
 		<td>Instructor Notes</td>
 	</tr>
 	<tr>
@@ -172,6 +166,7 @@
 		    	editor.setTheme("ace/theme/chrome");
 		    	editor.session.setMode("ace/mode/lua");
 			</script>
+			<input type="hidden" name="code" style="display: none;" />
 		</td>
 	</tr>
  </table>

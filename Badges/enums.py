@@ -273,6 +273,7 @@ class QuestionTypes():
     trueFalse=4
     essay=5
     dynamic=6
+    templatedynamic=7
     questionTypes={
         multipleChoice:{
            'index': multipleChoice,
@@ -302,7 +303,12 @@ class QuestionTypes():
         dynamic:{
            'index': dynamic,
            'name':'dynamic',
-           'displayName':'Dynamic Questions',                         
-        }                   
+           'displayName':'Dynamic Questions (Raw Lua)',                         
+        },
+        templatedynamic:{
+           'index': templatedynamic,
+           'name':'templatedynamic',
+           'displayName':'Dynamic Questions (Template)',
+        },  
     }   
     

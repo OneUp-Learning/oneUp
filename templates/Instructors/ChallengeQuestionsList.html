@@ -118,6 +118,12 @@
     						{% if q_type == 5 %}
     						<a href="/oneUp/instructors/forms/EssayForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
     						{%endif%}
+    						{% if q_type == 6 %}
+    						<a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
+    						{%endif%}
+    						{% if q_type == 7 %}
+    						<a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
+    						{%endif%}
 
     						{% if challenge %}    						
     						<input type="hidden" name="challengeID" value="{{challengeID}}">
