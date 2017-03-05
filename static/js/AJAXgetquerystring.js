@@ -50,16 +50,48 @@ function getquerystring(formName) {
 
 }
 
-function submit_form(uniqid,part) {
+function nothing() {
+    return;
+}
+
+function submit_form(uniqid,part,extra_stuff_fun) {
 	var query = getquerystring(uniqid+'-'+part);
 	
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange =
 		function() {
 				document.getElementById(uniqid+"-"+(part+1)+"-results").innerHTML = xhttp.responseText;
+				extra_stuff_fun();
 	    };
 	xhttp.open("POST","doDynamicQuestion",true);
 	xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	
 	xhttp.send(query);
 }
+
+var aceEditors = {}
+    	function makeNewEditors() {
+    	    var allEditorDivs = document.getElementsByClassName("ace-editor");
+    	    var len = allEditorDivs.length;
+    	    for (var i = 0; i<len; i++) {
+    	        var editorDiv = allEditorDivs[i];
+    	        if (aceEditors[editorDiv.id] == undefined) {
+    	            aceEditors[editorDiv.id] = ace.edit(editorDiv.id);
+    	            var thiseditor = aceEditors[editorDiv.id]
+				    thiseditor.setTheme("ace/theme/chrome");
+				    thiseditor.getSession().setMode("ace/mode/"+editorDiv.title); // We're putting language mode in title. Yes, this is an abuse of the field, but it shouldn't hurt anything.				    
+				}
+		    }
+		}
+		
+		function copyAJAXEditorsToHidden(formid) {
+		    var form = document.getElementById(formid);
+		    var formEditorDivs = form.getElementsByClassName("ace-editor");
+		    var len = formEditorDivs.length;
+		    for (var i = 0; i<len; i++) {
+    	        var editorDiv = formEditorDivs[i];
+		        var myeditor = aceEditors[editorDiv.id];
+		        var hidden = document.getElementById(editorDiv.id+"-hidden");
+		        hidden.value = myeditor.getValue();
+		    }
+		}

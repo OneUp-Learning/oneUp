@@ -234,19 +234,28 @@ else:
         
     make_input =
         function (name,type,size)
+            local fullname = _uniqid..'_'..name
+            local originaltype = type
+            type = string.upper(type)
             _inputs[_current_part][name] = type
+            local i,j = string.find(type,"CODE")
+            if i ~= nil then
+                local lang = string.sub(originaltype,j+2,-1)
+                -- Now we trim whitespace from lang
+                lang = lang:match'^()%s*$' and '' or lang:match'^%s*(.*%S)'
+                
+                return '<div class="ace-editor" id="'..fullname..'" title="'..lang..'" style="height: 200px; width: 500px">'..
+                       'Type your code here!</div>'..
+                       '<input type="hidden" name="'..fullname..'" id="'..fullname..'-hidden">'
+            end
             local by_type = {
-                ["int"] =
+                ["INT"] =
                     function ()
-                        return '<input type="text" name="'.._uniqid..'_'..name..'">'
+                        return '<input type="text" name="'..fullname..'">'
                     end,
-                ["string"] = 
+                ["STRING"] = 
                     function ()
-                        return '<input type="text" name="'.._uniqid..'_'..name..'">'
-                    end,
-                ["code"] = 
-                    function ()
-                        return '<textarea name="'.._uniqid..'_'..name..'">'
+                        return '<input type="text" name="'..fullname..'">'
                     end
             }
             return by_type[type]()

@@ -28,6 +28,7 @@
   					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
   						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
   					}
+  					makeNewEditors();
   				}
   			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
   						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
@@ -83,7 +84,7 @@
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
             <p><span>*</span> Denotes Required Fields.</p>
   
-    <form name="question" action="" method="POST" onclick="copyContentsToHidden();return validateForm()">
+    <form name="question" action="" method="POST" onclick="copyContentsToHidden();return false">
       {% csrf_token %}
       {% if questionId %}
            <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">

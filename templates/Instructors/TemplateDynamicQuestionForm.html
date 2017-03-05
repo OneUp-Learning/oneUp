@@ -34,6 +34,7 @@
   					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
   						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
   					}
+  					makeNewEditors();
   				}
   			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
   						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
@@ -64,7 +65,10 @@
     			}
     			
     		}
-    	}    	
+    	}
+    	
+    	
+		
     </script> 
     
     <style>

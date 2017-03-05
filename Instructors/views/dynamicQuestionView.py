@@ -151,8 +151,10 @@ end
     return render(request,'Instructors/DynamicQuestionForm.html', context_dict)
 
 def makePartHTMLwithForm(question,part):
-    formHead = ('<form name="'+question.uniqid+'-'+str(part)+'" id="'+question.uniqid+'" action="doDynamicQuestion" method="POST" onSubmit="submit_form(\''+
-                question.uniqid+'\','+str(part)+');disableDiv(\''+question.uniqid+'-'+str(part)+'\');return false;" >')
+    formID = question.uniqid+'-'+str(part)
+    formHead = ('<form name="'+formID+'" id="'+formID+'" action="doDynamicQuestion" method="POST" onSubmit="copyAJAXEditorsToHidden(\''+
+                formID+'\');submit_form(\''+
+                question.uniqid+'\','+str(part)+',makeNewEditors);disableDiv(\''+question.uniqid+'-'+str(part)+'\');return false;" >')
     formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
     formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
     formBody += question.getQuestionPart(part)
