@@ -206,7 +206,7 @@ else:
             self.libs = libs
             self.seed = seed
             self.uniqid = formid
-            self.numParts = numParts
+            self.numParts = int(numParts)
             self.error = None
             runtime = LupaRuntimeLink(libs,seed)
             runtime.execute('''
@@ -264,7 +264,7 @@ else:
             ''')
             
             runtime.execute('_set_uniqid("'+self.uniqid+'")')
-            runtime.execute('_init_inputs('+self.numParts+')')
+            runtime.execute('_init_inputs('+str(self.numParts)+')')
             
             try:
                 runtime.execute(code)

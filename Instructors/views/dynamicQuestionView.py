@@ -157,7 +157,8 @@ def makePartHTMLwithForm(question,part):
                 question.uniqid+'\','+str(part)+',makeNewEditors);disableDiv(\''+question.uniqid+'-'+str(part)+'\');return false;" >')
     formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
     formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
-    formBody += question.getQuestionPart(part)
+    if (int(part) <= question.numParts):
+        formBody += question.getQuestionPart(part)
     formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form>'
     return (formHead,formBody)
 

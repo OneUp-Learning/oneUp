@@ -1,5 +1,7 @@
 local lfs = require "lfs"
 
+local _debug_print = print
+
 local binaryFormat = package.cpath:match("%p[\\|/]?%p(%a+)")
 if binaryForamt == "dll" then
    ostype = "Windows"
@@ -55,13 +57,8 @@ local killdir = function(dir)
 end
 
 local makeWorkingDir = function(rootDir,modelDir,newDir)
-   if not lfs.chdir(rootDir) then
-      return false,"Error changing directories"
-   elseif not copydirectory(modelDir,newDir) then
-      return false,"Error creating working directory"
-   else
-      return true,"Working directory created."
-   end
+   lfs.chdir(rootDir)
+   copydirectory(modelDir,newDir)
 end
 
 local concatFile = function(filename,text,workingDirName)
@@ -79,14 +76,15 @@ end
 programinterface.program_checker =
    function (rootdir,filename,compile_cmd,total_max_pts,tests)
       return function (text,pts)
+	 local startDir = lfs.currentdir()
 	 local workingDirName = uniqid..'_'..seed..'_'..username
-	 makeWorkingDir(rootdir,rootdir..pathsep.."model",workingDirName)
+	 makeWorkingDir(rootdir,"model",workingDirName)
 	 concatFile(filename,text,workingDirName)
 	 lfs.chdir(workingDirName)
 	 os.execute(compile_cmd)
 	 local success = true
 	 local value = 0
-	 local ptsratio = total_max_pts/pts
+	 local ptsratio = pts/total_max_pts
 	 local details = {}
 	 for i,test in ipairs(tests) do
 	    local outputFileHandle = io.popen(test['command'],'r')
@@ -111,6 +109,7 @@ programinterface.program_checker =
 	 end
 	 lfs.chdir("..")
 	 killdir(workingDirName)
+	 lfs.chdir(startDir)
 	 return {success=success,value=value,details=details}
       end
    end	 

@@ -212,7 +212,7 @@ part_1_text = function ()
     output = ""
     '''
     #TODO: escape quotation marks from pieces
-    code += "print('"+pieces[0]+"')\n"
+    code += "print([======["+pieces[0]+"]======])\n"
     i = 1
     l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
     while i<l:
