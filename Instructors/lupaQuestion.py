@@ -304,9 +304,30 @@ else:
             if evalAnswerFunc is None:
                 self.updateRuntime(runtime)
                 return "No answer evaluator for part "+str(n)+" is defined."
-            print("answer_dict:"+str(answer_dict))
-            result = evalAnswerFunc(answer_dict)
-            return result
+            results = evalAnswerFunc(answer_dict)
+            # There are problems dealing with Lua tables in Django templates, so we create
+            # python dictionaries instead.
+            pyresults = {}
+            for answer_name in results:
+                answer = results[answer_name]
+                pyanswer = {}
+                pyanswer['success']=answer['success']
+                pyanswer['value']=answer['value']
+                if 'details' in answer:
+                    pydetails = {}
+                    details = answer['details']
+                    for detail_name in answer['details']:
+                        detail = answer['details'][detail_name]
+                        pydetail = {}
+                        pydetail['success'] = detail['success']
+                        pydetail['value'] = detail['value']
+                        pydetail['max_points'] = detail['max_points']
+                        pydetails[detail_name] = pydetail
+                    pyanswer['details']=pydetails
+                pyresults[answer_name]=pyanswer
+            print(pyresults)
+            
+            return pyresults
         
         def getPartWeight(self,n):
             runtime = self.getRuntime()
