@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+
+        {% include 'scripts.html' %}
+
+	</head>
+   <body>
+   
+        {% include 'stheading.html' %}  
+          
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Virtual Currency Shop</h1>
+		</div>
+		</div>
+        <div class="row">
+        <div class="12u"> 
+            <form id="store" name="store" action="#" method="post">
+            <table class="bg">
+        		<tr>
+        			<th>Name</th>
+        			<th>Description</th>
+        			<th>Price</th>
+        			<th>Quantity</th>
+ 					<th>Cost</th>
+        			
+        			<th></th>
+        		</tr>
+        		{% for buyOpt in buyOptions %}
+        		<tr> 
+        			<td style="vertical-align:middle">{{buyOpt.displayName}}</td>
+        			<td>{{buyOpt.description}}</td>
+        			<td>{{buyOpt.cost}}</td>
+        			<td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="quantity" min="0" max="0" value="0"></td>		
+        			<td><div id="priceFor{{buyOpt.id}}">0</div>
+        			<td style="vertical-align:middle; text-align:right">					
+        				{% csrf_token %}
+        			</td>
+        		</tr>
+        		{% endfor %}
+        		<tr style="border-top: 1px solid #000;">
+        			<td>Your current balance: {{studentVirtualCurrency}}</td><td></td><td></td>
+        			<td>Total</td>
+        			<td><div id="total">0</div></td>
+        			<td></td>
+       			</tr>
+       			
+        	</table>
+        	
+        	<input type="submit" value="Buy" >
+        	<a href="/oneUp/students/StudentCourseHome"><button class="button special" type="button">Cancel</button></a>
+        	
+        	</form>
+        <!-- END DYNAMIC TABLE -->
+		</div>
+        </div>
+        </div>
+      	</div>
+      <!-- Footer -->
+      
+        {% include 'footer.html' %}
+
+      </div>
+                  <script>
+            	var prices=[{% for buyOpt in buyOptions2 %}{{buyOpt.cost}},{%endfor%}]
+            	function updatePrices() {
+            		var len = prices.length;
+            		var total = 0;
+            		for (var i = 0; i<len; i++) {
+            			var quantity = document.getElementById("buyOptionQuantity"+i).value;
+            			var price = quantity*prices[i];
+            			total += price;
+            			document.getElementById("priceFor"+i).innerHTML = price;
+            		}
+            		document.getElementById("total").innerHTML = total;
+            	}
+            	for (var i = 0; i<{{numBuyOptions}}; i++) {
+            		document.getElementById("buyOptionQuantity"+i).addEventListener('change',updatePrices);
+            	}
+            </script>
+   </body>
+</html>
