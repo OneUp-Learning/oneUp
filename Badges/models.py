@@ -140,7 +140,17 @@ class Badges(models.Model):
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
-     
+# Virtual Currency Table
+class VirtualCurrencyRuleInfo(models.Model):
+    vcRuleID = models.AutoField(primary_key=True)
+    vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
+    vcRuleDescription = models.CharField(max_length=100)
+    ruleID = models.ForeignKey(Rules, verbose_name="the related rule", db_index=True)
+    vcRuleType = models.BooleanField(default=True) # True: earning , False: spending
+    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    assignToChallenges = models.IntegerField() # 1. All, 2. Specific
+    def __str__(self):              
+        return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)   
 # System Variables (standard variables for the Python methods) Table
 
 # system variables and their operation type

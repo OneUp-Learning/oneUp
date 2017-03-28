@@ -70,7 +70,6 @@ from Instructors.views.templateDynamicQuestionsView import templateDynamicQuesti
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
 
-
 admin.autodiscover()
 
 urlpatterns = [
@@ -127,7 +126,6 @@ urlpatterns = [
     url(r'^imageUpload',imageUpload,name='imageUpload'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
-       
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
     url(r'^preferences',preferencesView, name='preferencesView'),
     url(r'^search',searchQuestions, name='searchQuestions'),
@@ -143,6 +141,7 @@ urlpatterns = [
     url(r'^topicsList',topicsListView, name='topicsListView'),
     url(r'^forms/doDynamicQuestion',dynamicQuestionPartAJAX,name="dynamic question engine AJAX"),
     url(r'^luaTestView',luaTestView,name="Lua Test View")
+   
 
 
 ]

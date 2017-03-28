@@ -1,7 +1,8 @@
 from Badges.models import Rules, ActionArguments, Conditions, Badges
 from Badges.models import FloatConstants, StringConstants
 from Badges.enums import OperandTypes, ObjectTypes, Event, SystemVariable, Action
-from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student
+from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
+    StudentRegisteredCourses
 from datetime import datetime
 from builtins import getattr
 import decimal
@@ -60,6 +61,44 @@ def register_event(eventID, request, student=None, objectId=None):
         eventEntry.objectID = courseIDint #login form may not have an object id
     if(eventID == Event.challengeExpiration):
         eventEntry.objectType = ObjectTypes.challenge
+        eventEntry.objectID = objectId
+    
+    # Virtual Currency Events
+    if(eventID == Event.buyAttempt):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.buyHint):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.extendDeadline):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.dropLowestAssignGrade):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.getDifferentProblem):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.seeClassAverage):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.chooseLabPartner):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.chooseProjectPartner):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.uploadOwnAvatar):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.chooseDashboardBackground):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.getSurpriseAward):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.chooseBackgroundForYourName):
+        eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
     
     print('eventEntry: '+str(eventEntry))  
@@ -285,4 +324,28 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         return
     if (actionID == Action.addSkillPoints):
         #Add skill points to a student
+        return
+    
+    if (actionID == Action.increaseVirtualCurrency):
+        ruleIdArg = args.get(sequenceNumber=1)
+        # Get the virtual currency that is associated with the rule
+        ruleIdString = ruleIdArg.argumentValue
+        vcRuleAmount = int(ruleIdString)
+        # Get the student
+        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+        # Increase the student virtual currency amount
+        student.virtualCurrencyAmount += vcRuleAmount
+        student.save()
+        return
+    
+    if (actionID == Action.decreaseVirtualCurrency):
+        ruleIdArg = args.get(sequenceNumber=1)
+        # Get the virtual currency that is associated with the rule
+        ruleIdString = ruleIdArg.argumentValue
+        vcRuleAmount = int(ruleIdString)
+        # Get the student
+        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+        # Increase the student virtual currency amount
+        student.virtualCurrencyAmount -= vcRuleAmount
+        student.save()
         return

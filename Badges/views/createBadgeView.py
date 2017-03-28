@@ -37,11 +37,15 @@ def CreateBadge(request):
 
     challengeObjects=[]     
     chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
+    # Why loop through unassigned problems just to get the last unassigned problem id? (AH)
     for challID in chall:
         unassignID = challID.challengeID   
 
     challenges = Challenges.objects.filter(courseID=currentCourse)       
     for challenge in challenges:
+        # This code will actually append the challenges that are unassigned (except for the last one
+        # that we found in the above for loop) along with all other assigned challenges?
+        # Are we trying to only get the assigned problems? (AH)
         if challenge.challengeID != unassignID:    
             challengeObjects.append(challenge)
             print("challenge: "+str(challenge))
@@ -49,11 +53,11 @@ def CreateBadge(request):
     # The range part is the index numbers.
     context_dict['systemVariables'] = systemVariableObjects
     context_dict['challenges'] = zip(range(1,challenges.count()+1),challengeObjects)
-    context_dict['num_Conditions'] = "1";
+    context_dict['num_Conditions'] = "0";
 
     return render(request,'Badges/CreateBadge.html', context_dict)
 
-def extractPaths(context_dict): #funcation used to get the names from the file locaiton
+def extractPaths(context_dict): #function used to get the names from the file location
     imagePath = []
     
     for name in glob.glob('static/images/badges/*'):
