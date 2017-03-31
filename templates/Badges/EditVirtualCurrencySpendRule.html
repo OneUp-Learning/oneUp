@@ -35,7 +35,6 @@
                   <p><span>*</span> Denotes Required Fields.</p>
                   <form id="createSpendRule" name="createSpendRule" action="/oneUp/badges/SaveVirtualCurrencySpendRule" method="POST">
                      {% csrf_token %}
-                     <input type="hidden" name="vcsRuleID" id="vcsRuleID" value="{{vcsRule.vcRuleID}}">
                      <table class="bg">
                      	<tr>
 	        				<th>Name</th>
@@ -43,11 +42,11 @@
 	        				<th>Value</th>
 	        				<th></th>
 			        	</tr>
-			        	{% for i, eventIndex, eventName, eventDescription, eventEnabled in events %}
+			        	{% for i, eventIndex, eventName, eventDescription, eventAmount, eventEnabled in events %}
                         <tr> 
 		        			<td style="width: 30%;"><input type="checkbox" name="{{eventName}}" value="{{eventIndex}}" {% if eventEnabled is True%}checked="checked"{% endif %}/> {{eventName}}</td>
 		        			<td>{{eventDescription}}</td>
-		        			<td style="width: 129.16px;"><input style="border: solid 1px rgba(128, 128, 128, 0.5); width:100%; height: 40px;" type="number" name="{{eventName}}_Value" id="{{eventName}}_Value" min="0" {% if eventEnabled is True%}value="{{vcAmount}}"{% else %} value="0" {% endif %} /></td>
+		        			<td style="width: 129.16px;"><input style="border: solid 1px rgba(128, 128, 128, 0.5); width:100%; height: 40px;" type="number" name="{{eventName}}_Value" id="{{eventName}}_Value" min="0" value="{{eventAmount}}" /></td>
 		        			<td></td>
 		        		</tr>
                         {% endfor %}
