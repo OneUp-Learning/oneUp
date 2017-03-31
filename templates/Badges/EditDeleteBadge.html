@@ -18,7 +18,7 @@
             var numConditions = {{num_Conditions}};
          	
             function check(){
-           	 if(numConditions == 1) {
+           	 if(numConditions < 1) {
                     document.getElementById('removeCondition').style.display ='none';
              }
            	 
@@ -32,9 +32,9 @@
             	
             	/*window.alert("Added One Condition, Now: " + numConditions);*/
             	
-              /* If there is only one condition, we've hidden the remove button
+              /* If there are no conditions, we've hidden the remove button
                  now we're adding a new condition, so we show it again. */
-              if(numConditions > 1) {
+              if(numConditions > 0) {
                 document.getElementById('removeCondition').style.display ='initial';
               }
               
@@ -89,7 +89,6 @@
 				newcond.setAttribute('id',divIdName);
 				newcond.innerHTML = newElement;
 				conditions.appendChild(newcond);
-				swap(numConditions, 0);
             }
             /* Removes the bottom condition */
             function removeCondition() {
@@ -106,36 +105,14 @@
               /* Update the number which will be returned to python */ 
               document.editBadge.elements['numConditions'].value = numConditions;
             
-              /* If we're down to just one condition, hide the button that
+              /* If we have no conditions, hide the button that
                  remove conditions */
-              if (numConditions == 1) {
+              if (numConditions < 1) {
                 document.getElementById('removeCondition').style.display = 'none';
               }
             }
-            /* Switches operand2 from value to sysVar and vice versa */
-//             function swap(i, value){
-//             	var operand2Value = document.getElementById("cond"+i+"_operand2Value");
-//             	var sysVarsSelector = document.getElementById("cond"+i+"_operand2Variable");
+          
             	
-//             	var x = document.getElementsByName("cond"+i+"_operand2Selector");
-            	
-//             	if(value == 0){
-//             		sysVarsSelector.style.display = "none";
-//             		operand2Value.style.display = "block";
-//             		document.editBadge.elements['cond'+i+'_operand2Type'].value = "constant";
-//             		x[0].checked = true;
-//             		x[1].checked = false;
-
-//             	}
-//             	else {
-//             		operand2Value.style.display = "none";
-//             		sysVarsSelector.style.display = "block";
-//             		document.editBadge.elements['cond'+i+'_operand2Type'].value = "none";
-//             		x[1].checked = true;
-//             		x[0].checked = false;
-//             	}
-            	
-//             }
       </script>
    </head>
    <body>

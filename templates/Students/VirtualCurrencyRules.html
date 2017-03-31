@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+
+        {% include 'scripts.html' %}
+
+	</head>
+   <body>
+   
+        {% include 'heading.html' %}  
+          
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Virtual Currency Rules</h1>
+		</div>
+		</div>
+                  <!-- INSERTED DYNAMIC TABLE --> 
+        <div class="row">
+        <div class="12u"> 
+            <br /><br />
+             <!-- New: List of badges added; DD 02/04/2015 -->
+            <table class="bg">
+        		<tr>
+        			<th>Name</th>
+        			<th>Description</th>
+        			<th>Course Bucks</th>
+        			
+        			<th></th>
+        		</tr>
+        		{% for i,vcRuleID,vcRuleName, vcRuleDescription, vcAmount in vcRuleInfo %}
+        		<tr> 
+        			<td style="vertical-align:middle">{{vcRuleName}}</td>
+        			<td>{{vcRuleDescription}}</td>
+        			<td>{{vcAmount}}</td>				
+        			<td style="vertical-align:middle; text-align:right">					
+        				{% csrf_token %}
+        			</td>
+        		</tr>
+        		{% endfor %}
+        	</table>
+        <!-- END DYNAMIC TABLE -->
+		</div>
+        </div>
+        </div>
+      	</div>
+      <!-- Footer -->
+      
+        {% include 'footer.html' %}
+
+      </div>
+   </body>
+</html>

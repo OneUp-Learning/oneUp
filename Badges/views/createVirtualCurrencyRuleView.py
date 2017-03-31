@@ -9,19 +9,18 @@ import glob, os
 from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Challenges, Courses
-from Badges.enums import SystemVariable, dict_dict_to_zipped_list
+from Badges.enums import SystemVariable, dict_dict_to_zipped_list,\
+    displayCircumstance
 
 
 # This sets up the page used to create the badge, but does not, in fact, create any badges.
 # Badges are actually created in the saveBadgeView class.
 
 @login_required
-def CreateBadge(request):
+def CreateVcRule(request):
     
     context_dict = { }
-    
-    extractPaths(context_dict)
-    
+        
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
@@ -33,11 +32,18 @@ def CreateBadge(request):
     #else:
         #context_dict['course_Name'] = 'Not Selected'
     
-    systemVariableObjects= dict_dict_to_zipped_list(SystemVariable.systemVariables,['index','displayName'])  
-
+    sysIndex = []
+    sysDisplayName = []
+    systemVariableObjects= dict_dict_to_zipped_list(SystemVariable.systemVariables,['index','displayName', 'displayCircumstances'])  
+    # Select only the system variables that are for virtual currency
+    for i, sysVars, display in systemVariableObjects:
+        for key, v in display.items():
+            if key == displayCircumstance.virtualCurrency:
+                sysIndex.append(i)
+                sysDisplayName.append(sysVars)
+        
     challengeObjects=[]     
     chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
-    # Why loop through unassigned problems just to get the last unassigned problem id? (AH)
     for challID in chall:
         unassignID = challID.challengeID   
 
@@ -51,18 +57,8 @@ def CreateBadge(request):
             print("challenge: "+str(challenge))
                 
     # The range part is the index numbers.
-    context_dict['systemVariables'] = systemVariableObjects
+    context_dict['systemVariables'] = zip(range(1, len(sysIndex)+1), sysIndex, sysDisplayName)
     context_dict['challenges'] = zip(range(1,challenges.count()+1),challengeObjects)
-    context_dict['num_Conditions'] = "0";
 
-    return render(request,'Badges/CreateBadge.html', context_dict)
+    return render(request,'Badges/CreateVirtualCurrencyRule.html', context_dict)
 
-def extractPaths(context_dict): #function used to get the names from the file location
-    imagePath = []
-    
-    for name in glob.glob('static/images/badges/*'):
-        name = name.replace("\\","/")
-        imagePath.append(name)
-        print(name)
-    
-    context_dict["imagePaths"] = zip(range(1,len(imagePath)+1), imagePath)

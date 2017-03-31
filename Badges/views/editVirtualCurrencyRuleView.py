@@ -6,49 +6,17 @@ Last modified 09/02/2016
 from django.template import RequestContext
 from django.shortcuts import render
 
-from Badges.models import Badges, Conditions, FloatConstants, StringConstants
+from Badges.models import VirtualCurrencyRuleInfo
 from Instructors.models import Challenges,Courses
-from Badges.enums import SystemVariable, dict_dict_to_zipped_list, OperandTypes
-from Badges.views import createBadgeView
+from Badges.enums import SystemVariable, dict_dict_to_zipped_list, displayCircumstance
 
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import get_mandatory_conditions_without_or_and_not, filter_out_associated_challenges, leaf_condition_to_tuple,\
     get_associated_challenge_if_exists
 from setuptools.command.build_ext import if_dl
 
-# conditions is a matrix of triples: firstOperand, operation, secondOperand
-def ConditionTree(currCondition):
     
-    print ("0:  " + str(currCondition))
-    operation = currCondition.operation
-    op2type = currCondition.operand2Type
-    op2value = currCondition.operand2Value       
-    if (not operation == 'AND'):
-        # a proper condition, must add components to lists
-        #first operand in a condition is always a system variable
-        op1 =SystemVariable.systemVariables[currCondition.operand1Value]['name']          
-        op = operation
-        if (op2type == OperandTypes.immediateInteger):
-            op2 = str(op2value)
-            op2ind = 'constant'
-        elif (op2type == OperandTypes.floatConstant):
-            op2 = str(FloatConstants.objects.get(pk=op2value))
-            op2ind = 'constant'
-        elif (op2type == OperandTypes.stringConstant):
-            op2 = str(StringConstants.objects.get(pk=op2value))
-            op2ind = 'constant'
-        elif (op2type == OperandTypes.systemVariable):
-            op2 = SystemVariable.systemVariables[op2value]['name'] 
-            op2ind = 'systemVariable'       
-        return [(op1, op, op2, op2ind)]   # ind is indicating whether it will be displayed as a textfield value or system variables selection
-    
-    # operation AND
-    l1 = ConditionTree(Conditions.objects.get(pk=currCondition.operand1Value))
-    l2 = ConditionTree(Conditions.objects.get(pk=currCondition.operand2Value))
-
-    return l1 + l2
-    
-def EditDeleteBadge(request):
+def EditVirtualCurrencyRule(request):
  
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated()
@@ -63,16 +31,14 @@ def EditDeleteBadge(request):
         context_dict['course_Name'] = 'Not Selected'
     
     conditions = []
-    
-    createBadgeView.extractPaths(context_dict)
-    
+        
     if request.GET:
 
-        # Getting the Badge information which has been selected
-        if request.GET['badgeID']:
-            badgeId = request.GET['badgeID']
-            badge = Badges.objects.get(badgeID=badgeId)
-            condition = badge.ruleID.conditionID
+        # Getting the Rule information which has been selected
+        if request.GET['vcRuleID']:
+            vcRuleID = request.GET['vcRuleID']
+            rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID)
+            condition = rule.ruleID.conditionID
             print("Condition: "+str(condition))
                  
             ##Fill in the condition matrix
@@ -85,13 +51,31 @@ def EditDeleteBadge(request):
             for c in conditions:
                 print(c)
                 
-            systemVariableObjects= dict_dict_to_zipped_list(SystemVariable.systemVariables,['index','name', 'displayName'])  
-            
-            #assignedChallenges = BadgeChallenges.objects.filter(badgeID=badgeId)
-            #print("assign chall obj: "+str(assignedChallenges))
-            #for assignChallenge in assignedChallenges:
-            #    assignChallObjects.append(assignChallenge.challengeID.challengeID)
-            #    print("asschall.cid.cid:"+str(assignChallenge.challengeID))
+            sysIndex = []
+            sysDisplayName = []
+            sysEnabled = []
+            condOperation = []
+            condValues = []
+            systemVariableObjects= dict_dict_to_zipped_list(SystemVariable.systemVariables,['index','name', 'displayName', 'displayCircumstances'])  
+            # Loop through the system variables for virtual currency
+            for i, name, sysVars, display in systemVariableObjects:
+                for key, v in display.items():
+                    if key == displayCircumstance.virtualCurrency:
+                        sysIndex.append(i)
+                        sysDisplayName.append(sysVars)
+                        # Set system variable enabled flag to true if condition name is the same
+                        found = False
+                        for c in conditions:
+                            if c[0] == name:
+                                sysEnabled.append(True)
+                                condOperation.append(c[1])
+                                condValues.append(c[2])
+                                found = True
+                        if found == False:
+                            sysEnabled.append(False)
+                            condOperation.append('==')
+                            condValues.append(0)
+                            
             (has_challenge,associated_challenge) = get_associated_challenge_if_exists(condition)
 
             # Set up a list of challenge objects for the dropbox, excluding the special "Unassigned Problems" challenge
@@ -107,14 +91,12 @@ def EditDeleteBadge(request):
                     print("*challenge: "+str(challenge.challengeID))
                 
     # The range part is the index numbers.
-    context_dict['systemVariables'] = systemVariableObjects
+    context_dict['systemVariables'] = zip(range(1, len(sysIndex)+1), sysIndex, sysDisplayName, sysEnabled, condOperation, condValues)
     context_dict['challenges'] = zip(range(1,challenges.count()+1),challengeObjects)    
-    context_dict['badge'] = badge
+    context_dict['vcRule'] = rule
     context_dict['conditions'] = zip(range(1,len(conditions)+1),conditions)
 #    context_dict['assignChallenges'] = zip(range(1,len(assignChallObjects)+1),assignChallObjects)
     context_dict['has_challenge'] = has_challenge
     context_dict['associated_challenge'] = associated_challenge
-    #context_dict['num_Conditions'] = "1"
-    context_dict['num_Conditions'] = len(conditions)
     
-    return render(request,'Badges/EditDeleteBadge.html', context_dict)
+    return render(request,'Badges/EditVirtualCurrencyRule.html', context_dict)
