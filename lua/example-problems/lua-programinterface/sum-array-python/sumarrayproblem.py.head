@@ -1,0 +1,23 @@
+import sys
+
+def main(argv):
+    testArray = {}
+    if argv[1]=="test1":
+        testArray = {1,2,3,4,5}
+    elif argv[1]=="test2":
+        testArray = {-5,0,5}
+    elif argv[1]=="test3":
+        testArray = {1,99,2,98,3,97,4,96,5,95}
+    
+    answer = 0
+    for ta in testArray:
+        answer += ta
+
+    result = sumArray(testArray)
+    if result == answer:
+        print("Success\n5\n")
+    else:
+        print("Failure\n0\n")
+    pass
+
+def sumArray(arr):

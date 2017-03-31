@@ -157,12 +157,13 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
     #Return the actual correct percentage from the fired event
     if (varIndex == SystemVariable.percentageCorrect):
         #Get the student score
-        testScore = StudentChallenges.objects.filter(challengeID = objectID,courseID = course,studentID = student).latest('testScore')
-        #Get the max possible score
-        maxScore = StudentChallenges.objects.filter(challengeID = objectID, courseID = course,studentID = student).latest('testTotal')
+        allScores = StudentChallenges.objects.filter(challengeID = objectID,courseID = course,studentID = student)
+        if allScores.exists():
+            testScore = allScores.latest('testScore')
+
         #Check if denominator is zero to avoid getting a DivideByZero error
-        if float(maxScore.testTotal) != 0:
-            percentCorrect = (float(testScore.testScore)/float(maxScore.testTotal)) * 100
+        if float(testScore.testTotal) != 0:
+            percentCorrect = (float(testScore.testScore)/float(testScore.testTotal)) * 100
         return percentCorrect
     
     def getAllTestScores():

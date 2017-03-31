@@ -93,7 +93,8 @@
             <div class="12u">
             	<h1><span>{{challengeName}}</span></h1>
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
-            <p><span>*</span> Denotes Required Fields.</p>
+            <p><span class="redstar">*</span> Denotes Required Fields.</p>
+  
   
     <form name="question" action="" onsubmit="copyContentsToHidden();return validateForm()" method="POST">
       {% csrf_token %}
@@ -172,7 +173,7 @@
 		<td><input type="text" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" name="author" value="{{author}}"></td>
 	</tr>
 	<tr>
-		<td>Number of Parts<span>*</span></td> <!-- Note this might change its input type -->
+		<td>Number of Parts<span class="redstar">*</span></td> <!-- Note this might change its input type -->
 	</tr>
 	<tr>
 		<td><input type="text" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" name="numParts" value="{{numParts}}" required></td>
@@ -182,7 +183,7 @@
 	</tr>
 	<tr>
 		<td>
-			<div id="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode" id="setupCode">{{setupCode}}</textarea></div>
+			<div id="editor" style="height: 200px; width: 100%">{{setupCode}}</div>
 			<script>
 		    		var editor = ace.edit("editor");
 				    editor.setTheme("ace/theme/chrome");
@@ -246,12 +247,12 @@
 	</tr>
 	</form>
 	<tr>
-		<td><div id="codeResults" ></div> </td> <!-- Need to see the code for this so we can add border -->
+		<td><div id="codeResults" align="left" ></div> </td> <!-- Need to see the code for this so we can add border -->
 	</tr>
  </table>
+   	</div></div></div></div>
  
-	</div></div></div></div>
-</div>	
+</div>
     {% include 'footer.html' %}
   </body>
   

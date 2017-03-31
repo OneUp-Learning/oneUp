@@ -77,6 +77,7 @@ programinterface.program_checker =
    function (rootdir,filename,compile_cmd,total_max_pts,tests)
       return function (text,pts)
 	 local startDir = lfs.currentdir()
+	 _debug_print(startDir)
 	 local workingDirName = uniqid..'_'..seed..'_'..username
 	 makeWorkingDir(rootdir,"model",workingDirName)
 	 concatFile(filename,text,workingDirName)
@@ -87,6 +88,8 @@ programinterface.program_checker =
 	 local ptsratio = pts/total_max_pts
 	 local details = {}
 	 for i,test in ipairs(tests) do
+	    os.execute("pwd")
+	    _debug_print(test['command'])
 	    local outputFileHandle = io.popen(test['command'],'r')
 	    local firstLine = outputFileHandle:read("*l")
 	    local pointsAwarded = outputFileHandle:read("*n")

@@ -270,8 +270,5 @@ def dynamicQuestionPartAJAX(request):
         context_dict['partplusone'] = part+1
         context_dict['type'] = requesttype
         
-        if (part==1):
-            return render(request,'Instructors/DynamicQuestionAJAX.html',context_dict)
-        else:
-            return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
+        return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
         

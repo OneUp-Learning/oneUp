@@ -3229,13 +3229,11 @@ in second and third dropdowns */
 .frame h1 > span {
     color: rgb(115, 83, 121);
 }
-.frame p > span,
-td > span,
-th > span {
+.frame span.redstar {
     color: red;
     font-weight: bolder;
 }
-.frame p {
+.frame p.center {
     text-align: center;
 }
 h1.heading {
@@ -3258,7 +3256,7 @@ div.heading {
     background-size: 100% 1000px;
     background-repeat: no-repeat;
 }
-#darkClassParent {
+.darkClassParent {
 	position:relative;
 }
 .darkClass
@@ -3271,7 +3269,6 @@ div.heading {
     height: 100%;
     width: 100%;
     background-repeat:no-repeat;
-    background-position:center;
     position:absolute;
     top: 0px;
     left: 0px;
