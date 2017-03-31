@@ -17,22 +17,19 @@ from Badges.conditions_util import get_events_for_system_variable, get_events_fo
 from django.contrib.auth.decorators import login_required
 
 def DeleteVirtualCurrencySpendRule(vcRuleID):
-
+    vcRuleID = int(vcRuleID)
     # Delete the Virtual Currency Rule 
-    deleteVC = VirtualCurrencyRuleInfo.objects.filter(vcRuleID=vcRuleID)
-    for deleteVc in deleteVC:
-        
-        # The next line deletes the conditions and everything else related to the rule
-        deleteVc.ruleID.delete_related()
-        # Then we delete the rule itself
-        deleteVc.ruleID.delete()
-        # And then we delete the badge.
-        deleteVc.delete()
-
-    actionArgs = ActionArguments.objects.filter(argumentValue=vcRuleID)
+    deleteVc = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID)
+    # The next line deletes the conditions and everything else related to the rule
+    deleteVc.ruleID.delete_related()
+    # Then we delete the rule itself
+    deleteVc.ruleID.delete()
+    # And then we delete the badge.
+    deleteVc.delete()
+    
+    actionArgs = ActionArguments.objects.filter(ruleID=deleteVc.ruleID)
     for actionArg in actionArgs:
-        actionArg.delete()
-                    
+        actionArg.delete()  
             
 def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.
@@ -49,14 +46,10 @@ def SaveVirtualCurrencySpendRule(request):
     
     if request.POST: 
 
-        # Check if creating a new badge or edit an existing one
-        # If editing an existent one, we need to delete it first before saving the updated information in the database            
-        if 'vcsRuleID' in request.POST:   #edit or delete badge 
-            # print("Virtual Currency Spend Rule to Edit/Delete Id: "+str(request.POST['vcsRuleID']))
-            # vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(pk=int(request.POST['vcsRuleID']))
-            if 'delete' in request.POST:
-                DeleteVirtualCurrencySpendRule(request.POST['vcsRuleID'])
-                return redirect("/oneUp/Badges/InstructorVirtualCurrencyList")            
+        # Delete the spend rule
+        if 'delete' in request.POST:
+            DeleteVirtualCurrencySpendRule(request.POST['vcsRuleID'])
+            return redirect("/oneUp/badges/InstructorVirtualCurrencyList")            
         
         if 'create' in request.POST or 'edit' in request.POST:
                 
@@ -72,7 +65,17 @@ def SaveVirtualCurrencySpendRule(request):
                     eventDescription.append(eDescription)
                     
             
-            vcRules = VirtualCurrencyRuleInfo.objects.all()
+            vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False)
+            for rule in vcRules:
+                found = False
+                for  eventI, eventN, eventD in zip(eventIndex, eventName, eventDescription):
+                    if rule.vcRuleName == eventN:
+                        vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(vcRuleName = eventN)
+                        found = True
+                if found == False:
+                    # Delete the rule
+                    DeleteVirtualCurrencySpendRule(rule.vcRuleID)
+                    
             # Loop through all of the system variables.
             for eventI, eventN, eventD in zip(eventIndex, eventName, eventDescription):
                 found = False  

@@ -30,34 +30,37 @@ def EditVirtualCurrencySpendRule(request):
     else:
         context_dict['course_Name'] = 'Not Selected'
             
-    if request.GET:
-
-        # Getting the Rule information which has been selected
-        if request.GET['vcsRuleID']:
-            vcRuleID = request.GET['vcsRuleID']
-            rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID)
-                
-            eventIndex = []
-            eventName = []
-            eventDescription = []
-            eventEnabled = []
-            eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description'])  
-            # Select only the system variables that are for virtual currency
-            for i, eName, eDescription in eventObjects:
-                if i >= 850:
+    # Getting the Rule information which has been selected
+    rules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False)
+        
+    eventIndex = []
+    eventName = []
+    eventDescription = []
+    eventEnabled = []
+    eventAmount = []
+    eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description'])  
+    # Select only the system variables that are for virtual currency
+    for i, eName, eDescription in eventObjects:
+        found = False
+        for rule in rules:
+            if i >= 850:
+                if rule.vcRuleName == eName:
                     eventIndex.append(i)
                     eventName.append(eName)
                     eventDescription.append(eDescription)
-                    if rule.vcRuleName == eName:
-                        eventEnabled.append(True)
-                    else:
-                        eventEnabled.append(False)
-            if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
-                context_dict['vcAmount'] = (ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue)
-            else:
-                context_dict['vcAmount'] = 0  
+                    eventAmount.append((ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue))
+                    eventEnabled.append(True)
+                    found = True
+                    break
+        if found == False:
+            eventIndex.append(i)
+            eventName.append(eName)
+            eventDescription.append(eDescription)
+            eventEnabled.append(False)
+            eventAmount.append(0) 
+                    
+    print(eventName) 
     # The range part is the index numbers.
-    context_dict['events'] = zip(range(1, len(eventIndex)+1), eventIndex, eventName, eventDescription, eventEnabled)
-    context_dict['vcsRule'] = rule
+    context_dict['events'] = zip(range(1, len(eventIndex)+1), eventIndex, eventName, eventDescription, eventAmount, eventEnabled)
     
     return render(request,'Badges/EditVirtualCurrencySpendRule.html', context_dict)

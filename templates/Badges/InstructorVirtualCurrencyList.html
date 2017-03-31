@@ -40,6 +40,7 @@
                      {% endfor %}
                   </table>
                   <a href="/oneUp/badges/CreateVirtualCurrencySpendRule"><input type="button" value="Create Spending Rules"></a>
+                  <a href="/oneUp/badges/EditVirtualCurrencySpendRule"><input type="button" value="Edit Spending Rules"></a>
                   <br /><br />
                   <table class="bg">
                      <tr>
@@ -51,14 +52,6 @@
                      <tr>
                         <td style="vertical-align:middle">{{vcsRuleName}}</td>
                         <td>{{vcsAmount}}</td>
-                        <td style="vertical-align:middle; text-align:right">
-                           <form action="/oneUp/badges/SaveVirtualCurrencySpendRule" method="POST">
-                              {% csrf_token %} 
-                              <a href="/oneUp/badges/EditVirtualCurrencySpendRule?vcsRuleID={{vcsRuleID}}"><button type="button">Edit</button></a>
-                              <input type="hidden" name="vcsRuleID" value="{{vcsRuleID}}">
-                              <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
-                           </form>
-                        </td>
                      </tr>
                      {% endfor %}
                   </table>
