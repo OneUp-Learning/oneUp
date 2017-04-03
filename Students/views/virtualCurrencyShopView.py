@@ -61,9 +61,9 @@ def virtualCurrencyShopView(request):
                 return None
             
             def getBuyAmountForEvent(event):
-                print(Event.events[event]['displayName'])
+                #print(Event.events[event]['displayName'])
                 rules = getRulesForEvent(event)
-                print(rules)
+                #print(rules)
                 buyRule = getFirstBuyRule(rules)
                 if buyRule is None:
                     return (False,0)
@@ -76,7 +76,7 @@ def virtualCurrencyShopView(request):
             buyOptionCost = {}
             for buyOpt in buyOptionList:
                 buyOptionEnabled[buyOpt],buyOptionCost[buyOpt] = getBuyAmountForEvent(buyOpt) 
-                print(getBuyAmountForEvent(buyOpt))
+                #print(getBuyAmountForEvent(buyOpt))
     
             enabledBuyOptions = []
             for buyOpt in buyOptionList:
@@ -112,8 +112,9 @@ def virtualCurrencyShopView(request):
             i = 0
             for buyOption in enabledBuyOptions:
                 quantity = request.POST['buyOptionQuantity'+str(i)]
-                for j in range(1, int(quantity)):
+                for j in range(0, int(quantity)):
                     register_event(buyOption, request, sID, 0) # ObjectID has to be null?
+                i += 1
 
             #TODO: Actually deliver the rewards.
             # This code only triggers the events which should take away the virtual currency

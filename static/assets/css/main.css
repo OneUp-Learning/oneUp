@@ -3229,7 +3229,7 @@ in second and third dropdowns */
 .frame h1 > span {
     color: rgb(115, 83, 121);
 }
-.frame span.redstar {
+span.red {
     color: red;
     font-weight: bolder;
 }
