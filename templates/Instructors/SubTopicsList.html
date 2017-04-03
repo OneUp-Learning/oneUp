@@ -36,36 +36,45 @@
             <div class="container">
             <div class="row">
             <div class="12u">
-               <h1>Topics</h1>
+               <h1>Sub Topics List </h1>
 			</div></div>
 			<div class="row">
             <div class="12u">
                   <!-- INSERTED DYNAMIC TABLE --> 
-                  <a href="/oneUp/instructors/topicsCreate"><input type="button" value="Add New Topic"></a>
+                  <!-- <a href="/oneUp/instructors/subTopicsCreate"><input type="button" value="Add New Sub Topic"></a> -->
                   <br /><br />
                   <table class="bg">
                      <tr>
                         <th>Topic Name</th>
+                        <th>Sub Topic Position</th>
+                        <th>Sub Topic Name</th>
+                        <th>Threshold for XP</th>
+                        <th>Threshold for SP</th>
+                        <th>Display Date</th>
                         <th> </th>
                      </tr>
-                     {% for i,topic_ID,topic_Name,subTopicID in topic_range %}
-                     <tr>
+                      <tr>
+                     {% for i,topic_Name,subTopicPos,subTopicName,thresholdXP,thresholdSP,displayDate,subTopicID,topic_ID in sub_topic_range %}
                         <div id="topics{{i}}">
                            <td>{{topic_Name}}</td>
+                           <td>{{subTopicPos}}</td>
+                           <td>{{subTopicName}}</td>
+                           <td>{{thresholdXP}}</td>
+                           <td>{{thresholdSP}}</td>
+                           <td>{{displayDate}}</td>
                            <td align="right">
-                              <form action="/oneUp/instructors/deleteTopic " method="POST">
+                              <form action="/oneUp/instructors/deleteSubTopic" method="POST">
                                  {% csrf_token %}                                                                        
                                  <input type="hidden" name="topicID" value="{{topic_ID}}">                           
-                                 <a href="/oneUp/instructors/subTopicsCreate?topicID={{topic_ID}}"><button type="button">Add Sub Topic</button></a>
-                                 <a href="/oneUp/instructors/subTopicsListView?topicID={{topic_ID}}"><button type="button">Edit Sub Topic</button></a>
-                                 <a href="/oneUp/instructors/topicsCreate?topicID={{topic_ID}}"><button type="button">Edit</button></a>
+				 <input type="hidden" name="subTopicID" value="{{subTopicID}}">
+                                 <a href="/oneUp/instructors/subTopicsCreate?subTopicID={{subTopicID}} & TopicID={{topic_ID}}"><button type="button">Edit</button></a>
                                  <input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
                               </form>
                            </td>
-                        </div>
                      </tr>
                      {% endfor %}
                   </table>
+                  <a href="/oneUp/instructors/topicsList"><input type="button" value="Back"></a>
                   <!-- END DYNAMIC TABLE -->
          </div></div></div></div>
       </div>

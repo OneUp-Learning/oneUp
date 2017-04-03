@@ -11,7 +11,7 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from Students.models import StudentBadges, StudentEventLog, Student
 
-from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, Announcements, Activities, Milestones
+from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
 
 from django.contrib.auth.decorators import login_required
 
@@ -213,6 +213,31 @@ def deleteTopic(request):
         context_dict['message']=message
         
     return redirect('/oneUp/instructors/topicsList', context_dict)
+
+def deleteSubTopic(request):
+    # Request the context of the request.
+    # The context contains information such as the client's machine details, for example.
+ 
+    context_dict = { }
+    print (str('got here'))
+    if request.POST:
+
+        # If there's an existing question, we wish to edit it.  If new question,
+        # create a new Question object.
+        try:
+            if request.POST['subTopicID']:
+                subTopic = CoursesSubTopics.objects.get(pk=int(request.POST['subTopicID']))  
+                print(subTopic)          
+                message = "subTopic #"+str(subTopic.subTopicID)+ " "+subTopic.subTopicName+" successfully deleted"
+                subTopic.delete()
+        except subTopic.DoesNotExist:
+            message = "There was a problem deleting SubTopic #"+str(subTopic.subTopicID)+ " "+subTopic.subTopicName
+
+        context_dict['message']=message
+    
+    response = redirect('/oneUp/instructors/subTopicsListView', context_dict)
+    response['Location'] +='?topicID=' + str(subTopic.topicID.topicID)
+    return response   
 
 def deleteActivity(request):
     # Request the context of the request.

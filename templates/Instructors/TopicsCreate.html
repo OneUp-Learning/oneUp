@@ -23,7 +23,7 @@
              
          }
       </script>
-		
+        
    </head>
    <body>
       <!-- START PAGE SOURCE -->
@@ -38,10 +38,12 @@
             <div class="12u">
                <h1>Enter New Topic</h1>
                <p><span>*</span>Topics can be linked to problems</p>
-			</div></div>
-			<div class="row">
-          	<div class="12u">
+            </div></div>
+            <div class="row">
+            <div class="12u">
                   <!-- INSERTED DYNAMIC TABLE -->
+                   <a href="/oneUp/instructors/topicsCreate"><input type="button" value="Add New Topic"></a>
+                  <br /><br />
                   <form name="question" action="/oneUp/instructors/topicsCreate" method="POST">
                   {% csrf_token %}
                   <input type="hidden" name="topicID" id="topicID" value="{{topicID}}">
@@ -56,6 +58,7 @@
                   <input type="submit" name="submit" value="Submit" class="button" onclick="return check();">
                   <a href="/oneUp/instructors/topicsList"><input type="button" value="Done"></a>
                   <br>
+                  </form>
                   <!-- END DYNAMIC TABLE -->
          </div></div></div></div>
       </div>
