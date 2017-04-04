@@ -3,13 +3,12 @@ Created on May 27, 2015
 
 @author: dichevad
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 from datetime import datetime
 
-from Instructors.models import Skills, Challenges, Courses, CoursesSkills, CoursesSkills, ChallengesQuestions
-from Students.models import Student, StudentCourseSkills, StudentChallengeQuestions, StudentChallenges, StudentBadges
-from Badges.models import Badges, CourseConfigParams
+from Instructors.models import Skills, Challenges, Courses, CoursesSkills, ChallengesQuestions
+from Students.models import Student, StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses
+from Badges.models import CourseConfigParams
 from Students.views import classResults
 from Students.models import StudentConfigParams
 from django.contrib.auth.decorators import login_required
@@ -44,7 +43,6 @@ def achievements(request):
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
         print(str(currentCourse.courseName))
-        config_Params = []
          
         # virtual currency has to be stored in Students - needs to change the model
         ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
@@ -65,7 +63,12 @@ def achievements(request):
         curentStudentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=studentId) 
         context_dict['is_ClassAverage_Displayed'] = str(curentStudentConfigParams.displayClassAverage)
         context_dict['are_Badges_Displayed'] = str(curentStudentConfigParams.displayBadges)
-        context_dict['course_Bucks'] = str(curentStudentConfigParams.courseBucks)
+        #context_dict['course_Bucks'] = str(curentStudentConfigParams.courseBucks)
+        
+        stud_course = StudentRegisteredCourses.objects.get(courseID=currentCourse, studentID=studentId) 
+        context_dict['course_Bucks'] = str(stud_course.virtualCurrencyAmount)
+
+        
         #print ('courseBucks   ' + str(curentStudentConfigParams.courseBucks))
         
         #configParam_isClassAverageDisplayed = 'False'

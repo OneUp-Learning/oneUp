@@ -41,7 +41,7 @@
             <div class="row">
             <div class="12u">
                <h1>Create/Edit Class Activity</h1>
-               <p><span>*</span> Denotes Required Fields.</p>
+               <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
                   <!-- INSERTED PAGE CONTENT -->
                   <form name="question" action="/oneUp/instructors/createActivity" method="POST">
                      {% csrf_token %}
@@ -51,7 +51,7 @@
                      {% endif %}
                      <table class="bg">
                         <tr>
-                           <td>Activity Name <span>*</span></td>
+                           <td>Activity Name <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
@@ -67,7 +67,7 @@
                            </td>
                         </tr>
                         <tr>
-                           <td>Default Points <span>*</span></td>
+                           <td>Default Points <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
