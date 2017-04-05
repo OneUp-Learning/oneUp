@@ -72,7 +72,7 @@
             <div class="row">
             <div class="12u">
             <h1>Create Announcement</h1>
-			<p><span>*</span> Denotes Required Fields.</p>
+			<p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
             <!-- INSERTED DYNAMIC TABLE -->
             <form name="announcement" action="/oneUp/instructors/announcementCreate" method="POST">
             {% csrf_token %}
@@ -81,7 +81,7 @@
             {% endif %}
             <table class="bg">
                 <tr>
-                    <td>Announcement Subject <span>*</span></td>
+                    <td>Announcement Subject <span class = "red">*</span></td>
                 </tr>
                 <tr>
                     <td>
@@ -89,7 +89,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Announcement Message <span>*</span></td>
+                    <td>Announcement Message <span class = "red">*</span></td>
                 </tr>
                 <tr>
                     <td>

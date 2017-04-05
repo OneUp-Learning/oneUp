@@ -82,7 +82,7 @@
             <div class="12u">
             	<h1><span>{{challengeName}}</span></h1>
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
-            <p><span>*</span> Denotes Required Fields.</p>
+            <p class = "center"><span>*</span> Denotes Required Fields.</p>
   
     <form name="question" action="" method="POST" onclick="copyContentsToHidden();return false">
       {% csrf_token %}
@@ -132,7 +132,13 @@
 			</div>
             <script  type="text/javascript"> 
                  window.onload = function() {
-				document.getElementById("{{difficulty}}").selected = "true";}
+                    try {
+                          document.getElementById("{{difficulty}}").selected = "true";
+                    } 
+                    catch(err) {
+                          mess = err;
+                    }
+                  }
 			</script> 
 		</td>
 	</tr>

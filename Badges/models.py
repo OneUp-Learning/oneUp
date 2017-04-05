@@ -281,13 +281,13 @@ class CourseConfigParams(models.Model):
         +str(self.studCanChangeclassAverageVis) +","
         +str(self.courseStartDate) +","
         +str(self.courseEndDate) +","
-	+str(self.leaderboardUpdateFreq) +","
-	+str(self.xpWeightSP) +","
-	+str(self.xpWeightSChallenge) +","
-	+str(self.xpWeightWChallenge) +","
-	+str(self.xpWeightAPoints) +","
-	+str(self.thresholdsToLevelMedium) +","
-	+str(self.thresholdsToLevelDifficulty)
+        +str(self.leaderboardUpdateFreq) +","
+        +str(self.xpWeightSP) +","
+        +str(self.xpWeightSChallenge) +","
+        +str(self.xpWeightWChallenge) +","
+        +str(self.xpWeightAPoints) +","
+        +str(self.thresholdsToLevelMedium) +","
+        +str(self.thresholdsToLevelDifficulty)
  
 
 

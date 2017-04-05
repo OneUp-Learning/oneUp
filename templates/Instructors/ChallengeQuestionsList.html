@@ -95,33 +95,33 @@
                 <th>Problem Type</th>
                 <th></th>
             </tr>
-    		{% for i,q_ID,q_preview,q_type,q_type_name,q_difficulty in question_range %}
+    		{% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty in question_range %}
     		<tr> 		
     				<td> {{q_preview}}</td>
-    				<td> {{q_type_name}}</td>
+    				<td> {{q_type_displayName}}</td>
     				<td align="right">	
     					<form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
     						{% csrf_token %} 				
     				
-    						{% if q_type == 1 %}
+    						{% if q_type_name == 'multipleChoice' %}
     						<a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}"><button type="button">Edit</button></a>
     						{%endif%}				
-    						{% if q_type == 2 %}
+    						{% if q_type_name == 'multipleAnswers' %}
     						<a href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
     						{%endif%}	
-    						{% if q_type == 3 %}
+    						{% if q_type_name == 'matching' %}
     						<a href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
     						{%endif%}								
-    						{% if q_type == 4 %}
+    						{% if q_type_name == 'trueFalse' %}
     						<a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
     						{%endif%}
-    						{% if q_type == 5 %}
+    						{% if q_type_name == 'essay' %}
     						<a href="/oneUp/instructors/forms/EssayForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
     						{%endif%}
-    						{% if q_type == 6 %}
+    						{% if q_type_name == 'dynamic' %}
     						<a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
     						{%endif%}
-    						{% if q_type == 7 %}
+    						{% if q_type_name == 'templatedynamic' %}
     						<a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
     						{%endif%}
 
