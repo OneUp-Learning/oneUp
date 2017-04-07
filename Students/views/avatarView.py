@@ -5,51 +5,65 @@ Created on Nov 14, 2016
 '''
 
 from django.shortcuts import render, redirect
-import glob, os
+import glob
 
-from django.contrib.auth.decorators import login_required
-from Students.models import Courses, Student
+from Students.models import Courses, Student, StudentRegisteredCourses
 
 def avatar(request):
 
 	context_dict = {}
-	
-	extractPaths(context_dict)
 
 	context_dict["logged_in"] = request.user.is_authenticated()
 	if request.user.is_authenticated():
 		context_dict["username"] = request.user.username
-		sID = Student.objects.get(user=request.user)
-		context_dict['avatar'] = sID.avatarImage		
+		sID = Student.objects.get(user=request.user)		
 		
 	# check if course was selected
 	if 'currentCourseID' in request.session:
 		currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
 		context_dict['course_Name'] = currentCourse.courseName
+		st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	  		
 	else:
 		context_dict['course_Name'] = 'Not Selected'
 		
-
+	extractPaths(context_dict, currentCourse)
+	
+	
 	if request.POST: 
 		avatarImage = request.POST['avatar'] # The Chosen Avatar Image Name
-		print("badge image: "+str(avatarImage))
+		print("avatar image: "+str(avatarImage))
 	
-		student = Student.objects.get(user=request.user)
-		student.avatarImage = avatarImage
-		student.save()
+		st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	 
+		st_crs.avatarImage = avatarImage
+		st_crs.save()
 		
 		context_dict['avatar'] = avatarImage	
 		return redirect('/oneUp/students/StudentCourseHome', context_dict)
 
 	return render(request, 'Students/Avatar.html', context_dict)
 
-def extractPaths(context_dict): #funcation used to get the names from the file locaiton
-	avatarPath = []
+def extractPaths(context_dict, currentCourse): #funcation used to get the names from the file locaiton
+
+	#Find all used avatars
+	usedAvatars = []
+	sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+	for st_cs in sts_crs:
+		usedAvatars.append(st_cs.avatarImage)
+	print(usedAvatars)
 	
+	avatarPath = []	
 	for name in glob.glob('static/images/avatars/*'):
 		name = name.replace("\\","/")
-		avatarPath.append(name)
-		print(name)
+		namec = '/'+name
+		if not namec in usedAvatars:
+			avatarPath.append(name)
+			print(name)
+		
+	#Find all used avatars
+	usedAvatars = []
+	sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+	for st_cs in sts_crs:
+		usedAvatars.append(st_cs.avatarImage)
 	
 	context_dict["avatarPaths"] = zip(range(1,len(avatarPath)+1), avatarPath)
 

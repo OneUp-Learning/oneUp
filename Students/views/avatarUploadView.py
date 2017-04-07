@@ -7,7 +7,7 @@ Created on Feb 1, 2017
 import os
 from django.shortcuts import render, redirect
 
-from Students.models import Courses, Student, UploadedAvatarImage 
+from Students.models import Courses, Student, UploadedAvatarImage, StudentRegisteredCourses 
 from django.conf.global_settings import MEDIA_URL
 
 
@@ -36,15 +36,12 @@ def avatarUpload(request):
         avatarImagePerson.avatarImageFileName = avatarImageFileName
         avatarImagePerson.save()
         
-        
-        #print(avatarImageFileName)
         path = os.path.join('../../media/images/uploadedAvatarImages/', avatarImageFileName)
-        #print(path)
         
-        #print(avatarImagePerson.avatarImage.path)
-        student = Student.objects.get(user=request.user)
-        student.avatarImage = path
-        student.save()
+        student = Student.objects.get(user=request.user)       
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)     
+        st_crs.avatarImage = path
+        st_crs.save()
         
         context_dict['avatarImage'] = avatarImage
         context_dict['avatar'] = path

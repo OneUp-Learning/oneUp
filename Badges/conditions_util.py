@@ -6,6 +6,7 @@ Created on Jan 27, 2017
 
 from Badges.enums import SystemVariable, Event, OperandTypes
 from Badges.models import Conditions, FloatConstants, StringConstants
+from Instructors.models import Activities, Challenges
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var):
@@ -94,16 +95,35 @@ def get_associated_challenge_if_exists(cond):
                 and mc.operand1Value == SystemVariable.challengeId
                 and mc.operand2Type == OperandTypes.immediateInteger
         ):
-            return (True,mc.operand2Value)
+            if Challenges.objects.filter(challengeID = mc.operand2Value).exists():
+                return (True,mc.operand2Value)
         if (    mc.operand2Type == OperandTypes.systemVariable
                 and mc.operand2Value == SystemVariable.challengeId
                 and mc.operand2Type == OperandTypes.immediateInteger
         ):
-            return (True,mc.operand1Value)
+            if Challenges.objects.filter(challengeID = mc.operand1Value).exists():
+                return (True,mc.operand1Value)
 
     # We have finished the whole loop and found nothing/
     return (False,"No associated challenge found")
+def get_associated_activity_if_exists(cond):
+    mand_conds = get_mandatory_conditions(cond)
+    for mc in mand_conds:
+        if (    mc.operand1Type == OperandTypes.systemVariable
+                and mc.operand1Value == SystemVariable.challengeId
+                and mc.operand2Type == OperandTypes.immediateInteger
+        ):
+            if Activities.objects.filter(activityID = mc.operand2Value).exists():
+                return (True,mc.operand2Value)
+        if (    mc.operand2Type == OperandTypes.systemVariable
+                and mc.operand2Value == SystemVariable.challengeId
+                and mc.operand2Type == OperandTypes.immediateInteger
+        ):
+            if Activities.objects.filter(activityID = mc.operand1Value).exists():
+                return (True,mc.operand1Value)
 
+    # We have finished the whole loop and found nothing/
+    return (False,"No associated challenge found")
 # Takes a list of conditions and removes any which associate with a challenge
 def filter_out_associated_challenges(cond_list):
 

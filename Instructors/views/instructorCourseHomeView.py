@@ -3,19 +3,15 @@ Created on Sep 10, 2016
 Last Updated Sep 12, 2016
 
 '''
-from django.template import RequestContext
 from django.shortcuts import render
-from Instructors.models import Announcements, Courses, Challenges
-from Instructors.models import Skills, Courses, CoursesSkills 
+from Instructors.models import Courses, Challenges
+from Instructors.models import Skills, CoursesSkills 
 from Badges.models import CourseConfigParams
-from Badges.models import Badges, Courses
-from Students.models import StudentConfigParams, StudentBadges,StudentChallenges,Student,StudentCourseSkills
+from Students.models import StudentBadges,StudentChallenges,Student,StudentCourseSkills, StudentRegisteredCourses
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
-from _datetime import datetime, tzinfo
-from time import time, strptime, struct_time
-from time import strftime
-from datetime import datetime, timedelta
+from _datetime import datetime
+from datetime import timedelta
 
 import inspect
 
@@ -84,7 +80,8 @@ def instructorCourseHome(request):
             badgeID.append(badge.badgeID)
             badgeName.append(badge.badgeID.badgeName)
             badgeImage.append(badge.badgeID.badgeImage)
-            avatarImage.append(badge.studentID.avatarImage)
+            st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
+            avatarImage.append(st_crs.avatarImage)
 #                 timestamp.append(badge.timestamp)
                           
             # The range part is the index numbers.
@@ -121,17 +118,19 @@ def instructorCourseHome(request):
             skill = Skills.objects.get(skillID=sk.skillID.skillID)
 
             usersInfo=[]
-            # TODO: Narrow down to only students in the current course                        
-            user=Student.objects.all()
-            for u in user: 
+            # TODO: Narrow down to only students in the current course   
+            
+            st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)        
+                                   
+            for st_c in st_crs:
+                u = st_c.studentID 
                 skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
                 skillPoints =0 ;
-                    
+                                                     
                 for sRecord in skillRecords:
                      skillPoints += sRecord.skillPoints
                 if skillPoints > 0:
-#                     skill_Points.append(skillPoints)
-                    uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':u.avatarImage}
+                    uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
                     print("userSkillLst",lineno(),uSkillInfo)
                     #Sort and Splice here
                     usersInfo.append(uSkillInfo) 
@@ -181,8 +180,8 @@ def instructorCourseHome(request):
                 number = numberMax
             gradeTotal.append(("%0.2f" %sum(number)))
                 
-        for u in user:
-            avatarImage.append(u.avatarImage)
+#         for u in user:                            #Why the avatars of all the students??????????
+#             avatarImage.append(u.avatarImage)
         gradeTotal.sort(reverse=True)
 #         context_dict['user_range'] = zip(range(1,user.count()+1),avatarImage, gradeTotal)
         context_dict['user_range'] = zip(range(1,ccparams.numStudentBestSkillsDisplayed+1),avatarImage, gradeTotal)

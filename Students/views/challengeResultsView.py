@@ -10,7 +10,7 @@ from django import template
 from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Challenges, Courses
 from Instructors.models import ChallengesQuestions, MatchingAnswers, QuestionsSkills
 
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
+from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
 
 from time import strftime
 
@@ -35,9 +35,7 @@ def ChallengeResults(request):
     
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
+        context_dict["username"]=request.user.username       
     
     # check if course was selected
     if not 'currentCourseID' in request.session:
@@ -46,6 +44,9 @@ def ChallengeResults(request):
     else:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
+        student = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage                  
         
         user_dict = { } #dictionary to store user answers, grade them (except for matching) and send them to html page  
         match_sorted = {} #dictionary for saving the sorted order of the matching answer texts and also using it while grading

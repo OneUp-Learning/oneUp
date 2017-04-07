@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.models import Courses
 from Instructors import constants
+from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses
 
 @login_required
@@ -72,6 +73,7 @@ def createStudentViewUnchecked(request):
             studentRegisteredCourses = StudentRegisteredCourses()
             studentRegisteredCourses.studentID = student
             studentRegisteredCourses.courseID = currentCourse
+            studentRegisteredCourses.avatarImage = anonymous_avatar
             studentRegisteredCourses.save()
         
         return createStudentListView(request)
