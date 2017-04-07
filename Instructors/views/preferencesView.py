@@ -31,7 +31,9 @@ def preferencesView(request):
         
         # There is an existing topic, edit it
         if request.POST['ccpID']:
+            print("--> POST Edit Mode")
             ccparams = CourseConfigParams.objects.get(pk=int(request.POST['ccpID']))
+            print("POST Edit Mode",ccparams)
         else:
             # Create new Config Parameters
             ccparams = CourseConfigParams()
@@ -68,8 +70,13 @@ def preferencesView(request):
 #         ccparams.courseStartDate = request.POST.get('courseStartDate')
 #         ccparams.courseEndDate= request.POST.get('courseEndDate') 
         ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
-        ccparams.leaderboardUpdateFreq= request.POST.get('leaderboardUpdateFreq')
 #         print("Before Save in POST :" ,ccparams.numStudentsDisplayed)
+        ccparams.xpWeightSP = request.POST.get('xpWeightSP')
+        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
+        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
+        ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
+        ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
+        ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
         ccparams.save()
 #         print("After Save in POST :" ,ccparams.numStudentsDisplayed)
 #         return render(request,'Instructors/InstructorCourseHome.html', context_dict)
@@ -91,7 +98,7 @@ def preferencesView(request):
             context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
             context_dict["studCanChangeLeaderboardVis"]=ccparams.studCanChangeLeaderboardVis
             context_dict["numStudentsDisplayed"]=ccparams.numStudentsDisplayed
-            print(context_dict["numStudentsDisplayed"])
+#             print(context_dict["numStudentsDisplayed"])
             context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
             context_dict["studCanChangeClassSkillsVis"]=ccparams.studCanChangeClassSkillsVis
             context_dict["numStudentBestSkillsDisplayed"]=ccparams.numStudentBestSkillsDisplayed
@@ -102,6 +109,12 @@ def preferencesView(request):
             context_dict["courseStartDate"]=ccparams.courseStartDate
             context_dict["courseEndDate"]=ccparams.courseEndDate
             context_dict["leaderboardUpdateFreq"]=ccparams.leaderboardUpdateFreq
+            context_dict["xpWeightSP"]=ccparams.xpWeightSP
+            context_dict["xpWeightSChallenge"]=ccparams.xpWeightSChallenge
+            context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
+            context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
+            context_dict["thresholdToLevelMedium"]=ccparams.thresholdToLevelMedium
+            context_dict["thresholdToLevelDifficulty"]=ccparams.thresholdToLevelDifficulty
 #             context_dict["latestBadgesUsed"]=ccparams.latestBadgesUsed
 #             context_dict["levellingUsed"]=ccparams.levellingUsed
 #             context_dict["leaderBoardUsed"]=ccparams.leaderBoardUsed
@@ -113,11 +126,12 @@ def preferencesView(request):
 #             print (ccparams.numStudentToppersUsed)
 #             print (ccparams.numStudentBestSkillsUsed)
     #    else:
-            print(context_dict)    
+#             print(context_dict)    
         return render(request,'Instructors/Preferences.html', context_dict)
-    print (context_dict)
+#     print (context_dict)
 #     context_dict['ccpID'] = ccparams.ccpID
 #     context_dict["badgesUsed"]=ccparams.badgesUsed
 #     print (context_dict)
     
+
 

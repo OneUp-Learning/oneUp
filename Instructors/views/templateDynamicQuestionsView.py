@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses
+from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
 from Instructors.lupaQuestion import LupaQuestion, lupa_available 
 
 from Instructors.views import utils
@@ -42,7 +42,7 @@ def templateDynamicQuestionForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','difficulty',
-                         'instructorNotes','setupCode','templateText','numParts'];
+                         'instructorNotes','setupCode','numParts'];
 
     if request.POST:
         
@@ -65,12 +65,36 @@ def templateDynamicQuestionForm(request):
             question.author = request.user.username
         else:
             question.author = ""
-                 
-        question.code = templateToCode(question.setupCode,question.templateText)
+           
+        #loops through and adds the multiple parts(the actual text) into to the template array   
+        templateArray = [] 
+        for i in range(1,int(request.POST['numParts'])+1): # the 1 is the start of the rang and we need to go all the way to the numparts+1
+            templateArray.append(request.POST['templateTextVisible'+str(i)])
+            
+        
+         #Takes the array and converts the parts into lua code            
+        question.code = templateToCode(question.setupCode,templateArray)
     
         # Fix the question type
         question.type = QuestionTypes.templatedynamic
         question.save();  #Writes to database.
+        
+        #Querey that gets all objects that are in forgien key realtion to the question and deltes them all 
+        TemplateTextParts.objects.filter(dynamicQuestion=question).delete()
+        
+            
+        #Used for the number of parts in the array    
+        count = int(1)
+        
+        #make a new object that is a part and add all the fields it needs
+        for text in templateArray:
+            textPart = TemplateTextParts() 
+            textPart.partNumber = count
+            textPart.dynamicQuestion = question 
+            textPart.templateText = text 
+            textPart.save()
+            count+= 1
+        
         
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved        # 02/28/2015    
@@ -113,7 +137,6 @@ def templateDynamicQuestionForm(request):
                 chall = Challenges.objects.get(pk=int(request.GET['challengeID']))
                 context_dict['challengeName'] = chall.challengeName
                 context_dict['challenge'] = True    
-                context_dict['difficulty'] = 'Easy'
     
                 
         # If questionId is specified then we load for editing.
@@ -125,7 +148,14 @@ def templateDynamicQuestionForm(request):
             context_dict['questionId']=request.GET['questionId']
             for attr in string_attributes:
                 context_dict[attr]=getattr(question,attr)
+            
+            # TODO: get all matching templateTextPart objects and then add their code to the 
+            # context dictionary as templateText1, templateText2, ...
+            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question) #get form the databse the matching question for the parts
+            context_dict['templateTextParts']=templateTextParts
+            
         else:
+            context_dict['difficulty'] = 'Easy'
             context_dict["setupCode"] = "r1 = math.random(10) + 1 \nr2 = math.random(10) + 1"
             context_dict["templateText"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
             context_dict["numParts"] = 1
@@ -148,19 +178,7 @@ def HTMLquotesToRegularQuotes(str):
 # since the regular expression is always the same.
 templateCodeSplitRegex = re.compile(r"\[\{(.*?)\}\]",re.DOTALL)
 templateVarSplitRegex = re.compile(r"\[\|(.*?)\|\]",re.DOTALL)
-def templateToCode(setupCode,templateText):
-    # First we split out the variable eval parts and convert them to code print statements
-    pieces = re.split(templateVarSplitRegex,templateText)
-    templateText = pieces[0]
-    i = 1
-    l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
-    while i<l:
-        templateText += "[{print("+pieces[i]+")}]";
-        i += 1
-        templateText += pieces[i]
-        i += 1
-        
-    pieces = re.split(templateCodeSplitRegex,templateText)
+def templateToCode(setupCode,templateArray):
     code = '''
         exact_equality = function(a)
             return function(b,pts)
@@ -207,19 +225,37 @@ def templateToCode(setupCode,templateText):
         end
     '''
     code += setupCode + "\n" # Newline added to help readability
-    code += '''
-part_1_text = function ()
+   
+    count = int(1)
+    
+    for templateText in templateArray:
+        code += '''
+part_'''+str(count)+'''_text = function ()
     output = ""
     '''
-    #TODO: escape quotation marks from pieces
-    code += "print([======["+pieces[0]+"]======])\n"
-    i = 1
-    l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
-    while i<l:
-        code += HTMLquotesToRegularQuotes(pieces[i]) + "\n"
-        i += 1
-        code += "print([======["+pieces[i]+"]======])\n"
-        i += 1
+        count+=1
+         # First we split out the variable eval parts and convert them to code print statements
+        pieces = re.split(templateVarSplitRegex,templateText)
+        templateTextNoValues = pieces[0]
+        i = 1
+        l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
+        while i<l:
+            templateTextNoValues += "[{print("+pieces[i]+")}]";
+            i += 1
+            templateTextNoValues += pieces[i]
+            i += 1
+            
+        pieces = re.split(templateCodeSplitRegex,templateTextNoValues)
+        #TODO: escape quotation marks from pieces
+        code += "print([======["+pieces[0]+"]======])\n"
+        i = 1
+        l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
+        while i<l:
+            code += HTMLquotesToRegularQuotes(pieces[i]) + "\n"
+            i += 1
+            code += "print([======["+pieces[i]+"]======])\n"
+            i += 1
+    
     code += 'end'
     print("CODE")
     print(code)
