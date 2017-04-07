@@ -20,3 +20,5 @@ db.sqlite3
 .pydevproject
 .settings/*
 
+# Java class files.
+**/*.class

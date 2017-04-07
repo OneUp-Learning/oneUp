@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities
-from Badges.models import Badges
+from Badges.models import Badges, VirtualCurrencyRuleInfo
 from Badges.enums import Event, OperandTypes, SystemVariable, Action
 from datetime import datetime
 from distutils.command.upload import upload
@@ -32,7 +32,6 @@ class Student(models.Model):
     # date_joined DateTime of creation 
     universityID = models.CharField(max_length=100)
     avatarImage= models.CharField(max_length=200, default='')
-        
     def __str__(self):              
         #return str(self.studentID)+","+self.name+self.name
         return str(self.user.username)
@@ -47,6 +46,7 @@ class UploadedAvatarImage(models.Model):
 class StudentRegisteredCourses(models.Model):
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
+    virtualCurrencyAmount = models.IntegerField(default=0)
     def __str__(self):
         return str(self.studentID) + "," + str(self.courseID)
     
@@ -107,7 +107,16 @@ class StudentBadges(models.Model):
     timestamp = models.DateTimeField(default=datetime.now, blank=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
         return str(self.studentBadgeID) +"," + str(self.studentID) +"," + str(self.badgeID) +"," + str(self.timestamp)
-    
+
+class StudentVirtualCurrency(models.Model):
+    studentVcID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
+    vcRuleID = models.ForeignKey(VirtualCurrencyRuleInfo, verbose_name="the virtual currency rule", db_index=True)
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a badge
+    timestamp = models.DateTimeField(default=datetime.now, blank=True) # AV # Timestamp for badge assignment date
+    def __str__(self):              
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)

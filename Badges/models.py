@@ -140,7 +140,17 @@ class Badges(models.Model):
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
-     
+# Virtual Currency Table
+class VirtualCurrencyRuleInfo(models.Model):
+    vcRuleID = models.AutoField(primary_key=True)
+    vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
+    vcRuleDescription = models.CharField(max_length=100)
+    ruleID = models.ForeignKey(Rules, verbose_name="the related rule", db_index=True)
+    vcRuleType = models.BooleanField(default=True) # True: earning , False: spending
+    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    assignToChallenges = models.IntegerField() # 1. All, 2. Specific
+    def __str__(self):              
+        return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)   
 # System Variables (standard variables for the Python methods) Table
 
 # system variables and their operation type
@@ -207,7 +217,7 @@ class CourseMechanics(models.Model):
 #    challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
 #    def __str__(self):              
 #        return str(self.badgeID)+","+str(self.challengeID)
-     
+    
 # '''
 # Course Configuration parameters (goes into Badges.models.py)
 # -    Selecting to activate specific game mechanics rules (categories of rules)
@@ -216,12 +226,12 @@ class CourseMechanics(models.Model):
 class CourseConfigParams(models.Model):
     ccpID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
-    
+
     badgesUsed = models.BooleanField(default=False)                   ## The badgesUsed is for instructor dashboard purposes and system uses as well
     studCanChangeBadgeVis = models.BooleanField(default=False)        ## The studCanChangeBadgeVis is for allowing student to configure student dashboard visibility only
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
 
-    levelingUsed = models.BooleanField(default=False)                 ## 
+    levelingUsed = models.BooleanField(default=False)                 ##
 
     leaderboardUsed = models.BooleanField(default=False)              ##
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
@@ -237,12 +247,21 @@ class CourseConfigParams(models.Model):
     avatarUsed = models.BooleanField(default=False)                   ## This is to allow the student to upload an avatar.
     classAverageUsed = models.BooleanField(default=False)             ## ranga used this, in individual achievements
     studCanChangeclassAverageVis = models.BooleanField(default=False) ## The student can suppress visibility in the dashboard
-    
-    ##XP(Experience) Points
+
+    ##Misc Leaderboard Fields
     courseStartDate=models.DateField(default=datetime.min)            ##
     courseEndDate=models.DateField(default=datetime.min)              ##
     leaderboardUpdateFreq=models.IntegerField(default=1)              ## Frequency in days, minimum 1 and maximum 365 days
-    
+    ##XP Weights CalcualtionFields
+    xpWeightSP = models.IntegerField(default=0)                       ## XP Weights for Skill Points
+    xpWeightSChallenge = models.IntegerField(default=0)               ## XP Weights for Serious Challenges
+    xpWeightWChallenge = models.IntegerField(default=0)               ## XP Weights for Warm up Challenges
+    xpWeightAPoints    = models.IntegerField(default=0)               ## XP Weights for Activity Points
+
+    ## Levels of Difficulties for the course
+    thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium
+    thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
+
     def __str__(self):
         return str(self.ccpID)  +","
         +str(self.courseID) +","
@@ -262,48 +281,14 @@ class CourseConfigParams(models.Model):
         +str(self.studCanChangeclassAverageVis) +","
         +str(self.courseStartDate) +","
         +str(self.courseEndDate) +","
-        +str(self.leaderboardUpdateFreq)
+        +str(self.leaderboardUpdateFreq) +","
+        +str(self.xpWeightSP) +","
+        +str(self.xpWeightSChallenge) +","
+        +str(self.xpWeightWChallenge) +","
+        +str(self.xpWeightAPoints) +","
+        +str(self.thresholdsToLevelMedium) +","
+        +str(self.thresholdsToLevelDifficulty)
+ 
 
-# # '''
-# # Configuration parameters
-# # -    Selecting to activate specific game mechanics rules (categories of rules)
-# # -    Should the system display "How far are they from a particular award"
-# # '''
-# 
-# class CourseConfigParams(models.Model):
-#     ccpID = models.AutoField(primary_key=True)
-#     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
-#     
-#     badgesUsed = models.BooleanField(default=False)
-#     latestBadgesUsed = models.BooleanField(default=False)
-#     levellingUsed = models.BooleanField(default=False)
-#     leaderBoardDisplayed = models.BooleanField(default=False)
-#     leaderBoardUsed = models.BooleanField(default=False)
-#     virtualCurrencyUsed = models.BooleanField(default=False) ## isCourseBucksDisplayed was renamed
-#     avatarUsed = models.BooleanField(default=False)
-#     classAverageUsed = models.BooleanField(default=False) ## ranga used this
-#     #classRankingUsed = models.BooleanField(default=False)
-#     numStudentToppersUsed = models.IntegerField(default=0)
-#     numStudentBestSkillsUsed = models.IntegerField(default=0)
-#     
-# 
-#     
-#     def __str__(self):
-#         return str(self.ccpID)  +","
-#         +str(self.courseID) +","
-#         +str(self.badgesUsed) +","
-#         +str(self.latestBadgesUsed) +","
-#         +str(self.levellingUsed) +","
-#         +str(self.leaderBoardUsed) +","
-#         +str(self.virtualCurrencyUsed) +","
-#         +str(self.avatarUsed) +","
-#         +str(self.classAverageUsed) +"," 
-#         #+str(self.classRankingUsed) +","
-#         +int(self.numStudentToppersUsed) +","
-#         +int(self.numStudentBestSkillsUsed) 
-#          
-#         
-#         #return str(self.ccpID)  +","+ str(self.courseID) +","+str(self.areBadgesDisplayed) +","+str(self.isLevellingDisplayed) +","+str(self.isLeaderBoardDisplayed) +","+str(self.isVirtualCurrencyDisplayed) +","+str(self.isAvatarDisplayed) +","+str(self.isClassAverageDisplayed)              
-# 
 
         

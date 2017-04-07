@@ -1,6 +1,33 @@
-{{theresult|safe}}
+{% if evaluations %}
+	<table class="bg">
+	  {% for answerName, answer in evaluations.items %}
+	  	<tr><td>	
+	  	{% if answer.success %}
+	  		<span style='color: green;'>&#10004;</span>You got {{answer.value}} points on answer {{answerName}} 
+	  	{% else %}
+			<span style='color: red;'>&#10006;</span>You got {{answer.value}} points on answer {{answerName}} 
+		{% endif %}
+
+	  	{% if answer.details %}
+	  		<ul>
+	  		{% for testName, details in answer.details.items %}
+	  			<li>
+	  				{%if details.success%}
+						 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style='color: green;'>&#10004;</span>{{details.value}}/{{details.max_points}} points on criteria {{testName}} 
+	  				{%else%}
+					     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <span style='color: red;'>&#10006;</span> {{details.value}}/{{details.max_points}} points on criteria {{testName}}  
+	  				
+	  				{% endif %}
+	  			</li>
+	  		{% endfor %}
+	  		</ul>
+	  	{% endif %}
+	  	</tr></td>
+	 {% endfor %}
+	</table>
+{% endif %}
 <div id="{{uniqid}}-{{part}}-exact">
-  <div id="darkClassParent">
+  <div class="darkClassParent">
     <div id="{{uniqid}}-{{part}}-darkLayer" class="darkClass" style="display:none"></div>
     {{formhead|safe}}
     {% csrf_token %}

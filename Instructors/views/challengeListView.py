@@ -27,9 +27,9 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     questionObjects= []
     qlist = []
     q_ID = []      #PK for existing answers6
-    q_preview = []         
-    q_type = []
+    q_preview = []             
     q_type_name = []
+    q_type_displayName = []
     q_difficulty = []
 
     # If questionId is specified then we load for editing.
@@ -47,14 +47,14 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     for question in questionObjects:
         q_ID.append(question.questionID)
         q_preview.append(question.preview)
-        qtype=question.type
-        q_type.append(qtype)
-        q_type_name.append(QuestionTypes.questionTypes[qtype]['displayName'])
+        q_type=question.type
+        q_type_name.append(QuestionTypes.questionTypes[q_type]['name'])
+        q_type_displayName.append(QuestionTypes.questionTypes[q_type]['displayName'])
         q_difficulty.append(question.difficulty)
                 
         
     # The range part is the index numbers.
-    context_dict['question_range'] = zip(range(1,len(questionObjects)+1),q_ID,q_preview,q_type,q_type_name, q_difficulty)   
+    context_dict['question_range'] = zip(range(1,len(questionObjects)+1),q_ID,q_preview,q_type_name,q_type_displayName, q_difficulty)   
     
     return context_dict
 

@@ -172,7 +172,8 @@
             <div class="12u">
             	<h1><span>{{challengeName}}</span></h1>
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
-            <p><span>*</span> Denotes Required Fields.</p>
+            <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
+  
   
     <form name="question" action="" onsubmit="copyContentsToHidden();" method="POST">
       {% csrf_token %}
@@ -257,7 +258,7 @@
 	</tr>
 	<tr>
 		<td>
-			<div id="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode" id="setupCode">{{setupCode}}</textarea></div>
+			<div id="editor" style="height: 200px; width: 100%">{{setupCode}}</div>
 			<script>
 		    		var editor = ace.edit("editor");
 				    editor.setTheme("ace/theme/chrome");
@@ -337,12 +338,12 @@
 	</tr>
 	</form>
 	<tr>
-		<td><div id="codeResults" ></div> </td> <!-- Need to see the code for this so we can add border -->
+		<td><div id="codeResults" align="left" ></div> </td> <!-- Need to see the code for this so we can add border -->
 	</tr>
  </table>
+   	</div></div></div></div>
  
-	</div></div></div></div>
-</div>	
+</div>
     {% include 'footer.html' %}
   </body>
   

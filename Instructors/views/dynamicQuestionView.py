@@ -231,30 +231,13 @@ def dynamicQuestionPartAJAX(request):
                     answers[value[len(uniqid)+1:]] = request.POST[value]
             evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
             
-            #starts of making the table for the web page 
-            theresult = '<table class="bg">'
-            for answer in evaluations:
-                theresult+= '<tr><td> '
-                if(evaluations[answer]['success']):
-                    theresult += " <span style='color: green;'>&#10004;</span>You got "+str(evaluations[answer]['value'])+" points on answer "+answer #prints with an check 
-                else:
-                    theresult += " <span style='color: red;'>&#10006;</span>You got "+str(evaluations[answer]['value'])+" points on answer "+answer #prints with an X  
-                if 'details' in evaluations[answer]:
-                    theresult += "<ul>"
-                    nbsp = '&nbsp;'
-                    details = evaluations[answer]["details"]
-                    for testName in details.keys():
-                        theresult += "<li>"
-                        if(details[testName]['success']):
-                            theresult += ""+nbsp*12+" <span style='color: green;'>&#10004;</span>"+str(details[testName]['value'])+"/"+str(details[testName]['max_points'])+" points for criteria "+testName #prints with an check 
-                        else:
-                            theresult += ""+nbsp*12+" <span style='color: red;'>&#10006;</span>"+str(details[testName]['value'])+"/"+str(details[testName]['max_points'])+" points on criteria "+testName #prints with an X  
-                            
-                        theresult += "</li>"
-                    theresult += "</ul>"   
-                theresult+='</tr></td>'
             
-            theresult+= '</table>'
+            
+            
+            #starts of making the table for the web page 
+            context_dict['evaluations'] = evaluations
+            
+            
             print(theresult)
                    
         context_dict['theresult'] = theresult
@@ -270,8 +253,5 @@ def dynamicQuestionPartAJAX(request):
         context_dict['partplusone'] = part+1
         context_dict['type'] = requesttype
         
-        if (part==1):
-            return render(request,'Instructors/DynamicQuestionAJAX.html',context_dict)
-        else:
-            return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
+        return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
         

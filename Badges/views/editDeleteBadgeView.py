@@ -62,7 +62,6 @@ def EditDeleteBadge(request):
     else:
         context_dict['course_Name'] = 'Not Selected'
     
-    badgeObjects = []
     conditions = []
     
     createBadgeView.extractPaths(context_dict)

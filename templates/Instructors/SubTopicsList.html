@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+         {% include 'scripts.html' %} 
+     
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+     <div>
+
+          {% include 'heading.html' %}
+   
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>Sub Topics List </h1>
+			</div></div>
+			<div class="row">
+            <div class="12u">
+                  <!-- INSERTED DYNAMIC TABLE --> 
+                  <!-- <a href="/oneUp/instructors/subTopicsCreate"><input type="button" value="Add New Sub Topic"></a> -->
+                  <br /><br />
+                  <table class="bg">
+                     <tr>
+                        <th>Topic Name</th>
+                        <th>Sub Topic Position</th>
+                        <th>Sub Topic Name</th>
+                        <th>Threshold for XP</th>
+                        <th>Threshold for SP</th>
+                        <th>Display Date</th>
+                        <th> </th>
+                     </tr>
+                      <tr>
+                     {% for i,topic_Name,subTopicPos,subTopicName,thresholdXP,thresholdSP,displayDate,subTopicID,topic_ID in sub_topic_range %}
+                        <div id="topics{{i}}">
+                           <td>{{topic_Name}}</td>
+                           <td>{{subTopicPos}}</td>
+                           <td>{{subTopicName}}</td>
+                           <td>{{thresholdXP}}</td>
+                           <td>{{thresholdSP}}</td>
+                           <td>{{displayDate}}</td>
+                           <td align="right">
+                              <form action="/oneUp/instructors/deleteSubTopic" method="POST">
+                                 {% csrf_token %}                                                                        
+                                 <input type="hidden" name="topicID" value="{{topic_ID}}">                           
+				 <input type="hidden" name="subTopicID" value="{{subTopicID}}">
+                                 <a href="/oneUp/instructors/subTopicsCreate?subTopicID={{subTopicID}} & TopicID={{topic_ID}}"><button type="button">Edit</button></a>
+                                 <input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
+                              </form>
+                           </td>
+                     </tr>
+                     {% endfor %}
+                  </table>
+                  <a href="/oneUp/instructors/topicsList"><input type="button" value="Back"></a>
+                  <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>

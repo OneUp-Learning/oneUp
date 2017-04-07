@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <!-- Scripts -->
+      <script src="/static/assets/js/jquery.min.js"></script>
+      <script src="/static/assets/js/jquery.dropotron.min.js"></script>
+      <script src="/static/assets/js/jquery.scrolly.min.js"></script>
+      <script src="/static/assets/js/jquery.onvisible.min.js"></script>
+      <script src="/static/assets/js/skel.min.js"></script>
+      <script src="/static/assets/js/util.js"></script>
+      <script src="/static/js/fiddle.js"></script>
+      <script src="/static/assets/js/main.js"></script>
+      <script type="text/javascript">
+         $(document).ready(function () {
+             $('#create').click(function() {
+               checked = $("input[type=checkbox]:checked").length;
+         
+               if(!checked) {
+                 alert("You must check at least one checkbox.");
+                 return false;
+               }
+         
+             });
+         });
+      </script>
+   </head>
+   <body>
+      {% include 'heading.html' %}
+      <div class="frame" id="grad" align="center">
+         <div class="container">
+            <div class="row">
+               <div class="12u">
+                  <h1>Edit <span>Rule for Spending Course Bucks</span></h1>
+                  <p><span>*</span> Denotes Required Fields.</p>
+                  <form id="createSpendRule" name="createSpendRule" action="/oneUp/badges/SaveVirtualCurrencySpendRule" method="POST">
+                     {% csrf_token %}
+                     <table class="bg">
+                     	<tr>
+	        				<th>Name</th>
+	        				<th>Description</th>
+	        				<th>Value</th>
+	        				<th></th>
+			        	</tr>
+			        	{% for i, eventIndex, eventName, eventDescription, eventAmount, eventEnabled in events %}
+                        <tr> 
+		        			<td style="width: 30%;"><input type="checkbox" name="{{eventName}}" value="{{eventIndex}}" {% if eventEnabled is True%}checked="checked"{% endif %}/> {{eventName}}</td>
+		        			<td>{{eventDescription}}</td>
+		        			<td style="width: 129.16px;"><input style="border: solid 1px rgba(128, 128, 128, 0.5); width:100%; height: 40px;" type="number" name="{{eventName}}_Value" id="{{eventName}}_Value" min="0" value="{{eventAmount}}" /></td>
+		        			<td></td>
+		        		</tr>
+                        {% endfor %}
+                     </table>
+                     <ul class="actions">
+                        <li style="margin:0"><input type="submit" id="create" name="create" value="Save" class="button"></li>
+                        <a href="/oneUp/badges/InstructorVirtualCurrencyList"><button type="button" class="button special" value="Cancel">Cancel</button></a>
+                     </ul>
+                  </form>
+                  <br />
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Footer -->        
+      {% include 'footer.html' %}
+   </body>
+</html>

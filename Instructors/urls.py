@@ -30,7 +30,7 @@ from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteActivity, deleteAnnouncement, deleteMilestone
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 from Instructors.views.essayView import  essayForm
 #from Instructors.views.filesListView import  filesList
 from Instructors.views.gameRulesView import gameRulesView
@@ -58,6 +58,8 @@ from Instructors.views.studentChallengesCompletedView import studentChallengesCo
 from Instructors.views.studentGradedChallengeView import studentGradedChallenge
 from Instructors.views.studentSkillsEarnedView import studentSkillsEarned
 from Instructors.views.studentTopicsView import studentTopics
+from Instructors.views.subTopicsCreateView import subTopicsCreateView
+from Instructors.views.subTopicsListView import subTopicsListView
 
 from Instructors.views.topicsCreateView import topicsCreateView
 from Instructors.views.topicsListView import topicsListView
@@ -69,7 +71,6 @@ from Instructors.views.dynamicQuestionView import dynamicQuestionForm
 from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
-
 
 admin.autodiscover()
 
@@ -112,6 +113,7 @@ urlpatterns = [
     url(r'^deleteQuestion',deleteQuestion, name='deleteQuestion'),
     url(r'^deleteSkill',deleteSkill, name='deleteSkill'),
     url(r'^deleteTopic',deleteTopic, name='deleteTopic'),
+    url(r'^deleteSubTopic',deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteUser',deleteUser, name='deleteUser'),
     url(r'^gameRules',gameRulesView,name='gameRulesView'),
     url(r'^$', index, name='home'),    
@@ -127,7 +129,6 @@ urlpatterns = [
     url(r'^imageUpload',imageUpload,name='imageUpload'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
-       
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
     url(r'^preferences',preferencesView, name='preferencesView'),
     url(r'^search',searchQuestions, name='searchQuestions'),
@@ -139,10 +140,13 @@ urlpatterns = [
     url(r'^studentGradedChallenge',studentGradedChallenge, name='studentGradedChallenge'),
     url(r'^studentSkillsEarned',studentSkillsEarned, name='studentSkillsEarned'),
     url(r'^studentTopics',studentTopics, name='studentTopics'),
+    url(r'^subTopicsCreate',subTopicsCreateView, name='subTopicsCreateView'),
+    url(r'^subTopicsListView',subTopicsListView, name='subTopicsListView'),
     url(r'^topicsCreate',topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList',topicsListView, name='topicsListView'),
     url(r'^forms/doDynamicQuestion',dynamicQuestionPartAJAX,name="dynamic question engine AJAX"),
     url(r'^luaTestView',luaTestView,name="Lua Test View")
+   
 
 
 ]

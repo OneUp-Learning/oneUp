@@ -25,11 +25,11 @@
          }
       </script>
  	<script>
-    	var numAnswers = 1;
-        var numberOfItems = 0;
+    	// var numAnswers = 1;
+        // var numberOfItems = 0;
     	
     	 /* Update the number which will be returned to python */
-        document.question.elements['numAnswers'].value=numAnswers;
+        // document.question.elements['numAnswers'].value=numAnswers;
         
         // Adds a skill into the 'Added Skills' box (AH)
         function addSkill() {
@@ -111,7 +111,7 @@
             <div class="12u">
             	<h1><span>{{challengeName}}</span></h1>
             	<h3>Create/Edit <span>Essay Question</span></h3>
-            <p><span>*</span> Denotes Required Fields.</p>
+            <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
             <!-- INSERTED PAGE CONTENT -->
                   <form name="question" action="/oneUp/instructors/forms/EssayForm" onsubmit="return validateForm()"  method="POST">
                      {% csrf_token %}
@@ -124,7 +124,7 @@
                      <input type="hidden" name="newSkills" id="newSkills" value="">
                      <table class="bg">
                         <tr>
-                           <td>Preview <span>*</span></td>
+                           <td>Preview <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
@@ -132,13 +132,14 @@
                            </td>
                         </tr>
                         <tr>
-                           <td>Question Text <span>*</span></td>
+                           <td>Question Text <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
                               <textarea name="questionText" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="" required>{{questionText}}</textarea>
                            </td>
                            <script type="text/javascript" >
+                           
                 				// Replace the <textarea id="questionText"> with a CKEditor instance, using default configuration.
                 				CKEDITOR.replace( 'questionText' );
             				</script>                        	
@@ -182,9 +183,13 @@
                                  </select>
                               </div>
                               <script  type="text/javascript"> 
-                                 window.onload = function() {
+                             
+                                window.onload = function() {
+                                     if ("{{difficulty}}" != '')  {
                                      document.getElementById("{{difficulty}}").selected = "true";
+                                     } 
                                  }
+                                 
                               </script> 
                            </td>
                         </tr>
@@ -193,7 +198,7 @@
                         <input type="hidden" name="points" value="0" id="Points">
 	        			{% else %}
                         <tr>
-                           <td>Points <span>*</span></td>
+                           <td>Points <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
@@ -216,7 +221,7 @@
                                  {% endfor %}
                               </select>
                               <div id="SkillPoints">
-                              Skill Points for New Skill<span>*</span><br>
+                              Skill Points for New Skill<span class = "red">*</span><br>
                               <input style="max-width: 4em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" min="1" max="9999" id="SP" name="q_skill_points" >
                           	  </div>
                           	  

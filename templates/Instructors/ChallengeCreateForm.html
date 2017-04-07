@@ -97,7 +97,7 @@
             <div class="12u">
                {% if challengeID %}
                     {% if warmUp %}
-                        <h1>Edit <span>Warm Up Challenge</span></h1>
+                        <h1>Edit <span class = "red">Warm Up Challenge</span></h1>
                     {% else %}
                         <h1>Edit <span>Serious Challenge</span></h1>
                     {% endif %}
@@ -108,7 +108,7 @@
                         <h1>Create New <span>Serious Challenge</span></h1>
                     {% endif %}
                {% endif %}
-               <p><span>*</span> Denotes Required Fields.</p>
+               <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
                <div>
 <!-- INSERTED PAGE CONTENT -->
 				<form name="question" action="/oneUp/instructors/challengeCreateView" method="POST" >
@@ -118,7 +118,7 @@
 					<input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
 				<table class="bg">
         			<tr>
-            			<th>Challenge Name<span>*</span></th>
+            			<th>Challenge Name<span class = "red">*</span></th>
         			</tr>
         			<tr>
                 		<td><input id="mediumFormBox" type="text" name="challengeName" value="{{challengeName}}" pattern=".*\S+.*" required></td>
@@ -137,8 +137,10 @@
 			            </form>
 						<script  type="text/javascript"> 
 						window.onload = function() {
-						    document.getElementById("{{challengeDifficulty}}").selected = "true";
-						}
+                                     if ("{{difficulty}}" != '')  {
+                                     document.getElementById("{{difficulty}}").selected = "true";
+                                     } 
+                                 }
 						</script></td>
 	    			</tr>
             		<tr>

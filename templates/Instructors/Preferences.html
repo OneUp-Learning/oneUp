@@ -439,7 +439,36 @@ chk[i].checked = false ;
                                     <td><input style="max-width: 4em; border: solid 1px " type="text" name="numStudentBestSkillsUsed" value="{{numStudentBestSkillsUsed}}" required></td>
                                 </tr> -->
                             </table>
-
+                            <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
+                                <th>Leveling Attributes</th>
+                                    <th></th>
+                                <tr>
+                                    <td class="left"> Set weights for Skill Points to calculate XP </td>
+                                    <!-- <td><input type="number" style="max-width: 8em; max-height: 2em; border: solid 1px " name="spInput1" min="0" max="100" oninput="this.form.xpWeightSP.value=this.value" />% -->
+                                    <!-- <td><input type="range" name="spRange1" min="0" max="100" oninput="this.form.xpWeightSP.value=this.value" /> -->
+                                    <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSP" value="{{xpWeightSP}}" required></td>
+                                </tr> 
+                                <tr>
+                                    <td class="left"> Set weights for Serious Challenge Points to calculate XP </td>
+                                    <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSChallenge" value="{{xpWeightSChallenge}}" required></td>
+                                </tr> 
+                                <tr>
+                                    <td class="left"> Set weights for Warmup Challenge Points to calculate XP </td>
+                                    <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightWChallenge" value="{{xpWeightWChallenge}}" required></td>
+                                </tr> 
+                                <tr>
+                                    <td class="left"> Set weights for Activity Points to calculate XP </td>
+                                    <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightAPoints" value="{{xpWeightAPoints}}" required></td>
+                                </tr> 
+                                <tr>
+                                    <td class="left"> Set Threshold To Level Medium</td>
+                                    <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelMedium" value="{{thresholdToLevelMedium}}" required></td>
+                                </tr> 
+                                <tr>
+                                    <td class="left"> Set Threshold To Level Difficulty</td>
+                                    <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelDifficulty" value="{{thresholdToLevelDifficulty}}" required></td>
+                                </tr> 
+                            </table>
                                 <div class="6u 12u(mobile)">
                                 <input type="submit" align="center" id="save" name="save" value="Save" class="button">
                                 <a href="/oneUp/instructors/instructorCourseHome">
@@ -447,7 +476,7 @@ chk[i].checked = false ;
                                 <a href="/oneUp/instructors/instructorCourseHome">
                                 <input type="button" align="center" id="back" name="back" value="Back"></a>
                                 <p>
-                                <p>
+                                </p>
                                 </div>
                         </form>
                         <!-- END DYNAMIC TABLE -->
@@ -462,3 +491,4 @@ chk[i].checked = false ;
     <script type="text/javascript"> Cufon.now();  </script>
 </body>
 </html>
+

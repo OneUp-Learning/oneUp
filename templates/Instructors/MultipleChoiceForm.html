@@ -161,7 +161,7 @@
             <div class="12u">
             	<h1><span>{{challengeName}}</span></h1>
                <h3>Create/Edit <span>Multiple Choice Question</span></h3>
-            	<p><span>*</span> Denotes Required Fields.</p>
+            	<p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
             <!-- INSERTED PAGE CONTENT -->
                   <form name="question" action="/oneUp/instructors/forms/MultipleChoiceForm" onsubmit="return validateForm()" method="POST">
                      {% csrf_token %}
@@ -175,7 +175,7 @@
                      <input type="hidden" name="newSkills" id="newSkills" value="">
                      <table class="bg">
                         <tr>
-                           <td>Preview <span>*</span></td>
+                           <td>Preview <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
@@ -183,7 +183,7 @@
                            </td>
                         </tr>
                         <tr>
-                           <td>Question Text <span>*</span></td>
+                           <td>Question Text <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
@@ -195,7 +195,7 @@
             				</script>                        	
                         </tr>
                         <tr>
-                           <td>Answer <span>*</span></td>
+                           <td>Answer <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
@@ -258,7 +258,9 @@
                               </div>
                               <script  type="text/javascript"> 
                                  window.onload = function() {
+                                     if ("{{difficulty}}" != '')  {
                                      document.getElementById("{{difficulty}}").selected = "true";
+                                     } 
                                  }
                               </script> 
                            </td>
@@ -268,7 +270,7 @@
                         <input type="hidden" name="points" value="0" id="Points">
                         {% else %}
                         <tr>
-                           <td>Points <span>*</span></td>
+                           <td>Points <span class = "red">*</span></td>
                         </tr>
                         <tr>
                            <td>
@@ -291,7 +293,7 @@
                                  {% endfor %}
                               </select>
                               <div id="SkillPoints">
-                              Skill Points for New Skill<span>*</span><br>
+                              Skill Points for New Skill<span class = "red">*</span><br>
                               <input style="max-width: 4em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" min="1" max="9999" id="SP" name="q_skill_points">
                           	  </div>
                           	  

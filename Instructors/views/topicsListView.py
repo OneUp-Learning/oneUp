@@ -5,8 +5,12 @@ Created on Oct 1, 2015
 '''
 from django.template import RequestContext
 from django.shortcuts import render
-from Instructors.models import Skills, Courses, CoursesSkills, Topics, CoursesTopics
+from Instructors.models import Skills, Courses, CoursesSkills, Topics, CoursesTopics,CoursesSubTopics
 from django.contrib.auth.decorators import login_required
+from inspect import currentframe
+def get_linenumber():
+    cf = currentframe()
+    return cf.f_back.f_lineno
 
 @login_required
 def topicsListView(request):
@@ -29,6 +33,7 @@ def topicsListView(request):
           
         topic_ID = []      
         topic_Name = []
+        subTopicID = []
         #topic_Author = []         
         
         ctopics = CoursesTopics.objects.filter(courseID=currentCourse)
@@ -39,8 +44,12 @@ def topicsListView(request):
             for tname in topics:
                 topic_Name.append(tname.topicName)
                 #topic_Author.append(tname.topicAuthor)
-   
-            # The range part is the index numbers.
-        context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name)
+            subTopics = CoursesSubTopics.objects.filter(topicID=ct.topicID.topicID)
+            for stid in subTopics:
+                subTopicID.append(stid.subTopicID)
+            print(get_linenumber(),"subTopicID",subTopicID)
+#             The range part is the index numbers.
+        context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name,subTopicID)
+#         context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name)
 
     return render(request,'Instructors/TopicsList.html', context_dict)
