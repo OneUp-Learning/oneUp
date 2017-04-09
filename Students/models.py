@@ -31,7 +31,6 @@ class Student(models.Model):
     # last_login DateTime of last log in
     # date_joined DateTime of creation 
     universityID = models.CharField(max_length=100)
-    avatarImage= models.CharField(max_length=200, default='')
     def __str__(self):              
         #return str(self.studentID)+","+self.name+self.name
         return str(self.user.username)
@@ -46,6 +45,7 @@ class UploadedAvatarImage(models.Model):
 class StudentRegisteredCourses(models.Model):
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
+    avatarImage= models.CharField(max_length=200, default='')    
     virtualCurrencyAmount = models.IntegerField(default=0)
     def __str__(self):
         return str(self.studentID) + "," + str(self.courseID)

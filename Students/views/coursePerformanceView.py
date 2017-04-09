@@ -4,7 +4,7 @@ Created on Feb 22, 2017
 '''
 from django.template import RequestContext
 from django.shortcuts import render
-from Students.models import StudentChallenges, Student, StudentActivities
+from Students.models import StudentChallenges, Student, StudentActivities, StudentRegisteredCourses
 from Instructors.models import Challenges, Courses, Activities
 from time import strftime
 import datetime
@@ -21,9 +21,7 @@ def CoursePerformance(request):
     
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage              
+        context_dict["username"]=request.user.username             
   
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
@@ -40,7 +38,9 @@ def CoursePerformance(request):
         print('current course:'+str(currentCourse))
         context_dict['course_Name'] = currentCourse.courseName
         
-        studentId = Student.objects.filter(user=request.user)
+        studentId = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
                    
         #Displaying the list of Activities from database        
         act_ID = []
@@ -57,8 +57,6 @@ def CoursePerformance(request):
             act_feedback.append(sa.instructorFeedback)
             a = Activities.objects.get(pk=sa.activityID.activityID)
             act_name.append(a.activityName)
-
-                
         
         #Displaying the list of challenges from database
         chall_ID = []      

@@ -6,13 +6,13 @@ Last modified 09/02/2016
 from django.template import RequestContext
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo
-from Instructors.models import Challenges,Courses
+from Badges.models import VirtualCurrencyRuleInfo, ActionArguments
+from Instructors.models import Challenges,Courses, Activities
 from Badges.enums import SystemVariable, dict_dict_to_zipped_list, displayCircumstance
 
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import get_mandatory_conditions_without_or_and_not, filter_out_associated_challenges, leaf_condition_to_tuple,\
-    get_associated_challenge_if_exists
+    get_associated_challenge_if_exists, get_associated_activity_if_exists
 from setuptools.command.build_ext import if_dl
 
     
@@ -38,6 +38,12 @@ def EditVirtualCurrencyRule(request):
         if request.GET['vcRuleID']:
             vcRuleID = request.GET['vcRuleID']
             rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID)
+            
+            if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
+                context_dict["vcAmount"] = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+            else:
+                context_dict["vcAmount"] = 0
+                
             condition = rule.ruleID.conditionID
             print("Condition: "+str(condition))
                  
@@ -77,9 +83,11 @@ def EditVirtualCurrencyRule(request):
                             condValues.append(0)
                             
             (has_challenge,associated_challenge) = get_associated_challenge_if_exists(condition)
-
+            (has_activity,associated_activity) = get_associated_activity_if_exists(condition)
+            
             # Set up a list of challenge objects for the dropbox, excluding the special "Unassigned Problems" challenge
-            challengeObjects=[]            
+            challengeObjects=[]  
+            activityObjects=[]              
             chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse) # Unassigned problems to be excluded
             for challID in chall:
                 unassignID = challID.challengeID
@@ -89,14 +97,21 @@ def EditVirtualCurrencyRule(request):
                 if challenge.challengeID != unassignID:    
                     challengeObjects.append(challenge)
                     print("*challenge: "+str(challenge.challengeID))
-                
+            activities = Activities.objects.filter(courseID=currentCourse)
+            for activity in activities:
+                activityObjects.append(activity)  
+                print("activity: "+str(activity))       
+
     # The range part is the index numbers.
     context_dict['systemVariables'] = zip(range(1, len(sysIndex)+1), sysIndex, sysDisplayName, sysEnabled, condOperation, condValues)
-    context_dict['challenges'] = zip(range(1,challenges.count()+1),challengeObjects)    
+    context_dict['challenges'] = zip(range(1,challenges.count()+1),challengeObjects)
+    context_dict['activities'] = zip(range(1,activities.count()+1),activityObjects)    
     context_dict['vcRule'] = rule
     context_dict['conditions'] = zip(range(1,len(conditions)+1),conditions)
 #    context_dict['assignChallenges'] = zip(range(1,len(assignChallObjects)+1),assignChallObjects)
     context_dict['has_challenge'] = has_challenge
     context_dict['associated_challenge'] = associated_challenge
+    context_dict['has_activity'] = has_activity
+    context_dict['associated_activity'] = associated_activity
     
     return render(request,'Badges/EditVirtualCurrencyRule.html', context_dict)

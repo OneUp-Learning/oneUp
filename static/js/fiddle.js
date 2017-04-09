@@ -1,25 +1,27 @@
 $(document).ready(function(){
 	$("#specChall").css("display","none");
+	$("#specAct").css("display","none");
 	if ($('input[name=assignChallenges]:checked').val() == "2") {
         $("#specChall").slideDown("fast"); //Slide Down Effect
-        //$.cookie('showTop', 'expanded'); //Add cookie 'ShowTop'
     }
 	$(".selectChallenges").click(function(){
       if ($('input[name=assignChallenges]:checked').val() == "2") {
           $("#specChall").slideDown("fast"); //Slide Down Effect
-          //$.cookie('showTop', 'expanded'); //Add cookie 'ShowTop'
       }
       if ($('input[name=assignChallenges]:checked').val() == "1"){ 
           $("#specChall").slideUp("fast");  
-          //$.cookie('showTop', 'collapsed'); //Add cookie 'ShowTop'
       }
-   });
-    /*  var showTop = $.cookie('showTop');
-      if (showTop == 'expanded') {
-      $("#specChall").show("fast");
-      $('input[name=assignChallenges]:checked');
-    } else {
-      $("#specChall").hide("fast");
-      $('input[name=assignChallenges]:checked');
-    }*/
+	 });
+    if ($('input[name=assignActivities]:checked').val() == "2") {
+          $("#specAct").slideDown("fast"); //Slide Down Effect
+      }
+  	$(".selectActivities").click(function(){
+        if ($('input[name=assignActivities]:checked').val() == "2") {
+            $("#specAct").slideDown("fast"); //Slide Down Effect
+        }
+        if ($('input[name=assignActivities]:checked').val() == "1"){ 
+            $("#specAct").slideUp("fast");  
+        }
+  	});
+ 
 });

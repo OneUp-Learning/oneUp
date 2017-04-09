@@ -5,7 +5,7 @@ Created on May 7, 2014
 '''
 from django.template import RequestContext
 from django.shortcuts import render
-from Students.models import StudentChallenges, Student
+from Students.models import StudentChallenges, Student, StudentRegisteredCourses
 from Instructors.models import Challenges, Courses
 from time import strftime
 import datetime
@@ -22,9 +22,7 @@ def ChallengesList(request):
     
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
+        context_dict["username"]=request.user.username     
     
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
@@ -40,6 +38,9 @@ def ChallengesList(request):
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         print('current course:'+str(currentCourse))
         context_dict['course_Name'] = currentCourse.courseName
+        student = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
             
         chall_ID = []      
         chall_Name = []         

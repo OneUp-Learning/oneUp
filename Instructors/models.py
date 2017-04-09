@@ -297,3 +297,9 @@ class TemplateDynamicQuestions(DynamicQuestions):
     setupCode = models.CharField(max_length=20000, default="")
 
     
+class TemplateTextParts(models.Model):
+    partNumber = models.IntegerField(default=1)
+    dynamicQuestion = models.ForeignKey(TemplateDynamicQuestions)
+    templateText = models.CharField(max_length=20000)
+
+    

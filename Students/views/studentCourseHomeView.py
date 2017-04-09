@@ -2,21 +2,18 @@
 Created on Sep 14, 2016
 
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Courses,Skills,CoursesSkills, Challenges
 from Badges.models import CourseConfigParams
-from Students.models import StudentConfigParams,Student,StudentBadges,StudentChallenges,StudentCourseSkills
+from Students.models import StudentConfigParams,Student,StudentBadges,StudentChallenges,StudentCourseSkills,StudentRegisteredCourses
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
 # from Instructors.views.preferencesView import createContextForUpcommingChallengesList
 
 from Badges.enums import Event
 from Badges.events import register_event
-from _datetime import datetime, tzinfo
-from time import time, strptime, struct_time
-from time import strftime
-from datetime import datetime, timedelta
+from _datetime import datetime
+from datetime import timedelta
 
 
 def StudentCourseHome(request):
@@ -26,7 +23,6 @@ def StudentCourseHome(request):
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
-        print(sID)
 
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
@@ -39,7 +35,9 @@ def StudentCourseHome(request):
         context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
         context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
         context_dict['course_Name'] = currentCourse.courseName
-        context_dict['avatar'] = sID.avatarImage
+        st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
+        
         ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
         if len(ccparamsList) >0:
             cparams = ccparamsList[0]
@@ -100,8 +98,8 @@ def StudentCourseHome(request):
                 number = numberMax
             gradeTotal.append(("%0.2f" %sum(number)))
                 
-        for u in user:
-            avatarImage.append(u.avatarImage)
+#         for u in user:                            #Why the avatars of all the students??????????
+#             avatarImage.append(u.avatarImage)
         gradeTotal.sort(reverse=True)
 #         context_dict['user_range'] = zip(range(1,user.count()+1),avatarImage, gradeTotal)
         context_dict['user_range'] = zip(range(1,cparams.numStudentBestSkillsDisplayed+1),avatarImage, gradeTotal)
@@ -114,9 +112,13 @@ def StudentCourseHome(request):
             skill = Skills.objects.get(skillID=sk.skillID.skillID)
 
             usersInfo=[]
-            # TODO: Narrow down to only students in the current course                        
-            user=Student.objects.all()
-            for u in user: 
+            # TODO: Narrow down to only students in the current course 
+            
+            st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)        
+                                   
+            #user=Student.objects.all()
+            for st_c in st_crs:
+                u = st_c.studentID 
                 skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
                 skillPoints =0 ;
                     
@@ -124,7 +126,7 @@ def StudentCourseHome(request):
                      skillPoints += sRecord.skillPoints
                 if skillPoints > 0:
 #                     skill_Points.append(skillPoints)
-                    uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':u.avatarImage} 
+                    uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage} 
                     print("userSkillLst",uSkillInfo)
                     usersInfo.append(uSkillInfo)
             skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo}
@@ -138,7 +140,7 @@ def StudentCourseHome(request):
         badgeName=[]
         badgeImage = []
         avatarImage =[]
-        N = 7
+        N = 7               
 
         date_N_days_ago = datetime.now() - timedelta(days=N)
 
@@ -154,12 +156,13 @@ def StudentCourseHome(request):
                 badgeID.append(badge.badgeID)
                 badgeName.append(badge.badgeID.badgeName)
                 badgeImage.append(badge.badgeID.badgeImage)
-                avatarImage.append(badge.studentID.avatarImage)
-    #                 timestamp.append(badge.timestamp)
+                st_crs = StudentRegisteredCourses.objects.filter(studentID=badge.studentID,courseID=currentCourse)                
+                avatarImage.append(st_crs.avatarImage)
+   
         print (badgeID)
         print(studentID)
         print (badgeName)
-                # The range part is the index numbers.
+        # The range part is the index numbers.
         context_dict['badgesInfo'] = zip(range(1,cparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
         print (badgeID)
         print (studentID)

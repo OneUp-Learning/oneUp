@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 
 from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Courses, Challenges, StaticQuestions
-from Students.models import Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
+from Students.models import Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
 import random 
 from _ctypes import Array
 from _ast import Str
@@ -25,9 +25,7 @@ def SelectedChallengeTaken(request):
     
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
+        context_dict["username"]=request.user.username       
     
     # check if course was selected
     if not 'currentCourseID' in request.session:
@@ -36,6 +34,10 @@ def SelectedChallengeTaken(request):
     else:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
+        student = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
+        
         #Displaying the questions in the challenge which the student has opted 
         
         questionObjects= []

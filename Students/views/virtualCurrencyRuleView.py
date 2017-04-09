@@ -7,7 +7,7 @@ Created on Nov 3, 2016
 from django.shortcuts import render
 
 from Badges.models import VirtualCurrencyRuleInfo, Courses
-from Students.models import Student
+from Students.models import Student, StudentRegisteredCourses
 
 from django.contrib.auth.decorators import login_required
 
@@ -26,6 +26,10 @@ def VirtualCurrencyDisplay(request):
     if 'currentCourseID' in request.session:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
+        student = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
+        
     else:
         context_dict['course_Name'] = 'Not Selected'
         

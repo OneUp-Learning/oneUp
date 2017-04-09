@@ -2,9 +2,9 @@
 Created on Sep 20, 2016
 
 '''
-from django.template import RequestContext
 from django.shortcuts import render
-from Instructors.models import Courses, Announcements
+from Instructors.models import Announcements
+from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses
 
 def StudentHome(request):
@@ -13,8 +13,7 @@ def StudentHome(request):
     context_dict["logged_in"]=request.user.is_authenticated()    
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
+        context_dict['avatar'] = anonymous_avatar      #avatar is for a particular course   
         
     # course still not selected
     context_dict['course_Name'] = 'Not Selected'
@@ -32,7 +31,7 @@ def StudentHome(request):
     # get only the courses of the logged in user
     student = Student.objects.get(user=request.user)   
     reg_crs = StudentRegisteredCourses.objects.filter(studentID=student)
-   # print(reg_crs)
+
     for item in reg_crs:
         course_ID.append(item.courseID.courseID) 
         course_Name.append(item.courseID.courseName)

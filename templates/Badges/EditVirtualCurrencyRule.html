@@ -89,7 +89,7 @@
                            <td colspan="5">Course Bucks Earned with this Rule<span style="color: red; font-weight: bolder;">*</span></td>
                         </tr>
                         <tr>
-                           <td colspan="5"><input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="number" name="ruleAmount" id="ruleAmount" value="{{vcRule.vcAmount}}" required></td>
+                           <td colspan="5"><input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="number" name="ruleAmount" id="ruleAmount" value="{{vcAmount}}" required></td>
                         </tr>
                         <tr>
                            <td colspan="5" class="formset">Check the conditions of this badge for <span style="color: red; font-weight: bolder;">*</span></td>
@@ -113,6 +113,35 @@
                                        {% endif %}
                                        >{{challenge.challengeName}}</option>	
                                        {% endfor %} 
+                                       </select>
+                                    </div>
+                                 </li>
+                                 <li><font style="font-size:.8em;">Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</font></li>
+                              </ol>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td colspan="5" class="formset">Check the conditions of this rule for <span class="redstar">*</span></td>
+                        </tr>
+                        <tr>
+                           <td colspan="5">
+                              <div class="two-columns">
+                                 <input type="radio" name="assignActivities" value="1" class="selectActivities" {% if has_activity is False %}checked="checked"{% endif %}/> All Activities
+                                 <input type="radio" name="assignActivities" value="2" class="selectActivities" {% if has_activity is True %}checked="checked"{% endif %}/> Specific Activities 		
+                              </div>
+                              <ol id="specAct" name="specAct" class="formset">
+                                 <li><strong>Choose Activities to which the Badge has to be applied:</strong></li>
+                                 <li>
+                                    <div class="select-wrapper">
+                                       <select style="height: 200px; width: 200px" name="specActivity" id="specActivity" multiple>
+                                          {% for j, activity in activities %}
+                                          <option value="{{activity.activityID}}" {% if has_activity is True %}
+	                                       {% ifequal activity.activityID|stringformat:"s" associated_activity|stringformat:"s"  %}
+	                                       selected
+	                                       {% endifequal %}
+	                                       {% endif %}
+	                                       >{{activity.activityName}}</option>
+                                          {% endfor %} 
                                        </select>
                                     </div>
                                  </li>

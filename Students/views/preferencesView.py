@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Skills, Courses, CoursesSkills, Topics
 from Badges.models import CourseConfigParams
-from Students.models import StudentConfigParams,Student
+from Students.models import StudentConfigParams,Student, StudentRegisteredCourses
 from django.contrib.auth.models import User
 
 @login_required
@@ -21,14 +21,15 @@ def preferencesView(request):
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
-        print(sID)
         
     # check if course was selected
     if 'currentCourseID' in request.session:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
+        student = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
+        
         print(currentCourse)
 #         ccparams = CourseConfigParams.objects.get(pk=int(request.POST['courseID']))
         c_ccparams = CourseConfigParams.objects.filter(courseID=currentCourse)
@@ -96,7 +97,7 @@ def preferencesView(request):
     #  For the fields that are not visbile because the instructor did not choose to be used for the course. you can pass false so null exceptions are not created
     else:
         
-        scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)
+        scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=student)
             
         if len(scparamsList) > 0:
             scparams = scparamsList[0]   

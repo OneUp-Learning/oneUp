@@ -4,7 +4,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 
 from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Courses, Challenges, StaticQuestions
-from Students.models import Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
+from Students.models import Student, StudentRegisteredCourses, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -23,9 +23,7 @@ def virtualCurrencyShopView(request):
     
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
+        context_dict["username"]=request.user.username       
     
     # check if course was selected
     if not 'currentCourseID' in request.session:
@@ -34,7 +32,9 @@ def virtualCurrencyShopView(request):
     else:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
-        print(currentCourse.courseName)
+        student = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
         
         if request.method == "GET":
             # For an event, find all the rules in the current course which
@@ -96,7 +96,7 @@ def virtualCurrencyShopView(request):
                                    'description':event['description']})
                 index += 1
                 
-            student = StudentRegisteredCourses.objects.get(studentID = sID, courseID = int(request.session['currentCourseID']))
+            student = StudentRegisteredCourses.objects.get(studentID = student, courseID = int(request.session['currentCourseID']))
             
             context_dict['buyOptions']=buyOptions
             context_dict['buyOptions2']=buyOptions
@@ -113,7 +113,7 @@ def virtualCurrencyShopView(request):
             for buyOption in enabledBuyOptions:
                 quantity = request.POST['buyOptionQuantity'+str(i)]
                 for j in range(0, int(quantity)):
-                    register_event(buyOption, request, sID, 0) # ObjectID has to be null?
+                    register_event(buyOption, request, student, 0) # ObjectID has to be null?
                 i += 1
 
             #TODO: Actually deliver the rewards.

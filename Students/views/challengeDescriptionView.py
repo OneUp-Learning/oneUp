@@ -1,7 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Challenges, Courses
-from Students.models import Student, StudentChallenges
+from Students.models import Student, StudentChallenges, StudentRegisteredCourses
 
 from django.contrib.auth.decorators import login_required
 
@@ -14,9 +14,7 @@ def ChallengeDescription(request):
     
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage        
+        context_dict["username"]=request.user.username       
     
     # check if course was selected
     if not 'currentCourseID' in request.session:
@@ -25,6 +23,9 @@ def ChallengeDescription(request):
     else:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
+        student = Student.objects.get(user=request.user)   
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage                  
         
         string_attributes = ['challengeName','courseID','isGraded',                 #'challengeCategory','timeLimit','numberAttempts',
                       'challengeAuthor',
@@ -78,8 +79,5 @@ def ChallengeDescription(request):
                     elif int(len(student_attempts)) > (int(total_attempts) - 1):
                         # no more attempts left
                         context_dict['no_attempt'] = "Sorry!! You don't have any more attempts left"
-               
-            # Copy all of the attribute values into the context_dict to
-            # display them on the page.
             
     return render(request,'Students/ChallengeDescription.html', context_dict)

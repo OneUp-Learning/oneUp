@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Courses, Challenges
+from Instructors.models import Courses, Challenges, Activities
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
 from Badges.enums import Action, OperandTypes , SystemVariable, dict_dict_to_zipped_list
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
@@ -54,8 +54,8 @@ def SaveVirtualCurrencyRule(request):
         if 'vcRuleID' in request.POST:   #edit or delete badge 
             print("Virtual Currency to Edit/Delete Id: "+str(request.POST['vcRuleID']))
             vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(pk=int(request.POST['vcRuleID']))
-            DeleteVirtualCurrencyRule(request.POST['vcRuleID'])
             if 'delete' in request.POST:
+                DeleteVirtualCurrencyRule(request.POST['vcRuleID'])
                 return redirect("/oneUp/Badges/InstructorVirtualCurrencyList")
         else:
             vcRuleInfo = VirtualCurrencyRuleInfo()  # create new VC RuleInfo
@@ -111,6 +111,19 @@ def SaveVirtualCurrencyRule(request):
                 challenge_cond.operand1Value = SystemVariable.challengeId
                 challenge_cond.operand2Type = OperandTypes.immediateInteger
                 challenge_cond.operand2Value = challenge.challengeID
+                challenge_cond.save()
+                conditions.append(challenge_cond)
+                
+            assignActivities = str(request.POST['assignActivities'])
+            if (assignActivities == '2'):
+                specificActivity = request.POST['specActivity']
+                activity = Activities.objects.get(activityID=specificActivity)
+                challenge_cond = Conditions()
+                challenge_cond.operation = '=='
+                challenge_cond.operand1Type = OperandTypes.systemVariable
+                challenge_cond.operand1Value = SystemVariable.challengeId
+                challenge_cond.operand2Type = OperandTypes.immediateInteger
+                challenge_cond.operand2Value = activity.activityID
                 challenge_cond.save()
                 conditions.append(challenge_cond)
                 
