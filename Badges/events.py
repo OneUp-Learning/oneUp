@@ -113,6 +113,8 @@ def register_event(eventID, request, student=None, objectId=None):
         if check_condition(condition,courseId,student,eventEntry.objectType,objectId):
             print('after check_condition')
             fire_action(potential,courseId,student,objectId)
+            
+    return eventEntry
 
 # This method checks whether or not a given condition is true
 # in the appropriate context.
