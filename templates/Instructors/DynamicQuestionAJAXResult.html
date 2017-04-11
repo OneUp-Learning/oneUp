@@ -1,3 +1,7 @@
+{% if error_message %}
+	{{error_message}}
+{% endif %}
+{{error_message}}
 {% if evaluations %}
 	<table class="bg">
 	  {% for answerName, answer in evaluations.items %}

@@ -1,6 +1,7 @@
 import importlib
 from oneUp.settings import BASE_DIR
 import os
+from multiprocessing.process import ORIGINAL_DIR
 
 lupa_spec = importlib.util.find_spec('lupa')
 lupa_available = True
@@ -350,6 +351,34 @@ else:
                 setattr(newLupaQuestion,key,members[key])
             return newLupaQuestion
         
+# This class is intentionally outside the if because it does not actually depend on Lua.
+class CodeSegment:
+    system_lua = 6101
+    raw_lua = 6102
+    template_setup_code = 6103
+    template_richtext = 6104
+    template_expression = 6105
+    template_code = 6106
+    def __init__(self,type,code,original):
+        self.type = type
+        self.code = code
+        self.original = original
         
+    error_message = {
+                        system_lua: "An error has occurred in the following code which comes with the OneUp system.  Generally, if you are not a developer of OneUp you should not see this message.",
+                        raw_lua:"An error has occurred in the following Lua code you have provided.",
+                        template_setup_code:"An error has occurred in the following code which was part of the setup code for your templated problem",
+                        template_richtext:"An error has occurred in the following Lua code which is meant to display the rich text part of your templated problem.  In theory, you should never be seeing this error message, but if you are, you have somehow managed to create something which the system cannot print.",
+                        template_expression:"An error has occurred in the following Lua expression.",
+                        template_code:"An error has occurred in the following Lua code which was included as part of your templated problem."
+                    }
         
-        
+    def make_error_message(self):
+        mess = CodeSegment.error_message[self.type]
+        mess += "\n"
+        mess += "Code with error: " + self.code  # TODO: Make this do syntax highlighting
+        mess += "\n"
+        if type == CodeSegment.template_richtext:
+            mess += "Original text: "
+            mess += self.original
+        return mess
