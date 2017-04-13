@@ -4,6 +4,17 @@
 
    {% include 'scripts.html' %}
  
+ <script type = "text/javascript">
+	function validateFileSelection() {
+         x = document.forms["uploader"]["myfile"].value;
+		 if ( x == "" ) {
+        		alert("Please choose a file.");
+        		return false;
+    		}
+	}
+	
+</script>
+
 </head>
 <body>
 	<div id="page-wrapper">
@@ -21,7 +32,7 @@
 		
 		<div>
 		
-		<form id="uploadbanner" action="/oneUp/students/avatarUploadView" enctype="multipart/form-data" method="POST" >
+		<form id="uploadbanner" name = "uploader" action="/oneUp/students/avatarUploadView" enctype="multipart/form-data" onsubmit="return validateFileSelection()" method="POST" >
 			{% csrf_token %}
    			<input id="fileupload" name="myfile" type="file" /> <!-- i need action to call funciton in python  -->
    			<input type="submit" value="Upload" id="Upload" />

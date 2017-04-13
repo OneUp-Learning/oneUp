@@ -29,10 +29,6 @@ def achievements(request):
     else:
         context_dict["is_student"] = True
         stud = request.user
-        sID = Student.objects.get(user=stud)
-        context_dict['avatar'] = sID.avatarImage        
-
-  
 
     studentId = Student.objects.filter(user=stud)
     # check if course was selected
@@ -42,6 +38,9 @@ def achievements(request):
     else:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
+        st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
+        
         print(str(currentCourse.courseName))
          
         # virtual currency has to be stored in Students - needs to change the model
@@ -185,10 +184,8 @@ def achievements(request):
         challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
         for challID in challenges:
             challavg.append(classResults.classAverChallengeScore(currentCourse,challID.challengeID, "average"))
-        #print ("avgchallengeview"+str(challavg))
             
-        studentGradedNonDefChallengesAvgPoints = []
-        
+        studentGradedNonDefChallengesAvgPoints = []        
         
         for st_challenge in studentChallenges:
             if st_challenge.challengeID.isGraded:
@@ -246,7 +243,6 @@ def achievements(request):
                 studentGradedChallengesScorePoints.append(st_challenge)
                          
         if not studentGradedChallengesScorePoints:
-            #print('No challenge')
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'
         else:
             totalScorePoints = 0
@@ -275,7 +271,6 @@ def achievements(request):
                 studentGradedChallengesPointsEarned.append(st_challenge)
                          
         if not studentGradedChallengesPointsEarned:
-            #print('No challenge')
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'
         else:
             PointsEarned = 0
@@ -423,16 +418,13 @@ def achievements(request):
             skills = Skills.objects.filter(skillID=sk.skillID.skillID)
             for sname in skills:
                 skill_Name.append(sname.skillName)
-  
-
-  
+    
         skill_ID = []      
         skill_Name = []         
         skill_Points = []
         skillTotal_Points = []
         count = 0;
-        
-            
+                    
         #Displaying the list of skills from database
         studentSkills = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId, studentChallengeQuestionID__studentChallengeID__courseID=currentCourse)
         if not studentSkills:
@@ -753,9 +745,7 @@ def achievements(request):
                 # The range part is the index numbers.
             context_dict['nondefskillTotalpoints_range'] = zip(range(1,studentnondefSkills.count()+1),skillTotal_ID,skillTotal_Name,skillTotal_Points)        
               
-        
-        
-        
+                
         # Extract Badges data for the current student
         badgeId = [] 
         badgeName = []
