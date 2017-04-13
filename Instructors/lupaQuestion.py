@@ -187,9 +187,17 @@ else:
     #        self.persistents = runtime.eval('persistents')
             self.version += 1
             return result
-        def execute(self,code):
+        def execute(self,codesegments):
             self.history.append(('execute',code))
-            self.runtime.execute(code)
+            code = ""
+            for codeseg in codesegments:
+                code += codeseg.code
+            try:
+                self.runtime.execute(code)
+            except LuaError as luaerr:
+                
+
+
     #        self.persistents = runtime.eval('persistents')
             self.version += 1
     
@@ -363,7 +371,8 @@ class CodeSegment:
         self.type = type
         self.code = code
         self.original = original
-        
+        self.num_new_lines = code.count("\n")
+        exec
     error_message = {
                         system_lua: "An error has occurred in the following code which comes with the OneUp system.  Generally, if you are not a developer of OneUp you should not see this message.",
                         raw_lua:"An error has occurred in the following Lua code you have provided.",
