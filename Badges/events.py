@@ -4,8 +4,10 @@ from Badges.enums import OperandTypes, ObjectTypes, Event, SystemVariable, Actio
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
     StudentRegisteredCourses
 from datetime import datetime
+from django.utils import timezone
 from builtins import getattr
 import decimal
+from Instructors.models import Challenges
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -246,10 +248,15 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
         totalTime -= datetime(2000,1,1,0,0,0) #subtract arbitrary value back out, in order to get the accurate elapsed time
         minutes = totalTime.total_seconds()/60 #convert total elapsed time to minutes
         return minutes
-       
-       
+             
     #return the sum of delta times between Start Question and End Question events
     if (varIndex == SystemVariable.timeSpentOnQuestions):
+        
+        #TODO: Code assumes that question start times and question end times will come back in the same order.
+        # This is not a fair assumption and this code should be rewritten to match the starts and ends together.
+        # Also if a student starts a challenge and then abandons it, the counts will not be equal and then this code
+        # will always return None for that student in that course.
+        
         questionStartTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.startQuestion)
         questionEndTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.endQuestion)
         #assert that the two are of equal size
@@ -293,6 +300,33 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
         numActivitiesCompleted = StudentEventLog.objects.filter(course = course,student = student,objectType = objectType, event = Event.participationNoted).count()
         return numActivitiesCompleted
 
+    # Return the ID of the current challenge which is active when the rule is being evaluated.
+    # In the future we may need to hand matching to challenges or activities or so forth in a more complex manner.
+    if (varIndex == SystemVariable.challengeId):
+        if (objectType == ObjectTypes.challenge):
+            return objectID
+        else:
+            return -1
+
+    def getDaysBetweenCurrentTimeAndDeadline(challengeID):
+        challenge = Challenges.objects.get(pk=challengeID)
+        deadline = challenge.endTimestamp
+        now = timezone.now()
+        diff = deadline-now
+        return diff.days
+
+    if (varIndex == SystemVariable.numDaysSubmissionEarlier):
+        if (objectType != ObjectTypes.challenge):
+            return -1
+        else:
+            return getDaysBetweenCurrentTimeAndDeadline(objectID)
+            
+    if (varIndex == SystemVariable.numDaysSubmissionLate):
+        if (objectType != ObjectTypes.challenge):
+            return -1
+        else:
+            return -1 * getDaysBetweenCurrentTimeAndDeadline(objectID)
+    
 
 def fire_action(rule,courseID,studentID,objectIDPassed):
     print("In fire_action ")

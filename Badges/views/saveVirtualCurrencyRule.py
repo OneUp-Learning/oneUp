@@ -155,7 +155,7 @@ def SaveVirtualCurrencyRule(request):
             
             ruleID = vcRuleInfo
             print("rule id: "+str(ruleID.vcRuleID))
-            if not (ActionArguments.objects.filter(argumentValue=str(ruleID.vcRuleID)).exists()):
+            if not (ActionArguments.objects.filter(ruleID=gameRule).exists()):
                 # Save the action 'IncreaseVirtualCurrency' to the ActionArguments Table
                 actionArgument = ActionArguments()
                 actionArgument.ruleID = gameRule
