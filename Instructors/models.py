@@ -233,7 +233,6 @@ class Announcements(models.Model):
 class Topics(models.Model):
     topicID = models.AutoField(primary_key=True)
     topicName = models.CharField(max_length=100)
-    topicAuthor = models.CharField(max_length=75)
     def __str__(self):              
         return str(str(self.topicID)+","+self.topicName)
     
