@@ -327,6 +327,18 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
         else:
             return -1 * getDaysBetweenCurrentTimeAndDeadline(objectID)
     
+    # This one we can't actually implement yet because we don't have the data.    
+    if (varIndex == SystemVariable.consecutiveClassesAttended):
+        return 0
+    
+    # This one I'm not clear on the meaning of.  Which leaderboard?  Do you have to be there at least one day a week or all week?
+    # Are we keeping historical leaderboard data?
+    if (varIndex == SystemVariable.consecutiveWeeksOnLeaderboard):
+        return 0
+    
+    #TODO: Actually implement this.
+    if (varIndex == SystemVariable.consecutiveDaysWarmUpChallengesTaken):
+        return 0
 
 def fire_action(rule,courseID,studentID,objectIDPassed):
     print("In fire_action ")
