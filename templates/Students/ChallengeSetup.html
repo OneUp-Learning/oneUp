@@ -19,9 +19,9 @@
                 <div class="row">
                     <div class="12u">
                         <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
-                            <input type="hidden" name="startTime" id="startTime">
+                            <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
                             <input type="hidden" name="questionId" value="{{question.questionID}}">
-                            <input type="hidden" name="challengeId" value="{{question.challengeID}}"> {% csrf_token %}
+                            <input type="hidden" name="challengeId" value="{{challengeID}}"> {% csrf_token %}
                             <table class="bg">
                                 <!-- Note that this was bg challenge but Joel changed it to bg to get color alteration  -->
 

@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 import random 
 
+from time import strftime
+
 from Instructors.models import Challenges, Courses, Answers
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Students.models import Student, StudentRegisteredCourses
@@ -36,6 +38,7 @@ def ChallengeSetup(request):
         if request.POST:        
             if request.POST['challengeId']: 
                 challengeId = request.POST['challengeId']
+                context_dict['challengeID']= challengeId
                 challenge = Challenges.objects.get(pk=int(request.POST['challengeId']))
                 context_dict['challengeName'] = challenge.challengeName
                 print(challengeId)
@@ -57,7 +60,6 @@ def ChallengeSetup(request):
                     answer_range = range(1,len(answers)+1)
                     questdict['answers_with_count'] = zip(answer_range,answers)
                     questdict['typeID']=str(q.type)
-                    questdict['challengeID']= challengeId
                     
                     staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
                     questdict['questionText']=staticQuestion.questionText
@@ -80,10 +82,11 @@ def ChallengeSetup(request):
                     random.shuffle(matchlist)
                     questdict['matches']=matchlist
                     qlist.append(questdict)
-                    
+                
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
+            context_dict['startTime'] = strftime("%Y-%m-%d %H:%M:%S")
             
-        #register_event(Event.startChallenge,request,None,challengeId)
+        register_event(Event.startChallenge,request,None,challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)
         
     return render(request,'Students/ChallengeSetup.html', context_dict)

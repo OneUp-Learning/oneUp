@@ -13,6 +13,7 @@ from Instructors.models import ChallengesQuestions, MatchingAnswers, QuestionsSk
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
 
 from time import strftime
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 
@@ -90,7 +91,7 @@ def ChallengeResults(request):
                     print ("warmUp")
                     context_dict['warmUp'] = 1
                     
-                print("Start Time:"+str(str(request.POST['startTime'])))
+                print("Start Time:"+request.POST['startTime'])
                 startTime = request.POST['startTime']
                 #end time of the test is the current time when it is navigated to this page
                 endTime = strftime("%Y-%m-%d %H:%M:%S") #the end time is in yyyy-mm-dd hh:mm:ss format similar to start time
