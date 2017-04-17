@@ -74,7 +74,9 @@ def ChallengeResults(request):
             
             if request.POST['challengeId'] == "":
                 # Challenge without questions
-                 return redirect('/oneUp/students/ChallengesList')
+                print('here')
+                print(request.POST['challengeId'])
+                return redirect('/oneUp/students/ChallengesList')
             
             else: 
                 request.POST['challengeId']
@@ -97,7 +99,7 @@ def ChallengeResults(request):
                 endTime = strftime("%Y-%m-%d %H:%M:%S") #the end time is in yyyy-mm-dd hh:mm:ss format similar to start time
                 print("End Time:"+str(endTime))
                 
-                if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
+                if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=endTime).count() > 0:
                     return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
                     
                 #save initial student-challenge information pair (no score)to db
@@ -375,7 +377,7 @@ def ChallengeResults(request):
                 studentChallenge.save()
                 
                 #Trigger event for potential badge award 
-                register_event(Event.endChallenge, request, studentId, challengeId)
+#                register_event(Event.endChallenge, request, studentId, challengeId)
                             
                 score_list.append(score)
                 total_list.append(total)

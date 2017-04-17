@@ -1,8 +1,7 @@
-from django.shortcuts import render
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 import random 
+from time import strftime
 
 from time import strftime
 
@@ -32,7 +31,7 @@ def ChallengeSetup(request):
         student = Student.objects.get(user=request.user)   
         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
         context_dict['avatar'] = st_crs.avatarImage                  
-        
+
         questionObjects= []
                 
         if request.POST:        
@@ -41,11 +40,15 @@ def ChallengeSetup(request):
                 context_dict['challengeID']= challengeId
                 challenge = Challenges.objects.get(pk=int(request.POST['challengeId']))
                 context_dict['challengeName'] = challenge.challengeName
-                print(challengeId)
+                
+                if not challenge.isGraded:
+                    context_dict['warmUp'] = 1
+                       
                 # Checks if password was entered correctly
                 if challenge.challengePassword != '':
                     if 'password' not in request.POST or request.POST['password'] != challenge.challengePassword:
                         return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+                    
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
                 for challenge_question in challenge_questions:
                     print("challenge_question.questionID: "+str(challenge_question.questionID))

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYprepareSubmitPE html>
 <html lang="en">
    <head>
       <meta charset="utf-8" />
@@ -114,7 +114,8 @@
     	}
       // Format 'Added Skills' box to a string (AH)
       // Ex. SQL (10), Database (20), etc. (AH)
-      function prepareSubmit(){
+    function prepareSubmit(){
+          var choose = false;
     	  var x = document.getElementById("SelectedSkill");
     	  var txt = "";
     	  for(var i =0; i < x.options.length; i++){
@@ -130,11 +131,24 @@
   	    for(var i =0; i< checks.length;i++){
   	        var check = checks[i];
   	        if(check.checked){
-  	            return true;
+  	            choose = true;
   	        }
   	    }
+		if (!choose)  {
   	    alert('Please select atleast one answer!');
-      }
+  	    return false;
+		}
+		else {
+		    var s = document.forms["question"]["Skill"].value;
+    		var y = document.forms["question"]["q_skill_points"].value;
+    		
+    		if ( s !== "" && y == "") {
+        		alert("The skill points for new skill must be filled out.");
+        		return false;
+    		}
+    		return true;
+        }
+	}
       </script>
       
        <script type="text/javascript">
@@ -146,7 +160,7 @@
         		alert("The skill points for new skill must be filled out.");
         		return false;
     		}
-    		
+    		return true;
 		}
 	</script>
 	
@@ -166,7 +180,7 @@
                <h3>Create/Edit <span>Multiple Question</span></h3>
             <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
             <!-- INSERTED PAGE CONTENT -->
-                  <form name="question" action="/oneUp/instructors/forms/MultipleAnswersForm" onsubmit="return validateForm()" method="POST">
+                  <form name="question" action="/oneUp/instructors/forms/MultipleAnswersForm"  onsubmit= "return prepareSubmit()"  method="POST">
                      {% csrf_token %}
                      <input type="hidden" name="numAnswers" id="numAnswers" value="{{num_answers}}">
                      {% if questionId %}
@@ -337,11 +351,11 @@
                      	
                         {% elif challenge %}
                         <ul class="actions">
-                        <li style="margin:0" ><input type="submit" name="submit" value="Submit" class="button" onclick="prepareSubmit()"></li>
+                        <li style="margin:0" ><input type="submit" name="submit" value="Submit" class="button" ></li>
                         <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}"><button type="button" class="button special" value="Reset">Cancel</button></a>
                         {% else %}	
                         <ul class="actions">
-                        <li><input type="submit" name="submit" value="Submit" class="button" onclick="prepareSubmit()"></li>
+                        <li><input type="submit" name="submit" value="Submit" class="button" ></li>
                         <a href="/oneUp/instructors/questionList"><button type="button" class="button special" value="Reset">Cancel</button></a>
                         {% endif %}
 <script>
