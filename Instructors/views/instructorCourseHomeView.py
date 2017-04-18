@@ -179,10 +179,11 @@ def instructorCourseHome(request):
                     numberMax.append(0)
                 number = numberMax
             gradeTotal.append(("%0.2f" %sum(number)))
-                
+               
 #         for u in user:                            #Why the avatars of all the students??????????
 #             avatarImage.append(u.avatarImage)
         gradeTotal.sort(reverse=True)
+        print(gradeTotal) 
 #         context_dict['user_range'] = zip(range(1,user.count()+1),avatarImage, gradeTotal)
         context_dict['user_range'] = zip(range(1,ccparams.numStudentBestSkillsDisplayed+1),avatarImage, gradeTotal)
         

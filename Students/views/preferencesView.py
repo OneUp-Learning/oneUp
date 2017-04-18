@@ -70,11 +70,9 @@ def preferencesView(request):
             print(scparams,scparams.courseID,scparams.studentID,scparams.displayBadges,scparams.displayLeaderBoard,scparams.displayClassSkills)
             
         else:
-            # Create new Config Parameters
-            scparams = StudentConfigParams()
-            scparams.courseID = currentCourse
             studentID = Student.objects.get(user=request.user)
-            scparams.studentID = studentID
+            scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=studentID)
+
 #          print(studentID)
             #scparams.studentID = User.objects.filter(userID=request.POST['userID'],courseID=currentCourse)
         if ccparams.studCanChangeBadgeVis:  
