@@ -16,7 +16,7 @@ from Instructors.views.createStudentListView import createStudentListView
 from Instructors.models import Courses
 from Instructors import constants
 from Instructors.constants import anonymous_avatar
-from Students.models import Student, StudentRegisteredCourses
+from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 
 @login_required
 def createStudentView(request):
@@ -75,6 +75,12 @@ def createStudentViewUnchecked(request):
             studentRegisteredCourses.courseID = currentCourse
             studentRegisteredCourses.avatarImage = anonymous_avatar
             studentRegisteredCourses.save()
+            
+            # Create new Config Parameters
+            scparams = StudentConfigParams()
+            scparams.courseID = currentCourse
+            scparams.studentID = student
+            scparams.save()
         
         return createStudentListView(request)
     else:

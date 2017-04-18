@@ -23,6 +23,7 @@ def avatar(request):
 		currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
 		context_dict['course_Name'] = currentCourse.courseName
 		st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	  		
+		context_dict['avatar'] = st_crs.avatarImage
 	else:
 		context_dict['course_Name'] = 'Not Selected'
 		
