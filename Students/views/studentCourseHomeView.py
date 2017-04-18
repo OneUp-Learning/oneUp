@@ -156,7 +156,7 @@ def StudentCourseHome(request):
                 badgeID.append(badge.badgeID)
                 badgeName.append(badge.badgeID.badgeName)
                 badgeImage.append(badge.badgeID.badgeImage)
-                st_crs = StudentRegisteredCourses.objects.filter(studentID=badge.studentID,courseID=currentCourse)                
+                st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
                 avatarImage.append(st_crs.avatarImage)
    
         print (badgeID)

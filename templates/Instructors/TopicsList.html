@@ -56,9 +56,9 @@
                               <form action="/oneUp/instructors/deleteTopic " method="POST">
                                  {% csrf_token %}                                                                        
                                  <input type="hidden" name="topicID" value="{{topic_ID}}">                           
-                                 <a href="/oneUp/instructors/subTopicsCreate?topicID={{topic_ID}}"><button type="button">Add Sub Topic</button></a>
+<!--                                  <a href="/oneUp/instructors/subTopicsCreate?topicID={{topic_ID}}"><button type="button">Add Sub Topic</button></a>
                                  <a href="/oneUp/instructors/subTopicsListView?topicID={{topic_ID}}"><button type="button">Edit Sub Topic</button></a>
-                                 <a href="/oneUp/instructors/topicsCreate?topicID={{topic_ID}}"><button type="button">Edit</button></a>
+ -->                                 <a href="/oneUp/instructors/topicsCreate?topicID={{topic_ID}}"><button type="button">Edit</button></a>
                                  <input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
                               </form>
                            </td>
