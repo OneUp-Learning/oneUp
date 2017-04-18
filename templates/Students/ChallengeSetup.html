@@ -31,7 +31,7 @@
                                 <tr id="question" style="background-color: rgba(144, 144, 144, 0.075);">
                                     <td colspan="2" style="text-align:left">
 
-                                        {% autoescape off %} {{i}}.{{question.questionText}} {% endautoescape %}
+                                        {% autoescape off %} {{i}}.{{question.questionText|safe}} {% endautoescape %}
                                     </td>
 
                                 </tr>

@@ -32,7 +32,7 @@
 			{% for i,question,user,match_shuffled,question_score,question_total in question_range %}
 				<tr id="question"> 
 			<div id="question{{i}}">
-					<td colspan="3"><font style="font-weight:600">{{i}}. {{question.questionText}}</font></td>
+					<td colspan="3"><font style="font-weight:600">{{i}}. {{question.questionText|safe}}</font></td>
 				</tr>									
 				<tr>
 					<td colspan="3">Your Answer:</td>
