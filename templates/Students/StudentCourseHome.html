@@ -3,7 +3,13 @@
 <head>
 
    {% include 'scripts.html' %}
- 
+ 	<style>
+	       table.table.container {
+	         padding-bottom: 0px; 
+	         margin-bottom: 15px; 
+	         box-shadow:0px 1px 6px 0px #2A333E;
+	         }
+ 	</style>
 <script>
     window.location.hash = "no-back-button";
     window.location.hash = "Again-No-back-button";//again because google chrome don't insert first hash into history
@@ -43,12 +49,8 @@
     <div id="page-wrapper">
 
        {% include 'stheading.html' %}
-  
-        <div class="frame" id="grad" align="center">
+  		<div algin="center">
             <div class="container">
-                <div class="row">
-                    <div class="12u"></div>
-                </div>
                 <div class="row">
                     <div class="6u 12u(mobile)">
                         <table class="bg" id="bglinks">
@@ -87,9 +89,17 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="row">
-                    <div class="6u 12u(mobile)">
+                <div class="row" style="padding-top: 80px;"></div>
+                <table class="bg">
+              <th></th>
+              <th></th>
+              <tr>
+              <td style="    padding-right: 0px;
+									    padding-bottom: 0px;
+									    padding-top: 10px;
+									    padding-left: 10px;
+									    width: 50%;">
+                    <div class="12u 12u(mobile)">
                         {% if leaderboardUsed and displayLeaderBoard %}
                         <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
                             <th> Student </th>
@@ -105,7 +115,13 @@
                         </table>
                         {% endif %}
                     </div>
-                    <div class="6u 12u(mobile)">
+                    </td>
+                    <td style="    padding-right: 10px;
+								    padding-bottom: 0px;
+								    padding-top: 10px;
+								    padding-left: 10px;
+								    width: 50%;">
+                    <div class="12u 12u(mobile)">
                         {% if classSkillsDisplayed and displayClassSkills %}
                         <table class="bg" id="bglinks" style="margin-bottom: 15px;">
                             <th> Skill </th>
@@ -124,9 +140,14 @@
                         </table>
                         {% endif %}
                     </div>
-                </div>
-                <p></p><p></p>
-                <!-- Display based on config values -->
+                    </td>
+                    </tr>
+                    <tr>
+                <td colspan="2" style="    padding-right: 10px;
+							    padding-bottom: 0px;
+							    padding-top: 10px;
+							    padding-left: 10px;
+							    width: 100%;">
                 {% if badgesUsed and displayBadges %}
                     <table class="bg" id="bglinks" style="margin-bottom: 15px;">
                         <th> Latest Badges </th>
@@ -141,9 +162,12 @@
                         </tr>
                     </table>
                     {% endif %}
+                    </td>
+                    </tr>
+                    </table>
             </div>
         </div>
-    </div>
+        </div>
   <!-- Footer -->
   
 

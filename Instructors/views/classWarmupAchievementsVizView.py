@@ -142,7 +142,7 @@ def classWarmupAchievementsViz(request):
             
             print ("userCount:"+str(i))
             print("User[i]"+str(user[i]))
-            
+            print("Num_challs " + str(num_challs))
             
             for j in range(0, num_challs):  
                 if StudentChallenges.objects.filter(studentID=user[i], courseID=currentCourse, challengeID = challenges[j]) :
@@ -199,6 +199,7 @@ def classWarmupAchievementsViz(request):
                     latestTestScore = str(latestSC.testScore)
                     print ("latestTestScore"+latestTestScore)
                     challengeGrade.append(zip(challengesNames,str(user_Name),latestTestScore,str(skill_pointsTotal)))      
+                    ChallengeCount +=1;  
                     #print ("challengesNames: "+str(challengesNames))
                     #print ("user_Name:"+user_Name)
                     #print ("latestSC.testScore:"+str(latestSC.testScore))
@@ -216,7 +217,6 @@ def classWarmupAchievementsViz(request):
                     numberFirst.append(0)
                     numberMax.append(0)
                     numberMin.append(0)
-                    
                     
                     #challengeGrade.append(zip(range(1,user.count()+1),str(challenges[j].challengeName),str(user_Name),str(latestSC.testScore),str(skill_pointsUserTotal)))
             if optionSelected == '1':
@@ -251,7 +251,7 @@ def classWarmupAchievementsViz(request):
             #print("gradeLatest:"+str(gradeLatest[0]))
             #print("skill_pointsUserTotal:"+str(skill_pointsUserTotal))
             allgrades1.append(zip(challengeName,sc_user_name,gradeLatest,skill_pointsUserTotal)) 
-            ChallengeCount +=1;
+            
             #print ("challengeName"+str(challengeName))
             #print (str(sc_user_name))
             #print (str(gradeLatest))
@@ -265,6 +265,7 @@ def classWarmupAchievementsViz(request):
             #print ("first_name:"+ str(first_Name))
         for c in challenges:
             chall_Name.append(c.challengeName)
+
         print (str(ChallengeCount))
         for x in challengeGrade:            
             print (list(x))
