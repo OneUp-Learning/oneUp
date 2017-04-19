@@ -203,6 +203,8 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
         allScores = StudentChallenges.objects.filter(challengeID = objectID,courseID = course,studentID = student)
         if allScores.exists():
             testScore = allScores.latest('testScore')
+        else:
+            return 0
 
         #Check if denominator is zero to avoid getting a DivideByZero error
         if float(testScore.testTotal) != 0:
