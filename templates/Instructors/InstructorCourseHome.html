@@ -63,50 +63,39 @@
                        
                              {% if leaderboardUsed %}
                               <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                            <th> XP Points </th>
-                            <th> </th>
+                            		<th> Student </th>
+                            		<th> XP Points</th>
                                          <!-- <div class="6u 12u(mobile)">
                                             <table class="bg" id="bglinks" style="margin-bottom: 15px;"> -->
-                                             {% for i,avatarImage,gradeTotal in user_range %}
+                                             {% for i,avatarImage,xpoints in user_range %}
                                              <tr>
                                                 <div id="student{{i}}">
-                                                   <!-- <td><b>{{first_Name}} {{last_Name}} </b></td> -->
-                                                   <td class="left"><img alt="Avatar Image" width="36px" height="36px" src="{{avatarImage}}"></td>
-                                                   <td class="left">{{gradeTotal}}</td>
-                                                   <!-- {% for grade,sc_user,sc_chall in grade_range %} 
-                                                   <input type="hidden" name="challID" value="{{sc_user}}">
-                                                   <input type="hidden" name="challID" value="{{sc_chall}}">
-                                                   <td><a href="/oneUp/instructors/studentChallengesCompleted?userID={{sc_user}}&challengeID={{sc_chall}}">   {{grade}}</a>
-                                                      {% endfor %}
-                                                   </td> -->                         
+                                                   <td class="left"><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                                                   <td class="left">{{xpoints}}</td>
                                                 </div>
                                              </tr>
                                              {% endfor %}
-                                           <!--  </table> -->
-                                            </div>
-                                    {% endif %}
-                        </table>
+                                    </table>                                          
+                                 {% endif %}
+
                     </div>
-                    <div class="6u 12u(mobile)">
-                        
-                           
+                    <div class="6u 12u(mobile)">                           
                              {% if classSkillsDisplayed %}
                                 <table class="bg" id="bglinks" style="margin-bottom: 15px;">
-                                  <th> Skill Points </th>
-                                  <th> </th>           
+                                  <th> Skill </th>
+                                  <th> Skill Points </th>           
                                 
                                 		{% for skill in skills %}
                                         <tr>
                                                 <td class="left">{{skill.skillName}} </td>	
                                                 <td class="left">
                                                     {% for usi in skill.usersInfo %} 
-                                                        <img alt="Avatar Image" width="36px" height="36px" src="{{usi.avatarImage}}">{{usi.skillPoints}}  &nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <img alt="Avatar Image" width="30px" height="30px" src="{{usi.avatarImage}}"> &nbsp;{{usi.skillPoints}}  &nbsp;&nbsp;&nbsp;&nbsp;
                                                     {% endfor %}
                                                 </td>
-                                               
+                                             
                                         </tr>
-                                        {% endfor %}
-                                   
+                                        {% endfor %}                           
                                 </table>
                             {% endif %}
                         <!-- </table> -->
@@ -118,13 +107,12 @@
                         
                             {% if badgesUsed %}
                             <table class="bg" id="bglinks" style="margin-bottom: 15px;">
-                            <th> Latest Badges </th>
-                                       <!--  <th> Leader Badges </th>   -->           
+                            <th> Latest Badges </th>          
                                     <tr> 
                                         <td class="left">
                                             {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}                                                       
                                                 <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
-                                                 <img alt="Avatar Image" width="26px" height="26px" src="{{avatarImage}}">
+                                                 <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                                  &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;
                                             {% endfor %}
                                         </td>

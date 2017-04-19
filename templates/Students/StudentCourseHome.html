@@ -87,17 +87,18 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="row">
                     <div class="6u 12u(mobile)">
                         {% if leaderboardUsed and displayLeaderBoard %}
                         <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
+                            <th> Student </th>
                             <th> XP Points </th>
-                            <th> </th>
-                            {% for i,avatarImage,gradeTotal in user_range %}
+                            {% for i,avatarImage,xpoints in user_range %}
                             <tr>
                                 <div id="student{{i}}">
-                                    <td class="left"><img alt="Avatar Image" width="36px" height="36px" src="{{avatarImage}}"></td>
-                                    <td class="left">{{gradeTotal}}</td>
+                                    <td class="left"><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                                    <td class="left">{{xpoints}}</td>
                                 </div>
                             </tr>
                             {% endfor %}
@@ -107,14 +108,14 @@
                     <div class="6u 12u(mobile)">
                         {% if classSkillsDisplayed and displayClassSkills %}
                         <table class="bg" id="bglinks" style="margin-bottom: 15px;">
+                            <th> Skill </th>
                             <th> Skill Points </th>
-                            <th> </th>
                             {% for skill in skills %}
                             <tr>
                                 <td class="left">{{skill.skillName}} </td>
                                 <td class="left">
                                     {% for usi in skill.usersInfo %} 
-                                    <img alt="Avatar Image" width="36px" height="36px" src="{{usi.avatarImage}}">
+                                    <img alt="Avatar Image" width="30px" height="30px" src="{{usi.avatarImage}}">
                                     {{usi.skillPoints}}  &nbsp;&nbsp;&nbsp;&nbsp;
                                     {% endfor %}
                                 </td>
@@ -133,7 +134,7 @@
                             <td class="left">
                                 {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}                                                       
                                 <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
-                                <img alt="Avatar Image" width="26px" height="26px" src="{{avatarImage}}">
+                                <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                 &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;
                                 {% endfor %}
                             </td>
