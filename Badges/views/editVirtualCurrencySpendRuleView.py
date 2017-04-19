@@ -31,7 +31,7 @@ def EditVirtualCurrencySpendRule(request):
         context_dict['course_Name'] = 'Not Selected'
             
     # Getting the Rule information which has been selected
-    rules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False)
+    rules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, courseID = currentCourse)
         
     eventIndex = []
     eventName = []

@@ -9,7 +9,7 @@ import math
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Courses, Challenges
-from Students.models import Student, StudentChallenges
+from Students.models import Student, StudentChallenges, StudentRegisteredCourses
 #from numpy import maximum
 
     
@@ -50,11 +50,17 @@ def classAchievements(request):
         challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True,  isVisible=True)
         num_challs = challenges.count()
         
-        #Displaying the list of students from database
-        user = Student.objects.all()
-        num_users = user.count()
+        users = [] 
+        #Displaying the list of students from the current class
+        stud_course = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+        for sc in stud_course:
+            users.append(sc.studentID)
+            
+        #user = Student.objects.all()
+        #num_users = user.count()
         
-        for i in range(0, num_users):  
+        #for i in range(0, num_users):  
+        for user in users:
             grade = []
             gradeLast = []
             gradeFirst = []
@@ -69,18 +75,18 @@ def classAchievements(request):
             sc_chall = []
             
             for j in range(0, num_challs):  
-                if StudentChallenges.objects.filter(studentID=user[i], courseID=currentCourse, challengeID = challenges[j]) :
+                if StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]) :
                     
-                    sChallenges = StudentChallenges.objects.filter(studentID=user[i], courseID=currentCourse, challengeID = challenges[j])
-                    latestSC = StudentChallenges.objects.filter(studentID=user[i], courseID=currentCourse, challengeID = challenges[j]).latest('startTimestamp')
-                    earliestSC =StudentChallenges.objects.filter(studentID=user[i], courseID=currentCourse, challengeID = challenges[j]).earliest('startTimestamp')
+                    sChallenges = StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j])
+                    latestSC = StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]).latest('startTimestamp')
+                    earliestSC =StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]).earliest('startTimestamp')
                     
                     gradeLast.append(latestSC.testScore)
                     gradeFirst.append(earliestSC.testScore)
                     numberLast.append(latestSC.testScore)
                     numberFirst.append(earliestSC.testScore)
                     
-                    sc_user.append(user[i])
+                    sc_user.append(user)
                     sc_chall.append(challenges[j].challengeID)
                     gradeID  = []
                     
@@ -123,7 +129,7 @@ def classAchievements(request):
             allgrades.append(zip(grade,sc_user,sc_chall))
             gradeTotal.append(("%0.2f" %sum(number)))
              
-        for u in user:
+        for u in users:
             first_Name.append(u.user.first_name)
             last_Name.append(u.user.last_name)
         
@@ -131,6 +137,6 @@ def classAchievements(request):
             chall_Name.append(c.challengeName)
 
         context_dict['challenge_range'] = zip(range(1,challenges.count()+1),chall_Name)
-        context_dict['user_range'] = zip(range(1,user.count()+1),first_Name,last_Name,allgrades, gradeTotal)
+        context_dict['user_range'] = zip(range(1,len(users)+1),first_Name,last_Name,allgrades, gradeTotal)
 
     return render(request,'Instructors/ClassAchievements.html', context_dict)
