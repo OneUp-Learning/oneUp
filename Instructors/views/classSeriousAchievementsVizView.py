@@ -252,7 +252,6 @@ def classSeriousAchievementsViz(request):
                     numberMax.append(0)
                     numberMin.append(0)
                     
-                    
                     #challengeGrade.append(zip(range(1,user.count()+1),str(challenges[j].challengeName),str(user_Name),str(latestSC.testScore),str(skill_pointsUserTotal)))
             if optionSelected == '1':
                 grade = gradeLast
@@ -286,7 +285,7 @@ def classSeriousAchievementsViz(request):
             #print("gradeLatest:"+str(gradeLatest[0]))
             #print("skill_pointsUserTotal:"+str(skill_pointsUserTotal))
             allgrades1.append(zip(challengeName,sc_user_name,gradeLatest,skill_pointsUserTotal)) 
-            ChallengeCount +=1;
+            
             #print ("challengeName"+str(challengeName))
             #print (str(sc_user_name))
             #print (str(gradeLatest))
@@ -300,6 +299,7 @@ def classSeriousAchievementsViz(request):
             #print ("first_name:"+ str(first_Name))
         for c in challenges:
             chall_Name.append(c.challengeName)
+            ChallengeCount +=1;
         print (str(ChallengeCount))
         for x in challengeGrade:            
             print (list(x))

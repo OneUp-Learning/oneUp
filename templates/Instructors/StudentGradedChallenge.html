@@ -32,7 +32,7 @@
 
           {% include 'heading.html' %}
    
-         <div class="frame" id="grad" align="center">
+         <div class="frame"  align="center">
             <div class="container">
             <div class="row">
             <div class="12u">
@@ -48,7 +48,7 @@
                         <tr>
                         	<td colspan="3">Your Answer:</td>
                         	
-					{% if question.typeID == 1 %}
+					{% if question.typeID == '1' %}
                     <!-- multiple choice question -->
                         <tr>
                         	<td colspan="3">
@@ -69,7 +69,7 @@
                         </tr>
 					{% endif %}	
 					
-                    {% if question.typeID == 2 %}
+                    {% if question.typeID == '2' %}
                     <!-- multiple answer question -->
                         <tr>
                         	<td colspan="3">
@@ -89,7 +89,7 @@
                         </tr>
                     {% endif %}	
                     
-                    {% if question.typeID == 3 %}
+                    {% if question.typeID == '3' %}
                     <!-- matching question -->
                         <tr>
                         	<td>
@@ -125,7 +125,7 @@
                         </tr>
                     {% endif %}
                     
-                    {% if question.typeID == 4 %}
+                    {% if question.typeID == '4' %}
                     <!-- true/false question -->
                         <tr>
                         	<td colspan="3"><input type="radio" name="{{question.questionID}}" value="True" {% for j in user %}{% ifequal j|stringformat:"s" "True" %}checked{% else %}disabled="disabled"{% endifequal %}{% endfor %}>True<br />
@@ -142,7 +142,7 @@
                         </tr>
                     {% endif %}
                     
-                    {% if question.typeID == 5 %}
+                    {% if question.typeID == '5' %}
                         <!-- Essay question -->
                         <tr>
                         	<td colspan="3"><textarea name="{{question.questionID}}" rows="10" cols="90" disabled="disabled">
