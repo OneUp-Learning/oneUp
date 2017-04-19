@@ -38,8 +38,8 @@ def VirtualCurrencyDisplay(request):
     vcRuleDescription = []
     vcRuleAmount = []
         
-        #Displaying the list of challenges from database
-    vcRules = VirtualCurrencyRuleInfo.objects.all()
+    #Displaying the list of rules from database
+    vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse)
     for rule in vcRules:
         vcRuleID.append(rule.vcRuleID)
         vcRuleName.append(rule.vcRuleName)
