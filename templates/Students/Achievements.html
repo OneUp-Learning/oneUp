@@ -1008,7 +1008,7 @@
                            	  var showBadge = "<table><tr style='font-size:0.9em;color:white;' align='left'><td><span><b style='color:black;'>Badges</b></span></td></tr>";
                            	  showBadge+= "<tr align='center'>{% for i,badgeId,badgeName,badgeImage in badgesInfo %}";	
                            	 
-                           	  showBadge+="<td align='left'><img src='/static/images/badges/{{badgeImage}}' alt='Badge Image' width='70px' height='85px' align='middle' />";
+                           	  showBadge+="<td align='left'><img src='/{{badgeImage}}' alt='Badge Image' width='70px' height='85px' align='middle' />";
                            	  showBadge+="<br clear='all'><span style='font-size:0.7em; color:black;'>{{badgeName}}</span>";
                            	  showBadge+="</td>{% if not forloop.last and forloop.counter == 10 or forloop.counter == 10 %}</tr>";
                            	  showBadge+=" <tr>{% endif %}{% endfor %}</tr></table>";
