@@ -101,43 +101,25 @@ chk[i].checked = false ;
                                 <tr>
                                    <td class="left"> Enable leaderboard</td>  
                                    <td style="position:relative; right:-3.2em;" !important><input type="checkbox" align="right" name="leaderboardUsed" value="true" checked="true"></td>
-                                </tr>
+                                <tr>
                                 <tr>
                                    <td class="left"> Number of top students to be displayed on the leaderboard </td>
                                     <td ><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
                                    <!-- <td> Enable students to change leaderboard visibility</td>
-                                   <tdstyle="position:relative; right:-3em;" !important><input type="checkbox" align="left" name="studCanChangeLeaderboardVis" value="true"></td> -->
+                                   <td style="position:relative; right:-3em;" !important><input type="checkbox" align="left" name="studCanChangeLeaderboardVis" value="true"></td> -->
                                    
                                 </tr>
                                 {% else %}
                                 <tr>
                                    <td class="left"> Enable leaderboard</td>  
-                                 <!--   <td><input type="checkbox" name="Check_ctr" value="yes" onClick="Check(document.myform.check_list)"></td>  -->
                                    <td style="position:relative; right:-3.2em;" !important><input type="checkbox" align="left" name="leaderboardUsed"></td>
                                 </tr>
                                 <tr>
                                    <td class="left"> Number of top students to be displayed on the leaderboard </td>
-                                    <td style="position:relative; right:-3.3em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
-                                   <!-- <td> Enable students to change leaderboard visibility</td>
-                                   <td><input type="checkbox" align="left" name="check_list" disabled></td> -->
+                                   <td style="position:relative; right:-3.3em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px;" type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}"></td>
                                 </tr>
                                 {% endif %}           
-
-
-
-                                 
-                                <!-- <tr>
-                                    <td> Number of top students to be displayed on the leaderboard </td>
-                                    <td><input style="max-width: 4em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
-                                </tr> -->
-
-                                <!-- End leaderboardUsed Checkbox-->                        
-
-
-                                <!-- classSkillsDisplayed Checkbox-->
                                 
-
-
 
                                 {% if classSkillsDisplayed %}
                                 <tr>

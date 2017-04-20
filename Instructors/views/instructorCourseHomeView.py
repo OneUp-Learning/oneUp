@@ -66,26 +66,27 @@ def courseLeaderboard(currentCourse, context_dict):
             N = 7
             
             date_N_days_ago = datetime.now() - timedelta(days=N)
-    
-            #Displaying the list of challenges from database
-            badges = StudentBadges.objects.all().order_by('-timestamp')
-           
-            for badge in badges:
-                studentBadgeID.append(badge.studentBadgeID)
-                studentID.append(badge.studentID)
-                badgeID.append(badge.badgeID)
-                badgeName.append(badge.badgeID.badgeName)
-                badgeImage.append(badge.badgeID.badgeImage)
-                st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
-                avatarImage.append(st_crs.avatarImage)
-                              
-            # The range part is the index numbers.
-            context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
-    
+
             students = []
             st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)                                           
             for st_c in st_crs:
                 students.append(st_c.studentID)     # all students in the course
+ 
+            #Displaying the list of challenges from database
+            badges = StudentBadges.objects.all().order_by('-timestamp')
+           
+            for badge in badges:
+                if badge.studentID in students:
+                    studentBadgeID.append(badge.studentBadgeID)
+                    studentID.append(badge.studentID)
+                    badgeID.append(badge.badgeID)
+                    badgeName.append(badge.badgeID.badgeName)
+                    badgeImage.append(badge.badgeID.badgeImage)
+                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
+                    avatarImage.append(st_crs.avatarImage)
+                              
+            context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
+    
                       
             context_dict['skills'] = []
             cskills = CoursesSkills.objects.filter(courseID=currentCourse)
