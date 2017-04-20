@@ -130,7 +130,12 @@
       }
       
       </script>
+      // KI: This function doesn't make sense.  It is only called when we submit the whole form and
+      // it only checks that if a skill is selected, then skill points are, too.  But if the user
+      // hasn't hit the add skill button, we don't use what's filled in anyway, so this is pointless.
+      // I'm going to just comment out the body.
       <script type="text/javascript">
+      /*
 		function validateForm() {
     		var x = document.forms["question"]["Skill"].value;
     		var y = document.forms["question"]["q_skill_points"].value;
@@ -139,7 +144,7 @@
         		alert("The skill points for new skill must be filled out.");
         		return false;
     		}
-    		
+    		*/
 		}
 	</script>
       
