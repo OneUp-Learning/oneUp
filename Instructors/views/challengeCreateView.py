@@ -38,7 +38,7 @@ def challengeCreateView(request):
     context_dict['isVisible']=True
     context_dict['feedbackOption1']= True
     
-    string_attributes = ['challengeName',                ##'isGraded','challengeCategory', 'challengeDifficulty'
+    string_attributes = ['challengeName', 'challengeDifficulty',               ##'isGraded','challengeCategory', 'challengeDifficulty'
                   'numberAttempts','timeLimit','challengePassword'
                   ];   
     
@@ -216,7 +216,7 @@ def challengeCreateView(request):
             challengeId= request.GET['challengeID']
             context_dict['challengeID']=request.GET['challengeID']
             
-            context_dict['challengeDifficulty'] = getattr(challenge,'challengeDifficulty')  
+            context_dict['challengeDifficulty'] = challenge.challengeDifficulty  
             
             for attr in string_attributes:
                 data = getattr(challenge,attr)
