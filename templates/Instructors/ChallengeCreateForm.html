@@ -127,22 +127,24 @@
             			<th> Difficulty</th>
         			</tr>
         		    <tr>
-	    				<td><form method="post">
-                        <select id="difficulty" name="challengeDifficulty" >
-			                <option value=""  selected>Select Difficulty</option>
-			                <option id="Easy" value="Easy">Easy</option>
-			                <option id="Medium" value="Medium">Medium</option>
-			                <option id="Hard" value="Hard">Hard</option>
-			            </select>
-			            </form>
-						<script  type="text/javascript"> 
-						window.onload = function() {
-                                     if ("{{difficulty}}" != '')  {
-                                     document.getElementById("{{difficulty}}").selected = "true";
-                                     } 
-                                 }
-						</script></td>
-	    			</tr>
+                           <td>
+                             <div class="select-wrapper">
+                                <select name="challengeDifficulty" style="width: 190px" >
+                                   <option value=""selected>Select Difficulty</option>
+                                   <option id="Easy" value="Easy">Easy</option>
+                                   <option id="Medium" value="Medium">Medium</option>
+                                   <option id="Hard" value="Hard">Hard</option>
+                                </select>
+                             </div>
+                             <script  type="text/javascript"> 
+                                window.onload = function() {
+                                    if ("{{challengeDifficulty}}" != '')  {
+                                    document.getElementById("{{challengeDifficulty}}").selected = "true";
+                                    } 
+                                }
+                             </script> 
+                          </td>
+ 	    			</tr>
             		<tr>
             			<th>Availability</th>
         			</tr>
