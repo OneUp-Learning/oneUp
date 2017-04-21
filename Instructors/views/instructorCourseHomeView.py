@@ -20,11 +20,9 @@ def lineno():
     return inspect.currentframe().f_back.f_lineno
 
 def studentXP(studentId, courseId, courseChallenges):
-    
+
     xp = 0
-    print(studentId)
-    print(courseId)
-    print(courseChallenges)
+
     for challenge in courseChallenges:
         sc = StudentChallenges.objects.filter(studentID=studentId, courseID=courseId,challengeID=challenge)
         print(sc)
@@ -36,13 +34,13 @@ def studentXP(studentId, courseId, courseChallenges):
         if(gradeID):
             xp = xp + max(gradeID)      # max grade for this challenge
 
-    print(str(xp))
     return xp
 
 def courseLeaderboard(currentCourse, context_dict):
     
     # Check if there are students in this course
     st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+
     if st_crs:
         if currentCourse:
             ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
@@ -67,11 +65,10 @@ def courseLeaderboard(currentCourse, context_dict):
             
             date_N_days_ago = datetime.now() - timedelta(days=N)
 
-            students = []
-            st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)                                           
+            students = []                                         
             for st_c in st_crs:
                 students.append(st_c.studentID)     # all students in the course
- 
+            
             #Displaying the list of challenges from database
             badges = StudentBadges.objects.all().order_by('-timestamp')
            
@@ -97,11 +94,13 @@ def courseLeaderboard(currentCourse, context_dict):
                                                  
                 for u in students:
                     skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
-                    skillPoints =0 ;
+                    skillPoints =0 
                                                          
                     for sRecord in skillRecords:
                         skillPoints += sRecord.skillPoints
+                        print('skillPoints:', skillPoints)
                     if skillPoints > 0:
+                        st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
                         uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
                         print("userSkillLst",lineno(),uSkillInfo)
                         #Sort and Splice here
@@ -110,8 +109,7 @@ def courseLeaderboard(currentCourse, context_dict):
                 print("skillInfo",lineno(),skillInfo)
                 context_dict['skills'].append(skillInfo)
           
-            # XP Points
-        
+            # XP Points       
             # get the challenges for this course
             courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
     
@@ -142,7 +140,7 @@ def courseLeaderboard(currentCourse, context_dict):
     
 
 def instructorCourseHome(request):
- 
+    
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
@@ -150,13 +148,13 @@ def instructorCourseHome(request):
 
     if request.GET:
         request.session['currentCourseID'] = request.GET['courseID']
-        
+            
     if 'currentCourseID' in request.session:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
         context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
         context_dict['course_Name'] = currentCourse.courseName
-        
+    
     context_dict = courseLeaderboard(currentCourse, context_dict)
         
     return render(request,'Instructors/InstructorCourseHome.html', context_dict)
