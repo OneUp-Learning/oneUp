@@ -98,15 +98,13 @@ def courseLeaderboard(currentCourse, context_dict):
                                                          
                     for sRecord in skillRecords:
                         skillPoints += sRecord.skillPoints
-                        print('skillPoints:', skillPoints)
+
                     if skillPoints > 0:
                         st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
                         uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
-                        print("userSkillLst",lineno(),uSkillInfo)
-                        #Sort and Splice here
-                        usersInfo.append(uSkillInfo) 
+                        usersInfo.append(uSkillInfo)
+                         
                 skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentsDisplayed]}
-                print("skillInfo",lineno(),skillInfo)
                 context_dict['skills'].append(skillInfo)
           
             # XP Points       
