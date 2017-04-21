@@ -6,7 +6,7 @@ Created on Nov 3, 2016
 
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo, Courses
+from Badges.models import VirtualCurrencyRuleInfo, Courses, ActionArguments
 from Students.models import Student, StudentRegisteredCourses
 
 from django.contrib.auth.decorators import login_required
@@ -20,7 +20,6 @@ def VirtualCurrencyDisplay(request):
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage          
     
     # check if course was selected
     if 'currentCourseID' in request.session:
@@ -44,7 +43,7 @@ def VirtualCurrencyDisplay(request):
         vcRuleID.append(rule.vcRuleID)
         vcRuleName.append(rule.vcRuleName)
         vcRuleDescription.append(rule.vcRuleDescription)
-        vcRuleAmount.append(rule.vcAmount)
+        vcRuleAmount.append(ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue)
                     
         # The range part is the index numbers.
     context_dict['vcRuleInfo'] = zip(range(1,vcRules.count()+1),vcRuleID,vcRuleName, vcRuleDescription, vcRuleAmount)
