@@ -43,7 +43,10 @@ def VirtualCurrencyDisplay(request):
         vcRuleID.append(rule.vcRuleID)
         vcRuleName.append(rule.vcRuleName)
         vcRuleDescription.append(rule.vcRuleDescription)
-        vcRuleAmount.append(ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue)
+        value = -9000000000
+        if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
+            value = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+        vcRuleAmount.append(value)
                     
         # The range part is the index numbers.
     context_dict['vcRuleInfo'] = zip(range(1,vcRules.count()+1),vcRuleID,vcRuleName, vcRuleDescription, vcRuleAmount)
