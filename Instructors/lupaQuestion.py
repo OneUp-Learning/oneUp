@@ -212,6 +212,7 @@ else:
             runtime.execute('''
     _debug_print = print
     _debug_print_table = function (t) for k,v in pairs(t) do _debug_print(k..'='..v) end end 
+
     _output = ""
     print =
         function (s)
