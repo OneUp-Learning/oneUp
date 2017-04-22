@@ -61,23 +61,16 @@
                                         <br> {% endfor %}
                                     </td>
                                     <td>
-                                        <script type="text/javascript">
-                                            var x = 1;
-                                            document.write('{% for match in question.matches %}');
-
-                                            document.write('<select name="{{question.questionID}}" style="float:left;height:initial"/>');
-
-                                            document.write('{% for k in match.answers_count %}');
-                                            document.write('<option value="{{k}}">{{k}}</option>');
-                                            document.write('{% endfor %}');
-                                            document.write('</select>');
-                                            document.write('&nbsp;&nbsp;{{match.matchingAnswerText}}<input type="hidden" name="{{question.questionID}}a-' + x + '" value="{{match.matchingAnswerText}}" />');
-                                            document.write('<br />');
-                                            x = x + 1;
-
-                                            document.write('{% endfor %}');
-                                            x = 0;
-                                        </script>
+				      {% for match in question.matches %}
+                                        <select name="{{question.questionID}}" style="float:left;height:initial"/>
+                                        {% for k in match.answers_count %}
+                                           <option value="{{k}}">{{k}}</option>
+                                        {% endfor %}
+                                        </select>
+                                        &nbsp;&nbsp;{{match.matchingAnswerText}}
+                                        <input type="hidden" name="{{question.questionID}}a-{{match.current_pos}}" value="{{match.matchingAnswerText}}" />');
+                                        <br />
+                                      {% endfor %}
                                     </td>
                                 </tr>
                                 {% endif %} {% if question.typeID == '4' %}
