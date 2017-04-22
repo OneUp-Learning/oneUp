@@ -84,7 +84,7 @@ def ChallengeSetup(request):
                     
                     random.shuffle(matchlist)
 
-                    i = 0
+                    i = 1
                     for matchdict in matchlist:
                         matchdict['current_pos'] = i
                         i = i + 1
