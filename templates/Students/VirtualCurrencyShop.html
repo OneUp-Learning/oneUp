@@ -18,7 +18,7 @@
 		</div>
         <div class="row">
         <div class="12u"> 
-            <form id="store" name="store" action="#" method="post">
+            <form id="store" name="store" action="#" onsubmit="return updatePrices()" method="post">
             <table class="bg">
         		<tr>
         			<th>Name</th>
@@ -54,6 +54,11 @@
         	<a href="/oneUp/students/StudentCourseHome"><button class="button special" type="button">Cancel</button></a>
         	
         	</form>
+        	
+        	{% if not sufficientStudentCurrency %}
+        	
+        	
+        	 {% endif %} 
         <!-- END DYNAMIC TABLE -->
 		</div>
         </div>
@@ -74,12 +79,22 @@
             			var price = quantity*prices[i];
             			total += price;
             			document.getElementById("priceFor"+i).innerHTML = price;
+            		
+            		if ( {{studentVirtualCurrency}} - total < 0 ) {
+        		       alert("You do not have enough money ");
+        		       return false;
+    		        }
             		}
             		document.getElementById("total").innerHTML = total;
             	}
             	for (var i = 0; i<{{numBuyOptions}}; i++) {
             		document.getElementById("buyOptionQuantity"+i).addEventListener('change',updatePrices);
             	}
+            	
+         
+  
+     
+
             </script>
    </body>
 </html>

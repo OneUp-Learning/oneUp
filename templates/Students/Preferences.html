@@ -55,54 +55,59 @@
                                     <th>Configure View Options</th>
                                     <th></th>
                                 </tr>
-                                 {% if studCanChangeBadgeVis %}
+                                
+                                {% if studCanChangeBadgeVis %}
                                 <tr>
                                     {% if displayBadges %}
-                                    <td> Leaderboard Badges</td>
-                                    <td><input type="checkbox" name="displayBadges" value="true" checked="true" /></td>
-                                     {% else %}
-                                    <tr>
-                                    <td> Leaderboard Badges</td>  
-                                    <td><input type="checkbox" align="right" name="displayBadges"></td>
-                                    </tr>
-                                    {% endif %}
-                                </tr>
-                                
+                                       <td> Display badges</td>
+                                       <td><input type="checkbox" name="displayBadges" value="true" checked="true" /></td>
+                                	{% else %}
+                                       <td> Display badges</td>  
+                                       <td><input type="checkbox" align="right" name="displayBadges"></td>
+                                	{% endif %}
+                                </tr>	
+								{% endif %}
+								
+                                <!-- Class Average Visibility -->
+                                {% if studCanChangeclassAverageVis %}
+                                <tr>
+                                    {% if displayClassAverage %}
+                                       <td> Display class average in your Achievements page</td>
+                                       <td><input type="checkbox" name="displayClassAverage" value="true" checked="true" /></td>
+                                	{% else %}
+                                       <td> Display class average in your Achievements page</td> 
+                                       <td><input type="checkbox" align="right" name="displayClassAverage"></td>
+                                	{% endif %}
+                                </tr>                                                                                                                           
                                 {% endif %}
                                 
                                 <!-- Display Leaderboard -->
-                                  {% if studCanChangeLeaderboardVis %}
+                                {% if studCanChangeLeaderboardVis %}
                                 <tr>
                                     {% if displayLeaderBoard %}
-                                    <td> Leaderboard</td>
-                                    <td><input type="checkbox" name="displayLeaderBoard" value="true" checked="true" /></td>
+                                         <td> Display class leaderboard</td>
+                                         <td><input type="checkbox" name="displayLeaderBoard" value="true" checked="true" /></td>
                                      {% else %}
-                                    <tr>
-                                     <td> Leaderboard</td> 
-                                    <td><input type="checkbox" align="right" name="displayLeaderBoard"></td>
-                                    </tr>
+                                         <td> Display class leaderboard</td> 
+                                         <td><input type="checkbox" align="right" name="displayLeaderBoard"></td>
                                     {% endif %}
-                                </tr>
-                                 
+                                </tr>                                 
                                 {% endif %}
+                                
                                   <!-- Display Class Skills -->
-                                  {% if studCanChangeClassSkillsVis %}
+                                {% if studCanChangeClassSkillsVis %}
                                 <tr>
-                                    {% if displayClassSkills %}
-                                    <td> Class Skills</td>
-                                    <td><input type="checkbox" name="displayClassSkills" value="true" checked="true" /></td>
+                                     {% if displayClassSkills %}
+                                         <td> Display class skills</td>
+                                         <td><input type="checkbox" name="displayClassSkills" value="true" checked="true" /></td>
                                      {% else %}
-                                    <tr>
-                                     <td> Class Skills</td> 
-                                    <td><input type="checkbox" align="right" name="displayClassSkills"></td>
-                                    </tr>
-                                    {% endif %}
-                                </tr>
-                                
-                                
+                                        <td> Display class skills</td> 
+                                        <td><input type="checkbox" align="right" name="displayClassSkills"></td>
+                                     {% endif %}
+                                </tr>                             
                                 {% endif %}
-                                
-                                 <!-- {% if levellingDisplayed %}
+
+ <!-- 							{% if levellingDisplayed %}
                                <tr>
                                     <td>  Levelling</td>
                                     <td><input type="checkbox" align='right' name="levellingDisplayed" value="true" checked="true" /></td>
@@ -113,25 +118,15 @@
                                     <td><input type="checkbox" align='right' name="levellingDisplayed"  /></td>
                                 </tr>
                                 {% endif %}
-                                {% if leaderBoardDisplayed %}
-                                <tr>
-                                    <td>  LeaderBoard</td>
-                                    <td><input type="checkbox" align='right' name="leaderBoardDisplayed" value="true" checked="true" /></td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td>  LeaderBoard</td>
-                                    <td><input type="checkbox" align='right' name="leaderBoardDisplayed"  /></td>
-                                </tr>
-                                {% endif %} -->
+ -->
                             </table>
                             
-                            {% if studCanChangeLeaderboardVis or studCanChangeClassSkillsVis or studCanChangeBadgeVis %}
-                            <input type="submit" id="save" name="save" value="Save" class="button" onClick="redirect();">
-                            <a href="/oneUp/students/StudentCourseHome"><input type="button" id="cancel" name="cancel" value="Cancel"></a><br>
+                            {% if studCanChangeLeaderboardVis or studCanChangeClassSkillsVis or studCanChangeBadgeVis or studCanChangeclassAverageVis %}
+                                 <input type="submit" id="save" name="save" value="Save" class="button" onClick="redirect();">
+                                 <a href="/oneUp/students/StudentCourseHome"><input type="button" id="cancel" name="cancel" value="Cancel"></a><br>
                             {% else %}
                             
-                            <a href="/oneUp/students/StudentCourseHome"><input type="button" id="back" name="back" value="Back"></a><br>
+                                 <a href="/oneUp/students/StudentCourseHome"><input type="button" id="back" name="back" value="Back"></a><br>
                             
                             {% endif %}
                         </form>
