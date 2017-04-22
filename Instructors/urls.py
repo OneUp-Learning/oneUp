@@ -36,7 +36,7 @@ from Instructors.views.essayView import  essayForm
 from Instructors.views.gameRulesView import gameRulesView
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
-#from Instructors.views.importStudentsView import importStudents
+from Instructors.views.importStudentsView import importStudents
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
@@ -128,7 +128,7 @@ urlpatterns = [
     url(r'^imageDelete',imageDelete,name='imageDelete'),
     url(r'^imageList', imageList, name='imageList'),
     url(r'^imageUpload',imageUpload,name='imageUpload'),
-#    url(r'^importStudents',importStudents,name='importStudents'),
+    url(r'^importStudents',importStudents,name='importStudents'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
     url(r'^milestonesList',milestoneList, name='milestoneList'),    

@@ -39,9 +39,15 @@
                <h1>Students</h1>
                <br />
                   <!-- INSERTED DYNAMIC TABLE -->
-                  <a href="/oneUp/instructors/createStudentView"><input type="button" value="Add New Student"></a>
-<!--                   <a href="/oneUp/instructors/importStudents"><input type="button" value="Import Students"></a> -->
-                 <br />  <br />
+                <form id="uploadbanner" action="/oneUp/instructors/importStudentsView" enctype="multipart/form-data" method="POST" >
+                     {% csrf_token %}
+                <input id="fileupload" name="studentslist" type="file" />
+                <input type="submit" value="Import Students" id="Upload" />
+                </form> <br>
+                 <a  style="position:relative; left:9em;" !important  href="/oneUp/instructors/createStudentView"><input  type="button" value="Add New Student"></a>
+                  
+                  <br />  <br />
+
                   <table class="bg">
                      <tr>
                      	<th> </th>

@@ -396,7 +396,11 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         vcRuleAmount = int(ruleIdString)
         # Get the student
         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
-        # Increase the student virtual currency amount
-        student.virtualCurrencyAmount -= vcRuleAmount
+        # Decrease the student virtual currency amount
+        if student.virtualCurrencyAmount >= vcRuleAmount:
+            student.virtualCurrencyAmount -= vcRuleAmount
+        else:
+            #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
+            print('this purchase did not go through')
         student.save()
         return
