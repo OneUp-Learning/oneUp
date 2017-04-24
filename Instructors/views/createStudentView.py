@@ -56,22 +56,19 @@ def createStudentViewUnchecked(request):
                 u.set_password(pword)
             u.save()
             
-        else:
-            users = User.objects.get(email = email)
-            student = Student.objects.get(user = users)
-            if not users:
-                user = User.objects.create_user(uname,email,pword)
-                user.first_name = firstname
-                user.last_name = lastname
-                user.save()
+        else:    
+            user = User.objects.create_user(uname,email,pword)
+            user.first_name = firstname
+            user.last_name = lastname
+            user.save()
             
-                student = Student()
-                student.user = user
-                student.universityID = email
-                student.avatarImage = constants.anonymous_avatar
-                student.save()
-                
-                print("New Student Created")
+            student = Student()
+            student.user = user
+            student.universityID = email
+            student.avatarImage = constants.anonymous_avatar
+            student.save()
+            
+            context_dict['message'] = '<B>New Student '+uname+' created!</B>'
     
             studentRegisteredCourses = StudentRegisteredCourses()
             studentRegisteredCourses.studentID = student
