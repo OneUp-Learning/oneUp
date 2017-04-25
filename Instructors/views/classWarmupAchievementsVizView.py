@@ -103,7 +103,7 @@ def classWarmupAchievementsViz(request):
                         studentSkills1 = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=user[i], studentChallengeQuestionID__studentChallengeID__courseID=currentCourse)
                         if not studentSkills1:
                             print('No skills')
-                            skill_Points.append(0)
+                            #skill_Points.append(0)
                         else:
                             for studentSkill in studentSkills1:                                                        
                                     #skill_Points1.append(studentSkill.skillPoints)

@@ -24,8 +24,9 @@
              
          }
       </script>
-		<script>
+	  <script>
       /* Should always hold the number of answers displayed. */
+      var addS = false;
       var numAnswers = {{num_answers}};
       var numberOfItems = 0;
 
@@ -81,6 +82,7 @@
       
       // Adds a skill into the 'Added Skills' box (AH)
       function addSkill() {
+            addS = true;
     	    var x = document.getElementById("SelectedSkill");
     	    var e = document.getElementById("SelectSkill");
     	    var option = document.createElement("option");
@@ -130,19 +132,20 @@
     	  
     	  document.getElementById("newSkills").value=txt;
       }
-      </script>
-      </script>      
       
-      <script type="text/javascript">
+       
+      
+  
       // KI: This function doesn't make sense.  It is only called when we submit the whole form and
       // it only checks that if a skill is selected, then skill points are, too.  But if the user
       // hasn't hit the add skill button, we don't use what's filled in anyway, so this is pointless.
       // I'm going to just comment out the body.
 		function validateForm() {
-    		/* var x = document.forms["question"]["Skill"].value;
+/*		     
+    		var x = document.forms["question"]["Skill"].value;
     		var y = document.forms["question"]["q_skill_points"].value;
     		
-    		 if ( x !== "" && y == "") 
+    		 if (( x !== "" && y == "") || ( x !== "" && y !== "" && addS == false))
     		{
                alert("The skill points for new skill must be filled out.");
         		return false;
