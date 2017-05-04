@@ -66,6 +66,64 @@
         
       });
     </script> 
+    <script>
+    function addTopic() {
+  	    var x = document.getElementById("SelectedTopic");
+  	    var e = document.getElementById("SelectTopic");
+  	    var option = document.createElement("option");
+  	  var exists = false; 
+  		$('#SelectedTopic  option').each(function(){
+  	  	if (this.value == e.options[e.selectedIndex].value) {
+  	    	exists = true;
+  	  	}
+  		});
+  	    if(!exists && e.options[e.selectedIndex].value != ""){
+  	    	//console.log("Topic added");
+  	    	option.text = e.options[e.selectedIndex].text;
+  	    	option.value = e.options[e.selectedIndex].value;
+  	    	x.add(option);
+  	    }
+  	    
+  	  if( $('#SelectedTopic').has('option').length > 0)
+ 	    	document.getElementById('removeTopics').style.display = 'initial';
+ 	    else
+ 	    	document.getElementById('removeTopics').style.display = 'none';
+  	}
+    // Removes topic from 'Added Topics' box (AH)
+    function removeTopic() {
+  	    var x = document.getElementById("SelectedTopic");
+  	   
+  	    if(x.options.length){
+  	    	if(!x.options[x.selectedIndex])
+  	    		alert('Topic to remove is not selected!');
+  	    	else
+  	    		x.remove(x.selectedIndex);
+  	    }
+  	  if( $('#SelectedTopic').has('option').length > 0)
+ 	    	document.getElementById('removeTopics').style.display = 'initial';
+ 	    else
+ 	    	document.getElementById('removeTopics').style.display = 'none';
+  	}
+    $(document).ready(function() {
+    	if( $('#SelectedTopic').has('option').length > 0)
+   	    	document.getElementById('removeTopics').style.display = 'initial';
+   	    else
+   	    	document.getElementById('removeTopics').style.display = 'none';
+    	
+    });
+    function prepareSubmit(){
+    	  var x = document.getElementById("SelectedTopic");
+    	  var txt = "";
+    	  for(var i =0; i < x.options.length; i++){
+    		  if(i < x.options.length-1)
+    		  	txt += x.options[i].text + ",";
+    		  else
+    			txt += x.options[i].text;
+    	  }
+    	  
+    	  document.getElementById("newTopics").value=txt;
+      }
+    </script>
     <script type="text/javascript">
          function goToNewPage()
          {
@@ -91,7 +149,7 @@
 
         {% include 'heading.html' %}
                      
-         <div class="frame" id="grad" align="center">
+         <div class="frame"  align="center">
             <div class="container">
             <div class="row">
             <div class="12u">
@@ -116,6 +174,7 @@
     
 					<input type="hidden" name="numAnswers" id="numAnswers" value="{{num_answers}}">
 					<input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+					<input type="hidden" name="newTopics" id="newTopics" value="">
 				<table class="bg">
         			<tr>
             			<th>Challenge Name<span class = "red">*</span></th>
@@ -207,34 +266,39 @@
             		<tr>
                     	<td><input id="smallFormBox"  type="text" name="challengePassword" value="{{challengePassword}}"></td>
             		</tr>
-        			<tr>
+        			
+
+                    <th>Topics </th>
+                	</tr> 
+                	<tr>
+		 				<td>
+                              Add New Topic<br> 
+                              <select name="Topic" id="SelectTopic" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" style="width:150px">
+                                 <option value="" selected>Select Topic</option>
+                                 {% for i,topic_ID,topic_Name in topic_range %}
+                                 <div id="topic{{i}}">
+                                    <option value="{{topic_Name}}">{{topic_Name}}</option>
+                                 </div>
+                                 {% endfor %}
+                              </select>
+                              <button type="button" id="addTopics"  style="margin-top: 0.3em; margin-bottom: 0.4em" onclick="addTopic()">Add Topic</button>
+	    					  <div>Added Topics</div> 
+                              <select id="SelectedTopic" name="S_Topic" font-family= "Tahoma, Geneva, sans-serif" style="width:150px; height:100px;" size="8">
+                                 {% for i, topic_ID, topic_Name in all_Topics %}
+                                 	<option value={{topic_Name}}>{{topic_Name}}</option>
+                                 {% endfor %}
+                              </select>
+                             <button type="button" id="removeTopics" onclick="removeTopic()">Remove Topic</button>
+                           </td>
+                        </tr>
+                        
+                    <tr>
             			<th>Tags</th>
         			</tr>
             		<tr>
                     	<td><textarea style="margin-bottom:0" id="mediumFormBox" name="tags" value="{{tags}}"></textarea>
                     	<font style="font-size:.8em;">Enter tags separated by commas (,)</font></td>
             		</tr>
-					<tr>
-
-                    <th>Topics </th>
-                	</tr> 
-                		<tr>
-		 				<td>Add New Topic<br> 
-						<select name="Topic" id="sendTopic2" accesskey="target" font-family= "Tahoma, Geneva, sans-serif">
-					  	<option  value="" selected>Select Topic</option>
-						  {% for i,topic_ID,topic_Name in topic_range %}
-							<div id="topic{{i}}">
-								<option value="{{topic_Name}}">{{topic_Name}}</option>							  	
-							</div>
-						  {% endfor %}
-						</select>
-						</td>
-					</tr>
-                	<tr> 
-                		<td>Currently Selected Topics for this Challenge <br>
-                		<input id="mediumFormBox" type="text" name="all_Topics" size="20" id="sendTopic"  value="{{all_Topics}}" ></td>
-                	</tr>
-		 		
 					{% if not warmUp %}
 					<input type="hidden" name ="isGraded" value="true">
 					{% endif %}
@@ -271,7 +335,7 @@
 					</tr>			
 					{% endif %}
 					</table>	
-						<input type="submit" name="submit" value="Save" class="button">								
+						<input type="submit" name="submit" value="Save" class="button" onclick="prepareSubmit()">								
 						{% if warmUp %}
 			               <a href="/oneUp/instructors/challengesList?warmUp">
 			            {% else %}

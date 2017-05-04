@@ -18,12 +18,7 @@
          /* Going to need to get python var*/
             var numConditions = {{num_Conditions}};
          
-            function check(){
-           	 if(numConditions < 1) {
-                    document.getElementById('removeCondition').style.display ='none';
-             }
-            }
-            window.onload=check;
+            window.onload=addCondition;
             /* Adds a new default condition */
             function addCondition() {
             	/* Increment the javascript variable */

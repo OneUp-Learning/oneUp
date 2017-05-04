@@ -340,15 +340,13 @@ def extractTopics(resource, resourceIndicator):
     if resourceIndicator == "challenge":
         resourceTopics = ChallengesTopics.objects.filter(challengeID = resource.challengeID)
      
-    topicstring = ""
-    commaCheck = False
-
-    for topic in resourceTopics:
-        if commaCheck:
-            topicstring = str(topicstring + ", ")  
-        topicName = topic.topicID.topicName
-        topicstring = str(topicstring + topicName)        
-        commaCheck = True 
+    topic_ID = []
+    topic_Name = []
+    count = 1
+    for topic in resourceTopics: 
+        topic_ID.append(topic.topicID)        
+        topic_Name.append(topic.topicID.topicName)
+        count+= 1
                                                     
-    return topicstring      
+    return zip(range(1, count), topic_ID, topic_Name)      
                                                       

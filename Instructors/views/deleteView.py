@@ -4,18 +4,16 @@ Updated 02/28/2015
 
 @author: dichevad, irwink
 '''
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.shortcuts import render, redirect
-from django.template import RequestContext
-from django.contrib.auth.models import User
-from Students.models import StudentBadges, StudentEventLog, Student
 
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
+from Students.models import Student, StudentRegisteredCourses
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
 
-from django.contrib.auth.decorators import login_required
-
 @login_required
+
 def deleteQuestion(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -24,8 +22,6 @@ def deleteQuestion(request):
 
     if request.POST:
 
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['questionId']:
                 question = Questions.objects.get(pk=int(request.POST['questionId']))            
@@ -38,8 +34,8 @@ def deleteQuestion(request):
 
         
     return redirect('/oneUp/instructors/questionList', context_dict)
-def deleteQuestionFromChallenge(request):           # 02/28/2015  
-    
+
+def deleteQuestionFromChallenge(request):                 
  
     context_dict = { }
 
@@ -89,15 +85,11 @@ def deleteQuestionFromChallenge(request):           # 02/28/2015
         return redirect('/oneUp/instructors/challengeQuestionsList?challengeID=' + challengeID, context_dict)
 
 def deleteChallenge(request):
-    # Request the context of the request. 
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
 
     if request.POST:
 
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['challengeID']:
                 challenge = Challenges.objects.get(pk=int(request.POST['challengeID']))            
@@ -140,15 +132,11 @@ def deleteChallenge(request):
         return redirect('/oneUp/instructors/challengesList', context_dict)
 
 def deleteSkill(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
     print (str('got here'))
     if request.POST:
 
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['skillID']:
                 skill = Skills.objects.get(pk=int(request.POST['skillID']))  
@@ -162,6 +150,44 @@ def deleteSkill(request):
         
     return redirect('/oneUp/instructors/skillsList', context_dict)
 
+def deleteStudent(request):
+ 
+    context_dict = { }
+    print(str('got here for delete student'))
+    
+    if request.POST:
+
+        try:
+            if request.POST['userID']:
+                u = User.objects.get(username=request.POST['userID']) 
+                print(u)
+                # We need to check if this student is registered in other courses.
+                # If so, we should not delete it, but should only delete the StudentRejsiteredCourse entry
+                student = Student.objects.get(user=u)    
+                studentCourses = StudentRegisteredCourses.objects.filter(studentID=student)
+                
+                if studentCourses.count() > 1:
+                    # student registered in other courses
+                    student_course = StudentRegisteredCourses.objects.get(studentID=student, courseID=int(request.session['currentCourseID']))
+                    student_course.delete()
+                    message = "Student "+str(u.first_name)+ " "+str(u.last_name)+" was successfully deleted from this course"
+                else:
+                    # delete user
+                    message = "User "+str(u.first_name)+ " "+str(u.last_name)+" was successfully deleted"
+                    u.delete()
+
+#                 studentEventLog = StudentEventLog.objects.filter(student = u)
+#                 for sEventLog in studentEventLog:
+#                     sEventLog.delete()
+#                 print 'delete student event log'   
+                        
+        except User.DoesNotExist:
+            message = "There was a problem deleting user #"
+
+        context_dict['message']=message
+        
+    return redirect('/oneUp/instructors/createStudentListView', context_dict)
+
 def deleteUser(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -170,8 +196,6 @@ def deleteUser(request):
     print(str('got here for delete user'))
     if request.POST:
 
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['userID']:
                 u = User.objects.get(username=request.POST['userID']) 
@@ -192,15 +216,11 @@ def deleteUser(request):
     return redirect('/oneUp/instructors/createStudentListView', context_dict)
 
 def deleteTopic(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
     print (str('got here'))
     if request.POST:
 
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['topicID']:
                 topic = Topics.objects.get(pk=int(request.POST['topicID']))  
@@ -215,15 +235,11 @@ def deleteTopic(request):
     return redirect('/oneUp/instructors/topicsList', context_dict)
 
 def deleteSubTopic(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
     print (str('got here'))
     if request.POST:
 
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['subTopicID']:
                 subTopic = CoursesSubTopics.objects.get(pk=int(request.POST['subTopicID']))  
@@ -240,15 +256,11 @@ def deleteSubTopic(request):
     return response   
 
 def deleteActivity(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
 
     if request.POST:
         print("Deleting Activity")
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['activityID']:
                 activity = Activities.objects.get(pk=int(request.POST['activityID']))            
@@ -262,15 +274,11 @@ def deleteActivity(request):
     return redirect('/oneUp/instructors/activitiesList', context_dict)
 
 def deleteAnnouncement(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
 
     if request.POST:
 
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['announcementID']:
                 announcement = Announcements.objects.get(pk=int(request.POST['announcementID']))            
@@ -284,15 +292,10 @@ def deleteAnnouncement(request):
     return redirect('/oneUp/instructors/announcementList', context_dict)
 
 def deleteMilestone(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
 
     if request.POST:
-
-        # If there's an existing question, we wish to edit it.  If new question,
-        # create a new Question object.
         try:
             if request.POST['milestoneID']:
                 milestone = Milestones.objects.get(pk=int(request.POST['milestoneID']))            

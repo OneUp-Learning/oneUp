@@ -10,11 +10,11 @@
 
             {% include 'stheading.html' %}
 
-            <div class="frame" id="grad" align="center">
+            <div class="frame"  align="center">
          	<div class="container">
          	<div class="row">
          	<div class="12u">
-         		 <h1>Course Performance</h1>
+         		 <h1>Course Grades</h1>
 			</div></div>
 <!-- INSERTED DYNAMIC TABLE --> 
 			<div class="row">
@@ -25,17 +25,31 @@
             <table class="bg">
                 <tr>
                     <th>Name</th>
-                    <th>Points</th>
-                    <th> Instructor's Feedback</th>
-                 
+                    <th>Type</th>
+                    <th>Time</th>
+                    <th>Grade</th>
+                    <th>Instructor's Feedback</th>
+                 	<th></th>
                 </tr>
                 
-                {% for i,chall_ID,chall_Name, chall_Difficulty,grade, numberOfAttempts in challenge_range %}
+                {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback in challenge_range %}
                 <tr> 
-                    <td>{{chall_Name}}</td>
-                    <td>{{grade}}</td>	
-                    <td>{{chall_Feedback}}</td>
-                    
+                    <td>{{assignmentName}}</td>
+                    <td>{{assignmentType}}</td>
+                    <td>{{assignmentTime}}</td>
+                    <td>{{assignmentGrade}} / {{assignmentGradeTotal}}</td>	
+                    <td>{{assignmentFeedback}}</td>
+                    <td align="right">
+                    {% ifequal assignmentType 'Challenge' %}
+                        {% csrf_token %} 
+                        <div>
+                            <a href="/oneUp/students/ChallengesTaken?challengeID={{assignmentID}}">
+                                <button class="button">View</button>
+                            </a>
+                        </div>															
+                        <input type="hidden" name="challengeID" value="{{assignmentID}}">
+                    {% endifequal %}
+				    </td>
                 </tr>
                 {% endfor %}
             </table>

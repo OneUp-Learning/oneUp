@@ -175,11 +175,11 @@ def challengeCreateView(request):
         challenge.save();  #Save challenge to database
         
         # Processing and saving topics for the challenge in DB
-        topicsString = request.POST.get('all_Topics', "")
-        topicSelected = request.POST.get('Topic')
+        topicsString = request.POST.get('newTopics', "default")
+        #topicSelected = request.POST.get('Topic')
         
-        if not topicSelected == "":
-            topicsString = topicsString + ',' +  topicSelected
+        #if not topicSelected == "":
+            #topicsString = topicsString + ',' +  topicSelected
             
         utils.saveChallengesTopics(topicsString, challenge)                   
                         
