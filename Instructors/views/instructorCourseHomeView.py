@@ -5,9 +5,9 @@ Last Updated Sep 12, 2016
 '''
 from django.shortcuts import render
 from Instructors.models import Courses, Challenges
-from Instructors.models import Skills, CoursesSkills 
+from Instructors.models import Skills, CoursesSkills, Activities
 from Badges.models import CourseConfigParams
-from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses
+from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses,StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
 from _datetime import datetime
@@ -19,20 +19,82 @@ def lineno():
     """Returns the current line number in our program."""
     return inspect.currentframe().f_back.f_lineno
 
-def studentXP(studentId, courseId, courseChallenges):
+def studentXP(studentId, courseId):
 
-    xp = 0
-
+    xpWeightSP = 0
+    xpWeightSChallenge = 0
+    xpWeightWChallenge = 0
+    xpWeightAPoints = 0
+    ccparamsList = CourseConfigParams.objects.filter(courseID=courseId)
+    if len(ccparamsList) >0:
+        cparams = ccparamsList[0]
+        xpWeightSP=cparams.xpWeightSP
+        xpWeightSChallenge=cparams.xpWeightSChallenge
+        xpWeightWChallenge=cparams.xpWeightWChallenge
+        xpWeightAPoints=cparams.xpWeightAPoints
+    print("From StudentCourseHome, Config Parameters::",xpWeightSP,xpWeightSChallenge,xpWeightWChallenge,xpWeightAPoints)
+    
+    # XP Points Variable initialization
+    xp = 0       
+    # get the serious challenges for this course
+    totalScorePointsSC = 0
+    courseChallenges = Challenges.objects.filter(courseID=courseId, isGraded=True, isVisible=True)
     for challenge in courseChallenges:
         sc = StudentChallenges.objects.filter(studentID=studentId, courseID=courseId,challengeID=challenge)
         print(sc)
         gradeID  = []
                             
-        for c in sc:
-            gradeID.append(int(c.testScore)) 
-            print(c.testScore)                                
+        for s in sc:
+            gradeID.append(int(s.testScore)) 
+            print(s.testScore)                                
         if(gradeID):
-            xp = xp + max(gradeID)      # max grade for this challenge
+            totalScorePointsSC = ((totalScorePointsSC + max(gradeID)) * xpWeightSChallenge / 100)      # max grade for this challenge
+    
+    # get the warm up challenges for this course
+    totalScorePointsWC = 0
+    courseChallenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isVisible=True)
+    for challenge in courseChallenges:
+        wc = StudentChallenges.objects.filter(studentID=studentId, courseID=courseId,challengeID=challenge)
+        print(wc)
+        gradeID  = []
+                            
+        for w in wc:
+            gradeID.append(int(w.testScore)) 
+            print(w.testScore)                                
+        if(gradeID):
+            totalScorePointsWC = ((totalScorePointsWC + max(gradeID)) * xpWeightWChallenge / 100)      # max grade for this challenge
+            
+    # get the activity points for this course
+    totalScorePointsAP = 0
+    courseActivities = Activities.objects.filter(courseID=courseId)
+    for activity in courseActivities:
+        sa = StudentActivities.objects.filter(studentID=studentId, courseID=courseId,activityID=activity)
+        print("SA",sa)
+        gradeID  = []
+                            
+        for a in sa:
+            gradeID.append(int(a.activityScore)) 
+            print(a.activityScore)                                
+        if(gradeID):
+            totalScorePointsAP = ((totalScorePointsAP + max(gradeID)) * xpWeightAPoints / 100)      # max grade for this challenge
+            
+    # get the skill points for this course
+    totalScorePointsSP = 0
+    cskills = CoursesSkills.objects.filter(courseID=courseId)
+    for sk in cskills:
+        skill = Skills.objects.get(skillID=sk.skillID.skillID)
+        
+        sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+        print ("Skill Points Records", sp)
+        gradeID = []
+        
+        for p in sp:
+            gradeID.append(int(p.skillPoints))
+            print("skillPoints", p.skillPoints)
+        if (gradeID):
+            totalScorePointsSP = ((totalScorePointsSP + sum(gradeID,0)) * xpWeightSP / 100)
+
+    xp= round((totalScorePointsSC + totalScorePointsWC + totalScorePointsSP + totalScorePointsAP),0)
 
     return xp
 
@@ -107,14 +169,14 @@ def courseLeaderboard(currentCourse, context_dict):
                 skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentsDisplayed]}
                 context_dict['skills'].append(skillInfo)
           
-            # XP Points       
-            # get the challenges for this course
-            courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
+#             # XP Points       
+#             # get the challenges for this course
+#             courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
     
             # dictionary studentAvatar - XP
             studentXP_dict = {}
             for s in students:
-                sXP = studentXP(s, currentCourse, courseChallenges)
+                sXP = studentXP(s, currentCourse)
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
                 studentXP_dict[st_crs.avatarImage] = sXP 
                 
