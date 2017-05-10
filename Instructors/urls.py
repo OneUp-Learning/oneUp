@@ -22,10 +22,7 @@ from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
-from Instructors.views.classSeriousAchievementsVizView import classSeriousAchievementsViz
-from Instructors.views.classWarmupAchievementsVizView import classWarmupAchievementsViz
 
-from Instructors.views.classSkillsVizView import classSkillsViz
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
@@ -40,7 +37,6 @@ from Instructors.views.importStudentsView import importStudents
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
-#from Instructors.views.instructorQuestionsView import InstructorQuestions
 
 from Instructors.views.matchingView import matchingForm
 from Instructors.views.milestoneCreateView import milestoneCreateView
@@ -49,7 +45,6 @@ from Instructors.views.multipleAnswersView import multipleAnswersForm
 from Instructors.views.multipleChoiceView import multipleChoiceForm
 from Instructors.views.preferencesView import preferencesView
 
-#from Instructors.views.questionListView import questionListView
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
 from Instructors.views.skillsCreateView import skillsCreateView
@@ -95,11 +90,8 @@ urlpatterns = [
     url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='ChallengesList'),
 
     url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
-    url(r'^classSeriousAchievementsViz',classSeriousAchievementsViz, name='classSeriousAchievementsViz'),
-    url(r'^classWarmupAchievementsViz',classWarmupAchievementsViz, name='classWarmupAchievementsViz'),
     url(r'^classAchievements',classAchievements, name='classAchievements'),
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
-    url(r'^classSkillsViz',classSkillsViz,name='classSkillsViz'),
     url(r'^courseInformation',courseInformation,name='courseInformation'),
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     #url(r'^saveCourseInformation',saveCourseInformation,name='saveCourseInformation'),
