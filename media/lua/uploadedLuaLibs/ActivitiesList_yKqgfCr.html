@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      
+          {% include 'scripts.html' %}
+          
+        <!--[if lt IE 7]>
+      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
+      <script type="text/javascript" src="/static/js/ie_png.js"></script>
+      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
+      <![endif]-->
+      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }            
+         }
+      </script>
+   </head>
+   <body>
+      <div>
+       
+       {% include 'heading.html' %}
+       
+         <!-- START PAGE SOURCE -->
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>Class Activities</h1>
+			</div></div>
+			<div class="row">
+            <div class="12u">
+                  <!-- INSERTED DYNAMIC TABLE -->
+                  <a href="/oneUp/instructors/createActivity"><input type="button" value="Add New Activity"></a>
+            <br><br>
+                  <table class="bg">
+                     <tr>
+                        <th>Activity Name</th>
+                        <th>Description</th>
+                        <th>Points</th>
+                        <th> </th>
+                     </tr>
+                     {% for i,activity_ID,activity_Name,description, points in activity_range %}
+                     <tr>
+                        <div id="challenges{{i}}">
+                           <td>{{activity_Name}}</td>
+                           <td>{{description}}</td>
+                           <td>{{points}}</td>
+                           <td class="left">
+                              <form action="/oneUp/instructors/deleteActivity " method="POST">
+                                 {% csrf_token %} 
+                                 <a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><button type="button">Edit</button></a>                                                                       
+                                 <input type="hidden" name="activityID" value="{{activity_ID}}">
+                                 <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                              </form>
+                           </td>
+                        </div>
+                     </tr>
+                     {% endfor %}
+                  </table>
+                  <!-- END DYNAMIC TABLE -->
+                </div></div>
+				<div class="row">
+            	<div class="12u">
+                    <h1>Assign Points</h1>
+                    <br/>
+                    <!-- INSERTED ASSIGN FORM -->
+                    <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
+                        {% csrf_token %} 
+                        {% if activityID %} 
+                            <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
+                        {% endif %}
+                        <table class="bg">
+                        <tr>
+                            <th>Student(s)</th>
+                            <th>Activity</th>
+                            <th>Points</th>
+                        </tr>
+                        <tr>
+                            <td width="45%">
+                                <!-- info about this multiple selector code can be found at
+                                        http://odyniec.net/articles/multiple-select-fields/ -->
+                                <div style="height: 10em; width: 100%; overflow: auto; border: 1px solid;">
+                                    {% for student_ID, student_Name in student_select_range %}
+                                    <label for="student{{student_ID}}" style="display:initial">
+                                    <input id="student{{student_ID}}" type="checkbox" name="studentSelect[]" value="{{student_ID}}"/>
+                                    {{student_Name}}</label>
+                                    <br/>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td width="35%">
+                                <div style="height: 10em; width: 100%; overflow: auto; border: 1px solid;">
+                                    {% for activity_ID,activity_Name in activity_select_range %}
+                                    <label for="activity{{activity_ID}}" style="display:initial">
+                                    <input id="activity{{activity_ID}}" type="radio" name="activity" value="{{activity_Name}}"/>
+                                    {{activity_Name}}</label>
+                                    <br/>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td style="vertical-align:middle; width:20%">
+                                <input type="text" name="points" id="smallFormBox" style="width:5em; display:inline;" value="{{points}}" required/>
+                                <input type="submit" name="submit" value="Submit" class="button">
+                            </td>
+                        </tr>
+                        </table>
+                    </form>
+                    <!-- END ASSIGN FORM -->
+				</div></div>
+				<div class="row">
+            	<div class="12u">
+                    <h1 style="color:white">Recently Assigned</h1>
+                    <br>
+                      <!-- BEGIN ASSIGNED ACTIVITY HISTORY TABLE -->
+                      <table class="bg">
+                         <tr>
+                            <th>Activity</th>
+                            <th>Recipient</th>
+                            <th>Points</th>
+                            <th> </th>
+                         </tr>
+                         {% for i, assignment_Name, assignment_Recipient, assignment_Points, assignment_ID in assignment_history_range %}
+                         <tr>
+                            <div id="challenges{{i}}">
+                               <td>{{assignment_Name}}</td>
+                               <td>{{assignment_Recipient}}</td>
+                               <td>{{assignment_Points}}</td>
+                               <td class="left">
+                                  <form action="/oneUp/instructors/deleteActivityAssignment" method="POST">
+                                     {% csrf_token %}                                                                                                                                                                                        
+                                     <input type="hidden" name="activityAssignmentID" value="{{assignment_ID}}">
+                                     <input type="submit" name="submit" value="Remove Assignment" class="button" onclick="return confirm('Are you sure you want to remove this assignment?')">
+                                  </form>
+                               </td>
+                            </div>
+                         </tr>
+                         {% endfor %}
+                      </table>
+                      <!-- END ASSIGNED ACTIVITY HISTORY TABLE -->
+         </div></div></div>
+         </div>
+         <!-- Footer -->
+   
+       {% include 'footer.html' %}
+    
+      </div>
+      <script type="text/javascript"> Cufon.now(); </script>
+   </body>
+</html>
