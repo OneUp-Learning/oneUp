@@ -313,12 +313,19 @@ class LuaLibrary(models.Model):
     def delete(self):
         self.libFile.delete()
         super(LuaLibrary, self).delete()
+    def removeFile(self):
+        self.libFile.delete()
         
 class depenentLibrary(models.Model):
     dependID = models.AutoField(primary_key=True) 
     mainLibary = models.ForeignKey(LuaLibrary, related_name='mainLibary')
     dependent = models.ForeignKey(LuaLibrary)
   #  dynamicQuestion = models.ForeignKey(DynamicQuestions)
+  
+class questionLibrary(models.Model):  
+    ID = models.AutoField(primary_key=True) 
+    question =  models.ForeignKey(Questions)
+    library = models.ForeignKey(LuaLibrary)
     
 
     

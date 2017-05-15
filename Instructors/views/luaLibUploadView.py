@@ -46,9 +46,11 @@ def luaLibUpload(request):
 
     if request.POST: 
         #If the lib exist get it else make a new one 
-        if 'libID' in request.POST:
-           library = LuaLibrary.objects.get(pk=int(request.POST['libID']))
+        if 'libID' in request.POST and request.POST['libID'] != '':
            print(request.POST['libID'])
+           library = LuaLibrary.objects.get(pk=int(request.POST['libID'])) 
+           library.removeFile()
+           
         else:
             library = LuaLibrary()
          
@@ -66,6 +68,7 @@ def luaLibUpload(request):
     
         #Get all the libs from the post and make dependencies 
         listOfDepends = request.POST.getlist('depend[]')
+        print(len(listOfDepends))
         
         #Link them with library to make depenedt relationship    
         makeDependencies(library, listOfDepends)
@@ -88,6 +91,7 @@ def libDelete(request):
     if request.POST: 
         if 'libID' in request.POST:
             ID = int(request.POST['libID'])
+            depenentLibrary.objects.filter(mainLibary=ID).delete() #delete the depenedices  
             currentLib = LuaLibrary.objects.get(pk=ID)
             currentLib.delete()
         
@@ -123,6 +127,8 @@ def makeDependencies(library,listOfDepends):
         depend = depenentLibrary()
         depend.mainLibary = library
         depend.dependent = dependent
+        print(ID)
+        print("This is a test")
         depend.save()
         
 def libEdit(request):
@@ -147,6 +153,7 @@ def libEdit(request):
             context_dict['libEdit'] = True
             context_dict['libName'] = library.libarayName
             context_dict['libDescription'] = library.libDescription
+            context_dict['libID'] = library.libID
             print(request.POST['libID'])
             
             
