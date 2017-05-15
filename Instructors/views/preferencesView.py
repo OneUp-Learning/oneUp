@@ -82,9 +82,9 @@ def preferencesView(request):
 #         ccparams.courseStartDate = request.POST.get('courseStartDate')
 #         ccparams.courseEndDate= request.POST.get('courseEndDate') 
         ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
+        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
+        ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
         ccparams.xpWeightSP = request.POST.get('xpWeightSP')
-        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
-        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
         ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
         ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
         ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
@@ -121,9 +121,9 @@ def preferencesView(request):
             context_dict["courseStartDate"]=ccparams.courseStartDate
             context_dict["courseEndDate"]=ccparams.courseEndDate
             context_dict["leaderboardUpdateFreq"]=ccparams.leaderboardUpdateFreq
-            context_dict["xpWeightSP"]=ccparams.xpWeightSP
             context_dict["xpWeightSChallenge"]=ccparams.xpWeightSChallenge
             context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
+            context_dict["xpWeightSP"]=ccparams.xpWeightSP
             context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
             context_dict["thresholdToLevelMedium"]=ccparams.thresholdToLevelMedium
             context_dict["thresholdToLevelDifficulty"]=ccparams.thresholdToLevelDifficulty

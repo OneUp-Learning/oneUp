@@ -24,7 +24,7 @@ def imageUpload(request):
     else:
         context_dict['course_Name'] = 'Not Selected'
         
-    if request.POST:        
+    if request.POST and len(request.FILES) != 0:        
         imageFile = request.FILES['imagefile']
         imageFileName = imageFile.name
         

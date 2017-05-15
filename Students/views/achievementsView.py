@@ -6,8 +6,8 @@ Created on May 27, 2015
 from django.shortcuts import render
 from datetime import datetime
 
-from Instructors.models import Skills, Challenges, Courses, CoursesSkills, ChallengesQuestions
-from Students.models import Student, StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses
+from Instructors.models import Skills, Challenges, Courses, CoursesSkills, ChallengesQuestions,Activities
+from Students.models import Student, StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses,StudentActivities
 from Badges.models import CourseConfigParams
 from Students.views import classResults
 from Students.models import StudentConfigParams
@@ -42,7 +42,7 @@ def achievements(request):
         context_dict['avatar'] = st_crs.avatarImage          
         
         print(str(currentCourse.courseName))
-         
+        xpWeightSP=0
         # virtual currency has to be stored in Students - needs to change the model
         ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
         if len(ccparamsList) >0:
@@ -53,7 +53,12 @@ def achievements(request):
             context_dict['classSkillsDisplayed']=str(cparams.classSkillsDisplayed)
             context_dict['virtualCurrencyUsed']=cparams.virtualCurrencyUsed
             print ('virtualCurrencyUsed   '+ str(cparams.virtualCurrencyUsed))
-
+            
+            xpWeightSP=cparams.xpWeightSP
+            xpWeightSChallenge=cparams.xpWeightSChallenge
+            xpWeightWChallenge=cparams.xpWeightWChallenge
+            xpWeightAPoints=cparams.xpWeightAPoints
+            print("Config Parameters::",xpWeightSP,xpWeightSChallenge,xpWeightWChallenge,xpWeightAPoints)
 #         ccps = curentCourseConfigParamsObjects[0]
 #         configParam_courseBucks = str(ccps.virtualCurrencyUsed)
         
@@ -127,9 +132,9 @@ def achievements(request):
                 strTime = datetime.strptime(str(item.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p" )
                 dateTaken.append(strTime)
                 score.append(item.testScore)
-                total.append(item.testTotal)            
+                total.append(item.testTotal)         
             context_dict['gradedchallenge_range'] = list(zip(range(1,len(studentGradedChallenges)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total))
-        
+            print('xpWeightSP',xpWeightSP)
          #Filter only the GRADED challenges (serious challenges).container1 your score data
         studentGradedChallengesScore = []
         for st_challenge in studentChallenges:
@@ -234,14 +239,19 @@ def achievements(request):
                 total.append(item.testTotal)           
                 # The range part is the index numbers.
             context_dict['studentGradedNonDefChallengesScore_range'] = list(zip(range(1,len(studentGradedNonDefChallengesScore)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total))
-
+            
         #Score Points Start
         #Filter only the GRADED challenges (serious challenges).container1 your score data
+        ##
+        # WARM-UP CHALLENGES        
+        # Extract Serious challenges data for the current student
+        warmUpMaxScore = []
+        warmUpChallenges = [] 
         studentGradedChallengesScorePoints = []
         for st_challenge in studentChallenges:
             if st_challenge.challengeID.isGraded:
                 studentGradedChallengesScorePoints.append(st_challenge)
-                         
+                          
         if not studentGradedChallengesScorePoints:
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'
         else:
@@ -260,7 +270,86 @@ def achievements(request):
                 total.append(item.testTotal)            
                 # The range part is the index numbers.
             context_dict['studentGradedChallengesScorePoints_range'] = totalScorePoints
+        
+        #Begin Vendhan Changes
+        xpWeightSP = 0
+        xpWeightSChallenge = 0
+        xpWeightWChallenge = 0
+        xpWeightAPoints = 0
+        ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
+        if len(ccparamsList) >0:
+            cparams = ccparamsList[0]
+            xpWeightSP=cparams.xpWeightSP
+            xpWeightSChallenge=cparams.xpWeightSChallenge
+            xpWeightWChallenge=cparams.xpWeightWChallenge
+            xpWeightAPoints=cparams.xpWeightAPoints
+        print("From StudentCourseHome, Config Parameters::",xpWeightSP,xpWeightSChallenge,xpWeightWChallenge,xpWeightAPoints)
+        
+        # XP Points Variable initialization
+        xp = 0       
+        # get the serious challenges for this course
+        totalScorePointsSC = 0
+        courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
+        for challenge in courseChallenges:
+            sc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge)
+            print(sc)
+            gradeID  = []
+                                
+            for s in sc:
+                gradeID.append(int(s.testScore)) 
+                print(s.testScore)                                
+            if(gradeID):
+                totalScorePointsSC = ((totalScorePointsSC + max(gradeID)) * xpWeightSChallenge / 100)      # max grade for this challenge
+        
+        # get the warm up challenges for this course
+        totalScorePointsWC = 0
+        courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)
+        for challenge in courseChallenges:
+            wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge)
+            print(wc)
+            gradeID  = []
+                                
+            for w in wc:
+                gradeID.append(int(w.testScore)) 
+                print(w.testScore)                                
+            if(gradeID):
+                totalScorePointsWC = ((totalScorePointsWC + max(gradeID)) * xpWeightWChallenge / 100)      # max grade for this challenge
+                
+        # get the activity points for this course
+        totalScorePointsAP = 0
+        courseActivities = Activities.objects.filter(courseID=currentCourse)
+        for activity in courseActivities:
+            sa = StudentActivities.objects.filter(studentID=studentId, courseID=currentCourse,activityID=activity)
+            print("SA",sa)
+            gradeID  = []
+                                
+            for a in sa:
+                gradeID.append(int(a.activityScore)) 
+                print(a.activityScore)                                
+            if(gradeID):
+                totalScorePointsAP = ((totalScorePointsAP + max(gradeID)) * xpWeightAPoints / 100)      # max grade for this challenge
             
+        # get the skill points for this course
+        totalScorePointsSP = 0
+        cskills = CoursesSkills.objects.filter(courseID=currentCourse)
+        for sk in cskills:
+            skill = Skills.objects.get(skillID=sk.skillID.skillID)
+            
+            sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+            print ("Skill Points Records", sp)
+            gradeID = []
+            
+            for p in sp:
+                gradeID.append(int(p.skillPoints))
+                print("skillPoints", p.skillPoints)
+            if (gradeID):
+                totalScorePointsSP = ((totalScorePointsSP + sum(gradeID,0)) * xpWeightSP / 100)
+
+        xp= round((totalScorePointsSC + totalScorePointsWC + totalScorePointsSP + totalScorePointsAP),0)
+        context_dict['studentGradedChallengesScorePoints_range'] = xp
+        #End Vendhan Changes
+        
+                         
         #Score Points End
         
         #PointsEarned Start
@@ -686,7 +775,7 @@ def achievements(request):
                 strTime = datetime.strptime(str(item.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p" )
                 print("strTime"+str(strTime))
                 ChallengesTestTotal = ChallengesTestTotal + item.testTotal 
-            #print("ChallengesTotalTestTotal"+str(ChallengesTotalTestTotal))   
+            print("ChallengesTotalTestTotal"+str(ChallengesTotalTestTotal))   
             
                 # The range part is the index numbers.            
             context_dict['gradedChallengesMaxPoints_range'] = ChallengesTestTotal

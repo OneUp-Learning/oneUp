@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+     <meta charset="utf-8" />
+      
+       {% include 'scripts.html' %}
+      
+     <script src="/static/ThirdParty/Highcharts-4.1.4/api/js/jquery-1.9.1.min.js"></script>
+	 <script src="/static/ThirdParty/Highcharts-4.1.4/js/highcharts.js"></script>
+	        
+	 <script>$(function () {	
+	 var series = [];
+	 var arrayName = [];
+	 var arrayData = [];
+	 var userChartsData = [];
+	 var skillNames = [];
+     
+	 var userPoints = function() {
+		       var userArray  = [{% for i, allStudSkillPoints in pointsRange %} 
+		        				  	{% for userNames, userSkillPoints in allStudSkillPoints %} 
+                						[ '{{userNames}}',{{userSkillPoints}}]	
+             						{% if not forloop.last %},{% endif %}{% endfor %}
+             					  {% if not forloop.last %},{% endif %}{% endfor %}
+                                 ]; 	  
+               return userArray ;
+     }
+	 
+	 var skills = function() {
+	       var skillArray  = [{% for i,skillNames in skillsRange %}  
+        						'{{skillNames}}'	
+     					  	  {% if not forloop.last %},{% endif %}{% endfor %}
+                           ]; 
+         return skillArray ;
+   	 }
+	 
+
+	 $(document).ready(function (){
+		
+		userChartsData = userPoints();
+		skillNames = skills();
+		numStudents = userChartsData.length/{{skillsCount}};
+		
+		//alert("userChartsData: "+userChartsData);
+		for (i=0 ; i < skillNames.length ; i++){
+			
+			var options = {chart : {
+				renderTo : 'container'+(i+1),
+				type : 'column'
+			},			
+			title : {
+				text : []
+			},
+			tooltip : {
+				formatter: function() {
+                    return ''+ this.series.name +': '+ this.y +' points';
+                }
+			},
+			xAxis : {
+				categories : []
+			},
+			yAxis : {
+				title:{text:'Skill Points'
+				}
+			},
+			credits: {
+			      enabled: false
+			  },
+			series : []
+			};
+			
+			options.title.text.push(skillNames[i]);
+			
+			var dataPoints = [];
+				
+			for (j=0; j < numStudents ; j++){	
+			    options.xAxis.categories.push(userChartsData[i*numStudents+j][0]); 
+				dataPoints[j] = userChartsData[i*numStudents+j][1];
+			}
+
+			var series1 = {
+				name : 'Skill Points',
+				data : dataPoints 
+			}
+
+			options.series.push(series1);
+				
+			//alert(JSON.stringify(options));
+			var chart = new Highcharts.Chart(options);
+			
+	 	} // end i - skill
+		
+	 });			
+    
+   });
+	 
+   </script>
+   </head>  
+   
+   <body>
+     <div>
+
+        {% include 'heading.html' %}
+
+         <!-- <div class="frame"> -->
+         <div class="frame"  id="grad" align="center">
+         
+            <br /> <br /> <br />	<br />  
+        	               
+        	<h2>Skills</h2>            
+            <br />
+                
+       <table>         
+         <script>         
+          for (i=0; i < {{skillsCount}} ; i++ )
+        	  {
+        	  document.write('<tr><td colspan="2"><div id="container'+(i+1)+'" class="js-box" style="width:1060px; "></div></td></tr>');
+        	  }        	  
+         </script>
+        </table>      
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+      </div>
+     </div>
+   </body>
+</html>

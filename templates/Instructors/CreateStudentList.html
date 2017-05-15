@@ -66,7 +66,7 @@
                            <td>{{user_Email}}</td>
                            <td>{{user_Login}}</td>
                            <td align="right">
-                              <form action="/oneUp/instructors/deleteUser " method="POST">
+                              <form action="/oneUp/instructors/deleteStudent " method="POST">
                                  {% csrf_token %} 
                                  <input type="hidden" name="userID" value="{{userID}}">
                                  <a href="/oneUp/instructors/createStudentView?userID={{userID}}"><button type="button">Edit</button></a>                                                                       
