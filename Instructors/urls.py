@@ -29,6 +29,7 @@ from Instructors.views.createStudentView import createStudentViewUnchecked
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 from Instructors.views.essayView import  essayForm
+from Instructors.views.ExportChallenges import exportChallenges, importChallenges
 #from Instructors.views.filesListView import  filesList
 from Instructors.views.gameRulesView import gameRulesView
 
@@ -111,6 +112,7 @@ urlpatterns = [
     url(r'^deleteUser',deleteUser, name='deleteUser'),
     url(r'^gameRules',gameRulesView,name='gameRulesView'),
     url(r'^$', index, name='home'),    
+    url(r'^exportChallenges',exportChallenges,name='exportChallenges'),    
     url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
@@ -120,7 +122,8 @@ urlpatterns = [
     url(r'^forms/TemplateDynamicQuestionForm',templateDynamicQuestionForm, name='Template Dynamic QuestionForm'),
     url(r'^imageDelete',imageDelete,name='imageDelete'),
     url(r'^imageList', imageList, name='imageList'),
-    url(r'^imageUpload',imageUpload,name='imageUpload'),
+    url(r'^imageUpload',imageUpload,name='imageUpload'),   
+    url(r'^importChallenges',importChallenges,name='importChallenges'),
     url(r'^importStudents',importStudents,name='importStudents'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
