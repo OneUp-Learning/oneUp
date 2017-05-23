@@ -35,9 +35,14 @@ class Student(models.Model):
         #return str(self.studentID)+","+self.name+self.name
         return str(self.user.username)
   
+def avatarImageUploadLocation():
+    return os.path.join(os.path.abspath(MEDIA_ROOT), 
+                        'images/uploadedAvatarImages');
+
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
-        avatarImage = models.FileField(max_length=500, upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedAvatarImages'))
+        avatarImage = models.FileField(max_length=500,
+                                       upload_to= avatarImageUploadLocation)
         avatarImageFileName = models.CharField(max_length=200, default='')
 
     
