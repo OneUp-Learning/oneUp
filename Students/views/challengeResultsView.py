@@ -42,6 +42,19 @@ def saveSkillPoints(questionId, challengeId, studentId, studentChallengeQuestion
                 
     return
 
+def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instructorFeedback):
+    
+    studentChallengeQuestion = StudentChallengeQuestions()
+    studentChallengeQuestion.studentChallengeID = studentChallenge
+    studentChallengeQuestion.questionID = Questions(key)
+    studentChallengeQuestion.questionScore = ma_point
+    studentChallengeQuestion.questionTotal = c_ques_points
+    studentChallengeQuestion.usedHint = "False"
+    studentChallengeQuestion.instructorFeedback = instructorFeedback
+    studentChallengeQuestion.save()
+
+    return studentChallengeQuestion
+
 @login_required
 def ChallengeResults(request):
  
@@ -218,15 +231,16 @@ def ChallengeResults(request):
                                     if ma_point<0:
                                         ma_point=0
                                         
-                                #save student's challenge-question information pair to db        
-                                studentChallengeQuestion = StudentChallengeQuestions()
-                                studentChallengeQuestion.studentChallengeID = studentChallenge
-                                studentChallengeQuestion.questionID = Questions(key)
-                                studentChallengeQuestion.questionScore = ma_point
-                                studentChallengeQuestion.questionTotal = c_ques.points
-                                studentChallengeQuestion.usedHint = "False"
-                                studentChallengeQuestion.instructorFeedback = instructorFeedback
-                                studentChallengeQuestion.save()
+                                #save student's challenge-question information pair to db 
+                                studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, ma_point, c_ques.points, instructorFeedback)       
+#                                 studentChallengeQuestion = StudentChallengeQuestions()
+#                                 studentChallengeQuestion.studentChallengeID = studentChallenge
+#                                 studentChallengeQuestion.questionID = Questions(key)
+#                                 studentChallengeQuestion.questionScore = ma_point
+#                                 studentChallengeQuestion.questionTotal = c_ques.points
+#                                 studentChallengeQuestion.usedHint = "False"
+#                                 studentChallengeQuestion.instructorFeedback = instructorFeedback
+#                                 studentChallengeQuestion.save()
                                 
                                 questionScore_dict[key] = ma_point
                                 questionTotal_dict[key] = c_ques.points
@@ -256,15 +270,16 @@ def ChallengeResults(request):
                                                 print("match:"+str(match_point))
                                             a=a+1
                                             
-                                        #save student's challenge-question information pair to db    
-                                        studentChallengeQuestion = StudentChallengeQuestions()
-                                        studentChallengeQuestion.studentChallengeID = studentChallenge
-                                        studentChallengeQuestion.questionID = Questions(key)
-                                        studentChallengeQuestion.questionScore = match_point
-                                        studentChallengeQuestion.questionTotal = c_ques.points
-                                        studentChallengeQuestion.usedHint = "False"
-                                        studentChallengeQuestion.instructorFeedback = instructorFeedback
-                                        studentChallengeQuestion.save()
+                                        #save student's challenge-question information pair to db 
+                                        studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, match_point, c_ques.points, instructorFeedback)   
+#                                         studentChallengeQuestion = StudentChallengeQuestions()
+#                                         studentChallengeQuestion.studentChallengeID = studentChallenge
+#                                         studentChallengeQuestion.questionID = Questions(key)
+#                                         studentChallengeQuestion.questionScore = match_point
+#                                         studentChallengeQuestion.questionTotal = c_ques.points
+#                                         studentChallengeQuestion.usedHint = "False"
+#                                         studentChallengeQuestion.instructorFeedback = instructorFeedback
+#                                         studentChallengeQuestion.save()
                                         
                                         questionScore_dict[key] = match_point
                                         questionTotal_dict[key] = c_ques.points
@@ -299,14 +314,16 @@ def ChallengeResults(request):
                                 
                                 total = total + c_ques.points # since there is no correct answer in database, a 0 is awarded for this question. The score to these questions shall be awarded by the instructor
                                 #save student's challenge-question information pair to db
-                                studentChallengeQuestion = StudentChallengeQuestions()
-                                studentChallengeQuestion.studentChallengeID = studentChallenge
-                                studentChallengeQuestion.questionID = Questions(key)
-                                studentChallengeQuestion.questionScore = 0 #initially its zero and updated after Instructor's evaluation
-                                studentChallengeQuestion.questionTotal = c_ques.points
-                                studentChallengeQuestion.usedHint = "False"
-                                studentChallengeQuestion.instructorFeedback = instructorFeedback
-                                studentChallengeQuestion.save()
+                                # questionScore initially is zero and updated after Instructor's evaluation
+                                studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, 0, c_ques.points, instructorFeedback)
+#                                 studentChallengeQuestion = StudentChallengeQuestions()
+#                                 studentChallengeQuestion.studentChallengeID = studentChallenge
+#                                 studentChallengeQuestion.questionID = Questions(key)
+#                                 studentChallengeQuestion.questionScore = 0 #initially its zero and updated after Instructor's evaluation
+#                                 studentChallengeQuestion.questionTotal = c_ques.points
+#                                 studentChallengeQuestion.usedHint = "False"
+#                                 studentChallengeQuestion.instructorFeedback = instructorFeedback
+#                                 studentChallengeQuestion.save()
                                 
                                 questionScore_dict[key] = 0
                                 questionTotal_dict[key] = c_ques.points 
@@ -329,14 +346,15 @@ def ChallengeResults(request):
                                         point = c_ques.points
                                         
                                 #save student's challenge-question information pair to db
-                                studentChallengeQuestion = StudentChallengeQuestions()
-                                studentChallengeQuestion.studentChallengeID = studentChallenge
-                                studentChallengeQuestion.questionID = Questions(key)
-                                studentChallengeQuestion.questionScore = point
-                                studentChallengeQuestion.questionTotal = c_ques.points                                
-                                studentChallengeQuestion.usedHint = "False"
-                                studentChallengeQuestion.instructorFeedback = instructorFeedback
-                                studentChallengeQuestion.save()
+                                studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, 0, point, instructorFeedback)
+#                                 studentChallengeQuestion = StudentChallengeQuestions()
+#                                 studentChallengeQuestion.studentChallengeID = studentChallenge
+#                                 studentChallengeQuestion.questionID = Questions(key)
+#                                 studentChallengeQuestion.questionScore = point
+#                                 studentChallengeQuestion.questionTotal = c_ques.points                                
+#                                 studentChallengeQuestion.usedHint = "False"
+#                                 studentChallengeQuestion.instructorFeedback = instructorFeedback
+#                                 studentChallengeQuestion.save()
                                         
                                 questionScore_dict[key] = point
                                 questionTotal_dict[key] = c_ques.points
