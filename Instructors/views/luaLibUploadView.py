@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 import glob, os
 
 from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts, LuaLibrary, depenentLibrary 
-from Instructors.lupaQuestion import LupaQuestion, lupa_available 
+from Instructors.lupaQuestion import lupa_available 
 
 from Instructors.views import utils
 
@@ -40,9 +40,6 @@ def luaLibUpload(request):
         context_dict['course_Name'] = 'Not Selected'
 
     string_attributes = ['libarayName','libDescription']
-    
-    #List all of the libs we have
-    libList(context_dict, request.user)
 
     if request.POST: 
         #If the lib exist get it else make a new one 
@@ -53,9 +50,8 @@ def luaLibUpload(request):
            
         else:
             library = LuaLibrary()
-         
-          
-        #Copy all string form Post to datbase object
+                   
+        #Copy all string from Post to database object
         for attr in string_attributes:
             setattr(library, attr, request.POST[attr])    
             
@@ -70,8 +66,11 @@ def luaLibUpload(request):
         listOfDepends = request.POST.getlist('depend[]')
         print(len(listOfDepends))
         
-        #Link them with library to make depenedt relationship    
+        #Link them with library to make dependent relationship    
         makeDependencies(library, listOfDepends)
+    
+    #List all of the libs we have
+    libList(context_dict, request.user)
     
     return render(request, 'Instructors/uploadLuaLibs.html', context_dict)
 
@@ -159,7 +158,3 @@ def libEdit(request):
             
     return render(request, 'Instructors/uploadLuaLibs.html', context_dict)
 
-            
-                
-    
-            

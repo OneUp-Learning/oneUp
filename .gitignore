@@ -26,4 +26,4 @@ db.sqlite3
 # User uploaded images
 media/images/uploadedInstructorImages/*
 media/images/uploadedAvatarImages/*
-media/lua/uploadedLuaLibraries/*
+media/lua/uploadedLuaLibs/*
