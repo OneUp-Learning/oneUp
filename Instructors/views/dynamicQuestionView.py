@@ -196,7 +196,11 @@ def dynamicQuestionPartAJAX(request):
             if '_code' in request.POST:
                 code = request.POST['_code']
             else:
-                code = templateToCode(request.POST['_setupCode'],request.POST['_templateText'])
+                numParts = int(request.POST['_numParts'])
+                templateParts = []
+                for i in range(1,numParts+1):
+                    templateParts.append(request.POST['_templateText'+str(i)])
+                code = templateToCode(request.POST['_setupCode'],templateParts)
             seed = request.POST['_seed']
             numParts = request.POST['_numParts']
             libs = []
@@ -220,7 +224,6 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestionTable = request.session['lupaQuestions']
             
             lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
-            theresult = ''
         else:
             lupaQuestionTable = request.session['lupaQuestions']
             lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
@@ -231,17 +234,9 @@ def dynamicQuestionPartAJAX(request):
                     answers[value[len(uniqid)+1:]] = request.POST[value]
             evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
             
-            
-            
-            
             #starts of making the table for the web page 
             context_dict['evaluations'] = evaluations
-            
-            
-            print(theresult)
-                   
-        context_dict['theresult'] = theresult
-        
+                                       
         formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
         lupaQuestionTable[uniqid]=lupaQuestion.serialize()
         request.session['lupaQuestions']=lupaQuestionTable
