@@ -6,8 +6,8 @@ Created on May 27, 2015
 from django.shortcuts import render
 from datetime import datetime
 
-from Instructors.models import Skills, Challenges, Courses, CoursesSkills, ChallengesQuestions
-from Students.models import Student, StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses
+from Instructors.models import Skills, Challenges, Courses, CoursesSkills, ChallengesQuestions,Activities
+from Students.models import Student, StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses,StudentActivities
 from Badges.models import CourseConfigParams
 from Students.views import classResults
 from Students.models import StudentConfigParams
@@ -29,10 +29,6 @@ def achievements(request):
     else:
         context_dict["is_student"] = True
         stud = request.user
-        sID = Student.objects.get(user=stud)
-        context_dict['avatar'] = sID.avatarImage        
-
-  
 
     studentId = Student.objects.filter(user=stud)
     # check if course was selected
@@ -42,8 +38,11 @@ def achievements(request):
     else:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
+        st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
+        context_dict['avatar'] = st_crs.avatarImage          
+        
         print(str(currentCourse.courseName))
-         
+        xpWeightSP=0
         # virtual currency has to be stored in Students - needs to change the model
         ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
         if len(ccparamsList) >0:
@@ -54,7 +53,12 @@ def achievements(request):
             context_dict['classSkillsDisplayed']=str(cparams.classSkillsDisplayed)
             context_dict['virtualCurrencyUsed']=cparams.virtualCurrencyUsed
             print ('virtualCurrencyUsed   '+ str(cparams.virtualCurrencyUsed))
-
+            
+            xpWeightSP=cparams.xpWeightSP
+            xpWeightSChallenge=cparams.xpWeightSChallenge
+            xpWeightWChallenge=cparams.xpWeightWChallenge
+            xpWeightAPoints=cparams.xpWeightAPoints
+            print("Config Parameters::",xpWeightSP,xpWeightSChallenge,xpWeightWChallenge,xpWeightAPoints)
 #         ccps = curentCourseConfigParamsObjects[0]
 #         configParam_courseBucks = str(ccps.virtualCurrencyUsed)
         
@@ -128,9 +132,9 @@ def achievements(request):
                 strTime = datetime.strptime(str(item.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p" )
                 dateTaken.append(strTime)
                 score.append(item.testScore)
-                total.append(item.testTotal)            
-            context_dict['gradedchallenge_range'] = zip(range(1,len(studentGradedChallenges)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)
-        
+                total.append(item.testTotal)         
+            context_dict['gradedchallenge_range'] = list(zip(range(1,len(studentGradedChallenges)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total))
+            print('xpWeightSP',xpWeightSP)
          #Filter only the GRADED challenges (serious challenges).container1 your score data
         studentGradedChallengesScore = []
         for st_challenge in studentChallenges:
@@ -153,7 +157,7 @@ def achievements(request):
                 score.append(item.testScore)
                 total.append(item.testTotal)            
                 # The range part is the index numbers.
-            context_dict['gradedchallengescore_range'] = zip(range(1,len(studentGradedChallengesScore)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)
+            context_dict['gradedchallengescore_range'] = list(zip(range(1,len(studentGradedChallengesScore)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total))
 
          #Filter only the GRADED challenges(serious challenges). container2 your points data
         studentGradedNonDefChallengesPoints = []
@@ -177,7 +181,7 @@ def achievements(request):
                 score.append(item.testScore)
                 total.append(item.testTotal)            
                 # The range part is the index numbers.
-            context_dict['studentGradedNonDefChallengesPoints_range'] = zip(range(1,len(studentGradedNonDefChallengesPoints)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)
+            context_dict['studentGradedNonDefChallengesPoints_range'] = list(zip(range(1,len(studentGradedNonDefChallengesPoints)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total))
  
         #Filter only the GRADED challenges(serious challenges). container2 your points data
         challavg = []
@@ -185,10 +189,8 @@ def achievements(request):
         challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
         for challID in challenges:
             challavg.append(classResults.classAverChallengeScore(currentCourse,challID.challengeID, "average"))
-        #print ("avgchallengeview"+str(challavg))
             
-        studentGradedNonDefChallengesAvgPoints = []
-        
+        studentGradedNonDefChallengesAvgPoints = []        
         
         for st_challenge in studentChallenges:
             if st_challenge.challengeID.isGraded:
@@ -211,7 +213,7 @@ def achievements(request):
                 total.append(item.testTotal)               
                 # The range part is the index numbers.
                                 
-            context_dict['studentGradedNonDefChallengesAveragePoints_range'] = zip(range(1,len(studentGradedNonDefChallengesAvgPoints)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total, challavg)
+            context_dict['studentGradedNonDefChallengesAveragePoints_range'] = list(zip(range(1,len(studentGradedNonDefChallengesAvgPoints)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total, challavg))
 
         
          #Filter only the GRADED challenges (serious challenges).container1 your score data
@@ -236,17 +238,21 @@ def achievements(request):
                 score.append(item.testScore)
                 total.append(item.testTotal)           
                 # The range part is the index numbers.
-            context_dict['studentGradedNonDefChallengesScore_range'] = zip(range(1,len(studentGradedNonDefChallengesScore)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)
-
+            context_dict['studentGradedNonDefChallengesScore_range'] = list(zip(range(1,len(studentGradedNonDefChallengesScore)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total))
+            
         #Score Points Start
         #Filter only the GRADED challenges (serious challenges).container1 your score data
+        ##
+        # WARM-UP CHALLENGES        
+        # Extract Serious challenges data for the current student
+        warmUpMaxScore = []
+        warmUpChallenges = [] 
         studentGradedChallengesScorePoints = []
         for st_challenge in studentChallenges:
             if st_challenge.challengeID.isGraded:
                 studentGradedChallengesScorePoints.append(st_challenge)
-                         
+                          
         if not studentGradedChallengesScorePoints:
-            #print('No challenge')
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'
         else:
             totalScorePoints = 0
@@ -264,7 +270,86 @@ def achievements(request):
                 total.append(item.testTotal)            
                 # The range part is the index numbers.
             context_dict['studentGradedChallengesScorePoints_range'] = totalScorePoints
+        
+        #Begin Vendhan Changes
+        xpWeightSP = 0
+        xpWeightSChallenge = 0
+        xpWeightWChallenge = 0
+        xpWeightAPoints = 0
+        ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
+        if len(ccparamsList) >0:
+            cparams = ccparamsList[0]
+            xpWeightSP=cparams.xpWeightSP
+            xpWeightSChallenge=cparams.xpWeightSChallenge
+            xpWeightWChallenge=cparams.xpWeightWChallenge
+            xpWeightAPoints=cparams.xpWeightAPoints
+        print("From StudentCourseHome, Config Parameters::",xpWeightSP,xpWeightSChallenge,xpWeightWChallenge,xpWeightAPoints)
+        
+        # XP Points Variable initialization
+        xp = 0       
+        # get the serious challenges for this course
+        totalScorePointsSC = 0
+        courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
+        for challenge in courseChallenges:
+            sc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge)
+            print(sc)
+            gradeID  = []
+                                
+            for s in sc:
+                gradeID.append(int(s.testScore)) 
+                print(s.testScore)                                
+            if(gradeID):
+                totalScorePointsSC = ((totalScorePointsSC + max(gradeID)) * xpWeightSChallenge / 100)      # max grade for this challenge
+        
+        # get the warm up challenges for this course
+        totalScorePointsWC = 0
+        courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)
+        for challenge in courseChallenges:
+            wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge)
+            print(wc)
+            gradeID  = []
+                                
+            for w in wc:
+                gradeID.append(int(w.testScore)) 
+                print(w.testScore)                                
+            if(gradeID):
+                totalScorePointsWC = ((totalScorePointsWC + max(gradeID)) * xpWeightWChallenge / 100)      # max grade for this challenge
+                
+        # get the activity points for this course
+        totalScorePointsAP = 0
+        courseActivities = Activities.objects.filter(courseID=currentCourse)
+        for activity in courseActivities:
+            sa = StudentActivities.objects.filter(studentID=studentId, courseID=currentCourse,activityID=activity)
+            print("SA",sa)
+            gradeID  = []
+                                
+            for a in sa:
+                gradeID.append(int(a.activityScore)) 
+                print(a.activityScore)                                
+            if(gradeID):
+                totalScorePointsAP = ((totalScorePointsAP + max(gradeID)) * xpWeightAPoints / 100)      # max grade for this challenge
             
+        # get the skill points for this course
+        totalScorePointsSP = 0
+        cskills = CoursesSkills.objects.filter(courseID=currentCourse)
+        for sk in cskills:
+            skill = Skills.objects.get(skillID=sk.skillID.skillID)
+            
+            sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+            print ("Skill Points Records", sp)
+            gradeID = []
+            
+            for p in sp:
+                gradeID.append(int(p.skillPoints))
+                print("skillPoints", p.skillPoints)
+            if (gradeID):
+                totalScorePointsSP = ((totalScorePointsSP + sum(gradeID,0)) * xpWeightSP / 100)
+
+        xp= round((totalScorePointsSC + totalScorePointsWC + totalScorePointsSP + totalScorePointsAP),0)
+        context_dict['studentGradedChallengesScorePoints_range'] = xp
+        #End Vendhan Changes
+        
+                         
         #Score Points End
         
         #PointsEarned Start
@@ -275,7 +360,6 @@ def achievements(request):
                 studentGradedChallengesPointsEarned.append(st_challenge)
                          
         if not studentGradedChallengesPointsEarned:
-            #print('No challenge')
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'
         else:
             PointsEarned = 0
@@ -381,8 +465,8 @@ def achievements(request):
                     noOfAttempts.append(challengeAttempt.numberAttempts) 
                     #print("challengeAttempt.numberAttempts:"+str(challengeAttempt.numberAttempts))    
                 # The range part is the index numbers.
-            context_dict['studentUngradedChallenges_range'] = zip(range(1,len(studentUngradedChallenges)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)
-            context_dict['studentWarmUpChallenges_range'] = zip(range(1,len(studentUngradedChallenges)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total,noOfActualAttempts,warmUpMaxScore,warmUpMinScore)
+            context_dict['studentUngradedChallenges_range'] = list(zip(range(1,len(studentUngradedChallenges)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total))
+            context_dict['studentWarmUpChallenges_range'] = list(zip(range(1,len(studentUngradedChallenges)+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total,noOfActualAttempts,warmUpMaxScore,warmUpMinScore))
         #Filter only the UNGRADED challenges for TotalPracticePoints
         studentUngradedChallengesPPoints = []
         for st_challenge in studentChallenges:
@@ -423,16 +507,13 @@ def achievements(request):
             skills = Skills.objects.filter(skillID=sk.skillID.skillID)
             for sname in skills:
                 skill_Name.append(sname.skillName)
-  
-
-  
+    
         skill_ID = []      
         skill_Name = []         
         skill_Points = []
         skillTotal_Points = []
         count = 0;
-        
-            
+                    
         #Displaying the list of skills from database
         studentSkills = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId, studentChallengeQuestionID__studentChallengeID__courseID=currentCourse)
         if not studentSkills:
@@ -446,7 +527,7 @@ def achievements(request):
                 skill_Points.append(studentSkill.skillPoints)
                 
                 # The range part is the index numbers.
-            context_dict['skill_range'] = zip(range(1,studentSkills.count()+1),skill_ID,skill_Name,skill_Points)
+            context_dict['skill_range'] = list(zip(range(1,studentSkills.count()+1),skill_ID,skill_Name,skill_Points))
 
         #Displaying the list of skills from database for Total Range
         defskillTotalCount = 0;
@@ -465,7 +546,7 @@ def achievements(request):
                
                 #print("defskillTotalCount"+str(defskillTotalCount))
                 # The range part is the index numbers.
-            context_dict['skillTotal_range'] = zip(range(1,studentSkills.count()+1),skill_ID,skill_Name,skill_Points,skillTotal_Points)
+            context_dict['skillTotal_range'] = list(zip(range(1,studentSkills.count()+1),skill_ID,skill_Name,skill_Points,skillTotal_Points))
         
         #Displaying the list of nondefskills from database
         studentnondefSkills = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId, studentChallengeQuestionID__studentChallengeID__courseID=currentCourse)
@@ -481,7 +562,7 @@ def achievements(request):
             #print("SkillNames"+str(skill_Name)) 
             #print("skillpoints"+str(skill_Points))
                 # The range part is the index numbers.
-            context_dict['nondefskill_range'] = zip(range(1,studentnondefSkills.count()+1),skill_ID,skill_Name,skill_Points)        
+            context_dict['nondefskill_range'] = list(zip(range(1,studentnondefSkills.count()+1),skill_ID,skill_Name,skill_Points))        
         
          #Displaying the list of nondefskills for avgskill points from database
         classskillavg =[]       
@@ -501,7 +582,7 @@ def achievements(request):
                 #print("SkillName"+str(skill_ID))
                 #print("classskillavg"+str(classskillavg))
                 # The range part is the index numbers.
-            context_dict['nondefskillavgpoints_range'] = zip(range(1,studentnondefSkills.count()+1),skillavg_ID,skillavg_Name,classskillavg)        
+            context_dict['nondefskillavgpoints_range'] = list(zip(range(1,studentnondefSkills.count()+1),skillavg_ID,skillavg_Name,classskillavg))        
 
         #Remaining Challenges Start
         #Filter only the GRADED challenges (serious challenges).p1 your Remaining Challenges data
@@ -694,7 +775,7 @@ def achievements(request):
                 strTime = datetime.strptime(str(item.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p" )
                 print("strTime"+str(strTime))
                 ChallengesTestTotal = ChallengesTestTotal + item.testTotal 
-            #print("ChallengesTotalTestTotal"+str(ChallengesTotalTestTotal))   
+            print("ChallengesTotalTestTotal"+str(ChallengesTotalTestTotal))   
             
                 # The range part is the index numbers.            
             context_dict['gradedChallengesMaxPoints_range'] = ChallengesTestTotal
@@ -751,11 +832,9 @@ def achievements(request):
                 skillTotal_Points.append(skilltotalpoints)
            
                 # The range part is the index numbers.
-            context_dict['nondefskillTotalpoints_range'] = zip(range(1,studentnondefSkills.count()+1),skillTotal_ID,skillTotal_Name,skillTotal_Points)        
+            context_dict['nondefskillTotalpoints_range'] = list(zip(range(1,studentnondefSkills.count()+1),skillTotal_ID,skillTotal_Name,skillTotal_Points))        
               
-        
-        
-        
+                
         # Extract Badges data for the current student
         badgeId = [] 
         badgeName = []
@@ -778,7 +857,7 @@ def achievements(request):
                         
             # The range part is the index numbers.
         #context_dict['badgesInfo'] = zip(range(1,studentBadges.count()+1),badgeId,badgeName,badgeImage)
-        context_dict['badgesInfo'] = zip(range(1,len(studentCourseBadges)+1),badgeId,badgeName,badgeImage)
+        context_dict['badgesInfo'] = list(zip(range(1,len(studentCourseBadges)+1),badgeId,badgeName,badgeImage))
 
         
     return render(request,'Students/Achievements.html', context_dict)

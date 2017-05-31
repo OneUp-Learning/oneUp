@@ -6,7 +6,8 @@ Created on Nov 3, 2016
 
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo, Courses
+from Badges.models import VirtualCurrencyRuleInfo, Courses, ActionArguments, Rules
+from Badges.enums import Action
 from Students.models import Student, StudentRegisteredCourses
 
 from django.contrib.auth.decorators import login_required
@@ -20,7 +21,6 @@ def VirtualCurrencyDisplay(request):
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
-        context_dict['avatar'] = sID.avatarImage          
     
     # check if course was selected
     if 'currentCourseID' in request.session:
@@ -33,21 +33,42 @@ def VirtualCurrencyDisplay(request):
     else:
         context_dict['course_Name'] = 'Not Selected'
         
-    vcRuleID = [] 
-    vcRuleName = []
-    vcRuleDescription = []
-    vcRuleAmount = []
-        
-        #Displaying the list of challenges from database
-    vcRules = VirtualCurrencyRuleInfo.objects.all()
+    vcEarningRuleID = [] 
+    vcEarningRuleName = []
+    vcEarningRuleDescription = []
+    vcEarningRuleAmount = []
+    vcSpendingRuleID = [] 
+    vcSpendingRuleName = []
+    vcSpendingRuleDescription = []
+    vcSpendingRuleAmount = []
+    countEarningRules = 0
+    countSpendingRules = 0
+            
+    #Displaying the list of rules from database
+    vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse)
     for rule in vcRules:
-        vcRuleID.append(rule.vcRuleID)
-        vcRuleName.append(rule.vcRuleName)
-        vcRuleDescription.append(rule.vcRuleDescription)
-        vcRuleAmount.append(rule.vcAmount)
-                    
+        if rule.ruleID.actionID == Action.increaseVirtualCurrency:
+            vcEarningRuleID.append(rule.vcRuleID)
+            vcEarningRuleName.append(rule.vcRuleName)
+            vcEarningRuleDescription.append(rule.vcRuleDescription)
+            value = -9000000000
+            if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
+                value = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+            vcEarningRuleAmount.append(value)
+            countEarningRules = countEarningRules+1        
+        else:
+            vcSpendingRuleID.append(rule.vcRuleID)
+            vcSpendingRuleName.append(rule.vcRuleName)
+            vcSpendingRuleDescription.append(rule.vcRuleDescription)
+            value = -9000000000
+            if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
+                value = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+            vcSpendingRuleAmount.append(value)
+            countSpendingRules = countSpendingRules+1
+             
         # The range part is the index numbers.
-    context_dict['vcRuleInfo'] = zip(range(1,vcRules.count()+1),vcRuleID,vcRuleName, vcRuleDescription, vcRuleAmount)
+    context_dict['vcEarningRuleInfo'] = zip(range(1,countEarningRules+1),vcEarningRuleID,vcEarningRuleName, vcEarningRuleDescription, vcEarningRuleAmount)
+    context_dict['vcSpendingRuleInfo'] = zip(range(1,countSpendingRules+1),vcSpendingRuleID,vcSpendingRuleName, vcSpendingRuleDescription, vcSpendingRuleAmount)
 
     #return render(request,'Badges/ListBadges.html', context_dict)
     return render(request,'Students/VirtualCurrencyRules.html', context_dict)

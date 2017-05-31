@@ -9,7 +9,7 @@
    
         {% include 'heading.html' %}  
           
-		<div class="frame" id="grad" align="center">
+		<div class="frame"  align="center">
         <div class="container">
         <div class="row">
         <div class="12u">
@@ -24,14 +24,16 @@
              <!-- New: List of badges added; DD 02/04/2015 -->
             <table class="bg">
         		<tr>
-        			<th>Name</th>
-        			<th>Category</th>
+        			<th>Badge Image</th>
+        			<th>Badge Name</th>
+        			<th>Badge Description</th>
         			<th></th>
         		</tr>
-        		{% for i,badgeId,badgeName,badgeImage in badgesInfo %}
+        		{% for i,badgeId,badgeName,badgeImage, badgeDescription in badgesInfo %}
         		<tr> 
+        			<td><img src="/{{badgeImage}}" alt="Badge Image" width="76px" height="76px"/></td>
         			<td style="vertical-align:middle">{{badgeName}}</td>
-        			<td><img src="/{{badgeImage}}" alt="Badge Image" width="76px" height="76px"/></td>				
+        			<td style="vertical-align:middle">{{badgeDescription}}</td>				
         			<td style="vertical-align:middle; text-align:right">					
         				{% csrf_token %}
         				<a href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"><input type="button" value="Edit / Delete"></a>
@@ -48,7 +50,5 @@
       
         {% include 'footer.html' %}
 
-      </div>
-      <script type="text/javascript"> Cufon.now(); </script>
    </body>
 </html>

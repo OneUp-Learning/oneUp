@@ -17,8 +17,8 @@
       <link rel="stylesheet" href="/static/css/dashboard/tabledashboard.css" type="text/css" media="all">
       <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js" ></script>
       <script type="text/javascript" src="/static/js/script.js"></script>
-      <script src="/static/thirdparty/Highcharts-4.1.4/api/js/jquery-1.9.1.min.js"></script>
-      <script src="/static/thirdparty/Highcharts-4.1.4/js/highcharts.js"></script>
+      <script src="/static/ThirdParty/Highcharts-4.1.4/api/js/jquery-1.9.1.min.js"></script>
+      <script src="/static/ThirdParty/Highcharts-4.1.4/js/highcharts.js"></script>
       
       <script>$(function () {
          var chalYourPoints = function() {
@@ -1008,7 +1008,7 @@
                            	  var showBadge = "<table><tr style='font-size:0.9em;color:white;' align='left'><td><span><b style='color:black;'>Badges</b></span></td></tr>";
                            	  showBadge+= "<tr align='center'>{% for i,badgeId,badgeName,badgeImage in badgesInfo %}";	
                            	 
-                           	  showBadge+="<td align='left'><img src='/static/images/badges/{{badgeImage}}' alt='Badge Image' width='70px' height='85px' align='middle' />";
+                           	  showBadge+="<td align='left'><img src='/{{badgeImage}}' alt='Badge Image' width='70px' height='85px' align='middle' />";
                            	  showBadge+="<br clear='all'><span style='font-size:0.7em; color:black;'>{{badgeName}}</span>";
                            	  showBadge+="</td>{% if not forloop.last and forloop.counter == 10 or forloop.counter == 10 %}</tr>";
                            	  showBadge+=" <tr>{% endif %}{% endfor %}</tr></table>";

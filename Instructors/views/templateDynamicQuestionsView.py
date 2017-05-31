@@ -19,6 +19,7 @@ from Badges.enums import QuestionTypes
 from django.views.decorators.csrf import csrf_exempt
 import sys
 import re
+from pickle import FALSE
 
 
 def templateDynamicQuestionForm(request):
@@ -128,7 +129,10 @@ def templateDynamicQuestionForm(request):
             return redirectVar
     
     elif request.method == 'GET':
-                
+        
+        context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
+        context_dict['checkInitalTemplateTextPart'] = True
+        
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
                 context_dict["unassign"]= 1
                 
@@ -150,14 +154,15 @@ def templateDynamicQuestionForm(request):
                 context_dict[attr]=getattr(question,attr)
             
             # TODO: get all matching templateTextPart objects and then add their code to the 
-            # context dictionary as templateText1, templateText2, ...
+            # context dictionary as templateTextParts
             templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question) #get form the databse the matching question for the parts
             context_dict['templateTextParts']=templateTextParts
+            context_dict['checkInitalTemplateTextPart'] = False
+
             
         else:
             context_dict['difficulty'] = 'Easy'
             context_dict["setupCode"] = "r1 = math.random(10) + 1 \nr2 = math.random(10) + 1"
-            context_dict["templateText"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
             context_dict["numParts"] = 1
             
         
@@ -205,23 +210,27 @@ def templateToCode(setupCode,templateArray):
         _answer_checkers = {}
         _pts = {}
         make_answer = function(name,type,size,checker,pts)
-            _answer_checkers[name] = checker
-            _pts[name] = pts
-            print(make_input(name,type,size))
+            _answer_checkers[_part][name] = checker
+            _pts[_part][name] = pts
+            print(make_input(name,type,size))            
         end
-        part_1_max_points = function()
-            local sum = 0
-            for k,v in pairs(_pts) do
-                sum = sum + v
+        _part_max_points = function(part)
+            return function()
+                local sum = 0
+                for k,v in pairs(_pts[part]) do
+                    sum = sum + v
+                end
+                return sum
             end
-            return sum
         end
-        evaluate_answer_1 = function(answers)
-            results = {}
-            for inputName in python.iter(answers) do
-                results[inputName] = _answer_checkers[inputName](answers[inputName],_pts[inputName])
+        _evaluate_answer = function(part)
+            return function(answers)
+                results = {}
+                for inputName in python.iter(answers) do
+                    results[inputName] = _answer_checkers[part][inputName](answers[inputName],_pts[part][inputName])
+                end
+                return results
             end
-            return results
         end
     '''
     code += setupCode + "\n" # Newline added to help readability
@@ -229,8 +238,14 @@ def templateToCode(setupCode,templateArray):
     count = int(1)
     
     for templateText in templateArray:
+        code += 'part_'+str(count)+'_max_points = _part_max_points('+str(count)+')\n'
+        code += 'evaluate_answer_'+str(count)+' = _evaluate_answer('+str(count)+')\n'
         code += '''
 part_'''+str(count)+'''_text = function ()
+    _part = '''+str(count)+'''
+    _answer_checkers[_part] = {}
+    _pts[_part] = {}
+    
     output = ""
     '''
         count+=1

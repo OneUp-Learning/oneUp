@@ -33,8 +33,8 @@ def topicsListView(request):
           
         topic_ID = []      
         topic_Name = []
-        subTopicID = []
-        #topic_Author = []         
+#        subTopicID = []
+        
         
         ctopics = CoursesTopics.objects.filter(courseID=currentCourse)
         for ct in ctopics:
@@ -43,13 +43,13 @@ def topicsListView(request):
             topics = Topics.objects.filter(topicID=ct.topicID.topicID)
             for tname in topics:
                 topic_Name.append(tname.topicName)
-                #topic_Author.append(tname.topicAuthor)
-            subTopics = CoursesSubTopics.objects.filter(topicID=ct.topicID.topicID)
-            for stid in subTopics:
-                subTopicID.append(stid.subTopicID)
-            print(get_linenumber(),"subTopicID",subTopicID)
-#             The range part is the index numbers.
-        context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name,subTopicID)
-#         context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name)
+
+#             subTopics = CoursesSubTopics.objects.filter(topicID=ct.topicID.topicID)
+#             for stid in subTopics:
+#                 subTopicID.append(stid.subTopicID)
+#             print(get_linenumber(),"subTopicID",subTopicID)
+# #             The range part is the index numbers.
+#         context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name,subTopicID)
+        context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name)
 
     return render(request,'Instructors/TopicsList.html', context_dict)

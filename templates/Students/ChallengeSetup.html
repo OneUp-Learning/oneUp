@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     {% include 'scripts.html' %}
-    <script src="/static/thirdparty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
+    <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
 </head>
 <body>
     <div>
@@ -14,14 +14,15 @@
 
                         <h1>Challenges</h1>
                         <h3>{{challengeName}}</h3>
+          				<p><center><b> Start Time:  {{startTime}}</b></center></p>                        
                     </div>
                 </div>
                 <div class="row">
                     <div class="12u">
                         <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
-                            <input type="hidden" name="startTime" id="startTime">
+                            <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
                             <input type="hidden" name="questionId" value="{{question.questionID}}">
-                            <input type="hidden" name="challengeId" value="{{question.challengeID}}"> {% csrf_token %}
+                            <input type="hidden" name="challengeId" value="{{challengeID}}"> {% csrf_token %}
                             <table class="bg">
                                 <!-- Note that this was bg challenge but Joel changed it to bg to get color alteration  -->
 
@@ -30,7 +31,7 @@
                                 <tr id="question" style="background-color: rgba(144, 144, 144, 0.075);">
                                     <td colspan="2" style="text-align:left">
 
-                                        {% autoescape off %} {{i}}.{{question.questionText}} {% endautoescape %}
+                                        {% autoescape off %} {{i}}.{{question.questionText|safe}} {% endautoescape %}
                                     </td>
 
                                 </tr>
@@ -60,23 +61,16 @@
                                         <br> {% endfor %}
                                     </td>
                                     <td>
-                                        <script type="text/javascript">
-                                            var x = 1;
-                                            document.write('{% for match in question.matches %}');
-
-                                            document.write('<select name="{{question.questionID}}" style="float:left;height:initial"/>');
-
-                                            document.write('{% for k in match.answers_count %}');
-                                            document.write('<option value="{{k}}">{{k}}</option>');
-                                            document.write('{% endfor %}');
-                                            document.write('</select>');
-                                            document.write('&nbsp;&nbsp;{{match.matchingAnswerText}}<input type="hidden" name="{{question.questionID}}a-' + x + '" value="{{match.matchingAnswerText}}" />');
-                                            document.write('<br />');
-                                            x = x + 1;
-
-                                            document.write('{% endfor %}');
-                                            x = 0;
-                                        </script>
+				      {% for match in question.matches %}
+                                        <select name="{{question.questionID}}" style="float:left;height:initial"/>
+                                        {% for k in match.answers_count %}
+                                           <option value="{{k}}">{{k}}</option>
+                                        {% endfor %}
+                                        </select>
+                                        &nbsp;&nbsp;{{match.matchingAnswerText}}
+                                        <input type="hidden" name="{{question.questionID}}a-{{match.current_pos}}" value="{{match.matchingAnswerText}}" />
+                                        <br />
+                                      {% endfor %}
                                     </td>
                                 </tr>
                                 {% endif %} {% if question.typeID == '4' %}
@@ -129,11 +123,7 @@
                                     var dateTime = "" + year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + "";
                                     document.getElementById("startTime").value = dateTime;
                                     <!-- Set time out for the test if the time limit has reached -->
-                                    var duration = {
-                                        {
-                                            question.testDuration
-                                        }
-                                    }; //time limit in minutes from database
+                                    var duration = {{question.testDuration}}; //time limit in minutes from database
                                     var milli = now.getMilliseconds(); //current time in milliseconds
                                     var limit = milli + (duration * 1000 * 60); // test time duration in milliseconds (current time + time limit in milliseconds)
 

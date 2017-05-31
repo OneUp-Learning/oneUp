@@ -4,27 +4,9 @@
       <meta charset="utf-8" />
       
       {% include 'scripts.html' %}
-      <script src="/static/thirdparty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
-            
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
-		<script>
+      <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
+      <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	  <script>
       /* Should always hold the number of answers displayed. */
       var numAnswers = {{num_answers}};
       var numberOfItems = 0;
@@ -75,26 +57,29 @@
       }
       
       
-      // Adds a skill into the 'Added Skills' box (AH)
+   // Adds a skill into the 'Added Skills' box (AH)
       function addSkill() {
     	    var x = document.getElementById("SelectedSkill");
     	    var e = document.getElementById("SelectSkill");
     	    var option = document.createElement("option");
-    	    if(document.getElementById("SP").value && e.options[e.selectedIndex].value != ""){
+    	    var exists = false; 
+      		$('#SelectedSkill  option').each(function(){
+      	  	if (this.value == e.options[e.selectedIndex].value) {
+      	    	exists = true;
+      	    	this.text = e.options[e.selectedIndex].text + " (" + document.getElementById("SP").value + ")";
+      	  	}
+      		});
+    	    if(!exists && document.getElementById("SP").value && e.options[e.selectedIndex].value != ""){
     	    	//console.log("Skill added");
     	    	option.text = e.options[e.selectedIndex].text + " (" + document.getElementById("SP").value + ")";
     	    	option.value = e.options[e.selectedIndex].value;
     	    	x.add(option);
     	    }
     	    
-    	    numberOfItems = x.options.length;
-
-    	    if(numberOfItems <= 0){
-    	    	document.getElementById('removeSkills').style.display = 'none';
-    	    }
-    	    else{
-    	    	document.getElementById('removeSkills').style.display = 'initial';
-    	    }
+    	  	if( $('#SelectedSkill').has('option').length > 0)
+   	    		document.getElementById('removeSkills').style.display = 'initial';
+   	    	else
+   	    		document.getElementById('removeSkills').style.display = 'none';
     	}
       // Removes skill from 'Added Skills' box (AH)
       function removeSkill() {
@@ -103,18 +88,25 @@
     	    if(x.options.length){
     	    	if(!x.options[x.selectedIndex])
     	    		alert('Skill to remove is not selected!');
-    	    	x.remove(x.selectedIndex);
+    	    	else
+    	    		x.remove(x.selectedIndex);
     	    }
-    	    numberOfItems = x.options.length;
-    	    if(numberOfItems <= 0){
-    	    	document.getElementById('removeSkills').style.display = 'none';
-    	    }
-    	    else
-    	    	document.getElementById('removeSkills').style.display = 'initial';
+    	  	if( $('#SelectedSkill').has('option').length > 0)
+   	    	document.getElementById('removeSkills').style.display = 'initial';
+   	    else
+   	    	document.getElementById('removeSkills').style.display = 'none';
     	}
+      $(document).ready(function() {
+      	if( $('#SelectedSkill').has('option').length > 0)
+     	    	document.getElementById('removeSkills').style.display = 'initial';
+     	    else
+     	    	document.getElementById('removeSkills').style.display = 'none';
+      	
+      });
       // Format 'Added Skills' box to a string (AH)
       // Ex. SQL (10), Database (20), etc. (AH)
-      function prepareSubmit(){
+    function prepareSubmit(){
+          var choose = false;
     	  var x = document.getElementById("SelectedSkill");
     	  var txt = "";
     	  for(var i =0; i < x.options.length; i++){
@@ -130,25 +122,33 @@
   	    for(var i =0; i< checks.length;i++){
   	        var check = checks[i];
   	        if(check.checked){
-  	            return true;
+  	            choose = true;
   	        }
   	    }
+		if (!choose)  {
   	    alert('Please select atleast one answer!');
-      }
+  	    return false;
+		}
+	}
       </script>
       
-       <script type="text/javascript">
-		function validateForm() {
-    		var x = document.forms["question"]["Skill"].value;
-    		var y = document.forms["question"]["q_skill_points"].value;
+<!--       // KI: This function doesn't make sense.  It is only called when we submit the whole form and -->
+<!--       // it only checks that if a skill is selected, then skill points are, too.  But if the user -->
+<!--       // hasn't hit the add skill button, we don't use what's filled in anyway, so this is pointless. -->
+<!--       // I'm going to just comment out the body. -->
+<!--        <script type="text/javascript"> -->
+<!-- // 		function validateForm() { -->
+		
+<!-- //     		var x = document.forms["question"]["Skill"].value; -->
+<!-- //     		var y = document.forms["question"]["q_skill_points"].value; -->
     		
-    		if ( x !== "" && y == "") {
-        		alert("The skill points for new skill must be filled out.");
-        		return false;
-    		}
-    		
-		}
-	</script>
+<!-- //     		if (( x !== "" && y == "") || ( x !== "" && y !== "" && addS == false))  { -->
+<!-- //         		alert("The skill points for new skill must be added."); -->
+<!-- //         		return false; -->
+<!-- //     		} -->
+<!-- //     		return true;  -->
+<!-- // 		} -->
+<!-- 	</script> -->
 	
    </head>
    <body>
@@ -166,7 +166,7 @@
                <h3>Create/Edit <span>Multiple Question</span></h3>
             <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
             <!-- INSERTED PAGE CONTENT -->
-                  <form name="question" action="/oneUp/instructors/forms/MultipleAnswersForm" onsubmit="return validateForm()" method="POST">
+                  <form name="question" action="/oneUp/instructors/forms/MultipleAnswersForm"  onsubmit= "return validateForm()"  method="POST">
                      {% csrf_token %}
                      <input type="hidden" name="numAnswers" id="numAnswers" value="{{num_answers}}">
                      {% if questionId %}
@@ -214,15 +214,11 @@
 		    					</div>
 		    					{% endfor %}
 		  						</div>
-                           </td>
-                        </tr>
-                        <tr>
-                        	<td>
-                        		<a id="addAnswer" href="#" onclick="addAnswer();return false;">
+		  						<a id="addAnswer" href="#" onclick="addAnswer();return false;">
                         		<button type="button">&nbsp;&nbsp;Add Answer&nbsp;&nbsp;</button></a>
 	    						<a id="removeAnswer" href="#" onclick="removeAnswer();return false;">
 	    						<button type="button">Remove Last Answer</button></a>
-                        	</td>
+                           </td>
                         </tr>
                         <tr>
                            <td>Feedback for Correct Answer</td>
@@ -269,12 +265,15 @@
                                  }
                                  
                               </script> 
+                              
                            </td>
                         </tr>
                         {% if challenge %}
                         {% if unassign %}
-                			<input type="hidden" name="points" value="0" id="Points">
-                			{% else %}
+                        <tr>
+                			<td><input type="hidden" name="points" value="0" id="Points"></td>
+                		</tr>
+                		{% else %}
                         <tr>
                            <td>Points <span class = "red">*</span></td>
                         </tr>
@@ -283,13 +282,17 @@
                               <input type="hidden" name="challengeID" value="{{challengeID}}">
                               <input style="max-width: 4em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" name="points" min="1" max="9999" value="{{points}}" id="Points" required>
                            </td>
-                           {% endif %}
+                        </tr>
+                        {% endif %}
+                        <tr>
+                        <td></td>
+                        </tr>
                         <tr>
                            <td>Skills </td>
                         </tr>
                          <tr>
                            <td>
-                              Add New Skill<br> 
+                              Select New Skill<br> 
                               <select name="Skill" id="SelectSkill" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" style="width:150px">
                                  <option value="" selected>Select Skill</option>
                                  {% for i,skill_ID,skill_Name in skill_range %}
@@ -302,21 +305,18 @@
                               Skill Points for New Skill<span class = "red">*</span><br>
                               <input style="max-width: 4em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" min="1" max="9999" id="SP" name="q_skill_points">
                           	  </div>
-                          	  
-	    					 Added Skills<br> 
+                          	  <button type="button" id="addSkills"  STYLE="margin-top: 0.3em; margin-bottom: 0.4em" !important onclick="addSkill()">Add Skill</button>
+	    					 
+	    					 <div>Added Skills</div> 
                               <select id="SelectedSkill" name="S_Skill" font-family= "Tahoma, Geneva, sans-serif" style="width:150px; height:100px;" size="8">
                                  {% for i, skill_ID, skill_Name, skill_Points in all_Skills %}
                                  	<option value={{skill_ID}}>{{skill_Name}} ({{skill_Points}})</option>
                                  {% endfor %}
                               </select>
+                              <button type="button" id="removeSkills" onclick="removeSkill()">Remove Skill</button>
                            </td>
                         </tr>
-                        <tr>
-                        	<td>
-                        		<button type="button" id="addSkills" onclick="addSkill()">Add Skill</button>
-	    						<button type="button" id="removeSkills" onclick="removeSkill()">Remove Skill</button>
-                        	</td>
-                        </tr>
+                        
                         {% endif %}                                               
                         <tr>
                            <td>Tags</td>
@@ -337,11 +337,11 @@
                      	
                         {% elif challenge %}
                         <ul class="actions">
-                        <li style="margin:0" ><input type="submit" name="submit" value="Submit" class="button" onclick="prepareSubmit()"></li>
+                        <li style="margin:0" ><input type="submit" name="submit" value="Submit" class="button" ></li>
                         <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}"><button type="button" class="button special" value="Reset">Cancel</button></a>
                         {% else %}	
                         <ul class="actions">
-                        <li><input type="submit" name="submit" value="Submit" class="button" onclick="prepareSubmit()"></li>
+                        <li><input type="submit" name="submit" value="Submit" class="button" ></li>
                         <a href="/oneUp/instructors/questionList"><button type="button" class="button special" value="Reset">Cancel</button></a>
                         {% endif %}
 <script>

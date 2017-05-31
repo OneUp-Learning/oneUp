@@ -35,9 +35,14 @@ class Student(models.Model):
         #return str(self.studentID)+","+self.name+self.name
         return str(self.user.username)
   
+def avatarImageUploadLocation():
+    return os.path.join(os.path.abspath(MEDIA_ROOT), 
+                        'images/uploadedAvatarImages');
+
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
-        avatarImage = models.FileField(max_length=500, upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedAvatarImages'))
+        avatarImage = models.FileField(max_length=500,
+                                       upload_to= avatarImageUploadLocation)
         avatarImageFileName = models.CharField(max_length=200, default='')
 
     
@@ -126,7 +131,8 @@ class StudentActivities(models.Model):
     activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="  ")
     def __str__(self):              
-        return str(self.studentActivityID) +"," + str(self.studentID) +","+str(self.challengeID)    
+        return str(self.studentActivityID) +"," + str(self.studentID) 
+#     +","+str(self.challengeID)    
     
 class StudentEventLog(models.Model):
     student = models.ForeignKey(Student, verbose_name="the student", db_index=True)

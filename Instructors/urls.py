@@ -22,24 +22,22 @@ from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
-from Instructors.views.classSeriousAchievementsVizView import classSeriousAchievementsViz
-from Instructors.views.classWarmupAchievementsVizView import classWarmupAchievementsViz
 
-from Instructors.views.classSkillsVizView import classSkillsViz
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 from Instructors.views.essayView import  essayForm
+from Instructors.views.ExportChallenges import exportChallenges, importChallenges
 #from Instructors.views.filesListView import  filesList
 from Instructors.views.gameRulesView import gameRulesView
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
+from Instructors.views.importStudentsView import importStudents
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
-#from Instructors.views.instructorQuestionsView import InstructorQuestions
 
 from Instructors.views.matchingView import matchingForm
 from Instructors.views.milestoneCreateView import milestoneCreateView
@@ -48,7 +46,6 @@ from Instructors.views.multipleAnswersView import multipleAnswersForm
 from Instructors.views.multipleChoiceView import multipleChoiceForm
 from Instructors.views.preferencesView import preferencesView
 
-#from Instructors.views.questionListView import questionListView
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
 from Instructors.views.skillsCreateView import skillsCreateView
@@ -71,6 +68,8 @@ from Instructors.views.dynamicQuestionView import dynamicQuestionForm
 from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
+from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit
+
 
 admin.autodiscover()
 
@@ -94,11 +93,8 @@ urlpatterns = [
     url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='ChallengesList'),
 
     url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
-    url(r'^classSeriousAchievementsViz',classSeriousAchievementsViz, name='classSeriousAchievementsViz'),
-    url(r'^classWarmupAchievementsViz',classWarmupAchievementsViz, name='classWarmupAchievementsViz'),
     url(r'^classAchievements',classAchievements, name='classAchievements'),
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
-    url(r'^classSkillsViz',classSkillsViz,name='classSkillsViz'),
     url(r'^courseInformation',courseInformation,name='courseInformation'),
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     #url(r'^saveCourseInformation',saveCourseInformation,name='saveCourseInformation'),
@@ -114,9 +110,11 @@ urlpatterns = [
     url(r'^deleteSkill',deleteSkill, name='deleteSkill'),
     url(r'^deleteTopic',deleteTopic, name='deleteTopic'),
     url(r'^deleteSubTopic',deleteSubTopic, name='deleteSubTopic'),
+    url(r'^deleteStudent',deleteStudent, name='deleteStudent'),    
     url(r'^deleteUser',deleteUser, name='deleteUser'),
     url(r'^gameRules',gameRulesView,name='gameRulesView'),
     url(r'^$', index, name='home'),    
+    url(r'^exportChallenges',exportChallenges,name='exportChallenges'),    
     url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
@@ -126,7 +124,9 @@ urlpatterns = [
     url(r'^forms/TemplateDynamicQuestionForm',templateDynamicQuestionForm, name='Template Dynamic QuestionForm'),
     url(r'^imageDelete',imageDelete,name='imageDelete'),
     url(r'^imageList', imageList, name='imageList'),
-    url(r'^imageUpload',imageUpload,name='imageUpload'),
+    url(r'^imageUpload',imageUpload,name='imageUpload'),   
+    url(r'^importChallenges',importChallenges,name='importChallenges'),
+    url(r'^importStudents',importStudents,name='importStudents'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
@@ -145,7 +145,13 @@ urlpatterns = [
     url(r'^topicsCreate',topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList',topicsListView, name='topicsListView'),
     url(r'^forms/doDynamicQuestion',dynamicQuestionPartAJAX,name="dynamic question engine AJAX"),
-    url(r'^luaTestView',luaTestView,name="Lua Test View")
+    url(r'^luaTestView',luaTestView,name="Lua Test View"),
+    url(r'^luaLibDelete',libDelete,name="Lua Library Delete"), 
+    url(r'^luaLibEdit',libEdit,name="Lua Library Edit"),        
+    url(r'^luaLibUploadView',luaLibUpload,name="Lua Library Upload"),
+   
+ 
+
    
 
 

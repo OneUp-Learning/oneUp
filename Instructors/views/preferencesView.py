@@ -3,13 +3,12 @@ Created on Sep 15, 2016
 #Updated The order of the fields to match the templates
 @author: Vendhan
 '''
-from django.template import RequestContext
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Skills, Courses, CoursesSkills, Topics, CoursesTopics
+from Instructors.models import Courses
 from Badges.models import CourseConfigParams
-from Students.models import StudentConfigParams
+from Students.models import StudentConfigParams, StudentRegisteredCourses
 
 @login_required
 def preferencesView(request):
@@ -38,6 +37,7 @@ def preferencesView(request):
             # Create new Config Parameters
             ccparams = CourseConfigParams()
             ccparams.courseID = currentCourse
+            
         ccparams.badgesUsed = "badgesUsed" in request.POST
         if ccparams.badgesUsed == True:    
             ccparams.studCanChangeBadgeVis = "studCanChangeBadgeVis" in request.POST
@@ -64,16 +64,27 @@ def preferencesView(request):
             ccparams.numStudentBestSkillsDisplayed = 0
             
         ccparams.virtualCurrencyUsed  = "virtualCurrencyUsed" in request.POST
+        # Should the new currency be added to the previous ot replace it??
+        #the first is uncommented below
+        # ccparams.virtualCurrencyAdded =  request.POST.get('virtualCurrencyAdded')
+        ccparams.virtualCurrencyAdded +=  int(request.POST.get('virtualCurrencyAdded'))
+        
+        #If students were already added to the class: Add the specified quantity to the account of every student in this class
+        st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+        for st_c in st_crs:
+            if ccparams.virtualCurrencyAdded:
+                st_c.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
+                st_c.save()
+        
         ccparams.avatarUsed = "avatarUsed" in request.POST
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
 #         ccparams.courseStartDate = request.POST.get('courseStartDate')
 #         ccparams.courseEndDate= request.POST.get('courseEndDate') 
         ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
-#         print("Before Save in POST :" ,ccparams.numStudentsDisplayed)
+        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
+        ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
         ccparams.xpWeightSP = request.POST.get('xpWeightSP')
-        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
-        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
         ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
         ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
         ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
@@ -103,15 +114,16 @@ def preferencesView(request):
             context_dict["studCanChangeClassSkillsVis"]=ccparams.studCanChangeClassSkillsVis
             context_dict["numStudentBestSkillsDisplayed"]=ccparams.numStudentBestSkillsDisplayed
             context_dict["virtualCurrencyUsed"]=ccparams.virtualCurrencyUsed
+            context_dict["virtualCurrencyAdded"]=ccparams.virtualCurrencyAdded
             context_dict["avatarUsed"]=ccparams.avatarUsed
             context_dict["classAverageUsed"]=ccparams.classAverageUsed
             context_dict["studCanChangeclassAverageVis"]=ccparams.studCanChangeclassAverageVis
             context_dict["courseStartDate"]=ccparams.courseStartDate
             context_dict["courseEndDate"]=ccparams.courseEndDate
             context_dict["leaderboardUpdateFreq"]=ccparams.leaderboardUpdateFreq
-            context_dict["xpWeightSP"]=ccparams.xpWeightSP
             context_dict["xpWeightSChallenge"]=ccparams.xpWeightSChallenge
             context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
+            context_dict["xpWeightSP"]=ccparams.xpWeightSP
             context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
             context_dict["thresholdToLevelMedium"]=ccparams.thresholdToLevelMedium
             context_dict["thresholdToLevelDifficulty"]=ccparams.thresholdToLevelDifficulty

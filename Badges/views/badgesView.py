@@ -30,16 +30,17 @@ def BadgesMain(request):
     badgeId = [] 
     badgeName = []
     badgeImage = []
-        
-        #Displaying the list of challenges from database
+    badgeDescription = []
+    #Displaying the list of challenges from database
     badges = Badges.objects.filter(courseID=currentCourse)
     for badge in badges:
         badgeId.append(badge.badgeID)
         badgeName.append(badge.badgeName)
         badgeImage.append(badge.badgeImage)
+        badgeDescription.append(badge.badgeDescription)
                     
         # The range part is the index numbers.
-    context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage)
+    context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription)
 
     #return render(request,'Badges/ListBadges.html', context_dict)
     return render(request,'Badges/Badges.html', context_dict)

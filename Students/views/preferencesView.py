@@ -42,18 +42,7 @@ def preferencesView(request):
             context_dict['studCanChangeBadgeVis']=ccparams.studCanChangeBadgeVis
             context_dict['studCanChangeLeaderboardVis']=ccparams.studCanChangeLeaderboardVis
             context_dict['studCanChangeClassSkillsVis']=ccparams.studCanChangeClassSkillsVis
-            print("ccparams.studCanChangeBadgeVis:",ccparams.studCanChangeBadgeVis)
-#             print("inloop")
-#             print(ccparams)
-#         print("outloop")
-#         print(ccparams)
-        else:
-            context_dict['course_Name'] = 'Not Selected'
-        
-#         ccparams = CourseConfigParams.objects.filter(courseID=currentCourse, studCanChangeBadgeVis)
-        
-        
-#         studentChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = request.GET['challengeID'])
+            context_dict['studCanChangeclassAverageVis']=ccparams.studCanChangeclassAverageVis            
         
     else:
         context_dict['course_Name'] = 'Not Selected' 
@@ -70,11 +59,9 @@ def preferencesView(request):
             print(scparams,scparams.courseID,scparams.studentID,scparams.displayBadges,scparams.displayLeaderBoard,scparams.displayClassSkills)
             
         else:
-            # Create new Config Parameters
-            scparams = StudentConfigParams()
-            scparams.courseID = currentCourse
             studentID = Student.objects.get(user=request.user)
-            scparams.studentID = studentID
+            scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=studentID)
+
 #          print(studentID)
             #scparams.studentID = User.objects.filter(userID=request.POST['userID'],courseID=currentCourse)
         if ccparams.studCanChangeBadgeVis:  
@@ -85,8 +72,11 @@ def preferencesView(request):
             
         if ccparams.studCanChangeClassSkillsVis:  
             scparams.displayClassSkills = "displayClassSkills" in request.POST
-                
-        scparams.displayClassAverage = "displayClassAverage" in request.POST 
+
+        if ccparams.studCanChangeclassAverageVis:  
+            scparams.displayClassAverage = "displayClassAverage" in request.POST
+                                
+       # scparams.displayClassAverage = "displayClassAverage" in request.POST 
         scparams.displayClassRanking = "displayClassRanking" in request.POST     
         scparams.save()
         print(scparams,scparams.courseID,scparams.studentID,scparams.displayBadges,scparams.displayLeaderBoard,scparams.displayClassSkills)

@@ -1,7 +1,6 @@
-from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Skills, Courses, CoursesSkills, Topics, CoursesTopics
+from Instructors.models import Courses, Topics, CoursesTopics
 
 @login_required
 def topicsCreateView(request):
@@ -27,29 +26,17 @@ def topicsCreateView(request):
         if request.POST['topicID']:
             topic = Topics.objects.get(pk=int(request.POST['topicID']))
         else:
-            # Create new topic
-            topic = Topics()
-            
-        # Copy all strings from POST to database object.
-        for attr in string_attributes:
-            setattr(topic,attr,request.POST[attr])
-
-        # get the author
-        if request.user.is_authenticated():
-            topic.topicAuthor = request.user.username
-        else:
-            topic.topicAuthor = ""
-            
-        topic.save()
+            # Check if topic with this name already exists
+            topics = Topics.objects.filter(topicName=request.POST['topicName'])
+            if not topics:
+                topic = Topics()
+                topic.topicName = request.POST['topicName']                   
+                topic.save()
         
-        if not request.POST['topicID']:
-            # add the new topic to current course
-            courseTopic = CoursesTopics()
-            courseTopic.courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
-            courseTopic.topicID = topic
-            courseTopic.save()
-
-
+                courseTopic = CoursesTopics()
+                courseTopic.courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
+                courseTopic.topicID = topic
+                courseTopic.save()
                 
     #################################
     #  get request

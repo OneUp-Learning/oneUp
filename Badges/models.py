@@ -237,13 +237,13 @@ class CourseConfigParams(models.Model):
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
     numStudentsDisplayed = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
 
-
     classSkillsDisplayed = models.BooleanField(default=False)         ## The classSkillsDisplayed is only for dashboard purposes for the instructor
     studCanChangeClassSkillsVis = models.BooleanField(default=False)  ## The classSkillsDisplayed is only for dashboard purposes for the student
     numStudentBestSkillsDisplayed = models.IntegerField(default=0)    ## This is used to display the number of students in the Skills dashboard html table
 
     ## Other fields for rule based configurations
     virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
+    virtualCurrencyAdded = models.IntegerField(default=0)             # Amount of course bucks given by the instructor to all students
     avatarUsed = models.BooleanField(default=False)                   ## This is to allow the student to upload an avatar.
     classAverageUsed = models.BooleanField(default=False)             ## ranga used this, in individual achievements
     studCanChangeclassAverageVis = models.BooleanField(default=False) ## The student can suppress visibility in the dashboard

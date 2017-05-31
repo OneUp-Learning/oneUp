@@ -41,7 +41,7 @@
   				templateTextValues += '&_templateText'+i+'='+encodeURIComponent(CKEDITOR.instances['templateTextVisible'+i].getData());
   			}
   			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
-  						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
+  						 '&_numParts='+encodeURIComponent(numParts)+
   				         '&_setupCode='+encodeURIComponent(editor.getValue())+
   				         templateTextValues +
   				         '&csrfmiddlewaretoken={{ csrf_token }}');
@@ -94,7 +94,7 @@
 			/* used to make the actaul html code block */    
 			var id = "questionPart"+numParts;
 			var name = "templateTextVisible"+numParts;
-    		var newElement = "<div id='"+id+"'><textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' rows='10' cols='70' name='"+name+"' id='"+name+"' >{{templateText}}</textarea>" +
+    		var newElement = "<div id='"+id+"'><textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' rows='10' cols='70' name='"+name+"' id='"+name+"' >{{initalTemplateTextPart}}</textarea>" +
   							"<input type='hidden' name='templateText"+numParts+"'  style='display: none;' /> <br /> </div>"
   							;
   			
@@ -138,11 +138,16 @@
     		for(var i=1; i < {{numParts}}; i++)
     			addPart();
     		
-    		/*Populate text for each new editor we added */
-    		{% for templatePart in templateTextParts%}
+    		{%if checkInitalTemplateTextPart%}
+    			CKEDITOR.instances['templateTextVisible1'].setData( String.raw `{{initalTemplateTextPart |safe}}`); //gets the right ediotr and then
+    		{%endif%}
+    			
+    			/*Populate text for each new editor we added */
+    		{% for templatePart in templateTextParts %}
     			CKEDITOR.instances['templateTextVisible'+{{templatePart.partNumber}}].setData( String.raw `{{templatePart.templateText |safe}}`); //gets the right ediotr and then
     			//sets the data to be what is located in the text part of our tempatePart object NOTE: Safe means dont porcess html treat as regular code
     		{%endfor%}
+    		
 			
     	}
     	
@@ -172,8 +177,7 @@
             <div class="12u">
             	<h1><span>{{challengeName}}</span></h1>
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
-            <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
-  
+            <p><span>*</span> Denotes Required Fields.</p>
   
     <form name="question" action="" onsubmit="copyContentsToHidden();" method="POST">
       {% csrf_token %}
@@ -258,7 +262,7 @@
 	</tr>
 	<tr>
 		<td>
-			<div id="editor" style="height: 200px; width: 100%">{{setupCode}}</div>
+			<div id="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode" id="setupCode">{{setupCode}}</textarea></div>
 			<script>
 		    		var editor = ace.edit("editor");
 				    editor.setTheme("ace/theme/chrome");
@@ -338,12 +342,12 @@
 	</tr>
 	</form>
 	<tr>
-		<td><div id="codeResults" align="left" ></div> </td> <!-- Need to see the code for this so we can add border -->
+		<td><div id="codeResults" ></div> </td> <!-- Need to see the code for this so we can add border -->
 	</tr>
  </table>
-   	</div></div></div></div>
  
-</div>
+	</div></div></div></div>
+</div>	
     {% include 'footer.html' %}
   </body>
   

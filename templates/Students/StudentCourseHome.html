@@ -3,7 +3,13 @@
 <head>
 
    {% include 'scripts.html' %}
- 
+ 	<style>
+	       table.table.container {
+	         padding-bottom: 0px; 
+	         margin-bottom: 15px; 
+	         box-shadow:0px 1px 6px 0px #2A333E;
+	         }
+ 	</style>
 <script>
     window.location.hash = "no-back-button";
     window.location.hash = "Again-No-back-button";//again because google chrome don't insert first hash into history
@@ -43,12 +49,8 @@
     <div id="page-wrapper">
 
        {% include 'stheading.html' %}
-  
-        <div class="frame" id="grad" align="center">
+  		<div algin="center">
             <div class="container">
-                <div class="row">
-                    <div class="12u"></div>
-                </div>
                 <div class="row">
                     <div class="6u 12u(mobile)">
                         <table class="bg" id="bglinks">
@@ -70,7 +72,7 @@
                     </div>
                     <div class="6u 12u(mobile)">
                         <table class="bg" id="bglinks">
-                            <th>Upcomming Assignments</th>
+                            <th>Upcomming Challenges</th>
                             <th></th>
                             {% for i,chall_ID,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
                             <tr>
@@ -87,34 +89,49 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="6u 12u(mobile)">
+                <div class="row" style="padding-top: 80px;"></div>
+                <table class="bg">
+              <th></th>
+              <th></th>
+              <tr>
+              <td style="    padding-right: 0px;
+									    padding-bottom: 0px;
+									    padding-top: 10px;
+									    padding-left: 10px;
+									    width: 50%;">
+                    <div class="12u 12u(mobile)">
                         {% if leaderboardUsed and displayLeaderBoard %}
                         <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
+                            <th> Student </th>
                             <th> XP Points </th>
-                            <th> </th>
-                            {% for i,avatarImage,gradeTotal in user_range %}
+                            {% for i,avatarImage,xpoints in user_range %}
                             <tr>
                                 <div id="student{{i}}">
-                                    <td class="left"><img alt="Avatar Image" width="36px" height="36px" src="{{avatarImage}}"></td>
-                                    <td class="left">{{gradeTotal}}</td>
+                                    <td class="left"><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                                    <td class="left">{{xpoints}}</td>
                                 </div>
                             </tr>
                             {% endfor %}
                         </table>
                         {% endif %}
                     </div>
-                    <div class="6u 12u(mobile)">
+                    </td>
+                    <td style="    padding-right: 10px;
+								    padding-bottom: 0px;
+								    padding-top: 10px;
+								    padding-left: 10px;
+								    width: 50%;">
+                    <div class="12u 12u(mobile)">
                         {% if classSkillsDisplayed and displayClassSkills %}
                         <table class="bg" id="bglinks" style="margin-bottom: 15px;">
+                            <th> Skill </th>
                             <th> Skill Points </th>
-                            <th> </th>
                             {% for skill in skills %}
                             <tr>
                                 <td class="left">{{skill.skillName}} </td>
                                 <td class="left">
                                     {% for usi in skill.usersInfo %} 
-                                    <img alt="Avatar Image" width="36px" height="36px" src="{{usi.avatarImage}}">
+                                    <img alt="Avatar Image" width="30px" height="30px" src="{{usi.avatarImage}}">
                                     {{usi.skillPoints}}  &nbsp;&nbsp;&nbsp;&nbsp;
                                     {% endfor %}
                                 </td>
@@ -123,26 +140,34 @@
                         </table>
                         {% endif %}
                     </div>
-                </div>
-                <p></p><p></p>
-                <!-- Display based on config values -->
+                    </td>
+                    </tr>
+                    <tr>
+                <td colspan="2" style="    padding-right: 10px;
+							    padding-bottom: 0px;
+							    padding-top: 10px;
+							    padding-left: 10px;
+							    width: 100%;">
                 {% if badgesUsed and displayBadges %}
                     <table class="bg" id="bglinks" style="margin-bottom: 15px;">
                         <th> Latest Badges </th>
                         <tr>
                             <td class="left">
                                 {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}                                                       
-                                <img src="/static/images/badges/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
-                                <img alt="Avatar Image" width="26px" height="26px" src="{{avatarImage}}">
+                                <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
+                                <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                 &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;
                                 {% endfor %}
                             </td>
                         </tr>
                     </table>
                     {% endif %}
+                    </td>
+                    </tr>
+                    </table>
             </div>
         </div>
-    </div>
+        </div>
   <!-- Footer -->
   
 

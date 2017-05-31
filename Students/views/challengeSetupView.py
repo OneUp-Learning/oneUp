@@ -1,8 +1,9 @@
-from django.shortcuts import render
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 import random 
+from time import strftime
+
+from time import strftime
 
 from Instructors.models import Challenges, Courses, Answers
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
@@ -30,19 +31,24 @@ def ChallengeSetup(request):
         student = Student.objects.get(user=request.user)   
         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
         context_dict['avatar'] = st_crs.avatarImage                  
-        
+
         questionObjects= []
                 
         if request.POST:        
             if request.POST['challengeId']: 
                 challengeId = request.POST['challengeId']
+                context_dict['challengeID']= challengeId
                 challenge = Challenges.objects.get(pk=int(request.POST['challengeId']))
                 context_dict['challengeName'] = challenge.challengeName
-                print(challengeId)
+                
+                if not challenge.isGraded:
+                    context_dict['warmUp'] = 1
+                       
                 # Checks if password was entered correctly
                 if challenge.challengePassword != '':
                     if 'password' not in request.POST or request.POST['password'] != challenge.challengePassword:
                         return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+                    
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
                 for challenge_question in challenge_questions:
                     print("challenge_question.questionID: "+str(challenge_question.questionID))
@@ -57,7 +63,6 @@ def ChallengeSetup(request):
                     answer_range = range(1,len(answers)+1)
                     questdict['answers_with_count'] = zip(answer_range,answers)
                     questdict['typeID']=str(q.type)
-                    questdict['challengeID']= challengeId
                     
                     staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
                     questdict['questionText']=staticQuestion.questionText
@@ -78,12 +83,19 @@ def ChallengeSetup(request):
                         matchlist.append(matchdict)
                     
                     random.shuffle(matchlist)
+
+                    i = 1
+                    for matchdict in matchlist:
+                        matchdict['current_pos'] = i
+                        i = i + 1
+
                     questdict['matches']=matchlist
                     qlist.append(questdict)
-                    
+                
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
+            context_dict['startTime'] = strftime("%Y-%m-%d %H:%M:%S")
             
-        #register_event(Event.startChallenge,request,None,challengeId)
+        register_event(Event.startChallenge,request,None,challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)
         
     return render(request,'Students/ChallengeSetup.html', context_dict)

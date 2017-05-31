@@ -4,25 +4,131 @@
       <meta charset="utf-8" />
       
          {% include 'scripts.html' %}
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
+        <style>
+      	/* Theme 2 */
+         body {
+         	font-family: Roboto,sans-serif; 
+         	background-color: #ffffff; /*Website BG Color*/
          }
-      </script>
+         /* Navigation */
+         .Navigation {
+         	height: 64px;
+         }
+         .Nav_Top {
+         	background-color: #161925;
+         	border-bottom: none;
+         	height: 64px;
+         }
+         .Nav_Top .nav_top_level {
+         	padding-top: 10px;
+         }
+         .Nav_Top .nav_top_level_items a {
+         	color: #ffffff; /*Navigation Top Text Color*/
+         }
+         .Nav_Bottom {
+         	background-color: #23395B; 
+         	box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.31);
+         }
+         .Nav_Bottom > p {
+         	color: #ffffff; /*Navigation Bottom Text Color (Course Name)*/
+         }
+         .Nav_Bottom .nav_login_items a {
+         	color: #ffffff; /*Navigation Bottom Link Text Color*/
+         }
+         .nav_second_level .nav_second_level_items a, 
+         .nav_third_level .nav_third_level_items a,
+         .nav_login_second_level .nav_login_second_level_items a {
+         	background: #161925; /*Navigation Drop-Down BG Color*/
+         }
+         .nav_second_level_items a:hover,
+         .nav_third_level_items a:hover,
+         .nav_second_level .nav_second_level_items a:hover,
+         .nav_login_second_level .nav_login_second_level_items a:hover {
+         	background: #23395B; /*Navigation Items Drop-Down BG Color on Hover*/
+         }
+         .nav_top_level .nav_top_level_items:hover:after,
+         .nav_second_level .nav_second_level_items:hover:after,
+         .nav_third_level .nav_third_level_items:hover:after,
+         .nav_login .nav_login_items:hover:after,
+         .nav_login_second_level .nav_login_second_level_items:hover:after {
+         	background: #CBF7ED; /*Navigation Bar Animation Color*/
+         }
+         /*Tables*/
+         .bg {
+         	padding-bottom: 0em; 
+         	margin-bottom: 15px; 
+         	box-shadow:0px 1px 6px 0px #2A333E;
+         }
+         .bg tbody tr:nth-child(1){
+         	background-color: #23395B; /*Table Heading BG Color*/
+         }
+         .bg tbody tr:nth-child(1) th {
+         	color: #ffffff; /*Table Heading Text Color*/
+         	
+         }
+         .bg tbody tr td{
+         	color: black; /*Table Rows Text Color*/
+         	font-size: 13px;
+         }
+         /*Buttons*/
+         a {
+         	border-bottom: none;
+         }
+         input[type="button"] { /*Regular Buttons*/
+         	background-color: #23395B; 
+         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
+         	color: #ffffff;
+         	font-size: 11pt;
+         }
+         input[type="button"]:hover {
+         	background-color: #23395B; 
+         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
+         	color: #ffffff;
+         }
+         input[type="button"].table   { /*Table Buttons*/
+         	background-color: #d9e7f1; 
+         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
+         	color: black;
+         	font-size: 11pt;
+         }
+         input[type="button"]:hover.table {
+         	background-color: #d9e7f1; 
+         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
+         	color: black;
+         }
+         input[type="submit"] { /*Submit Buttons*/
+         	background-color: #d9e7f1; 
+         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
+         	color: black;
+         	font-size: 11pt;
+         }
+         input[type="submit"]:hover {
+         	background-color: #23395B; 
+         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
+         	color: #ffffff;
+         }
+         /*Heading Text*/
+         h1,
+         .frame h1 {
+         	color: #23395B;
+         	font-size: 30px;
+         	font-weight: 200;
+         }
+         /*Footer*/
+         #footer {
+         	background-color: #23395B;
+         }
+         #footer ul.icons {
+         	background-color: #161925;
+         }
+         #footer ul.icons li a:hover {
+         	color: #CBF7ED; /*Footer Icons Hover Color*/
+         }
+         #footer .copyright {
+         	color: #ffffff; /*Footer Text Color*/
+         }
+      </style>
+     
 		
    </head>
    
@@ -36,10 +142,11 @@
             <div class="row">
          	<div class="12u">
                {% if warmUp %}
-               <h1>Warm Up <span>Challenges</span></h1>
+               <h1>Warm Up Challenges</h1>
                {% else %}
-               <h1>Serious <span>Challenges</span></h1>
+               <h1>Serious Challenges</h1>
                {% endif %}
+               <hr class="theme"/>
                <br />
                   <!-- INSERTED DYNAMIC TABLE -->  
                   {% if warmUp %}      
@@ -58,7 +165,7 @@
                         <th></th>
                      </tr>
                      {% for i,chall_ID,chall_Name, chall_Difficulty, chall_visible,start_Timestamp,end_Timestamp in challenge_range %}
-                     <tr>
+                     <tr style="background-color: {% cycle '#EDF0F2' '#ffffff' %}; line-height: 20px;">
                         <div id="challenges{{i}}">
                            <td>{{chall_Name}}</td>
                            <td>{{chall_Difficulty}}</td>
@@ -69,18 +176,18 @@
                            {% if warmUp %}
                               <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
                               {% csrf_token %} 
-                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><button type="button">View</button></a>                 
-                                 <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><button type="button">Edit</button></a> 
-                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a> &nbsp;&nbsp;                            
+                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><input type="button" class="table" value="View"></a>                 
+                                 <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a> 
+                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                            
                            {% else %}
                               <form action="/oneUp/instructors/deleteChallenge" method="POST">
                               {% csrf_token %} 
-                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view"><button type="button">View</button></a> 
-                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}"><button type="button">Edit</button></a>
-                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><button type="button" >Problems</button></a> &nbsp;&nbsp;                                             
+                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view"><input type="button" class="table" value="View"></a> 
+                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a>
+                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                                             
                            {% endif %}                                 
                                  <input type="hidden" name="challengeID" value="{{chall_ID}}">
-                                 <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                                 <input type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?')">
                               </form>
                            </td>
                         </div>

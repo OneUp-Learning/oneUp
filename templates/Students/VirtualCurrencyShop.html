@@ -18,7 +18,7 @@
 		</div>
         <div class="row">
         <div class="12u"> 
-            <form id="store" name="store" action="#" method="post">
+            <form id="store" name="store" action="#" onsubmit="return updatePrices()" method="post">
             <table class="bg">
         		<tr>
         			<th>Name</th>
@@ -34,7 +34,7 @@
         			<td style="vertical-align:middle">{{buyOpt.displayName}}</td>
         			<td>{{buyOpt.description}}</td>
         			<td>{{buyOpt.cost}}</td>
-        			<td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="quantity" min="0" max="0" value="0"></td>		
+        			<td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0"></td>		
         			<td><div id="priceFor{{buyOpt.id}}">0</div>
         			<td style="vertical-align:middle; text-align:right">					
         				{% csrf_token %}
@@ -54,6 +54,11 @@
         	<a href="/oneUp/students/StudentCourseHome"><button class="button special" type="button">Cancel</button></a>
         	
         	</form>
+        	
+        	{% if not sufficientStudentCurrency %}
+        	
+        	
+        	 {% endif %} 
         <!-- END DYNAMIC TABLE -->
 		</div>
         </div>
@@ -62,24 +67,40 @@
       <!-- Footer -->
       
         {% include 'footer.html' %}
-
-      </div>
-                  <script>
+              <script>
             	var prices=[{% for buyOpt in buyOptions2 %}{{buyOpt.cost}},{%endfor%}]
             	function updatePrices() {
             		var len = prices.length;
             		var total = 0;
             		for (var i = 0; i<len; i++) {
+            			if (document.getElementById("buyOptionQuantity"+i).value.length > 3){
+            				document.getElementById("buyOptionQuantity"+i).value = document.getElementById("buyOptionQuantity"+i).value.slice(0, 3);
+            			}
             			var quantity = document.getElementById("buyOptionQuantity"+i).value;
             			var price = quantity*prices[i];
             			total += price;
             			document.getElementById("priceFor"+i).innerHTML = price;
+            		
+            			
             		}
             		document.getElementById("total").innerHTML = total;
+            		checkTotal();
+            	}
+            	function checkTotal(){
+            		var total = document.getElementById("total").innerHTML;
+            		if ( {{studentVirtualCurrency}} - parseInt(total) < 0 ) {
+         		       alert("You do not have enough money ");
+         		       return false;
+     		        }
             	}
             	for (var i = 0; i<{{numBuyOptions}}; i++) {
             		document.getElementById("buyOptionQuantity"+i).addEventListener('change',updatePrices);
             	}
+            	
+         
+  
+     
+
             </script>
    </body>
 </html>

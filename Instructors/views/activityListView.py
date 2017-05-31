@@ -3,14 +3,22 @@ Created on March 11, 2015
 
 @author: dichevad
 '''
-from django.template import RequestContext
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Activities, Courses
-from Students.models import StudentRegisteredCourses, Student, StudentActivities
+from Students.models import StudentRegisteredCourses, StudentActivities
 
 def createContextForActivityList(request):
+    
     context_dict = { }
+    # check if course was selected
+    if 'currentCourseID' in request.session:
+        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+        context_dict['course_Name'] = currentCourse.courseName
+    else:
+        context_dict['course_Name'] = 'Not Selected'
+    
 
     activity_ID = []      
     activity_Name = []         
@@ -21,7 +29,7 @@ def createContextForActivityList(request):
     student_Name = []    
    
         
-    activities = Activities.objects.all()
+    activities = Activities.objects.filter(courseID=currentCourse)
     for activity in activities:
         activity_ID.append(activity.activityID) #pk
         activity_Name.append(activity.activityName)
@@ -61,20 +69,11 @@ def createContextForActivityList(request):
     
 @login_required
 def activityList(request):
-
  
     context_dict = createContextForActivityList(request)
 
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-        
+        context_dict["username"]=request.user.username        
 
     return render(request,'Instructors/ActivitiesList.html', context_dict)

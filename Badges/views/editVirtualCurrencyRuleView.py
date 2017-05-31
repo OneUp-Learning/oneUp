@@ -37,7 +37,7 @@ def EditVirtualCurrencyRule(request):
         # Getting the Rule information which has been selected
         if request.GET['vcRuleID']:
             vcRuleID = request.GET['vcRuleID']
-            rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID)
+            rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID, courseID=currentCourse)
             
             if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
                 context_dict["vcAmount"] = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue

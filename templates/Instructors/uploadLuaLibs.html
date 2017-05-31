@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   {% include 'scripts.html' %}
+ 
+</head>
+<body>
+	<div id="page-wrapper">
+
+         {% include 'heading.html' %}
+ 
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Lua  Libraries</h1>
+		</div>
+		</div>
+		<br />
+		
+		<div align="left">		
+		<form id="uploadbanner" action="/oneUp/instructors/luaLibUploadView" enctype="multipart/form-data" method="POST" >
+			{% csrf_token %}   			
+   			<table class="bg">
+   			   <tr>
+   			   		{% if libEdit %}
+   			   			<th>Edit {{libName}}</th>
+   			   		{% else %}
+ 		                 <th>Upload New Library</th>
+ 		            {% endif %}      			
+   			   </tr>
+   			   <tr>
+   			      <td><input id="fileupload" name="libfile" type="file" /></td>
+   			   </tr>
+   			    <tr>
+                  <td>Library Name:</td>
+               </tr>
+               <tr>
+                  <td>
+                  	  {% if libEdit %}
+                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libarayName" id="preview" placeholder={{libName}}>
+                      {% else %}
+                        <input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libarayName" id="preview">
+                      {% endif %}
+                  </td>
+               </tr>  
+               <tr>
+                  <td>Library Description:</td>
+               </tr>
+               <tr>
+                  <td>
+                  	  {% if libEdit %}	
+                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libDescription" id="preview" placeholder={{libDescription}} >
+                      {% else %}
+                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libDescription" id="preview">
+					  {% endif %}	                      
+                  </td>
+				</tr>                        
+   			</table>
+   			<input type="hidden" name="libID" value="{{libID}}"> 
+   			<input type="submit" value="Upload" id="Upload" align="center"/>
+        	 <a href="/oneUp/instructors/instructorCourseHome"><input type="button" class="special" value="Back"></a> 
+   			
+		<br/>
+		<br />
+   			
+       <!-- INSERTED DYNAMIC TABLE --> 
+            <table class="bg" id="libsTable">
+            	<tr>
+            		<th>Dependencies</th><th></th><th></th><th></th><th></th>
+            	</tr>            
+   			   <tr>
+                  <td>Selection</td>
+                   <td>Library Name</td> 
+                   <td>Library Description</td>  			
+
+            	{% for i, libName,libDescription,libIDs,myLibs in lib_range %}
+            	{% csrf_token %}
+            	<tr>
+					<td><input type="checkbox" name="depend[]" value={{libIDs}}></td>
+						</form>
+		</div>
+					<td> {{libName}}</td>
+					<td> {{libDescription}}</td>
+					
+					{% if myLibs%}
+				 		<td>
+							<form action="/oneUp/instructors/luaLibDelete" method="POST">
+						    	{% csrf_token %}
+						    	<input type="hidden" name="libID" value="{{libIDs}}">
+						    	<input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+							</form>
+						</td>
+						<td>
+							<form action="/oneUp/instructors/luaLibEdit" method="POST">
+						    	{% csrf_token %}
+						    	<input type="hidden" name="libID" value="{{libIDs}}">
+						    	<input type="submit" name="submit" value="Edit" class="button" onclick="return confirm('Are you sure you want to Edit?')">
+							</form>
+						</td>
+					{% endif %}
+		 		{% endfor %}	 		
+        	</table>
+		
+        	 <!--  <input type="submit" name="submit" value="Save" class="button">  --> 	 
+            <br><br> 
+        <!-- END DYNAMIC TABLE -->
+        
+		
+		</div>
+        </div>
+        </div>
+      	</div>
+	<!-- Footer -->
+
+     {% include 'footer.html' %}
+
+	</div>`
+	<script type="text/javascript">
+		Cufon.now();
+	</script>
+</body>
+</html>
