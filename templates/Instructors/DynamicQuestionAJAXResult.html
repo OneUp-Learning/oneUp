@@ -1,7 +1,29 @@
-{% if error_message %}
-	{{error_message}}
+{% if error %}
+	<p><b>Lua Error:</b> 
+	{% if error.type == 7702 %} <!-- Module Not Found Error -->
+		Module not found.</p>
+		<p>The module '{{error.module}}' does not exist despite being referenced in 
+			{% if error.source == "module" %} module {{error.file}}
+			{% else %} the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
+			{% endif %}
+		</p>
+	{% elif error.type == 7704 %} <!-- Required part not defined -->
+		Required function not defined.</p>
+		<p>Each problem part must have the function {{error.function_name}} defined.  The code for this function does not have that function defined.
+		This can be caused either by omitting or mispelling the function in raw lua code or by certain syntax errors before the function definition
+		in either raw lua or template mode.  Unfortunately, we have no other information about the location of the error.</p>
+	{% elif error.type == 7701 or error.type == 7703 %} <!-- Syntax Error or Runtime Error (any sort) -->
+		Syntax error in Lua code. </p>
+		<p>There was a {% if error.type == 7701 %} syntax {% else %} runtime {% endif %} error with message: <pre>{{error.message}}</pre></p>
+			This is on line {{error.line}} of 
+			{% if error.source == "module" %}
+				module {{error.file}}
+			{% else %}
+				the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
+			{% endif %}
+		</p>
+	{% endif %}
 {% endif %}
-{{error_message}}
 {% if evaluations %}
 	<table class="bg">
 	  {% for answerName, answer in evaluations.items %}

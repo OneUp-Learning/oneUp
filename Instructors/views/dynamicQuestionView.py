@@ -9,10 +9,10 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses
-from Instructors.lupaQuestion import LupaQuestion, lupa_available 
+from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
-from Instructors.views.templateDynamicQuestionsView import templateToCode
+from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments
 
 from Badges.enums import QuestionTypes
 
@@ -158,7 +158,9 @@ def makePartHTMLwithForm(question,part):
     formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
     formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
     if (int(part) <= question.numParts):
-        formBody += question.getQuestionPart(part)
+        questionpart = question.getQuestionPart(part)
+        if questionpart != False:
+            formBody += questionpart
     formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form>'
     return (formHead,formBody)
 
@@ -194,13 +196,13 @@ def dynamicQuestionPartAJAX(request):
             requesttype = '_eval'
         elif ('_test' in request.POST):
             if '_code' in request.POST:
-                code = request.POST['_code']
+                code = [CodeSegment.new(CodeSegment.raw_lua,request.POST['_code'],"")]
             else:
                 numParts = int(request.POST['_numParts'])
                 templateParts = []
                 for i in range(1,numParts+1):
                     templateParts.append(request.POST['_templateText'+str(i)])
-                code = templateToCode(request.POST['_setupCode'],templateParts)
+                code = templateToCodeSegments(request.POST['_setupCode'],templateParts)
             seed = request.POST['_seed']
             numParts = request.POST['_numParts']
             libs = []
@@ -224,20 +226,27 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestionTable = request.session['lupaQuestions']
             
             lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
+            if lupaQuestion.error is not None:
+                context_dict['error'] = lupaQuestion.error
         else:
             lupaQuestionTable = request.session['lupaQuestions']
             lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
+            
             # And now we need to evaluate the previous answers.
             answers = {}
             for value in request.POST:
                 if (value.startswith(uniqid+"_")): 
                     answers[value[len(uniqid)+1:]] = request.POST[value]
             evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
+            if lupaQuestion.error is not None:
+                context_dict['error'] = lupaQuestion.error
             
             #starts of making the table for the web page 
             context_dict['evaluations'] = evaluations
                                        
         formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
+        if 'error' not in context_dict and lupaQuestion.error is not None:
+            context_dict['error'] = lupaQuestion.error
         lupaQuestionTable[uniqid]=lupaQuestion.serialize()
         request.session['lupaQuestions']=lupaQuestionTable
         

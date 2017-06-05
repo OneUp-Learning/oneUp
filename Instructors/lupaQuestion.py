@@ -2,6 +2,11 @@ import importlib
 from oneUp.settings import BASE_DIR
 import os
 from multiprocessing.process import ORIGINAL_DIR
+import code
+from _locale import CODESET
+from doctest import set_unittest_reportflags
+from django.contrib.admin.templatetags.admin_list import result_headers
+from pip._vendor.pyparsing import line
 
 lupa_spec = importlib.util.find_spec('lupa')
 lupa_available = True
@@ -124,17 +129,63 @@ else:
         setfenv(0, sandbox)
         return lua
     
+    class LuaErrorType:
+        syntax = 7701
+        module_not_found = 7702
+        runtime = 7703
+        required_part_not_defined = 7704
+    
+    luaModuleNotFoundRegex = re.compile("\w*module '(.*)' not found")
+    luaModuleSyntaxErrorRegex = re.compile("\w*error loading module '(.*)' from file '(.*)':")
+    luaMainErrorRegex = re.compile('\w*(error loading code:)?\w*(.*):(\d+):(.*)')
+    luaErrorPythonStringRegex = re.compile('.*string.*python')
+    # Parses a Lua Error and returns a dictionary which contains information gleaned from the error message
+    def parseLuaError(luaerr):
+        errstr = str(luaerr)
+        
+        # A dictionary which we're going to fill with information about the error
+        error = {}
+        
+        main_matches = re.match(luaMainErrorRegex,errstr)
+        if main_matches.group(1):
+            # This means it contains the "error loading code" part and thus is a syntax error.
+            error['type'] = LuaErrorType.syntax
+        else: 
+            mnf_matches = re.match(luaModuleNotFoundRegex,errstr)
+            if mnf_matches:
+                error['type'] = LuaErrorType.module_not_found
+                error['module'] = mnf_matches.group(1)
+            else:
+                mse_matches = re.match(luaModuleSyntaxErrorRegex,errstr)
+                if mse_matches:
+                    error['type'] = LuaErrorType.syntax
+                    error['source'] = 'module'
+                    error['module'] = mse_matches.group(1)
+                    error['module_file'] = mse_matches.group(2) # this should be the same as the file, but we record it here, just in case.
+                else:
+                    error['type'] = LuaErrorType.runtime
+        
+        if re.match(luaErrorPythonStringRegex,main_matches.group(2)):
+            error['source'] = 'input'
+        else:
+            error['source'] = 'module'
+            error['file'] = main_matches.group(2)
+        error['line'] = int(main_matches.group(3))
+        error['message'] = main_matches.group(4)
+        
+        return error            
+    
     class LupaRuntimeLink:
         cache = {}
             
         def __init__(self,libs,seed,make=True):
             self.libs = libs
             self.seed = seed
+            self.user_code_segments = {}
             if make:
                 self.uuid = str(uuid4())
                 self.history = []
                 self.runtime = sandboxLupaWithLibraries(libs,seed)
-                #self.persistents = runtime.eval('{}')
                 self.version = 0
                 self.cache[self.uuid] = self
             
@@ -149,7 +200,8 @@ else:
             dictionary = {
                     'seed':self.seed,
                     'libs':self.libs,
-                    'history':self.history
+                    'history':self.history,
+                    'user_code_segments':self.user_code_segments
             }
             return json.dumps(dictionary)
             
@@ -169,37 +221,49 @@ else:
             link.uuid = uuid
             link.version = version
             link.runtime = sandboxLupaWithLibraries(link.libs,link.seed)
+            link.user_code_segments = dictionary['user_code_segments']
     
     #       set_persistents = runtime.eval('function (val) persistents=val return end')
     #       set_persistents(self.persistents)
             for cmdtype,text in link.history:
                 if cmdtype == 'eval':
                     link.runtime.eval(text)
-                if cmdtype == 'execute':
+                if cmdtype == '':
                     link.runtime.execute(text)
     
             LupaRuntimeLink.cache[uuid] = link 
             return link
         
         def eval(self,code):
-            result = self.runtime.eval(code)
-            self.history.append(('eval',code))
-    #        self.persistents = runtime.eval('persistents')
+            try:
+                result = self.runtime.eval(code)
+                self.history.append(('eval',code))
+                self.version += 1
+                return (True,result)
+            except LuaError as luaerr:
+                return (False,parseLuaError(luaerr))
+        def sys_exec(self,code):
+            try:
+                result = self.runtime.execute(code)
+                self.history.append(('execute',code))
+                self.version += 1
+                return True
+            except LuaError as luaerr:
+                return parseLuaError(luaerr)
+        def user_exec(self,codesegments):
+            self.user_code_segments = codesegments
+            self.history.append(('execute',codesegments))
             self.version += 1
-            return result
-        def execute(self,codesegments):
-            self.history.append(('execute',code))
+            
+            # We have to put the code segments together to form the actual code 
             code = ""
             for codeseg in codesegments:
-                code += codeseg.code
+                code += codeseg['code']
             try:
                 self.runtime.execute(code)
+                return True
             except LuaError as luaerr:
-                
-
-
-    #        self.persistents = runtime.eval('persistents')
-            self.version += 1
+                return parseLuaError(luaerr)
     
         @staticmethod
         def clearCache_FOR_TESTING_ONLY():
@@ -210,15 +274,15 @@ else:
     
     class LupaQuestion(object):
         
-        def __init__(self,code,libs,seed,formid,numParts):
-            self.code = code
+        def __init__(self,code_segments,libs,seed,formid,numParts):
+            self.code_segments = code_segments
             self.libs = libs
             self.seed = seed
             self.uniqid = formid
             self.numParts = int(numParts)
             self.error = None
             runtime = LupaRuntimeLink(libs,seed)
-            runtime.execute('''
+            header_code = '\n'*10 + '''
     _debug_print = print
     _debug_print_table = function (t) for k,v in pairs(t) do _debug_print(k..'='..v) end end 
 
@@ -271,20 +335,48 @@ else:
             return by_type[type]()
         end
     
-            ''')
+            '''
             
-            runtime.execute('_set_uniqid("'+self.uniqid+'")')
-            runtime.execute('_init_inputs('+str(self.numParts)+')')
+            header_code_seg = CodeSegment.new(CodeSegment.system_lua,header_code,"")
+            set_uniqid_code_seg = CodeSegment.new(CodeSegment.system_lua,'_set_uniqid("'+self.uniqid+'")\n',"")
+            init_inputs_code_seg = CodeSegment.new(CodeSegment.system_lua,'_init_inputs('+str(self.numParts)+')\n',"")
             
-            try:
-                runtime.execute(code)
-            except LuaError as e:
-                error_mess = str(e)
-                error_mess = re.sub(r'\[string "<python>"\]:','',error_mess)
-                self.error = 'LuaError: '+error_mess
-                
+            prepended_code_segments = [header_code_seg, set_uniqid_code_seg, init_inputs_code_seg] + code_segments
+            
+            result = runtime.user_exec(prepended_code_segments)
+            
             self.lupaid = runtime.getIdentifier()
             self.lupadump = runtime.dump()
+            
+            if result != True:
+                self.setError(result,"")   # We leave current code empty because the current code is used for situations where the error did not
+                                           # occur in the big block of user code which defines the question.  This is that block of code so there's no
+                                           # other possibility
+    
+        def setError(self,result, current_code):
+            if result == True:
+                return
+            if result['type'] == LuaErrorType.required_part_not_defined:
+                return result
+            line = result['line']
+            if line < 10:
+                result['segment']=CodeSegment.new(CodeSegment.system_lua, current_code,"")
+            else:
+                lines_remaining = line
+                prev_lines_remaining = line
+                code_segment_index = 0
+                runtime = self.getRuntime()
+                while lines_remaining > 1:
+                    prev_lines_remaining = lines_remaining
+                    lines_remaining -= runtime.user_code_segments[code_segment_index]['num_new_lines']
+                    code_segment_index += 1
+                code_segment_index -= 1
+                result['line'] = prev_lines_remaining
+                result['segment'] = runtime.user_code_segments[code_segment_index]
+                result['has_previous_segment']=code_segment_index > 0
+                if code_segment_index > 0:
+                    result['previous_segment']= runtime.user_code_segments[code_segment_index-1]
+            self.error=result
     
         def getRuntime(self):
             return LupaRuntimeLink.getLinkFromIdAndDump(self.lupaid, self.lupadump)
@@ -295,28 +387,60 @@ else:
         
         def getQuestionPart(self,n):
             runtime = self.getRuntime()
-            if runtime.eval('part_'+str(n)+'_text') is None:
-                self.updateRuntime(runtime)
-                return "No question part "+str(n)+" defined."
-            runtime.execute('_output = ""')
-            runtime.execute('_qtext = part_'+str(n)+'_text()')
-            runtime.execute('if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end')
-            result = runtime.eval('_output .. _qtext')
+            (success,result) = runtime.eval('part_'+str(n)+'_text')
             self.updateRuntime(runtime)
-            print(self.lupaid)
-            return result
+            if not success:
+                self.setError(result)
+                return False
+            if result is None:
+                self.setError({'type':LuaErrorType.required_part_not_defined,
+                               'number':n,
+                               'part':'question'},
+                              "")
+                return False
+            
+            question_code = '_output = ""\n'
+            question_code += '_qtext = part_'+str(n)+'_text()\n'
+            question_code += 'if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end'
+            exec_result = runtime.sys_exec(question_code)
+            if exec_result != True:
+                self.setError(exec_result,question_code)
+                self.updateRuntime(runtime)
+                return False
+
+            output_value = '_output .. _qtext'
+            (success,result) = runtime.eval(output_value)
+            self.updateRuntime(runtime)
+
+            if not success:
+                self.setError(result,output_value)
+                return False
+            else:
+                return result
         
         def answerQuestionPart(self,n,answer_dict):
-            print(self.lupaid)
             runtime = self.getRuntime()
-            print(runtime.getIdentifier())
-            evalAnswerFunc = runtime.eval('evaluate_answer_'+str(n)+'')
+            (success,evalAnswerFunc) = runtime.eval('evaluate_answer_'+str(n)+'')
+            if not success:
+                self.updateRuntime(runtime)
+                self.setError(evalAnswerFunc,"")
+                return False
             if evalAnswerFunc is None:
                 self.updateRuntime(runtime)
-                return "No answer evaluator for part "+str(n)+" is defined."
-            results = evalAnswerFunc(answer_dict)
+                self.setError({'type':LuaErrorType.required_part_not_defined,
+                               'number':n,
+                               'part':'answer'},
+                              "")
+                return False
+            try:
+                results = evalAnswerFunc(answer_dict)
+            except LuaError as luaerr:
+                self.setError(parseLuaError(luaerr), 'evaluate_answer_'+str(n)+'('+str(answer_dict)+')')
+                self.updateRuntime(runtime)
+                return False
+                
             # There are problems dealing with Lua tables in Django templates, so we create
-            # python dictionaries instead.
+            # Python dictionaries instead.
             pyresults = {}
             for answer_name in results:
                 answer = results[answer_name]
@@ -335,17 +459,28 @@ else:
                         pydetails[detail_name] = pydetail
                     pyanswer['details']=pydetails
                 pyresults[answer_name]=pyanswer
-            print(pyresults)
+            #print(pyresults)
             
             return pyresults
         
         def getPartWeight(self,n):
             runtime = self.getRuntime()
-            weightFunc = runtime.eval('part_'+n+'_weight')
+            (success,weightFunc) = runtime.eval('part_'+n+'_weight')
+            if not success:
+                self.setError({'type':LuaErrorType.required_part_not_defined,
+                               'number':n,
+                               'part':'weight'},
+                              "")
+                return False
             if weightFunc is None:
                 result = 1
             else:
-                result = weightFunc()
+                try:
+                    result = weightFunc()
+                except LuaError as luaerr:
+                    self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_weight()')
+                    self.updateRuntime(runtime)
+                    return False
             self.updateRuntime(runtime)
             return result
         
@@ -361,6 +496,9 @@ else:
             return newLupaQuestion
         
 # This class is intentionally outside the if because it does not actually depend on Lua.
+# It is also not really a class.  It's a wrapper for creating a dictionary and manipulating it.
+# This is done this way because the "object" needs to be easily serialized by Django and by making
+# it as basic type rather than an object it will automatically be serialized correctly without any additional code.
 class CodeSegment:
     system_lua = 6101
     raw_lua = 6102
@@ -368,27 +506,33 @@ class CodeSegment:
     template_richtext = 6104
     template_expression = 6105
     template_code = 6106
-    def __init__(self,type,code,original):
-        self.type = type
-        self.code = code
-        self.original = original
-        self.num_new_lines = code.count("\n")
-        exec
-    error_message = {
-                        system_lua: "An error has occurred in the following code which comes with the OneUp system.  Generally, if you are not a developer of OneUp you should not see this message.",
-                        raw_lua:"An error has occurred in the following Lua code you have provided.",
-                        template_setup_code:"An error has occurred in the following code which was part of the setup code for your templated problem",
-                        template_richtext:"An error has occurred in the following Lua code which is meant to display the rich text part of your templated problem.  In theory, you should never be seeing this error message, but if you are, you have somehow managed to create something which the system cannot print.",
-                        template_expression:"An error has occurred in the following Lua expression.",
-                        template_code:"An error has occurred in the following Lua code which was included as part of your templated problem."
-                    }
         
-    def make_error_message(self):
-        mess = CodeSegment.error_message[self.type]
-        mess += "\n"
-        mess += "Code with error: " + self.code  # TODO: Make this do syntax highlighting
-        mess += "\n"
-        if type == CodeSegment.template_richtext:
-            mess += "Original text: "
-            mess += self.original
-        return mess
+    error_message = {
+                        system_lua: "The error has occurred in the following code which comes with the OneUp system.  Generally, if you are not a developer of OneUp you should not see this message.",
+                        raw_lua:"The error has occurred in the following Lua code you have provided.",
+                        template_setup_code:"The error has occurred in the following code which was part of the setup code for your templated problem",
+                        template_richtext:"The error has occurred in the following Lua code which is meant to display the rich text part of your templated problem.  In theory, you should never be seeing this error message, but if you are, you have somehow managed to create something which the system cannot print.",
+                        template_expression:"The error has occurred in the following Lua expression which was included in your templated problem inside a [|  \] block.",
+                        template_code:"The error has occurred in the following Lua code which was included as part of your templated problem inside a [{  }] block."
+                    }
+    
+    type_description = {
+                        system_lua: "OneUp System Code",
+                        raw_lua: "Raw Lua code",
+                        template_setup_code: "Template Set-up Code",
+                        template_richtext: "Template Text",
+                        template_expression: "Template Expression",
+                        template_code: "Template Code"
+                       }
+        
+    @staticmethod
+    def new(type,code,original):
+        new_code_seg = {}
+        new_code_seg['type'] = type
+        new_code_seg['code'] = code
+        new_code_seg['original'] = original
+        new_code_seg['num_new_lines'] = code.count("\n")
+        new_code_seg['type_error'] = CodeSegment.error_message[type]
+        new_code_seg['type_name'] = CodeSegment.type_description[type]
+        return new_code_seg
+    

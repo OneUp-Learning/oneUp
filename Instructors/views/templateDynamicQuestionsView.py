@@ -9,10 +9,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
-from Instructors.lupaQuestion import LupaQuestion, lupa_available 
+from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
-
 
 from Badges.enums import QuestionTypes
 
@@ -183,8 +182,9 @@ def HTMLquotesToRegularQuotes(str):
 # since the regular expression is always the same.
 templateCodeSplitRegex = re.compile(r"\[\{(.*?)\}\]",re.DOTALL)
 templateVarSplitRegex = re.compile(r"\[\|(.*?)\|\]",re.DOTALL)
-def templateToCode(setupCode,templateArray):
-    code = '''
+def templateToCodeSegments(setupCode,templateArray):
+    code_segments = []
+    sys_code = '''
         exact_equality = function(a)
             return function(b,pts)
                 if tonumber(a)==tonumber(b) then
@@ -233,10 +233,13 @@ def templateToCode(setupCode,templateArray):
             end
         end
     '''
-    code += setupCode + "\n" # Newline added to help readability
+    code_segments.append(CodeSegment.new(CodeSegment.system_lua,sys_code,""))
+    code_segments.append(CodeSegment.new(CodeSegment.template_setup_code,
+                                         setupCode + "\n", "")) # Newline added to help readability
    
     count = int(1)
-    
+
+    code = ""
     for templateText in templateArray:
         code += 'part_'+str(count)+'_max_points = _part_max_points('+str(count)+')\n'
         code += 'evaluate_answer_'+str(count)+' = _evaluate_answer('+str(count)+')\n'
@@ -248,30 +251,42 @@ part_'''+str(count)+'''_text = function ()
     
     output = ""
     '''
+
+        code_segments.append(CodeSegment.et(CodeSegment.system_lua,code,""))
         count+=1
          # First we split out the variable eval parts and convert them to code print statements
         pieces = re.split(templateVarSplitRegex,templateText)
         templateTextNoValues = pieces[0]
         i = 1
         l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
+        value_comment = '\n--value\n'
         while i<l:
-            templateTextNoValues += "[{print("+pieces[i]+")}]";
+            templateTextNoValues += "[{"+value_comment+"print("+pieces[i]+")}]";
             i += 1
             templateTextNoValues += pieces[i]
             i += 1
             
         pieces = re.split(templateCodeSplitRegex,templateTextNoValues)
         #TODO: escape quotation marks from pieces
-        code += "print([======["+pieces[0]+"]======])\n"
+        piece_code = "print([======["+pieces[0]+"]======])\n"
+        code_segments.append(CodeSegment.new(CodeSegment.template_richtext,
+                                             piece_code,pieces[0]))
         i = 1
         l = len(pieces)  # l will always be odd because of how split works when parenthesis are used in the regular expression
         while i<l:
-            code += HTMLquotesToRegularQuotes(pieces[i]) + "\n"
+            piece_code = HTMLquotesToRegularQuotes(pieces[i]) + "\n"
+            if pieces[i].startswith(value_comment):
+                piece_type = CodeSegment.template_expression
+            else:
+                piece_type = CodeSegment.template_code
+            code_segments.append(CodeSegment.new(piece_type,piece_code,pieces[i]))
             i += 1
-            code += "print([======["+pieces[i]+"]======])\n"
+            piece_code += "print([======["+pieces[i]+"]======])\n"
+            code_segements.append(CodeSegment.new(CodeSegment.template_richtext,
+                                                  piece_code,pieces[i]))
             i += 1
     
     code += 'end'
-    print("CODE")
-    print(code)
-    return code
+    print("CODE SEGMENTS")
+    print(code_segments)
+    return code_segments

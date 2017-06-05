@@ -1,0 +1,48 @@
+{% if error.has_previous_segment %}
+	<div id="prevCodeSegment" style.display="none">
+		<p>
+			Segment Type: {{error.previous_segment.type_name}}
+		</p>
+		<p> Code:
+			<ul> <li>
+			<pre>
+				{{error.previous_segment.code}}
+			</pre>
+			</li> </ul>
+		</p>
+		{% if error.previous_segment.type == 6104 %} <!-- Template Rich Text -->
+			<p> Original rich text:
+				<ul> <li>
+				<pre>
+					{{error.previous_segment.original}}
+				</pre>
+				</li> </ul>
+			</p>
+		{% endif %}
+	</div>
+{% endif %}
+<div id="codeSegment">
+	<p>
+		Segment Type: {{error.segment.type_name}}
+	</p>
+	<p> Line number: {{error.line}} </p>
+	<p> Code:
+		<ul> <li>
+		<pre>
+			{{error.segment.code}}
+		</pre>
+		</li> </ul>
+	</p>
+	{% if error.segment.type == 6104 %} <!-- Template Rich Text -->
+		<p> Original rich text:
+			<ul> <li>
+			<pre>
+				{{error.segment.original}}
+			</pre>
+			</li> </ul>
+		</p>
+	{% endif %}
+</div>
+{% if error.has_previous_segment %}
+<p><small><a onclick="document.getElementById('prevCodeSegment').style.display='block';">show previous code segment</a></small></p> 
+{% endif %}
