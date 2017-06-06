@@ -183,7 +183,7 @@ def HTMLquotesToRegularQuotes(str):
 templateCodeSplitRegex = re.compile(r"\[\{(.*?)\}\]",re.DOTALL)
 templateVarSplitRegex = re.compile(r"\[\|(.*?)\|\]",re.DOTALL)
 def templateToCodeSegments(setupCode,templateArray):
-    code_segments = []
+    code_segments = list()
     sys_code = '''
         exact_equality = function(a)
             return function(b,pts)
@@ -239,8 +239,8 @@ def templateToCodeSegments(setupCode,templateArray):
    
     count = int(1)
 
-    code = ""
     for templateText in templateArray:
+        code = ""
         code += 'part_'+str(count)+'_max_points = _part_max_points('+str(count)+')\n'
         code += 'evaluate_answer_'+str(count)+' = _evaluate_answer('+str(count)+')\n'
         code += '''
@@ -281,12 +281,11 @@ part_'''+str(count)+'''_text = function ()
                 piece_type = CodeSegment.template_code
             code_segments.append(CodeSegment.new(piece_type,piece_code,pieces[i]))
             i += 1
-            piece_code += "print([======["+pieces[i]+"]======])\n"
-            code_segements.append(CodeSegment.new(CodeSegment.template_richtext,
+            piece_code = "print([======["+pieces[i]+"]======])\n"
+            code_segments.append(CodeSegment.new(CodeSegment.template_richtext,
                                                   piece_code,pieces[i]))
             i += 1
     
-    code += 'end'
-    print("CODE SEGMENTS")
-    print(code_segments)
+        code_segments.append(CodeSegment.new(CodeSegment.system_lua, "end\n", ""))
+
     return code_segments
