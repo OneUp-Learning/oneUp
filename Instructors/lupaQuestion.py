@@ -228,7 +228,7 @@ else:
             for cmdtype,text in link.history:
                 if cmdtype == 'eval':
                     link.runtime.eval(text)
-                if cmdtype == '':
+                if cmdtype == 'execute':
                     link.runtime.execute(text)
     
             LupaRuntimeLink.cache[uuid] = link 
@@ -238,6 +238,7 @@ else:
             try:
                 result = self.runtime.eval(code)
                 self.history.append(('eval',code))
+                print ("EVAL:"+code)
                 self.version += 1
                 return (True,result)
             except LuaError as luaerr:
@@ -246,6 +247,7 @@ else:
             try:
                 result = self.runtime.execute(code)
                 self.history.append(('execute',code))
+                print ("SYS_EXEC:"+code)
                 self.version += 1
                 return True
             except LuaError as luaerr:
@@ -259,6 +261,7 @@ else:
                 code += codeseg['code']
             
             self.history.append(('execute',code))
+            print ("USER_EXEC:"+code)
             self.version += 1
             
             try:
@@ -368,7 +371,8 @@ else:
                 prev_lines_remaining = line
                 code_segment_index = 0
                 runtime = self.getRuntime()
-                while lines_remaining > 0:
+                num_code_segments = len(runtime.user_code_segments)
+                while lines_remaining > 0 and code_segment_index < num_code_segments:
                     prev_lines_remaining = lines_remaining
                     lines_remaining -= runtime.user_code_segments[code_segment_index]['num_new_lines']
                     code_segment_index += 1
@@ -438,8 +442,8 @@ else:
             try:
                 results = evalAnswerFunc(answer_dict)
             except LuaError as luaerr:
-                self.setError(parseLuaError(luaerr), 'evaluate_answer_'+str(n)+'('+str(answer_dict)+')')
                 self.updateRuntime(runtime)
+                self.setError(parseLuaError(luaerr), 'evaluate_answer_'+str(n)+'('+str(answer_dict)+')')
                 return False                
                 
             # There are problems dealing with Lua tables in Django templates, so we create
