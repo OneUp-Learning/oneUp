@@ -22,7 +22,6 @@ h5,
 h6,
 p,
 blockquote,
-pre,
 a,
 abbr,
 acronym,
@@ -41,7 +40,6 @@ s,
 samp,
 small,
 strike,
-strong,
 sub,
 sup,
 tt,
@@ -83,6 +81,8 @@ nav,
 output,
 ruby,
 section,
+strong,
+pre,
 summary,
 time,
 mark,
@@ -91,8 +91,6 @@ video {
     margin: 0;
     padding: 0;
     border: 0;
-    font-size: 100%;
-    font: inherit;
     vertical-align: baseline;
 }
 article,
@@ -1497,7 +1495,6 @@ h4 {
 }
 strong,
 b {
-    font-weight: 400;
     color: #483949;
 }
 em,
