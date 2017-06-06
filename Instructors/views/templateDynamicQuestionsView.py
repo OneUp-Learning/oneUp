@@ -252,7 +252,7 @@ part_'''+str(count)+'''_text = function ()
     output = ""
     '''
 
-        code_segments.append(CodeSegment.et(CodeSegment.system_lua,code,""))
+        code_segments.append(CodeSegment.new(CodeSegment.system_lua,code,""))
         count+=1
          # First we split out the variable eval parts and convert them to code print statements
         pieces = re.split(templateVarSplitRegex,templateText)

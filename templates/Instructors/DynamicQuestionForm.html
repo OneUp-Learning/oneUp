@@ -29,6 +29,7 @@
   						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
   					}
   					makeNewEditors();
+  					makeNewReadOnlyEditors()
   				}
   			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
   						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
@@ -66,8 +67,12 @@
     		width: 300;
     		height: 300px;
     	}
-    
-    </style>
+        .lineHighlight {
+  			position:absolute;
+  			background:rgba(100,200,100,0.5);
+  			z-index:20
+		}
+      </style>
     
   </head>
   <body>

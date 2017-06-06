@@ -135,9 +135,9 @@ else:
         runtime = 7703
         required_part_not_defined = 7704
     
-    luaModuleNotFoundRegex = re.compile("\w*module '(.*)' not found")
-    luaModuleSyntaxErrorRegex = re.compile("\w*error loading module '(.*)' from file '(.*)':")
-    luaMainErrorRegex = re.compile('\w*(error loading code:)?\w*(.*):(\d+):(.*)')
+    luaModuleNotFoundRegex = re.compile("\s*module '(.*)' not found")
+    luaModuleSyntaxErrorRegex = re.compile("\s*error loading module '(.*)' from file '(.*)':")
+    luaMainErrorRegex = re.compile('\s*(error loading code:)?\s*(.*):(\d+):(.*)')
     luaErrorPythonStringRegex = re.compile('.*string.*python')
     # Parses a Lua Error and returns a dictionary which contains information gleaned from the error message
     def parseLuaError(luaerr):
@@ -252,13 +252,15 @@ else:
                 return parseLuaError(luaerr)
         def user_exec(self,codesegments):
             self.user_code_segments = codesegments
-            self.history.append(('execute',codesegments))
-            self.version += 1
             
             # We have to put the code segments together to form the actual code 
             code = ""
             for codeseg in codesegments:
                 code += codeseg['code']
+            
+            self.history.append(('execute',code))
+            self.version += 1
+            
             try:
                 self.runtime.execute(code)
                 return True
@@ -345,8 +347,7 @@ else:
             
             result = runtime.user_exec(prepended_code_segments)
             
-            self.lupaid = runtime.getIdentifier()
-            self.lupadump = runtime.dump()
+            self.updateRuntime(runtime)
             
             if result != True:
                 self.setError(result,"")   # We leave current code empty because the current code is used for situations where the error did not
@@ -357,7 +358,8 @@ else:
             if result == True:
                 return
             if result['type'] == LuaErrorType.required_part_not_defined:
-                return result
+                self.error = result
+                return
             line = result['line']
             if line < 10:
                 result['segment']=CodeSegment.new(CodeSegment.system_lua, current_code,"")
@@ -366,7 +368,7 @@ else:
                 prev_lines_remaining = line
                 code_segment_index = 0
                 runtime = self.getRuntime()
-                while lines_remaining > 1:
+                while lines_remaining > 0:
                     prev_lines_remaining = lines_remaining
                     lines_remaining -= runtime.user_code_segments[code_segment_index]['num_new_lines']
                     code_segment_index += 1
@@ -395,13 +397,13 @@ else:
             if result is None:
                 self.setError({'type':LuaErrorType.required_part_not_defined,
                                'number':n,
-                               'part':'question'},
+                               'function_name':'part_'+str(n)+'_text'},
                               "")
                 return False
             
             question_code = '_output = ""\n'
             question_code += '_qtext = part_'+str(n)+'_text()\n'
-            question_code += 'if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end'
+            question_code += 'if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end\n'
             exec_result = runtime.sys_exec(question_code)
             if exec_result != True:
                 self.setError(exec_result,question_code)
@@ -420,7 +422,7 @@ else:
         
         def answerQuestionPart(self,n,answer_dict):
             runtime = self.getRuntime()
-            (success,evalAnswerFunc) = runtime.eval('evaluate_answer_'+str(n)+'')
+            (success,evalAnswerFunc) = runtime.eval('evaluate_answer_'+str(n))
             if not success:
                 self.updateRuntime(runtime)
                 self.setError(evalAnswerFunc,"")
@@ -429,15 +431,16 @@ else:
                 self.updateRuntime(runtime)
                 self.setError({'type':LuaErrorType.required_part_not_defined,
                                'number':n,
-                               'part':'answer'},
+                               'function_name':'evaluate_answer_'+str(n)},
                               "")
                 return False
+            self.updateRuntime(runtime)
             try:
                 results = evalAnswerFunc(answer_dict)
             except LuaError as luaerr:
                 self.setError(parseLuaError(luaerr), 'evaluate_answer_'+str(n)+'('+str(answer_dict)+')')
                 self.updateRuntime(runtime)
-                return False
+                return False                
                 
             # There are problems dealing with Lua tables in Django templates, so we create
             # Python dictionaries instead.
@@ -469,7 +472,7 @@ else:
             if not success:
                 self.setError({'type':LuaErrorType.required_part_not_defined,
                                'number':n,
-                               'part':'weight'},
+                               'function_name':'part_'+n+'_weight'},
                               "")
                 return False
             if weightFunc is None:

@@ -154,7 +154,7 @@ def makePartHTMLwithForm(question,part):
     formID = question.uniqid+'-'+str(part)
     formHead = ('<form name="'+formID+'" id="'+formID+'" action="doDynamicQuestion" method="POST" onSubmit="copyAJAXEditorsToHidden(\''+
                 formID+'\');submit_form(\''+
-                question.uniqid+'\','+str(part)+',makeNewEditors);disableDiv(\''+question.uniqid+'-'+str(part)+'\');return false;" >')
+                question.uniqid+'\','+str(part)+',makeAllEditors);disableDiv(\''+question.uniqid+'-'+str(part)+'\');return false;" >')
     formBody = '<input type="hidden" name="_part" value="'+str(part+1)+'">'
     formBody += '<input type="hidden" name="_uniqid" value="'+question.uniqid+'">'
     if (int(part) <= question.numParts):
@@ -246,6 +246,7 @@ def dynamicQuestionPartAJAX(request):
                                        
         formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
         if 'error' not in context_dict and lupaQuestion.error is not None:
+            print("We are setting error to:" + str(lupaQuestion.error))
             context_dict['error'] = lupaQuestion.error
         lupaQuestionTable[uniqid]=lupaQuestion.serialize()
         request.session['lupaQuestions']=lupaQuestionTable

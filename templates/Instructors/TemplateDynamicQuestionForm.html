@@ -35,6 +35,7 @@
   						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
   					}
   					makeNewEditors();
+  					makeNewReadOnlyEditors()
   				}
   			templateTextValues = "";
   			for (var i=1; i<=numParts; i++) {
@@ -161,6 +162,11 @@
     		width: 300;
     		height: 300px;
     	}
+        .lineHighlight {
+  			position:absolute;
+  			background:rgba(100,200,100,0.5);
+  			z-index:20
+		}
     
     </style>
       

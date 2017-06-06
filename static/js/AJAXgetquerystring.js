@@ -70,28 +70,51 @@ function submit_form(uniqid,part,extra_stuff_fun) {
 }
 
 var aceEditors = {}
-    	function makeNewEditors() {
-    	    var allEditorDivs = document.getElementsByClassName("ace-editor");
-    	    var len = allEditorDivs.length;
-    	    for (var i = 0; i<len; i++) {
-    	        var editorDiv = allEditorDivs[i];
-    	        if (aceEditors[editorDiv.id] == undefined) {
-    	            aceEditors[editorDiv.id] = ace.edit(editorDiv.id);
-    	            var thiseditor = aceEditors[editorDiv.id]
-				    thiseditor.setTheme("ace/theme/chrome");
-				    thiseditor.getSession().setMode("ace/mode/"+editorDiv.title); // We're putting language mode in title. Yes, this is an abuse of the field, but it shouldn't hurt anything.				    
-				}
-		    }
+function makeNewEditors() {
+    var allEditorDivs = document.getElementsByClassName("ace-editor");
+    var len = allEditorDivs.length;
+    for (var i = 0; i<len; i++) {
+        var editorDiv = allEditorDivs[i];
+        if (aceEditors[editorDiv.id] == undefined) {
+            aceEditors[editorDiv.id] = ace.edit(editorDiv.id);
+            var thiseditor = aceEditors[editorDiv.id]
+		    thiseditor.setTheme("ace/theme/chrome");
+		    thiseditor.getSession().setMode("ace/mode/"+editorDiv.title); // We're putting language mode in title. Yes, this is an abuse of the field, but it shouldn't hurt anything.				    
 		}
-		
-		function copyAJAXEditorsToHidden(formid) {
-		    var form = document.getElementById(formid);
-		    var formEditorDivs = form.getElementsByClassName("ace-editor");
-		    var len = formEditorDivs.length;
-		    for (var i = 0; i<len; i++) {
-    	        var editorDiv = formEditorDivs[i];
-		        var myeditor = aceEditors[editorDiv.id];
-		        var hidden = document.getElementById(editorDiv.id+"-hidden");
-		        hidden.value = myeditor.getValue();
-		    }
+    }
+}
+
+function makeNewReadOnlyEditors() {
+	var allEditorDivs = document.getElementsByClassName("ace-editor-readonly");
+	var len = allEditorDivs.length;
+	for (var i = 0; i<len; i++) {
+		var editorDiv = allEditorDivs[i];
+		var thiseditor = ace.edit(editorDiv.id);
+		thiseditor.setTheme("ace/theme/chrome");
+		thiseditor.getSession().setMode("ace/mode/lua");
+		thiseditor.setReadOnly(true);
+		if (editorDiv.title != "None") {
+			var Range = ace.require('ace/range').Range;
+			thiseditor.session.addMarker(new Range(editorDiv.title-1, 0, editorDiv.title-1, 1), "lineHighlight", "fullLine");
 		}
+		//We're putting which line to highlight in the title.  There's probably a better way to do this than abusing this field, but it doesn't get used for anything
+		//so it shouldn't hurt anything.
+	}
+}
+
+function makeAllEditors() {
+	makeNewEditors();
+	makeNewReadOnlyEditors();
+}
+
+function copyAJAXEditorsToHidden(formid) {
+    var form = document.getElementById(formid);
+    var formEditorDivs = form.getElementsByClassName("ace-editor");
+    var len = formEditorDivs.length;
+    for (var i = 0; i<len; i++) {
+        var editorDiv = formEditorDivs[i];
+        var myeditor = aceEditors[editorDiv.id];
+        var hidden = document.getElementById(editorDiv.id+"-hidden");
+        hidden.value = myeditor.getValue();
+    }
+}
