@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+
+{% include 'scripts.html' %}
+
+</head>
+<body>
+	<div>
+
+		{% include 'heading.html' %}
+
+		<div class="frame" id="grad" align="center">
+			<div class="container">
+				<div class="row">
+					<div class="12u">
+						<h1>Export Challenges</h1>
+						<br />
+						<br />
+					</div>
+				</div>
+				<!-- INSERTED DYNAMIC TABLE -->
+
+				<form name="challlengedownload"
+					action="/oneUp/instructors/saveExportedChallenges" method="POST">
+					{% csrf_token %}
+
+					<table class="bg">
+						<tr>
+							<th>The data has been saved to a file. To download the file
+								click the Download button below.</th>
+						</tr>
+						<tr>
+							<td>
+							<br /><input type="submit" name="download" value="Download" class="button" />
+							</td>
+
+						</tr>
+					</table>
+
+					<a href="/oneUp/instructors/instructorCourseHome"><input type="button" value="Back"></a>
+
+				</form>
+
+			</div>
+		</div>
+	</div>
+	<!-- Footer -->
+
+	{% include 'footer.html' %}
+
+</body>
+</html>

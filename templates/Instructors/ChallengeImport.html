@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+
+
+{% include 'scripts.html' %}
+
+</head>
+<body>
+	<div>
+
+		{% include 'heading.html' %}
+
+		<div class="frame" id="grad" align="center">
+			<div class="container">
+				<div class="row">
+					<div class="12u">
+						<h1>Import Challenges</h1>
+					</div>
+				</div>
+				<br />
+				<!-- INSERTED DYNAMIC TABLE -->
+
+				<form id="uploadbanner" action="/oneUp/instructors/uploadChallenges"
+					enctype="multipart/form-data" method="POST">
+					{% csrf_token %}
+
+					<table class="bg">
+						<tr>
+							<th>Upload Your Challenges File</th>
+						</tr>
+						<tr>
+							<td><input id="fileupload" name="challenges" type="file" /></td>
+						</tr>
+						<tr>
+						<tr>
+							<td><input type="submit" value="Upload" id="Upload" /></td>
+						</tr>
+
+					</table>
+
+				</form>
+
+			</div>
+		</div>
+	</div>
+	<!-- Footer -->
+
+	{% include 'footer.html' %}
+
+	</div>
+
+</body>
+</html>

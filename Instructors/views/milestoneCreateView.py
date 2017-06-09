@@ -22,8 +22,8 @@ def milestoneCreateView(request):
     # another programmatically instead of listing them out.
     string_attributes = ['milestoneName','description','points'];
 
-     # prepare context for Milestone List      
-    context_dict = createContextForMilestoneList()
+    # prepare context for Milestone List      
+    context_dict = createContextForMilestoneList(request)
     
     # check if course was selected
     if 'currentCourseID' in request.session:

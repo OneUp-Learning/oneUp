@@ -285,6 +285,13 @@ class UploadedImages(models.Model):
     def delete(self):
         self.imageFile.delete()
         super(UploadedImages, self).delete()
+
+#class for Uploaded Files
+class UploadedFiles(models.Model):
+        uploadedFile = models.FileField(max_length=500,upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'textfiles/xmlfiles'))
+        uploadedFileName = models.CharField(max_length=200, default='')
+        uploaded_at = models.DateTimeField(auto_now_add=True)
+        uploadedFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
    
 #Dynamic Questions Stuff
 class DynamicQuestions(Questions):

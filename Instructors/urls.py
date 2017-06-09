@@ -13,6 +13,7 @@ from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsVie
 from Instructors.views.challengeCreateView import challengeCreateView
 from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
 #from Instructors.views.challengeEditView import challengeEditView
+from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
 from Instructors.views.challengeListView import ChallengesList
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
@@ -29,7 +30,7 @@ from Instructors.views.createStudentView import createStudentViewUnchecked
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 from Instructors.views.essayView import  essayForm
-from Instructors.views.ExportChallenges import exportChallenges, importChallenges
+
 #from Instructors.views.filesListView import  filesList
 from Instructors.views.gameRulesView import gameRulesView
 
@@ -131,6 +132,7 @@ urlpatterns = [
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
     url(r'^preferences',preferencesView, name='preferencesView'),
+    url(r'^saveExportedChallenges',saveExportedChallenges, name='saveExportedChallenges'),    
     url(r'^search',searchQuestions, name='searchQuestions'),
     url(r'^skillsCreate',skillsCreateView, name='skillsCreateView'),
     url(r'^skillsList',skillsListView, name='skillsListView'),
@@ -144,6 +146,7 @@ urlpatterns = [
     url(r'^subTopicsListView',subTopicsListView, name='subTopicsListView'),
     url(r'^topicsCreate',topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList',topicsListView, name='topicsListView'),
+    url(r'^uploadChallenges',uploadChallenges, name='uploadChallenges'),   
     url(r'^forms/doDynamicQuestion',dynamicQuestionPartAJAX,name="dynamic question engine AJAX"),
     url(r'^luaTestView',luaTestView,name="Lua Test View"),
     url(r'^luaLibDelete',libDelete,name="Lua Library Delete"), 
