@@ -3,6 +3,8 @@
 <head>
 
    {% include 'scripts.html' %}
+   
+   <title> Lua Library Upload </title>
  
 </head>
 <body>
@@ -39,9 +41,9 @@
                <tr>
                   <td>
                   	  {% if libEdit %}
-                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libarayName" id="preview" placeholder={{libName}}>
+                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libraryName" id="preview" value="{{libName}}">
                       {% else %}
-                        <input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libarayName" id="preview">
+                        <input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libraryName" id="preview">
                       {% endif %}
                   </td>
                </tr>  
@@ -51,17 +53,24 @@
                <tr>
                   <td>
                   	  {% if libEdit %}	
-                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libDescription" id="preview" placeholder={{libDescription}} >
+                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libDescription" id="preview" value="{{libDescription}}" >
                       {% else %}
                       	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libDescription" id="preview">
 					  {% endif %}	                      
                   </td>
-				</tr>                        
+				</tr> 
+				<tr>
+					<td>
+					   	{% include "Instructors/luaLibraryDependencies.html" %}
+					</td>
+				</tr>                      
    			</table>
+   			
    			<input type="hidden" name="libID" value="{{libID}}"> 
    			<input type="submit" value="Upload" id="Upload" align="center"/>
         	 <a href="/oneUp/instructors/instructorCourseHome"><input type="button" class="special" value="Back"></a> 
-   			
+   		   			
+   			</form>
 		<br/>
 		<br />
    			
@@ -79,8 +88,7 @@
             	{% csrf_token %}
             	<tr>
 					<td><input type="checkbox" name="depend[]" value={{libIDs}}></td>
-						</form>
-		</div>
+
 					<td> {{libName}}</td>
 					<td> {{libDescription}}</td>
 					
@@ -117,8 +125,6 @@
      {% include 'footer.html' %}
 
 	</div>`
-	<script type="text/javascript">
-		Cufon.now();
-	</script>
+
 </body>
 </html>

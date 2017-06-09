@@ -1,0 +1,103 @@
+<style>
+	#dependentLibraryDiv {
+		border: 1px solid;
+		min-height: 30px;
+		display: 'block';			
+	}
+	#dependentLibraryList {
+		padding:0;
+		margin:0;
+		list-style: none;
+		overflow: hidden;
+	}
+	#dependentLibraryList li {
+		display: block;
+		border: 1px solid;
+		list-style-type:none;
+		margin: 0.25em 0.25em 0.25em 0.25em ;
+		background: #1FADFF;
+		position: relative;	
+		float: left;
+		padding:0.25em 0.25em 0.25em 0.25em;
+	}
+	#dependentLibraryList li::after {
+		content: " \00D7";
+	}
+</style>
+
+Add Dependency: <select onchange="selectLibrary(this);">
+	<option value="">Choose library</option>
+	{%for lib in luaLibraries%}
+		<option value="{{lib}}">{{lib}}</option>
+	{%endfor%}
+</select>
+
+Dependent Libraries
+<div id="dependentLibraryDiv"></div>
+
+<script>
+	var lua_lib_div = document.getElementById("dependentLibraryDiv");
+	function lua_lib_ul() {
+		var ul = document.getElementById("dependentLibraryList");
+		if (ul) {
+			return ul;
+		} else {
+			ul = document.createElement('ul');
+			ul.id = "dependentLibraryList";
+			ul.class = "selectionList";			
+			lua_lib_div.appendChild(ul);
+			return ul;
+		}
+	}
+
+	// Note: this function does not ensure that name is not already selected
+	function selectLibraryByName(name) {
+		var li = document.createElement('li');
+		var input = document.createElement('input');
+		var text = document.createTextNode(name);
+		
+		input.type = 'hidden';
+		input.name = 'dependentLuaLibraries[]';
+		input.value = name;
+		
+		li.appendChild(input);
+		li.appendChild(text);
+		li.setAttribute('onclick','removeLibrary(this)');
+		
+		lua_lib_ul().appendChild(li);
+		
+	}
+
+	function removeLibrary(libNode) {
+		var parent = libNode.parentNode;
+		parent.removeChild(libNode);
+		var numChoicesRemaining = lua_lib_ul().getElementsByTagName('input').length;
+		if (numChoicesRemaining == 0) {
+			parent.parentNode.removeChild(parent);
+		}
+	}
+	
+	var lua_lib_selected = [{%for lib in selectedLuaLibraries%}"{{lib}}",{%endfor%}];
+	for (var i = 0; i<lua_lib_selected.length; i++) {
+		selectLibraryByName(lua_lib_selected[i]);
+	}
+	function selectLibrary(select) {
+		
+		var option_name = select.options[select.selectedIndex].value;
+		
+		if (option_name == "") {
+			return
+		}
+		
+		var choices = lua_lib_ul().getElementsByTagName('input');
+		var i = 0;
+		for (i = 0; i < choices.length; i++) {
+			if (choices[i].value == option_name) {
+				// Already selected.  Nothing more to be done.
+				return
+			}
+		}
+		
+		selectLibraryByName(option_name);
+	}	
+</script>

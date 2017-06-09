@@ -304,11 +304,11 @@ class TemplateTextParts(models.Model):
 class LuaLibrary(models.Model):
     libID = models.AutoField(primary_key=True)
     libFile = models.FileField(max_length=5000, upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'lua/uploadedLuaLibs'))
-    libarayName = models.CharField(max_length=100)
+    libraryName = models.CharField(max_length=100, db_index=True)
     libDescription = models.CharField(max_length=200, default='')
     libCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
     def __str__(self):              
-        return str(self.libarayName)+","+self.libDescription
+        return str(self.libraryName)+","+self.libDescription
     
     def delete(self):
         self.libFile.delete()
@@ -316,9 +316,9 @@ class LuaLibrary(models.Model):
     def removeFile(self):
         self.libFile.delete()
         
-class depenentLibrary(models.Model):
+class dependentLibrary(models.Model):
     dependID = models.AutoField(primary_key=True) 
-    mainLibary = models.ForeignKey(LuaLibrary, related_name='mainLibary')
+    mainLibrary = models.ForeignKey(LuaLibrary, related_name='mainLibary')
     dependent = models.ForeignKey(LuaLibrary)
   #  dynamicQuestion = models.ForeignKey(DynamicQuestions)
   
