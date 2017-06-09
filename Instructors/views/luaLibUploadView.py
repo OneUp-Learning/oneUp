@@ -118,7 +118,7 @@ def libList(context_dict, user):
         else:    
             myLibs.append(False)
                 
-    context_dict['lib_range'] = zip(range(1,libs.count()+1),libName,libDescription,libIDs,myLibs)
+    context_dict['lib_range'] = list(zip(range(1,libs.count()+1),libName,libDescription,libIDs,myLibs))
     context_dict['luaLibraries'] = libName
             
     return context_dict

@@ -40,11 +40,9 @@
                </tr>
                <tr>
                   <td>
-                  	  {% if libEdit %}
-                      	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libraryName" id="preview" value="{{libName}}">
-                      {% else %}
-                        <input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libraryName" id="preview">
-                      {% endif %}
+                  	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libraryName" id="libraryName" {% if libEdit %}value="{{libName}}"{%endif%}
+                  		onchange="checkUnique()">
+                  	<div id="uniqueNameWarning" style="display:none" color="red">Libraries are required to have unique names!  That one is already taken!</div>
                   </td>
                </tr>  
                <tr>
@@ -66,7 +64,7 @@
 				</tr>                      
    			</table>
    			
-   			<input type="hidden" name="libID" value="{{libID}}"> 
+   			<input type="hidden" name="libID" id="libID" value="{{libID}}"> 
    			<input type="submit" value="Upload" id="Upload" align="center"/>
         	 <a href="/oneUp/instructors/instructorCourseHome"><input type="button" class="special" value="Back"></a> 
    		   			
@@ -120,6 +118,30 @@
         </div>
         </div>
       	</div>
+      
+        <script>
+      		function checkUnique() {
+      			curName = document.getElementById("libraryName").value;
+      			libId = document.getElementById("libID").value;
+      			same = false;
+            	{% for i, libName,libDescription,libIDs,myLibs in lib_range %}
+	      			if ((curName == "{{libName}}") && (libID != "{{libIDs}}")) {
+						same = true;
+	      			}
+      			{% endfor %}
+      			warning = document.getElementById("uniqueNameWarning");
+      			upload = document.getElementById("Upload");
+      			if (same) {
+      				warning.style.display = "block";
+      				upload.disabled = true;
+      			} else {
+      				warning.style.display = "none";
+      				upload.disabled = false;
+      			}
+
+      		}
+      	</script>
+      	
 	<!-- Footer -->
 
      {% include 'footer.html' %}
