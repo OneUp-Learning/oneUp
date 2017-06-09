@@ -25,15 +25,16 @@
 	}
 </style>
 
-Add Dependency: <select onchange="selectLibrary(this);">
+<tr><td>Add Dependency: <select onchange="selectLibrary(this);">
 	<option value="">Choose library</option>
 	{%for lib in luaLibraries%}
 		<option value="{{lib}}">{{lib}}</option>
 	{%endfor%}
-</select>
+</select></td></tr>
 
-Dependent Libraries
+<tr><td>Dependent Libraries
 <div id="dependentLibraryDiv"></div>
+</td></tr>
 
 <script>
 	var lua_lib_div = document.getElementById("dependentLibraryDiv");

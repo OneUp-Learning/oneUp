@@ -12,7 +12,7 @@ from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions,
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
-from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments
+from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
 
 from Badges.enums import QuestionTypes
 
@@ -96,12 +96,16 @@ def dynamicQuestionForm(request):
             tagString = request.POST.get('tags', "default")
             utils.saveQuestionTags(tagString, question)
             
+            makeDependentLibraries(question,request.POST.getlist('dependentLuaLibraries[]'))
+            
             redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
             redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
             return redirectVar
     
     elif request.method == 'GET':
-                
+        
+        context_dict['luaLibraries'] = getAllLuaLibraryNames();
+        
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
                 context_dict["unassign"]= 1
                 
@@ -121,6 +125,9 @@ def dynamicQuestionForm(request):
             context_dict['questionId']=request.GET['questionId']
             for attr in string_attributes:
                 context_dict[attr]=getattr(question,attr)
+                
+            context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
+
         else:
             code = '''\
 part_1_text = function ()

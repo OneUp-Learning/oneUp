@@ -89,7 +89,7 @@
             	<h3>Create/Edit <span>Dynamic Questions</span></h3>
             <p class = "center"><span>*</span> Denotes Required Fields.</p>
   
-    <form name="question" action="" method="POST" onclick="copyContentsToHidden();return false">
+    <form name="question" action="" method="POST" onclick="copyContentsToHidden();">
       {% csrf_token %}
       {% if questionId %}
            <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">
@@ -155,12 +155,7 @@
 			<textarea name="instructorNotes" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="instructorNotes">{{instructorNotes}}</textarea>
 		</td>
 	</tr>
-	<tr>
-		<td>Author</td>
-	</tr>
-	<tr>
-		<td><input type="text" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" name="author" value="{{author}}"></td>
-	</tr>
+	{% include "Instructors/luaLibraryDependencies.html" %}
 	<tr>
 		<td>Number of Parts<span>*</span></td> <!-- Note this might change its input type -->
 	</tr>

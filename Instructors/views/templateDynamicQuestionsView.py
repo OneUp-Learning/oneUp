@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
+from Instructors.models import LuaLibrary, questionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
@@ -73,7 +74,7 @@ def templateDynamicQuestionForm(request):
             
         
          #Takes the array and converts the parts into lua code            
-        question.code = templateToCode(question.setupCode,templateArray)
+        question.code = templateToCodeSegments(question.setupCode,templateArray)
     
         # Fix the question type
         question.type = QuestionTypes.templatedynamic
@@ -123,11 +124,15 @@ def templateDynamicQuestionForm(request):
             tagString = request.POST.get('tags', "default")
             utils.saveQuestionTags(tagString, question)
             
+            makeDependentLibraries(question,request.POST.getlist('dependentLuaLibraries[]'))
+            
             redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
             redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
             return redirectVar
     
     elif request.method == 'GET':
+        
+        context_dict['luaLibraries'] = getAllLuaLibraryNames();
         
         context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True
@@ -157,6 +162,8 @@ def templateDynamicQuestionForm(request):
             templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question) #get form the databse the matching question for the parts
             context_dict['templateTextParts']=templateTextParts
             context_dict['checkInitalTemplateTextPart'] = False
+            
+            context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
 
             
         else:
@@ -289,3 +296,22 @@ part_'''+str(count)+'''_text = function ()
         code_segments.append(CodeSegment.new(CodeSegment.system_lua, "end\n", ""))
 
     return code_segments
+
+def getAllLuaLibraryNames():
+   return list(map(lambda x:x.libraryName,LuaLibrary.objects.all()))
+
+def getLibrariesForQuestion(question):
+    return list(map(lambda x:x.library.libraryName,questionLibrary.objects.filter(question=question)))
+
+def makeDependentLibraries(question,libraryNameList):
+    existingDeps = list(map(lambda x:x.library.libraryName,questionLibrary.objects.filter(question=question)))
+    namesWithoutExisting = [val for val in libraryNameList if val not in existingDeps]
+    existingWithoutNames = [val for val in existingDeps if val not in libraryNameList]
+    for name in namesWithoutExisting:
+        ql = questionLibrary()
+        ql.question = question
+        ql.library = LuaLibrary.objects.get(libraryName = name)
+        ql.save()
+    for name in existingWithoutNames:
+        questionLibrary.objects.filter(question=question,library__libraryName=name).delete()
+    

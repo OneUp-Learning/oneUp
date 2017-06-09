@@ -5,7 +5,8 @@ from django.contrib import admin
 from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags,\
     TemplateDynamicQuestions, Topics, CoursesTopics
 from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages
-from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, dependentLibrary
+from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, dependentLibrary,\
+    questionLibrary
 from django.template.backends.django import Template
 
 admin.site.register(Announcements)
@@ -39,6 +40,7 @@ admin.site.register(Topics)
 admin.site.register(CoursesTopics)
 admin.site.register(dependentLibrary)
 admin.site.register(LuaLibrary)
+admin.site.register(questionLibrary)
 
 
 
