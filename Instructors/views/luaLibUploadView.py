@@ -7,7 +7,8 @@ Created on Nov 14, 2016
 from django.shortcuts import render, redirect
 import glob, os
 
-from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts, LuaLibrary, dependentLibrary 
+from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts, LuaLibrary, dependentLibrary ,\
+    questionLibrary
 from Instructors.lupaQuestion import lupa_available 
 
 from Instructors.views import utils
@@ -20,6 +21,7 @@ import sys
 import re
 from difflib import context_diff
 from django.template.context_processors import request
+from django.template.library import Library
 
 def luaLibUpload(request):
 
@@ -64,15 +66,12 @@ def luaLibUpload(request):
     
         #Get all the libs from the post and make dependencies 
         listOfDepends = request.POST.getlist('dependentLuaLibraries[]')
-        print(len(listOfDepends))
         
         #Link them with library to make dependent relationship    
         makeDependencies(library, listOfDepends)
     
     #List all of the libs we have
     libList(context_dict, request.user)
-    
-    
     
     return render(request, 'Instructors/uploadLuaLibs.html', context_dict)
 
@@ -100,36 +99,40 @@ def libDelete(request):
 
 def libList(context_dict, user):
       
-    #Arrays to hold the lib names and lib description            
-    libName = []
-    libDescription = []  
-    libIDs = []     
-    myLibs= []    #This is used to hold booleans so we can know if the lib is the users or not     
-    
     #Get all Libraries 
     libs = LuaLibrary.objects.all()
 
+    libList = []
+
     for lib in libs: 
-        libName.append(lib.libraryName)          
-        libDescription.append(lib.libDescription)
-        libIDs.append(lib.libID)
-        if lib.libCreator == user:
-            myLibs.append(True)
-        else:    
-            myLibs.append(False)
+        libDict = {}
+        libDict['name'] = lib.libraryName
+        libDict['description'] = lib.libDescription
+        libDict['ID']= lib.libID
+        libDict['myLib'] = lib.libCreator == user
+        libDict['hasDependents'] = dependentLibrary.objects.filter(dependent=lib).exists() or questionLibrary.objects.filter(library=lib).exists()
+        libList.append(libDict)
                 
-    context_dict['lib_range'] = list(zip(range(1,libs.count()+1),libName,libDescription,libIDs,myLibs))
-    context_dict['luaLibraries'] = libName
+    context_dict['lib_range'] = libList
+    context_dict['luaLibraries'] = [lib.libraryName for lib in libs]
             
     return context_dict
 
-def makeDependencies(library,listOfDepends):
-    for name in listOfDepends:
+def makeDependencies(library,listOfDependNames):
+    existingDeps = dependentLibrary.objects.filter(mainLibrary=library)
+    existingDepNames = list(map(lambda x:x.dependent.libraryName,existingDeps))
+    existingWithoutNew = [val for val in existingDepNames if val not in listOfDependNames]
+    print("ewon:"+str(existingWithoutNew))
+    newWithoutExisting = [val for val in listOfDependNames if val not in existingDepNames]
+    print("nwoe:"+str(newWithoutExisting))
+    for name in newWithoutExisting:
         dependent = LuaLibrary.objects.get(libraryName= name)
         depend = dependentLibrary()
         depend.mainLibrary = library
         depend.dependent = dependent
         depend.save()
+    for name in existingWithoutNew:
+        dependentLibrary.objects.filter(mainLibrary=library,dependent__libraryName=name).delete()
         
 def getDependentLibraryNames(library):
     names = []

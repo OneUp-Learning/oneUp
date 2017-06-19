@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses
+from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, questionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
@@ -179,12 +179,8 @@ def dynamicQuestionGetPartNonAJAX():
     return ""
 
 def makeLibs(dynamicQuestion):
-# Dynamic Library support is incomplete.  We'll add this soon.  For now we just return an empty list.
-#    libs = LibraryToQuestion.objects.filter(question=dynamicQuestion)
-    output = []
-#    for lib in libs:
-#        output.append(lib.name)
-    return output
+    libs = questionLibrary.objects.filter(question=dynamicQuestion)
+    return [lib.library.libraryName for lib in libs]
 
 def dynamicQuestionPartAJAX(request):
     context_dict = { }

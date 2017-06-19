@@ -82,26 +82,29 @@
                    <td>Library Name</td> 
                    <td>Library Description</td>  			
 
-            	{% for i, libName,libDescription,libIDs,myLibs in lib_range %}
+            	{% for lib in lib_range %}
             	{% csrf_token %}
             	<tr>
 					<td><input type="checkbox" name="depend[]" value={{libIDs}}></td>
 
-					<td> {{libName}}</td>
-					<td> {{libDescription}}</td>
+					<td> {{lib.name}}</td>
+					<td> {{lib.description}}</td>
 					
-					{% if myLibs%}
+					{% if lib.myLib %}
 				 		<td>
-							<form action="/oneUp/instructors/luaLibDelete" method="POST">
+							<form 
+								{% if lib.hasDependents %} action="/oneUp/instructors/luaLibraryDeletionConfirmation"
+								{% else %} action="/oneUp/instructors/luaLibDelete" {% endif %}
+							method="POST">
 						    	{% csrf_token %}
-						    	<input type="hidden" name="libID" value="{{libIDs}}">
-						    	<input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+						    	<input type="hidden" name="libID" value="{{lib.ID}}">
+						    	<input type="submit" name="submit" value="Delete" class="button" {% if not lib.hasDependents %} onclick="return confirm('Are you sure you want to delete?')" {% endif %}>
 							</form>
 						</td>
 						<td>
 							<form action="/oneUp/instructors/luaLibEdit" method="POST">
 						    	{% csrf_token %}
-						    	<input type="hidden" name="libID" value="{{libIDs}}">
+						    	<input type="hidden" name="libID" value="{{lib.ID}}">
 						    	<input type="submit" name="submit" value="Edit" class="button" onclick="return confirm('Are you sure you want to Edit?')">
 							</form>
 						</td>
@@ -124,8 +127,8 @@
       			curName = document.getElementById("libraryName").value;
       			libId = document.getElementById("libID").value;
       			same = false;
-            	{% for i, libName,libDescription,libIDs,myLibs in lib_range %}
-	      			if ((curName == "{{libName}}") && (libID != "{{libIDs}}")) {
+            	{% for lib in lib_range %}
+	      			if ((curName == "{{lib.name}}") && (libID != "{{lib.ID}}")) {
 						same = true;
 	      			}
       			{% endfor %}
