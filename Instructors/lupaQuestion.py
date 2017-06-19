@@ -33,7 +33,9 @@ if lupa_spec is None:
             return LupaRuntimeLink([],0,True)
         def eval(self,code):
             return self.error_str
-        def execute(self,code):
+        def sys_exec(self,code):
+            return self.error_str
+        def user_exec(self,code):
             return self.error_str
         @staticmethod
         def clearCache_FOR_TESTING_ONLY():
@@ -118,7 +120,8 @@ else:
                 setattr(table,fun,getattr(getattr(globalstuff,name),fun))
             setattr(sandbox,name,table)
         
-        lua.execute("package.path = package.path .. ';"+BASE_DIR+os.sep+"lua"+os.sep+"system-libs/?.lua'")
+        lua.execute("package.path = package.path .. ';"+BASE_DIR+os.sep+"lua"+os.sep+"system-libs/?.lua;"+BASE_DIR+os.sep+"media"+os.sep+"lua"+
+                    os.sep+"uploadedLuaLibs/?.lua'")
         libs.append("programinterface")
         print(lua.eval("package.path"))
         for lib in libs:
@@ -201,7 +204,7 @@ else:
                     'seed':self.seed,
                     'libs':self.libs,
                     'history':self.history,
-                    'user_code_segments':self.user_code_segments
+                    'user_code_segments':self.user_code
             }
             return json.dumps(dictionary)
             

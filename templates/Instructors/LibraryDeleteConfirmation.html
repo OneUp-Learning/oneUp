@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Deletion Confirmation Page</title>
+</head>
+<body>
+	<div id="page-wrapper">
+         {% include 'heading.html' %}
+	<h1> Deletion Confirmation Page</h1>
+	<p> Are you sure you want to delete {{libName}}? <p>
+	{% if libraryDependencyCount > 0 %}
+		<p> It has the following {{libraryDependencyCount}} libraries which depend on it:
+			<ul>
+			{% for deplib in dependentLibraries %}
+				<li> {{deplib}} </li>
+			</ul>
+		</p>
+		<p> It has the following {{problemDependencyCount}} problems which depend on it:
+		
+</body>
