@@ -1,0 +1,147 @@
+<style>
+	#problemSkillDiv {
+		min-height: 3em;
+		display: 'block';			
+	}
+	#problemSkillList {
+		padding:0;
+		margin:0;
+		list-style: none;
+		overflow: hidden;
+	}
+	#problemSkillList li {
+		display: block;
+		border: 1px solid;
+		border-radius: 0.5em;
+		list-style-type:none;
+		margin: 0.25em 0.25em 0.25em 0.25em ;
+		background: #1FADFF;
+		position: relative;	
+		float: left;
+		padding:0.25em 0.25em 0.25em 0.25em;
+	}
+	#problemSkillList li input {
+		width: 2em;
+	}
+	#problemSkillList li span {
+		font-size: 140%;
+		cursor: pointer;
+		cursor: hand;
+	}
+	#problemSkillSelectorTD {
+		vertical-align: middle
+	}
+	.problmeSkillFirstCol {
+		width: 20%
+	}
+	.problemSkillSecondCol {
+		width: 80%
+	}
+	
+
+</style>
+
+<tr><td><table>
+	<colgroup>
+		<col class="problmeSkillFirstCol">
+		<col class="problemSkillSecondCol">
+	</colgroup>
+	<tbody>
+	<th colspan="2"> Skills </th>
+	<tr><td>Add Skill:</td> <td>Skill Points</td></tr>
+	<tr><td id="#problemSkillSelectorTD"><select id="problemSkillSelector" onchange="selectSkill(this);">
+	<option value="">Choose skill</option>
+	{%for skill in skills%}
+		<option value="{{skill.ID}}">{{skill.name}}</option>
+	{%endfor%}
+</select></td>
+
+<td>
+<div id="problemSkillDiv"></div>
+</td></tr>
+</tbody>
+</table>
+</td></tr>
+
+<script>
+	var problemSkillDiv = document.getElementById("problemSkillDiv");
+	function problemSkill_ul() {
+		var ul = document.getElementById("problemSkillList");
+		if (ul) {
+			return ul;
+		} else {
+			ul = document.createElement('ul');
+			ul.id = "problemSkillList";
+			ul.class = "selectionList";			
+			problemSkillDiv.appendChild(ul);
+			return ul;
+		}
+	}
+
+	// Note: this function does not ensure that name is not already selected
+	function selectSkillByNameAndID(name,id,value) {
+		var li = document.createElement('li');
+
+		var hidden_name_input = document.createElement('input');
+		hidden_name_input.type = 'hidden';
+		hidden_name_input.name = 'skills[]';
+		hidden_name_input.value = id;
+		
+		var name_text = document.createTextNode(name+" ");
+		var value_selection = document.createElement('input');
+		value_selection.type = 'number';
+		value_selection.min = 1;
+		value_selection.name = 'skillValues[]';
+		value_selection.value = 1;
+		
+		var deleteSpan = document.createElement('span');
+		deleteSpan.setAttribute('onclick','removeSkill(this)');		
+		var deleteX = document.createTextNode(" \u00D7");
+		deleteSpan.appendChild(deleteX);
+		
+		li.appendChild(hidden_name_input);
+		li.appendChild(name_text);
+		li.appendChild(value_selection);
+		li.appendChild(deleteSpan);
+		
+		problemSkill_ul().appendChild(li);
+		
+	}
+
+	function removeSkill(delNode) {
+		var parentSpan = delNode.parentNode;
+		var parentLi = parentSpan.parentNode;
+		parentLi.removeChild(parentSpan);
+		var ul = problemSkill_ul();
+		var numChoicesRemaining = ul.getElementsByTagName('input').length;
+		if (numChoicesRemaining == 0) {
+			problemSkillDiv.removeChild(ul);
+		}
+	}
+	
+	var skillsSelected = [{%for skill in selectedSkills%}{name:"{{skill.name}}",id:{{skill.ID}},value:{{skill.value}}},{%endfor%}];
+	for (var i = 0; i<skillsSelected.length; i++) {
+		selectSkillByNameAndID(skillsSelected[i].name,skillsSelected[i].id,skillsSelected[i].value);
+	}
+	
+	function selectSkill(select) {
+		
+		var skill_ID = select.options[select.selectedIndex].value;
+		var skill_name = select.options[select.selectedIndex].text;
+		
+		if (skill_ID == "") {
+			return
+		}
+		
+		var choices = problemSkill_ul().getElementsByTagName('input');
+		var i = 0;
+		for (i = 0; i < choices.length; i++) {
+			if (choices[i].value == skill_ID) {
+				// Already selected.  Nothing more to be done.
+				return
+			}
+		}
+		
+		selectSkillByNameAndID(skill_name,skill_ID,1);
+	}	
+</script>

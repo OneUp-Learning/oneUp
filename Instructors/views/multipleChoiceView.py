@@ -52,19 +52,8 @@ def multipleChoiceForm(request):
     ansValue = []      #Text for existing answers
     ansPK = []         #PK for existing answers
     ansChecked = []    #Whether or not existing answer is the correct one.
-    
-    skill_ID = []
-    skill_Name = []
 
-    # Fetch the skills for this course from the database.
-    course_skills = CoursesSkills.objects.filter(courseID=currentCourse)
-         
-    for s in course_skills:
-        skill_ID.append(s.skillID.skillID)
-        skill_Name.append(s.skillID.skillName)
-    
-    # The range part is the index numbers.
-    context_dict['skill_range'] = zip(range(1,course_skills.count()+1),skill_ID,skill_Name)   
+    context_dict['skills'] = utils.getCourseSkills(currentCourse)
 
     if request.POST:
         # If there's an existing question, we wish to edit it.  If new question,
@@ -231,7 +220,7 @@ def multipleChoiceForm(request):
                 context_dict['tags'] = utils.extractTags(question, "question")
                 
                 # Extract the skill                                        
-                context_dict['all_Skills'] = utils.extractSkills(question, "question")
+                context_dict['selectedSkills'] = utils.getSelectedSkills(question)
                 
                 if 'challengeID' in request.GET:
                     # get the challenge points for this problem to display

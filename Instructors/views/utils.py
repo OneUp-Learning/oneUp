@@ -1,5 +1,5 @@
 #import nltk
-from Instructors.models import Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics
+from Instructors.models import Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills
 from Instructors.constants import unspecified_topic_name
 import re
 import string
@@ -348,5 +348,33 @@ def extractTopics(resource, resourceIndicator):
         topic_Name.append(topic.topicID.topicName)
         count+= 1
                                                     
-    return zip(range(1, count), topic_ID, topic_Name)      
-                                                      
+    return zip(range(1, count), topic_ID, topic_Name)
+
+
+def getCourseSkills(course):
+    # Fetch the skills for this course from the database.
+    course_skills = CoursesSkills.objects.filter(courseID=course)
+
+    skill_list = []
+
+    for s in course_skills:
+        skillDict = {}
+        skillDict['ID']=s.skillID.skillID
+        skillDict['name']=s.skillID.skillName
+        skill_list.append(skillDict)
+        
+    return skill_list
+
+def getSelectedSkills(question):
+    qskills = QuestionsSkills.objects.filter(questionID = question)
+    
+    skill_list = []
+    
+    for qskill in qskills:
+        skillDict = {}
+        skillDict['name'] = qskill.skillID.skillName
+        skillDict['ID'] = qskill.skillID.skillID
+        skillDict['value'] = qskill.questionSkillPoints
+        skill_list.append(skillDict)
+        
+    return skill_list

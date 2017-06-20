@@ -91,7 +91,6 @@ video {
     margin: 0;
     padding: 0;
     border: 0;
-    vertical-align: baseline;
 }
 article,
 aside,
@@ -1958,13 +1957,11 @@ table tbody tr:nth-child(2n + 1) {
 }
 table td {
     color: #474747;
-    font-size: 0.9em;
     font-weight: 500;
     padding: 0.15em 1.5em 0.3em .75em;
 }
 table th {
     color: #474747;
-    font-size: 0.9em;
     font-weight: 700;
     padding: 0 0.75em 0.75em 0.75em;
     text-align: left;
