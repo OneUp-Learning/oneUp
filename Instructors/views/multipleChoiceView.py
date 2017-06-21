@@ -157,7 +157,7 @@ def multipleChoiceForm(request):
                 
                 # Processing and saving skills for the question in DB
                 skillString = request.POST.get('newSkills', "default")
-                utils.saveQuestionSkills(skillString, question, challenge)
+                utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
 
         # Processing and saving tags in DB                        #AA 3/24/15
         tagString = request.POST.get('tags', "default")
@@ -219,9 +219,6 @@ def multipleChoiceForm(request):
                 # Extract the tags from DB            
                 context_dict['tags'] = utils.extractTags(question, "question")
                 
-                # Extract the skill                                        
-                context_dict['selectedSkills'] = utils.getSelectedSkills(question)
-                
                 if 'challengeID' in request.GET:
                     # get the challenge points for this problem to display
                     challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
@@ -229,6 +226,9 @@ def multipleChoiceForm(request):
                     
                     # set default skill points - 1                             # 03/17/2015 
                     context_dict['q_skill_points'] = int('1')
+                    
+                    # Extract the skill                                        
+                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)
             
     if 'challengeID' in request.GET:
         print('challengeID  '+request.GET['challengeID'])  

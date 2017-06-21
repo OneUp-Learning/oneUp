@@ -1,4 +1,10 @@
+<!-- Style Sheet for embedded skills section -->
 <style>
+	#skillTable {
+		border: 1px solid;
+		border-radius: 1em;
+		margin: 0em 10em 0em 0.5em;
+	}
 	#problemSkillDiv {
 		min-height: 3em;
 		display: 'block';			
@@ -41,7 +47,7 @@
 
 </style>
 
-<tr><td><table>
+<tr><td><table id="skillTable">
 	<colgroup>
 		<col class="problmeSkillFirstCol">
 		<col class="problemSkillSecondCol">
@@ -49,7 +55,7 @@
 	<tbody>
 	<th colspan="2"> Skills </th>
 	<tr><td>Add Skill:</td> <td>Skill Points</td></tr>
-	<tr><td id="#problemSkillSelectorTD"><select id="problemSkillSelector" onchange="selectSkill(this);">
+	<tr><td id="#problemSkillSelectorTD"><select id="problemSkillSelector" onchange="selectSkill(this);this.selectedIndex=0;">
 	<option value="">Choose skill</option>
 	{%for skill in skills%}
 		<option value="{{skill.ID}}">{{skill.name}}</option>
@@ -64,6 +70,8 @@
 </td></tr>
 
 <script>
+	// Javascript for embedded skills section.
+
 	var problemSkillDiv = document.getElementById("problemSkillDiv");
 	function problemSkill_ul() {
 		var ul = document.getElementById("problemSkillList");
@@ -91,8 +99,8 @@
 		var value_selection = document.createElement('input');
 		value_selection.type = 'number';
 		value_selection.min = 1;
-		value_selection.name = 'skillValues[]';
-		value_selection.value = 1;
+		value_selection.name = 'skillPoints[]';
+		value_selection.value = value;
 		
 		var deleteSpan = document.createElement('span');
 		deleteSpan.setAttribute('onclick','removeSkill(this)');		

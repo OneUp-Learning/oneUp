@@ -365,8 +365,8 @@ def getCourseSkills(course):
         
     return skill_list
 
-def getSelectedSkills(question):
-    qskills = QuestionsSkills.objects.filter(questionID = question)
+def getSkillsForQuestion(challenge,question):
+    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
     
     skill_list = []
     
@@ -378,3 +378,30 @@ def getSelectedSkills(question):
         skill_list.append(skillDict)
         
     return skill_list
+
+def addSkillsToQuestion(challenge,question,skills,points):
+    pointsDict = {}
+    for (skillID,point) in zip(skills,points):
+        pointsDict[skillID] = point
+    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
+    existingIDs = [qsk.skillID.skillID for qsk in qskills]
+    deletionIDs = [id for id in existingIDs if id not in skills]
+    newIDs = [id for id in skills if id not in existingIDs]
+    overlappingIDs = [id for id in skills if id in existingIDs]
+    
+    QuestionsSkills.objects.filter(questionID = question, skillID__in=deletionIDs).delete()
+    
+    for id in newIDs:
+        newQSkill = QuestionsSkills()
+        newQSkill.questionID = question
+        newQSkill.challengeID = challenge
+        newQSkill.skillID = Skills.objects.get(pk=id)
+        newQSkill.questionSkillPoints = pointsDict[id]
+        newQSkill.save()
+        
+    for qsk in qskills:
+        id = qsk.skillID.skillID
+        if id in overlappingIDs:
+            if qsk.questionSkillPoints != pointsDict[id]:
+                qsk.questionSkillPoints = pointsDict[id]
+                qsk.save()
