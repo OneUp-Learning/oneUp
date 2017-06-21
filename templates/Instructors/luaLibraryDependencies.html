@@ -25,7 +25,7 @@
 	}
 </style>
 
-<tr><td>Add Dependency: <select onchange="selectLibrary(this);">
+<tr><td>Add Dependency: <select onchange="selectLibrary(this);this.selectedIndex=0;">
 	<option value="">Choose library</option>
 	{%for lib in luaLibraries%}
 		<option value="{{lib}}">{{lib}}</option>
