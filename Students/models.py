@@ -35,9 +35,9 @@ class Student(models.Model):
         #return str(self.studentID)+","+self.name+self.name
         return str(self.user.username)
   
-def avatarImageUploadLocation():
-    return os.path.join(os.path.abspath(MEDIA_ROOT), 
-                        'images/uploadedAvatarImages');
+def avatarImageUploadLocation(instance,filename):
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
+                                     'images/uploadedAvatarImages'),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):

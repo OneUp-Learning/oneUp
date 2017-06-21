@@ -270,11 +270,14 @@ class Milestones(models.Model):
     def __str__(self):              
         return str(self.milestoneID)+","+self.milestoneName
 
+def imageUploadPath(instance,filename):
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedInstructorImages'),filename)
+
 #Uploaded Images
 class UploadedImages(models.Model):
     imageID = models.AutoField(primary_key=True)
     # image = models.ImageField(upload_to = 'images/uploadedInstructorImages', default = 'images/uploadedInstructorImages')
-    imageFile = models.FileField(max_length=500, upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedInstructorImages'))
+    imageFile = models.FileField(max_length=500, upload_to= imageUploadPath)
     imageFileName = models.CharField(max_length=200, default='')
     imageDescription = models.CharField(max_length=200, default='')
     imageCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
@@ -299,10 +302,13 @@ class TemplateTextParts(models.Model):
     partNumber = models.IntegerField(default=1)
     dynamicQuestion = models.ForeignKey(TemplateDynamicQuestions)
     templateText = models.CharField(max_length=20000)
-   
+
+def luaLibraryUploadLocation(instance,filename):
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'lua/uploadedLuaLibs'), filename)
+
 class LuaLibrary(models.Model):
     libID = models.AutoField(primary_key=True)
-    libFile = models.FileField(max_length=5000, upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'lua/uploadedLuaLibs'))
+    libFile = models.FileField(max_length=5000, upload_to= luaLibraryUploadLocation )
     libraryName = models.CharField(max_length=100, db_index=True, unique=True)
     libDescription = models.CharField(max_length=200, default='')
     libCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
