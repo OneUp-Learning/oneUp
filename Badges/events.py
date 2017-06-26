@@ -1,5 +1,6 @@
-from Badges.models import Rules, ActionArguments, Conditions, Badges
-from Badges.models import FloatConstants, StringConstants
+from Badges.models import Rules, ActionArguments, Conditions, Badges,\
+    ActivitySet
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, Activities
 from Badges.enums import OperandTypes, ObjectTypes, Event, SystemVariable, Action
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
     StudentRegisteredCourses
@@ -133,7 +134,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     print("Evaluating condition:"+str(condition))
     
     # Fetch operands
-    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht)
+    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition)
     
     print("Operand 1 = "+str(operand1))
 
@@ -141,8 +142,28 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     # need to do anything with a second operand.
     if (condition.operation == 'NOT'):
         return not operand1
+    
+    def operandSetTypeToObjectType(operandType):
+        if (operandType == OperandTypes.challengeSet):
+            return ObjectTypes.challenge
+        if (operandType == OperandTypes.activitySet):
+            return ObjectTypes.activity
+        return 0 # Error
+    def forallforany_helper(forall):
+        for object in operand1:
+            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), object, ht, condition):
+                if not forall:
+                    return True
+            else:
+                if forall:
+                    return False
+        return forall
+    if (condition.operation == 'FOR_ALL'):
+        return forallforany_helper(True)
+    if (condition.operation == 'FOR_ANY'):
+        return forallforany_helper(False)
 
-    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht)
+    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
     print("Operand 2 = "+str(operand2))
     
     if (condition.operation == '=='):
@@ -160,11 +181,11 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     if (condition.operation == 'AND'):
         return operand1 and operand2
     if (condition.operation == 'OR'):
-        return operand1 or operand2
+        return operand1 or operand2        
 
 # Takes and operand type and value and finds the appropriate
 # value for it.
-def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht):
+def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition):
     if (operandType == OperandTypes.immediateInteger):
         return operandValue
     elif (operandType == OperandTypes.condition):
@@ -176,6 +197,18 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
         return StringConstants.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.systemVariable):
         return calculate_system_variable(operandValue,course,student,objectType,objectID)
+    elif (operandType == OperandTypes.challengeSet):
+        if operandValue == 0:
+            # All challenges in this course
+            return Challenges.objects.filter(courseID = course)
+        else:
+            return [challset.challenge for challset in ChallengeSet.objects.filter(condition=condition)]
+    elif (operandType == OperandTypes.activitySet):
+        if operandValue == 0:
+            # All activities in this course
+            return Activities.objects.filter(courseID = course)
+        else:
+            return [actset.activity for actset in ActivitySet.objects.filter(condition=condition)]
     else:
         return "Bad operand type value"
 

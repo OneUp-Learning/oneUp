@@ -1,3 +1,5 @@
+from multiprocessing.connection import CHALLENGE
+from Students.views.challengesListView import ChallengesList
 
 # Function which takes a dictionary of dictionaries and converts them into a zipped list containing the specified fields.
 def dict_dict_to_zipped_list(d,fields):
@@ -441,12 +443,16 @@ class OperandTypes():
     floatConstant=1003
     stringConstant=1004
     systemVariable=1005
+    challengeSet=1006
+    activitySet=1007
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',
         floatConstant:'floatConstant',
         stringConstant:'stringConstant',
-        systemVariable:'systemVariable'
+        systemVariable:'systemVariable',
+        challengeSet:'challengesList',
+        activitySet:'activitiesList',
     }
 
 class ObjectTypes():
