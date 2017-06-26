@@ -298,10 +298,10 @@ part_'''+str(count)+'''_text = function ()
     return code_segments
 
 def getAllLuaLibraryNames():
-   return list(map(lambda x:x.libraryName,LuaLibrary.objects.all()))
+    return [ll.libraryName for ll in LuaLibrary.objects.all()]
 
 def getLibrariesForQuestion(question):
-    return list(map(lambda x:x.library.libraryName,questionLibrary.objects.filter(question=question)))
+    return [ql.library.libraryName for ql in questionLibrary.objects.filter(question=question)]
 
 def makeDependentLibraries(question,libraryNameList):
     existingDeps = list(map(lambda x:x.library.libraryName,questionLibrary.objects.filter(question=question)))

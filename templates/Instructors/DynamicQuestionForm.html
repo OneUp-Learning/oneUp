@@ -31,9 +31,11 @@
   					makeNewEditors();
   					makeNewReadOnlyEditors()
   				}
-  			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
+  			var formDataEncoded = '_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
   						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
-  				         '&_code='+encodeURIComponent(editor.getValue())+'&csrfmiddlewaretoken={{ csrf_token }}');
+  				         '&_code='+encodeURIComponent(editor.getValue())+'&csrfmiddlewaretoken={{ csrf_token }}';
+  			formDataEncoded = formDataEncoded + getLibsEncoded()
+  			xmlhttp.send(formDataEncoded);
     	}
     	
     	function copyContentsToHidden() {

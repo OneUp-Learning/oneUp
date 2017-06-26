@@ -208,7 +208,7 @@ def dynamicQuestionPartAJAX(request):
                 code = templateToCodeSegments(request.POST['_setupCode'],templateParts)
             seed = request.POST['_seed']
             numParts = request.POST['_numParts']
-            libs = []
+            libs = request.POST.getlist('_dependentLuaLibraries[]')
             part = 1
             requesttype = '_testeval'
         elif ('_init' in request.POST):
@@ -228,9 +228,10 @@ def dynamicQuestionPartAJAX(request):
             
             lupaQuestionTable = request.session['lupaQuestions']
             
+            errorInLupaQuestionConstructor = False
             lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
             if lupaQuestion.error is not None:
-                context_dict['error'] = lupaQuestion.error
+                errorInLupaQuestionConstructor = True
         else:
             lupaQuestionTable = request.session['lupaQuestions']
             lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
@@ -246,13 +247,18 @@ def dynamicQuestionPartAJAX(request):
             
             #starts of making the table for the web page 
             context_dict['evaluations'] = evaluations
-                                       
-        formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
+        
+        if not errorInLupaQuestionConstructor:
+            formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
+        else:
+            formhead = ""
+            formbody = ""
         if 'error' not in context_dict and lupaQuestion.error is not None:
-            print("We are setting error to:" + str(lupaQuestion.error))
+            #print("We are setting error to:" + str(lupaQuestion.error))
             context_dict['error'] = lupaQuestion.error
-        lupaQuestionTable[uniqid]=lupaQuestion.serialize()
-        request.session['lupaQuestions']=lupaQuestionTable
+        if not errorInLupaQuestionConstructor:
+            lupaQuestionTable[uniqid]=lupaQuestion.serialize()
+            request.session['lupaQuestions']=lupaQuestionTable
         
         context_dict['formhead'] = formhead
         context_dict['formbody'] = formbody

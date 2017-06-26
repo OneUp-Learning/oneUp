@@ -91,9 +91,7 @@ else:
     
     def sandboxLupaWithLibraries(libs,seed):
         lua = LuaRuntime()
-        
-        # TODO: Remove once real lib support on problem creation pages is in place.
-        
+                
         # We need to change the seed for the random function now because the sandboxing
         # will remove that ability (not so much for security reasons, although it might
         # be possible that an obscure attack exists, but for reasons of preventing the
@@ -123,8 +121,10 @@ else:
         lua.execute("package.path = package.path .. ';"+BASE_DIR+os.sep+"lua"+os.sep+"system-libs/?.lua;"+BASE_DIR+os.sep+"media"+os.sep+"lua"+
                     os.sep+"uploadedLuaLibs/?.lua'")
         libs.append("programinterface")
-        print(lua.eval("package.path"))
+        #print(lua.eval("package.path"))
+        #print("LIBS:"+str(libs))
         for lib in libs:
+            #print("Adding library: "+lib)
             libTable = lua.eval('require "'+lib+'"')
             setattr(sandbox,lib,libTable)
         
@@ -139,7 +139,7 @@ else:
         required_part_not_defined = 7704
     
     luaModuleNotFoundRegex = re.compile("\s*module '(.*)' not found")
-    luaModuleSyntaxErrorRegex = re.compile("\s*error loading module '(.*)' from file '(.*)':")
+    luaModuleSyntaxErrorRegex = re.compile("\s*error loading module '(.*)' from file '(.*)':(.*)")
     luaMainErrorRegex = re.compile('\s*(error loading code:)?\s*(.*):(\d+):(.*)')
     luaErrorPythonStringRegex = re.compile('.*string.*python')
     # Parses a Lua Error and returns a dictionary which contains information gleaned from the error message
@@ -150,7 +150,7 @@ else:
         error = {}
         
         main_matches = re.match(luaMainErrorRegex,errstr)
-        if main_matches.group(1):
+        if main_matches and main_matches.group(1):
             # This means it contains the "error loading code" part and thus is a syntax error.
             error['type'] = LuaErrorType.syntax
         else: 
@@ -165,6 +165,8 @@ else:
                     error['source'] = 'module'
                     error['module'] = mse_matches.group(1)
                     error['module_file'] = mse_matches.group(2) # this should be the same as the file, but we record it here, just in case.
+                    print("MODULE ERROR MESSAGE:\n"+errstr+"\n\n")
+                    main_matches = re.match(luaMainErrorRegex,errstr.splitlines()[1])
                 else:
                     error['type'] = LuaErrorType.runtime
         
@@ -184,7 +186,6 @@ else:
         def __init__(self,libs,seed,make=True):
             self.libs = libs
             self.seed = seed
-            self.user_code_segments = {}
             if make:
                 self.uuid = str(uuid4())
                 self.history = []
@@ -204,7 +205,6 @@ else:
                     'seed':self.seed,
                     'libs':self.libs,
                     'history':self.history,
-                    'user_code_segments':self.user_code
             }
             return json.dumps(dictionary)
             
@@ -224,7 +224,6 @@ else:
             link.uuid = uuid
             link.version = version
             link.runtime = sandboxLupaWithLibraries(link.libs,link.seed)
-            link.user_code_segments = dictionary['user_code_segments']
     
     #       set_persistents = runtime.eval('function (val) persistents=val return end')
     #       set_persistents(self.persistents)
@@ -241,7 +240,7 @@ else:
             try:
                 result = self.runtime.eval(code)
                 self.history.append(('eval',code))
-                print ("EVAL:"+code)
+                #print ("EVAL:"+code)
                 self.version += 1
                 return (True,result)
             except LuaError as luaerr:
@@ -250,21 +249,19 @@ else:
             try:
                 result = self.runtime.execute(code)
                 self.history.append(('execute',code))
-                print ("SYS_EXEC:"+code)
+                #print ("SYS_EXEC:"+code)
                 self.version += 1
                 return True
             except LuaError as luaerr:
                 return parseLuaError(luaerr)
-        def user_exec(self,codesegments):
-            self.user_code_segments = codesegments
-            
+        def user_exec(self,codesegments):            
             # We have to put the code segments together to form the actual code 
             code = ""
             for codeseg in codesegments:
                 code += codeseg['code']
             
             self.history.append(('execute',code))
-            print ("USER_EXEC:"+code)
+            #print ("USER_EXEC:"+code)
             self.version += 1
             
             try:
@@ -289,7 +286,21 @@ else:
             self.uniqid = formid
             self.numParts = int(numParts)
             self.error = None
-            runtime = LupaRuntimeLink(libs,seed)
+            
+            # This should not actually be used in practice, but we need to set it in case there's an error in the 
+            # initial build because setError expects it to exist.  We should not end up with an error in that part
+            # of the code, however, because it is not yet being run.
+            self.user_code_segments = code_segments 
+                        
+            try:
+                runtime = LupaRuntimeLink(libs,seed)
+            except LuaError as luaerr:
+                self.setError(parseLuaError(luaerr),"module loading")
+                return
+
+            # We start the header code to make sure that the user code is all more than 10 lines into the Lua so that we can know that anything from a
+            # line number greater than 10 is from the user code portion since all of the system execs are only a line or two long.
+            # We use this to distinguish between errors in the code which was immediately run and the code used to set-up the problem.
             header_code = '\n'*10 + '''
     _debug_print = print
     _debug_print_table = function (t) for k,v in pairs(t) do _debug_print(k..'='..v) end end 
@@ -351,6 +362,7 @@ else:
             
             prepended_code_segments = [header_code_seg, set_uniqid_code_seg, init_inputs_code_seg] + code_segments
             
+            self.user_code_segments = prepended_code_segments
             result = runtime.user_exec(prepended_code_segments)
             
             self.updateRuntime(runtime)
@@ -373,22 +385,26 @@ else:
                 lines_remaining = line
                 prev_lines_remaining = line
                 code_segment_index = 0
-                runtime = self.getRuntime()
-                num_code_segments = len(runtime.user_code_segments)
+                num_code_segments = len(self.user_code_segments)
                 while lines_remaining > 0 and code_segment_index < num_code_segments:
                     prev_lines_remaining = lines_remaining
-                    lines_remaining -= runtime.user_code_segments[code_segment_index]['num_new_lines']
+                    lines_remaining -= self.user_code_segments[code_segment_index]['num_new_lines']
                     code_segment_index += 1
                 code_segment_index -= 1
                 result['line'] = prev_lines_remaining
-                result['segment'] = runtime.user_code_segments[code_segment_index]
+                result['segment'] = self.user_code_segments[code_segment_index]
                 result['has_previous_segment']=code_segment_index > 0
                 if code_segment_index > 0:
-                    result['previous_segment']= runtime.user_code_segments[code_segment_index-1]
+                    result['previous_segment']= self.user_code_segments[code_segment_index-1]
             self.error=result
     
         def getRuntime(self):
-            return LupaRuntimeLink.getLinkFromIdAndDump(self.lupaid, self.lupadump)
+            try:
+                runtime = LupaRuntimeLink.getLinkFromIdAndDump(self.lupaid, self.lupadump)
+                return runtime
+            except LuaError as luaerr:
+                self.setError(parseLuaError(luaerr),"runtime reconstruction")
+                return None
     
         def updateRuntime(self, runtime):
             self.lupaid = runtime.getIdentifier()
@@ -396,6 +412,8 @@ else:
         
         def getQuestionPart(self,n):
             runtime = self.getRuntime()
+            if runtime is None:
+                return False
             (success,result) = runtime.eval('part_'+str(n)+'_text')
             self.updateRuntime(runtime)
             if not success:
@@ -429,6 +447,8 @@ else:
         
         def answerQuestionPart(self,n,answer_dict):
             runtime = self.getRuntime()
+            if runtime is None:
+                return False
             (success,evalAnswerFunc) = runtime.eval('evaluate_answer_'+str(n))
             if not success:
                 self.updateRuntime(runtime)
@@ -475,6 +495,8 @@ else:
         
         def getPartWeight(self,n):
             runtime = self.getRuntime()
+            if runtime is None:
+                return False
             (success,weightFunc) = runtime.eval('part_'+n+'_weight')
             if not success:
                 self.setError({'type':LuaErrorType.required_part_not_defined,

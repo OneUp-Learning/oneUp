@@ -41,18 +41,19 @@
   			for (var i=1; i<=numParts; i++) {
   				templateTextValues += '&_templateText'+i+'='+encodeURIComponent(CKEDITOR.instances['templateTextVisible'+i].getData());
   			}
-  			xmlhttp.send('_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
-  						 '&_numParts='+encodeURIComponent(numParts)+
-  				         '&_setupCode='+encodeURIComponent(editor.getValue())+
-  				         templateTextValues +
-  				         '&csrfmiddlewaretoken={{ csrf_token }}');
+  			var formDataEncoded = '_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
+				 '&_numParts='+encodeURIComponent(numParts)+
+			         '&_setupCode='+encodeURIComponent(editor.getValue())+
+			         templateTextValues +
+			         '&csrfmiddlewaretoken={{ csrf_token }}';
+  			formDataEncoded = formDataEncoded + getLibsEncoded()
+  			xmlhttp.send(formDataEncoded);
     	}
     	
     	function copyContentsToHidden() {
     	    document.question.setupCode.value = editor.getValue();
     	    document.question.numParts.value = numParts;
 
-    	    
     	    for(var i=1; i <= numParts; i++)
     	   		 document.question["templateText"+i].value = CKEDITOR.instances["templateTextVisible"+i].getData(); //Note that x["foo"] is the same as x.foo;
     	   		  

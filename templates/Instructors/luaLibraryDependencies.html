@@ -70,12 +70,15 @@
 	}
 
 	function removeLibrary(libNode) {
+		var name = libNode.childNodes[0].value;
 		var parent = libNode.parentNode;
 		parent.removeChild(libNode);
 		var numChoicesRemaining = lua_lib_ul().getElementsByTagName('input').length;
 		if (numChoicesRemaining == 0) {
 			parent.parentNode.removeChild(parent);
 		}
+		var indexOfName = lua_lib_selected.indexOf(name);
+		lua_lib_selected.splice(indexOfName,1);
 	}
 	
 	var lua_lib_selected = [{%for lib in selectedLuaLibraries%}"{{lib}}",{%endfor%}];
@@ -100,5 +103,13 @@
 		}
 		
 		selectLibraryByName(option_name);
-	}	
+		lua_lib_selected.push(option_name);
+	}
+	function getLibsEncoded() {
+		var output = "";
+		for (var i = 0; i < lua_lib_selected.length; i++) {
+			output = output + "&_dependentLuaLibraries[]="+encodeURIComponent(lua_lib_selected[i]);
+		}
+		return output;
+	}
 </script>

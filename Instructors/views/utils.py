@@ -1,8 +1,9 @@
 #import nltk
-from Instructors.models import Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills
+from Instructors.models import Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
 from Instructors.constants import unspecified_topic_name
 import re
 import string
+
 def saveTags(tagString, resource, resourceIndicator):
 
         #if tagString is not null or empty
@@ -405,3 +406,20 @@ def addSkillsToQuestion(challenge,question,skills,points):
             if qsk.questionSkillPoints != pointsDict[id]:
                 qsk.questionSkillPoints = pointsDict[id]
                 qsk.save()
+
+# Sets up the logged_in, username, and course_Name entries in the context_dict and then returns it along with the currentCourse if any.
+def initialContextDict(request):
+    context_dict = {}
+    context_dict["logged_in"] = request.user.is_authenticated()
+    if request.user.is_authenticated():
+        context_dict["username"] = request.user.username
+        
+    if 'currentCourseID' in request.session:
+        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+        context_dict['course_Name'] = currentCourse.courseName
+    else:
+        currentCourse = None
+        context_dict['course_Name'] = 'Not Selected'
+        
+    return (context_dict,currentCourse)
+
