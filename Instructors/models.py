@@ -323,12 +323,12 @@ class LuaLibrary(models.Model):
         
 class dependentLibrary(models.Model):
     dependID = models.AutoField(primary_key=True) 
-    mainLibrary = models.ForeignKey(LuaLibrary, related_name='mainLibary')
+    mainLibrary = models.ForeignKey(LuaLibrary, related_name='mainLibrary')
     dependent = models.ForeignKey(LuaLibrary)
   
 class questionLibrary(models.Model):  
     ID = models.AutoField(primary_key=True) 
-    question =  models.ForeignKey(Questions)
+    question = models.ForeignKey(Questions)
     library = models.ForeignKey(LuaLibrary)
     
 
