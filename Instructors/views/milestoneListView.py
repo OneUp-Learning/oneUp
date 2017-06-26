@@ -8,15 +8,21 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Milestones, Courses
 
-def createContextForMilestoneList():
+def createContextForMilestoneList(request):
     context_dict = { }
+    # check if course was selected
+    if 'currentCourseID' in request.session:
+        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+        context_dict['course_Name'] = currentCourse.courseName
+    else:
+        context_dict['course_Name'] = 'Not Selected'
 
     milestone_ID = []      
     milestone_Name = []         
     description = []
     points = []
         
-    milestones = Milestones.objects.all()
+    milestones = Milestones.objects.filter(courseID=currentCourse)
     for milestone in milestones:
         milestone_ID.append(milestone.milestoneID) #pk
         milestone_Name.append(milestone.milestoneName)
@@ -30,20 +36,11 @@ def createContextForMilestoneList():
     
 @login_required
 def milestoneList(request):
-
  
-    context_dict = createContextForMilestoneList()
+    context_dict = createContextForMilestoneList(request)
 
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-        
+        context_dict["username"]=request.user.username        
 
     return render(request,'Instructors/MilestonesList.html', context_dict)

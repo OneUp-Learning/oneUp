@@ -22,15 +22,16 @@
       
       <script>$(function () {
          var chalYourPoints = function() {
-                var dataArray1  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in gradedchallengescore_range %}['{{chall_Name}}' , {{score}}]{% if not forloop.last %},{% endif %}{% endfor %}];
+                var dataArray1  = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}' , {{score}}]{% if not forloop.last %},{% endif %}{% endfor %}];
                    return dataArray1 ;
+                   
             };
          var chalTotalPoints = function() {
-                var dataArray2  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in gradedchallenge_range %}['{{chall_Name}}' , {{total}}]{% if not forloop.last %},{% endif %}{% endfor %}];
+                var dataArray2  = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}' , {{total}}]{% if not forloop.last %},{% endif %}{% endfor %}];
                    return dataArray2 ;
             };
          var challengeName = function() {
-             var dataArray3  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in gradedchallenge_range %}['{{chall_Name}}']{% if not forloop.last %},{% endif %}{% endfor %}];
+             var dataArray3  = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}']{% if not forloop.last %},{% endif %}{% endfor %}];
              return dataArray3 ;
          };
          //container1 - Student point chart in Challenges
@@ -58,7 +59,7 @@
                    min: 0,
                    title: {
                 	// x-aixs label in Student point chart
-                       text: 'Score (points)',
+                       text: 'Points',
                        align: 'middle'
                    },
                    labels: {
@@ -95,13 +96,14 @@
                    enabled: false
                },
                series: [{
-            	 //Student point chart label and default color. 
-                   name: 'Your points',
+            	 //Student point chart label and blue color. 
+                   name: 'Your Points',
+                   color: 'darkblue', 
                    data: chalYourPoints()
                }, {
             	 //Student point chart label and color. 
-                   name: 'Total Number Of Points',
-                   color: 'darkblue',    
+                   name: 'Max Possible Points',
+                   color: '#3399ff',		//blue    
                	   data: chalTotalPoints()
                }]
            });
@@ -110,22 +112,24 @@
       </script>
       <script>$(function () {
          var chalYourPoints1 = function() {
-                var dataArray4  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in studentGradedNonDefChallengesScore_range %}['{{chall_Name}}' , {{score}}]{% if not forloop.last %},{% endif %}{% endfor %}];
+                var dataArray4  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}' , {{score}}]{% if not forloop.last %},{% endif %}{% endfor %}];
                    
                 return dataArray4 ;
             };
          var chalTotalPoints1 = function() {
-                var dataArray5  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in studentGradedNonDefChallengesPoints_range %}['{{chall_Name}}' , {{total}}]{% if not forloop.last %},{% endif %}{% endfor %}];
+                var dataArray5  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}' , {{total}}]{% if not forloop.last %},{% endif %}{% endfor %}];
                 return dataArray5 ;
             };
             var chalTotalAvgPoints1 = function() {
-                var dataArray6  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total, challavg in studentGradedNonDefChallengesAveragePoints_range %}['{{chall_Name}}' , {{challavg}}]{% if not forloop.last %},{% endif %}{% endfor %}];
+                var dataArray6  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}' , {{challavg}}]{% if not forloop.last %},{% endif %}{% endfor %}];
                 return dataArray6 ;
             };
          var challengeName1 = function() {
-             var dataArray7  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in studentGradedNonDefChallengesPoints_range %}['{{chall_Name}}']{% if not forloop.last %},{% endif %}{% endfor %}];
+             var dataArray7  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}']{% if not forloop.last %},{% endif %}{% endfor %}];
              return dataArray7 ;
          };
+
+         
          //container2 - Class Average chart in Challenges
            $('#container2').highcharts({
            	chart: {
@@ -151,7 +155,7 @@
                    min: 0,
                    title: {
                 	// y-aixs label in Class Average chart
-                       text: 'Score (points)',
+                       text: 'Points',
                        align: 'middle'
                    },
                    labels: {
@@ -190,35 +194,40 @@
                series: [ {
             	//Class Average chart label and default color
                    name: 'Your points',
+                   color: 'darkblue', 
                    data: chalYourPoints1(),
                }, {
             	 //Class Average chart label and color
-                   name: 'Total Number Of Points',
-                   color: 'darkblue',
+                   name: 'Max Possible Points',
+                   color: '#3399ff',		//blue
                    data: chalTotalPoints1()
                }, {
             	   //Class Average chart label and color
-                   name: 'Average points for the current challenge',
-                   color: 'green',
+                   name: 'Class Average Points',
+                   color: '#33cc33',
                    data: chalTotalAvgPoints1(),
                }]
            });
          });
       </script>
-      <script>$(function () {
-         var defSkillNamesArray = [];
+      
+      <script>
+      
+      
+      // SKILLS
+      
+       $(function () {
+            var defSkillNamesArray = [];
             var defSkillPointsArray = [];
-            var defSkillTotalPointsArray = [];
-          var defskillYourPoints = function() {
+            var defskillYourPoints = function() {
          	    var skillNamesArray = [];
          	    var skillPointsArray = [];
          	    
-                 var skillArray  = [{% for i,skill_ID,skill_Name,skill_Points in skill_range %}
+                 var skillArray  = [{% for i,skill_Name,skill_Points in skill_range %}
                                        ['{{skill_Name}}' , {{skill_Points}}]
                                    {% if not forloop.last %},{% endif %}{% endfor %}];
                  var index = 0;
                  
-                 var totalDefSkillScore = 0;
                  for (i=0; i<skillArray.length ;i++){
                  	var defSkillAlreadyExists = 'N';
                  	
@@ -235,18 +244,15 @@
                  	}
                  	
                  	
-                 }
-                    return defSkillPointsArray; 
-             };
-          var skillName = function() {
-         	        var dataArray  = [{% for i,skill_ID,skill_Name,skill_Points in skill_range %}'{{skill_Name}}'{% if not forloop.last %},{% endif %}{% endfor %}];
+                  } 
+                  return defSkillPointsArray; 
+              };
+          	  var skillName = function() {
+         	        var dataArray  = [{% for i,skill_Name,skill_Points in skill_range %}'{{skill_Name}}'{% if not forloop.last %},{% endif %}{% endfor %}];
                      return dataArray ;
-         	    };
-          var defskillTotalPoints = function() {
-         	        var skillTotalArray  = [{% for i,skill_ID,skill_Name,skill_Points,skillTotal_Points in skillTotal_range %}['{{skill_Name}}' , {{skillTotal_Points}}]{% if not forloop.last %},{% endif %}{% endfor %}];
-                     return skillTotalArray ;
-         	    };	    
-         //container3 - Student point skills	    
+         	  };
+ 
+ 			//container3 - Student skill points only; No class average    
             $('#container3').highcharts({
             	chart: {
                     type: 'bar',
@@ -260,18 +266,18 @@
                     text: '.'
                 },
                 xAxis: {
-                    categories: defSkillNamesArray, //defskillYourPoints(), //skillName(),
+                    categories: defSkillNamesArray, 
                     title: {
                     	// x-aixs label in Student point chart
                        text: 'Skills',
-                        align: 'middle'
+                       align: 'middle'
                     }
                 },
                 yAxis: {
                     min: 0,
                     title: {
                     	// y-aixs label in Student point chart
-                        text: 'Skill Level (rating)',
+                        text: 'Skill Points',
                         align: 'middle'
                     },
                     labels: {
@@ -279,7 +285,7 @@
                     }
                 },
                 tooltip: {
-                    valueSuffix: ' rating'
+                    valueSuffix: ' points'
                 },
                 plotOptions: {
                     bar: {
@@ -297,7 +303,7 @@
                      itemStyle: {
                          width:'100px',
                          textOverflow: 'ellipsis',
-         		        overflow: 'hidden'
+         		         overflow: 'hidden'
                      },
                     floating: true,
                     borderWidth: 1,
@@ -308,13 +314,13 @@
                     enabled: false
                 },
                 series: [{
-                	//Student point chart label and default color.
+                	//Student point chart label 
                     name: 'Your points',
+                    color: 'darkblue',
+                    //color: '#3399ff',		//blue
                     data: defskillYourPoints()
-                }/*, {
-                    name: 'Total Skill Points',
-                    data: defskillTotalPoints()
-                }*/]
+                }
+			  ]
             });
          });
       </script>
@@ -323,7 +329,7 @@
          var nondefskillsPointsArray2 = [];
          var nondefskillsAvgPointsArray = [];
          var nondefskillYourPoints = function() {
-                var skillArray2  = [{% for i,skill_ID,skill_Name,skill_Points in nondefskill_range %}
+                var skillArray2  = [{% for i,skill_Name,skill_Points in nondefskill_range %}
                                     ['{{skill_Name}}' , {{skill_Points}}]
                                     {% if not forloop.last %},{% endif %}{% endfor %}];
                 var index = 0;
@@ -348,8 +354,8 @@
             };
             
             var nondefskillavgpoints = function() {
-                var skillArray3  = [{% for i,skill_ID,skill_Name,classskillavg in nondefskillavgpoints_range %}
-                                      ['{{skill_Name}}' , {{classskillavg}}]
+                var skillArray3  = [{% for i,skill_Name,skill_ClassAvg in skillWithAverage_range %}
+                                      ['{{skill_Name}}', {{skill_ClassAvg}}]
                                     {% if not forloop.last %},{% endif %}{% endfor %}];
                 var index3 = 0;
                 var nondefskillsNamesArray3 = [];
@@ -378,10 +384,11 @@
             };   
             
             var nondefskillName = function() {
-                 var dataArray4  = [{% for i,skill_ID,skill_Name,skill_Points in nondefskill_range %}'{{skill_Name}}'{% if not forloop.last %},{% endif %}{% endfor %}];
+                 var dataArray4  = [{% for i,skill_Name,skill_Points in nondefskill_range %}'{{skill_Name}}'{% if not forloop.last %},{% endif %}{% endfor %}];
                     return dataArray4 ;
              };
-         //container4 - Class average skills	    
+             
+         //container4 - Class average skills displayed	    
             $('#container4').highcharts({
             	chart: {
                     type: 'bar',
@@ -406,7 +413,7 @@
                     min: 0,
                     title: {
                     	// y-aixs label in Class Average chart
-                        text: 'Skill Level (rating)',
+                        text: 'Skill Points',
                         align: 'middle'
                     },
                     labels: {
@@ -414,7 +421,7 @@
                     }
                 },
                 tooltip: {
-                    valueSuffix: ' rating'
+                    valueSuffix: ' points'
                 },
                 plotOptions: {
                     bar: {
@@ -446,34 +453,38 @@
                 series: [{
                 	//Student point chart label and default color.
                     name: 'Your points',
+                    color: 'darkblue',
+                    //color: '#3399ff',		//blue
                     data: nondefskillYourPoints()
-                },/* {
-                    name: 'Total Skill Points',
-                    data: nondefskilltotalpoints()
-                },*/ {
+                },
+                {
                 	//Student point chart label and default color.
-                    name: 'Average points for the current challenge',
+                    name: 'Class Average Points',
+                    color: '#33cc33',		//green
                     data: nondefskillavgpoints()
                 }]
             });
          });
       </script>
       <script type='text/javascript'>
-         $(function () {
-         	//WarmUp challenges
+      
+    	//WARM UP CHALLENGES
+    	
+         $(function () {        	
          	var warmUpChallengeNameArray = [];
          	var warmupChallengeExists = 'N';
          	var warmUpAttemptsArray = [];
          	var warmUpMaxScoreArray = [];
          	var warmUpMinScoreArray = [];
          	var warmUpTotalScoreArray = [];
-         	var warmUpIndex = 0
+         	var warmUpCategoryArray = [];
+
          	var warmUpChallengeName = function() {
-                 var warmUpdataArray  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total,noOfAttempts,warmUpMaxScore,warmUpMinScore in studentWarmUpChallenges_range %}
-                 ['{{chall_Name}}' ,{{noOfAttempts}}, {{warmUpMaxScore}} ,{{warmUpMinScore}}, {{total}}]
+                 var warmUpdataArray  = [{% for i,chall_Name,total,noOfAttempts,warmUpMaxScore,warmUpMinScore in studentWarmUpChallenges_range %}
+                 ['{{chall_Name}}', {{noOfAttempts}}, {{warmUpMaxScore}}, {{warmUpMinScore}}, {{total}}]
                  {% if not forloop.last %},{% endif %}{% endfor %}];
-                // alert (warmUpdataArray);
-                 
+
+                 var warmUpIndex = 0;
                  for (i=0; i< warmUpdataArray.length; i++) {
                  	for (j=0; j < warmUpChallengeNameArray.length ; j++){
                  		if (warmUpdataArray[i][0] == warmUpChallengeNameArray[j] ){
@@ -486,10 +497,11 @@
                  		warmUpMaxScoreArray[warmUpIndex] = warmUpdataArray[i][2] ;
                  		warmUpMinScoreArray[warmUpIndex] = warmUpdataArray[i][3] ;
                  		warmUpTotalScoreArray[warmUpIndex] = warmUpdataArray[i][4] ;
+                 		warmUpCategoryArray[warmUpIndex] = warmUpChallengeNameArray[warmUpIndex] +'<br>Num.of attempts:'+warmUpAttemptsArray[warmUpIndex];
                  		warmUpIndex++;
                  	}
-                 	
                  }
+                  	
                  return warmUpChallengeNameArray ;
              };
              
@@ -503,11 +515,22 @@
              
              var warmUpChallengeMinScore = function(){
              	return warmUpMinScoreArray;
-             }
+             };
          	
              var warmUpChallengeTotalScore = function(){              
               	return warmUpTotalScoreArray;
-              } 
+             }; 
+
+             var warmUpCategory = function(){ 
+            	 var wuN = warmUpChallengeName();
+            	 var wuA = warmUpChallengeAttempts();
+             	 for (i=0; i< warmUpChallengeNameArray.length; i++) {
+             		warmUpCategoryArray[i] = wuN[i] +'<br>Num. attempts:' + wuA[i];
+             		 
+            	 }               	
+ 				return warmUpCategoryArray;
+              }; 
+                           
              $('#container5').highcharts({
              	chart: {
                      type: 'bar',
@@ -520,12 +543,12 @@
                  subtitle: {
                      text: '.'
                  },
-                 xAxis: {
-                     categories: [warmUpChallengeName()+'<br>Num.of attempts:'+warmUpChallengeAttempts()], 
+                 xAxis: {                	 
+                     categories: warmUpCategory(),
                      title: {
                     	// x-aixs label in warmup challenges chart
-                        text: 'Challenges',
-                         align: 'middle'
+                        text: 'Warm Up Challenges',
+                        align: 'middle'
                      }
                  },
                  yAxis: {
@@ -548,8 +571,9 @@
                  plotOptions: {
                      bar: {
                          dataLabels: {
-                             enabled: true,
-                             useHTML:true
+                             enabled: false,
+                             //enabled: true,
+                             //useHTML:true
                          }
                      }
                  },
@@ -574,56 +598,60 @@
                  },
                  series: [{
                 	//Warmup challenges chart label and default color.
-                     name: 'Min Score for the current challenge',
-                     data: warmUpChallengeMinScore(),
-                     color: 'lightgreen'
+                     name: 'Your Min Score',
+                     color: '#fd7902', // orange
+                     //color: '#33ffcc',  // green-blue
+                     data: warmUpChallengeMinScore()
                  },
                  {
                 	//Warmup challenges chart label and default color.
-                     name: 'Max Score for the current challenge',
-                     data: warmUpChallengeMaxScore(),
-                     color: 'lightblue'
+                     name: 'Your Max Score ',
+                     color: 'darkblue',
+                     data: warmUpChallengeMaxScore()
                  },
                  {
                 	//Warmup challenges chart label and default color.
-                     name: 'Possible score for the current challenge',
-                     data: warmUpChallengeTotalScore(),
-                     color: 'darkblue'
-                     
+                     name: 'Max Possible Score',
+                     color: '#3399ff',
+                     data: warmUpChallengeTotalScore()                    
                  }]
              });
          });
       </script>
+      
       <script type='text/javascript'>
+      
+   		// PROGRESS BAR
+   		
          $(function () {
          	var PointsEarnedData = function() {
          		
-                 var PointsEarnedDataArray1  = {{studentGradedChallengesPointsEarned_range}};       
+                 var PointsEarnedDataArray1  = {{currentEarnedPoints}};       
                  return PointsEarnedDataArray1 ;
              };
              var RemainingChallengePoints = function() {
          		
-                 var RemainingChallengePointsDataArray1  = {{studentGradedRemainingChallenges_range}};       
+                 var RemainingChallengePointsDataArray1  = {{remainingPointsToEarn}};       
                  return RemainingChallengePointsDataArray1 ;
              };    
              var ChallengePointsmissed = function() {
          		
-                 var ChallengePointsmissedDataArray1  = {{studentGradedChallengesPointsMissed_range}};       
+                 var ChallengePointsmissedDataArray1  = {{missedPoints}};       
                  return ChallengePointsmissedDataArray1 ;
              };	
              var ChallengePointsProjected = function() {
          		
-                 var ChallengePointsProjectedDataArray1  = Math.round((ChallengesMaxPoints()-ChallengePointsmissed())* (PointsEarnedData()/(PointsEarnedData()+ChallengePointsmissed())));
+                 var ChallengePointsProjectedDataArray1  = {{projectedEarnedPoints}};
                  return ChallengePointsProjectedDataArray1 ;
              };
              var ChallengesMaxPoints = function() {
          		
-                 var ChallengesMaxPointsDataArray1  = {{GradedChallengeQuestionsTotalPoints_range}} ;       
+                 var ChallengesMaxPointsDataArray1  = {{totalMilestonePoints}} ;       
                  return ChallengesMaxPointsDataArray1 ;
              };	
              var ChallengesTickPoints = function() {
          		
-                 var ChallengesTickPointsDataArray1  = {{studentGradedChallengesTickPoints_range}};       
+                 var ChallengesTickPointsDataArray1  = {{projectedEarnedPoints}};       
                  return ChallengesTickPointsDataArray1 ;
              };	 
              //Your Progress
@@ -677,7 +705,7 @@
                      width:2,
                      zIndex:4,
                      //Progressbar marker black color
-                     color:'black'
+                     color:'darkblue'
                  }],
                  labels: {
                      style: {
@@ -706,7 +734,7 @@
                  }
              },
               series:[{
-                 name:'Points you have already lost',
+                 name:'Points Already Lost',
                  enableMouseTracking:true,
                  borderWidth:0,
                  borderRadius:0,
@@ -716,14 +744,14 @@
                  color:'red',//darkred
                  data:[ChallengePointsmissed()]
               },{
-                 name:'Points available in remaining challenges',
+                 name:'Points for Future Milestones',
                  enableMouseTracking:true,
                  borderWidth:0,
                  borderRadius:0,
                  stacking:'normal',
                  grouping:false,
                  //Progress bar yellow color points remaining.
-                 color:'#FFFF00',//yellow
+                 color:'#FFFF33',//yellow
                  data:[ChallengesMaxPoints()-ChallengePointsmissed()-PointsEarnedData()]
               },{
                  //pointRange:1.1,
@@ -735,11 +763,13 @@
                  grouping:false,
                  //Progressbar purple color points earned.
                  color:'#9966FF',//purple
+                 //color:'#3399ff',//blue
                  data: [PointsEarnedData()]
               },{
-                 name:'Total Projected Points',
+                 name:'Projected Total Points',
                  //Progress bar total projected points black color.
-                 color:'black',
+                 color:'darkblue',
+                 //color:'#9966FF',
                  pointRange:.5,
                  zIndex:1,
                  data:[ChallengePointsProjected()]
@@ -793,49 +823,24 @@
                <td>
                <table  style= 'width: 49.8em; '><tr style= 'height: 2.1em; width: 56em; text-align: center;' >
                   {% if virtualCurrencyUsed %}
-               		<td class='rcorners11' align='center' style='background-color: orange;font-size:0.7em;color:black; vertical-align: middle; '>
-                      <b>Your XP Points: {{studentGradedChallengesScorePoints_range}}</b></td>  
+               		<td class='rcorners11' align='center' style='background-color: #fd7902;font-size:0.7em;color:black; vertical-align: middle; '>
+                      <b>Your XP Points: {{studentXP_range}}</b></td>  
                     <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black; vertical-align: middle; '>
-                      <b>Your Practice Points: {{studentUngradedChallengesPPoints_range}}</b> </td>
-                    <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black; vertical-align: middle; '>
+                      <b>Your Practice Points: {{totalWCEarnedPoints}}  /  {{totalWCPossiblePoints}}</b></td>
+                    <td class='rcorners11' align='center'  style="background-color: #fd7902; font-size:0.7em; color:black; vertical-align: middle">
                       <b>Your Course Bucks: {{course_Bucks}}</b> </td>
 
                   {% else %}
-              		<td class='rcorners11' align='center' style='background-color: orange;font-size:0.7em;color:black'>
-                      <b>Your XP Points: {{studentGradedChallengesScorePoints_range}}</b></td>  
+              		<td class='rcorners11' align='center' style='background-color: #fd7902;font-size:0.7em;color:black'>
+                      <b>Your XP Points: {{studentXP_range}}</b></td>  
                     <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black'>
-                      <b>Your Practice Points: {{studentUngradedChallengesPPoints_range}}</b> </td>
+                      <b>Your Practice Points: {{totalWCEarnedPoints}}  /  {{totalWCPossiblePoints}}</b> </td>
                   {% endif %}
 
               </td> 
               </tr></table>
                
-<!--                   <div id="myPoints">
-                     <script>
-/*                       var virtualCurrencyUsed = {{virtualCurrencyUsed}};
-                        if (virtualCurrencyUsed)
-                        { 	
-                       var code1 = "<table><tr><td class='rcorners11' align='center' style='background-color: orange;font-size:0.7em;color:black'>";
-                         code1+= "<b>Your Score Points: <span>"+{{studentGradedChallengesScorePoints_range}}+"</span></b></td> "; 
-                         code1+=" <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black'>";
-                         code1+=" <b>Your Practice Points: <span>"+{{studentUngradedChallengesPPoints_range}}+"</span></b> </td>";
-                         code1+=" <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black'>";
-                         code1+=" <b>Your Currency Points: <span>"+{{course_Bucks}}+"</span></b> </td></tr></table>";
-                         document.write(code1);
-                         }
-                        else
-                        	{ 
-                        	var code1 = "<table><tr><td class='rcorners11' align='center' style='background-color: orange;font-size:0.7em;color:black'>";
-                            code1+= "<b>Your Score Points: <span>"+{{studentGradedChallengesScorePoints_range}}+"</span></b></td> "; 
-                            code1+=" <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black'>";
-                            code1+=" <b>Your Practice Points: <span>"+{{studentUngradedChallengesPPoints_range}}+"</span></b> </td></tr></table>";
-                            document.write(code1);
-                        	
-                        	}
- */                         
-                     </script>      
-                  </div> -->
-               </td>
+           </td>
             </tr>
             <tr>
                <td colspan="2">
@@ -843,7 +848,7 @@
                      <table>
                         <tr>
                            <td class="rcorners4" align="left" height="125px" style="font-size:0.8em;color:white">
-                              <b><span style="color:white;">Your Progress</span></b>
+                              <b><span style="color:white;">&nbsp;Your Progress</span></b>
                               <div id="p1" style="height: 110px"></div>
                            </td>
                         </tr>
@@ -860,7 +865,7 @@
                            <div>
                               <table  align="left">
                                  <tr>
-                                    <td align="left"><b><span style="color:black; font-size:0.8em;">Skills</span></b> </td>
+                                 <td align="left" style="font-size:0.8em;" width="50%" ><b style="color:black;">&nbsp;Skills</b></td>                                
                                     <td align="right">
                                       <script>
                                          var isClassAvgAvailable = {{is_ClassAverage_Displayed|lower}};
@@ -919,7 +924,7 @@
                             <table  align="right">
                               <tr>
                            <td align="left" style="font-size:0.8em;" width="50%" >
-                              <b style="color:white;">Challenges</b>
+                              <b style="color:black;">&nbsp;Challenges</b>
                            </td>
                            <td align="right" width="10%">
                            <script>                 
@@ -982,7 +987,7 @@
                      <table>
                         <tr>
                            <td align="left" style="font-size:0.8em;" width="50%" >
-                              <b style="color:black;">WarmUp Challenges</b>
+                              <b style="color:black;">&nbsp;WarmUp Challenges</b>
                            </td>
                            
                         </tr>

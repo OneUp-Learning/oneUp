@@ -1,8 +1,8 @@
 
-from django.template import RequestContext
-from django.shortcuts import redirect
-from Instructors.models import Courses, Challenges, ChallengesQuestions, StaticQuestions, Answers, MatchingAnswers, CorrectAnswers
-from Badges.enums import Event, QuestionTypes
+from django.shortcuts import redirect, render, HttpResponse
+
+from Instructors.models import Courses, Challenges, ChallengesQuestions, StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, UploadedFiles
+from Badges.enums import QuestionTypes
 
 from xml.etree.ElementTree import ElementTree, Element, SubElement, tostring, parse
 import xml.etree.ElementTree as eTree
@@ -19,17 +19,44 @@ def exportChallenges(request):
         context_dict['course_Name'] = 'Not Selected'
         context_dict['course_notselected'] = 'Please select a course'
     
-    else:
+    else:  
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
-
-        root = Element('TreeRoot')
-        
-        el_challenges = SubElement(root, 'Challenges')
-        
+       
+    if request.method == 'GET':
+        chall_name = [] 
+        chall_ID = []      
         challenges = Challenges.objects.filter(courseID=currentCourse)        
         for challenge in challenges:
             print(challenge)
+            chall_name.append(challenge.challengeName)
+            chall_ID.append(challenge.challengeID)
+
+        context_dict['challenge_range'] = zip(range(1, len(chall_name) + 1), chall_ID, chall_name)            
+        return render(request,'Instructors/ChallengeExport.html', context_dict)
+
+    if request.method == 'POST':        
+       
+        selectedChallenges = []
+        # get the list of all checked challenges
+        selected = request.POST.getlist('selected')
+        selectedChallenges_num = [ int(x) for x in selected ]
+        
+        if not selectedChallenges_num:
+            selectedChallenges = Challenges.objects.filter(courseID=currentCourse)
+        else:
+            for i in range(1,int(max(selectedChallenges_num))+1):
+                if i in selectedChallenges_num:
+                    chID =  request.POST.get('challengeID'+str(i))
+                    ch = Challenges.objects.get(pk=int(chID))
+                    selectedChallenges.append(ch) 
+        
+        # build the tree            
+        root = Element('TreeRoot')
+        
+        el_challenges = SubElement(root, 'Challenges') 
+                    
+        for challenge in selectedChallenges:
             el_challenge = SubElement(el_challenges, 'Challenge')
             
             el_ID = SubElement(el_challenge, 'challengeID')
@@ -128,7 +155,6 @@ def exportChallenges(request):
                     el_questionID.text = str(question.questionID)
                      
                 # Correct Answers
-                print('correctAnswers')
                 el_correctAnswers = SubElement(el_question, 'CorrectAnswers')        
                 correctAnswers = CorrectAnswers.objects.filter(questionID=question.questionID)        
         
@@ -145,10 +171,7 @@ def exportChallenges(request):
                     # matching answers for a matching question
                     el_matchingAnswers = SubElement(el_question, 'MatchingAnswers') 
                     m_answers = MatchingAnswers.objects.filter(questionID=question.questionID)        
-                    for m_answer in m_answers:  
-                        print('MatchingAnswers')
-                        print(answer)
-           
+                    for m_answer in m_answers:            
                         el_matchingAnswer = SubElement(el_matchingAnswers, 'MatchingAnswer')
                         el_matchingAnswerID = SubElement(el_matchingAnswer, 'matchingAnswerID')
                         el_matchingAnswerID.text = str(m_answer.matchingAnswerID)
@@ -160,30 +183,77 @@ def exportChallenges(request):
                         el_answerID.text = str(m_answer.answerID.answerID)
                         el_questionID= SubElement(el_matchingAnswer, 'questionID')
                         el_questionID.text = str(question.questionID)
-                     
-                        #el_answers.append(el_matchingAnswer)
           
         tree = eTree.ElementTree(root)
-#         tree.write(sys.stdout)
         print(eTree.tostring(el_challenge))  
                 
-        f = open('media/textfiles/xmlfiles/first.xml', 'w') 
-        tree.write(f, encoding="unicode")
+        f = open('media/textfiles/xmlfiles/challenges.xml', 'w') 
+        tree.write(f, encoding="unicode")        
+        return render(request,'Instructors/ChallengeExportSave.html', context_dict)
+
+       
+def saveExportedChallenges(request):
+
+    f = open('media/textfiles/xmlfiles/challenges.xml', 'r') 
+    response = HttpResponse(f.read(), content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename="yourchallenges.xml"'
+
+    return response
+
+
+def uploadChallenges(request):
+    context_dict = {}
     
-    return redirect('/oneUp/instructors/instructorCourseHome')        
-            
-def importChallenges(root):
-      
-    f = open('media/textfiles/xmlfiles/first.xml', 'r') 
+    context_dict["logged_in"] = request.user.is_authenticated()
+    if request.user.is_authenticated():
+        context_dict["username"] = request.user.username
+        
+    # check if course was selected
+    if 'currentCourseID' in request.session:
+        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+        context_dict['course_Name'] = currentCourse.courseName
+    else:
+        context_dict['course_Name'] = 'Not Selected'
+        
+        
+    if request.method == 'GET':
+        print("In request GET")
+        return render(request,'Instructors/ChallengeImport.html', context_dict)
+
+    if request.method == 'POST' and len(request.FILES) != 0:            
+        challengesFile = request.FILES['challenges']
+        uploadedFileName = challengesFile.name
+        print(uploadedFileName)
+        
+        upfile = UploadedFiles() 
+        upfile.uploadedFile = challengesFile
+        upfile.avatarImageFileName = uploadedFileName
+        upfile.uploadedFileCreator = request.user
+        upfile.save()
+    
+        # TO DO:  Implement this!
+        importChallenges(uploadedFileName)
+        
+        # After importing the challenges in the database, perhaps we need to delete the user's file
+
+        return redirect('/oneUp/instructors/instructorCourseHome') 
+    
+# THIS IS STILL NOT IMPLEMENTED    
+def importChallenges(uploadedFileName):
+         
+    f = open('media/textfiles/xmlfiles/' + uploadedFileName, 'r') 
     tree = parse(f)
 
     #print(eTree.tostring(tree))
     root = tree.getroot()
     print(minidom.parseString(eTree.tostring(root)).toprettyxml(indent = "   "))
-
-    return redirect('/oneUp/instructors/instructorCourseHome') 
     
-#   #To access the subelements, you can use ordinary list (sequence) operations. This includes len(element) to get the number of subelements, element[i] to fetch the i’th subelement, and using the for-in statement to loop over the subelements:
+    return
+
+    #return redirect('/oneUp/instructors/instructorCourseHome') 
+    
+#   #To access the subelements, you can use ordinary list (sequence) operations. This includes len(element) to get the number of subelements, element[i] to fetch the i’th subelement, 
+#    and using the for-in statement to loop over the subelements:
 #   for node in root:
 #       print(node)              
             

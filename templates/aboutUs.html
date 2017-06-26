@@ -32,6 +32,61 @@
         {% include 'footer.html' %}
 
        </div>
-     <script type="text/javascript"> Cufon.now(); </script>
-   </body>
+	<script type="text/javascript"> Cufon.now(); 
+     
+     $(function () {
+     	//Serious challenges
+     	var challengeNameArray = [];
+     	var challengeExists = 'N';
+     	var challengeYourPointsArray = [];
+     	var challengeMaxPointsArray = [];
+     	var challengeClassAverageArray = [];
+     	var index = 0
+       
+       var challengeDataArray  = [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total,challavg in gradedchallengescore_range %}
+       		['{{chall_Name}}', {{score}}, {{total}}, {{challavg}}]
+       		{% if not forloop.last %},{% endif %}{% endfor %}];
+       // alert (challengeDataArray);   
+    	   
+    	   [{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total,noOfAttempts,warmUpMaxScore,warmUpMinScore in studentWarmUpChallenges_range %}
+       ['{{chall_Name}}' ,{{noOfAttempts}}, {{warmUpMaxScore}} ,{{warmUpMinScore}}, {{total}}]
+       {% if not forloop.last %},{% endif %}{% endfor %}];
+      // alert (warmUpdataArray);
+       
+       for (i=0; i< challengeDataArray.length; i++) {
+       	for (j=0; j < challengeNameArray.length ; j++){
+       		if (challengeDataArray[i][0] == challengeNameArray[j] ){
+       			challengeExists = 'Y';
+           	}
+       	}
+       	if (challengeExists == 'N'){
+       		challengeNameArray[index] = challengeDataArray[i][0];
+       		challengeYourPointsArray[index] = challengeDataArray[i][1] ;
+       		challengeMaxPointsArray[index] = challengeDataArray[i][2] ;
+       		challengeClassAverageArray[index] = challengeDataArray[i][3] ;
+       		index++;
+       	}
+       	
+       }
+       return challengeNameArray;
+   };
+   
+   var challengeYourPoints = function(){
+   	return challengeYourPointsArray;
+   };
+   
+   var challengeMaxPoints = function(){
+   	return challengeMaxPointsArray;
+   };
+   
+   var challengeClassAverage = function(){
+   	return challengeClassAverageArray;
+   }
+     
+     
+     </script>
+</body>
 </html>
+
+
+
