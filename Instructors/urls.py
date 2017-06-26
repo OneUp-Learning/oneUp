@@ -68,7 +68,7 @@ from Instructors.views.dynamicQuestionView import dynamicQuestionForm
 from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
-from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit
+from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit, libDeleteConfirmView
 
 
 admin.autodiscover()
@@ -149,10 +149,7 @@ urlpatterns = [
     url(r'^luaLibDelete',libDelete,name="Lua Library Delete"), 
     url(r'^luaLibEdit',libEdit,name="Lua Library Edit"),        
     url(r'^luaLibUploadView',luaLibUpload,name="Lua Library Upload"),
+    url(r'^luaLibConfirmDelete',libDeleteConfirmView,name="Lua Library Deletion Confirmation"),
    
- 
-
-   
-
 
 ]

@@ -40,8 +40,17 @@
                </tr>
                <tr>
                   <td>
+                  	<script>
+                  		function nospaces(event) {
+                  			if ('which' in event) {
+                  				return event.which != 32;
+                  			} else {
+                  				return event.key != " "; 
+                  			}
+                  		}
+                  	</script>
                   	<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="libraryName" id="libraryName" {% if libEdit %}value="{{libName}}"{%endif%}
-                  		onchange="checkUnique()">
+                  		onchange="checkUnique()" onkeydown="return nospaces(event)">
                   	<div id="uniqueNameWarning" style="display:none" color="red">Libraries are required to have unique names!  That one is already taken!</div>
                   </td>
                </tr>  
@@ -93,7 +102,7 @@
 					{% if lib.myLib %}
 				 		<td>
 							<form 
-								{% if lib.hasDependents %} action="/oneUp/instructors/luaLibraryDeletionConfirmation"
+								{% if lib.hasDependents %} action="/oneUp/instructors/luaLibConfirmDelete"
 								{% else %} action="/oneUp/instructors/luaLibDelete" {% endif %}
 							method="POST">
 						    	{% csrf_token %}

@@ -13,33 +13,20 @@ from Instructors.lupaQuestion import lupa_available
 
 from Instructors.views import utils
 
-
 from Badges.enums import QuestionTypes
 
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 import sys
 import re
 from difflib import context_diff
 from django.template.context_processors import request
 from django.template.library import Library
 
+@login_required
 def luaLibUpload(request):
-
-    context_dict = {}
-    
-   # extractPaths(context_dict)
-    #extractUploadedPaths(context_dict)
-    
-    context_dict["logged_in"] = request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"] = request.user.username       
-        
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict,currentCourse = utils.initialContextDict(request)
 
     string_attributes = ['libraryName','libDescription']
 
@@ -55,7 +42,9 @@ def luaLibUpload(request):
                    
         #Copy all string from Post to database object
         for attr in string_attributes:
-            setattr(library, attr, request.POST[attr])    
+            setattr(library, attr, request.POST[attr])
+        
+        library.libraryName = library.libraryName.replace(" ","") 
             
         #Get the rest of info for the libary 
         library.libFile = request.FILES['libfile'] 
@@ -75,27 +64,24 @@ def luaLibUpload(request):
     
     return render(request, 'Instructors/uploadLuaLibs.html', context_dict)
 
+@login_required
 def libDelete(request):
-    context_dict = {}
-    
-    context_dict["logged_in"] = request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"] = request.user.username
-        
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict,currentCourse = utils.initialContextDict(request)
         
     if request.POST: 
         if 'libID' in request.POST:
             ID = int(request.POST['libID'])
-            dependentLibrary.objects.filter(mainLibary=ID).delete() #delete the dependencies  
+            
+            # Note: after these steps, we should consider adding some sort of missing dependency flag to libraries or questions
+            # whose dependencies have been removed.
+            
+            dependentLibrary.objects.filter(mainLibrary=ID).delete() #delete the information about which libraries depend on it
+            dependentLibrary.objects.filter(dependent=ID).delete() #delete the information about which libraries it depends on
+            questionLibrary.objects.filter(library=ID).delete() #delete the problem dependencies
             currentLib = LuaLibrary.objects.get(pk=ID)
             currentLib.delete()
         
-    return redirect('Instructors/uploadLuaLibs.html')
+    return redirect('/oneUp/instructors/luaLibUploadView')
 
 def libList(context_dict, user):
       
@@ -110,7 +96,7 @@ def libList(context_dict, user):
         libDict['description'] = lib.libDescription
         libDict['ID']= lib.libID
         libDict['myLib'] = lib.libCreator == user
-        libDict['hasDependents'] = dependentLibrary.objects.filter(dependent=lib).exists() or questionLibrary.objects.filter(library=lib).exists()
+        libDict['hasDependents'] = dependentLibrary.objects.filter(mainLibrary=lib).exists() or questionLibrary.objects.filter(library=lib).exists()
         libList.append(libDict)
                 
     context_dict['lib_range'] = libList
@@ -119,12 +105,11 @@ def libList(context_dict, user):
     return context_dict
 
 def makeDependencies(library,listOfDependNames):
-    existingDeps = dependentLibrary.objects.filter(mainLibrary=library)
-    existingDepNames = list(map(lambda x:x.dependent.libraryName,existingDeps))
+    existingDeps = dependentLibrary.objects.filter(dependent=library)
+    existingDepNames = [dep.dependent.libraryName for dep in existingDeps]
     existingWithoutNew = [val for val in existingDepNames if val not in listOfDependNames]
-    print("ewon:"+str(existingWithoutNew))
     newWithoutExisting = [val for val in listOfDependNames if val not in existingDepNames]
-    print("nwoe:"+str(newWithoutExisting))
+
     for name in newWithoutExisting:
         dependent = LuaLibrary.objects.get(libraryName= name)
         depend = dependentLibrary()
@@ -132,27 +117,18 @@ def makeDependencies(library,listOfDependNames):
         depend.dependent = dependent
         depend.save()
     for name in existingWithoutNew:
-        dependentLibrary.objects.filter(mainLibrary=library,dependent__libraryName=name).delete()
+        dependentLibrary.objects.filter(mainLibrary=name,dependent__libraryName=library).delete()
         
-def getDependentLibraryNames(library):
+def getDependencyLibraryNames(library):
     names = []
-    depLibraries = dependentLibrary.objects.filter(mainLibrary=library)
+    depLibraries = dependentLibrary.objects.filter(dependent=library)
     for depLib in depLibraries:
         names.append(depLib.dependent.libraryName)
     return names
-        
+
+@login_required
 def libEdit(request):
-    context_dict = {}
-    
-    context_dict["logged_in"] = request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"] = request.user.username
-        
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict,currentCourse = utils.initialContextDict(request)
         
     libList(context_dict, request.user)
         
@@ -164,9 +140,27 @@ def libEdit(request):
             context_dict['libName'] = library.libraryName
             context_dict['libDescription'] = library.libDescription
             context_dict['libID'] = library.libID
-            context_dict['selectedLuaLibraries'] = getDependentLibraryNames(library)
+            context_dict['selectedLuaLibraries'] = getDependencyLibraryNames(library)
             print(request.POST['libID'])
             
             
     return render(request, 'Instructors/uploadLuaLibs.html', context_dict)
 
+@login_required
+def libDeleteConfirmView(request):
+    context_dict,currentCourse = utils.initialContextDict(request)
+    
+    libraryForDeletion = request.POST['libID']
+    context_dict['libID'] = libraryForDeletion
+    
+    context_dict['libName'] = LuaLibrary.objects.get(pk=libraryForDeletion).libraryName
+
+    dependentLibraries = dependentLibrary.objects.filter(mainLibrary=libraryForDeletion)
+    dependentProblems = questionLibrary.objects.filter(library=libraryForDeletion)
+    
+    context_dict['libraryDependencyCount'] = dependentLibraries.count()
+    context_dict['dependentLibraries'] = [depLib.dependent.libraryName for depLib in dependentLibraries]
+    context_dict['problemDependencyCount'] = dependentProblems.count()
+    context_dict['dependentProblems'] = [depProb.question.preview for depProb in dependentProblems]
+
+    return render(request, 'Instructors/LibraryDeleteConfirmation.html', context_dict)

@@ -1,20 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+   {% include 'scripts.html' %}
+
 	<title>Deletion Confirmation Page</title>
 </head>
 <body>
 	<div id="page-wrapper">
          {% include 'heading.html' %}
-	<h1> Deletion Confirmation Page</h1>
+   		 <div class="frame" id="grad" align="center">
+         <div class="container">
+         <div class="row">
+         <div class="12u">
+         
+	<h1> Library Deletion Confirmation Page </h1>
 	<p> Are you sure you want to delete {{libName}}? <p>
 	{% if libraryDependencyCount > 0 %}
 		<p> It has the following {{libraryDependencyCount}} libraries which depend on it:
 			<ul>
 			{% for deplib in dependentLibraries %}
 				<li> {{deplib}} </li>
+			{% endfor %}
 			</ul>
 		</p>
+	{% endif %}
+	{% if problemDependencyCount > 0 %}
 		<p> It has the following {{problemDependencyCount}} problems which depend on it:
-		
+			<ul>
+			{% for depprob in dependentProblems %}
+				<li> {{depprob}} </li>
+			{% endfor %}
+			</ul>
+		</p>
+	{% endif %}
+	<form action="/oneUp/instructors/luaLibDelete" method="POST">
+		{% csrf_token %}
+		<input type="hidden" name="libID" value="{{libID}}">
+		<input type="submit" name="submit" value="Yes, Please Delete It" class="button">
+	</form>
+	<a href="/oneUp/instructors/luaLibUploadView"><button>No, Do Not Delete It</button></a>
+	
+		</div>
+		</div>
+		</div>
+		</div>
+	</div>
 </body>
