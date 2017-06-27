@@ -189,8 +189,8 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     if (operandType == OperandTypes.immediateInteger):
         return operandValue
     elif (operandType == OperandTypes.condition):
-        condition = Conditions.objects.get(pk=operandValue)
-        return check_condition_helper(condition, course, student, objectType, objectID,ht)
+        inner_condition = Conditions.objects.get(pk=operandValue)
+        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht)
     elif (operandType == OperandTypes.floatConstant):
         return FloatConstants.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.stringConstant):
