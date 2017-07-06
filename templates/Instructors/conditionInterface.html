@@ -45,6 +45,9 @@
         border-radius: 6px;
         padding: 6px;
       }
+      .cond-trash {
+        margin-left: auto;
+      }
       .cond-or {
         display: flex;
         flex-direction: row;
@@ -208,6 +211,7 @@
       <div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
       <div id="condAtomIcon" class="cond-icon" draggable="true">Atom</div>
       <div id="condForAllIcon" class="cond-icon" draggable="true">Forall</div>
+      <div id="condTrashIcon" class="cond-icon cond-trash"> Trash </div>
     </div>
     </p>
 
@@ -353,7 +357,7 @@
 
       }
 
-      function condHandleDragOver(e) {
+      function condHandleDragOverBlank(e) {
         if (e.preventDefault) {
           e.preventDefault();
         }
@@ -468,8 +472,8 @@
           if (node.nodeName == "DIV") {
             node.dataset.condInsideQualifier = insideQualifier;
             if (node.classList.contains("cond-empty")) {
-              node.addEventListener("dragover",condHandleDragOver,false);
-              node.addEventListener("drop",condHandleDrop,false);
+              node.addEventListener("dragover",condHandleDragOverBlank,false);
+              node.addEventListener("drop",condHandleDropOnBlank,false);
             }
           }
           // Recursive call for all children
@@ -478,12 +482,12 @@
         prepareEmptyDescendantsHelper(node);
       }
 
-      function condHandleDrop(e) {
+      function condHandleDropOnBlank(e) {
         if (e.preventDefault) {
           e.preventDefault();
         }
 
-        targetParent = e.target.parentNode;
+        var targetParent = e.target.parentNode;
 
       // I decided not to put an outline around the OR bits.
 /*        if (targetParent.classList.contains("cond-or-sub") &&
@@ -546,9 +550,36 @@
 
       var blanks = document.querySelectorAll('.cond-empty');
       [].forEach.call(blanks,function(blank) {
-        blank.addEventListener('dragover', condHandleDragOver, false);
-        blank.addEventListener('drop', condHandleDrop, false);
+        blank.addEventListener('dragover', condHandleDragOverBlank, false);
+        blank.addEventListener('drop', condHandleDropOnBlank, false);
       });
+
+/*>*/ 
+      function condHandleDragOverTrash(e) {
+	if (e.preventDefault) {
+          e.preventDefault();
+	}
+	if (condDragSource.classList.contains("cond-icon")) {
+	  e.dataTransfer.dropEffect = "none";
+	  return false;
+	}
+
+        e.dataTransfer.dropEffect = "move";
+	return false;
+      }
+      function condHandleDropOnTrash(e) {
+	var sourceParent = condDragSource.parentNode;
+	var sourceLabel = 
+	  condDragSource.dataset.condType == "for" ? 
+	    condDragSource.previousElementSibling :
+	    condDragSource.nextElementSibling;
+	sourceParent.removeChild(condDragSource);
+	sourceParent.removeChild(sourceLabel);
+      }
+
+      trashCan = document.getElementById("condTrashIcon");
+      trashCan.addEventListener('dragover', condHandleDragOverTrash, false);
+      trashCan.addEventListener('drop', condHandleDropOnTrash, false);
 
       /************************************
        * Functions for Saving and Loading *
