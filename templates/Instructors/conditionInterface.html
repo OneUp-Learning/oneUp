@@ -575,6 +575,10 @@
 	    condDragSource.nextElementSibling;
 	sourceParent.removeChild(condDragSource);
 	sourceParent.removeChild(sourceLabel);
+	if ((sourceParent.parentNode) && 
+	    (sourceParent.parentNode.dataset.condType == "or")) {
+	  condCleanUpOr(sourceParent.parentNode);
+	}
       }
 
       trashCan = document.getElementById("condTrashIcon");
