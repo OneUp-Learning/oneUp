@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype of the Condition Interface for OneUp</title>
+ 
+    <style>
+      .cond-prototype {
+        display: none;
+      }
+      .cond-item {
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 6px;
+        border-color: dimgray;
+        text-align: center;
+        padding: 2px;
+      }
+      .cond-empty {
+        border-style: dashed;
+        border-width: 1px;
+        border-radius: 6px;
+        border-color: dimgray;
+        text-align: center;
+        min-width: 20px;
+      }
+      .cond-container {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: stretch;
+        align-content: flex-start;
+        height: 400px;
+        width: 100%;
+        overflow-x: auto;
+      }
+      .cond-icon-list {
+        display: flex;
+        flex-direction: row:
+        align-items: stretch;
+      }
+      .cond-icon {
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 6px;
+        padding: 6px;
+      }
+      .cond-or {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        overflow-x: auto;
+        overflow-y: hidden;
+        background-color: #DDFFFF;
+      }
+      .cond-or-sub {
+        flex-basis: 45%;
+        height: 100%;
+      }
+      .cond-or-label {
+        color: silver;
+        flex-basis: 8%;
+        text-align: center;
+      }
+      .cond-and-label {
+        font-size: 0.6em;
+        color: silver;
+        text-align: center;
+      }
+      .cond-atom-option-group {
+      }
+      .cond-for {
+        background-color: yellow;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+      }
+      .cond-for-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .cond-for-list-item {
+        padding: 2px;
+        background-color: orange;
+      }
+      .cond-for-sub {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        width: 90%;
+      }
+      .cond-atom {
+        background-color: #EEFFEE;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <h1> Some text </h1>
+    <p> 
+      First we just have some text so that this will look roughly like a
+      normal web page and make it clear that the condition part is embedded
+      in the middle and not a page unto itself.  This isn't really
+      necessary, I wouldn't think, but I'm doing it anyway, because I want to.
+      Probably no one will really read this anyway.
+    </p>
+
+    <form>
+    <p>
+      Hidden prototypes live between here.
+    </p>
+    <div id="condOrPrototype" class="cond-prototype">
+      <div class="cond-or cond-item" data-cond-type="or" draggable="true">
+	<div class="cond-or-sub" data-cond-type="orSub">
+	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+	</div>
+	<div class="cond-or-label">OR</div>
+	<div class="cond-or-sub" data-cond-type="orSub">
+	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+	</div>
+      </div>
+    </div>
+    <div id="condEmptyOrSubPrototype" class="cond-prototype">
+      <div class="cond-or-sub" data-cond-type="orSub">
+	<div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+      </div>
+    </div>
+    <div id="condOrLabelPrototype" class="cond-prototype">
+      <div class="cond-or-label">OR</div>
+    </div>
+    <div id="condAtomPrototype" class="cond-prototype">
+      <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
+	<select>
+	  <option value="0">choose a variable</option>
+	  <option value="1">score</option>
+	  <option value="2">completion Time</option>
+	  <option value="3">badges</option>
+	</select>
+	<select>
+	  <option value="=">=</option>
+	  <option value=">">&gt;</option>
+	  <option value="<">&lt;</option>
+	</select>
+	<input type="text">
+      </div>
+    </div>
+    <div id="condAndLabelPrototype" class="cond-prototype">
+      <div class="cond-and-label">AND</div>
+    </div>
+    <div id="condEmptyAndPrototype" class="cond-prototype">
+      <div class="cond-empty" data-cond-type="andBlank">&nbsp;</div>
+    </div>
+    <div id="condForPrototype" class="cond-prototype">
+      <div class="cond-for cond-item" data-cond-type="for" 
+	   data-inside-qualifier="challenge" draggable="true">
+	<div>
+	  for
+	  <select name="allOrAny">
+	    <option value="all">each</option>
+	    <option value="any">any</option>
+	  </select>
+	  of the following
+	  <select name="type" onchange="condChangeForAllType(this);"
+		  data-old-type="challenge">
+	    <option value="challenge">challenges</option>
+	    <option value="activity">activities</option>
+	  </select>
+	</div>
+	<div class="cond-challenges-list">
+	  <select name="list" 
+		  onchange="condAddThingieToList(this);this.selectedIndex=0;">
+	    <option value="0">select challenges to add</option>
+	    <option value="1">challenge 1</option>
+	    <option value="2">challenge 2</option>
+	    <option value="3">challenge 3</option>
+	  </select>
+	  or <input type="checkbox" name="all">
+	  <label for="all">all challenges</label>
+	</div>
+	<div class="cond-for-list cond-challenges-selected-list">
+	</div>  
+	<div class="cond-activities-list" hidden>
+	  <select name="list"
+		  onchange="condAddThingieToList(this);this.selectedIndex=0;">
+	    <option value="0">select activities to add</option>
+	    <option value="1">activity 1</option>
+	    <option value="2">activity 2</option>
+	    <option value="3">activity 3</option>
+	  </select>
+	  or <input type="checkbox" name="all">
+	  <label for="all">all activities</label>
+	</div>
+	<div class="cond-for-list cond-activities-selected-list">
+	</div>  
+	<div class="cond-for-sub">
+	  <div class="cond-empty">&nbsp;</div>
+	</div>
+      </div>
+    </div>
+    <p>
+      And here
+    </p>
+
+    <p>
+    <div class="cond-icon-list">
+      <div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
+      <div id="condAtomIcon" class="cond-icon" draggable="true">Atom</div>
+      <div id="condForAllIcon" class="cond-icon" draggable="true">Forall</div>
+    </div>
+    </p>
+
+    <div class="cond-container cond-item">
+      <div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
+    </div>
+
+    <script>
+      // All names prefixed with cond to decrease odds of any sort
+      // of name-space conflict on import.
+
+      /******************************************
+       * Functions for handling ForAll UI stuff *
+       ******************************************/
+      
+      function condAddThingieToListByNameAndId(list,name,id) {
+        var itemDiv = document.createElement("div");
+        itemDiv.onclick = function(e){condRemoveThingie(this)};
+        itemDiv.dataset.id = id;
+        itemDiv.className = "cond-for-list-item";
+        var name_text = document.createTextNode(name+" \u00D7");
+        itemDiv.appendChild(name_text);
+        list.appendChild(itemDiv);
+      }
+
+      function condAddThingieToList(select) {
+        var choice = select.options[select.selectedIndex];
+        var list = select.parentNode.nextElementSibling;
+        var listOfIds = [];
+        for (var i = 0; i<list.children.length; i++) { //>
+          listOfIds.push(list.children[i].dataset.id);
+        }
+        if (!listOfIds.includes(choice.value)) {
+          condAddThingieToListByNameAndId(list,choice.text,choice.value);
+        }
+      }
+
+      function condRemoveThingie(item) {
+        item.parentNode.removeChild(item);
+      }
+
+      function condChangeForAllType(select) {
+        var currentType = select.options[select.selectedIndex].value;
+        var oldType = select.dataset.oldType;
+        if (currentType == oldType) {
+          return;
+        }
+        select.dataset.oldType = currentType;
+        var forAllDiv = select.parentNode.parentNode
+        var listDivs = {
+          "activity":
+            forAllDiv.getElementsByClassName("cond-activities-list")[0],
+          "challenge":
+            forAllDiv.getElementsByClassName("cond-challenges-list")[0],
+        }
+        var selectedDivs = {
+          "activity":
+            forAllDiv.getElementsByClassName("cond-activities-selected-list")[0],
+          "challenge":
+            forAllDiv.getElementsByClassName("cond-challenges-selected-list")[0],
+        }
+        listDivs[oldType].hidden = "true";
+        selectedDivs[oldType].hidden = "true";
+        selectedDivs[oldType].style.display = "none";
+        listDivs[currentType].removeAttribute("hidden");
+        selectedDivs[currentType].removeAttribute("hidden");
+        selectedDivs[currentType].style.display = "flex";
+
+        var subDivs = forAllDiv.getElementsByTagName("DIV");
+        [].forEach.call(subDivs,function(subDiv) {
+          subDiv.dataset.condInsideQualifier = currentType;
+        });
+      }
+
+      /*********************************************
+       * Functions relating to draggable interface *
+       *********************************************/
+
+      var condDragSource = null;
+      var condSourceType = null;
+
+      // The two condHandleDragStart functions are used to set up
+      // visual effects and note the drag source when a drag event begins.
+
+      // This one is used for the icons at the top which will be copied
+      // into the condition container.
+      function condHandleDragStartCopy(e) {
+        this.style.opacity = 0.4;
+        condDragSource = this;
+        condSourceType = "copy";
+        e.dataTransfer.effectAllowed = "copy";
+
+        e.stopPropagation();
+      }
+
+      // This one is used for the parts of the condition itself which
+      // can be dragged around in order to redo things.
+      function condHandleDragStartMove(e) {
+        this.style.opacity = 0.4;
+        if (!this.id) {
+          this.id = "cond-id-"+(Date.now()+Math.random()).toString(36);
+        }
+        condDragSource = this;
+        condSourceType = "move";
+        e.dataTransfer.effectAllowed = "move";
+
+        e.stopPropagation();
+      }
+      function condHandleDragEnd(e) {
+        this.style.opacity = 1.0;
+      }
+
+      function condCanDropOn(source,target) {
+        var canDrop = true;
+        if ((target.dataset.condType=="orBlank") && 
+            (source.id=="condOrIcon")) {
+          canDrop = false;
+        }
+
+        if ((target.dataset.condInsideQualifier!="none") &&
+            (source.id=="condForAllIcon")) {
+          canDrop = false;
+        }
+
+        if (target.parentNode == source.parentNode) {
+          canDrop = false;
+        }
+
+        if ((target.dataset.condInsideQualifier!="none") &&
+            (source.dataset.condType=="for")) {
+          canDrop = false;
+        }
+
+        var targetAncestor = target;
+        while (targetAncestor.parentNode) {
+          if (source == targetAncestor) {
+            canDrop = false;
+          }
+          targetAncestor = targetAncestor.parentNode;
+        }
+          
+        return canDrop;
+
+      }
+
+      function condHandleDragOver(e) {
+        if (e.preventDefault) {
+          e.preventDefault();
+        }
+
+        if (!condCanDropOn(condDragSource,this)) {
+          e.dataTransfer.dropEffect = "none";
+          return false;
+        }
+
+        e.dataTransfer.dropEffect = condSourceType;
+        return false;
+      }
+
+      function clonePrototype(name) {
+        var prototypeSuperDiv = document.getElementById(name);
+        var prototypeDiv = prototypeSuperDiv.getElementsByTagName('div')[0].cloneNode(true);
+        return prototypeDiv;
+      }
+
+      function condCreateAtomNode(targetParent,blank,insideQualifier) {
+        var atomDiv = clonePrototype("condAtomPrototype");
+        targetParent.insertBefore(atomDiv,blank);
+        var labelDiv = clonePrototype("condAndLabelPrototype");
+        targetParent.insertBefore(labelDiv,blank);
+        var blankDiv = clonePrototype("condEmptyAndPrototype");
+        targetParent.insertBefore(blankDiv,blank);
+        condPrepareEmptyDescendants(blankDiv,insideQualifier);
+
+        atomDiv.addEventListener("dragstart",condHandleDragStartMove,false);
+        atomDiv.addEventListener("dragend",condHandleDragEnd,false);
+
+        return atomDiv;
+      }
+      function condCreateOrNode(targetParent,blank,insideQualifier) {
+        var orDiv = clonePrototype("condOrPrototype");
+        targetParent.insertBefore(orDiv,blank);
+        var labelDiv = clonePrototype("condAndLabelPrototype");
+        targetParent.insertBefore(labelDiv,blank);
+        var blankDiv = clonePrototype("condEmptyAndPrototype");
+        targetParent.insertBefore(blankDiv,blank);
+        condPrepareEmptyDescendants(orDiv,insideQualifier);
+        condPrepareEmptyDescendants(blankDiv,insideQualifier);
+
+        orDiv.addEventListener("dragstart",condHandleDragStartMove,false);
+        orDiv.addEventListener("dragend",condHandleDragEnd,false);
+
+        return orDiv;
+      }
+      function condExpandOrNode(targetParent,insideQualifier) {
+        var labelDiv = clonePrototype("condOrLabelPrototype");
+        targetParent.appendChild(labelDiv);
+        var blankSubDiv = clonePrototype("condEmptyOrSubPrototype");
+        targetParent.appendChild(blankSubDiv);
+        condPrepareEmptyDescendants(blankSubDiv,insideQualifier);
+      }
+      function condCreateForAllNode(targetParent,blank) {
+        var blankDiv = clonePrototype("condEmptyAndPrototype");
+        targetParent.insertBefore(blankDiv,blank);
+        var labelDiv = clonePrototype("condAndLabelPrototype");
+        targetParent.insertBefore(labelDiv,blank);
+        var forAllDiv = clonePrototype("condForPrototype");
+        targetParent.insertBefore(forAllDiv,blank);
+        condPrepareEmptyDescendants(blankDiv,"none");
+        condPrepareEmptyDescendants(forAllDiv,"challenge");
+
+        forAllDiv.addEventListener("dragstart",condHandleDragStartMove,false);
+        forAllDiv.addEventListener("dragend",condHandleDragEnd,false);
+
+        return forAllDiv;
+      }
+
+      function condOrIsFull(orNode) {
+        var numEmptySubs = 0;
+        var orSubs = orNode.getElementsByClassName("cond-or-sub");
+        for (var i = 0; i < orSubs.length; i++) {
+          if (orSubs[i].getElementsByClassName("cond-item").length == 0) {
+	    numEmptySubs++;
+	  }
+        }
+        return (numEmptySubs == 0);
+      }
+
+      function condCleanUpOr(orNode) {
+        var orSubs = orNode.getElementsByClassName("cond-or-sub");
+        if (orSubs.length == 2) {
+          return;
+        }
+        var emptyCount = 0;
+        var subItems = [];
+        for (var i = 0; i < orSubs.length; i++) {
+          subItems[i] = orSubs[i].getElementsByClassName("cond-item");
+          if (subItems[i].length == 0) {
+            emptyCount += 1;
+          }
+        }
+
+        var j = 0;
+        while (emptyCount > 1) {
+	  if (subItems[j].length == 0) {
+            orNode.removeChild(orSubs[j].nextElementSibling);
+            orNode.removeChild(orSubs[j]);
+	    emptyCount -= 1;
+	  }
+	  j++;
+	}   
+      }
+
+      // This function adds event listeners and also sets the flag
+      // for whether or not they are inside a qualifier block
+      function condPrepareEmptyDescendants(node,insideQualifier) {
+        function prepareEmptyDescendantsHelper(node) {
+          if (node.nodeName == "DIV") {
+            node.dataset.condInsideQualifier = insideQualifier;
+            if (node.classList.contains("cond-empty")) {
+              node.addEventListener("dragover",condHandleDragOver,false);
+              node.addEventListener("drop",condHandleDrop,false);
+            }
+          }
+          // Recursive call for all children
+          [].forEach.call(node.childNodes,prepareEmptyDescendantsHelper);
+        }
+        prepareEmptyDescendantsHelper(node);
+      }
+
+      function condHandleDrop(e) {
+        if (e.preventDefault) {
+          e.preventDefault();
+        }
+
+        targetParent = e.target.parentNode;
+
+      // I decided not to put an outline around the OR bits.
+/*        if (targetParent.classList.contains("cond-or-sub") &&
+             !(targetParent.classList.contains("cond-item"))) {
+          targetParent.classList.add("cond-item");
+        }*/
+
+        var insideQualifier = e.target.dataset.condInsideQualifier;
+        if (condDragSource.id == "condOrIcon") {
+          condCreateOrNode(targetParent,e.target,insideQualifier);
+          targetParent.removeChild(e.target);
+        } else if (condDragSource.id == "condAtomIcon") {
+          condCreateAtomNode(targetParent,e.target,insideQualifier);
+          targetParent.removeChild(e.target);
+        } else if (condDragSource.id == "condForAllIcon") {
+          condCreateForAllNode(targetParent,e.target);
+          targetParent.removeChild(e.target);
+        } else /* a node to be moved */ {
+ 	  var sourceParentIsOr = 
+	           condDragSource.parentNode.parentNode.dataset.condType == "or";
+	  var sourceOr;
+	  if (sourceParentIsOr) {
+	    sourceOr = condDragSource.parentNode.parentNode;
+	  }
+          if ((condDragSource.dataset.condType == "or") || 
+              (condDragSource.dataset.condType == "atom")) {
+            var andLabelDiv = condDragSource.nextElementSibling;
+            targetParent.insertBefore(condDragSource,e.target);
+            targetParent.insertBefore(andLabelDiv,e.target);
+          } else { // for
+            var sourceAndLabelDiv = condDragSource.previousElementSibling;
+            if (e.target.nextElementSibling) {
+              var targetAndLabelDiv = e.target.nextElementSibling;
+			    console.log(targetAndLabelDiv);
+              targetParent.insertBefore(sourceAndLabelDiv,targetAndLabelDiv);
+              targetParent.insertBefore(condDragSource,targetAndLabelDiv);
+            } else { // Last on list.
+              targetParent.appendChild(sourceAndLabelDiv);
+              targetParent.appendChild(condDragSource);
+            }
+          }
+	  if (sourceParentIsOr) {
+	    condCleanUpOr(sourceOr);
+	  } 
+        }
+
+        if (targetParent.dataset.condType == "orSub") {
+          if (condOrIsFull(targetParent.parentNode)) {
+            condExpandOrNode(targetParent.parentNode,insideQualifier);
+          } 
+        }
+        
+      }
+      
+      var icons = document.querySelectorAll('.cond-icon');
+      [].forEach.call(icons,function(icon) {
+        icon.addEventListener('dragstart', condHandleDragStartCopy, false);
+        icon.addEventListener('dragend', condHandleDragEnd, false);
+      });
+
+      var blanks = document.querySelectorAll('.cond-empty');
+      [].forEach.call(blanks,function(blank) {
+        blank.addEventListener('dragover', condHandleDragOver, false);
+        blank.addEventListener('drop', condHandleDrop, false);
+      });
+
+      /************************************
+       * Functions for Saving and Loading *
+       ************************************/
+   /* >*/
+/*      function condGetConditionStringAndDataTable(cond) {
+        if (cond.dataset.classList.contains("cond-empty")) {
+	  return "";
+	} else if (cond.dataset.condType == "*/
+    
+    </script>
+  </body>
+</html>
