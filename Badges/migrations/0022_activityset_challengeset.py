@@ -9,7 +9,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Instructors', '0054_uploadedfiles'),
         ('Badges', '0021_courseconfigparams_virtualcurrencyadded'),
     ]
 
