@@ -116,18 +116,18 @@
     </p>
     <div id="condOrPrototype" class="cond-prototype">
       <div class="cond-or cond-item" data-cond-type="or" draggable="true">
-	<div class="cond-or-sub" data-cond-type="orSub">
-	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
-	</div>
-	<div class="cond-or-label">OR</div>
-	<div class="cond-or-sub" data-cond-type="orSub">
-	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
-	</div>
+		<div class="cond-or-sub" data-cond-type="orSub">
+	  	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+	    </div>
+		<div class="cond-or-label">OR</div>
+		<div class="cond-or-sub" data-cond-type="orSub">
+	  	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+		</div>
       </div>
     </div>
     <div id="condEmptyOrSubPrototype" class="cond-prototype">
       <div class="cond-or-sub" data-cond-type="orSub">
-	<div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+		<div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
       </div>
     </div>
     <div id="condOrLabelPrototype" class="cond-prototype">
@@ -135,18 +135,31 @@
     </div>
     <div id="condAtomPrototype" class="cond-prototype">
       <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
-	<select>
-	  <option value="0">choose a variable</option>
-	  <option value="1">score</option>
-	  <option value="2">completion Time</option>
-	  <option value="3">badges</option>
-	</select>
-	<select>
-	  <option value="=">=</option>
-	  <option value=">">&gt;</option>
-	  <option value="<">&lt;</option>
-	</select>
-	<input type="text">
+		<select name="cond-var">
+	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
+	  	  <option value="1" data-cond-context-challenge="true" data-cond-context-activity="true">score</option>
+	  	  <option value="2" data-cond-context-challenge="true" data-cond-context-activity="true">completion time</option>
+	  	  <option value="3" data-cond-context-global="true">badge count</option>
+	  	  <option value="4" data-cond-context-global="true">days logged in</option>
+	  	  <option value="5" data-cond-context-challenge="true">questions correct</option>
+	  	  <option value="6" data-cond-context-activity="true">off campus</option>
+		</select>
+		<select name="cond-op">
+	  	  <option value="=">=</option>
+	  	  <option value=">">&gt;</option>
+	  	  <option value="<">&lt;</option>
+		</select>
+		<input type="text" name="cond-rhs-value">
+		<select name="cond-rhs-var" hidden>
+	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
+	  	  <option value="1" data-cond-context-challenge="true" data-cond-context-activity="true">score</option>
+	  	  <option value="2" data-cond-context-challenge="true" data-cond-context-activity="true">completion time</option>
+	  	  <option value="3" data-cond-context-global="true">badge count</option>
+	  	  <option value="4" data-cond-context-global="true">days logged in</option>
+	  	  <option value="5" data-cond-context-challenge="true">questions correct</option>
+	  	  <option value="6" data-cond-context-activity="true">off campus</option>
+		</select>
+		<label><input type="checkbox" name="cond-value" checked="true" onchange="condToggleAtomType(this)">value</input></label>
       </div>
     </div>
     <div id="condAndLabelPrototype" class="cond-prototype">
@@ -157,49 +170,49 @@
     </div>
     <div id="condForPrototype" class="cond-prototype">
       <div class="cond-for cond-item" data-cond-type="for" 
-	   data-inside-qualifier="challenge" draggable="true">
-	<div>
-	  for
-	  <select name="allOrAny">
-	    <option value="all">each</option>
-	    <option value="any">any</option>
-	  </select>
-	  of the following
-	  <select name="type" onchange="condChangeForAllType(this);"
-		  data-old-type="challenge">
-	    <option value="challenge">challenges</option>
-	    <option value="activity">activities</option>
-	  </select>
-	</div>
-	<div class="cond-challenges-list">
-	  <select name="list" 
-		  onchange="condAddThingieToList(this);this.selectedIndex=0;">
-	    <option value="0">select challenges to add</option>
-	    <option value="1">challenge 1</option>
-	    <option value="2">challenge 2</option>
-	    <option value="3">challenge 3</option>
-	  </select>
-	  or <input type="checkbox" name="all">
-	  <label for="all">all challenges</label>
-	</div>
-	<div class="cond-for-list cond-challenges-selected-list">
-	</div>  
-	<div class="cond-activities-list" hidden>
-	  <select name="list"
-		  onchange="condAddThingieToList(this);this.selectedIndex=0;">
-	    <option value="0">select activities to add</option>
-	    <option value="1">activity 1</option>
-	    <option value="2">activity 2</option>
-	    <option value="3">activity 3</option>
-	  </select>
-	  or <input type="checkbox" name="all">
-	  <label for="all">all activities</label>
-	</div>
-	<div class="cond-for-list cond-activities-selected-list">
-	</div>  
-	<div class="cond-for-sub">
-	  <div class="cond-empty">&nbsp;</div>
-	</div>
+		   data-inside-qualifier="challenge" draggable="true">
+		<div>
+		  	for
+		  	<select name="allOrAny">
+		   	 	<option value="all">each</option>
+		    	<option value="any">any</option>
+		  	</select>
+		  	of the following
+		  	<select name="type" onchange="condChangeForAllType(this);"
+				  data-old-type="challenge">
+		    	<option value="challenge">challenges</option>
+		    	<option value="activity">activities</option>
+		  	</select>
+		</div>
+		<div class="cond-challenges-list">
+		  <select name="list" 
+			  onchange="condAddThingieToList(this);this.selectedIndex=0;">
+	    	<option value="0">select challenges to add</option>
+		    <option value="1">challenge 1</option>
+		    <option value="2">challenge 2</option>
+	   		<option value="3">challenge 3</option>
+	  	  </select>
+	  	  or <input type="checkbox" name="all">
+		  <label for="all">all challenges</label>
+		</div>
+		<div class="cond-for-list cond-challenges-selected-list">
+		</div>  
+		<div class="cond-activities-list" hidden>
+	  	  <select name="list"
+		  	onchange="condAddThingieToList(this);this.selectedIndex=0;">
+	    	<option value="0">select activities to add</option>
+	    	<option value="1">activity 1</option>
+	    	<option value="2">activity 2</option>
+	    	<option value="3">activity 3</option>
+	  	  </select>
+	  	  or <input type="checkbox" name="all">
+	  	  <label for="all">all activities</label>
+		</div>
+		<div class="cond-for-list cond-activities-selected-list">
+		</div>  
+		<div class="cond-for-sub">
+	  		<div class="cond-empty">&nbsp;</div>
+		</div>
       </div>
     </div>
     <p>
@@ -220,6 +233,19 @@
     </div>
 
     <script>
+      function condToggleAtomType(x) {
+    	  var atom = x.parentNode.parentNode;
+    	  var value = atom.querySelector('input[name="cond-rhs-value"]');
+          var variable = atom.querySelector('select[name="cond-rhs-var"]');
+    	  if (x.checked) {
+    		  variable.hidden = true;
+    		  value.removeAttribute("hidden");
+    	  } else {
+    		  value.hidden = true;
+    		  variable.removeAttribute("hidden");
+    	  }
+      }
+    
       // All names prefixed with cond to decrease odds of any sort
       // of name-space conflict on import.
 
@@ -581,19 +607,24 @@
 	}
       }
 
-      trashCan = document.getElementById("condTrashIcon");
-      trashCan.addEventListener('dragover', condHandleDragOverTrash, false);
-      trashCan.addEventListener('drop', condHandleDropOnTrash, false);
+    trashCan = document.getElementById("condTrashIcon");
+    trashCan.addEventListener('dragover', condHandleDragOverTrash, false);
+    trashCan.addEventListener('drop', condHandleDropOnTrash, false);
 
-      /************************************
-       * Functions for Saving and Loading *
-       ************************************/
-   /* >*/
-/*      function condGetConditionStringAndDataTable(cond) {
-        if (cond.dataset.classList.contains("cond-empty")) {
-	  return "";
-	} else if (cond.dataset.condType == "*/
-    
+    /************************************
+     * Functions for Saving and Loading *
+     ************************************/
+
+/*    function condGetConditionStringAndDataTable(cond) {
+    	dataTable = {};
+    	function getConditionStringHelper(cond) {
+	     	if (cond.dataset.classList.contains("cond-empty")) {
+				return "";
+			} else if (cond.dataset.condType == "atom") {
+				var output = "A";
+				var varSelect = 
+			}
+  */  
     </script>
   </body>
 </html>
