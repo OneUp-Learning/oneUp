@@ -178,7 +178,7 @@
 		    	<option value="any">any</option>
 		  	</select>
 		  	of the following
-		  	<select name="type" onchange="condChangeForAllType(this);"
+		  	<select name="type" onchange="condChangeForAllType(this);return true;"
 				  data-old-type="challenge">
 		    	<option value="challenge">challenges</option>
 		    	<option value="activity">activities</option>
@@ -310,6 +310,10 @@
         [].forEach.call(subDivs,function(subDiv) {
           subDiv.dataset.condInsideQualifier = currentType;
         });
+        
+        condUpdateAtomSelectForContext(forAllDiv,currentType);
+        
+        return true;
       }
 
       /*********************************************
@@ -403,6 +407,42 @@
         return prototypeDiv;
       }
 
+      function condUpdateAtomSelectForContext(targetDiv,context) {
+
+    	  if (context == "none") {
+    		  context = "global";
+    	  }
+    	  context = context.charAt(0).toUpperCase() + context.slice(1);
+    	  var contextAttributeName = "condContext"+context;
+    	  
+    	  function updateThisSelect(targetSelect,contextAttributeName, rhs) {
+        	  var inputs = targetSelect.getElementsByTagName("option");
+        	  for (var i = 0; i < inputs.length; i++) {
+        		  if (inputs[i].dataset[contextAttributeName] || (rhs && inputs[i].dataset["condContextGlobal"])) {
+        			  inputs[i].removeAttribute("hidden");
+        		  } else {
+        			  inputs[i].hidden = true;
+        		  }
+        	  }
+    	  }
+    	  
+    	  var selects = targetDiv.getElementsByTagName("select");
+          for (var i = 0; i < selects.length; i++) {
+        	var curSelect = selects[i];
+          	if (curSelect.name == "cond-var") {
+          		updateThisSelect(curSelect,contextAttributeName, false);
+              	if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
+              		curSelect.selectedIndex = 0;
+              	}          		
+          	} else if (curSelect.name == "cond-rhs-var") {
+          		updateThisSelect(curSelect,contextAttributeName, true);
+              	if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
+              		curSelect.selectedIndex = 0;
+              	}
+          	}
+          }
+      }
+      
       function condCreateAtomNode(targetParent,blank,insideQualifier) {
         var atomDiv = clonePrototype("condAtomPrototype");
         targetParent.insertBefore(atomDiv,blank);
@@ -414,7 +454,9 @@
 
         atomDiv.addEventListener("dragstart",condHandleDragStartMove,false);
         atomDiv.addEventListener("dragend",condHandleDragEnd,false);
-
+        
+        condUpdateAtomSelectForContext(atomDiv,insideQualifier);
+        
         return atomDiv;
       }
       function condCreateOrNode(targetParent,blank,insideQualifier) {
@@ -532,32 +574,32 @@
           condCreateForAllNode(targetParent,e.target);
           targetParent.removeChild(e.target);
         } else /* a node to be moved */ {
- 	  var sourceParentIsOr = 
-	           condDragSource.parentNode.parentNode.dataset.condType == "or";
-	  var sourceOr;
-	  if (sourceParentIsOr) {
-	    sourceOr = condDragSource.parentNode.parentNode;
-	  }
-          if ((condDragSource.dataset.condType == "or") || 
-              (condDragSource.dataset.condType == "atom")) {
-            var andLabelDiv = condDragSource.nextElementSibling;
-            targetParent.insertBefore(condDragSource,e.target);
-            targetParent.insertBefore(andLabelDiv,e.target);
-          } else { // for
-            var sourceAndLabelDiv = condDragSource.previousElementSibling;
-            if (e.target.nextElementSibling) {
-              var targetAndLabelDiv = e.target.nextElementSibling;
-			    console.log(targetAndLabelDiv);
-              targetParent.insertBefore(sourceAndLabelDiv,targetAndLabelDiv);
-              targetParent.insertBefore(condDragSource,targetAndLabelDiv);
-            } else { // Last on list.
-              targetParent.appendChild(sourceAndLabelDiv);
-              targetParent.appendChild(condDragSource);
-            }
-          }
-	  if (sourceParentIsOr) {
-	    condCleanUpOr(sourceOr);
-	  } 
+	 	 	var sourceParentIsOr = 
+		    	condDragSource.parentNode.parentNode.dataset.condType == "or";
+		  	var sourceOr;
+		  	if (sourceParentIsOr) {
+		    	sourceOr = condDragSource.parentNode.parentNode;
+		  	}
+	      	if ((condDragSource.dataset.condType == "or") || 
+	        	(condDragSource.dataset.condType == "atom")) {
+	        	var andLabelDiv = condDragSource.nextElementSibling;
+	        	targetParent.insertBefore(condDragSource,e.target);
+	        	targetParent.insertBefore(andLabelDiv,e.target);
+	      	} else { // for
+	        	var sourceAndLabelDiv = condDragSource.previousElementSibling;
+	        	if (e.target.nextElementSibling) {
+	          		var targetAndLabelDiv = e.target.nextElementSibling;
+	          		targetParent.insertBefore(sourceAndLabelDiv,targetAndLabelDiv);
+	          		targetParent.insertBefore(condDragSource,targetAndLabelDiv);
+	       		} else { // Last on list.
+	          		targetParent.appendChild(sourceAndLabelDiv);
+	          		targetParent.appendChild(condDragSource);
+	        	}
+	      	}
+		  	if (sourceParentIsOr) {
+		    	condCleanUpOr(sourceOr);
+		  	}
+		  	condUpdateAtomSelectForContext(condDragSource,insideQualifier);
         }
 
         if (targetParent.dataset.condType == "orSub") {
