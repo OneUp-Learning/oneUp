@@ -184,20 +184,20 @@
 		    	<option value="activity">activities</option>
 		  	</select>
 		</div>
-		<div class="cond-challenges-list">
-		  <select name="list" 
+		<div class="cond-challenge-list">
+		  <select name="challenge-list" 
 			  onchange="condAddThingieToList(this);this.selectedIndex=0;">
 	    	<option value="0">select challenges to add</option>
 		    <option value="1">challenge 1</option>
 		    <option value="2">challenge 2</option>
 	   		<option value="3">challenge 3</option>
 	  	  </select>
-	  	  or <input type="checkbox" name="all">
-		  <label for="all">all challenges</label>
+	  	  or <input type="checkbox" name="challenge-all">
+		  <label for="challenge-all">all challenges</label>
 		</div>
-		<div class="cond-for-list cond-challenges-selected-list">
+		<div class="cond-for-list cond-challenge-selected-list">
 		</div>  
-		<div class="cond-activities-list" hidden>
+		<div class="cond-activity-list" hidden>
 	  	  <select name="list"
 		  	onchange="condAddThingieToList(this);this.selectedIndex=0;">
 	    	<option value="0">select activities to add</option>
@@ -205,10 +205,10 @@
 	    	<option value="2">activity 2</option>
 	    	<option value="3">activity 3</option>
 	  	  </select>
-	  	  or <input type="checkbox" name="all">
+	  	  or <input type="checkbox" name="activity-all">
 	  	  <label for="all">all activities</label>
 		</div>
-		<div class="cond-for-list cond-activities-selected-list">
+		<div class="cond-for-list cond-activity-selected-list">
 		</div>  
 		<div class="cond-for-sub">
 	  		<div class="cond-empty">&nbsp;</div>
@@ -233,6 +233,16 @@
     </div>
 
     <script>
+      function condFilterChildren(node,proposition) {
+    	  var output = [];
+    	  for (var i=0;i<node.children.length;i++) {
+    		  if (proposition(node.children[i])) {
+    			  output.push(node.children[i]);
+    		  }
+    	  }
+    	  return output;
+      }
+    
       function condToggleAtomType(x) {
     	  var atom = x.parentNode.parentNode;
     	  var value = atom.querySelector('input[name="cond-rhs-value"]');
@@ -279,6 +289,7 @@
         item.parentNode.removeChild(item);
       }
 
+      var condForAllTypeList = ["challenge","activity",]
       function condChangeForAllType(select) {
         var currentType = select.options[select.selectedIndex].value;
         var oldType = select.dataset.oldType;
@@ -287,17 +298,12 @@
         }
         select.dataset.oldType = currentType;
         var forAllDiv = select.parentNode.parentNode
-        var listDivs = {
-          "activity":
-            forAllDiv.getElementsByClassName("cond-activities-list")[0],
-          "challenge":
-            forAllDiv.getElementsByClassName("cond-challenges-list")[0],
-        }
-        var selectedDivs = {
-          "activity":
-            forAllDiv.getElementsByClassName("cond-activities-selected-list")[0],
-          "challenge":
-            forAllDiv.getElementsByClassName("cond-challenges-selected-list")[0],
+        var listDivs = {};
+        var selectedDivs = {};
+        for (var i=0; i<condForAllTypeList.length; i++) {
+        	var currentType = condForAllTypeList[i];
+        	listDivs[currentType] = forAllDiv.getElementsByClassName("cond-"+currentType+"-list")[0];
+       		selectedDivs[currentType] = forAllDiv.getElementsByClassName("cond-"+currentType+"-selected-list")[0];
         }
         listDivs[oldType].hidden = "true";
         selectedDivs[oldType].hidden = "true";
@@ -498,14 +504,22 @@
       }
 
       function condOrIsFull(orNode) {
-        var numEmptySubs = 0;
-        var orSubs = orNode.getElementsByClassName("cond-or-sub");
-        for (var i = 0; i < orSubs.length; i++) {
-          if (orSubs[i].getElementsByClassName("cond-item").length == 0) {
-	    numEmptySubs++;
-	  }
-        }
-        return (numEmptySubs == 0);
+        return (condCountEmptyOrSubs(orNode) == 0);
+      }
+      
+      function condOrSubIsEmpty(orSubNode) {
+    	  return orSubNode.getElementsByClassName("cond-item").length == 0;
+      }
+      
+      function condCountEmptyOrSubs(orNode) {
+          var numEmptySubs = 0;
+          var orSubs = orNode.getElementsByClassName("cond-or-sub");
+          for (var i = 0; i < orSubs.length; i++) {
+          	if (condOrSubIsEmpty(orSubs[i])) {
+  	    		numEmptySubs++;
+  	  		}
+          }
+          return numEmptySubs;
       }
 
       function condCleanUpOr(orNode) {
@@ -657,16 +671,96 @@
      * Functions for Saving and Loading *
      ************************************/
 
-/*    function condGetConditionStringAndDataTable(cond) {
-    	dataTable = {};
+    function condGetConditionStringAndDataTable(container) {
+    	var dataTable = [];
+    	function addDataTableEntry(x) {
+    		return dataTable.push(x)-1;
+    	}
+    	function getConditionListStringHelper(condList) {
+    		if (condList.length == 0) {
+    			return "";
+    		} else if (condList.length == 1) {
+    			return getConditionStringHelper(condList[0]);
+    		} else {
+    			var output = "D:";
+    			output += condList.length;
+    			output += "[";
+    			for (var i=0; i<condList.length; i++) {
+    				output += getConditionStringHelper(condList[i]);
+    				output += ",";
+    			}
+    			output += ']';
+    			return output;
+    		}
+    	}
     	function getConditionStringHelper(cond) {
-	     	if (cond.dataset.classList.contains("cond-empty")) {
+	     	if (cond.classList.contains("cond-empty")) {
 				return "";
 			} else if (cond.dataset.condType == "atom") {
-				var output = "A";
-				var varSelect = 
+				var output = "A:";
+		    	var lhsVariable = cond.querySelector('select[name="cond-var"]');
+		    	output += lhsVariable.value + ".";
+				var op = cond.querySelector('select[name="cond-op"]');
+				output += op.value + ".";
+		    	var valueCheckbox = cond.querySelector('input[name="cond-value"]')
+		    	if (valueCheckbox.checked) {
+		    		output += "L."
+					var rhsValue = cond.querySelector('input[name="cond-rhs-value"]');
+		    		output += dataTable.push(rhsValue.value);
+		    	} else {
+			        output += "V."
+		    		var rhsVariable = cond.querySelector('select[name="cond-rhs-var"]');
+			        output += rhsVariable.value;
+		    	}
+		    	return output;
+			} else if (cond.dataset.condType == "or") {
+				var output = "O:";
+				var numEmptySubs = condCountEmptyOrSubs(cond);
+				var subs = condFilterChildren(cond,function(x){return x.dataset.condType == "orSub";});
+				output += subs.length-numEmptySubs + "[";
+				for (var i=0;i<subs.length;i++) {
+					if (!condOrSubIsEmpty(subs[i])) {
+						var condList = condFilterChildren(subs[i],function(x){return x.classList.contains("cond-item");});
+						output += getConditionListStringHelper(condList);
+						output += ",";
+					}
+				}
+				output += ']';
+				return output;
+			} else if (cond.dataset.condType == "for") {
+				var output = "F:";
+				var allOrAny = cond.querySelector('select[name="allOrAny"]');
+				if (allOrAny.value == 'all') {
+					output += "*.";
+				} else {
+					output += "1.";
+				}
+				var type = cond.querySelector('select[name="type"]').value;
+				output += type + ".";
+				var allOfType = cond.querySelector('input[name="'+type+'-all"]');
+				if (allOfType.checked) {
+					output += "*";
+				} else {
+					var choiceListDiv = cond.querySelector('div.cond-'+type+'-selected-list');
+					var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
+					output += choices.length+"[";
+					for (var i=0;i<choices.length;i++) {
+						output += choices[i].dataset.id + ",";
+					}
+					output += "]";
+				}
+				return output;
 			}
-  */  
+    	}
+     	var items = condFilterChildren(container,function(x){return x.classList.contains("cond-item");});
+     	var output = getConditionListStringHelper(items);
+     	return {str:output,table:dataTable};
+   	}
+   	function testItOut() {
+   		var container = document.getElementsByClassName("cond-container")[0];
+   		var output = condGetConditionStringAndDataTable(container);
+   		console.log(output.str);
+   	}
     </script>
   </body>
 </html>
