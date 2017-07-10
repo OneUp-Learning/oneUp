@@ -135,14 +135,14 @@
     </div>
     <div id="condAtomPrototype" class="cond-prototype">
       <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
-		<select name="cond-var">
-	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
-	  	  <option value="1" data-cond-context-challenge="true" data-cond-context-activity="true">score</option>
-	  	  <option value="2" data-cond-context-challenge="true" data-cond-context-activity="true">completion time</option>
-	  	  <option value="3" data-cond-context-global="true">badge count</option>
-	  	  <option value="4" data-cond-context-global="true">days logged in</option>
-	  	  <option value="5" data-cond-context-challenge="true">questions correct</option>
-	  	  <option value="6" data-cond-context-activity="true">off campus</option>
+		<select name="cond-var" onchange="condChangeAtomToMatchType(this);return true;">
+	  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
+	  	  <option value="1" data-cond-var-type="number" data-cond-context-challenge="true" data-cond-context-activity="true">score</option>
+	  	  <option value="2" data-cond-var-type="date" data-cond-context-challenge="true" data-cond-context-activity="true">completion time</option>
+	  	  <option value="3" data-cond-var-type="number" data-cond-context-global="true">badge count</option>
+	  	  <option value="4" data-cond-var-type="number" data-cond-context-global="true">days logged in</option>
+	  	  <option value="5" data-cond-var-type="number" data-cond-context-challenge="true">questions correct</option>
+	  	  <option value="6" data-cond-var-type="checkbox" data-cond-context-activity="true">off campus</option>
 		</select>
 		<select name="cond-op">
 	  	  <option value="=">=</option>
@@ -256,6 +256,31 @@
     	  }
       }
     
+      function condChangeAtomToMatchType(select) {
+    	  console.log ("Called! on");
+    	  console.log(select);
+    	  var atom = select.parentNode.parentNode;
+    	  var option = select.options[select.selectedIndex];
+    	  var type = option.dataset.condVarType;
+    	  var value = atom.querySelector('input[name="cond-rhs-value"]');
+    	  value.type = type;
+    	  
+    	  function disable(opt) {
+    		  opt.hidden = "true";
+    	  }
+    	  function enable(opt) {
+    		  opt.removeAttribute("hidden");
+    	  }
+    	  var justEqual = { "=":enable, ">":disable, "<":disable };
+    	  var allOps = { "=":enable, ">":enable, "<":enable };
+    	  var typeStatusChange = { text: justEqual, date: allOps, number: allOps, checkbox: justEqual };
+    	  
+    	  var operator = atom.querySelector('select[name="cond-op"]');
+    	  for (var i = 0; i<operator.options.length; i++) {
+    		  typeStatusChange[type][operator.options[i].value](operator.options[i]);
+    	  }
+      }
+      
       // All names prefixed with cond to decrease odds of any sort
       // of name-space conflict on import.
 
