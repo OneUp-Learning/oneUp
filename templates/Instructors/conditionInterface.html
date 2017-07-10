@@ -179,7 +179,7 @@
 		  	</select>
 		  	of the following
 		  	<select name="type" onchange="condChangeForAllType(this);return true;"
-				  data-old-type="challenge">
+				  data-cond-old-type="challenge">
 		    	<option value="challenge">challenges</option>
 		    	<option value="activity">activities</option>
 		  	</select>
@@ -292,18 +292,18 @@
       var condForAllTypeList = ["challenge","activity",]
       function condChangeForAllType(select) {
         var currentType = select.options[select.selectedIndex].value;
-        var oldType = select.dataset.oldType;
+        var oldType = select.dataset.condOldType;
         if (currentType == oldType) {
           return;
         }
-        select.dataset.oldType = currentType;
+        select.dataset.condOldType = currentType;
         var forAllDiv = select.parentNode.parentNode
         var listDivs = {};
         var selectedDivs = {};
         for (var i=0; i<condForAllTypeList.length; i++) {
-        	var currentType = condForAllTypeList[i];
-        	listDivs[currentType] = forAllDiv.getElementsByClassName("cond-"+currentType+"-list")[0];
-       		selectedDivs[currentType] = forAllDiv.getElementsByClassName("cond-"+currentType+"-selected-list")[0];
+        	var typeI = condForAllTypeList[i];
+        	listDivs[typeI] = forAllDiv.getElementsByClassName("cond-"+typeI+"-list")[0];
+       		selectedDivs[typeI] = forAllDiv.getElementsByClassName("cond-"+typeI+"-selected-list")[0];
         }
         listDivs[oldType].hidden = "true";
         selectedDivs[oldType].hidden = "true";
@@ -717,12 +717,24 @@
 				var output = "O:";
 				var numEmptySubs = condCountEmptyOrSubs(cond);
 				var subs = condFilterChildren(cond,function(x){return x.dataset.condType == "orSub";});
-				output += subs.length-numEmptySubs + "[";
-				for (var i=0;i<subs.length;i++) {
-					if (!condOrSubIsEmpty(subs[i])) {
-						var condList = condFilterChildren(subs[i],function(x){return x.classList.contains("cond-item");});
-						output += getConditionListStringHelper(condList);
-						output += ",";
+				var numNonEmpty = subs.length-numEmptySubs;
+				if (numNonEmpty == 0) { // Nothing but empty clauses should just return an empty item.
+					return "E";
+				} else if (numNonEmpty == 1) {  // One non-empty clause should just return that clause.
+					for (var i=0;i<subs.length;i++) {
+						if (!condOrSubIsEmpty(subs[i])) {
+							var condList = condFilterChildren(subs[i],function(x){return x.classList.contains("cond-item");});
+							return getConditionListStringHelper(condList);
+						}
+					}
+				} else {  // Two or more non-empty clases should result in an OR node.
+					output += numNonEmpty + "[";
+					for (var i=0;i<subs.length;i++) {
+						if (!condOrSubIsEmpty(subs[i])) {
+							var condList = condFilterChildren(subs[i],function(x){return x.classList.contains("cond-item");});
+							output += getConditionListStringHelper(condList);
+							output += ",";
+						}
 					}
 				}
 				output += ']';
@@ -748,6 +760,14 @@
 						output += choices[i].dataset.id + ",";
 					}
 					output += "]";
+				}
+				output += ".";
+				var insideCondDiv = cond.querySelector('div.cond-for-sub');
+				var insideCondList = condFilterChildren(insideCondDiv,function(x){return x.classList.contains("cond-item")});
+				if (insideCondList.length == 0) {
+					output += "E";
+				} else {
+					output += getConditionListStringHelper(insideCondList);
 				}
 				return output;
 			}
