@@ -20,7 +20,7 @@ from Badges.views.saveBadgeView import SaveBadge
 from Badges.views.saveVirtualCurrencyRule import SaveVirtualCurrencyRule
 from Badges.views.saveVirtualCurrencySpendRule import SaveVirtualCurrencySpendRule
 from Badges.views.virtualCurrencyListView import VirtualCurrencyList
-
+from Badges.views.conditionTestView import conditionTestView
 
 admin.autodiscover()
 
@@ -37,5 +37,6 @@ urlpatterns = [
     url(r'^SaveVirtualCurrencyRule',SaveVirtualCurrencyRule, name='Save Virtual Currency Rule'),
     url(r'^SaveVirtualCurrencySpendRule',SaveVirtualCurrencySpendRule, name='Save Virtual Currency Spend Rule'),
     url(r'^InstructorVirtualCurrencyList',VirtualCurrencyList, name='Instructor Virtual Currency List'),
+    url(r'^ConditionTestView',conditionTestView, name="Condition Test View"),
     
 ]

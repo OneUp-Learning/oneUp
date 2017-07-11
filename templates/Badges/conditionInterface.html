@@ -170,7 +170,7 @@
     </div>
     <div id="condForPrototype" class="cond-prototype">
       <div class="cond-for cond-item" data-cond-type="for" 
-		   data-inside-qualifier="challenge" draggable="true">
+		   data-inside-qualifier="{{defaultObject}}" draggable="true">
 		<div>
 		  	for
 		  	<select name="allOrAny">
@@ -179,40 +179,27 @@
 		  	</select>
 		  	of the following
 		  	<select name="type" onchange="condChangeForAllType(this);return true;"
-				  data-cond-old-type="challenge">
-		    	<option value="challenge">challenges</option>
-		    	<option value="activity">activities</option>
+				  data-cond-old-type="{{defaultObject}}">
+				{% for objectType in objectTypes %}
+		    		<option value="{{objectType.name}}">{{objectType.plural}}</option>
+		    	{% endfor %}
 		  	</select>
 		</div>
-		<div class="cond-challenge-list">
-		  <select name="challenge-list" 
-			  onchange="condAddThingieToList(this);this.selectedIndex=0;">
-	    	<option value="0">select challenges to add</option>
-		    <option value="1">challenge 1</option>
-		    <option value="2">challenge 2</option>
-	   		<option value="3">challenge 3</option>
-	  	  </select>
-	  	  or <input type="checkbox" name="challenge-all">
-		  <label for="challenge-all">all challenges</label>
-		</div>
-		<div class="cond-for-list cond-challenge-selected-list">
-		</div>  
-		<div class="cond-activity-list" hidden>
-	  	  <select name="list"
-		  	onchange="condAddThingieToList(this);this.selectedIndex=0;">
-	    	<option value="0">select activities to add</option>
-	    	<option value="1">activity 1</option>
-	    	<option value="2">activity 2</option>
-	    	<option value="3">activity 3</option>
-	  	  </select>
-	  	  or <input type="checkbox" name="activity-all">
-	  	  <label for="all">all activities</label>
-		</div>
-		<div class="cond-for-list cond-activity-selected-list">
-		</div>  
-		<div class="cond-for-sub">
-	  		<div class="cond-empty">&nbsp;</div>
-		</div>
+		{% for objectType in objectTypes %}
+			<div class="cond-{{objectType.name}}-list" {% if objectType.name != defaultObject %} hidden {%endif%}>
+			  <select name="{{objectType.name}}-list" 
+				  onchange="condAddThingieToList(this);this.selectedIndex=0;">
+		    	<option value="0">select {{objectType.plural}} to add</option>
+		    	{% for object in objectType.objects %}
+			    	<option value="{{object.id}}">{{object.name}}</option>
+			    {% endfor %}
+		  	  </select>
+		  	  or <input type="checkbox" name="{{objectType.name}}-all">
+			  <label for="{{objectType.name}}-all">all {{objectType.plural}}</label>
+			</div>
+			<div class="cond-for-list cond-{{objectType.name}}-selected-list">
+			</div>  
+		{% endfor %}
       </div>
     </div>
     <p>
