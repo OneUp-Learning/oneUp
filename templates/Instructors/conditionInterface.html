@@ -149,7 +149,7 @@
 	  	  <option value=">">&gt;</option>
 	  	  <option value="<">&lt;</option>
 		</select>
-		<input type="text" name="cond-rhs-value">
+		<input type="text" name="cond-rhs-value" class="cond-rhs-value">
 		<select name="cond-rhs-var" hidden>
 	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
 	  	  <option value="1" data-cond-context-challenge="true" data-cond-context-activity="true">score</option>
@@ -229,6 +229,7 @@
     </p>
 
     <div class="cond-container cond-item">
+      <input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count">
       <div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
     </div>
 
@@ -245,7 +246,7 @@
     
       function condToggleAtomType(x) {
     	  var atom = x.parentNode.parentNode;
-    	  var value = atom.querySelector('input[name="cond-rhs-value"]');
+    	  var value = atom.querySelector('input.cond-rhs-value');
           var variable = atom.querySelector('select[name="cond-rhs-var"]');
     	  if (x.checked) {
     		  variable.hidden = true;
@@ -262,7 +263,7 @@
     	  var atom = select.parentNode.parentNode;
     	  var option = select.options[select.selectedIndex];
     	  var type = option.dataset.condVarType;
-    	  var value = atom.querySelector('input[name="cond-rhs-value"]');
+    	  var value = atom.querySelector('input.cond-rhs-value');
     	  value.type = type;
     	  
     	  function disable(opt) {
@@ -474,6 +475,13 @@
           }
       }
       
+      var atomCountInput = document.querySelector('input.cond-atom-count');
+      function condCountNewAtom() {
+    	  var count = parseInt(atomCountInput.value);
+    	  atomCountInput.value=count+1;
+    	  return count;
+      }
+      
       function condCreateAtomNode(targetParent,blank,insideQualifier) {
         var atomDiv = clonePrototype("condAtomPrototype");
         targetParent.insertBefore(atomDiv,blank);
@@ -485,6 +493,9 @@
 
         atomDiv.addEventListener("dragstart",condHandleDragStartMove,false);
         atomDiv.addEventListener("dragend",condHandleDragEnd,false);
+
+	  	var value = atomDiv.querySelector('input.cond-rhs-value');
+		value.name = "cond-rhs-value"+condCountNewAtom();
         
         condUpdateAtomSelectForContext(atomDiv,insideQualifier);
         
@@ -696,11 +707,14 @@
      * Functions for Saving and Loading *
      ************************************/
 
+    var valueTypeToChar = {
+    	text:'T',
+    	date:'Y',
+    	checkbox:'X',
+    	number:'N'
+    }
+     
     function condGetConditionStringAndDataTable(container) {
-    	var dataTable = [];
-    	function addDataTableEntry(x) {
-    		return dataTable.push(x)-1;
-    	}
     	function getConditionListStringHelper(condList) {
     		if (condList.length == 0) {
     			return "";
@@ -729,9 +743,10 @@
 				output += op.value + ".";
 		    	var valueCheckbox = cond.querySelector('input[name="cond-value"]')
 		    	if (valueCheckbox.checked) {
-		    		output += "L."
-					var rhsValue = cond.querySelector('input[name="cond-rhs-value"]');
-		    		output += dataTable.push(rhsValue.value);
+		    		output += valueTypeToChar[lhsVariable.options[lhsVariable.selectedIndex].dataset.condVarType];
+		    		output += "."
+					var rhsValue = cond.querySelector('input.cond-rhs-value');
+		    		output += parseInt(rhsValue.name.slice(14));
 		    	} else {
 			        output += "V."
 		    		var rhsVariable = cond.querySelector('select[name="cond-rhs-var"]');
@@ -798,13 +813,12 @@
 			}
     	}
      	var items = condFilterChildren(container,function(x){return x.classList.contains("cond-item");});
-     	var output = getConditionListStringHelper(items);
-     	return {str:output,table:dataTable};
+     	return getConditionListStringHelper(items);
    	}
    	function testItOut() {
    		var container = document.getElementsByClassName("cond-container")[0];
    		var output = condGetConditionStringAndDataTable(container);
-   		console.log(output.str);
+   		console.log(output);
    	}
     </script>
   </body>
