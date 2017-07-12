@@ -287,7 +287,7 @@ class displayCircumstance():
 
 system_variable_type_to_HTML_type = {
     "string":"text",
-    "data":"date",
+    "date":"date",
     "int":"number",
     "boolean":"checkbox"
 }
@@ -299,6 +299,13 @@ class ObjectTypes():
     form=1304 # Used in the case of handling general form submits (user login, etc.)
     none=1305 # Not an actual object, but used to indicate that a variable only makes sense in the global context
                 # rather than the context of any particular object in circumstances where that is needed.
+    objectTypes = {
+        challenge:"challenge",
+        activity:"activity",
+        question:"question",
+        form:"form",
+        none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
+    }
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge

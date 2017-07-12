@@ -33,6 +33,7 @@
         height: 400px;
         width: 100%;
         overflow-x: auto;
+        overflow-y: scroll;
       }
       .cond-icon-list {
         display: flex;
@@ -137,12 +138,13 @@
       <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
 		<select name="cond-var" onchange="condChangeAtomToMatchType(this);return true;">
 	  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
-	  	  <option value="1" data-cond-var-type="number" data-cond-context-challenge="true" data-cond-context-activity="true">score</option>
-	  	  <option value="2" data-cond-var-type="date" data-cond-context-challenge="true" data-cond-context-activity="true">completion time</option>
-	  	  <option value="3" data-cond-var-type="number" data-cond-context-global="true">badge count</option>
-	  	  <option value="4" data-cond-var-type="number" data-cond-context-global="true">days logged in</option>
-	  	  <option value="5" data-cond-var-type="number" data-cond-context-challenge="true">questions correct</option>
-	  	  <option value="6" data-cond-var-type="checkbox" data-cond-context-activity="true">off campus</option>
+		  {% for variable in variables %}
+		  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
+		  	  {% for object in variable.objects %}
+		  	    data-cond-context-{{object}}="true";
+		  	  {% endfor %}
+		  	> {{variable.name}} </option>
+		  {% endfor %}
 		</select>
 		<select name="cond-op">
 	  	  <option value="=">=</option>
@@ -152,12 +154,13 @@
 		<input type="text" name="cond-rhs-value" class="cond-rhs-value">
 		<select name="cond-rhs-var" hidden>
 	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
-	  	  <option value="1" data-cond-context-challenge="true" data-cond-context-activity="true">score</option>
-	  	  <option value="2" data-cond-context-challenge="true" data-cond-context-activity="true">completion time</option>
-	  	  <option value="3" data-cond-context-global="true">badge count</option>
-	  	  <option value="4" data-cond-context-global="true">days logged in</option>
-	  	  <option value="5" data-cond-context-challenge="true">questions correct</option>
-	  	  <option value="6" data-cond-context-activity="true">off campus</option>
+		  {% for variable in variables %}
+		  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
+		  	  {% for object in variable.objects %}
+		  	    data-cond-context-{{object}}="true";
+		  	  {% endfor %}
+		  	> {{variable.name}} </option>
+		  {% endfor %}
 		</select>
 		<label><input type="checkbox" name="cond-value" checked="true" onchange="condToggleAtomType(this)">value</input></label>
       </div>
@@ -200,6 +203,9 @@
 			<div class="cond-for-list cond-{{objectType.name}}-selected-list">
 			</div>  
 		{% endfor %}
+		<div class="cond-for-sub">
+			<div class="cond-empty">&nbsp;</div>
+		</div>
       </div>
     </div>
     <p>
@@ -725,7 +731,7 @@
 			} else if (cond.dataset.condType == "atom") {
 				var output = "A:";
 		    	var lhsVariable = cond.querySelector('select[name="cond-var"]');
-		    	output += lhsVariable.value + ".";
+		    	output += "V."+lhsVariable.value + ".";
 				var op = cond.querySelector('select[name="cond-op"]');
 				output += op.value + ".";
 		    	var valueCheckbox = cond.querySelector('input[name="cond-value"]')
