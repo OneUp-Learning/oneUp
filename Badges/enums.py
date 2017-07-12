@@ -497,6 +497,8 @@ class OperandTypes():
     challengeSet=1006
     activitySet=1007
     conditionSet=1008
+    boolean=1009
+    dateConstant=1010
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',
@@ -506,6 +508,7 @@ class OperandTypes():
         challengeSet:'challengeSet',
         activitySet:'activitySet',
         conditionSet:'conditionSet',
+        boolean:'boolean',
     }
     
 class QuestionTypes():

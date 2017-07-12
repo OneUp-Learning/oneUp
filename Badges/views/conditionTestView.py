@@ -3,6 +3,7 @@ from Badges.enums import SystemVariable, system_variable_type_to_HTML_type, Obje
 from Instructors.models import Activities, Challenges, Courses
 from Instructors.views.utils import initialContextDict
 
+
 def conditionTestView(request):
     context_dict,current_course = initialContextDict(request);
     

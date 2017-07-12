@@ -1,6 +1,6 @@
 from Badges.models import Rules, ActionArguments, Conditions, Badges,\
     ActivitySet
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, Activities, ConditionSet
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, Activities, ConditionSet, Dates
 from Badges.enums import OperandTypes, ObjectTypes, Event, SystemVariable, Action
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
     StudentRegisteredCourses
@@ -203,6 +203,8 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
 def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition):
     if (operandType == OperandTypes.immediateInteger):
         return operandValue
+    elif (operandType == OperandTypes.boolean):
+        return operandValue == 1
     elif (operandType == OperandTypes.condition):
         inner_condition = Conditions.objects.get(pk=operandValue)
         return check_condition_helper(inner_condition, course, student, objectType, objectID,ht)
@@ -210,6 +212,8 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
         return FloatConstants.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.stringConstant):
         return StringConstants.objects.get(pk=operandValue)
+    elif (operandType == OperandTypes.dateConstant):
+        return Dates.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.systemVariable):
         return calculate_system_variable(operandValue,course,student,objectType,objectID)
     elif (operandType == OperandTypes.challengeSet):

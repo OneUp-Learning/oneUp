@@ -5,7 +5,7 @@ Created on Jan 27, 2017
 '''
 
 from Badges.enums import SystemVariable, Event, OperandTypes
-from Badges.models import Conditions, FloatConstants, StringConstants
+from Badges.models import Conditions, FloatConstants, StringConstants, Dates
 from Instructors.models import Activities, Challenges
 
 #Determine the appropriate event type for each System Variable
@@ -156,3 +156,52 @@ def leaf_condition_to_tuple(cond):
         op2ind = 'systemVariable'       
     return (op1, op, op2, op2ind)   # ind is indicating whether it will be displayed as a textfield value or system variables selection
 
+def stringAndPostDictToCondition(conditionString,post,courseID):
+    numRHSvalues = int(post["cond-atom-count"])
+    rhsValueTable = {}
+    for i in range(0,numRHSvalues):
+        key = "cond-rhs-value"+str(i)
+        if (key in post):
+            rhsValueTable[i] = post[key]
+        else:
+            rhsValueTable[i] = False
+    
+    def stringToCondHelper(string):
+        if string[0]=='E': # empty.  Only used in special circumstances.  Should not appear in a well-formed condition
+            return None
+        elif string[0]=='A': # atom.  A single condition
+            parts = string.split(".")
+            cond = Conditions()
+            cond.courseID = courseID
+            cond.operation = parts[2]
+            cond.operand1Type = OperandTypes.systemVariable
+            cond.operand1Value = int(parts[1])
+            value = int(parts[4])
+            if parts[3] == "V":
+                cond.operand2Type = OperandTypes.systemVariable
+                cond.operand2Value = value
+            elif parts[3] == "T":
+                cond.operand2Type = OperandTypes.stringConstant
+                stconst = StringConstants()
+                stconst.stringValue = rhsValueTable[value]
+                stconst.save()
+                cond.operand2Value = stconst.stringID
+            elif parts[3] == "N":
+                cond.operand2Type = OperandTypes.immediateInteger
+                cond.operand2Value = rhsValueTable[value]
+            elif parts[3] == "X":
+                cond.operand2Type = OperandTypes.boolean
+                if rhsValueTable[value] == "false":
+                    cond.operand2Value = 0
+                else:
+                    cond.operand2Value = 1
+            elif parts[3] == "Y":
+                cond.operand2Type = OperandTypes.dateConstant
+                dconst = Dates()
+                dconst.dateValue = rhsValueTable[value]
+                dconst.save()
+                cond.operand2Value = dconst.dateID
+            cond.save()
+            return cond
+        elif string[0] == "D" # And
+            
