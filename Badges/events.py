@@ -1,6 +1,6 @@
 from Badges.models import Rules, ActionArguments, Conditions, Badges,\
     ActivitySet
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, Activities
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, Activities, ConditionSet
 from Badges.enums import OperandTypes, ObjectTypes, Event, SystemVariable, Action
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
     StudentRegisteredCourses
@@ -162,6 +162,21 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
         return forallforany_helper(True)
     if (condition.operation == 'FOR_ANY'):
         return forallforany_helper(False)
+    
+    def andor_helper(isAnd):
+        for cond in operand1:
+            if check_condition_helper(cond, course, student, objectType, objectID, ht):
+                if not isAnd:
+                    return True
+            else:
+                if isAnd:
+                    return False
+        return isAnd
+    
+    if (condition.operation == 'AND') and (condition.operand1Type == OperandTypes.conditionSet):
+        return andor_helper(True)
+    if (condition.operation == 'OR') and (condition.operand1Type == OperandTypes.conditionSet):
+        return andor_helper(True)
 
     operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
     print("Operand 2 = "+str(operand2))
@@ -209,6 +224,8 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
             return Activities.objects.filter(courseID = course)
         else:
             return [actset.activity for actset in ActivitySet.objects.filter(condition=condition)]
+    elif (operandType == OperandTypes.conditionSet):
+        return [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
     else:
         return "Bad operand type value"
 

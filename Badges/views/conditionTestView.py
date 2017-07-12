@@ -28,4 +28,7 @@ def conditionTestView(request):
                                    {"name":"activity","plural":"activities", "objects":act_list}]
     context_dict['defaultObject'] = "challenge"
     
+#    if ("POST" in request):
+#        numLHSvals = request.POST[""]
+    
     return render(request,'Badges/conditionInterface.html', context_dict)

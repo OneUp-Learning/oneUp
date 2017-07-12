@@ -496,6 +496,7 @@ class OperandTypes():
     systemVariable=1005
     challengeSet=1006
     activitySet=1007
+    conditionSet=1008
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',
@@ -504,6 +505,7 @@ class OperandTypes():
         systemVariable:'systemVariable',
         challengeSet:'challengeSet',
         activitySet:'activitySet',
+        conditionSet:'conditionSet',
     }
     
 class QuestionTypes():

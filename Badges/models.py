@@ -37,6 +37,7 @@ class Conditions(models.Model):
     operand1Value = models.IntegerField()
     operand2Type = models.IntegerField() # See OperandTypes in Badges/enums.py for an explanation of meaning.
     operand2Value = models.IntegerField()
+    courseID = models.ForeignKey(Courses, verbose_name = "The course this condition belongs to", db_index=True, on_delete=models.CASCADE, default=0)
     def __str__(self):
         def operandToString(type,value):
             if (type == OperandTypes.immediateInteger):
@@ -318,3 +319,11 @@ class ActivitySet(models.Model):
     activity = models.ForeignKey(Activities,verbose_name="the activity included in the set",db_index=True,on_delete=models.CASCADE)
     def __str__(self):
         return "ActivitySet for Condition: "+str(self.condition)+" includes Activity: "+str(self.activity)
+    
+class ConditionSet(models.Model):
+    parentCondition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE,
+                                        related_name="parentCondition")
+    conditionInSet = models.ForeignKey(Conditions,verbose_name="the condition which is part of this set",db_index=True,on_delete=models.CASCADE)
+    def __str__(self):
+        return "ConditionSet for Condition: "+str(self.parentCondition)+" includes Condition: "+str(self.conditionInSet)
+    
