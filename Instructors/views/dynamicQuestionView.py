@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, questionLibrary
+from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
@@ -179,7 +179,7 @@ def dynamicQuestionGetPartNonAJAX():
     return ""
 
 def makeLibs(dynamicQuestion):
-    libs = questionLibrary.objects.filter(question=dynamicQuestion)
+    libs = QuestionLibrary.objects.filter(question=dynamicQuestion)
     return [lib.library.libraryName for lib in libs]
 
 def dynamicQuestionPartAJAX(request):

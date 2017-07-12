@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
-from Instructors.models import LuaLibrary, questionLibrary
+from Instructors.models import LuaLibrary, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
@@ -301,17 +301,17 @@ def getAllLuaLibraryNames():
     return [ll.libraryName for ll in LuaLibrary.objects.all()]
 
 def getLibrariesForQuestion(question):
-    return [ql.library.libraryName for ql in questionLibrary.objects.filter(question=question)]
+    return [ql.library.libraryName for ql in QuestionLibrary.objects.filter(question=question)]
 
 def makeDependentLibraries(question,libraryNameList):
-    existingDeps = list(map(lambda x:x.library.libraryName,questionLibrary.objects.filter(question=question)))
+    existingDeps = list(map(lambda x:x.library.libraryName,QuestionLibrary.objects.filter(question=question)))
     namesWithoutExisting = [val for val in libraryNameList if val not in existingDeps]
     existingWithoutNames = [val for val in existingDeps if val not in libraryNameList]
     for name in namesWithoutExisting:
-        ql = questionLibrary()
+        ql = QuestionLibrary()
         ql.question = question
         ql.library = LuaLibrary.objects.get(libraryName = name)
         ql.save()
     for name in existingWithoutNames:
-        questionLibrary.objects.filter(question=question,library__libraryName=name).delete()
+        QuestionLibrary.objects.filter(question=question,library__libraryName=name).delete()
     

@@ -7,8 +7,8 @@ Created on Nov 14, 2016
 from django.shortcuts import render, redirect
 import glob, os
 
-from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts, LuaLibrary, dependentLibrary ,\
-    questionLibrary
+from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts, LuaLibrary, DependentLibrary ,\
+    QuestionLibrary
 from Instructors.lupaQuestion import lupa_available 
 
 from Instructors.views import utils
@@ -75,9 +75,9 @@ def libDelete(request):
             # Note: after these steps, we should consider adding some sort of missing dependency flag to libraries or questions
             # whose dependencies have been removed.
             
-            dependentLibrary.objects.filter(mainLibrary=ID).delete() #delete the information about which libraries depend on it
-            dependentLibrary.objects.filter(dependent=ID).delete() #delete the information about which libraries it depends on
-            questionLibrary.objects.filter(library=ID).delete() #delete the problem dependencies
+            DependentLibrary.objects.filter(mainLibrary=ID).delete() #delete the information about which libraries depend on it
+            DependentLibrary.objects.filter(dependent=ID).delete() #delete the information about which libraries it depends on
+            QuestionLibrary.objects.filter(library=ID).delete() #delete the problem dependencies
             currentLib = LuaLibrary.objects.get(pk=ID)
             currentLib.delete()
         
@@ -96,7 +96,7 @@ def libList(context_dict, user):
         libDict['description'] = lib.libDescription
         libDict['ID']= lib.libID
         libDict['myLib'] = lib.libCreator == user
-        libDict['hasDependents'] = dependentLibrary.objects.filter(mainLibrary=lib).exists() or questionLibrary.objects.filter(library=lib).exists()
+        libDict['hasDependents'] = DependentLibrary.objects.filter(mainLibrary=lib).exists() or QuestionLibrary.objects.filter(library=lib).exists()
         libList.append(libDict)
                 
     context_dict['lib_range'] = libList
@@ -105,23 +105,23 @@ def libList(context_dict, user):
     return context_dict
 
 def makeDependencies(library,listOfDependNames):
-    existingDeps = dependentLibrary.objects.filter(dependent=library)
+    existingDeps = DependentLibrary.objects.filter(dependent=library)
     existingDepNames = [dep.dependent.libraryName for dep in existingDeps]
     existingWithoutNew = [val for val in existingDepNames if val not in listOfDependNames]
     newWithoutExisting = [val for val in listOfDependNames if val not in existingDepNames]
 
     for name in newWithoutExisting:
         dependent = LuaLibrary.objects.get(libraryName= name)
-        depend = dependentLibrary()
+        depend = DependentLibrary()
         depend.mainLibrary = library
         depend.dependent = dependent
         depend.save()
     for name in existingWithoutNew:
-        dependentLibrary.objects.filter(mainLibrary=name,dependent__libraryName=library).delete()
+        DependentLibrary.objects.filter(mainLibrary=name,dependent__libraryName=library).delete()
         
 def getDependencyLibraryNames(library):
     names = []
-    depLibraries = dependentLibrary.objects.filter(dependent=library)
+    depLibraries = DependentLibrary.objects.filter(dependent=library)
     for depLib in depLibraries:
         names.append(depLib.dependent.libraryName)
     return names
@@ -155,8 +155,8 @@ def libDeleteConfirmView(request):
     
     context_dict['libName'] = LuaLibrary.objects.get(pk=libraryForDeletion).libraryName
 
-    dependentLibraries = dependentLibrary.objects.filter(mainLibrary=libraryForDeletion)
-    dependentProblems = questionLibrary.objects.filter(library=libraryForDeletion)
+    dependentLibraries = DependentLibrary.objects.filter(mainLibrary=libraryForDeletion)
+    dependentProblems = QuestionLibrary.objects.filter(library=libraryForDeletion)
     
     context_dict['libraryDependencyCount'] = dependentLibraries.count()
     context_dict['dependentLibraries'] = [depLib.dependent.libraryName for depLib in dependentLibraries]
