@@ -270,4 +270,5 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             cond.save()
             return cond;
         
-                
+    return stringToCondHelper(condTable[mainCondIndex])
+    
