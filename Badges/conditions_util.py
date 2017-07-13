@@ -5,7 +5,7 @@ Created on Jan 27, 2017
 '''
 
 from Badges.enums import SystemVariable, Event, OperandTypes
-from Badges.models import Conditions, FloatConstants, StringConstants, Dates
+from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet
 from Instructors.models import Activities, Challenges
 
 #Determine the appropriate event type for each System Variable
@@ -156,6 +156,10 @@ def leaf_condition_to_tuple(cond):
         op2ind = 'systemVariable'       
     return (op1, op, op2, op2ind)   # ind is indicating whether it will be displayed as a textfield value or system variables selection
 
+letter_to_operation = {
+    'D':'AND',
+    'O':'OR',
+}
 def stringAndPostDictToCondition(conditionString,post,courseID):
     numRHSvalues = int(post["cond-atom-count"])
     rhsValueTable = {}
@@ -165,6 +169,9 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             rhsValueTable[i] = post[key]
         else:
             rhsValueTable[i] = False
+            
+    condTable = conditionString.split(";")
+    mainCondIndex = int(condTable[0])
     
     def stringToCondHelper(string):
         if string[0]=='E': # empty.  Only used in special circumstances.  Should not appear in a well-formed condition
@@ -203,5 +210,64 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                 cond.operand2Value = dconst.dateID
             cond.save()
             return cond
-        elif string[0] == "D" # And
+        elif string[0] == "D" or string[0] == "O": # AND or OR
+            subCondIndexList = string[3:-1].split(",")
+            cond = Conditions()
+            cond.operation = letter_to_operation[string[0]]
+            cond.operand1Type = OperandTypes.conditionSet
+            cond.operand1Value = 0
+            cond.save()
             
+            for subCondIndex in subCondIndexList:
+                subCondition = stringToCondHelper(condTable[int(subCondIndex)])
+                if subCondition is not None:
+                    condSetEntry = ConditionSet()
+                    condSetEntry.parentCondition = cond
+                    condSetEntry.conditionInSet = subCondition
+                    condSetEntry.save()
+            
+            return cond
+        elif string[0] == "F":
+            cond = Conditions()
+            if string[2] == "*":
+                cond.operation = "FOR_ALL"
+            elif string[2] == "1":
+                cond.operation = "FOR_ANY"
+            else:
+                return None
+            parts = string[3:].split(".")
+            if parts[1] == "activity":
+                cond.operand1Type == OperandTypes.activitySet
+            elif parts[1] == "challenge":
+                cond.operand1Type == OperandTypes.challengeSet
+            else:
+                return None
+            if parts[2] == "*":
+                cond.operand1Value = 0
+            else:
+                cond.operand1Value = 1
+                subThingieIndexList = parts[2][1:-1].split(",")
+                if cond.operand1Type == OperandTypes.activitySet:
+                    for activity in subThingieIndexList:
+                        activitySetItem = ActivitySet()
+                        activitySetItem.activity_id = int(activity)
+                        activitySetItem.condition = cond
+                        activitySetItem.save()
+                elif cond.operand1Type == OperandTypes.challengeSet:
+                    for challenge in subThingieIndexList:
+                        challengeSetItem = ChallengeSet()
+                        challengeSetItem.challenge_id = int(challenge)
+                        challengeSetItem.condition = cond
+                        challengeSetItem.save()
+                else:
+                    return None
+            subCond = condTable[int(parts[3])]
+            if subCond is None:
+                return None
+            else:
+                cond.operand2Type = OperandTypes.condition
+                cond.operand2Value = int(stringToCondHelper(subCond).conditionID)
+            cond.save()
+            return cond;
+        
+                

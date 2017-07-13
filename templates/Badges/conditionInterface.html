@@ -708,6 +708,12 @@
     }
      
     function condGetConditionStringAndDataTable(container) {
+    	
+    	var outputArray = []
+    	function addToOutputArray(str) {
+    		return outputArray.push(str);
+    	}
+    	 
     	function getConditionListStringHelper(condList) {
     		if (condList.length == 0) {
     			return "";
@@ -722,7 +728,7 @@
     				output += ",";
     			}
     			output += ']';
-    			return output;
+    			return addToOutputArray(output);
     		}
     	}
     	function getConditionStringHelper(cond) {
@@ -745,14 +751,14 @@
 		    		var rhsVariable = cond.querySelector('select[name="cond-rhs-var"]');
 			        output += rhsVariable.value;
 		    	}
-		    	return output;
+		    	return addToOutputArray(output);
 			} else if (cond.dataset.condType == "or") {
 				var output = "O:";
 				var numEmptySubs = condCountEmptyOrSubs(cond);
 				var subs = condFilterChildren(cond,function(x){return x.dataset.condType == "orSub";});
 				var numNonEmpty = subs.length-numEmptySubs;
 				if (numNonEmpty == 0) { // Nothing but empty clauses should just return an empty item.
-					return "E";
+					return addToOutputArray("E");
 				} else if (numNonEmpty == 1) {  // One non-empty clause should just return that clause.
 					for (var i=0;i<subs.length;i++) {
 						if (!condOrSubIsEmpty(subs[i])) {
@@ -771,7 +777,7 @@
 					}
 				}
 				output += ']';
-				return output;
+				return addToOutputArray(output);
 			} else if (cond.dataset.condType == "for") {
 				var output = "F:";
 				var allOrAny = cond.querySelector('select[name="allOrAny"]');
@@ -802,11 +808,14 @@
 				} else {
 					output += getConditionListStringHelper(insideCondList);
 				}
-				return output;
+				return addToOutputArray(output);
 			}
     	}
      	var items = condFilterChildren(container,function(x){return x.classList.contains("cond-item");});
-     	return getConditionListStringHelper(items);
+     	var output = getConditionListStringHelper(items) + ";"
+     	for (var i = 0; i<outputArray.length; i++) {
+     		output += outputArray[i] + ";";
+     	}
    	}
    	function testItOut() {
    		var container = document.getElementsByClassName("cond-container")[0];
