@@ -269,6 +269,75 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                 cond.operand2Value = int(stringToCondHelper(subCond).conditionID)
             cond.save()
             return cond;
+        else:
+            return None
         
     return stringToCondHelper(condTable[mainCondIndex])
-    
+
+# The following only covers operand types which can occur in atoms
+operand_types_to_char = {
+    OperandTypes.systemVariable:"V",
+    OperandTypes.boolean:"X",
+    OperandTypes.dateConstant:"Y",
+    OperandTypes.immediateInteger:"N",
+    OperandTypes.stringConstant:"T",
+}
+def databaseConditionToJSONString(condition):
+    def handleAtom():
+        output = '{"type":"atom","op":'+condition.operation+',"lhs":"'
+        if condition.operand1Type != OperandTypes.systemVariable: # We have a problem because this should always be true for atoms when using our condition engine.
+            return "";
+        else: # No problem
+            output += str(condition.operand1Value)+'","rhstype":"'
+        if condition.operand2Type == OperandTypes.systemVariable:
+            output += 'V","value":"'+condition.operand2Value+'"}'
+        elif condition.operand2Type == OperandTypes.boolean:
+            output += 'X","value":"'+str(condition.operand2Value==1)+'"}'
+        elif condition.operand2Type == OperandTypes.immediateInteger:
+            output += 'N","value":"'+str(condition.operand2Value)+'"}'
+        elif condition.operand2Value == OperandTypes.dateConstant:
+            output += 'Y","value":"'+str(Dates.objects.get(pk=condition.operand2Value).dateValue)+'"}'
+        elif condition.operand2Value == OperandTypes.stringConstant:
+            output += 'T","value":"'+StringConstants.objects.get(pk=condition.operand2Value).stringValue+'"}'
+        else: # Other types should not appear as the right hand side of an atom.
+            return "" 
+        return output
+    def handleAndOr():
+        output = '{"type":"'+condition.operation+'","subConds"=['
+        if condition.operand1Type == OperandTypes.conditionSet:
+            subConds = [condSet.conditionInSet for condSet in ConditionSet.objects.filter(parentCond = condition)]
+        else: # old-style AND or OR of just two conditions.  This is being phased out, but is still supported here 
+            subConds = [Conditions.objects.get(pk=condition.operand1Value),Conditions.objects.get(pk=condition.operand2Value)]
+        for subCond in subConds:
+            output += databaseConditionToJSONString(subCond)+","
+        output += ']}'
+        return output
+    def handleFor():
+        output = '{"type":"FOR","allOrAny":"'+condition.operation[4:]+'","objectType":"'
+        if condition.operand1Type == OperandTypes.activitySet:
+            output += 'activity","objects":['
+            activityIDs = [actSet.activity.activityID for actSet in ActivitySet.objects.filter(condition=condition)]
+            for activityID in activityIDs:
+                output += '"'+str(activityID)+'",'
+        elif condition.operand1Type == OperandTypes.challengeSet:
+            output += 'challenge","objects":['
+            challengeIDs = [challSet.challenge.challengeID for challSet in ChallengeSet.objects.filter(condition=condition)]
+            for challengeID in challengeIDs:
+                output += '"'+str(challengeID)+'",'
+        else: # Other types not supported in FOR_ALL or FOR_ANY conditions.
+            return ""
+        # In the next statement, we presuppose that the type of the second operand is a condition because it is supposed to be
+        output += '],"subCond":'+databaseConditionToJSONString(Conditions.objects.get(pk=condition.operand2Value))
+    operationToFunctionTable = {
+        "==":handleAtom,
+        ">":handleAtom,
+        "!=":handleAtom,
+        ">=":handleAtom,
+        "<=":handleAtom,
+        "<":handleAtom,
+        "AND":handleAndOr,
+        "OR":handleAndOr,
+        "FOR_ALL":handleFor,
+        "FOR_ANY":handleFor,
+    }
+    return operationToFunctionTable[condition.operation]()
