@@ -134,7 +134,7 @@ def templateDynamicQuestionForm(request):
         
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
         
-        context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
+        context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True
         
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):

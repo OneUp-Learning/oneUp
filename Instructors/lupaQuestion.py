@@ -342,7 +342,7 @@ else:
                        '<input type="hidden" name="'..fullname..'" id="'..fullname..'-hidden">'
             end
             local by_type = {
-                ["INT"] =
+                ["NUMBER"] =
                     function ()
                         return '<input type="text" name="'..fullname..'">'
                     end,
