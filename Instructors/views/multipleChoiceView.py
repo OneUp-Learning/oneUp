@@ -1,21 +1,18 @@
 #
-# Last updated 03/24/2015
+# Updated 03/24/2015
+# Last updated 07/14/2017
 #
 
-from django.template import RequestContext
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Courses, CoursesSkills
-from Instructors.models import Skills, QuestionsSkills, Challenges, ChallengesQuestions
+from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses
+from Instructors.models import Challenges, ChallengesQuestions
 
 from Instructors.views import utils
-from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
-
-#MultipleChoiceQuestionType = QuestionTypes.objects.get(pk=1)
 
 
 @login_required
@@ -75,12 +72,11 @@ def multipleChoiceForm(request):
         # Fix the question type
         question.type = QuestionTypes.multipleChoice;
         
-        # get the author                            # 03/10/2015
+        # Get the author                            # 03/10/2015
         if request.user.is_authenticated():
             question.author = request.user.username
         else:
             question.author = ""
-        #question.author = "admin" 
         question.save();  #Writes to database.
         
         # The number of answers is always sent.
@@ -97,7 +93,6 @@ def multipleChoiceForm(request):
 
         # For each answer returned
         
-        print('num_answers: ' + str(num_answers))
         for x in range(1,num_answers+1):
             
             # If PK is returned, we fetch from the database
@@ -149,9 +144,6 @@ def multipleChoiceForm(request):
             challenge = Challenges.objects.get(pk=int(challengeID))
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']))
 
-            #save question-skill pair to DB                    
-            # first need to check whether a new skill is selected 
-            
             if request.session['currentCourseID']:          
                 courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
                 
@@ -159,7 +151,7 @@ def multipleChoiceForm(request):
                 skillString = request.POST.get('newSkills', "default")
                 utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
 
-        # Processing and saving tags in DB                        #AA 3/24/15
+        # Processing and saving tags in DB                        
         tagString = request.POST.get('tags', "default")
         utils.saveQuestionTags(tagString, question)
         
