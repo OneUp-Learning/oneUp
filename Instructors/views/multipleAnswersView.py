@@ -1,5 +1,6 @@
 #
 # Last updated 03/24/2015
+# Last updated 07/14/2017
 #
 
 from django.shortcuts import render
@@ -8,12 +9,9 @@ from django.shortcuts import redirect
 from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses, CoursesSkills, Challenges, ChallengesQuestions
 
 from Instructors.views import utils
-#from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
-
-#MultipleAnswerQuestionType = QuestionTypes.objects.get(pk=2)
 
 @login_required
 def multipleAnswersForm(request):
@@ -52,26 +50,12 @@ def multipleAnswersForm(request):
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
     
-    skill_ID = []
-    skill_Name = []
- 
-    # Fetch the skills for this course from the database.
-    course_skills = CoursesSkills.objects.filter(courseID=currentCourse)
-          
-    for s in course_skills:
-        skill_ID.append(s.skillID.skillID)
-        skill_Name.append(s.skillID.skillName)
-     
-    # The range part is the index numbers.
-    context_dict['skill_range'] = zip(range(1,course_skills.count()+1),skill_ID,skill_Name)    
-
     if request.POST:
-
         # If there's an existing question, we wish to edit it.  If new question,
         # create a new Question object.
         if 'questionId' in request.POST:
             qi = request.POST['questionId']
-            if not qi == "":                                         # 03/17/2015
+            if not qi == "":                                         
                 print('questionId '+request.POST['questionId'])
                 question = StaticQuestions.objects.get(pk=int(qi))
             else:
@@ -91,22 +75,16 @@ def multipleAnswersForm(request):
         else:
             question.author = ""
              
-        question.save();  #Writes to database.
+        question.save();  
         
         # The number of answers is always sent.
         num_answers = int(request.POST['numAnswers'])
                 
-        # The index of the correct answer.
-        if 'correctAnswer' in request.POST:
-            correct_answer = int(request.POST['correctAnswer'])
-        else:
-            correct_answer = 1
-
         # empty set
         answers = set()
+        
         # get the list of all checked answers
         correctAnswers = request.POST.getlist('correctAnswer')
-        print(correctAnswers)
         # Load any existing records of which answer is correct and delete them
         existingCorrectAnswers = CorrectAnswers.objects.filter(questionID=question);
         for existingCorrectAnswer in existingCorrectAnswers:
@@ -133,7 +111,6 @@ def multipleAnswersForm(request):
 
             # Note: in current version if the user selects a blank field as
             # the correct answer, errors may result.
-            #if x == correct_answer:
             
             if str(x) in correctAnswers:
                 # Create and save a new correct answer entry
@@ -160,19 +137,11 @@ def multipleAnswersForm(request):
             challenge = Challenges.objects.get(pk=int(challengeID))
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']))
 
-            #save question-skill pair to DB                   
-            # first need to check whether a new skill is selected 
-            
-            if request.session['currentCourseID']:          
-                courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
-                
-                # Processing and saving skills for the question in DB
-                skillString = request.POST.get('newSkills', "default")
-                #utils.saveQuestionSkills(skillString, question, challenge)
-                utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            # Processing and saving skills for the question in DB
+            utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
 
-        # Processing and saving tags in DB                        #AA 3/24/15
+        # Processing and saving tags in DB                        
         tagString = request.POST.get('tags', "default")
         utils.saveQuestionTags(tagString, question)
                         
@@ -227,10 +196,7 @@ def multipleAnswersForm(request):
 
                 # Extract the tags from DB            
                 context_dict['tags'] = utils.extractTags(question, "question")
-                
-                # Extract the skill                                        
-#                context_dict['all_Skills'] = utils.extractSkills(question, "question")
-                
+                                
                 if 'challengeID' in request.GET:
                     # get the points to display
                     challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
@@ -260,7 +226,6 @@ def multipleAnswersForm(request):
     context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked)
 
     if 'questionId' in request.POST:         
-        #return redirect('challengeEditQuestionsView')
         return redirect('challengesView')
-    #else:
+
     return render(request,'Instructors/MultipleAnswersForm.html', context_dict)
