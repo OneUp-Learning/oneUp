@@ -288,9 +288,12 @@ class UploadedImages(models.Model):
         self.imageFile.delete()
         super(UploadedImages, self).delete()
 
+def fileUploadPath(instance,filename):
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'textfiles/xmlfiles'),filename)
+
 #class for Uploaded Files
 class UploadedFiles(models.Model):
-        uploadedFile = models.FileField(max_length=500,upload_to= os.path.join(os.path.abspath(MEDIA_ROOT), 'textfiles/xmlfiles'))
+        uploadedFile = models.FileField(max_length=500,upload_to= fileUploadPath)
         uploadedFileName = models.CharField(max_length=200, default='')
         uploaded_at = models.DateTimeField(auto_now_add=True)
         uploadedFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
@@ -328,12 +331,12 @@ class LuaLibrary(models.Model):
     def removeFile(self):
         self.libFile.delete()
         
-class dependentLibrary(models.Model):
+class DependentLibrary(models.Model):
     dependID = models.AutoField(primary_key=True) 
     mainLibrary = models.ForeignKey(LuaLibrary, related_name='mainLibrary')
     dependent = models.ForeignKey(LuaLibrary)
   
-class questionLibrary(models.Model):  
+class QuestionLibrary(models.Model):  
     ID = models.AutoField(primary_key=True) 
     question = models.ForeignKey(Questions)
     library = models.ForeignKey(LuaLibrary)
