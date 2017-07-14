@@ -131,7 +131,7 @@ def dynamicQuestionForm(request):
         else:
             code = '''\
 part_1_text = function ()
-    return 'What is 1+1?' .. make_input('answer1','int',10)
+    return 'What is 1+1?' .. make_input('answer1','number',10)
 end
 evaluate_answer_1 = function(answers)
     if (tonumber(answers.answer1)==2)
