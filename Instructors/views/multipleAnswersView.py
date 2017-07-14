@@ -2,15 +2,13 @@
 # Last updated 03/24/2015
 #
 
-from django.template import RequestContext
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Courses, CoursesSkills
-from Instructors.models import Skills, QuestionsSkills, Challenges, ChallengesQuestions
+from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses, CoursesSkills, Challenges, ChallengesQuestions
 
 from Instructors.views import utils
-from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
+#from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
@@ -51,17 +49,19 @@ def multipleAnswersForm(request):
     ansValue = []      #Text for existing answers
     ansPK = []         #PK for existing answers
     ansChecked = []    #Whether or not existing answer is the correct one.
+
+    context_dict['skills'] = utils.getCourseSkills(currentCourse)
     
     skill_ID = []
     skill_Name = []
-
+ 
     # Fetch the skills for this course from the database.
     course_skills = CoursesSkills.objects.filter(courseID=currentCourse)
-         
+          
     for s in course_skills:
         skill_ID.append(s.skillID.skillID)
         skill_Name.append(s.skillID.skillName)
-    
+     
     # The range part is the index numbers.
     context_dict['skill_range'] = zip(range(1,course_skills.count()+1),skill_ID,skill_Name)    
 
@@ -168,7 +168,8 @@ def multipleAnswersForm(request):
                 
                 # Processing and saving skills for the question in DB
                 skillString = request.POST.get('newSkills', "default")
-                utils.saveQuestionSkills(skillString, question, challenge)
+                #utils.saveQuestionSkills(skillString, question, challenge)
+                utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
 
         # Processing and saving tags in DB                        #AA 3/24/15
@@ -228,7 +229,7 @@ def multipleAnswersForm(request):
                 context_dict['tags'] = utils.extractTags(question, "question")
                 
                 # Extract the skill                                        
-                context_dict['all_Skills'] = utils.extractSkills(question, "question")
+#                context_dict['all_Skills'] = utils.extractSkills(question, "question")
                 
                 if 'challengeID' in request.GET:
                     # get the points to display
@@ -237,6 +238,9 @@ def multipleAnswersForm(request):
                     
                     # set default skill points - 1                             # 03/17/2015 
                     context_dict['q_skill_points'] = int('1')
+                    
+                    # Extract the skill                                        
+                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
                     
     if 'challengeID' in request.GET:
         print('challengeID  '+request.GET['challengeID'])  

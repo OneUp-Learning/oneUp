@@ -53,6 +53,8 @@ def matchingForm(request):
     ansChecked = []    #Whether or not existing answer is the correct one.
     matchText = []     #Text for existing matching answers
 
+    context_dict['skills'] = utils.getCourseSkills(currentCourse)
+
     skill_ID = []
     skill_Name = []
 
@@ -171,7 +173,8 @@ def matchingForm(request):
                 
                 # Processing and saving skills for the question in DB
                 skillString = request.POST.get('newSkills', "default")
-                utils.saveQuestionSkills(skillString, question, challenge)
+                #utils.saveQuestionSkills(skillString, question, challenge)
+                utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
 
         # Processing and saving tags in DB                        #AA 3/24/15
@@ -232,8 +235,9 @@ def matchingForm(request):
 
                 # Extract the tags from DB            
                 context_dict['tags'] = utils.extractTags(question, "question")
+
                 # Extract the skill                                        
-                context_dict['all_Skills'] = utils.extractSkills(question, "question")
+#                context_dict['all_Skills'] = utils.extractSkills(question, "question")
                 
                 if 'challengeID' in request.GET:
                     # get the points to display
@@ -242,6 +246,9 @@ def matchingForm(request):
                     
                     # set default skill points - 1                             # 03/17/2015 
                     context_dict['q_skill_points'] = int('1')
+
+                    # Extract the skill                                        
+                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
             
     if 'challengeID' in request.GET:
         print('challengeID  '+request.GET['challengeID']) 

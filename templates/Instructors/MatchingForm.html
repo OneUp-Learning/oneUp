@@ -119,6 +119,7 @@
     	  
     	  document.getElementById("newSkills").value=txt;
       }
+      
       </script>
 <!--       // KI: This function doesn't make sense.  It is only called when we submit the whole form and -->
 <!--       // it only checks that if a skill is selected, then skill points are, too.  But if the user -->
@@ -276,12 +277,15 @@
                         <tr>
                         <td></td>
                         </tr>
-                        <tr>
+<!--                         <tr>
                            <td>Skills </td>
                         </tr>
+ -->
                         <tr>
                            <td>
-                              Select New Skill<br> 
+                             {% include "Instructors/ProblemSkillEmbed.html" %}
+                                                                                                             
+<!--                               Select New Skill<br> 
                               <select name="Skill" id="SelectSkill" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" style="width:150px">
                                  <option value="" selected>Select Skill</option>
                                  {% for i,skill_ID,skill_Name in skill_range %}
@@ -303,6 +307,8 @@
                                  {% endfor %}
                               </select>
                              <button type="button" id="removeSkills" onclick="removeSkill()">Remove Skill</button>
+ -->
+
                            </td>
                         </tr>
                         
