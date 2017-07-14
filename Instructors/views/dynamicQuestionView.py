@@ -247,6 +247,8 @@ def dynamicQuestionPartAJAX(request):
             
             #starts of making the table for the web page 
             context_dict['evaluations'] = evaluations
+            
+            errorInLupaQuestionConstructor = False
         
         if not errorInLupaQuestionConstructor:
             formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)

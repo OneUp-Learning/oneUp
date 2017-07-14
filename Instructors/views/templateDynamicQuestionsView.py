@@ -204,11 +204,13 @@ def templateToCodeSegments(setupCode,templateArray):
 
         approximate_equality = function(a,fudgefraction)
             return function(b,pts)
+                a = tonumber(a)
+                b = tonumber(b)
                 local diff = math.abs(a-b)
                 if diff/a<fudgefraction then
-                    return {correct=true,points=pts}
+                    return {success=true,value=pts}
                 else
-                    return {correct=false,points=0}
+                    return {success=false,value=0}
                 end
             end
         end
