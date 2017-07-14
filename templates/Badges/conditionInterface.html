@@ -902,7 +902,9 @@
 			condCreateUIFromCondition(cond.subCond,empty,cond.objectType);
    		}
    		
-   		if (cond.type == "ATOM") {
+   		if (cond.type == "EMPTY") {
+   			condCreateAtomNode(targetParent,targetEmpty,insideQualifier);
+   		} else if (cond.type == "ATOM") {
    			createAtom();
    		} else if (cond.type == "AND") {
    			createAnd();
