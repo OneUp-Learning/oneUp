@@ -29,6 +29,8 @@ def conditionTestView(request):
                                    {"name":"activity","plural":"activities", "objects":act_list}]
     context_dict['defaultObject'] = "challenge"
     
+    context_dict['initialCond'] = '{"type":"EMPTY"}'
+    
 #    if ("POST" in request):
 #        numLHSvals = request.POST[""]
     

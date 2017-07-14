@@ -708,7 +708,7 @@
     	number:'N'
     }
      
-    function condGetConditionStringAndDataTable(container) {
+    function condGetConditionString(container) {
     	
     	var outputArray = []
     	function addToOutputArray(str) {
@@ -817,23 +817,21 @@
      	for (var i = 0; i<outputArray.length; i++) {
      		output += outputArray[i] + ";";
      	}
+     	return output;
    	}
    	function testItOut() {
    		var container = document.getElementsByClassName("cond-container")[0];
-   		var output = condGetConditionStringAndDataTable(container);
+   		var output = condGetConditionString(container);
    		console.log(output);
    	}
    	
-   	var initialCond = {{initialCond}};
+   	var initialCond = {{initialCond|safe}};
 	var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
 	condCreateUIFromCondition (initialCond,initialEmpty,"none");
 
-	var condObjectsNameToId = {% for objectType in objectTypes %}"{{objectType.name}}":
-								{ {% for objects in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
+	var condObjectsNameToId = { {% for objectType in objectTypes %}"{{objectType.name}}":
+								{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
 							  {% endfor %} };
-		return function (){return {"objectsNameToId":objectsNameToId}};
-	}
-	condConsts = condGetCondConsts()();
 	
    	function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
    		function selectOptionByValue(sel,val) {
@@ -904,6 +902,7 @@
    		
    		if (cond.type == "EMPTY") {
    			condCreateAtomNode(targetParent,targetEmpty,insideQualifier);
+   			targetParent.removeChild(targetEmpty);
    		} else if (cond.type == "ATOM") {
    			createAtom();
    		} else if (cond.type == "AND") {
