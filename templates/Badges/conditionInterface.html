@@ -515,6 +515,7 @@
         var blankSubDiv = clonePrototype("condEmptyOrSubPrototype");
         targetParent.appendChild(blankSubDiv);
         condPrepareEmptyDescendants(blankSubDiv,insideQualifier);
+        return blankSubDiv;
       }
       function condCreateForAllNode(targetParent,blank) {
         var blankDiv = clonePrototype("condEmptyAndPrototype");
@@ -822,6 +823,94 @@
    		var output = condGetConditionStringAndDataTable(container);
    		console.log(output);
    	}
+   	
+   	var initialCond = {{initialCond}};
+	var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
+	condCreateUIFromCondition (initialCond,initialEmpty,"none");
+
+	var condObjectsNameToId = {% for objectType in objectTypes %}"{{objectType.name}}":
+								{ {% for objects in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
+							  {% endfor %} };
+		return function (){return {"objectsNameToId":objectsNameToId}};
+	}
+	condConsts = condGetCondConsts()();
+	
+   	function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
+   		function selectOptionByValue(sel,val) {
+   			var options = sel.options;
+   			for (var i=0; i<options.length; i++) {
+   				if (options[i] == val) {
+   					sel.selectedIndex = i;
+   					return;
+   				}
+   			}
+   		}
+   		
+   		var targetParent = targetEmpty.parentNode;
+   		function createAtom() {
+            var atomDiv = condCreateAtomNode(targetParent,targetEmpty,insideQualifier);
+            targetParent.removeChild(targetEmpty);
+			var op = atomDiv.querySelector('select[name="cond-op"]');
+ 			selectOptionByValue(op,cond.op);
+	    	var lhsVariable = atomDiv.querySelector('select[name="cond-var"]');
+			selectOptionByValue(lhsVariable,cond.lhs);
+ 			var valueCheckBox = atomDiv.querySelector('input[name="cond-value"]')
+			if (cond.rhsType == "V") {
+				valueCheckBox.checked = false;
+	    		var rhsVariable = atomDiv.querySelector('select[name="cond-rhs-var"]');
+	    		selectOptionByValue(rhsVariable,cond.rhsvalue);
+			} else {
+				valueCheckBox.checked = true;
+				var charToType = { "X":"checkbox", "Y":"date", "T":"text","N":"number"};
+				var rhsValue = atomDiv.querySelector('input.cond-rhs-value');
+				rhsValue.type = charToType(cond.rhstype);
+				rhsValue.value = cond.rhsvalue;
+			}
+   		}
+   		function createAnd() {
+   			for (var i=0; i<cond.subConds.length; i++) {
+   				var subCond = cond.subConds[i];
+   				var empty = targetParent.querySelector('div.cond-empty');
+   				condCreateUIFromCondition(subCond,empty,insideQualifier);
+   			}
+   		}
+   		function createOr() {
+   			var orDiv = condCreateOrNode(targetParent,targetEmpty,insideQualifier);
+   			var lastOrSub = orDiv.querySelector('div.cond-or-sub');
+   			for (var i=0; i<cond.subConds.length; i++) {
+   				var subCond = cond.subConds[i];
+   				var empty = lastOrSub.querySelector('div.cond-empty');
+   				condCreateUIFromCondition(subCond,empty,insideQualifier);
+   				if (i==0) {
+   					lastOrSub = orDiv.querySelectorAll('div.cond-or-sub')[1];
+   				} else {
+   					lastOrSub = condExpandOrNode(orDiv,insideQualifier);
+   				}
+   			}
+   		}
+   		function createFor() {
+   			var forDiv = condCreateForAllNode(targetParent,targetEmpty);
+			var allOrAny = forDiv.querySelector('select[name="allOrAny"]');
+			selectOptionByValue(allOrAny,cond.allOrAny.toLowerCase());
+			var typeSelector = forDiv.querySelector('select[name="type"]');
+			selectOptionByValue(typeSelector,cond.objectType);
+			var listDiv = forDiv.querySelector('div.cond-'+cond.objectType+'-selected-list');
+			for (var i=0;i<cond.objects.length;i++) {
+				condAddThingieToListByNameAndId(listDiv,condObjectsNameToId[cond.objects[i]],cond.objects[i])
+			}
+			var empty = forDiv.getElementsByClassName("cond-empty")[0];
+			condCreateUIFromCondition(cond.subCond,empty,cond.objectType);
+   		}
+   		
+   		if (cond.type == "ATOM") {
+   			createAtom();
+   		} else if (cond.type == "AND") {
+   			createAnd();
+   		} else if (cond.type == "OR") {
+   			createOr();
+   		} else if (cond.type == "FOR") {
+   			createFor();
+   		}
+   	}
     </script>
-  </body>
 </html>

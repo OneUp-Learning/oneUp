@@ -284,21 +284,21 @@ operand_types_to_char = {
 }
 def databaseConditionToJSONString(condition):
     def handleAtom():
-        output = '{"type":"atom","op":'+condition.operation+',"lhs":"'
+        output = '{"type":"ATOM","op":'+condition.operation+',"lhs":"'
         if condition.operand1Type != OperandTypes.systemVariable: # We have a problem because this should always be true for atoms when using our condition engine.
             return "";
         else: # No problem
             output += str(condition.operand1Value)+'","rhstype":"'
         if condition.operand2Type == OperandTypes.systemVariable:
-            output += 'V","value":"'+condition.operand2Value+'"}'
+            output += 'V","rhsvalue":"'+condition.operand2Value+'"}'
         elif condition.operand2Type == OperandTypes.boolean:
-            output += 'X","value":"'+str(condition.operand2Value==1)+'"}'
+            output += 'X","rhsvalue":"'+str(condition.operand2Value==1)+'"}'
         elif condition.operand2Type == OperandTypes.immediateInteger:
-            output += 'N","value":"'+str(condition.operand2Value)+'"}'
+            output += 'N","rhsvalue":"'+str(condition.operand2Value)+'"}'
         elif condition.operand2Value == OperandTypes.dateConstant:
-            output += 'Y","value":"'+str(Dates.objects.get(pk=condition.operand2Value).dateValue)+'"}'
+            output += 'Y","rhsvalue":"'+str(Dates.objects.get(pk=condition.operand2Value).dateValue)+'"}'
         elif condition.operand2Value == OperandTypes.stringConstant:
-            output += 'T","value":"'+StringConstants.objects.get(pk=condition.operand2Value).stringValue+'"}'
+            output += 'T","rhsvalue":"'+StringConstants.objects.get(pk=condition.operand2Value).stringValue+'"}'
         else: # Other types should not appear as the right hand side of an atom.
             return "" 
         return output
