@@ -1,20 +1,19 @@
 '''
 Created on Apr 7, 2014
+Last updated 07/15/2017
 
 @author: dichevad
 '''
 from django.template import RequestContext
 from django.shortcuts import render
 
-from Instructors.models import Courses, Challenges, ChallengesQuestions
-
+from Instructors.models import Courses, Challenges, ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
+from Instructors.constants import  unspecified_topic_name
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Challenges
 from Badges.events import register_event
 from Badges.enums import Event, QuestionTypes
-from time import strftime
-from Students.models import StudentChallenges, StudentRegisteredCourses
-from _datetime import datetime, tzinfo
+from Students.models import StudentRegisteredCourses
+#from _datetime import datetime, tzinfo
 from time import time, strptime, struct_time
 from time import strftime
 import datetime
@@ -25,7 +24,6 @@ from Instructors.constants import unassigned_problems_challenge_name
 def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/28/15
     
     questionObjects= []
-    qlist = []
     q_ID = []      #PK for existing answers6
     q_preview = []             
     q_type_name = []
@@ -106,7 +104,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
 
 
 @login_required
-def ChallengesList(request):
+def challengesList(request):
     
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated()
@@ -137,6 +135,68 @@ def ChallengesList(request):
     return render(request,'Instructors/ChallengesList.html', context_dict)
     
 
+def challengesForTopic(topic):
+
+    chall_ID = []  
+    chall_Name = [] 
+    chall_Difficulty = []
+    chall_visible = []
+    
+    challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
+    if challenge_topics:           
+        for challt in challenge_topics:
+            if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=False, isVisible=True):
+                chall_ID.append(challt.challengeID.challengeID)
+                chall_Name.append(challt.challengeID.challengeName)
+                chall_Difficulty.append(challt.challengeID.challengeDifficulty)
+                chall_visible.append(challt.challengeID.isVisible)
+
+    #return zip(challenge_Name,challenge_ID, challenge_Difficulty, isVisible)
+    return zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_Difficulty,chall_visible)
+
+def warmUpChallengeList(request):
+    
+    # Warm challenged will be grouped by course topics
+    
+    context_dict = { }
+    context_dict["logged_in"]=request.user.is_authenticated()
+    if request.user.is_authenticated():
+        context_dict["username"]=request.user.username
+        
+    if not 'currentCourseID' in request.session:
+        context_dict['course_Name'] = 'Not Selected'
+        context_dict['course_notselected'] = 'Please select a course'      
+    else:
+        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+        context_dict['course_Name'] = currentCourse.courseName
+
+        topic_ID = []      
+        topic_Name = [] 
+        all_challenges_for_topic = []
+
+        course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
+        for ct in course_topics:
+            
+            tID = ct.topicID.topicID
+            tName = Topics.objects.get(pk=tID).topicName
+            if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
+                topic_ID.append(tID)
+                topic_Name.append(tName)
+            
+            all_challenges_for_topic.append(challengesForTopic(ct.topicID))
+        
+        # Add the challenges with unspecified topic at the end
+        unsp_topic = Topics.objects.filter(topicName=unspecified_topic_name)
+        if unsp_topic:
+            unsp_topicID = unsp_topic[0].topicID
+            topic_ID.append(unsp_topicID)
+            topic_Name.append(" ")   
+            all_challenges_for_topic.append(challengesForTopic(unsp_topicID))
+                         
+        context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name,all_challenges_for_topic)
+
+    return render(request,'Instructors/ChallengesWarmUpList.html', context_dict)
+    
 #compares current time with the endTimestamp of each challenge
 #if the current time exceeds the endTimestamp, the challenge is made unavailable
 def disableExpiredChallenges(request):

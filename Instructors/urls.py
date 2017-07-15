@@ -14,7 +14,9 @@ from Instructors.views.challengeCreateView import challengeCreateView
 from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
 #from Instructors.views.challengeEditView import challengeEditView
 from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
-from Instructors.views.challengeListView import ChallengesList
+#from Instructors.views.challengeListView import ChallengesList
+from Instructors.views.challengeListView import challengesList, warmUpChallengeList
+
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
 from Instructors.views.challengeSaveView import challengeSaveView
@@ -88,11 +90,10 @@ urlpatterns = [
     url(r'^challengeCreate',challengeCreateView, name='challengeCreateView'),
     url(r'^challengeQuestionsList',challengeEditQuestionsView, name='challengeEditQuestionsView'),
 #    url(r'^challengeEdit',challengeEditView, name='challengeEditView'),
-    url(r'^challengesList',ChallengesList, name='ChallengesList'),
+    url(r'^challengesList',challengesList, name='ChallengesList'),
     url(r'^challengeSaveSelectedQuestions',challengeSaveSelectedQuestions, name='challengeSaveSelectedQuestions'),
     url(r'^challengeSave',challengeSaveView, name='challengeSaveView'),
-    url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='ChallengesList'),
-
+    url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='challengesList'),
     url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
     url(r'^classAchievements',classAchievements, name='classAchievements'),
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
