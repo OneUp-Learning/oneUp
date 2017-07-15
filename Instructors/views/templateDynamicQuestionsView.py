@@ -214,7 +214,6 @@ def templateToCodeSegments(setupCode,templateArray):
                 end
             end
         end
-
             
         _answer_checkers = {}
         _pts = {}
