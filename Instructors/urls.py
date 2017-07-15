@@ -23,8 +23,6 @@ from Instructors.views.challengeSaveView import challengeSaveView
 
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
-from Instructors.views.createStudentListView import createStudentListView
-from Instructors.views.createStudentView import createStudentViewUnchecked
 
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
@@ -89,7 +87,6 @@ urlpatterns = [
 
     url(r'^challengeCreate',challengeCreateView, name='challengeCreateView'),
     url(r'^challengeQuestionsList',challengeEditQuestionsView, name='challengeEditQuestionsView'),
-#    url(r'^challengeEdit',challengeEditView, name='challengeEditView'),
     url(r'^challengesList',challengesList, name='ChallengesList'),
     url(r'^challengeSaveSelectedQuestions',challengeSaveSelectedQuestions, name='challengeSaveSelectedQuestions'),
     url(r'^challengeSave',challengeSaveView, name='challengeSaveView'),
@@ -99,7 +96,6 @@ urlpatterns = [
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
     url(r'^courseInformation',courseInformation,name='courseInformation'),
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
-    #url(r'^saveCourseInformation',saveCourseInformation,name='saveCourseInformation'),
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     url(r'^createStudentList',createStudentListView,name='createStudentListView'),
     url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
@@ -147,7 +143,8 @@ urlpatterns = [
     url(r'^subTopicsListView',subTopicsListView, name='subTopicsListView'),
     url(r'^topicsCreate',topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList',topicsListView, name='topicsListView'),
-    url(r'^uploadChallenges',uploadChallenges, name='uploadChallenges'),   
+    url(r'^uploadChallenges',uploadChallenges, name='uploadChallenges'),  
+    url(r'^warmUpChallengeList',warmUpChallengeList, name='warmUpChallengeList'),      
     url(r'^forms/doDynamicQuestion',dynamicQuestionPartAJAX,name="dynamic question engine AJAX"),
     url(r'^luaTestView',luaTestView,name="Lua Test View"),
     url(r'^luaLibDelete',libDelete,name="Lua Library Delete"), 
