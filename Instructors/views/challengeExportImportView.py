@@ -6,7 +6,7 @@ Created on May 1, 2017
 from django.shortcuts import redirect, render, HttpResponse
 
 from Instructors.models import Courses, Challenges, ChallengesQuestions, Questions, StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
-from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary
+from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
 from Badges.enums import QuestionTypes
 
 from xml.etree.ElementTree import Element, SubElement, parse
@@ -127,7 +127,23 @@ def exportChallenges(request):
                 el_difficulty.text = question.difficulty                
                 el_author = SubElement(el_question, 'author')
                 el_author.text = question.author
-             
+                
+                # Skills for this question
+                questionSkills = QuestionsSkills.objects.filter(questionID=question, challengeID=challenge)
+                print(questionSkills)
+
+                if questionSkills:
+                    el_skills = SubElement(el_question, 'Skills')
+                    for questionSkill in questionSkills: 
+                        print('in el_skill')           
+                        el_skill = SubElement(el_skills, 'Skill')
+                        el_skillName = SubElement(el_skill, 'skillName')
+                        el_skillName.text = questionSkill.skillID.skillName
+                        print('el_skillName: ', el_skillName.text)
+                        el_skillPoints = SubElement(el_skill, 'questionSkillPoints')
+                        el_skillPoints.text= str(questionSkill.questionSkillPoints)
+                        print('el_skillPoints.text: ', el_skillPoints.text)
+            
                 # Static Questions
                 staticQuestions = StaticQuestions.objects.filter(questionID=int(question.questionID))
                 if staticQuestions:
@@ -338,7 +354,7 @@ def importChallenges(uploadedFileName):
                 if not staticQuestion.difficulty:
                     staticQuestion.difficulty = 'Easy'
                 staticQuestion.author = el_question.find('author').text  
-                
+                                            
                 for i in range(0,2):
                     if el_staticQuestion[i].text:                       
                         setattr(staticQuestion,el_staticQuestion[i].tag,el_staticQuestion[i].text)
@@ -346,6 +362,21 @@ def importChallenges(uploadedFileName):
                         setattr(staticQuestion,el_staticQuestion[i].tag,'')
                         
                 staticQuestion.save()
+                
+                # Process Skills elements
+                el_skills = el_question.find('Skills')
+                if not el_skills is None:
+                    for el_skill in el_skills.findall('Skill'):
+                        questionSkill = QuestionsSkills()
+                        skill = Skills.objects.filter(skillName=el_skill.find('skillName').text)
+                        if skill:
+                            questionSkill.skillID = skill[0]
+                            questionSkill.questionID = staticQuestion
+                            questionSkill.challengeID = challenge
+                            questionSkill.questionSkillPoints = int(el_skill.find('questionSkillPoints').text)
+                            questionSkill.save()    
+                            print('questionSkill: ')
+                            print(questionSkill)                
             
                 # Process Answers elements
                 el_answers = el_staticQuestion.find('Answers')
