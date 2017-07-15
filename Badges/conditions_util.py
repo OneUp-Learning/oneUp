@@ -4,9 +4,10 @@ Created on Jan 27, 2017
 @author: kirwin
 '''
 
-from Badges.enums import SystemVariable, Event, OperandTypes
+from Badges.enums import SystemVariable, Event, OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
 from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet
 from Instructors.models import Activities, Challenges
+from json import dumps
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var):
@@ -211,11 +212,14 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             cond.save()
             return cond
         elif string[0] == "D" or string[0] == "O": # AND or OR
-            subCondIndexList = string[3:-1].split(",")
+            print("string="+string)
+            subCondIndexList = string[3:-2].split(",")
             cond = Conditions()
             cond.operation = letter_to_operation[string[0]]
             cond.operand1Type = OperandTypes.conditionSet
             cond.operand1Value = 0
+            cond.operand2Type = OperandTypes.noOperand
+            cond.operand2Value = 0
             cond.save()
             
             for subCondIndex in subCondIndexList:
@@ -228,25 +232,37 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             
             return cond
         elif string[0] == "F":
+            print("for starting")
             cond = Conditions()
             if string[2] == "*":
                 cond.operation = "FOR_ALL"
             elif string[2] == "1":
                 cond.operation = "FOR_ANY"
             else:
+                print("Not for all or for any")
                 return None
             parts = string[3:].split(".")
             if parts[1] == "activity":
-                cond.operand1Type == OperandTypes.activitySet
+                cond.operand1Type = OperandTypes.activitySet
             elif parts[1] == "challenge":
-                cond.operand1Type == OperandTypes.challengeSet
+                cond.operand1Type = OperandTypes.challengeSet
             else:
+                print("not activities or challenges, instead: "+parts[1])
                 return None
+            subCond = condTable[int(parts[3])]
+            if subCond is None:
+                print ("subCond is None. Val="+parts[3])
+                return None
+            else:
+                cond.operand2Type = OperandTypes.condition
+                cond.operand2Value = int(stringToCondHelper(subCond).conditionID)
             if parts[2] == "*":
                 cond.operand1Value = 0
+                cond.save()
             else:
                 cond.operand1Value = 1
-                subThingieIndexList = parts[2][1:-1].split(",")
+                cond.save()
+                subThingieIndexList = parts[2][1:-2].split(",")
                 if cond.operand1Type == OperandTypes.activitySet:
                     for activity in subThingieIndexList:
                         activitySetItem = ActivitySet()
@@ -260,14 +276,9 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                         challengeSetItem.condition = cond
                         challengeSetItem.save()
                 else:
+                    print("for leaving at the return which should never happen")
                     return None
-            subCond = condTable[int(parts[3])]
-            if subCond is None:
-                return None
-            else:
-                cond.operand2Type = OperandTypes.condition
-                cond.operand2Value = int(stringToCondHelper(subCond).conditionID)
-            cond.save()
+            print("for completed")
             return cond;
         else:
             return None
@@ -284,7 +295,7 @@ operand_types_to_char = {
 }
 def databaseConditionToJSONString(condition):
     def handleAtom():
-        output = '{"type":"ATOM","op":'+condition.operation+',"lhs":"'
+        output = '{"type":"ATOM","op":"'+condition.operation+'","lhs":"'
         if condition.operand1Type != OperandTypes.systemVariable: # We have a problem because this should always be true for atoms when using our condition engine.
             return "";
         else: # No problem
@@ -303,9 +314,9 @@ def databaseConditionToJSONString(condition):
             return "" 
         return output
     def handleAndOr():
-        output = '{"type":"'+condition.operation+'","subConds"=['
+        output = '{"type":"'+condition.operation+'","subConds":['
         if condition.operand1Type == OperandTypes.conditionSet:
-            subConds = [condSet.conditionInSet for condSet in ConditionSet.objects.filter(parentCond = condition)]
+            subConds = [condSet.conditionInSet for condSet in ConditionSet.objects.filter(parentCondition = condition)]
         else: # old-style AND or OR of just two conditions.  This is being phased out, but is still supported here 
             subConds = [Conditions.objects.get(pk=condition.operand1Value),Conditions.objects.get(pk=condition.operand2Value)]
         for subCond in subConds:
@@ -327,9 +338,11 @@ def databaseConditionToJSONString(condition):
         else: # Other types not supported in FOR_ALL or FOR_ANY conditions.
             return ""
         # In the next statement, we presuppose that the type of the second operand is a condition because it is supposed to be
-        output += '],"subCond":'+databaseConditionToJSONString(Conditions.objects.get(pk=condition.operand2Value))
+        output += '],"subCond":'+databaseConditionToJSONString(Conditions.objects.get(pk=condition.operand2Value)) +"}"
+        return output
+    
     operationToFunctionTable = {
-        "==":handleAtom,
+        "=":handleAtom,
         ">":handleAtom,
         "!=":handleAtom,
         ">=":handleAtom,
@@ -341,3 +354,25 @@ def databaseConditionToJSONString(condition):
         "FOR_ANY":handleFor,
     }
     return operationToFunctionTable[condition.operation]()
+
+def setUpContextDictForConditions(context_dict,course):
+    var_list = []    
+    for sysVarIndex in SystemVariable.systemVariables.keys():
+        sysVarTable = SystemVariable.systemVariables[sysVarIndex]
+        sysVar = {
+            "id":sysVarIndex,
+            "name":sysVarTable["displayName"],
+            "tooltip":sysVarTable["description"],
+            "type":system_variable_type_to_HTML_type[sysVarTable["type"]],
+            "objects":[ObjectTypes.objectTypes[x] for x in sysVarTable["objectsDefinedFor"]],
+        }
+        var_list.append(sysVar)
+    context_dict['variables'] = var_list
+
+    chall_list = [{"id":ch.challengeID,"name":ch.challengeName} for ch in Challenges.objects.filter(courseID = course)]
+    act_list = [{"id":act.activityID,"name":act.activityName} for act in Activities.objects.filter(courseID = course)]
+    
+    context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list },
+                                   {"name":"activity","plural":"activities", "objects":act_list}]
+    context_dict['defaultObject'] = "challenge"
+    return context_dict

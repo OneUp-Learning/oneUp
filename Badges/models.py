@@ -32,7 +32,7 @@ from pip.cmdoptions import verbose
 # Conditions Table
 class Conditions(models.Model):
     conditionID = models.AutoField(primary_key=True)
-    operation = models.CharField(max_length=100) # ==, >, <, >=, <=, !=, AND, OR, NOT, FOR_ALL, FOR_ANY
+    operation = models.CharField(max_length=100) # =, >, <, >=, <=, !=, AND, OR, NOT, FOR_ALL, FOR_ANY
     operand1Type = models.IntegerField() # See OperandTypes in Badges/enums.py for an explanation of meaning.
     operand1Value = models.IntegerField()
     operand2Type = models.IntegerField() # See OperandTypes in Badges/enums.py for an explanation of meaning.

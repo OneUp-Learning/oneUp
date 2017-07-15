@@ -111,7 +111,7 @@
       Probably no one will really read this anyway.
     </p>
 
-    <form>
+    <form onsubmit="condFillCondString();return true;" method="POST">
     <p>
       Hidden prototypes live between here.
     </p>
@@ -222,7 +222,8 @@
     </p>
 
     <div class="cond-container cond-item">
-      <input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count">
+      <input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
+      <input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count" id="cond-atom-count">
       <div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
     </div>
 
@@ -251,8 +252,6 @@
       }
     
       function condChangeAtomToMatchType(select) {
-    	  console.log ("Called! on");
-    	  console.log(select);
     	  var atom = select.parentNode.parentNode;
     	  var option = select.options[select.selectedIndex];
     	  var type = option.dataset.condVarType;
@@ -722,7 +721,6 @@
     			return getConditionStringHelper(condList[0]);
     		} else {
     			var output = "D:";
-    			output += condList.length;
     			output += "[";
     			for (var i=0; i<condList.length; i++) {
     				output += getConditionStringHelper(condList[i]);
@@ -768,7 +766,7 @@
 						}
 					}
 				} else {  // Two or more non-empty clases should result in an OR node.
-					output += numNonEmpty + "[";
+					output += "[";
 					for (var i=0;i<subs.length;i++) {
 						if (!condOrSubIsEmpty(subs[i])) {
 							var condList = condFilterChildren(subs[i],function(x){return x.classList.contains("cond-item");});
@@ -776,8 +774,8 @@
 							output += ",";
 						}
 					}
+					output += ']';
 				}
-				output += ']';
 				return addToOutputArray(output);
 			} else if (cond.dataset.condType == "for") {
 				var output = "F:";
@@ -795,7 +793,7 @@
 				} else {
 					var choiceListDiv = cond.querySelector('div.cond-'+type+'-selected-list');
 					var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
-					output += choices.length+"[";
+					output += "[";
 					for (var i=0;i<choices.length;i++) {
 						output += choices[i].dataset.id + ",";
 					}
@@ -819,25 +817,27 @@
      	}
      	return output;
    	}
-   	function testItOut() {
+   	function condFillCondString() {
    		var container = document.getElementsByClassName("cond-container")[0];
    		var output = condGetConditionString(container);
+   		var condString = document.getElementById("cond-cond-string");
+   		condString.value=output;
    		console.log(output);
    	}
    	
+	var condObjectsNameToId = { {% for objectType in objectTypes %}"{{objectType.name}}":
+									{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
+								{% endfor %} };
+	
    	var initialCond = {{initialCond|safe}};
 	var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
 	condCreateUIFromCondition (initialCond,initialEmpty,"none");
-
-	var condObjectsNameToId = { {% for objectType in objectTypes %}"{{objectType.name}}":
-								{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
-							  {% endfor %} };
 	
    	function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
    		function selectOptionByValue(sel,val) {
    			var options = sel.options;
    			for (var i=0; i<options.length; i++) {
-   				if (options[i] == val) {
+   				if (options[i].value == val) {
    					sel.selectedIndex = i;
    					return;
    				}
@@ -861,7 +861,7 @@
 				valueCheckBox.checked = true;
 				var charToType = { "X":"checkbox", "Y":"date", "T":"text","N":"number"};
 				var rhsValue = atomDiv.querySelector('input.cond-rhs-value');
-				rhsValue.type = charToType(cond.rhstype);
+				rhsValue.type = charToType[cond.rhstype];
 				rhsValue.value = cond.rhsvalue;
 			}
    		}
@@ -874,6 +874,7 @@
    		}
    		function createOr() {
    			var orDiv = condCreateOrNode(targetParent,targetEmpty,insideQualifier);
+   			targetParent.removeChild(targetEmpty)
    			var lastOrSub = orDiv.querySelector('div.cond-or-sub');
    			for (var i=0; i<cond.subConds.length; i++) {
    				var subCond = cond.subConds[i];
@@ -894,7 +895,8 @@
 			selectOptionByValue(typeSelector,cond.objectType);
 			var listDiv = forDiv.querySelector('div.cond-'+cond.objectType+'-selected-list');
 			for (var i=0;i<cond.objects.length;i++) {
-				condAddThingieToListByNameAndId(listDiv,condObjectsNameToId[cond.objects[i]],cond.objects[i])
+				console.log(cond.objects[i]);
+				condAddThingieToListByNameAndId(listDiv,condObjectsNameToId[cond.objectType][cond.objects[i]],cond.objects[i])
 			}
 			var empty = forDiv.getElementsByClassName("cond-empty")[0];
 			condCreateUIFromCondition(cond.subCond,empty,cond.objectType);
@@ -914,4 +916,7 @@
    		}
    	}
     </script>
+<input type="submit">
+{% csrf_token %}    
+    </form>
 </html>

@@ -499,6 +499,7 @@ class OperandTypes():
     conditionSet=1008
     boolean=1009
     dateConstant=1010
+    noOperand=1011
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',
