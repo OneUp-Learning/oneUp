@@ -3,7 +3,7 @@ from django.contrib import admin
 # Register your models here.
 from django.contrib import admin
 from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags,\
-    TemplateDynamicQuestions, Topics, CoursesTopics
+    TemplateDynamicQuestions, Topics, CoursesTopics, ChallengesTopics
 from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages
 from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, DependentLibrary,\
     QuestionLibrary
@@ -30,6 +30,7 @@ admin.site.register(ResourceTags)
 #admin.site.register(ChallengesSkills)
 admin.site.register(ChallengesQuestions)
 admin.site.register(ChallengeTags)
+admin.site.register(ChallengesTopics)
 admin.site.register(Milestones)
 # admin.site.register(CourseConfigParams)
 admin.site.register(InstructorRegisteredCourses)
