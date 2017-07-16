@@ -1,139 +1,94 @@
-  <header>
-            <nav class="Navigation">
-               <div class="Nav_Top">
-                  <ul class="nav_top_level">
-                     <a class="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
-                     <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Tools</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/instructorCourseHome">Home</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/announcementList">Announcements</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/exportChallenges">Export Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/uploadChallenges">Import Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-<!--                               <a href="/oneUp/instructors/courseInformation">Email</a> -->
-                               <a href="">Email</a>
-                           </li>                           
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Information</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/courseInformation">Course Description</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/topicsList">Course Topics</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/skillsList">Targeted Skills</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/milestonesList">Course Milestones</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/createStudentListView">Students</a>
-                           </li>
-                           
-                        </ul>
-                     </li>                     
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Content</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/activitiesList">Activities</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengesList">Serious Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/warmUpChallengeList">Warm Up Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/imageList">Images</a>
-                           </li>   
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/luaLibUploadView">Libraries</a>
-                           </li> 
-                                                   
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Reports</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/studentAchievements">Student Achievements</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/classAchievements">Class Achievements</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengesList">Visualization</a>
-                              <ul class="nav_third_level">
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classAchievementsViz?serious"> Serious Challenges</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classAchievementsViz?warmUp"> Warm-Up Challenges</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classAchievementsViz?skills"> Skills</a>
-                                 </li>                                 
-                              </ul>
-                           </li>
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Game Features</a>
-                        <ul class="nav_second_level">
-                          <li class="nav_second_level_items">
-                              <a href="/oneUp/badges/Badges">Badges</a>
-                          </li>
-                          <li class="nav_second_level_items">
-                              <a href="">Leveling</a>
-                           </li>
-<!--                          <li class="nav_second_level_items"> -->
-<!--                               <a href="/oneUp/instructors/createStudentView">Leader-board</a> -->
-<!--                            </li>                            -->
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/badges/InstructorVirtualCurrencyList">Virtual Currency</a>
-                            </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/preferences">Gamification Configuration</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-               </div>
-               <div class="Nav_Bottom">
-                  {% if logged_in %}
-                  <p>Course: {{course_Name}}</p>
-                  <ul class="nav_login">
-                     <li class="nav_login_items">
-                        <a href="#">Welcome, {{username}}<i class="fa fa-chevron-down"></i></a>
-                        <ul class="nav_login_second_level">
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/administrators/courses">Change Course</a>
-                           </li>
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/students/Logout">Logout</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-                  {% endif %}
-               </div>
-            </nav>
-         </header>
+ <!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+         {% include 'scripts.html' %} 
+     
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+      <div>
+
+          {% include 'heading.html' %}
+   
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>Warm Up Challenges</h1>
+			</div></div>
+			<div class="row">
+            <div class="12u">
+                  <!-- INSERTED DYNAMIC TABLE --> 
+
+		      <table class="bg">		      
+		
+				{% for i,topic_ID,topic_Name, all_challenges in topic_range %}
+		
+				<tr> 
+					<input type="hidden" name="topicID" value="{{topic_ID}}">
+					<td><b>{{topic_Name}}</b></td>
+<!-- 					<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
+				</tr>
+				<tr>
+				  <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				  <td>
+					<table>
+                     {% for j,chall_ID,chall_Name, chall_Difficulty, chall_visible in all_challenges %}
+                     <tr style="background-color: {% cycle '#EDF0F2' '#ffffff' %}; line-height: 20px;">
+                        <div id="challenges{{j}}">
+                           <td>{{chall_Name}}</td>
+                           <td>{{chall_Difficulty}}</td>
+                           <td>{{chall_visible}}</td>
+                           <td align="right">
+
+	                            <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
+	                            {% csrf_token %} 
+	                               <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><input type="button" class="table" value="View"></a>                 
+	                               <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a> 
+	                               <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                            
+                                 <input type="hidden" name="challengeID" value="{{chall_ID}}">
+                                 <input type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?')">
+                              </form>
+                             </td>
+                          </div>
+                       </tr>
+                       {% endfor %}
+					 </table>	
+				  </td>										
+				</tr>
+				{% endfor %}
+			</table>
+
+           <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+     </div>
+
+   </body>
+</html>

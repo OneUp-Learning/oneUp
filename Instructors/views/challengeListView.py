@@ -83,10 +83,10 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
             chall_Name.append(item.challengeName)
             #chall_Category.append(item.challengeCategory)
             chall_Difficulty.append(item.challengeDifficulty)
-            if item.isVisible == False:
-                chall_visible.append("*Not Visible*")
-            else:
+            if item.isVisible:
                 chall_visible.append("Visible")
+            else:
+                chall_visible.append("Not Visible")
                     
             if item.startTimestamp.strftime("%Y") < ("2900"):
                 start_Timestamp.append(item.startTimestamp)
@@ -149,7 +149,10 @@ def challengesForTopic(topic):
                 chall_ID.append(challt.challengeID.challengeID)
                 chall_Name.append(challt.challengeID.challengeName)
                 chall_Difficulty.append(challt.challengeID.challengeDifficulty)
-                chall_visible.append(challt.challengeID.isVisible)
+                if challt.challengeID.isVisible:
+                    chall_visible.append('Visible')
+                else:
+                    chall_visible.append('Not Visible')
 
     #return zip(challenge_Name,challenge_ID, challenge_Difficulty, isVisible)
     return zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_Difficulty,chall_visible)
