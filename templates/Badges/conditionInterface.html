@@ -361,6 +361,7 @@
         this.style.opacity = 0.4;
         condDragSource = this;
         condSourceType = "copy";
+        e.dataTransfer.setData('text','icon drag');
         e.dataTransfer.effectAllowed = "copy";
 
         e.stopPropagation();
@@ -375,6 +376,7 @@
         }
         condDragSource = this;
         condSourceType = "move";
+        e.dataTransfer.setData('text','move drag');
         e.dataTransfer.effectAllowed = "move";
 
         e.stopPropagation();
@@ -827,7 +829,6 @@
    		var output = condGetConditionString(container);
    		var condString = document.getElementById("cond-cond-string");
    		condString.value=output;
-   		console.log(output);
    	}
    	
 	var condObjectsNameToId = { {% for objectType in objectTypes %}"{{objectType.name}}":
@@ -900,7 +901,6 @@
 			selectOptionByValue(typeSelector,cond.objectType);
 			var listDiv = forDiv.querySelector('div.cond-'+cond.objectType+'-selected-list');
 			for (var i=0;i<cond.objects.length;i++) {
-				console.log(cond.objects[i]);
 				condAddThingieToListByNameAndId(listDiv,condObjectsNameToId[cond.objectType][cond.objects[i]],cond.objects[i])
 			}
 			var empty = forDiv.getElementsByClassName("cond-empty")[0];
