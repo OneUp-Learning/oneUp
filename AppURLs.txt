@@ -1,6 +1,6 @@
 Admin interface: http://127.0.0.1:80XX/admin/ 
 
-New index page: http://127.0.0.1:80XX/oneUp/home.html  
+New index page: http://127.0.0.1:80XX/oneUp/home.html  http://oneUp.wssu.edu:8080/oneUpLocal/home.html
 
 http://127.0.0.1:80XX/oneUp/administrators/createCourse 
 

@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
-from Instructors.models import LuaLibrary, questionLibrary
+from Instructors.models import LuaLibrary, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
@@ -45,6 +45,8 @@ def templateDynamicQuestionForm(request):
     string_attributes = ['preview','difficulty',
                          'instructorNotes','setupCode','numParts'];
 
+    context_dict['skills'] = utils.getCourseSkills(currentCourse)
+    
     if request.POST:
         
         # If there's an existing question, we wish to edit it.  If new question,
@@ -98,7 +100,7 @@ def templateDynamicQuestionForm(request):
         
         
         if 'challengeID' in request.POST:
-            # save in ChallengesQuestions if not already saved        # 02/28/2015    
+            # save in ChallengesQuestions if not already saved            
             
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
@@ -108,17 +110,9 @@ def templateDynamicQuestionForm(request):
             challenge = Challenges.objects.get(pk=int(challengeID))
             #TODO: get actual number of points?
             ChallengesQuestions.addQuestionToChallenge(question, challenge, 0 )
-
-            # save question-skill pair to db                    # 03/01/2015
-            # first need to check whether a new skill is selected 
-            
-            if request.session['currentCourseID']:          # we presume the course is selected!!!!!!!!!!!!!!!!!!!!!!!!!
-                courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
-                
-                # Processing and saving skills for the question in DB
-                skillString = request.POST.get('newSkills', "default")
-                #TODO:fix skills stuff for this form
-                #utils.saveQuestionSkills(skillString, question, challenge)
+                            
+            # Processing and saving skills for the question in DB
+            utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
             tagString = request.POST.get('tags', "default")
@@ -134,7 +128,7 @@ def templateDynamicQuestionForm(request):
         
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
         
-        context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','int',5,exact_equality(r1+r2),10)}]"
+        context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True
         
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
@@ -165,6 +159,16 @@ def templateDynamicQuestionForm(request):
             
             context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
 
+            if 'challengeID' in request.GET:
+               # get the challenge points for this problem to display
+               #context_dict['points'] = ....
+               
+               # set default skill points - 1
+               context_dict['q_skill_points'] = int('1')
+
+               # Extract the skill                                        
+               context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
+           
             
         else:
             context_dict['difficulty'] = 'Easy'
@@ -204,11 +208,13 @@ def templateToCodeSegments(setupCode,templateArray):
 
         approximate_equality = function(a,fudgefraction)
             return function(b,pts)
+                a = tonumber(a)
+                b = tonumber(b)
                 local diff = math.abs(a-b)
                 if diff/a<fudgefraction then
-                    return {correct=true,points=pts}
+                    return {success=true,value=pts}
                 else
-                    return {correct=false,points=0}
+                    return {success=false,value=0}
                 end
             end
         end
@@ -301,17 +307,17 @@ def getAllLuaLibraryNames():
     return [ll.libraryName for ll in LuaLibrary.objects.all()]
 
 def getLibrariesForQuestion(question):
-    return [ql.library.libraryName for ql in questionLibrary.objects.filter(question=question)]
+    return [ql.library.libraryName for ql in QuestionLibrary.objects.filter(question=question)]
 
 def makeDependentLibraries(question,libraryNameList):
-    existingDeps = list(map(lambda x:x.library.libraryName,questionLibrary.objects.filter(question=question)))
+    existingDeps = list(map(lambda x:x.library.libraryName,QuestionLibrary.objects.filter(question=question)))
     namesWithoutExisting = [val for val in libraryNameList if val not in existingDeps]
     existingWithoutNames = [val for val in existingDeps if val not in libraryNameList]
     for name in namesWithoutExisting:
-        ql = questionLibrary()
+        ql = QuestionLibrary()
         ql.question = question
         ql.library = LuaLibrary.objects.get(libraryName = name)
         ql.save()
     for name in existingWithoutNames:
-        questionLibrary.objects.filter(question=question,library__libraryName=name).delete()
+        QuestionLibrary.objects.filter(question=question,library__libraryName=name).delete()
     

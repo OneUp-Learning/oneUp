@@ -94,7 +94,7 @@ def challengeCreateView(request):
         challenge.isGraded = bool(isGraded)
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.isGraded)
 
-         # only empty strings return false when converted to boolean    
+        # only empty strings return false when converted to boolean    
         if isVisible == str("false"):
             isVisible =""
         challenge.isVisible = bool(isVisible)
@@ -177,10 +177,7 @@ def challengeCreateView(request):
         # Processing and saving topics for the challenge in DB
         topicsString = request.POST.get('newTopics', "default")
         #topicSelected = request.POST.get('Topic')
-        
-        #if not topicSelected == "":
-            #topicsString = topicsString + ',' +  topicSelected
-            
+                    
         utils.saveChallengesTopics(topicsString, challenge)                   
                         
         # Processing and saving tags in DB
@@ -274,55 +271,61 @@ def challengeCreateView(request):
             else:
                 context_dict['feedbackOption3']=False 
                            
-            ##Get the challenge question information and put it in the context
+            # Get the challenge question information and put it in the context
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
             
             for challenge_question in challenge_questions:
                 #print("challenge_question.questionID: "+str(challenge_question.questionID))
                 questionObjects.append(challenge_question.questionID)
             
-            #getting all the questions of the challenge except the matching question
+            # Getting all the questions of the challenge except the matching question
             challengeDetails = Challenges.objects.filter(challengeID = challengeId)
             
-            #if not challenge.isGraded:
-                # Extract the topics                                       
+            # If not challenge.isGraded:
+            # Extract the topics                                       
             context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
             
-                        
+            # The following information is needed for the challenge 'view' option            
             for q in questionObjects:
-                questdict = q.__dict__
                 
-                answers = Answers.objects.filter(questionID = q.questionID)
-                answer_range = range(1,len(answers)+1)
-                questdict['answers_with_count'] = zip(answer_range,answers)  
-                questdict['match_with_count'] = zip(answer_range,answers) 
-                
-                staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
-                questdict['questionText']=staticQuestion.questionText
-
-                questdict['typeID']=str(q.type)
-                questdict['challengeID']= challengeId
-                
-                correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
-                print(correct_answers)
-                canswer_range = range(1,len(correct_answers)+1)
-                questdict['correct_answers'] = zip(canswer_range,correct_answers)
-                
-                
-                #getting the matching questions of the challenge from database
-                matchlist = []
-                for match in MatchingAnswers.objects.filter(questionID=q.questionID):
-                    matchdict = match.__dict__
-                    matchdict['answers_count'] = range(1,int(len(answers))+1)
-                    matchlist.append(matchdict)
-                questdict['matches']=matchlist
-                qlist.append(questdict)
-                
+                q_type = q.type
+                if q_type in [1,2,3,4]:     # static problems
+                    
+                    questdict = q.__dict__
+                    
+                    answers = Answers.objects.filter(questionID = q.questionID)
+                    answer_range = range(1,len(answers)+1)
+                    questdict['answers_with_count'] = zip(answer_range,answers)  
+                    questdict['match_with_count'] = zip(answer_range,answers) 
+                    
+                    staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
+                    questdict['questionText']=staticQuestion.questionText
+    
+                    questdict['typeID']=str(q.type)
+                    questdict['challengeID']= challengeId
+                    
+                    correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
+                    print(correct_answers)
+                    canswer_range = range(1,len(correct_answers)+1)
+                    questdict['correct_answers'] = zip(canswer_range,correct_answers)
+                    
+                    
+                    #getting the matching questions of the challenge from database
+                    matchlist = []
+                    for match in MatchingAnswers.objects.filter(questionID=q.questionID):
+                        matchdict = match.__dict__
+                        matchdict['answers_count'] = range(1,int(len(answers))+1)
+                        matchlist.append(matchdict)
+                    questdict['matches']=matchlist
+                    qlist.append(questdict)
+                                   
+                else:
+                    
+                    # TODO prepare information for displaying dynamic questions
+                    qlist = []
+    
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
-               
 
-    
-    
     
     if 'view' in request.GET:
         view = 1

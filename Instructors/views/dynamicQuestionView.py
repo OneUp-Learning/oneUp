@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, questionLibrary
+from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
@@ -131,7 +131,7 @@ def dynamicQuestionForm(request):
         else:
             code = '''\
 part_1_text = function ()
-    return 'What is 1+1?' .. make_input('answer1','int',10)
+    return 'What is 1+1?' .. make_input('answer1','number',10)
 end
 evaluate_answer_1 = function(answers)
     if (tonumber(answers.answer1)==2)
@@ -179,7 +179,7 @@ def dynamicQuestionGetPartNonAJAX():
     return ""
 
 def makeLibs(dynamicQuestion):
-    libs = questionLibrary.objects.filter(question=dynamicQuestion)
+    libs = QuestionLibrary.objects.filter(question=dynamicQuestion)
     return [lib.library.libraryName for lib in libs]
 
 def dynamicQuestionPartAJAX(request):
@@ -247,6 +247,8 @@ def dynamicQuestionPartAJAX(request):
             
             #starts of making the table for the web page 
             context_dict['evaluations'] = evaluations
+            
+            errorInLupaQuestionConstructor = False
         
         if not errorInLupaQuestionConstructor:
             formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)

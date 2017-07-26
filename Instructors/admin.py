@@ -3,10 +3,10 @@ from django.contrib import admin
 # Register your models here.
 from django.contrib import admin
 from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags,\
-    TemplateDynamicQuestions, Topics, CoursesTopics
+    TemplateDynamicQuestions, Topics, CoursesTopics, ChallengesTopics
 from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages
-from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, dependentLibrary,\
-    questionLibrary
+from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, DependentLibrary,\
+    QuestionLibrary
 from django.template.backends.django import Template
 
 admin.site.register(Announcements)
@@ -30,6 +30,7 @@ admin.site.register(ResourceTags)
 #admin.site.register(ChallengesSkills)
 admin.site.register(ChallengesQuestions)
 admin.site.register(ChallengeTags)
+admin.site.register(ChallengesTopics)
 admin.site.register(Milestones)
 # admin.site.register(CourseConfigParams)
 admin.site.register(InstructorRegisteredCourses)
@@ -38,9 +39,9 @@ admin.site.register(Instructors)
 admin.site.register(TemplateTextParts)
 admin.site.register(Topics)
 admin.site.register(CoursesTopics)
-admin.site.register(dependentLibrary)
+admin.site.register(DependentLibrary)
 admin.site.register(LuaLibrary)
-admin.site.register(questionLibrary)
+admin.site.register(QuestionLibrary)
 
 
 
