@@ -245,7 +245,7 @@
     
       function condToggleAtomType(x) {
     	  var atom = x.parentNode.parentNode;
-    	  var value = atom.querySelector('input.cond-rhs-value');
+    	  var value = atom.getElementsByClassName('cond-rhs-value');
           var variable = atom.querySelector('select[name="cond-rhs-var"]');
     	  if (x.checked) {
     		  variable.hidden = true;
@@ -260,9 +260,27 @@
     	  var atom = select.parentNode.parentNode;
     	  var option = select.options[select.selectedIndex];
     	  var type = option.dataset.condVarType;
-    	  var value = atom.querySelector('input.cond-rhs-value');
-    	  value.type = type;
-    	  
+    	  var value = atom.getElementsByClassName('cond-rhs-value');
+    	  var valueParent = value.parentNode;
+    	  if (type != value.type) {	  
+	    	  // We have to remake the value node in order to change the type in some web browsers, so we just do it for everyone.
+	    	  var newValue = document.createElement('input');
+	    	  newValue.type = type;
+	    	  newValue.name = value.name;
+			  newValue.classList.add("cond-rhs-value");
+	    	  
+	    	  // We save the type-specific value so that changing types doesn't destroy values.
+	    	  atom.dataset["condSavedValue_"+value.type] = value.value;
+	    	  // And then we restore an old one if it exists
+	    	  if (atom.dataset["condSavedValue_"+type]) {
+	    		  newValue.value = atom.dataset["condSavedValue_"+type];
+	    	  }
+	    	  
+	    	  valueParent.insertBefore(newValue,value);
+	    	  valueParent.removeChild(value);
+	    	  value = newValue;
+    	  }
+	    	 
     	  function disable(opt) {
     		  opt.hidden = "true";
     	  }
@@ -493,8 +511,8 @@
         atomDiv.addEventListener("dragstart",condHandleDragStartMove,false);
         atomDiv.addEventListener("dragend",condHandleDragEnd,false);
 
-	  	var value = atomDiv.querySelector('input.cond-rhs-value');
-		value.name = "cond-rhs-value"+condCountNewAtom();
+	var value = atomDiv.getElementsByClassName('cond-rhs-value');
+	value.name = "cond-rhs-value"+condCountNewAtom();
         
         condUpdateAtomSelectForContext(atomDiv,insideQualifier);
         
@@ -750,7 +768,7 @@
 		    	if (valueCheckbox.checked) {
 		    		output += valueTypeToChar[lhsVariable.options[lhsVariable.selectedIndex].dataset.condVarType];
 		    		output += "."
-					var rhsValue = cond.querySelector('input.cond-rhs-value');
+					var rhsValue = cond.getElementsByClassName('cond-rhs-value');
 		    		output += parseInt(rhsValue.name.slice(14));
 		    	} else {
 			        output += "V."
@@ -866,7 +884,7 @@
 			} else {
 				valueCheckBox.checked = true;
 				var charToType = { "X":"checkbox", "Y":"date", "T":"text","N":"number"};
-				var rhsValue = atomDiv.querySelector('input.cond-rhs-value');
+				var rhsValue = atomDiv.getElementsByClassName('cond-rhs-value');
 				rhsValue.type = charToType[cond.rhstype];
 				rhsValue.value = cond.rhsvalue;
 			}
