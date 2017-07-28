@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Prototype of the Condition Interface for OneUp</title>
- 
-    <style>
+     <style>
       .cond-prototype {
         display: none;
       }
@@ -105,21 +100,7 @@
         overflow: hidden;
       }
     </style>
-  </head>
-  <body>
-    <h1> Some text </h1>
-    <p> 
-      First we just have some text so that this will look roughly like a
-      normal web page and make it clear that the condition part is embedded
-      in the middle and not a page unto itself.  This isn't really
-      necessary, I wouldn't think, but I'm doing it anyway, because I want to.
-      Probably no one will really read this anyway.
-    </p>
-
-    <form onsubmit="condFillCondString();return true;" method="POST">
-    <p>
-      Hidden prototypes live between here.
-    </p>
+ <!-- Hidden prototypes which will be copied to make the actual nodes in the boolean expression. -->
     <div id="condOrPrototype" class="cond-prototype">
       <div class="cond-or cond-item" data-cond-type="or" draggable="true">
 		<div class="cond-or-sub" data-cond-type="orSub">
@@ -213,10 +194,8 @@
 		</div>
       </div>
     </div>
-    <p>
-      And here
-    </p>
 
+<!-- Icons -->
     <p>
     <div class="cond-icon-list">
       <div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
@@ -226,6 +205,7 @@
     </div>
     </p>
 
+<!-- Container for initial condition -->
     <div class="cond-container cond-item">
       <input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
       <input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count" id="cond-atom-count">
@@ -619,29 +599,22 @@
         prepareEmptyDescendantsHelper(node);
       }
 
-      function condHandleDropOnBlank(e) {
-        if (e.preventDefault) {
-          e.preventDefault();
+	function condHandleDropOnBlank(e) {
+		if (e.preventDefault) {
+        	e.preventDefault();
         }
 
         var targetParent = e.target.parentNode;
-
-      // I decided not to put an outline around the OR bits.
-/*        if (targetParent.classList.contains("cond-or-sub") &&
-             !(targetParent.classList.contains("cond-item"))) {
-          targetParent.classList.add("cond-item");
-        }*/
-
         var insideQualifier = e.target.dataset.condInsideQualifier;
         if (condDragSource.id == "condOrIcon") {
-          condCreateOrNode(targetParent,e.target,insideQualifier);
-          targetParent.removeChild(e.target);
+			condCreateOrNode(targetParent,e.target,insideQualifier);
+			targetParent.removeChild(e.target);
         } else if (condDragSource.id == "condAtomIcon") {
-          condCreateAtomNode(targetParent,e.target,insideQualifier);
-          targetParent.removeChild(e.target);
+			condCreateAtomNode(targetParent,e.target,insideQualifier);
+			targetParent.removeChild(e.target);
         } else if (condDragSource.id == "condForAllIcon") {
-          condCreateForAllNode(targetParent,e.target);
-          targetParent.removeChild(e.target);
+			condCreateForAllNode(targetParent,e.target);
+        	targetParent.removeChild(e.target);
         } else /* a node to be moved */ {
 	 	 	var sourceParentIsOr = 
 		    	condDragSource.parentNode.parentNode.dataset.condType == "or";
@@ -677,50 +650,53 @@
           } 
         }
         
-      }
-      
-      var icons = document.querySelectorAll('.cond-icon');
-      [].forEach.call(icons,function(icon) {
-        icon.addEventListener('dragstart', condHandleDragStartCopy, false);
-        icon.addEventListener('dragend', condHandleDragEnd, false);
-      });
+    }
 
-      var blanks = document.querySelectorAll('.cond-empty');
-      [].forEach.call(blanks,function(blank) {
-        blank.addEventListener('dragover', condHandleDragOverBlank, false);
-        blank.addEventListener('drop', condHandleDropOnBlank, false);
-      });
+	var icons = document.querySelectorAll('.cond-icon');
+	[].forEach.call(icons,function(icon) {
+		icon.addEventListener('dragstart', condHandleDragStartCopy, false);
+		icon.addEventListener('dragend', condHandleDragEnd, false);
+	});
 
-/*>*/ 
-      function condHandleDragOverTrash(e) {
-	if (e.preventDefault) {
-          e.preventDefault();
-	}
-	if (condDragSource.classList.contains("cond-icon")) {
-	  e.dataTransfer.dropEffect = "none";
-	  return false;
+	var blanks = document.querySelectorAll('.cond-empty');
+	[].forEach.call(blanks,function(blank) {
+		blank.addEventListener('dragover', condHandleDragOverBlank, false);
+		blank.addEventListener('drop', condHandleDropOnBlank, false);
+	});
+
+	function condHandleDragOverTrash(e) {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+
+		if (condDragSource.classList.contains("cond-icon")) {
+			e.dataTransfer.dropEffect = "none";
+			return false;
+		}
+
+		e.dataTransfer.dropEffect = "move";
+		return false;
 	}
 
-        e.dataTransfer.dropEffect = "move";
-	return false;
-      }
-      function condHandleDropOnTrash(e) {
-    	  if (e.preventDefault) {
-              e.preventDefault();
-          }
-    	  
-	var sourceParent = condDragSource.parentNode;
-	var sourceLabel = 
-	  condDragSource.dataset.condType == "for" ? 
-	    condDragSource.previousElementSibling :
-	    condDragSource.nextElementSibling;
-	sourceParent.removeChild(condDragSource);
-	sourceParent.removeChild(sourceLabel);
-	if ((sourceParent.parentNode) && 
-	    (sourceParent.parentNode.dataset.condType == "or")) {
-	  condCleanUpOr(sourceParent.parentNode);
+	function condHandleDropOnTrash(e) {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+    	
+		if (condDragSource.classList.contains("cond-icon")) {
+			return;
+		}
+
+		var sourceParent = condDragSource.parentNode;
+		var sourceLabel = condDragSource.dataset.condType == "for" ? 
+							condDragSource.previousElementSibling :
+							condDragSource.nextElementSibling;
+		sourceParent.removeChild(condDragSource);
+		sourceParent.removeChild(sourceLabel);
+		if ((sourceParent.parentNode) && (sourceParent.parentNode.dataset.condType == "or")) {
+			condCleanUpOr(sourceParent.parentNode);
+		}
 	}
-      }
 
     trashCan = document.getElementById("condTrashIcon");
     trashCan.addEventListener('dragover', condHandleDragOverTrash, false);
@@ -944,7 +920,4 @@
    		}
    	}
     </script>
-<input type="submit">
-{% csrf_token %}    
-    </form>
-</html>
+
