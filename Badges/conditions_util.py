@@ -369,7 +369,7 @@ def setUpContextDictForConditions(context_dict,course):
         var_list.append(sysVar)
     context_dict['variables'] = var_list
 
-    chall_list = [{"id":ch.challengeID,"name":ch.challengeName} for ch in Challenges.objects.filter(courseID = course)]
+    chall_list = [{"id":ch.challengeID,"name":ch.challengeName} for ch in Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")]
     act_list = [{"id":act.activityID,"name":act.activityName} for act in Activities.objects.filter(courseID = course)]
     
     context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list },
