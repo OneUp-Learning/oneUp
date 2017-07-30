@@ -134,9 +134,9 @@ class RuleEvents(models.Model):
     event = models.IntegerField(default=0,db_index=True)
     def __str__(self):
         if self.event in Event.events:
-            return "(Rule#:"+str(int(self.rule.ruleID))+":Event "+str(Event.events[self.event]["name"])+")"
+            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by Event "+str(Event.events[self.event]["name"])+")"
         else:
-            return "(Rule#:"+str(int(self.rule.ruleID))+":INVALID EVENT)"
+            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by INVALID EVENT)"
 
         
 # Action-Arguments Table
