@@ -15,27 +15,42 @@ def get_events_for_system_variable(var):
     # This way we're sure we've got a number.
     var = int(var)
     # Then we just use it to find the systemVariable enum and we've added a field to this which is a list of events.
-    return SystemVariable.systemVariables[var]['eventsWhichCanChangeThis']
+    return set(SystemVariable.systemVariables[var]['eventsWhichCanChangeThis'])
 
 leaf_condition_operators = ['==','<','>','<=','>=','!=']
 binary_condition_operators = ['AND','OR','NOT']
 unary_condition_operators = ['NOT']
+for_list_condition_operators = ['FOR_ALL','FOR_ANY']
 def get_events_for_condition(cond):
+    print ("Getting events for: "+str(cond) )
+    
+    def getEventsFromConditionSet(condition):
+        subConds = [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
+        eventSet = set()
+        for subCond in subConds:
+            eventSet = eventSet.union(get_events_for_condition(subCond))
+        return eventSet
+    
     if cond.operation in leaf_condition_operators:
-        events = []
+        eventSet = set()
         if (cond.operand1Type == OperandTypes.systemVariable):
-            events.extend(get_events_for_system_variable(cond.operand1Value))
+            eventSet = eventSet.union(get_events_for_system_variable(cond.operand1Value))
         if (cond.operand2Type == OperandTypes.systemVariable):
-            events.extend(get_events_for_system_variable(cond.operand2Value))
-        return events
+            eventSet = eventSet.union(get_events_for_system_variable(cond.operand2Value))
+        return eventSet
     elif cond.operation in binary_condition_operators:
-        cond1events = get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value))
-        cond2events = get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value))
-        return cond1events + cond2events
+        if cond.operand1Type == OperandTypes.conditionSet:
+            return getEventsFromConditionSet(cond)
+        else:
+            cond1events = get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value))
+            cond2events = get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value))
+            return cond1events.union(cond2events)
     elif cond.operation in unary_condition_operators:
         return get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value))
+    elif cond.operation in for_list_condition_operators:
+        return get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value))
     else:
-        return "ERROR: Invalid operator in condition.  Should be one of '==','<','>','<=','>=','!='."
+        return "ERROR: Invalid operator in condition.  Should be one of '==','<','>','<=','>=','!=','AND','OR','NOT','FOR_ALL','FOR_ANY'."
     
 # Given a condition which begins with a set of ANDs at the top, this breaks down everything
 # joined by AND into a list.  If given a condition which does not start with ANDs at the top,
