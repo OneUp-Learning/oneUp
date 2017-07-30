@@ -219,7 +219,7 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     elif (operandType == OperandTypes.challengeSet):
         if operandValue == 0:
             # All challenges in this course
-            return Challenges.objects.filter(courseID = course)
+            return Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")
         else:
             return [challset.challenge for challset in ChallengeSet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.activitySet):
