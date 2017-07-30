@@ -14,116 +14,6 @@
       <script src="/static/js/fiddle.js"></script>
       <script src="/static/assets/js/main.js"></script>
 
-      <script type="text/javascript">
-         /* Going to need to get python var*/
-            var numConditions = {{num_Conditions}};
-         
-            window.onload=addCondition;
-            /* Adds a new default condition */
-            function addCondition() {
-            	/* Increment the javascript variable */
-                numConditions++;
-            	
-            	/*window.alert("Added One Condition, Now: " + numConditions);*/
-            	
-              /* If there are no conditions, we've hidden the remove button
-                 now we're adding a new condition, so we show it again. */
-              if(numConditions > 0) {
-                document.getElementById('removeCondition').style.display ='initial';
-              }
-              
-              
-              /* Update the number which will be returned to python */
-              document.createBadge.elements['numConditions'].value=numConditions;
-            
-              /* Construct a new default condition. */
-              var newElement = '<div class="row" style="padding-top: 0px;">\n'+
-              				    	'<div class="select-wrapper">\n'+
-              							'<select name="cond'+numConditions+'_operand1Value" id="cond'+numConditions+'_operand1Value" style="font-size: 1em;">\n'+
-              								'{% for i, sysVars in systemVariables %}\n'+
-            								'<option value="{{i}}">{{sysVars}}</option>\n'+
-            								'{% endfor %}\n'+
-            							'</select>\n'+
-            						'</div>\n'+
-              				    	'<div class="select-wrapper">\n'+
-            							'<select name="cond'+numConditions+'_operation" id="cond'+numConditions+'_operation" style="font-size: 1em;">\n'+
-	            							 '<option value="==">&#61;</option>\n'+
-	                                         '<option value=">">&#62;</option>\n'+
-	                                         '<option value="<">&#60;</option>\n'+
-	                                         '<option value=">=">&#62;&#61;</option>\n'+
-	                                         '<option value="<=">&#60;&#61;</option>\n'+
-	                                         '<option value="!=">&#33;&#61;</option>\n'+
-            							'</select>\n'+
-            						'</div>\n'+
-            						'<div id="selector'+numConditions+'">\n'+
-		                            	'<div class="three-columns">\n'+
-	                            			'<input type="radio" name="cond'+numConditions+'_operand2TypeSelector"  value="constant" checked/>\n'+
-		                            		'<i>Enter a constant</i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>OR</strong>\n'+ 
-		                            		'<input style="border: solid 1px rgba(128, 128, 128, 0.5); width:100%; height: 40px;" type="text" name="cond'+numConditions+'_operand2Value" id="cond'+numConditions+'_operand2Value">\n'+
-	                     					'<input type="radio" name="cond'+numConditions+'_operand2TypeSelector"  value="sysvariable" />\n'+
-				                            '<i>Select a system variable</i>\n'+
-				                            '<div class="three-columns">\n'+
-				                            	'<div class="select-wrapper" id="operand2SysVars'+numConditions+'">\n'+
-						                        	'<select name="cond'+numConditions+'_operand2Variable" id="cond'+numConditions+'_operand2Variable" style="font-size: 1em; width: 100%;"/>\n'+
-						                            '{% for i, sysVars in systemVariables %}\n'+
-				                            			'<option value="{{i}}">{{sysVars}}</option>\n'+							
-						                            '{% endfor %}\n'+
-						                            '</select>\n'+
-	                              				'</div>\n'+
-	                              			'</div>\n'+
-	                            		'</div>\n'+
-	                            	'</div>\n'+
-                            	'</div>\n';
-            	
-            	/* And put it in place. */
-				var conditions = document.getElementById('conditions');
-				var newcond = document.createElement('div');
-				var divIdName = 'cond'+numConditions;
-
-				newcond.setAttribute('id',divIdName);
-				newcond.innerHTML = newElement;
-				conditions.appendChild(newcond);
-            }
-            /* Removes the bottom condition */
-            function removeCondition() {
-              /* Remove last condition. */
-              var lastCondition = document.getElementById("cond"+numConditions);
-              while (lastCondition.firstChild) {
-            	    lastCondition.removeChild(lastCondition.firstChild);
-            	}
-              lastCondition.parentElement.removeChild(lastCondition);
-            
-              /* Decrement js variable */
-              numConditions--;
-              /*window.alert("Removed One Condition, Now: " +numConditions);*/
-              /* Update the number which will be returned to python */ 
-              document.createBadge.elements['numConditions'].value = numConditions;
-            
-              /* If we have no conditions, hide the button that
-                 remove conditions */
-              if (numConditions < 1) {
-                document.getElementById('removeCondition').style.display = 'none';
-              }
-            }
-           
-	</script>
-      
-      <script type="text/javascript">
-		function validateForm() {
-    		var x = document.forms["createBadge"]["cond1_operand2Value"].value;
-    		var y = document.forms["createBadge"]["cond1_operand2TypeSelector"].value;
-    		var z = document.forms["createBadge"]["assignChallenges"].value;
-    		if ( x == "" && y == "constant") {
-        		alert("The condition must be filled out.");
-        		return false;
-    		}
-    		if ( z == "") {
-        		alert("One of: \"All challenges\" or \"Specific challenges\" must be selected.");
-        		return false;
-    		}
-		}
-	</script>
-	
    </head>
    <body>
 <!--      <div class="page-wrapper"> -->
@@ -135,7 +25,7 @@
 		               <div class="12u">
                	<h1>Create/Edit <span>Badge</span></h1>
                	<p><span>*</span> Denotes Required Fields.</p>
-               	<form id="createBadge" name="createBadge" action="/oneUp/badges/SaveBadge" onsubmit="return validateForm()" method="POST">
+               	<form id="createBadge" name="createBadge" action="/oneUp/badges/SaveBadge" onsubmit="condFillCondString();return true;" method="POST">
                	    {% csrf_token %}
                		<input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
                		<table class="bg">
@@ -180,40 +70,8 @@
                         <tr>
                            <td colspan="5">Conditions Applied for the Badge <span style="color: red; font-weight: bolder;">*</span></td>
                         </tr>
-                        <tr>
-                           <td>
-	                           <div id="conditions">
-	                           		
-	                          </div>
-	                          <a id="addCondition" href="javascript:;" onclick="addCondition();"><button type="button">Add Condition</button></a>
-	                          <a id="removeCondition" href="javascript:;" onclick="removeCondition();"><button type="button">Remove Last Condition</button></a>
-                          </td>
-                        </tr>
-                        <tr>
-<!--                            <td colspan="5" class="formset">Assign This Badge to <span style="color: red; font-weight: bolder;">*</span></td>
- -->                           <td colspan="5" class="formset">Check the conditions of this badge for <span style="color: red; font-weight: bolder;">*</span></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">
-                              <div class="two-columns">
-	                             <input type="radio" name="assignChallenges" value="1" class="selectChallenges" checked="checked"/> All Challenges
-	                             <input type="radio" name="assignChallenges" value="2" class="selectChallenges" /> Specific Challenges 		
-                              </div>
-                              <ol id="specChall" name="specChall" class="formset">
-                                 <li><strong>Choose Challenges to which the Badge has to be applied:</strong></li>
-                                 <li>
-                                 <div class="select-wrapper">
-                                 <select style="height: 200px; width: 200px" name="specChallenge" id="specChallenge" multiple>
-                                    {% for j, challenge in challenges %}
-                                    <option value="{{challenge.challengeID}}">{{challenge.challengeName}}</option>	
-                                    {% endfor %} 
-                                    </select>
-                                    </div>
-                                 </li>
-                                 <li><font style="font-size:.8em;">Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</font></li>
-                              </ol>
-                           </td>
-                        </tr>
+						<tr><td>{% include "Badges/conditionInterface.html" %}</td></tr>
+	                           
                     </table>
                     <ul class="actions">
                         <li style="margin:0"><input type="submit" id="create" name="create" value="Create Badge" class="button"></li>
