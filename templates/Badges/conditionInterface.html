@@ -12,6 +12,7 @@
         min-width: auto;
         min-height: auto;
         flex: none;
+        display: flex;
       }
       .cond-empty {
         border-style: dashed;
@@ -238,27 +239,33 @@
     
       function condChangeAtomToMatchType(select) {
     	  console.log("changing atom type");
-    	  var atom = select.parentNode.parentNode;
+    	  var atom = select.parentNode;
     	  var option = select.options[select.selectedIndex];
     	  var type = option.dataset.condVarType;
     	  var value = atom.getElementsByClassName('cond-rhs-value')[0];
-    	  var valueParent = value.parentNode;
     	  if (type != value.type) {	  
 	    	  // We have to remake the value node in order to change the type in some web browsers, so we just do it for everyone.
 	    	  var newValue = document.createElement('input');
 	    	  newValue.type = type;
 	    	  newValue.name = value.name;
 			  newValue.classList.add("cond-rhs-value");
-	    	  
+
+			  var oldValue = value.type == "checkbox" ? (value.checked ? true : false) : value.value
+			  
 	    	  // We save the type-specific value so that changing types doesn't destroy values.
-	    	  atom.dataset["condSavedValue_"+value.type] = value.value;
+	    	  atom.dataset["condSavedValue_"+value.type] = oldValue;
 	    	  // And then we restore an old one if it exists
 	    	  if (atom.dataset["condSavedValue_"+type]) {
-	    		  newValue.value = atom.dataset["condSavedValue_"+type];
+	    		  var savedValue = atom.dataset["condSavedValue_"+type]
+	    		  if (value.type == "checkbox") {
+	    			  newValue.checked = savedValue;
+	    		  } else {
+		    		  newValue.value = savedValue;
+	    		  }
 	    	  }
 	    	  
-	    	  valueParent.insertBefore(newValue,value);
-	    	  valueParent.removeChild(value);
+	    	  atom.insertBefore(newValue,value);
+	    	  atom.removeChild(value);
 	    	  value = newValue;
     	  }
 	    	 
