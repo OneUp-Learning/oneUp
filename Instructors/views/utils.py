@@ -1,6 +1,7 @@
 #import nltk
 from Instructors.models import Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
 from Instructors.constants import unspecified_topic_name
+from Badges.models import CourseConfigParams
 import re
 import string
 
@@ -420,6 +421,8 @@ def initialContextDict(request):
     else:
         currentCourse = None
         context_dict['course_Name'] = 'Not Selected'
+        
+    context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
         
     return (context_dict,currentCourse)
 

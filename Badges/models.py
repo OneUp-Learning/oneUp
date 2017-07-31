@@ -227,6 +227,7 @@ class CourseConfigParams(models.Model):
     ccpID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
 
+    gamificationUsed = models.BooleanField(default=False) 
     badgesUsed = models.BooleanField(default=False)                   ## The badgesUsed is for instructor dashboard purposes and system uses as well
     studCanChangeBadgeVis = models.BooleanField(default=False)        ## The studCanChangeBadgeVis is for allowing student to configure student dashboard visibility only
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
