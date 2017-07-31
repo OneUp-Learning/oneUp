@@ -25,7 +25,7 @@
 		               <div class="12u">
                	<h1>Create/Edit <span>Badge</span></h1>
                	<p><span>*</span> Denotes Required Fields.</p>
-               	<form id="createBadge" name="createBadge" action="/oneUp/badges/SaveBadge" onsubmit="condFillCondString();return true;" method="POST">
+               	<form id="createBadge" name="createBadge" action="/oneUp/badges/SaveBadge" onsubmit="return condOnSubmit();" method="POST">
                	    {% csrf_token %}
                		<input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
                		<table class="bg">

@@ -100,6 +100,13 @@
         background-color: #EEFFEE;
         overflow: hidden;
       }
+      .cond-hidden-error {
+      	display: none;
+      }
+      .cond-visible-error {
+      	background-color: white;
+      	color: red;
+      }
     </style>
  <!-- Hidden prototypes which will be copied to make the actual nodes in the boolean expression. -->
     <div id="condOrPrototype" class="cond-prototype">
@@ -123,8 +130,8 @@
     </div>
     <div id="condAtomPrototype" class="cond-prototype">
       <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
-		<select name="cond-var" onchange="condChangeAtomToMatchType(this);return true;">
-	  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
+		<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
+	  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled>choose a variable</option>
 		  {% for variable in variables %}
 		  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
 		  	  {% for object in variable.objects %}
@@ -133,14 +140,14 @@
 		  	> {{variable.name}} </option>
 		  {% endfor %}
 		</select>
-		<select name="cond-op">
+		<select name="cond-op" class="cond-op">
 	  	  <option value="=">=</option>
 	  	  <option value=">">&gt;</option>
 	  	  <option value="<">&lt;</option>
 		</select>
-		<input type="text" name="cond-rhs-value" class="cond-rhs-value">
-		<select name="cond-rhs-var" hidden>
-	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true">choose a variable</option>
+		<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
+		<select name="cond-rhs-var" hidden class="cond-rhs-var" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
+	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled selected>choose a variable</option>
 		  {% for variable in variables %}
 		  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
 		  	  {% for object in variable.objects %}
@@ -149,7 +156,11 @@
 		  	> {{variable.name}} </option>
 		  {% endfor %}
 		</select>
-		<label><input type="checkbox" name="cond-value" checked="true" onchange="condToggleAtomType(this)">value</input></label>
+		<label><input type="checkbox" name="cond-value" class="cond-value" checked="true" onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">value</input></label>
+		<br>
+		<span class="cond-hidden-error cond-blank-lhs-error">A variable must be selected on the left-hand side.</span>
+		<span class="cond-hidden-error cond-blank-rhs-var-error">A variable must be selected on the right-hand side.</span>
+		<span class="cond-hidden-error cond-blank-rhs-value-error">A value must be entered on the right-hand side.</span>
       </div>
     </div>
     <div id="condAndLabelPrototype" class="cond-prototype">
@@ -163,12 +174,12 @@
 		   data-inside-qualifier="{{defaultObject}}" draggable="true">
 		<div>
 		  	for
-		  	<select name="allOrAny">
+		  	<select name="cond-allOrAny" class="cond-allOrAny">
 		   	 	<option value="all">each</option>
 		    	<option value="any">any</option>
 		  	</select>
 		  	of the following
-		  	<select name="type" onchange="condChangeForAllType(this);return true;"
+		  	<select name="cond-thingie-type" class="cond-thingie-type" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
 				  data-cond-old-type="{{defaultObject}}">
 				{% for objectType in objectTypes %}
 		    		<option value="{{objectType.name}}">{{objectType.plural}}</option>
@@ -177,18 +188,20 @@
 		</div>
 		{% for objectType in objectTypes %}
 			<div class="cond-{{objectType.name}}-list" {% if objectType.name != defaultObject %} hidden {%endif%}>
-			  <select name="{{objectType.name}}-list" 
-				  onchange="condAddThingieToList(this);this.selectedIndex=0;">
+			  <select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select" 
+				  onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;">
 		    	<option value="0">select {{objectType.plural}} to add</option>
 		    	{% for object in objectType.objects %}
 			    	<option value="{{object.id}}">{{object.name}}</option>
 			    {% endfor %}
 		  	  </select>
-		  	  or <input type="checkbox" name="{{objectType.name}}-all">
-			  <label for="{{objectType.name}}-all">all {{objectType.plural}}</label>
+		  	  or <input type="checkbox" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;">
+			  <label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
 			</div>
 			<div class="cond-for-list cond-{{objectType.name}}-selected-list">
 			</div>  
+			<br><span class="cond-hidden-error cond-blank-{{objectType.name}}-list-error">One or more {{objectType.plural}} must be added or the all {{objectType.plural}} 
+			box should be checked</span>
 		{% endfor %}
 		<div class="cond-for-sub">
 			<div class="cond-empty">&nbsp;</div>
@@ -214,6 +227,96 @@
     </div>
 
     <script>
+    function condFindCondItemAncestor(node) {
+    	while (!node.classList.contains("cond-item")) {
+    		node = node.parentNode;
+    	}
+    	return node;
+    }
+    
+    function condHideError(node,errorTypeList) {
+    	var nodeParent = condFindCondItemAncestor(node)
+    	function hideOneErrorType(type) {
+    		errors = nodeParent.getElementsByClassName(type);
+    		for (var i=0;i<errors.length;i++) { /* This should only be one, but I'm following a better safe than sorry strategy */
+    			errors[i].classList.add("cond-hidden-error");
+    			errors[i].classList.remove("cond-visible-error");
+    		}
+    	}
+    	errorTypeList.forEach(hideOneErrorType);
+    }
+    
+    function condShowError(node,errorType) {
+    	var nodeParent = condFindCondItemAncestor(node)
+    	errors = nodeParent.getElementsByClassName(errorType);
+    	for (var i=0;i<errors.length;i++) {
+    		errors[i].classList.remove("cond-hidden-error");
+    		errors[i].classList.add("cond-visible-error");
+    	}
+    }
+    
+    /* Returns true if the condition is incomplete. */
+    function condCheckForErrors() {
+    	
+    	function checkForErrorsInChildren(node,subTypeName) {
+    		var errorInSub;
+    		var errorsPresent = false;
+			var subConds = condFilterChildren(node,function(x){return x.classList.contains(subTypeName);});
+			for (var i = 0; i<subConds.length;i++) {
+				errorInSub = checkForErrors(subConds[i]);
+				errorsPresent = errorsPresent || errorInSub;
+			}
+			return errorsPresent;
+    	}
+    	
+    	function checkForErrors(node) {
+			var errorsPresent = false;
+			
+    		if (node.dataset.condType == "atom") {
+    			var lhs = node.getElementsByClassName("cond-var")[0];
+    			var rhsVar = node.getElementsByClassName("cond-rhs-var")[0];
+    			var rhsValue = node.getElementsByClassName("cond-rhs-value")[0];
+    			var rhsIsValue = node.getElementsByClassName("cond-value")[0];
+    			
+    			if (lhs.value == 0) {
+    				condShowError(node,"cond-blank-lhs-error");
+    				errorsPresent = true;
+    			}
+    			if (!rhsIsValue.checked) {
+    				if (rhsVar.value == 0) {
+    					condShowError(node,"cond-blank-rhs-var-error");
+        				errorsPresent = true;
+    				}
+    			} else {
+    				if (rhsValue.value === "") {
+    					condShowError(node,"cond-blank-rhs-value-error");
+        				errorsPresent = true;
+    				}
+    			}
+    			return errorsPresent;
+
+    		} else if (node.dataset.condType == "for") {
+    			var thingieTypeName = node.getElementsByClassName("cond-thingie-type")[0].value;
+    			var thingieListDiv = node.getElementsByClassName("cond-"+thingieTypeName+"-selected-list")[0];
+    			var allThingies = node.getElementsByClassName("cond-"+thingieTypeName+"-all")[0];
+    			var subCondsDiv = node.getElementsByClassName("cond-for-sub")[0];
+    			if ((thingieListDiv.getElementsByClassName("cond-for-list-item").length == 0) && (!allThingies.checked)) {
+    				condShowError(node,"cond-blank-"+thingieTypeName+"-list-error");
+    				errorsPresent = true;
+    			}
+				var errorInAtLeastOneSub = checkForErrorsInChildren(subCondsDiv,"cond-item");
+				return errorsPresent;
+    		} else if (node.dataset.condType == "or") {
+    			return checkForErrorsInChildren(node,"cond-or-sub");
+    		} else if (node.dataset.condType == "orSub") {
+    			return checkForErrorsInChildren(node,"cond-item"); 
+    		}
+    	}
+    	
+    	var container = document.getElementsByClassName("cond-container")[0];
+    	return checkForErrorsInChildren(container,"cond-item");
+    }
+    
       function condFilterChildren(node,proposition) {
     	  var output = [];
     	  for (var i=0;i<node.children.length;i++) {
@@ -227,7 +330,7 @@
       function condToggleAtomType(x) {
     	  var atom = x.parentNode.parentNode;
     	  var value = atom.getElementsByClassName('cond-rhs-value')[0];
-          var variable = atom.querySelector('select[name="cond-rhs-var"]');
+          var variable = atom.getElementsByClassName('cond-rhs-var')[0];
     	  if (x.checked) {
     		  variable.hidden = true;
     		  value.removeAttribute("hidden");
@@ -279,7 +382,7 @@
     	  var allOps = { "=":enable, ">":enable, "<":enable };
     	  var typeStatusChange = { text: justEqual, date: allOps, number: allOps, checkbox: justEqual };
     	  
-    	  var operator = atom.querySelector('select[name="cond-op"]');
+    	  var operator = atom.getElementsByClassName("cond-op")[0];
     	  for (var i = 0; i<operator.options.length; i++) {
     		  typeStatusChange[type][operator.options[i].value](operator.options[i]);
     	  }
@@ -750,7 +853,7 @@
 				var output = "A:";
 		    	var lhsVariable = cond.querySelector('select[name="cond-var"]');
 		    	output += "V."+lhsVariable.value + ".";
-				var op = cond.querySelector('select[name="cond-op"]');
+				var op = cond.getElementsByClassName("cond-op")[0];
 				output += op.value + ".";
 		    	var valueCheckbox = cond.querySelector('input[name="cond-value"]')
 		    	if (valueCheckbox.checked) {
@@ -792,15 +895,15 @@
 				return addToOutputArray(output);
 			} else if (cond.dataset.condType == "for") {
 				var output = "F:";
-				var allOrAny = cond.querySelector('select[name="allOrAny"]');
+				var allOrAny = cond.getElementsByClassName("cond-allOrAny")[0];
 				if (allOrAny.value == 'all') {
 					output += "*.";
 				} else {
 					output += "1.";
 				}
-				var type = cond.querySelector('select[name="type"]').value;
+				var type = cond.getElementsByClassName("cond-thingie-type")[0].value;
 				output += type + ".";
-				var allOfType = cond.querySelector('input[name="'+type+'-all"]');
+				var allOfType = cond.getElementsByClassName('cond-'+type+'-all')[0];
 				if (allOfType.checked) {
 					output += "*";
 				} else {
@@ -860,14 +963,14 @@
    		function createAtom() {
             var atomDiv = condCreateAtomNode(targetParent,targetEmpty,insideQualifier);
             targetParent.removeChild(targetEmpty);
-			var op = atomDiv.querySelector('select[name="cond-op"]');
+			var op = atomDiv.getElementsByClassName("cond-op")[0];
  			selectOptionByValue(op,cond.op);
-	    	var lhsVariable = atomDiv.querySelector('select[name="cond-var"]');
+	    	var lhsVariable = atomDiv.getElementsByClassName("cond-var")[0];
 			selectOptionByValue(lhsVariable,cond.lhs);
- 			var valueCheckBox = atomDiv.querySelector('input[name="cond-value"]')
+ 			var valueCheckBox = atomDiv.getElementsByClassName("cond-value")[0];
 			if (cond.rhsType == "V") {
 				valueCheckBox.checked = false;
-	    		var rhsVariable = atomDiv.querySelector('select[name="cond-rhs-var"]');
+	    		var rhsVariable = atomDiv.getElementsByClassName("cond-rhs-var")[0];
 	    		selectOptionByValue(rhsVariable,cond.rhsvalue);
 			} else {
 				valueCheckBox.checked = true;
@@ -901,9 +1004,9 @@
    		}
    		function createFor() {
    			var forDiv = condCreateForAllNode(targetParent,targetEmpty);
-			var allOrAny = forDiv.querySelector('select[name="allOrAny"]');
+			var allOrAny = forDiv.getElementsByClassName("cond-allOrAny")[0];
 			selectOptionByValue(allOrAny,cond.allOrAny.toLowerCase());
-			var typeSelector = forDiv.querySelector('select[name="type"]');
+			var typeSelector = forDiv.getElementsByClassName("cond-thingie-type")[0];
 			selectOptionByValue(typeSelector,cond.objectType);
 			var listDiv = forDiv.querySelector('div.cond-'+cond.objectType+'-selected-list');
 			for (var i=0;i<cond.objects.length;i++) {
@@ -926,5 +1029,11 @@
    			createFor();
    		}
    	}
+
+   	function condOnSubmit() {
+   		condFillCondString();
+   		return !condCheckForErrors();
+   	}
+   	
     </script>
 
