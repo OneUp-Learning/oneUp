@@ -60,7 +60,6 @@ def ChallengesWarmUpList(request):
             score = []
 
             challenge_topic = ChallengesTopics.objects.filter(topicID=tID)
-            print(challenge_topic)
             if challenge_topic:           
                 for ct in challenge_topic:
                     if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True):

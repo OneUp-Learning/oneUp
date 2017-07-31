@@ -6,5 +6,6 @@ def studentInitialContextDict(request):
     student = Student.objects.get(user=request.user)   
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
     context_dict['avatar'] = st_crs.avatarImage
-    context_dict['course_notselected'] = 'Please select a course'
+    if not currentCourse:
+        context_dict['course_notselected'] = 'Please select a course'
     return context_dict,currentCourse
