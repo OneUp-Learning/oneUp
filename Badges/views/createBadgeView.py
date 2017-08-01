@@ -28,7 +28,7 @@ def CreateBadge(request):
 
     context_dict = setUpContextDictForConditions(context_dict,current_course)
 
-    context_dict['initialCond'] = databaseConditionToJSONString(makeTestCondtition(current_course))
+    context_dict['initialCond'] = "'empty'"
 
     return render(request,'Badges/CreateBadge.html', context_dict)
 
@@ -42,13 +42,3 @@ def extractPaths(context_dict): #function used to get the names from the file lo
     
     context_dict["imagePaths"] = zip(range(1,len(imagePath)+1), imagePath)
 
-def makeTestCondtition(course):
-    testCond = Conditions()
-    testCond.courseID = course
-    testCond.operation = ">"
-    testCond.operand1Type = OperandTypes.systemVariable
-    testCond.operand1Value = SystemVariable.consecutiveClassesAttended
-    testCond.operand2Type = OperandTypes.immediateInteger
-    testCond.operand2Value = 5
-    testCond.save()
-    return testCond
