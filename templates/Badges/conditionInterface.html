@@ -14,6 +14,10 @@
         flex: none;
         display: flex;
       }
+      .cond-atom-helper {
+      	display: flex;
+      	flex-direction: row;
+      }
       .cond-empty {
         border-style: dashed;
         border-width: 1px;
@@ -99,6 +103,7 @@
       .cond-atom {
         background-color: #EEFFEE;
         overflow: hidden;
+        flex-direction: column;
       }
       .cond-hidden-error {
       	display: none;
@@ -130,34 +135,35 @@
     </div>
     <div id="condAtomPrototype" class="cond-prototype">
       <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
-		<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
-	  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled>choose a variable</option>
-		  {% for variable in variables %}
-		  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
-		  	  {% for object in variable.objects %}
-		  	    data-cond-context-{{object}}="true";
-		  	  {% endfor %}
-		  	> {{variable.name}} </option>
-		  {% endfor %}
-		</select>
-		<select name="cond-op" class="cond-op">
-	  	  <option value="=">=</option>
-	  	  <option value=">">&gt;</option>
-	  	  <option value="<">&lt;</option>
-		</select>
-		<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
-		<select name="cond-rhs-var" hidden class="cond-rhs-var" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
-	  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled selected>choose a variable</option>
-		  {% for variable in variables %}
-		  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
-		  	  {% for object in variable.objects %}
-		  	    data-cond-context-{{object}}="true";
-		  	  {% endfor %}
-		  	> {{variable.name}} </option>
-		  {% endfor %}
-		</select>
-		<label><input type="checkbox" name="cond-value" class="cond-value" checked="true" onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">value</input></label>
-		<br>
+      	<div class="cond-atom-helper">
+			<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
+		  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled>choose a variable</option>
+			  {% for variable in variables %}
+			  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
+			  	  {% for object in variable.objects %}
+			  	    data-cond-context-{{object}}="true";
+			  	  {% endfor %}
+			  	> {{variable.name}} </option>
+			  {% endfor %}
+			</select>
+			<select name="cond-op" class="cond-op">
+		  	  <option value="=">=</option>
+		  	  <option value=">">&gt;</option>
+		  	  <option value="<">&lt;</option>
+			</select>
+			<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
+			<select name="cond-rhs-var" hidden class="cond-rhs-var" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
+		  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled selected>choose a variable</option>
+			  {% for variable in variables %}
+			  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
+			  	  {% for object in variable.objects %}
+			  	    data-cond-context-{{object}}="true";
+			  	  {% endfor %}
+			  	> {{variable.name}} </option>
+			  {% endfor %}
+			</select>
+			<label><input type="checkbox" name="cond-value" class="cond-value" checked="true" onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">value</input></label>
+		</div>
 		<span class="cond-hidden-error cond-blank-lhs-error">A variable must be selected on the left-hand side.</span>
 		<span class="cond-hidden-error cond-blank-rhs-var-error">A variable must be selected on the right-hand side.</span>
 		<span class="cond-hidden-error cond-blank-rhs-value-error">A value must be entered on the right-hand side.</span>
