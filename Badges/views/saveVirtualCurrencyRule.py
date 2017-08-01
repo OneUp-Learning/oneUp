@@ -51,7 +51,7 @@ def SaveVirtualCurrencyRule(request):
 
         # Check if creating a new badge or edit an existing one
         # If editing an existent one, we need to delete it first before saving the updated information in the database            
-        if 'vcRuleID' in request.POST:   #edit or delete badge 
+        if 'edit' in request.POST:   #edit or delete badge 
             print("Virtual Currency to Edit/Delete Id: "+str(request.POST['vcRuleID']))
             vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(pk=int(request.POST['vcRuleID']))
             if 'delete' in request.POST:
