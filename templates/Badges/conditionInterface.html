@@ -137,7 +137,7 @@
       <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
       	<div class="cond-atom-helper">
 			<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
-		  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled>choose a variable</option>
+		  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled selected>choose a variable</option>
 			  {% for variable in variables %}
 			  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
 			  	  {% for object in variable.objects %}
@@ -950,9 +950,18 @@
 									{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
 								{% endfor %} };
 	
+	{% if initialCond %}
    	var initialCond = {{initialCond|safe}};
-	var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
-	condCreateUIFromCondition (initialCond,initialEmpty,"none");
+   	{% else %}
+   	var initialCond = "empty";
+   	{% endif %}
+   	var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
+	if (initialCond === "empty") {
+		condCreateAtomNode(initialEmpty.parentNode,initialEmpty,"none");
+		initialEmpty.parentNode.removeChild(initialEmpty);
+	} else {
+	   	condCreateUIFromCondition (initialCond,initialEmpty,"none");
+	}
 	
    	function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
    		function selectOptionByValue(sel,val) {
