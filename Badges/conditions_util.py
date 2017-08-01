@@ -17,7 +17,7 @@ def get_events_for_system_variable(var):
     # Then we just use it to find the systemVariable enum and we've added a field to this which is a list of events.
     return set(SystemVariable.systemVariables[var]['eventsWhichCanChangeThis'])
 
-leaf_condition_operators = ['==','<','>','<=','>=','!=']
+leaf_condition_operators = ['==','=','<','>','<=','>=','!=']
 binary_condition_operators = ['AND','OR','NOT']
 unary_condition_operators = ['NOT']
 for_list_condition_operators = ['FOR_ALL','FOR_ANY']
