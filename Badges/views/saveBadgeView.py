@@ -42,6 +42,7 @@ def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.
     return get_events_for_system_variable(conditionOperandValue)[0]
 
+@login_required
 def SaveBadge(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.

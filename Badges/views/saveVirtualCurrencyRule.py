@@ -12,7 +12,7 @@ from Instructors.models import Courses, Challenges, Activities
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
 from Badges.enums import Action, OperandTypes , SystemVariable, dict_dict_to_zipped_list
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
-    cond_from_mandatory_cond_list
+    cond_from_mandatory_cond_list, stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
 
@@ -67,67 +67,8 @@ def SaveVirtualCurrencyRule(request):
             vcRuleDescription = request.POST['ruleDescription'] # The entered Rule Description
             print("rule description: "+str(vcRuleDescription))
             vcRuleAmount = request.POST['ruleAmount'] # The entered Virtual Currency amount
-            
-            conditions = []
-        
-            sysIndex = []
-            sysDisplayName = []
-            
-            systemVariableObjects= dict_dict_to_zipped_list(SystemVariable.systemVariables,['index','displayName'])  
-            # Create list to loop through and select only the system variables that were selected
-            for i, sysVars in systemVariableObjects:
-                if sysVars in request.POST:
-                        sysIndex.append(i)
-                        sysDisplayName.append(sysVars)
-            # Loop through all of the system variables.
-            for index, sysVar in zip(sysIndex, sysDisplayName):                                
-                # Create New Condition
-                newCondition = Conditions()
-                newCondition.operation = request.POST[str(sysVar)+'_operation']
-                newCondition.operand1Type = OperandTypes.systemVariable
-                newCondition.operand1Value = index
-                print(sysVar+'_operation')
-                print('newConditionOpenadType: (systemVariable)'+sysVar)
-                print('newConditionOperand1Value: '+str(newCondition.operand1Value))
-                print(sysVar+'_operand2Value')          
-                newCondition.operand2Type = OperandTypes.immediateInteger
-                newCondition.operand2Value = request.POST[sysVar+'_operand2Value']
-
-               
-                print('newCondition.operand2Type: '+str(newCondition.operand2Type))
-                print('newCondition.operand2Value: '+str(newCondition.operand2Value))
-                newCondition.save()
-                
-                conditions.append(newCondition)
-            
-            # If a particular challenge was specified, this needs to be added to the condition
-            assignChallenges = str(request.POST['assignChallenges'])
-            if (assignChallenges == '2'):
-                specificChallenge = request.POST['specChallenge']
-                challenge = Challenges.objects.get(challengeID=specificChallenge)
-                challenge_cond = Conditions()
-                challenge_cond.operation = '=='
-                challenge_cond.operand1Type = OperandTypes.systemVariable
-                challenge_cond.operand1Value = SystemVariable.challengeId
-                challenge_cond.operand2Type = OperandTypes.immediateInteger
-                challenge_cond.operand2Value = challenge.challengeID
-                challenge_cond.save()
-                conditions.append(challenge_cond)
-                
-            assignActivities = str(request.POST['assignActivities'])
-            if (assignActivities == '2'):
-                specificActivity = request.POST['specActivity']
-                activity = Activities.objects.get(activityID=specificActivity)
-                challenge_cond = Conditions()
-                challenge_cond.operation = '=='
-                challenge_cond.operand1Type = OperandTypes.systemVariable
-                challenge_cond.operand1Value = SystemVariable.challengeId
-                challenge_cond.operand2Type = OperandTypes.immediateInteger
-                challenge_cond.operand2Value = activity.activityID
-                challenge_cond.save()
-                conditions.append(challenge_cond)
-                
-            ruleCondition = cond_from_mandatory_cond_list(conditions)   
+                            
+            ruleCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,currentCourse)
                 
             # Save game rule to the Rules table
             gameRule = Rules()
@@ -150,7 +91,7 @@ def SaveVirtualCurrencyRule(request):
             vcRuleInfo.vcRuleName = vcRuleName
             vcRuleInfo.vcRuleDescription = vcRuleDescription
             vcRuleInfo.vcRuleType = True # Earning type
-            vcRuleInfo.assignToChallenges = assignChallenges
+            vcRuleInfo.assignToChallenges = 0 # We should delete this from the model soon.
             vcRuleInfo.save()
             
             ruleID = vcRuleInfo
