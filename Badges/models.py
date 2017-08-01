@@ -71,6 +71,14 @@ class Conditions(models.Model):
                         output += str(activitySet.activity) + ','
                     output += '}'
                     return output
+            elif (type == OperandTypes.conditionSet):
+                output = "Condition Set {"
+                for conditionSet in ConditionSet.objects.filter(parentCondition=self):
+                    output += str(conditionSet.conditionInSet.conditionID) + ','
+                output += '}'
+                return output
+            elif (type == OperandTypes.noOperand):
+                return ''
             return "INVALID: Invalid Operand Value."
         
         return "Cond#"+str(self.conditionID)+"("+operandToString(self.operand1Type,self.operand1Value)+" "+str(self.operation)+" "+operandToString(self.operand2Type,self.operand2Value)+')'
