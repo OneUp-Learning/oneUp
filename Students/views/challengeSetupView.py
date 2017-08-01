@@ -8,29 +8,33 @@ from time import strftime
 from Instructors.models import Challenges, Courses, Answers
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Students.models import Student, StudentRegisteredCourses
+from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
 
 @login_required
 def ChallengeSetup(request):
+
+    context_dict,currentCourse = studentInitialContextDict(request)
  
-    context_dict = { }
-    
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username      
-    
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-    #Displaying the questions in the challenge which the student has opted 
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-        student = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage                  
+#     context_dict = { }    
+#     context_dict["logged_in"]=request.user.is_authenticated()
+#     if request.user.is_authenticated():
+#         context_dict["username"]=request.user.username      
+#     
+#     # check if course was selected
+#     if not 'currentCourseID' in request.session:
+#         context_dict['course_Name'] = 'Not Selected'
+#         context_dict['course_notselected'] = 'Please select a course'
+#     else:
+#     #Displaying the questions in the challenge which the student has opted 
+#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+#         context_dict['course_Name'] = currentCourse.courseName
+#         student = Student.objects.get(user=request.user)   
+#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+#         context_dict['avatar'] = st_crs.avatarImage                  
+
+    if 'currentCourseID' in request.session:    
 
         questionObjects= []
                 

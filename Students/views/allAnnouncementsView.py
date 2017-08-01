@@ -7,8 +7,8 @@ Modified 09/27/2016
 '''
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Announcements, Courses
-from Students.models import Student, StudentRegisteredCourses
+from Instructors.models import Announcements
+from Students.views.utils import studentInitialContextDict
 
 from time import strftime
 
@@ -41,21 +41,23 @@ def createContextForAnnouncementList(currentCourse, context_dict):
 @login_required
 def allAnnouncements(request):
 
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+    context_dict,currentCourse = studentInitialContextDict(request)
 
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict = createContextForAnnouncementList(currentCourse, context_dict)
-        context_dict['course_Name'] = currentCourse.courseName
-        student = Student.objects.get(user=request.user)
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage                                 
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+#     context_dict = { }
+#     context_dict["logged_in"]=request.user.is_authenticated()
+#     if request.user.is_authenticated():
+#         context_dict["username"]=request.user.username
+# 
+#     # check if course was selected
+#     if 'currentCourseID' in request.session:
+#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+#         context_dict = createContextForAnnouncementList(currentCourse, context_dict)
+#         context_dict['course_Name'] = currentCourse.courseName
+#         student = Student.objects.get(user=request.user)
+#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+#         context_dict['avatar'] = st_crs.avatarImage                                 
+#     else:
+#         context_dict['course_Name'] = 'Not Selected'
 
     return render(request,'Students/Announcements.html', context_dict)
 

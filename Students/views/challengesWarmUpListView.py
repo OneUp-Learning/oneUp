@@ -3,15 +3,13 @@ Created on Oct 1, 2015
 
 @author: Alex
 '''
-from django.template import RequestContext
-from django.shortcuts import render
 
-from Instructors.models import Courses, Topics, CoursesTopics, ChallengesTopics, Challenges
-from Students.models import StudentChallenges, Student, StudentRegisteredCourses
+from django.shortcuts import render
+from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges
+from Students.models import StudentChallenges, Student
 from django.contrib.auth.models import User
-from datetime import datetime
 from Students.views.utils import studentInitialContextDict
-#from numpy import maximum
+
 
 from django.contrib.auth.decorators import login_required
 
@@ -40,8 +38,10 @@ def ChallengesWarmUpList(request):
     #    context_dict['avatar'] = st_crs.avatarImage          
         
     if 'currentCourseID' in request.session:    
-        user = User.objects.filter(username=request.user.username)
-        studentId = Student.objects.filter(user=user)
+#         user = User.objects.filter(username=request.user.username)
+#         studentId = Student.objects.filter(user=user)
+        
+        student = context_dict['student']
                 
         topic_ID = []      
         topic_Name = [] 
@@ -67,8 +67,8 @@ def ChallengesWarmUpList(request):
                         challenge_ID.append(chall)
                         challenge_Name.append(ct.challengeID.challengeName)
     
-                        if StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=chall):
-                            item = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=chall)
+                        if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=chall):
+                            item = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=chall)
                             gradeID  = []
                             
                             for sc in item:

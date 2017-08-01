@@ -10,57 +10,51 @@ from django.contrib.auth.decorators import login_required
 from Instructors.models import Skills, Courses, CoursesSkills, Topics
 from Badges.models import CourseConfigParams
 from Students.models import StudentConfigParams,Student, StudentRegisteredCourses
+from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.models import User
 
 @login_required
 def preferencesView(request):
 
+    context_dict,currentCourse = studentInitialContextDict(request)
    
-    context_dict = { }  
-    ccparams =[]
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+#     context_dict = { }  
+#     ccparams =[]
+#     context_dict["logged_in"]=request.user.is_authenticated()
+#     if request.user.is_authenticated():
+#         context_dict["username"]=request.user.username
+#         
+#     # check if course was selected
+#     if 'currentCourseID' in request.session:
+#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+#         context_dict['course_Name'] = currentCourse.courseName
+#         student = Student.objects.get(user=request.user)   
+#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+#         context_dict['avatar'] = st_crs.avatarImage          
         
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-        student = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage          
+
+    if 'currentCourseID' in request.session:    
         
-        print(currentCourse)
-#         ccparams = CourseConfigParams.objects.get(pk=int(request.POST['courseID']))
         c_ccparams = CourseConfigParams.objects.filter(courseID=currentCourse)
         
-#         for i in c_ccparams:
-#             ccparams = i
         if len(c_ccparams) > 0:
             ccparams = c_ccparams[0] 
             print('ccparams', ccparams)
             context_dict['studCanChangeBadgeVis']=ccparams.studCanChangeBadgeVis
             context_dict['studCanChangeLeaderboardVis']=ccparams.studCanChangeLeaderboardVis
             context_dict['studCanChangeClassSkillsVis']=ccparams.studCanChangeClassSkillsVis
-            context_dict['studCanChangeclassAverageVis']=ccparams.studCanChangeclassAverageVis            
-        
-    else:
-        context_dict['course_Name'] = 'Not Selected' 
+            context_dict['studCanChangeclassAverageVis']=ccparams.studCanChangeclassAverageVis    
+                    
+        student = context_dict['student']   
     
     if request.POST:
         
-#         ccparams = CourseConfigParams.objects.get(pk=int(request.POST['courseID']))
-#         
-        # There is an existing topic, edit it
         if request.POST['scpID']:
             scparams = StudentConfigParams.objects.get(pk=int(request.POST['scpID']))
-            print(request.POST['scpID'])
-            print("--xxxxxx-")
-            print(scparams,scparams.courseID,scparams.studentID,scparams.displayBadges,scparams.displayLeaderBoard,scparams.displayClassSkills)
             
         else:
-            studentID = Student.objects.get(user=request.user)
-            scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=studentID)
+            #studentID = Student.objects.get(user=request.user)
+            scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=student)
 
 #          print(studentID)
             #scparams.studentID = User.objects.filter(userID=request.POST['userID'],courseID=currentCourse)
@@ -76,7 +70,7 @@ def preferencesView(request):
         if ccparams.studCanChangeclassAverageVis:  
             scparams.displayClassAverage = "displayClassAverage" in request.POST
                                 
-       # scparams.displayClassAverage = "displayClassAverage" in request.POST 
+        # scparams.displayClassAverage = "displayClassAverage" in request.POST 
         scparams.displayClassRanking = "displayClassRanking" in request.POST     
         scparams.save()
         print(scparams,scparams.courseID,scparams.studentID,scparams.displayBadges,scparams.displayLeaderBoard,scparams.displayClassSkills)
