@@ -451,7 +451,7 @@ def importChallenges(uploadedFileName):
                     question.save()    
                                    
                     # TemplateTextParts
-                    el_templateTextParts = el_dynamicQuestion.find("TemplateTextParts")  
+                    el_templateTextParts = el_templateDynamicQuestion.find("TemplateTextParts")  
                     if not el_templateTextParts is None:
                     
                         for el_templateTextPart in el_templateTextParts.findall('TemplateTextPart'):                            
