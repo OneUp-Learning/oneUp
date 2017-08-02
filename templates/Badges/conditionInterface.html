@@ -230,6 +230,7 @@
       <input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
       <input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count" id="cond-atom-count">
       <div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
+      <span class="cond-hidden-error cond-no-condition-error">Some condition must be present.</span>
     </div>
 
     <script>
@@ -319,8 +320,13 @@
     		}
     	}
     	
+    	var errorsPresent = false;
     	var container = document.getElementsByClassName("cond-container")[0];
-    	return checkForErrorsInChildren(container,"cond-item");
+    	if (container.getElementsByTagName("DIV").length < 2) {
+    		errorsPresent = true;
+    		condShowError(container,"cond-no-condition-error");
+    	}
+    	return checkForErrorsInChildren(container,"cond-item") || errorsPresent;;
     }
     
       function condFilterChildren(node,proposition) {
@@ -728,6 +734,7 @@
         } else if (condDragSource.id == "condAtomIcon") {
 			condCreateAtomNode(targetParent,e.target,insideQualifier);
 			targetParent.removeChild(e.target);
+			condHideError(document.getElementsByClassName("cond-container")[0],["cond-no-condition-error"]);
         } else if (condDragSource.id == "condForAllIcon") {
 			condCreateForAllNode(targetParent,e.target);
         	targetParent.removeChild(e.target);
