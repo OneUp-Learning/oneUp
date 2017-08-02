@@ -43,7 +43,6 @@ def VirtualCurrencyList(request):
                     return SystemVariable.systemVariables[value]['displayName']
     vcRuleID = [] 
     vcRuleName = []
-    vcDescription = []
     vcAmount = []
     
     vcsRuleID = [] 
@@ -56,13 +55,6 @@ def VirtualCurrencyList(request):
             vcRuleID.append(rule.vcRuleID)
             vcRuleName.append(rule.vcRuleName)
             cRule = rule.ruleID
-            condRule = cRule.conditionID
-            conditions = get_mandatory_conditions_without_or_and_not(condRule)
-            conditions = filter_out_associated_challenges(conditions)
-            description = ""
-            for cond in conditions:
-               description += "("+operandToString(cond.operand1Type,cond.operand1Value)+" "+str(cond.operation)+" "+operandToString(cond.operand2Type,cond.operand2Value)+")"
-            vcDescription.append(description)
             if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
                 vcAmount.append(ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue)
             else:
@@ -76,7 +68,7 @@ def VirtualCurrencyList(request):
                 vcsAmount.append(0)
                     
         # The range part is the index numbers.
-    context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcDescription,vcAmount)
+    context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcAmount)
     context_dict['vcsRuleInfo'] = zip(range(1,len(vcsRuleID)+1),vcsRuleID,vcsRuleName,vcsAmount)
 
     #return render(request,'Badges/ListBadges.html', context_dict)
