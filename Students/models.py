@@ -4,7 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities
 from Badges.models import Badges, VirtualCurrencyRuleInfo
-from Badges.enums import Event, OperandTypes, SystemVariable, Action
+from Badges.enums import Event, OperandTypes, Action
+from Badges.systemVariables import SystemVariable
 from datetime import datetime
 from distutils.command.upload import upload
 from django.template.defaultfilters import default
