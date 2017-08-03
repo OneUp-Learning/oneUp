@@ -4,12 +4,11 @@ Created on Oct 29, 2014
 @author: Swapna
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render
 
-from Badges.models import Courses, VirtualCurrencyRuleInfo, ActionArguments, Rules, Conditions, FloatConstants, StringConstants
-from Badges.enums import  Event, OperandTypes, SystemVariable
-from Badges.conditions_util import get_mandatory_conditions_without_or_and_not, filter_out_associated_challenges
+from Badges.models import Courses, VirtualCurrencyRuleInfo, ActionArguments, Conditions, FloatConstants, StringConstants
+from Badges.enums import OperandTypes
+from Badges.systemVariables import SystemVariable
 from django.contrib.auth.decorators import login_required
 
 @login_required

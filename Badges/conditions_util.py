@@ -4,10 +4,11 @@ Created on Jan 27, 2017
 @author: kirwin
 '''
 
-from Badges.enums import SystemVariable, Event, OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
+from Badges.enums import Event, OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
 from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet
 from Instructors.models import Activities, Challenges
 from json import dumps
+from Badges.systemVariables import SystemVariable
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var):
@@ -379,7 +380,7 @@ def setUpContextDictForConditions(context_dict,course):
             "name":sysVarTable["displayName"],
             "tooltip":sysVarTable["description"],
             "type":system_variable_type_to_HTML_type[sysVarTable["type"]],
-            "objects":[ObjectTypes.objectTypes[x] for x in sysVarTable["objectsDefinedFor"]],
+            "objects":[ObjectTypes.objectTypes[x] for x in sysVarTable["functions"].keys()],
         }
         var_list.append(sysVar)
     context_dict['variables'] = var_list
