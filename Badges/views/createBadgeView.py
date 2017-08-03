@@ -9,12 +9,12 @@ import glob, os
 from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Challenges, Courses
-from Badges.enums import SystemVariable, dict_dict_to_zipped_list, OperandTypes
+from Badges.enums import dict_dict_to_zipped_list, OperandTypes
+from Badges.systemVariables import SystemVariable
 from Instructors.views.utils import initialContextDict
 from Badges.conditions_util import setUpContextDictForConditions,\
     databaseConditionToJSONString
 from Badges.models import Conditions
-
 
 # This sets up the page used to create the badge, but does not, in fact, create any badges.
 # Badges are actually created in the saveBadgeView class.

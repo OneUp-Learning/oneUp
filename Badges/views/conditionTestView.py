@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from Badges.enums import SystemVariable, system_variable_type_to_HTML_type, ObjectTypes,\
+from Badges.enums import system_variable_type_to_HTML_type, ObjectTypes,\
     OperandTypes
+from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import setUpContextDictForConditions, databaseConditionToJSONString,\
     stringAndPostDictToCondition
 from Badges.models import Conditions

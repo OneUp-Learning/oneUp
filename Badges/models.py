@@ -1,9 +1,8 @@
 from datetime import datetime
 from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities
-from Badges.enums import Event, OperandTypes, SystemVariable, Action
-from pip.cmdoptions import verbose
-
+from Badges.enums import Event, OperandTypes, Action
+from Badges.systemVariables import SystemVariable
 
 # Create your models here.
  

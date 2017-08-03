@@ -10,7 +10,8 @@ from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges, Activities
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
-from Badges.enums import Action, OperandTypes , SystemVariable, dict_dict_to_zipped_list
+from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list
+from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
     cond_from_mandatory_cond_list, stringAndPostDictToCondition
 
