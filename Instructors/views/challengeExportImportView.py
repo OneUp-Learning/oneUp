@@ -5,12 +5,14 @@ Created on May 1, 2017
 '''
 from django.shortcuts import redirect, render, HttpResponse
 
-from Instructors.models import Courses, Challenges, ChallengesQuestions, Questions, StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
-from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary
+from Instructors.models import Courses, Challenges, ChallengesTopics, ChallengesQuestions, Questions, StaticQuestions 
+from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles, Topics 
+from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
 from Badges.enums import QuestionTypes
 
 from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
+import os
 
 def str2bool(value):
     return value in ('True', 'true') 
@@ -35,7 +37,6 @@ def exportChallenges(request):
         chall_ID = []      
         challenges = Challenges.objects.filter(courseID=currentCourse)        
         for challenge in challenges:
-            print(challenge)
             chall_name.append(challenge.challengeName)
             chall_ID.append(challenge.challengeID)
 
@@ -97,14 +98,24 @@ def exportChallenges(request):
  
             el_difficulty = SubElement(el_challenge, 'challengeDifficulty')
             el_difficulty.text = challenge.challengeDifficulty            
-             
-            el_challengePassword = SubElement(el_challenge, 'challengePassword')
-            el_challengePassword.text = str(challenge.challengePassword)
+            
+            pssd = challenge.challengePassword
+            if pssd: 
+                el_challengePassword = SubElement(el_challenge, 'challengePassword')           
+                el_challengePassword.text = pssd
              
             #   isVisible, startTimestamp, and endTimestamp are not saved   
             
-            # TO DO:  Add ChallengesTopics entry
+            # Challenge Topics
+            challengeTopics = ChallengesTopics.objects.filter(challengeID=challenge)
+            if challengeTopics:   
+                el_challengeTopics = SubElement(el_challenge, 'ChallengeTopics')
+                for challengeTopic in challengeTopics:
+                    el_challengeTopic = SubElement(el_challengeTopics, 'ChallengeTopic')
+                    el_topicName = SubElement(el_challengeTopic, 'topicName')
+                    el_topicName.text = challengeTopic.topicID.topicName
              
+            # Challenge Questions            
             el_challengeQuestions = SubElement(el_challenge, 'ChallengeQuestions')           
             chall_questioins = ChallengesQuestions.objects.filter(challengeID=challenge)        
  
@@ -127,7 +138,19 @@ def exportChallenges(request):
                 el_difficulty.text = question.difficulty                
                 el_author = SubElement(el_question, 'author')
                 el_author.text = question.author
-             
+                
+                # Skills for this question
+                questionSkills = QuestionsSkills.objects.filter(questionID=question, challengeID=challenge)
+
+                if questionSkills:
+                    el_skills = SubElement(el_question, 'Skills')
+                    for questionSkill in questionSkills: 
+                        el_skill = SubElement(el_skills, 'Skill')
+                        el_skillName = SubElement(el_skill, 'skillName')
+                        el_skillName.text = questionSkill.skillID.skillName
+                        el_skillPoints = SubElement(el_skill, 'questionSkillPoints')
+                        el_skillPoints.text= str(questionSkill.questionSkillPoints)
+            
                 # Static Questions
                 staticQuestions = StaticQuestions.objects.filter(questionID=int(question.questionID))
                 if staticQuestions:
@@ -182,12 +205,10 @@ def exportChallenges(request):
                     
                         el_templateDynamicQuestion = SubElement(el_dynamicQuestion, 'TemplateDynamicQuestion')
                         el_templateText = SubElement(el_templateDynamicQuestion, 'templateText')
-                        el_templateText.text = str(templateDynamicQuestion.templateText)
+                        el_templateText.text = templateDynamicQuestion.templateText
                         el_setupCode = SubElement(el_templateDynamicQuestion, 'setupCode')
                         el_setupCode.text = str(templateDynamicQuestion.setupCode)
-
-                        print('templateDynamicQuestion.el_setupCode.text: ', el_setupCode.text)
-
+        
                         # TemplateTextParts
                         templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question)
                         if templateTextParts:                        
@@ -243,7 +264,6 @@ def uploadChallenges(request):
         
         
     if request.method == 'GET':
-        print("In request GET")
         return render(request,'Instructors/ChallengeImport.html', context_dict)
 
     if request.method == 'POST' and len(request.FILES) != 0:            
@@ -266,7 +286,8 @@ def uploadChallenges(request):
     
 def importChallenges(uploadedFileName):
          
-    f = open('media/textfiles/xmlfiles/' + uploadedFileName, 'r') 
+    fname = 'media/textfiles/xmlfiles/' + uploadedFileName
+    f = open(fname, 'r') 
     tree = parse(f)
 
     root = tree.getroot()
@@ -276,7 +297,7 @@ def importChallenges(uploadedFileName):
     for el_challenge in root[0]:
         
         # Handle the challenge element information
-        
+        print(el_challenge)
         # Create new challenge
         challenge = Challenges()  
                        
@@ -295,129 +316,148 @@ def importChallenges(uploadedFileName):
         if not challenge.challengeDifficulty:
             challenge.challengeDifficulty = 'Easy'
         
-        challenge.challengePassword = el_challenge.find('challengePassword').text # Empty string represents no password required.
-        if not challenge.challengePassword:
+        pssd = el_challenge.find('challengePassword') # Empty string represents no password required.
+        if pssd:
+            challenge.challengePassword = pssd.text
+        else:
             challenge.challengePassword = ''
 
         challenge.save()
         
+        # Get Challenge Topics
+        # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB             
+
+        el_challengeTopics = el_challenge.find('ChallengeTopics') 
+        if not el_challengeTopics is None: 
+            for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'):
+                challengeTopic = ChallengesTopics()
+                topic = Topics.objects.filter(topicName=el_challengeTopic.find('topicName').text)
+                if topic:
+                    challengeTopic.topicID = topic[0]
+                challengeTopic.challengeID = challenge
+                challengeTopic.save()
+              
         # Get all ChallengeQuestions
         el_challengeQuestions = el_challenge.find('ChallengeQuestions')        
         for el_challengeQuestion in el_challengeQuestions.findall('ChallengeQuestion'):
-
+            
+            challengeQuestion = ChallengesQuestions()
             # Process Question
-            el_points = el_challengeQuestion.find('points').text
+            challengeQuestion.challengeID = challenge
+            el_points = el_challengeQuestion.find('points')
+            if not el_points is None:
+                challengeQuestion.points = int(el_points.text)
+            else:
+                challengeQuestion.points = 0
+                
             el_question = el_challengeQuestion.find('Question')
+            q_type = int(el_question.find('type').text)
+                        
+            # Process Questions
+            print(q_type)
+            if q_type in [1,2,3,4]:
+                question = StaticQuestions()
+            else:
+                if q_type == 6:
+                    question = DynamicQuestions() 
+                else:
+                    question = TemplateDynamicQuestions() 
             
-#  For some reason inheritance does not work
-
-#             question = Questions()             
-#             question.preview = el_question.find('preview').text
-#             question.instructorNotes = el_question.find('instructorNotes').text
-#             if not question.instructorNotes:
-#                 question.instructorNotes = ''
-#             question.type = int(el_question.find('type').text)            
-#             question.difficulty = el_question.find('difficulty').text
-#             if not question.difficulty:
-#                 question.difficulty = 'Easy'
-#             question.author = el_question.find('author').text           
-#             question.save()
-           
+            question.preview = el_question.find('preview').text
+            question.instructorNotes = el_question.find('instructorNotes').text
+            if not question.instructorNotes:
+                question.instructorNotes = ''
+            question.type = int(el_question.find('type').text)
+             
+            question.difficulty = el_question.find('difficulty').text
+            if not question.difficulty:
+                question.difficulty = 'Easy'
+            question.author = el_question.find('author').text  
+            
+            question.save()
+            
+            # Continue with Static questions    
+            if q_type in [1,2,3,4]:    
             # Process Static question           
-            el_staticQuestion = el_question.find("StaticQuestion")
-            if not el_staticQuestion is None:   
-                #staticQuestion = StaticQuestions(question.questionID)  
-                staticQuestion = StaticQuestions()
-                staticQuestion.preview = el_question.find('preview').text
-                staticQuestion.instructorNotes = el_question.find('instructorNotes').text
-                if not staticQuestion.instructorNotes:
-                    staticQuestion.instructorNotes = ''
-                staticQuestion.type = int(el_question.find('type').text)
-                 
-                staticQuestion.difficulty = el_question.find('difficulty').text
-                if not staticQuestion.difficulty:
-                    staticQuestion.difficulty = 'Easy'
-                staticQuestion.author = el_question.find('author').text  
-                
-                for i in range(0,2):
-                    if el_staticQuestion[i].text:                       
-                        setattr(staticQuestion,el_staticQuestion[i].tag,el_staticQuestion[i].text)
-                    else:
-                        setattr(staticQuestion,el_staticQuestion[i].tag,'')
-                        
-                staticQuestion.save()
-            
-                # Process Answers elements
-                el_answers = el_staticQuestion.find('Answers')
-                if not el_answers is None:
-                    for el_answer in el_answers.findall('Answer'):
-                        
-                        answer = Answers()     
-                        answer.answerText = el_answer.find('answerText').text
-                        print('answer.answerText', answer.answerText)
-                        print('answer-question-ID', staticQuestion.questionID)
-                        answer.questionID = staticQuestion
-                        answer.save()                    
-
-                        # Check if this answer is a correct answer               
-                        el_correctAnswer = el_answer.find('correctAnswer')   
-                        if not el_correctAnswer is None:   
-                            print('el_correctAnswer  found')
-                            correctAnswer = CorrectAnswers()  
-                            correctAnswer.questionID = staticQuestion
-                            correctAnswer.answerID = answer
-                            correctAnswer.save()
-                            print('correct answerID: ', str(correctAnswer.answerID))
+                el_staticQuestion = el_question.find("StaticQuestion")
+                if not el_staticQuestion is None:   
+                    #staticQuestion = StaticQuestions(question.questionID)  
+                                                
+                    for i in range(0,2):
+                        if el_staticQuestion[i].text:                       
+                            setattr(question,el_staticQuestion[i].tag,el_staticQuestion[i].text)
+                        else:
+                            setattr(question,el_staticQuestion[i].tag,'')
+                    
+                    question.save()        
+                    
+                    # Process Answers elements
+                    el_answers = el_staticQuestion.find('Answers')
+                    if not el_answers is None:
+                        for el_answer in el_answers.findall('Answer'):
                             
-                        # Check if this answer has a matching answer
-                        el_matchingAnswer = el_answer.find('matchingAnswer')    
-                        if not el_matchingAnswer is None:
-                            print('el_matchingAnswer  found')                              
-                            matchingAnswer = MatchingAnswers()  
-                            matchingAnswer.matchingAnswerText = el_matchingAnswer.text
-                            matchingAnswer.answerID = answer
-                            matchingAnswer.questionID = staticQuestion
-                            matchingAnswer.save()
-               
-            # Process Dynamic Questions
-            el_dynamicQuestion = el_question.find("DynamicQuestion")
-            if not el_dynamicQuestion is None:  
-                  
-                dynamicQuestion = DynamicQuestions()  
-                
-                dynamicQuestion.preview = el_question.find('preview').text
-                dynamicQuestion.instructorNotes = el_question.find('instructorNotes').text
-                if not dynamicQuestion.instructorNotes:
-                    dynamicQuestion.instructorNotes = ''
-                dynamicQuestion.type = int(el_question.find('type').text)                
-                dynamicQuestion.difficulty = el_question.find('difficulty').text
-                if not dynamicQuestion.difficulty:
-                    dynamicQuestion.difficulty = 'Easy'
-                dynamicQuestion.author = el_question.find('author').text  
+                            answer = Answers()     
+                            answer.answerText = el_answer.find('answerText').text
+                            answer.questionID = question
+                            answer.save()                    
+    
+                            # Check if this answer is a correct answer               
+                            el_correctAnswer = el_answer.find('correctAnswer')   
+                            if not el_correctAnswer is None:   
+                                correctAnswer = CorrectAnswers()  
+                                correctAnswer.questionID = question
+                                correctAnswer.answerID = answer
+                                correctAnswer.save()
+                                print('correct answerID: ', str(correctAnswer.answerID))
                                 
-                dynamicQuestion.numParts = int(el_dynamicQuestion.find('numParts').text)
-                dynamicQuestion.code = el_dynamicQuestion.find('code').text                            
-                print('dynamicQuestion.code: ', dynamicQuestion.code)  
-                dynamicQuestion.save()
-                        
-                # TemplateDynamicQuestions
-                el_templateDynamicQuestion = el_dynamicQuestion.find("TemplateDynamicQuestion")
-
-                if not el_templateDynamicQuestion is None:    
-                    templateDynamicQuestion = TemplateDynamicQuestions(dynamicQuestion.questionID)      
-                    templateDynamicQuestion.templateText = el_dynamicQuestion.find('templateText').text
-                    templateDynamicQuestion.setupCode = el_dynamicQuestion.find('setupCode').text
-                    print('templateDynamicQuestion.templateText: ', templateDynamicQuestion.templateText)  
-                    templateDynamicQuestion.save()
+                            # Check if this answer has a matching answer
+                            el_matchingAnswer = el_answer.find('matchingAnswer')    
+                            if not el_matchingAnswer is None:
+                                matchingAnswer = MatchingAnswers()  
+                                matchingAnswer.matchingAnswerText = el_matchingAnswer.text
+                                matchingAnswer.answerID = answer
+                                matchingAnswer.questionID = question
+                                matchingAnswer.save()            
+            else:
+                # Process Dynamic Questions (#6 or 7)
+                print(q_type)     
+                el_dynamicQuestion = el_question.find("DynamicQuestion")
+                #if not el_dynamicQuestion is None:  
+                print("In Dynamic question")  
+                                
+                question.numParts = int(el_dynamicQuestion.find('numParts').text)
+                question.code = el_dynamicQuestion.find('code').text    
                 
+                question.save()                        
+                print('dynamicQuestion.code: ', question.code)  
+                   
+                if q_type == 7:      
+                # TemplateDynamicQuestions
+                    el_templateDynamicQuestion = el_dynamicQuestion.find("TemplateDynamicQuestion")
+                     
+                    temptext = el_templateDynamicQuestion.find('templateText')
+                    if not temptext is None:                            
+                        text = temptext.text
+                    if not text:
+                        question.templateText = ""
+                    else:
+                        question.templateText = text
+                    code = el_templateDynamicQuestion.find('setupCode')
+                    if not code is None:                            
+                        question.setupCode = code.text
+                    else:
+                        question.setupCode = ""
+    
+                    question.save()    
+                                   
                     # TemplateTextParts
-                    el_templateTextParts = el_dynamicQuestion.find("TemplateTextParts")  
+                    el_templateTextParts = el_templateDynamicQuestion.find("TemplateTextParts")  
                     if not el_templateTextParts is None:
-                        
+                    
                         for el_templateTextPart in el_templateTextParts.findall('TemplateTextPart'):                            
                             templateTextPart = TemplateTextParts()          
                             templateTextPart.partNumber = int(el_templateTextPart.find('partNumber').text)
-                            templateTextPart.dynamicQuestion = templateDynamicQuestion
+                            templateTextPart.dynamicQuestion = question
                             templateTextPart.templateText = el_templateTextPart.find('templateText').text
                             templateTextPart.save()                    
                             print('templateTextPart.templateText: ', templateTextPart.templateText)
@@ -427,26 +467,31 @@ def importChallenges(uploadedFileName):
                     if not el_questionLibraries is None:  
                         for el_questionLibrary in el_questionLibraries.findall('QuestionLibrary'):
                             questionLibrary = QuestionLibrary()                             
-                            questionLibrary.question = dynamicQuestion
+                            questionLibrary.question = question
                             qlibrary = LuaLibrary.objects.get(libarayName=el_questionLibrary.text)
                             questionLibrary.library = qlibrary
                             questionLibrary.save()                    
-                            print('questionLibrary: ', str(questionLibrary.ID))
-                                                       
-            # Save the information in ChallengeQuestion object
-            challengeQuestion = ChallengesQuestions()
-            challengeQuestion.challengeID = challenge
-            if staticQuestion:
-                challengeQuestion.questionID = staticQuestion
-            else:
-                challengeQuestion.questionID = dynamicQuestion
-            challengeQuestion.points = int(el_points)  
-                          
-            print('challengeQuestion: ') 
-            print(challengeQuestion) 
-            challengeQuestion.save()
+                            print('questionLibrary: ', str(questionLibrary.ID))                                                      
 
-    return
+            # Process Skills elements
+            el_skills = el_question.find('Skills')
+            if not el_skills is None:
+                for el_skill in el_skills.findall('Skill'):
+                    questionSkill = QuestionsSkills()
+                    skill = Skills.objects.filter(skillName=el_skill.find('skillName').text)
+                    if skill:
+                        questionSkill.skillID = skill[0]
+                        questionSkill.questionID = question
+                        questionSkill.challengeID = challenge
+                        questionSkill.questionSkillPoints = int(el_skill.find('questionSkillPoints').text)
+                        questionSkill.save()    
+                 
+            # Save the information in ChallengeQuestion object             
+            challengeQuestion.questionID = question
+            challengeQuestion.save()
+   
+    f.close()
+    os.remove(fname)
 
     #return redirect('/oneUp/instructors/instructorCourseHome') 
                  

@@ -10,6 +10,7 @@ from Instructors.views.instructorCourseHomeView import courseLeaderboard
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
 
 from Badges.enums import Event
+from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 
 
@@ -44,6 +45,8 @@ def StudentCourseHome(request):
             context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
             context_dict["displayClassAverage"]=scparams.displayClassAverage
             context_dict["displayClassSkills"]=scparams.displayClassSkills
+        
+        context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
            
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.userLogin, request, None, None)

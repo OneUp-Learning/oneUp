@@ -5,41 +5,38 @@ Created on Sep 6, 2014
 '''
 from django.shortcuts import render
 
-from django.template import RequestContext
-from django.shortcuts import render
-
 from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Courses, Challenges, StaticQuestions
 from Students.models import Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
-import random 
-from _ctypes import Array
-from _ast import Str
+from Students.views.utils import studentInitialContextDict
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 @login_required
 def SelectedChallengeTaken(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
-    
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username       
-    
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-        student = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage          
+    context_dict,currentCourse = studentInitialContextDict(request)
+
+#     context_dict = { }
+#     
+#     context_dict["logged_in"]=request.user.is_authenticated()
+#     if request.user.is_authenticated():
+#         context_dict["username"]=request.user.username       
+#     
+#     # check if course was selected
+#     if not 'currentCourseID' in request.session:
+#         context_dict['course_Name'] = 'Not Selected'
+#         context_dict['course_notselected'] = 'Please select a course'
+#     else:
+#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+#         context_dict['course_Name'] = currentCourse.courseName
+#         student = Student.objects.get(user=request.user)   
+#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+#         context_dict['avatar'] = st_crs.avatarImage          
         
-        #Displaying the questions in the challenge which the student has opted 
-        
+    #Displaying the questions in the challenge which the student has opted 
+    if 'currentCourseID' in request.session:    
+       
         questionObjects= []
         
         useranswerObjects = []
@@ -57,19 +54,18 @@ def SelectedChallengeTaken(request):
                 studentChallengeId = request.GET['studentChallengeID']
                 context_dict['studentChallengeID'] = request.GET['studentChallengeID']
             else:
-                user = User.objects.filter(username=request.GET['userID'])
-                studentId = Student.objects.filter(user=user)
+#                 user = User.objects.filter(username=request.GET['userID'])
+#                 studentId = Student.objects.filter(user=user)
+                student = context_dict['student']
                 challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
-                studentChallengeId = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge.challengeID)
+                studentChallengeId = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challenge.challengeID)
                 
             challengeId = request.GET['challengeID']
-            #challengeName = 
             chall = Challenges.objects.get(pk=int(challengeId))
             challengeName = chall.challengeName
             
             
             challenge_questions = StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallengeId)
-            print('here',challenge_questions)
             for challenge_question in challenge_questions:
                 print("challenge_question.questionID: "+str(challenge_question.questionID))
                 questionObjects.append(challenge_question.questionID)
@@ -85,13 +81,11 @@ def SelectedChallengeTaken(request):
                 #studentAnswerId = StudentChallengeQuestions.objects.get(studentChallengeID=studentChallengeId, questionID=q)
                 studentAnswers = StudentChallengeAnswers.objects.filter(studentChallengeQuestionID=answer_Id)
                 matchShuffled = MatchShuffledAnswers.objects.filter(studentChallengeQuestionID=answer_Id)
-                #if len(studentAnswer)>1:
                 
                 for stuAns in studentAnswers:
                     answer_list.append(stuAns.studentAnswer)
                 useranswerObjects.append(answer_list)
-                #else:
-                #useranswerObjects.append(studentAnswer.studentAnswer)
+ 
                 print("user answers:"+str(useranswerObjects))
                 
                 for matAns in matchShuffled:
@@ -133,10 +127,6 @@ def SelectedChallengeTaken(request):
             context_dict['challengeID']= challengeId
             context_dict['chall_Name'] = challengeName        
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist,useranswerObjects,matchanswerObjects,questionScoreObjects,questionTotalObjects)
-            
-        
-
-
-    
+               
     return render(request,'Students/SelectedChallengeTaken.html', context_dict)
 

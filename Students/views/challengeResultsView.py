@@ -12,6 +12,7 @@ from time import strftime
 from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Challenges, Courses
 from Instructors.models import ChallengesQuestions, MatchingAnswers, QuestionsSkills
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
+from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
 
@@ -58,23 +59,26 @@ def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instru
 @login_required
 def ChallengeResults(request):
  
-    context_dict = { }
-    
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username       
-    
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-        student = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage                  
-        
+    context_dict,currentCourse = studentInitialContextDict(request)
+
+#     context_dict = { }
+#     
+#     context_dict["logged_in"]=request.user.is_authenticated()
+#     if request.user.is_authenticated():
+#         context_dict["username"]=request.user.username       
+#     
+#     # check if course was selected
+#     if not 'currentCourseID' in request.session:
+#         context_dict['course_Name'] = 'Not Selected'
+#         context_dict['course_notselected'] = 'Please select a course'
+#     else:
+#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+#         context_dict['course_Name'] = currentCourse.courseName
+#         student = Student.objects.get(user=request.user)   
+#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+#         context_dict['avatar'] = st_crs.avatarImage                  
+
+    if 'currentCourseID' in request.session:            
         user_dict = { } #dictionary to store user answers, grade them (except for matching) and send them to html page  
         match_sorted = {} #dictionary for saving the sorted order of the matching answer texts and also using it while grading
         instructorFeedback = "None" #Intially by default its saved none.. Updated after instructor's evaluation
@@ -421,7 +425,7 @@ def ChallengeResults(request):
             register_event(Event.endChallenge,request,studentId,challengeId)
             print("Registered Event: End Challenge Event, Student: " + str(studentId) + ", Challenge: " + str(challengeId))
             
-             # The range part is the index numbers.     
+            # The range part is the index numbers.     
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist,useranswerObjects,matchquestionObjects,questionScore_list,questionTotal_list)
             context_dict['score_range'] = score_list
             context_dict['total_range'] = total_list

@@ -3,14 +3,13 @@ Created on Oct 1, 2015
 
 @author: Alex
 '''
-from django.template import RequestContext
-from django.shortcuts import render
 
-from Instructors.models import Courses, Topics, CoursesTopics, ChallengesTopics, Challenges
-from Students.models import StudentChallenges, Student, StudentRegisteredCourses
+from django.shortcuts import render
+from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges
+from Students.models import StudentChallenges, Student
 from django.contrib.auth.models import User
-from datetime import datetime
-#from numpy import maximum
+from Students.views.utils import studentInitialContextDict
+
 
 from django.contrib.auth.decorators import login_required
 
@@ -19,32 +18,36 @@ def ChallengesWarmUpList(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict,currentCourse = studentInitialContextDict(request)
+    #context_dict = { }
     
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username      
+    #context_dict["logged_in"]=request.user.is_authenticated()
+    #if request.user.is_authenticated():
+    #    context_dict["username"]=request.user.username      
     
     # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourseId = int(request.session['currentCourseID'])
-        currentCourse = Courses.objects.get(pk=currentCourseId)
-        context_dict['course_Name'] = currentCourse.courseName
-        student = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage          
+    #if not 'currentCourseID' in request.session:
+    #    context_dict['course_Name'] = 'Not Selected'
+    #    context_dict['course_notselected'] = 'Please select a course'
+    #else:
+    #    currentCourseId = int(request.session['currentCourseID'])
+    #    currentCourse = Courses.objects.get(pk=currentCourseId)
+    #    context_dict['course_Name'] = currentCourse.courseName
+    #    student = Student.objects.get(user=request.user)   
+    #    st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+    #    context_dict['avatar'] = st_crs.avatarImage          
         
-        user = User.objects.filter(username=request.user.username)
-        studentId = Student.objects.filter(user=user)
+    if 'currentCourseID' in request.session:    
+#         user = User.objects.filter(username=request.user.username)
+#         studentId = Student.objects.filter(user=user)
+        
+        student = context_dict['student']
                 
         topic_ID = []      
         topic_Name = [] 
         all_challenges = []
         
-        course_topics = CoursesTopics.objects.filter(courseID=currentCourseId)
+        course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
         for t in course_topics:
             
             tID = t.topicID.topicID
@@ -64,8 +67,8 @@ def ChallengesWarmUpList(request):
                         challenge_ID.append(chall)
                         challenge_Name.append(ct.challengeID.challengeName)
     
-                        if StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=chall):
-                            item = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=chall)
+                        if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=chall):
+                            item = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=chall)
                             gradeID  = []
                             
                             for sc in item:

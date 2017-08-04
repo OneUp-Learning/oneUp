@@ -1,21 +1,18 @@
 #
-# Last updated 01/29/2016
+#  Updated 01/29/2016
+#  Last updated 07/14/2017
 #
 
-from django.template import RequestContext
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Questions, StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, Courses, CoursesSkills
-from Instructors.models import Skills, QuestionsSkills, Challenges, ChallengesQuestions
+from Instructors.models import StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, Courses, CoursesSkills
+from Instructors.models import Challenges, ChallengesQuestions
 
 from Instructors.views import utils
-from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
-
-#MatchingQuestionType = QuestionTypes.objects.get(pk=3)
 
 @login_required
 def matchingForm(request):
@@ -53,19 +50,8 @@ def matchingForm(request):
     ansChecked = []    #Whether or not existing answer is the correct one.
     matchText = []     #Text for existing matching answers
 
-    skill_ID = []
-    skill_Name = []
-
-    # Fetch the skills for this course from the database.
-    course_skills = CoursesSkills.objects.filter(courseID=currentCourse)
-         
-    for s in course_skills:
-        skill_ID.append(s.skillID.skillID)
-        skill_Name.append(s.skillID.skillName)
-    
-    # The range part is the index numbers.
-    context_dict['skill_range'] = zip(range(1,course_skills.count()+1),skill_ID,skill_Name)    
-    
+    context_dict['skills'] = utils.getCourseSkills(currentCourse)
+   
     if request.POST:
         # If there's an existing question, we wish to edit it.  If new question,
         # create a new Question object.
@@ -97,15 +83,6 @@ def matchingForm(request):
         # The number of answers is always sent.
         num_answers = int(request.POST['numAnswers'])
         
-        # The index of the correct answer.
-        if 'correctAnswer' in request.POST:
-            correct_answer = int(request.POST['correctAnswer'])
-        else:
-            correct_answer = 1
-            
-        # The index of the correct answer.
-        #correct_answer = int(request.POST['correctAnswer'])
-
         answers = set()
         mAnswers = set()
 
@@ -118,14 +95,14 @@ def matchingForm(request):
                 answer.save()
                 answers.add(answer)
             else:
-            	answer = Answers()
-            	answer.questionID = question
-            	answer.answerText = request.POST['answer'+str(x)]
+                answer = Answers()
+                answer.questionID = question
+                answer.answerText = request.POST['answer'+str(x)]
                 
             if (answer.answerText): # Save only if there is text.
                 answer.save();
                 answers.add(answer)
-            	
+ 
             mAnswer = MatchingAnswers()
             mAnswer.answerID = answer
             mAnswer.matchingAnswerText = request.POST['matchingAnswer'+str(x)]
@@ -134,7 +111,7 @@ def matchingForm(request):
                 mAnswer.save()
                 mAnswers.add(mAnswer)
 
-		# Note: in current version if the user selects a blank field as
+        # Note: in current version if the user selects a blank field as
         # the correct answer, errors may result.
         
         # Get the answers currently in the database
@@ -144,7 +121,7 @@ def matchingForm(request):
             if existingAnswer not in answers:
                 existingAnswer.delete()
                                 
-        #same for the matching answers
+        # Same for the matching answers
         # Get the matching answers currently in the database
         existingMatchAnswers = MatchingAnswers.objects.filter(questionID=question)
         for existingMatchAnswer in existingMatchAnswers:
@@ -153,7 +130,7 @@ def matchingForm(request):
                 
         # Call made from the Challenge page: must include points  for the question for this challenge
         if 'challengeID' in request.POST:
-            # save in ChallengesQuestions if not already saved        # 02/28/2015    
+            # save in ChallengesQuestions if not already saved            
   
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
@@ -162,19 +139,11 @@ def matchingForm(request):
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']))
-
-                    #save question-skill pair to db                    # 03/01/2015
-            # first need to check whether a new skill is selected 
-            
-            if request.session['currentCourseID']:          # we presume the course is selected!!!!!!!!!!!!!!!!!!!!!!!!!
-                courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
-                
-                # Processing and saving skills for the question in DB
-                skillString = request.POST.get('newSkills', "default")
-                utils.saveQuestionSkills(skillString, question, challenge)
+                    
+            # Processing and saving skills for the question in DB
+            utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
-
-        # Processing and saving tags in DB                        #AA 3/24/15
+        # Processing and saving tags in DB                        
         tagString = request.POST.get('tags', "default")
         utils.saveQuestionTags(tagString, question)
                                   
@@ -232,16 +201,17 @@ def matchingForm(request):
 
                 # Extract the tags from DB            
                 context_dict['tags'] = utils.extractTags(question, "question")
-                # Extract the skill                                        
-                context_dict['all_Skills'] = utils.extractSkills(question, "question")
                 
                 if 'challengeID' in request.GET:
                     # get the points to display
                     challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
                     context_dict['points'] = challenge_questions[0].points
                     
-                    # set default skill points - 1                             # 03/17/2015 
+                    # set default skill points - 1                              
                     context_dict['q_skill_points'] = int('1')
+
+                    # Extract the skill                                        
+                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
             
     if 'challengeID' in request.GET:
         print('challengeID  '+request.GET['challengeID']) 
@@ -255,14 +225,13 @@ def matchingForm(request):
             ansValue.append("")
             ansPK.append("")
             ansChecked.append("")
-            matchText.append("")  #DD
+            matchText.append("")  
 
     context_dict['num_answers'] = num_answers
     # The range part is the index numbers.
     context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked,matchText)
     
     if 'questionId' in request.POST:         
-        #return redirect('challengeEditQuestionsView')
         return redirect('challengesView')
-    #else:
+
     return render(request,'Instructors/MatchingForm.html', context_dict)

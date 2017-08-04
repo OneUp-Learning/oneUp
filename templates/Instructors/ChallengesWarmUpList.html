@@ -1,0 +1,97 @@
+ <!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+         {% include 'scripts.html' %} 
+     
+      <script type="text/javascript">
+         function goToNewPage()
+         {
+             var url1 = document.getElementById('qtype').value;
+             var url2 = document.getElementById('list').value;
+             if(url1 != 'none') 
+             {
+                 window.location = url1;
+                 url1='none'
+             }
+             else
+             {
+                 window.location = url2;
+                 url2='none'
+             }
+             
+         }
+      </script>
+		
+   </head>
+   <body>
+      <!-- START PAGE SOURCE -->
+
+      <div>
+
+          {% include 'heading.html' %}
+   
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+            <div class="12u">
+               <h1>Warm Up Challenges</h1>
+			</div></div>
+			<div class="row">
+            <div class="12u">
+                  <!-- INSERTED DYNAMIC TABLE --> 
+
+			  <a href="/oneUp/instructors/challengeCreate?warmUp"><input type="button" value="Add New Warm Up Challenge"></a>    
+			  <br /> <br />
+			  
+		      <table class="bg">		      
+		
+				{% for i,topic_ID,topic_Name, all_challenges in topic_range %}
+		
+				<tr> 
+					<input type="hidden" name="topicID" value="{{topic_ID}}">
+					<td><b>{{topic_Name}}</b></td>
+<!-- 					<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
+				</tr>
+				<tr>
+				  <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				  <td>
+					<table>
+                     {% for j,chall_ID,chall_Name, chall_Difficulty, chall_visible in all_challenges %}
+                     <tr style="background-color: {% cycle '#EDF0F2' '#ffffff' %}; line-height: 20px;">
+                        <div id="challenges{{j}}">
+                           <td>{{chall_Name}}</td>
+                           <td>{{chall_Difficulty}}</td>
+                           <td>{{chall_visible}}</td>
+                           <td align="right">
+
+	                            <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
+	                            {% csrf_token %} 
+	                               <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><input type="button" class="table" value="View"></a>                 
+	                               <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a> 
+	                               <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                            
+                                 <input type="hidden" name="challengeID" value="{{chall_ID}}">
+                                 <input type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?')">
+                              </form>
+                             </td>
+                          </div>
+                       </tr>
+                       {% endfor %}
+					 </table>	
+				  </td>										
+				</tr>
+				{% endfor %}
+			</table>
+
+           <!-- END DYNAMIC TABLE -->
+         </div></div></div></div>
+      </div>
+      <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+     </div>
+
+   </body>
+</html>

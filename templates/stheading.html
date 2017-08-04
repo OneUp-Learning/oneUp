@@ -14,12 +14,16 @@
 								<li class="nav_second_level_items">
 								   <a	href="/oneUp/students/CourseInformation">Course Description</a>
 								</li>
+								{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
 								<li class="nav_second_level_items">
 									<a href="/oneUp/badges/CourseBadges">Course Badges</a>
 								</li>
+								{%endif%}
+								{%if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
 								<li class="nav_second_level_items">
 									<a href="/oneUp/students/VirtualCurrencyRules">Currency Rules</a>
 								</li>
+								{%endif%}
 							</ul></li>
 						<li class="nav_top_level_items"><a
 							href="/oneUp/students/ChallengesWarmUpList">Warm Up
@@ -28,6 +32,7 @@
 							href="/oneUp/students/ChallengesList">Serious Challenges</a></li>
 						<li class="nav_top_level_items"><a
 							href="/oneUp/students/CoursePerformance">Course Performance</a>
+						{%if ccparams.gamificationUsed %}
 						<li class="nav_top_level_items"><a
 							href="/oneUp/students/achievements">Achievements</a></li>
 						<li class="nav_top_level_items">
@@ -44,7 +49,8 @@
                                 </li>
 							</ul>
 						</li>
-						{% if logged_in %}
+						{%endif%}
+						{% if logged_in and ccparams.gamificationUsed and ccparams.avatarUsed%}
 						 <a class="nav_avatar" href="" title="avatar" style="border-bottom:0">
 						 <img src="{{avatar}}" alt="Avatar" width="54" height="54" style="border:1px solid black">
 						 </a>

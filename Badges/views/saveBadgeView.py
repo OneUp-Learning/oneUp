@@ -10,9 +10,10 @@ from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges
 from Badges.models import ActionArguments, Conditions, Rules, Badges, RuleEvents
-from Badges.enums import Action, Event, OperandTypes , SystemVariable
+from Badges.enums import Action, Event, OperandTypes
+from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
-    cond_from_mandatory_cond_list
+    cond_from_mandatory_cond_list, stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
 
@@ -42,6 +43,7 @@ def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.
     return get_events_for_system_variable(conditionOperandValue)[0]
 
+@login_required
 def SaveBadge(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -70,65 +72,9 @@ def SaveBadge(request):
             print("badge description: "+str(badgeDescription))
             badgeImage = request.POST['badgeImage'] # The Chosen Badge Image Name
             print("badge image: "+str(badgeImage))
-            conditionOperand1Value = request.POST['cond1_operand1Value'] # The chosen system variable 
-            print("cond1_operand1Value: "+str(conditionOperand1Value))
-            conditionOperation = request.POST['cond1_operation'] # The chosen operation 
-            print("cond1_operation: "+str(conditionOperation))
-            print("cond1_operand2TypeSelector: " + request.POST['cond1_operand2TypeSelector'])
-            if request.POST['cond1_operand2TypeSelector'] == 'constant':
-                conditionOperand2Type = OperandTypes.immediateInteger
-                conditionOperand2Value = request.POST['cond1_operand2Value'] 
-                if  conditionOperand2Value =='':
-                    conditionOperand2Value ='0'
-            else:
-                conditionOperand2Type =  OperandTypes.systemVariable   
-                conditionOperand2Value = request.POST['cond1_operand2Variable']
-            print("cond1_operand2Value: "+str(conditionOperand2Value))
-        
-            conditions = []
-        
-            print('numConds:'+request.POST['numConditions'])
-            # Loop through all of the conditions.
-            for i in range(1,int(request.POST['numConditions'])+1): 
-                istr = str(i)                               
-                # Create New Condition
-                newCondition = Conditions()
-                newCondition.operation = request.POST['cond'+istr+'_operation']
-                newCondition.operand1Type = OperandTypes.systemVariable
-                newCondition.operand1Value = request.POST['cond'+istr+'_operand1Value']
-                print('newConditionOpenadType: systemVariable'+istr)
-                print('newConditionOperand1Value: '+str(newCondition.operand1Value))
                 
-                # Check if the second operand is a constant or a system variable and assign the appropriate type and value of operand 
-                if request.POST['cond'+istr+'_operand2TypeSelector'] == "constant":
-                    newCondition.operand2Type = OperandTypes.immediateInteger
-                    newCondition.operand2Value = request.POST['cond'+istr+'_operand2Value']
-                else:
-                    newCondition.operand2Type =  OperandTypes.systemVariable   
-                    newCondition.operand2Value = request.POST['cond'+istr+'_operand2Variable']
-
-                print('newCondition.operand2Type: '+str(newCondition.operand2Type))
-                print('newCondition.operand2Value: '+str(newCondition.operand2Value))
-                print("")
-                newCondition.save()
-                
-                conditions.append(newCondition)
-            
-            # If a particular challenge was specified, this needs to be added to the condition
-            assignChallenges = str(request.POST['assignChallenges'])
-            if (assignChallenges == '2'):
-                specificChallenge = request.POST['specChallenge']
-                challenge = Challenges.objects.get(challengeID=specificChallenge)
-                challenge_cond = Conditions()
-                challenge_cond.operation = '=='
-                challenge_cond.operand1Type = OperandTypes.systemVariable
-                challenge_cond.operand1Value = SystemVariable.challengeId
-                challenge_cond.operand2Type = OperandTypes.immediateInteger
-                challenge_cond.operand2Value = challenge.challengeID
-                challenge_cond.save()
-                conditions.append(challenge_cond)
-                
-            badgeCondition = cond_from_mandatory_cond_list(conditions)   
+            badgeCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,currentCourse)
+            print(badgeCondition)
                 
             # Save game rule to the Rules table
             gameRule = Rules()
@@ -151,7 +97,7 @@ def SaveBadge(request):
             badgeInformation.badgeName = badgeName
             badgeInformation.badgeDescription = badgeDescription
             badgeInformation.badgeImage = badgeImage
-            badgeInformation.assignToChallenges = assignChallenges
+            badgeInformation.assignToChallenges = 1  # TODO: delete this field from the model
             badgeInformation.save()
             
             badgeId = badgeInformation
@@ -164,32 +110,7 @@ def SaveBadge(request):
                 actionArgument.argumentValue =  badgeId.badgeID
                 actionArgument.save()
                 
-            # The BadgeChallenges table is problematic because it moves information needed to evaluate the correctness
-            # of a condition out of the condition itself and because the semantics of the association are unclear.
-            # This idea (associating a badge with a group of specific challenges) is going on our TODO list, but
-            # for right now does not make sense in the context of the existing Game engine.
-            # As a result, all of the following code has been removed.
-            # It has been replaced with code farther up above which assumes that at most one challenge can be
-            # chosen.  The template has been changed to only allow that as well.
-            #if (str(assignChallenges) == '2'):                   
-            #    # Save the badge-challenges relationships to the BadgeChallenges table
-            #    assignToChallenges = request.POST.getlist('specChallenges')
-            #    for j in range(0,len(assignToChallenges)):
-            #        badgeChallenge = BadgeChallenges()
-            #        badgeChallenge.badgeID = badgeId
-            #        badgeChallenge.challengeID = Challenges.objects.get(challengeID=assignToChallenges[j])
-            #        badgeChallenge.save()
-            #        print("Print the specific challenges: ")
-            #        print(str(badgeChallenge))
-            #            
-            #elif (str(assignChallenges) == '1'):
-            #    # Save the badge-challenges relationships to the BadgeChallenges table
-            #    allChallenges = Challenges.objects.all()
-            #    for challenge in allChallenges:
-            #        badgeChallenge = BadgeChallenges()
-            #        badgeChallenge.badgeID = badgeId
-            #        badgeChallenge.challengeID = challenge
-            #        badgeChallenge.save()
+
                 
     return redirect("/oneUp/badges/Badges")
     

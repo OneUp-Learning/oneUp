@@ -232,8 +232,11 @@ def achievements(request):
 
         currentEarnedPoints = earnedPointsSeriousChallenges + earnedActivityPoints
         currentTotalPoints = totalPointsSeriousChallenges + totalActivityPoints
-        missedPoints = currentTotalPoints - currentEarnedPoints        
-        projectedEarnedPoints = round(currentEarnedPoints * totalMilestonePoints/currentTotalPoints)
+        missedPoints = currentTotalPoints - currentEarnedPoints 
+        if not currentTotalPoints == 0:      
+            projectedEarnedPoints = round(currentEarnedPoints * totalMilestonePoints/currentTotalPoints)
+        else:
+            projectedEarnedPoints = 0
         remainingPointsToEarn = totalMilestonePoints - currentTotalPoints
         
         print("totalMilestonePoints",totalMilestonePoints)

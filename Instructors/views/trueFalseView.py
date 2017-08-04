@@ -1,24 +1,20 @@
 #
 # Last updated 01/29/2016
+# Last updated 07/14/2017
 #
 
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 
-from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Courses, CoursesSkills
-from Instructors.models import Skills, QuestionsSkills, Challenges, ChallengesQuestions
+from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses
+from Instructors.models import Challenges, ChallengesQuestions
 
 from Instructors.views import utils
-from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
 
-#TrueFalseQuestionType = QuestionTypes.objects.get(pk=4)
-
 @login_required
 def trueFalseNewForm(request):
-
  
     context_dict = { }
     
@@ -51,23 +47,10 @@ def trueFalseNewForm(request):
     ansValue = []      #Text for existing answers
     ansPK = []         #PK for existing answers
     ansChecked = []    #Whether or not existing answer is the correct one.
-    num_answers = 2 #'true' and 'false'
+    num_answers = 2    #'true' and 'false'
     
-    skill_ID = []
-    skill_Name = []
-
-    # Fetch the skills for this course from the database.
-    course_skills = CoursesSkills.objects.filter(courseID=currentCourse)
-         
-    for s in course_skills:
-        skill_ID.append(s.skillID.skillID)
-        skill_Name.append(s.skillID.skillName)
+    context_dict['skills'] = utils.getCourseSkills(currentCourse)
     
-    # The range part is the index numbers.
-    context_dict['skill_range'] = zip(range(1,course_skills.count()+1),skill_ID,skill_Name)
-    
-
-
     if request.POST:
 
         # If there's an existing question, we wish to edit it.  If new question,
@@ -89,13 +72,13 @@ def trueFalseNewForm(request):
         # Fix the question type
         question.type = QuestionTypes.trueFalse
         
-        # get the author                            # 03/10/2015
+        # get the author                            
         if request.user.is_authenticated():
             question.author = request.user.username
         else:
             question.author = ""
-        #question.author = "admin" 
-        question.save();  #Writes to database.
+
+        question.save();  
         
         # The index of the correct answer.
         if 'correctAnswer' in request.POST:
@@ -147,15 +130,8 @@ def trueFalseNewForm(request):
             challenge = Challenges.objects.get(pk=int(challengeID))
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']))
 
-            # save question-skill pair to db                    # 03/01/2015
-            # first need to check whether a new skill is selected 
-            
-            if request.session['currentCourseID']:          # we presume the course is selected!!!!!!!!!!!!!!!!!!!!!!!!!
-                courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
-                
-                # Processing and saving skills for the question in DB
-                skillString = request.POST.get('newSkills', "default")
-                utils.saveQuestionSkills(skillString, question, challenge)
+            # Processing and saving skills for the question in DB
+            utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
             tagString = request.POST.get('tags', "default")
@@ -211,10 +187,6 @@ def trueFalseNewForm(request):
                 # Extract the tags from DB            
                 context_dict['tags'] = utils.extractTags(question, "question")
                 
-                # Extract the skill                                        
-                context_dict['all_Skills'] = utils.extractSkills(question, "question")
-
-                
                 if 'challengeID' in request.GET:
                     # get the challenge points for this problem to display
                     challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
@@ -223,10 +195,10 @@ def trueFalseNewForm(request):
                     # set default skill points - 1
                     context_dict['q_skill_points'] = int('1')
  
-            
-#         if 'challengeID' in request.GET:
-#             print('challengeID  '+request.GET['challengeID'])
-                
+                    # Extract the skill                                        
+                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
+
+                            
     # If we didn't run that code to load the values for the answers, then we make
     # blank lists.  We do this because we need to use a zipped list and a for
     # in order for the template stuff to be happy with us.  Doing that requires that
@@ -240,8 +212,7 @@ def trueFalseNewForm(request):
         context_dict['num_answers'] = num_answers
         # The range part is the index numbers.
         context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked)
-        #print(','.join(map(str,context_dict['answer_range'])))
-    
+     
         if 'questionId' in request.POST:         
             return redirect('challengesView')
     

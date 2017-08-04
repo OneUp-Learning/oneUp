@@ -1,9 +1,8 @@
 from datetime import datetime
 from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities
-from Badges.enums import Event, OperandTypes, SystemVariable, Action
-from pip.cmdoptions import verbose
-
+from Badges.enums import Event, OperandTypes, Action
+from Badges.systemVariables import SystemVariable
 
 # Create your models here.
  
@@ -32,11 +31,12 @@ from pip.cmdoptions import verbose
 # Conditions Table
 class Conditions(models.Model):
     conditionID = models.AutoField(primary_key=True)
-    operation = models.CharField(max_length=100) # ==, >, <, >=, <=, !=, AND, OR, NOT
-    operand1Type = models.IntegerField() # 1. immediate value (integer), 2. reference to the same Condition table, 3. reference to float constant, 4. reference to string constant, 5. reference to SystemVariables table 
+    operation = models.CharField(max_length=100) # =, >, <, >=, <=, !=, AND, OR, NOT, FOR_ALL, FOR_ANY
+    operand1Type = models.IntegerField() # See OperandTypes in Badges/enums.py for an explanation of meaning.
     operand1Value = models.IntegerField()
-    operand2Type = models.IntegerField() # 1. immediate value (integer), 2. reference to the same Condition table, 3. reference to float constant, 4. reference to string constant, 5. reference to SystemVariables table 
+    operand2Type = models.IntegerField() # See OperandTypes in Badges/enums.py for an explanation of meaning.
     operand2Value = models.IntegerField()
+    courseID = models.ForeignKey(Courses, verbose_name = "The course this condition belongs to", db_index=True, on_delete=models.CASCADE, default=0)
     def __str__(self):
         def operandToString(type,value):
             if (type == OperandTypes.immediateInteger):
@@ -52,6 +52,32 @@ class Conditions(models.Model):
                     if 'name' in SystemVariable.systemVariables[value]:
                         return SystemVariable.systemVariables[value]['name']
                 return "INVALID: Invalid SystemVariable value"
+            elif (type == OperandTypes.challengeSet):
+                if value == 0:
+                    return "All challenges"
+                else:
+                    output = "Challenge Set {"
+                    for challengeSet in ChallengeSet.objects.filter(condition=self):
+                        output += str(challengeSet.challenge) + ','
+                    output += '}'
+                    return output
+            elif (type == OperandTypes.activitySet):
+                if value == 0:
+                    return "All activities"
+                else:
+                    output = "Activity Set {"
+                    for activitySet in ActivitySet.objects.filter(condition=self):
+                        output += str(activitySet.activity) + ','
+                    output += '}'
+                    return output
+            elif (type == OperandTypes.conditionSet):
+                output = "Condition Set {"
+                for conditionSet in ConditionSet.objects.filter(parentCondition=self):
+                    output += str(conditionSet.conditionInSet.conditionID) + ','
+                output += '}'
+                return output
+            elif (type == OperandTypes.noOperand):
+                return ''
             return "INVALID: Invalid Operand Value."
         
         return "Cond#"+str(self.conditionID)+"("+operandToString(self.operand1Type,self.operand1Value)+" "+str(self.operation)+" "+operandToString(self.operand2Type,self.operand2Value)+')'
@@ -115,9 +141,9 @@ class RuleEvents(models.Model):
     event = models.IntegerField(default=0,db_index=True)
     def __str__(self):
         if self.event in Event.events:
-            return "(Rule#:"+str(int(self.rule.ruleID))+":Event "+str(Event.events[self.event]["name"])+")"
+            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by Event "+str(Event.events[self.event]["name"])+")"
         else:
-            return "(Rule#:"+str(int(self.rule.ruleID))+":INVALID EVENT)"
+            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by INVALID EVENT)"
 
         
 # Action-Arguments Table
@@ -227,6 +253,7 @@ class CourseConfigParams(models.Model):
     ccpID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
 
+    gamificationUsed = models.BooleanField(default=False) 
     badgesUsed = models.BooleanField(default=False)                   ## The badgesUsed is for instructor dashboard purposes and system uses as well
     studCanChangeBadgeVis = models.BooleanField(default=False)        ## The studCanChangeBadgeVis is for allowing student to configure student dashboard visibility only
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
@@ -289,6 +316,22 @@ class CourseConfigParams(models.Model):
         +str(self.thresholdsToLevelMedium) +","
         +str(self.thresholdsToLevelDifficulty)
  
-
-
-        
+class ChallengeSet(models.Model):
+    condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
+    challenge = models.ForeignKey(Challenges,verbose_name="the challenge included in the set",db_index=True,on_delete=models.CASCADE)
+    def __str__(self):
+        return "ChallengeSet for Condition: "+str(self.condition)+" includes Challenge: "+str(self.challenge)
+     
+class ActivitySet(models.Model):
+    condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activities,verbose_name="the activity included in the set",db_index=True,on_delete=models.CASCADE)
+    def __str__(self):
+        return "ActivitySet for Condition: "+str(self.condition)+" includes Activity: "+str(self.activity)
+    
+class ConditionSet(models.Model):
+    parentCondition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE,
+                                        related_name="parentCondition")
+    conditionInSet = models.ForeignKey(Conditions,verbose_name="the condition which is part of this set",db_index=True,on_delete=models.CASCADE)
+    def __str__(self):
+        return "ConditionSet for Condition: "+str(self.parentCondition)+" includes Condition: "+str(self.conditionInSet)
+    

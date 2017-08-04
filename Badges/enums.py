@@ -1,4 +1,3 @@
-
 # Function which takes a dictionary of dictionaries and converts them into a zipped list containing the specified fields.
 def dict_dict_to_zipped_list(d,fields):
     output = []
@@ -286,154 +285,27 @@ class displayCircumstance():
     badges = 9301
     virtualCurrency = 9302
 
-class SystemVariable():
-    numAttempts = 901 # The total number of attempts that a student has given to a challenge
-    testScore = 902 # The score for the challenge
-    percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
-    maxTestScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
-    minTestScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
-    dateOfFirstAttempt = 906 # The date on which the student has attempted a particular challenge for the first time.
-    timeSpentOnChallenges = 907 # Time spent on a particular challenge.
-    timeSpentOnQuestions = 908 # Time spent on a particular question. 
-    consecutiveDaysLoggedIn = 909 # The number of consecutive days a student logs in to the One Up website
-    activitiesCompleted = 910 # The number of activities a student has completed for a particular course
-    challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
-    numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier
-    numDaysSubmissionLate = 913 #Number of days an assignment is submitted late
-    consecutiveDaysWarmUpChallengesTaken = 914  #Consecutive days warm up challenges are taken
-    consecutiveWeeksOnLeaderboard = 915 #Consecutive weeks on the leaderboard
-    consecutiveClassesAttended = 916 #The number of consecutive classes a student has attended
-    
-    systemVariables = {
-                       numAttempts:{
-                                    'index': numAttempts,
-                                    'name':'numAttempts',
-                                    'displayName':'Number of Attempts',
-                                    'description':'The total number of attempts that a student has given to a challenge',
-                                    'eventsWhichCanChangeThis':[Event.endChallenge],
-                                    'displayCircumstances':{displayCircumstance.badges: True, displayCircumstance.virtualCurrency: True}
-                                    },
-                       testScore:{
-                                  'index': testScore,
-                                  'name':'testScore',
-                                  'displayName':'Challenge Score',
-                                  'description':'The score for the challenge',
-                                  'eventsWhichCanChangeThis':[Event.endChallenge],
-                                  'displayCircumstances':{displayCircumstance.badges: True, displayCircumstance.virtualCurrency: True}
-                                  },
-                       percentageCorrect:{
-                                          'index': percentageCorrect,
-                                          'name':'percentageCorrect',
-                                          'displayName':'Percentage Correct',
-                                          'description':'The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge',
-                                          'eventsWhichCanChangeThis':[Event.endChallenge],
-                                          'displayCircumstances':{displayCircumstance.badges: True}
-                                          },
-                       maxTestScore:{
-                                     'index': maxTestScore,
-                                     'name':'maxTestScore',
-                                     'displayName':'Maximum Challenge Score',
-                                     'description':"The maximum of the test scores of all the student's attempts for a particular challenge",
-                                     'eventsWhichCanChangeThis':[Event.challengeExpiration],
-                                     'displayCircumstances':{displayCircumstance.badges: True}
-                                     },
-                       minTestScore:{
-                                     'index': minTestScore,
-                                     'name':'minTestScore',
-                                     'displayName':'Minimum Challenge Score',
-                                     'description':"The minimum of the test scores of all the student's attempts for a particular challenge",
-                                     'eventsWhichCanChangeThis':[Event.challengeExpiration],
-                                     'displayCircumstances':{displayCircumstance.badges: True}
-                                     },
-                       dateOfFirstAttempt:{
-                                           'index': dateOfFirstAttempt,
-                                           'name':'dateOfFirstAttempt',
-                                           'displayName':'Date of First Attempt',
-                                           'description':'The date on which the student has attempted a particular challenge for the first time.',
-                                           'eventsWhichCanChangeThis':[Event.startChallenge],
-                                           'displayCircumstances':{displayCircumstance.badges: True}
-                                           },
-                       timeSpentOnChallenges:{
-                                       'index': timeSpentOnChallenges,
-                                       'name':'timeSpentOnChallenges',
-                                       'displayName':'Time Spent On Challenges',
-                                       'description':'Total time spent in the Challenges section for a particular course.',
-                                       'eventsWhichCanChangeThis':[Event.endChallenge],
-                                       'displayCircumstances':{displayCircumstance.badges: True, displayCircumstance.virtualCurrency: True}
-                                       },
-                       timeSpentOnQuestions:{
-                                       'index': timeSpentOnQuestions,
-                                       'name':'timeSpentOnQuestions',
-                                       'displayName':'Time Spent On Questions',
-                                       'description':'Total time spent in the Questions section for a particular course.',
-                                       'eventsWhichCanChangeThis':[Event.endQuestion], #I'm not sure this makes sense - Keith
-                                       'displayCircumstances':{displayCircumstance.badges: True}
-                                       },
-                       consecutiveDaysLoggedIn:{
-                                        'index':consecutiveDaysLoggedIn,
-                                        'name':'consecutiveDaysLoggedIn',
-                                        'displayName':'Consecutive Days Logged In',
-                                        'description':'The number of consecutive days a student logs in to the One Up website.',
-                                        'eventsWhichCanChangeThis':[Event.userLogin],
-                                        'displayCircumstances':{displayCircumstance.badges: True} 
-                                        },
-                       activitiesCompleted:{
-                                        'index':activitiesCompleted,
-                                        'name':'activitiesCompleted',
-                                        'displayName':'Activities Completed',
-                                        'description':'The number of activities a student has completed for a particular course.',
-                                        'eventsWhichCanChangeThis':[Event.participationNoted],
-                                        'displayCircumstances':{displayCircumstance.badges: True}
-                                        },
-                       numDaysSubmissionEarlier:{
-                                    'index': numDaysSubmissionEarlier,
-                                    'name':'numDaysSubmissionEarlier',
-                                    'displayName':'Number of Days Submission Earlier',
-                                    'description':'The number of days a submission is turned in earlier than the stated deadline',
-                                    'eventsWhichCanChangeThis':[Event.endChallenge, Event.instructorAction, Event.studentUpload],
-                                    'displayCircumstances':{displayCircumstance.virtualCurrency: True}
-                                    },
-                       numDaysSubmissionLate:{
-                                    'index': numDaysSubmissionLate,
-                                    'name':'numDaysSubmissionLate',
-                                    'displayName':'Number of Days Submission Late',
-                                    'description':'The number of days a submission is turned in later than the stated deadline',
-                                    'eventsWhichCanChangeThis':[Event.endChallenge, Event.instructorAction, Event.studentUpload],
-                                    'displayCircumstances':{displayCircumstance.virtualCurrency: True}
-                                    },                       
-                       consecutiveDaysWarmUpChallengesTaken:{
-                                    'index': consecutiveDaysWarmUpChallengesTaken,
-                                    'name':'consecutiveDaysWarmUpChallengesTaken',
-                                    'displayName':'Consecutive Days Warm Up Challenges Taken',
-                                    'description':'The number of consecutive days a student has taken Warm-up challenges.',
-                                    'eventsWhichCanChangeThis':[Event.endChallenge],
-                                    'displayCircumstances':{displayCircumstance.virtualCurrency: True}
-                                    },
-                       consecutiveWeeksOnLeaderboard:{
-                                    'index': consecutiveWeeksOnLeaderboard,
-                                    'name':'consecutiveWeeksOnLeaderboard',
-                                    'displayName':'Consecutive Weeks on the Leaderboard',
-                                    'description':'The number of consecutive weeks a student has been at the top 3 positions of the Leaderboard.',
-                                    'eventsWhichCanChangeThis':[Event.leaderboardUpdate],
-                                    'displayCircumstances':{displayCircumstance.virtualCurrency: True}
-                                    },
-                       consecutiveClassesAttended:{
-                                    'index': consecutiveClassesAttended,
-                                    'name':'consecutiveClassesAttended',
-                                    'displayName':'Consecutive Classes Attended',
-                                    'description':'The number of consecutive classes a student has attended.',
-                                    'eventsWhichCanChangeThis':[Event.instructorAction],
-                                    'displayCircumstances':{displayCircumstance.virtualCurrency: True}
-                                    },                                              
-                       challengeId:{
-                                    'index': challengeId,
-                                    'name':'challengeId',
-                                    'displayName':'Challenge ID',
-                                    'description':'The challenge ID if a badge is to be awarded for a specific challenge',
-                                    'eventsWhichCanChangeThis':[],
-                                    'displayCircumstances':{}
-                                    }
-                       }
+system_variable_type_to_HTML_type = {
+    "string":"text",
+    "date":"date",
+    "int":"number",
+    "boolean":"checkbox"
+}
+
+class ObjectTypes():
+    challenge=1301
+    activity=1302
+    question=1303
+    form=1304 # Used in the case of handling general form submits (user login, etc.)
+    none=1305 # Not an actual object, but used to indicate that a variable only makes sense in the global context
+                # rather than the context of any particular object in circumstances where that is needed.
+    objectTypes = {
+        challenge:"challenge",
+        activity:"activity",
+        question:"question",
+        form:"form",
+        none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
+    }
 
 class OperandTypes():
     immediateInteger=1001
@@ -441,19 +313,23 @@ class OperandTypes():
     floatConstant=1003
     stringConstant=1004
     systemVariable=1005
+    challengeSet=1006
+    activitySet=1007
+    conditionSet=1008
+    boolean=1009
+    dateConstant=1010
+    noOperand=1011
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',
         floatConstant:'floatConstant',
         stringConstant:'stringConstant',
-        systemVariable:'systemVariable'
+        systemVariable:'systemVariable',
+        challengeSet:'challengeSet',
+        activitySet:'activitySet',
+        conditionSet:'conditionSet',
+        boolean:'boolean',
     }
-
-class ObjectTypes():
-    challenge=1301
-    activity=1302
-    question=1303
-    form=1304 # Used in the case of handling general form submits (user login, etc.)
     
 class QuestionTypes():
     multipleChoice=1

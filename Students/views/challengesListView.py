@@ -3,10 +3,10 @@ Created on May 7, 2014
 
 @author: Swapna
 '''
-from django.template import RequestContext
 from django.shortcuts import render
-from Students.models import StudentChallenges, Student, StudentRegisteredCourses
-from Instructors.models import Challenges, Courses
+from Students.models import StudentChallenges, Student
+from Students.views.utils import studentInitialContextDict
+from Instructors.models import Challenges
 from time import strftime
 import datetime
 from django.db.models import Q
@@ -18,30 +18,34 @@ def ChallengesList(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict,currentCourse = studentInitialContextDict(request)
     
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username     
-    
+#     context_dict = { }
+#     
+#     context_dict["logged_in"]=request.user.is_authenticated()
+#     if request.user.is_authenticated():
+#         context_dict["username"]=request.user.username     
+#     
+#         
+#     # check if course was selected
+#     if not 'currentCourseID' in request.session:
+#         context_dict['course_Name'] = 'Not Selected'
+#         context_dict['course_notselected'] = 'Please select a course'
+#     else:
+#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+#         print('current course:'+str(currentCourse))
+#         context_dict['course_Name'] = currentCourse.courseName
+#         student = Student.objects.get(user=request.user)   
+#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
+#         context_dict['avatar'] = st_crs.avatarImage          
+
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
         context_dict['ID'] = request.GET['ID']
     else:
         optionSelected = 0
-        
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        print('current course:'+str(currentCourse))
-        context_dict['course_Name'] = currentCourse.courseName
-        student = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage          
-            
+
+    if 'currentCourseID' in request.session:             
         chall_ID = []      
         chall_Name = []         
         chall_Difficulty = []

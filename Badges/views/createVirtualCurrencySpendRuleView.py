@@ -9,8 +9,8 @@ import glob, os
 from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Challenges, Courses
-from Badges.enums import SystemVariable, dict_dict_to_zipped_list,Event
-
+from Badges.enums import dict_dict_to_zipped_list,Event
+from Badges.systemVariables import SystemVariable
 
 # This sets up the page used to create the badge, but does not, in fact, create any badges.
 # Badges are actually created in the saveBadgeView class.

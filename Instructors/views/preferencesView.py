@@ -37,7 +37,8 @@ def preferencesView(request):
             # Create new Config Parameters
             ccparams = CourseConfigParams()
             ccparams.courseID = currentCourse
-            
+
+        ccparams.gamificationUsed = "gamificationUsed" in request.POST   
         ccparams.badgesUsed = "badgesUsed" in request.POST
         if ccparams.badgesUsed == True:    
             ccparams.studCanChangeBadgeVis = "studCanChangeBadgeVis" in request.POST
