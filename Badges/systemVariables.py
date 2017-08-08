@@ -247,7 +247,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.challengeExpiration],
             'type':'int',
             'functions':{
-                ObjectTypes.none: getMaxTestScore
+                ObjectTypes.challenge: getMaxTestScore
             }
         },
         minTestScore:{
@@ -258,7 +258,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.challengeExpiration],
             'type':'int',
             'functions':{
-                ObjectTypes.none: getMinTestScore
+                ObjectTypes.challenge: getMinTestScore
             }
         },
         dateOfFirstAttempt:{
