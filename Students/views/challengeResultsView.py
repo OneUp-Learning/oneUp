@@ -11,7 +11,7 @@ from time import strftime
 
 from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Challenges, Courses
 from Instructors.models import ChallengesQuestions, MatchingAnswers, QuestionsSkills
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers, StudentRegisteredCourses
+from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event

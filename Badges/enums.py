@@ -376,4 +376,6 @@ class QuestionTypes():
            'displayName':'Dynamic Questions (Template)',
         },  
     }   
-    
+
+staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.essay }
+dynamicQuestionTypesSet = { QuestionTypes.dynamic, QuestionTypes.templatedynamic }

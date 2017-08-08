@@ -64,7 +64,7 @@ if lupa_spec is None:
             return self.error_str
         @staticmethod
         def createFromDump(dump):
-            return self.error_str
+            return LupaQuestion.error_str
 
 else:
     # All good.  This is the part which should be run under normal circumstances.

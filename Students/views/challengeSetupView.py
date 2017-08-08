@@ -3,14 +3,11 @@ from django.contrib.auth.decorators import login_required
 import random 
 from time import strftime
 
-from time import strftime
-
-from Instructors.models import Challenges, Courses, Answers
+from Instructors.models import Challenges, Answers, DynamicQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
-from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
-from Badges.enums import Event
+from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet
 
 @login_required
 def ChallengeSetup(request):
@@ -52,7 +49,7 @@ def ChallengeSetup(request):
                 if challenge.challengePassword != '':
                     if 'password' not in request.POST or request.POST['password'] != challenge.challengePassword:
                         return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
-                    
+                
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
                 for challenge_question in challenge_questions:
                     print("challenge_question.questionID: "+str(challenge_question.questionID))
@@ -68,32 +65,36 @@ def ChallengeSetup(request):
                     questdict['answers_with_count'] = zip(answer_range,answers)
                     questdict['typeID']=str(q.type)
                     
-                    staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
-                    questdict['questionText']=staticQuestion.questionText
-                    print('questionText = ' + staticQuestion.questionText)
-                    print(questdict)
-                    for duration in challengeDetails:
-                        questdict['testDuration']=duration.timeLimit
+                    if q.type in staticQuestionTypesSet:
+                        staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
+                        questdict['questionText']=staticQuestion.questionText
+                        print('questionText = ' + staticQuestion.questionText)
+                        print(questdict)
+                        for duration in challengeDetails:
+                            questdict['testDuration']=duration.timeLimit
                     
-                    #getting the matching questions of the challenge from database
-                    matchlist = []
-                    match_shuffle_list = []
-                    for match in MatchingAnswers.objects.filter(questionID=q.questionID):
-                        matchdict = match.__dict__
-                        #match_shuffle_list.append(match.matchingAnswerText)
-                        matchdict['answers_count'] = range(1,len(answers)+1)
-                        #ans_range = range(1,len(answers)+1)
-                        #matchdict['match_answers'] = zip(ans_range,match_shuffle_list)
-                        matchlist.append(matchdict)
-                    
-                    random.shuffle(matchlist)
-
-                    i = 1
-                    for matchdict in matchlist:
-                        matchdict['current_pos'] = i
-                        i = i + 1
-
-                    questdict['matches']=matchlist
+                        #getting the matching questions of the challenge from database
+                        matchlist = []
+                        match_shuffle_list = []
+                        for match in MatchingAnswers.objects.filter(questionID=q.questionID):
+                            matchdict = match.__dict__
+                            #match_shuffle_list.append(match.matchingAnswerText)
+                            matchdict['answers_count'] = range(1,len(answers)+1)
+                            #ans_range = range(1,len(answers)+1)
+                            #matchdict['match_answers'] = zip(ans_range,match_shuffle_list)
+                            matchlist.append(matchdict)
+                        
+                        random.shuffle(matchlist)
+    
+                        i = 1
+                        for matchdict in matchlist:
+                            matchdict['current_pos'] = i
+                            i = i + 1
+    
+                        questdict['matches']=matchlist
+                    elif q.type in dynamicQuestionTypesSet:
+                        dynamicQuestion = DynamicQuestions.objects.get(pk=q.questionID)
+                        
                     qlist.append(questdict)
                 
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)

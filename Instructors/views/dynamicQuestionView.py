@@ -4,7 +4,6 @@ Created on Apr 1, 2014
 @author: irwink
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
@@ -22,9 +21,6 @@ from xml.dom.expatbuilder import theDOMImplementation
 
 
 def dynamicQuestionForm(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
-    context = RequestContext(request)
     context_dict = { }
     
     context_dict["logged_in"]=request.user.is_authenticated()
