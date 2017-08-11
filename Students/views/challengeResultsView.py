@@ -14,7 +14,7 @@ from Instructors.models import ChallengesQuestions, MatchingAnswers, QuestionsSk
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
-from Badges.enums import Event
+from Badges.enums import Event, QuestionTypes
 
 register = template.Library()
 
@@ -58,25 +58,8 @@ def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instru
 
 @login_required
 def ChallengeResults(request):
- 
-    context_dict,currentCourse = studentInitialContextDict(request)
-
-#     context_dict = { }
-#     
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username       
-#     
-#     # check if course was selected
-#     if not 'currentCourseID' in request.session:
-#         context_dict['course_Name'] = 'Not Selected'
-#         context_dict['course_notselected'] = 'Please select a course'
-#     else:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#         student = Student.objects.get(user=request.user)   
-#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-#         context_dict['avatar'] = st_crs.avatarImage                  
+  
+    context_dict,currentCourse = studentInitialContextDict(request)                 
 
     if 'currentCourseID' in request.session:            
         user_dict = { } #dictionary to store user answers, grade them (except for matching) and send them to html page  
@@ -146,7 +129,6 @@ def ChallengeResults(request):
                 
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
                 
-                
                 # Keith: I believe that this next section exists to parse the user answers out the POST
                 # and arrange them into structures for use in the next part.
                 for challenge_question in challenge_questions:
@@ -162,17 +144,15 @@ def ChallengeResults(request):
                     if (str(challenge_question.questionID.questionID) in request.POST and request.POST[str(challenge_question.questionID.questionID)] != '') or (str(challenge_question.questionID.type) == '3'):
                        
                         # If it is a multiple answers or a matching question the answers must be saved in an array
-                        #TODO: remove "magic number"
-                        if str(challenge_question.questionID.type) == '2':
+                        if challenge_question.questionID.type == QuestionTypes.multipleAnswers:
                             #print("multiple answers:"+str(request.POST[str(challenge_question.questionID.questionID)]))
                             multiple_user = request.POST.getlist(str(challenge_question.questionID.questionID))
-                            #print("ma:"+str(multiple_user))
+                            print("ma:"+str(multiple_user))
                             #useranswerObjects.append(multiple_user)
                             user_dict[challenge_question.questionID.questionID] = multiple_user
                             
                         # If it is a matching question the answers must be saved in an array
-                        elif str(challenge_question.questionID.type) == '3':
-                            #print("match answers:"+str(request.POST[str(challenge_question.questionID.questionID)+'-1']))
+                        elif challenge_question.questionID.type == QuestionTypes.matching:
                             match_user = request.POST.getlist(str(challenge_question.questionID.questionID))
                             user_dict[challenge_question.questionID.questionID] = match_user
                             number_length = len(match_user) #what if user puts 2 same numbers beside the answers
@@ -217,7 +197,7 @@ def ChallengeResults(request):
                     
                     for key, value in user_dict.items():
                         if str(key) == str(c_ques.questionID.questionID):
-                            if str(c_ques.questionID.type) == '2': #if multiple answer question
+                            if c_ques.questionID.type == QuestionTypes.multipleAnswers:
                                 total = total + c_ques.points
                                 answer = CorrectAnswers.objects.filter(questionID = key)
                                 #print("key:"+str(key))
@@ -237,14 +217,6 @@ def ChallengeResults(request):
                                         
                                 #save student's challenge-question information pair to db 
                                 studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, ma_point, c_ques.points, instructorFeedback)       
-#                                 studentChallengeQuestion = StudentChallengeQuestions()
-#                                 studentChallengeQuestion.studentChallengeID = studentChallenge
-#                                 studentChallengeQuestion.questionID = Questions(key)
-#                                 studentChallengeQuestion.questionScore = ma_point
-#                                 studentChallengeQuestion.questionTotal = c_ques.points
-#                                 studentChallengeQuestion.usedHint = "False"
-#                                 studentChallengeQuestion.instructorFeedback = instructorFeedback
-#                                 studentChallengeQuestion.save()
                                 
                                 questionScore_dict[key] = ma_point
                                 questionTotal_dict[key] = c_ques.points
@@ -261,7 +233,7 @@ def ChallengeResults(request):
                                 if c_ques.points == ma_point: #adding skill points
                                     saveSkillPoints(c_ques.questionID.questionID, challengeId, studentId, studentChallengeQuestion)
     
-                            elif str(c_ques.questionID.type) == '3':# if a matching question
+                            elif str(c_ques.questionID.type) == QuestionTypes.matching:
                                 for match_key,match_value in match_sorted.items():
                                     if str(key) == str(match_key):
                                         a=0
@@ -276,14 +248,6 @@ def ChallengeResults(request):
                                             
                                         #save student's challenge-question information pair to db 
                                         studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, match_point, c_ques.points, instructorFeedback)   
-#                                         studentChallengeQuestion = StudentChallengeQuestions()
-#                                         studentChallengeQuestion.studentChallengeID = studentChallenge
-#                                         studentChallengeQuestion.questionID = Questions(key)
-#                                         studentChallengeQuestion.questionScore = match_point
-#                                         studentChallengeQuestion.questionTotal = c_ques.points
-#                                         studentChallengeQuestion.usedHint = "False"
-#                                         studentChallengeQuestion.instructorFeedback = instructorFeedback
-#                                         studentChallengeQuestion.save()
                                         
                                         questionScore_dict[key] = match_point
                                         questionTotal_dict[key] = c_ques.points
@@ -314,20 +278,12 @@ def ChallengeResults(request):
                                            
                                        
                                     
-                            elif str(c_ques.questionID.type) == '5': #if it is an essay question
+                            elif str(c_ques.questionID.type) == QuestionTypes.essay:
                                 
                                 total = total + c_ques.points # since there is no correct answer in database, a 0 is awarded for this question. The score to these questions shall be awarded by the instructor
                                 #save student's challenge-question information pair to db
                                 # questionScore initially is zero and updated after Instructor's evaluation
                                 studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, 0, c_ques.points, instructorFeedback)
-#                                 studentChallengeQuestion = StudentChallengeQuestions()
-#                                 studentChallengeQuestion.studentChallengeID = studentChallenge
-#                                 studentChallengeQuestion.questionID = Questions(key)
-#                                 studentChallengeQuestion.questionScore = 0 #initially its zero and updated after Instructor's evaluation
-#                                 studentChallengeQuestion.questionTotal = c_ques.points
-#                                 studentChallengeQuestion.usedHint = "False"
-#                                 studentChallengeQuestion.instructorFeedback = instructorFeedback
-#                                 studentChallengeQuestion.save()
                                 
                                 questionScore_dict[key] = 0
                                 questionTotal_dict[key] = c_ques.points 
@@ -351,14 +307,6 @@ def ChallengeResults(request):
                                         
                                 #save student's challenge-question information pair to db
                                 studentChallengeQuestion = saveChallengeQuestion(studentChallenge, key, 0, point, instructorFeedback)
-#                                 studentChallengeQuestion = StudentChallengeQuestions()
-#                                 studentChallengeQuestion.studentChallengeID = studentChallenge
-#                                 studentChallengeQuestion.questionID = Questions(key)
-#                                 studentChallengeQuestion.questionScore = point
-#                                 studentChallengeQuestion.questionTotal = c_ques.points                                
-#                                 studentChallengeQuestion.usedHint = "False"
-#                                 studentChallengeQuestion.instructorFeedback = instructorFeedback
-#                                 studentChallengeQuestion.save()
                                         
                                 questionScore_dict[key] = point
                                 questionTotal_dict[key] = c_ques.points
@@ -376,9 +324,6 @@ def ChallengeResults(request):
                 studentChallenge.testScore = score
                 studentChallenge.testTotal = total
                 studentChallenge.save()
-                
-                #Trigger event for potential badge award 
-#                register_event(Event.endChallenge, request, studentId, challengeId)
                             
                 score_list.append(score)
                 total_list.append(total)

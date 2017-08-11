@@ -7,29 +7,15 @@ from Instructors.models import Challenges, Answers, DynamicQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
-from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet
+from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet,\
+    QuestionTypes
+from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
+from Instructors.views.dynamicQuestionView import makeLibs
 
 @login_required
 def ChallengeSetup(request):
 
-    context_dict,currentCourse = studentInitialContextDict(request)
- 
-#     context_dict = { }    
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username      
-#     
-#     # check if course was selected
-#     if not 'currentCourseID' in request.session:
-#         context_dict['course_Name'] = 'Not Selected'
-#         context_dict['course_notselected'] = 'Please select a course'
-#     else:
-#     #Displaying the questions in the challenge which the student has opted 
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#         student = Student.objects.get(user=request.user)   
-#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-#         context_dict['avatar'] = st_crs.avatarImage                  
+    context_dict,currentCourse = studentInitialContextDict(request)                
 
     if 'currentCourseID' in request.session:    
 
@@ -37,10 +23,21 @@ def ChallengeSetup(request):
                 
         if request.POST:        
             if request.POST['challengeId']: 
+                
+                context_dict['questionTypes']= QuestionTypes
+                
                 challengeId = request.POST['challengeId']
                 context_dict['challengeID']= challengeId
                 challenge = Challenges.objects.get(pk=int(request.POST['challengeId']))
                 context_dict['challengeName'] = challenge.challengeName
+                context_dict['testDuration'] = challenge.timeLimit
+
+                starttime = strftime("%Y-%m-%d %H:%M:%S")
+                context_dict['startTime'] = starttime 
+                attemptId = 'challenge:'+challengeId + '@' + starttime
+                
+                sessionDict = {}
+                sessionDict['challengeId']=challengeId
                 
                 if not challenge.isGraded:
                     context_dict['warmUp'] = 1
@@ -56,22 +53,35 @@ def ChallengeSetup(request):
                     questionObjects.append(challenge_question.questionID)
                 
                 #getting all the question of the challenge except the matching question
-                challengeDetails = Challenges.objects.filter(challengeID = challengeId)
                 qlist = []
-                for q in questionObjects:
-                    questdict = q.__dict__
-                    answers = Answers.objects.filter(questionID = q.questionID)
-                    answer_range = range(1,len(answers)+1)
-                    questdict['answers_with_count'] = zip(answer_range,answers)
-                    questdict['typeID']=str(q.type)
+                for i in range(0,len(questionObjects)):
+                    q = questionObjects[i]
+
+                    questSessionDict = {}
+                    questSessionDict['question']=q
                     
+                    questdict = q.__dict__.copy()
+                                        
                     if q.type in staticQuestionTypesSet:
+                        answers = list(Answers.objects.filter(questionID = q.questionID))
+                        if q.type != QuestionTypes.trueFalse:
+                            random.shuffle(answers)
+                        answer_range = range(1,len(answers)+1)
+                        questdict['answers_with_count'] = list(zip(answer_range,answers))
+
+                        # We're setting up a list of the answers in the order they were given in the 
+                        # session store.  When we grade this challenge, we will only know that they
+                        # answered with answer number 1 or 2 or whatever.
+                        # We start with [None] so that it will effectively be 1-indexed instead of 0-indexed
+                        # since the answers are numbered that way.
+                        questSessionDict['answers'] = [None]
+                        for answer in answers:
+                            questSessionDict['answers'].append(answer)
+                        
                         staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
                         questdict['questionText']=staticQuestion.questionText
                         print('questionText = ' + staticQuestion.questionText)
                         print(questdict)
-                        for duration in challengeDetails:
-                            questdict['testDuration']=duration.timeLimit
                     
                         #getting the matching questions of the challenge from database
                         matchlist = []
@@ -86,19 +96,46 @@ def ChallengeSetup(request):
                         
                         random.shuffle(matchlist)
     
-                        i = 1
+                        # This is to store the order of the matching answers.
+                        # The None is there as an initial space filler to be the 0 element.
+                        questSessionDict['matches']=[None]
+    
+                        j = 1
                         for matchdict in matchlist:
-                            matchdict['current_pos'] = i
-                            i = i + 1
+                            questSessionDict['matches'].append(matchdict)
+                            matchdict['current_pos'] = j
+                            j = j + 1
     
                         questdict['matches']=matchlist
                     elif q.type in dynamicQuestionTypesSet:
                         dynamicQuestion = DynamicQuestions.objects.get(pk=q.questionID)
-                        
+                        if not lupa_available:
+                            questdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+                        else:
+                            seed = random.random()
+                            questSessionDict['seed'] = seed
+                            
+                            code = [CodeSegment.new(CodeSegment.raw_lua,dynamicQuestion.code,"")]
+                            numParts = dynamicQuestion.numParts
+                            libs = makeLibs(dynamicQuestion)
+                            part = 1
+                            lupaQuest = LupaQuestion(code, libs, seed, str(i+1), numParts)
+
+                            if (lupaQuest.error):
+                                context_dict['error']=lupaQuest.error
+                                return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
+
+                            questdict['questionText'] = lupaQuest.getQuestionPart(1)
+                            print("Dynamic Question part is: "+questdict['questionText'])
+                            questSessionDict['lupaquestion'] = lupaQuest.serialize()
+                            questdict['requestType'] = '_eval';
+                            if numParts > 1:
+                                questdict['hasMultipleParts'] = 'True';
+                                                    
                     qlist.append(questdict)
-                
+
+            request.session[attemptId]=sessionDict                
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
-            context_dict['startTime'] = strftime("%Y-%m-%d %H:%M:%S")
             
         register_event(Event.startChallenge,request,None,challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)

@@ -21,7 +21,6 @@
                     <div class="12u">
                         <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
                             <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
-                            <input type="hidden" name="questionId" value="{{question.questionID}}">
                             <input type="hidden" name="challengeId" value="{{challengeID}}"> {% csrf_token %}
                             <table class="bg">
                                 <!-- Note that this was bg challenge but Joel changed it to bg to get color alteration  -->
@@ -35,25 +34,25 @@
                                     </td>
 
                                 </tr>
-                                {% if question.typeID == '1' %}
+                                {% if question.type == questionTypes.multipleChoice %}
                                 <tr style="background-color: #fff;">
                                     <td colspan="2">
                                         {% for j,answer in question.answers_with_count %}
                                         <!-- use a for loop and display the answers in radio buttons -->
                                         <label>
-                                            <input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}">{{answer.answerText}}</label>
+                                            <input type="radio" name="{{i}}-ans" value="{{j}}">{{answer.answerText}}</label>
                                         {% endfor %}
                                     </td>
                                 </tr>
-                                {% endif %} {% if question.typeID == '2' %}
+                                {% elif question.type == questionTypes.multipleAnswers %}
                                 <tr style="background-color: #fff;">
                                     <td colspan="2">{% for j,answer in question.answers_with_count %}
                                         <!-- use a for loop and display the answers in the check box -->
                                         <label>
-                                            <input type="checkbox" name="{{question.questionID}}" value="{{answer.answerText}}">{{answer.answerText}}</label>
+                                            <input type="checkbox" name="{{i}}-ans[]" value="{{j}}">{{answer.answerText}}</label>
                                         {% endfor %}</td>
                                 </tr>
-                                {% endif %} {% if question.typeID == '3' %}
+                                {% elif question.type == questionTypes.matching %}
                                 <tr style="background-color: #fff;">
                                     <td>{% for j,answer in question.answers_with_count %}
                                         <!-- use a for loop and display the answers in the matching form -->
@@ -61,31 +60,30 @@
                                         <br> {% endfor %}
                                     </td>
                                     <td>
-				      {% for match in question.matches %}
-                                        <select name="{{question.questionID}}" style="float:left;height:initial"/>
+				      				  {% for match in question.matches %}
+                                        <select name="{{i}}-{{match.current_pos}}" style="float:left;height:initial"/>
                                         {% for k in match.answers_count %}
                                            <option value="{{k}}">{{k}}</option>
                                         {% endfor %}
                                         </select>
                                         &nbsp;&nbsp;{{match.matchingAnswerText}}
-                                        <input type="hidden" name="{{question.questionID}}a-{{match.current_pos}}" value="{{match.matchingAnswerText}}" />
                                         <br />
                                       {% endfor %}
                                     </td>
                                 </tr>
-                                {% endif %} {% if question.typeID == '4' %}
+                                {% elif question.type == questionTypes.trueFalse  %}
                                 <tr style="background-color: #fff;">
                                     <td colspan="2">
                                         <label>
-                                            <input type="radio" name="{{question.questionID}}" value="True">True</label>
+                                            <input type="radio" name="{{i}}-ans" value="True">True</label>
                                         <label>
-                                            <input type="radio" name="{{question.questionID}}" value="False">False</label>
+                                            <input type="radio" name="{{i}}-ans" value="False">False</label>
                                     </td>
                                 </tr>
-                                {% endif %} {% if question.typeID == '5' %}
+                                {% elif question.type == questionTypes.essay %}
                                 <tr style="background-color: #fff;">
                                     <td colspan="2">
-                                        <textarea style="border:solid 1px rgba(128, 128, 128, 0.5)" name="{{question.questionID}}" rows="10" cols="90">
+                                        <textarea style="border:solid 1px rgba(128, 128, 128, 0.5)" name="{{i}}-ans" rows="10" cols="90">
                                         </textarea>
                                         <script type="text/javascript">
                                             // Replace the <textarea id="questionText"> with a CKEditor instance, using default configuration.
@@ -95,6 +93,7 @@
                                     </td>
                                 </tr>
                                 {% endif %}
+                                {% endfor %}
                                 <script type="text/javascript">
                                     <!-- the current time when navigated to this page is taken as the start time of the test -->
                                     <!-- The start time is in yyyy-mm-dd hh:mm:ss format similar to the end time in view file -->
@@ -123,7 +122,7 @@
                                     var dateTime = "" + year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + "";
                                     document.getElementById("startTime").value = dateTime;
                                     <!-- Set time out for the test if the time limit has reached -->
-                                    var duration = {{question.testDuration}}; //time limit in minutes from database
+                                    var duration = {{testDuration}}; //time limit in minutes from database
                                     var milli = now.getMilliseconds(); //current time in milliseconds
                                     var limit = milli + (duration * 1000 * 60); // test time duration in milliseconds (current time + time limit in milliseconds)
 
@@ -133,7 +132,6 @@
                                         document.getElementById('submit_hidden').click()
                                     };
                                 </script>
-                                {% endfor %}
                             </table>
                             <td colspan="2">
                                 <center>

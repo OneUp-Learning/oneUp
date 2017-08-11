@@ -74,9 +74,15 @@ def templateDynamicQuestionForm(request):
         for i in range(1,int(request.POST['numParts'])+1): # the 1 is the start of the rang and we need to go all the way to the numparts+1
             templateArray.append(request.POST['templateTextVisible'+str(i)])
             
+        def combineCodeSegments(codeSegments):
+            output = ""
+            for codeSegment in codeSegments:
+                output += codeSegment['code']
+                output += "\n"
+            return output
         
          #Takes the array and converts the parts into lua code            
-        question.code = templateToCodeSegments(question.setupCode,templateArray)
+        question.code = combineCodeSegments(templateToCodeSegments(question.setupCode,templateArray))
     
         # Fix the question type
         question.type = QuestionTypes.templatedynamic

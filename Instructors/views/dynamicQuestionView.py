@@ -181,7 +181,7 @@ def makeLibs(dynamicQuestion):
 def dynamicQuestionPartAJAX(request):
     context_dict = { }
     if not lupa_available:
-        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server adminstrator to install it to enable dynamic problems.</B>"
+        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
@@ -235,7 +235,7 @@ def dynamicQuestionPartAJAX(request):
             # And now we need to evaluate the previous answers.
             answers = {}
             for value in request.POST:
-                if (value.startswith(uniqid+"_")): 
+                if (value.startswith(uniqid+"-")): 
                     answers[value[len(uniqid)+1:]] = request.POST[value]
             evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
             if lupaQuestion.error is not None:
