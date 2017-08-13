@@ -12,6 +12,12 @@ from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet,
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 
+def makeSerializableCopyOfDjangoObjectDictionary(obj):
+    dict = obj.__dict__.copy()
+    # We remove the Django Status object from the dictionary to prevent serialization problems
+    dict.pop("_state",None)
+    return dict
+
 @login_required
 def ChallengeSetup(request):
 
@@ -54,29 +60,27 @@ def ChallengeSetup(request):
                 
                 #getting all the question of the challenge except the matching question
                 qlist = []
+                sessionDict['questions'] = []
                 for i in range(0,len(questionObjects)):
                     q = questionObjects[i]
 
                     questSessionDict = {}
-                    questSessionDict['question']=q
+                    print("q type = "+str(type(q)))
+                    questSessionDict['index']=i
+                    questSessionDict['total_points']=challenge_questions.get(questionID=q).points
                     
-                    questdict = q.__dict__.copy()
+                    questdict = makeSerializableCopyOfDjangoObjectDictionary(q)
+                    
+                    questdict.pop("_state",None)
                                         
                     if q.type in staticQuestionTypesSet:
-                        answers = list(Answers.objects.filter(questionID = q.questionID))
+                        answers = [makeSerializableCopyOfDjangoObjectDictionary(ans) for ans in Answers.objects.filter(questionID = q.questionID)]
                         if q.type != QuestionTypes.trueFalse:
                             random.shuffle(answers)
                         answer_range = range(1,len(answers)+1)
                         questdict['answers_with_count'] = list(zip(answer_range,answers))
 
-                        # We're setting up a list of the answers in the order they were given in the 
-                        # session store.  When we grade this challenge, we will only know that they
-                        # answered with answer number 1 or 2 or whatever.
-                        # We start with [None] so that it will effectively be 1-indexed instead of 0-indexed
-                        # since the answers are numbered that way.
-                        questSessionDict['answers'] = [None]
-                        for answer in answers:
-                            questSessionDict['answers'].append(answer)
+                        questSessionDict['answers'] = answers
                         
                         staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
                         questdict['questionText']=staticQuestion.questionText
@@ -87,11 +91,8 @@ def ChallengeSetup(request):
                         matchlist = []
                         match_shuffle_list = []
                         for match in MatchingAnswers.objects.filter(questionID=q.questionID):
-                            matchdict = match.__dict__
-                            #match_shuffle_list.append(match.matchingAnswerText)
-                            matchdict['answers_count'] = range(1,len(answers)+1)
-                            #ans_range = range(1,len(answers)+1)
-                            #matchdict['match_answers'] = zip(ans_range,match_shuffle_list)
+                            matchdict = makeSerializableCopyOfDjangoObjectDictionary(match)
+                            matchdict['answers_count'] = list(range(1,len(answers)+1))
                             matchlist.append(matchdict)
                         
                         random.shuffle(matchlist)
@@ -131,8 +132,10 @@ def ChallengeSetup(request):
                             questdict['requestType'] = '_eval';
                             if numParts > 1:
                                 questdict['hasMultipleParts'] = 'True';
-                                                    
+                       
                     qlist.append(questdict)
+                    questSessionDict['question']=questdict
+                    sessionDict['questions'].append(questSessionDict)
 
             request.session[attemptId]=sessionDict                
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
