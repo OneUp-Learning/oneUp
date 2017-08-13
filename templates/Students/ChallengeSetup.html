@@ -95,32 +95,6 @@
                                 {% endif %}
                                 {% endfor %}
                                 <script type="text/javascript">
-                                    <!-- the current time when navigated to this page is taken as the start time of the test -->
-                                    <!-- The start time is in yyyy-mm-dd hh:mm:ss format similar to the end time in view file -->
-                                    var now = new Date();
-                                    var year = now.getFullYear();
-                                    var month = now.getMonth() + 1;
-                                    var day = now.getDate();
-                                    var hour = now.getHours();
-                                    var minute = now.getMinutes();
-                                    var second = now.getSeconds();
-                                    if (month.toString().length == 1) {
-                                        var month = '0' + month;
-                                    }
-                                    if (day.toString().length == 1) {
-                                        var day = '0' + day;
-                                    }
-                                    if (hour.toString().length == 1) {
-                                        var hour = '0' + hour;
-                                    }
-                                    if (minute.toString().length == 1) {
-                                        var minute = '0' + minute;
-                                    }
-                                    if (second.toString().length == 1) {
-                                        var second = '0' + second;
-                                    }
-                                    var dateTime = "" + year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + "";
-                                    document.getElementById("startTime").value = dateTime;
                                     <!-- Set time out for the test if the time limit has reached -->
                                     var duration = {{testDuration}}; //time limit in minutes from database
                                     var milli = now.getMilliseconds(); //current time in milliseconds

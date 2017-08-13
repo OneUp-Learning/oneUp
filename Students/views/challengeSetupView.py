@@ -55,7 +55,6 @@ def ChallengeSetup(request):
                 
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
                 for challenge_question in challenge_questions:
-                    print("challenge_question.questionID: "+str(challenge_question.questionID))
                     questionObjects.append(challenge_question.questionID)
                 
                 #getting all the question of the challenge except the matching question
@@ -65,8 +64,7 @@ def ChallengeSetup(request):
                     q = questionObjects[i]
 
                     questSessionDict = {}
-                    print("q type = "+str(type(q)))
-                    questSessionDict['index']=i
+                    questSessionDict['index']=i+1
                     questSessionDict['total_points']=challenge_questions.get(questionID=q).points
                     
                     questdict = makeSerializableCopyOfDjangoObjectDictionary(q)
@@ -81,11 +79,10 @@ def ChallengeSetup(request):
                         questdict['answers_with_count'] = list(zip(answer_range,answers))
 
                         questSessionDict['answers'] = answers
+                        questSessionDict['answers_with_count'] = questdict['answers_with_count']
                         
                         staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
                         questdict['questionText']=staticQuestion.questionText
-                        print('questionText = ' + staticQuestion.questionText)
-                        print(questdict)
                     
                         #getting the matching questions of the challenge from database
                         matchlist = []
@@ -127,7 +124,6 @@ def ChallengeSetup(request):
                                 return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
                             questdict['questionText'] = lupaQuest.getQuestionPart(1)
-                            print("Dynamic Question part is: "+questdict['questionText'])
                             questSessionDict['lupaquestion'] = lupaQuest.serialize()
                             questdict['requestType'] = '_eval';
                             if numParts > 1:
@@ -137,7 +133,8 @@ def ChallengeSetup(request):
                     questSessionDict['question']=questdict
                     sessionDict['questions'].append(questSessionDict)
 
-            request.session[attemptId]=sessionDict                
+            request.session[attemptId]=sessionDict
+            print("attemptID = "+attemptId)               
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
             
         register_event(Event.startChallenge,request,None,challengeId)

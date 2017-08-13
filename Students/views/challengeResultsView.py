@@ -69,6 +69,8 @@ def ChallengeResults(request):
         match_question_dict = {} #dictionary for saving matching answers order that were shuffled in the test display page 
         questionScore_dict = {} #dictionary for saving student's individual question score
         questionTotal_dict = {} #dictionary for saving individual question total score
+
+        context_dict['questionTypes']= QuestionTypes
         
         #Displaying the score and the user and correct answers
         
@@ -113,6 +115,7 @@ def ChallengeResults(request):
                 print("End Time:"+str(endTime))
 
                 attemptId = 'challenge:'+challengeId + '@' + startTime
+                print("attemptID = "+attemptId)               
                 
                 if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=endTime).count() > 0:
                     return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
@@ -140,34 +143,37 @@ def ChallengeResults(request):
                 totalStudentScore = 0
                 totalPossibleScore = 0
                 
-                for question in questions:        
-                    if question['question'].type == QuestionTypes.multipleChoice:
-                        answerInputName = question['index'] + '-ans'
-                        correctAnswer = CorrectAnswers.objects.get(questionID=question['question']).answerID
+                for question in questions:
+                    questionType = question['question']['type']        
+                    if questionType == QuestionTypes.multipleChoice:
+                        answerInputName = str(question['index']) + '-ans'
+                        correctAnswer = CorrectAnswers.objects.get(questionID=question['question']['questionID']).answerID
+                        correctAnswerText = correctAnswer.answerText
+                        question['correct_answer_text'] = correctAnswerText
                         if answerInputName not in request.POST:
                             question['user_points'] = 0
                             question['user_answer'] = {'answerNumber':"",'answerText':"No answer"}
                         else:
-                            userSelection = request.POST[answerInputName]
-                            userAnswer = question['answers'][int(userSelection)-1] # Convert from 1-indexed to 0-indexed
-                            question['user_answer'] = {'answerNumber':userSelection,'answerText':userAnswer.answerText}
-                            if userAnswer.answerID == correctAnswer.answerID:
+                            userSelection = int(request.POST[answerInputName])
+                            userAnswer = question['answers'][userSelection-1] # Convert from 1-indexed to 0-indexed
+                            question['user_answer'] = {'answerNumber':userSelection,'answerText':userAnswer['answerText']}
+                            if userAnswer['answerID'] == correctAnswer.answerID:
                                 question['user_points'] = question['total_points']
                             else:
                                 question['user_points'] = 0
-                            studentAnswerList = [str(userAnswer.answerID)]
-                    elif question['question'].type == QuestionTypes.multipleAnswers:
-                        answerInputName = question['index'] + '-ans[]'
-                        correctAnswerIds = [x.answerID.answerID for x in CorrectAnswers.objects.filter(questionID=question['question'])]
+                            studentAnswerList = [str(userAnswer['answerID'])]
+                    elif questionType == QuestionTypes.multipleAnswers:
+                        answerInputName = str(question['index']) + '-ans[]'
+                        correctAnswerIds = [x.answerID.answerID for x in CorrectAnswers.objects.filter(questionID=question['question']['questionID'])]
                         userAnswerIndexes = request.POST.getlist(answerInputName)
-                        userAnswerIds = [question['answers'][int(x)-1].answerID for x in userAnswerIndexes]
+                        userAnswerIds = [question['answers'][int(x)-1]['answerID'] for x in userAnswerIndexes]
                         valuePerAnswer = question['total_points']/len(question['answers'])
                         numAnswersIncorrect = len([x for x in userAnswerIds if x not in correctAnswerIds])
                         numAnswersMissing = len([x for x in correctAnswerIds if x not in userAnswerIds])
                         question['user_points'] = question['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
-                        question['user_answers'] = [{'answerNumber':x,'answerText':question['answers'][int(x)-1].answerText} for x in userAnswerIndexes]
+                        question['user_answers'] = [{'answerNumber':x,'answerText':question['answers'][int(x)-1]['answerText']} for x in userAnswerIndexes]
                         studentAnswerList = userAnswerIds
-                    elif question['question'].type == QuestionTypes.matching:
+                    elif questionType == QuestionTypes.matching:
                         # Find the index for each correct matching answer
                         valuePerAnswer = question['total_points']/len(question['answers'])
                         userScore = 0
@@ -177,41 +183,43 @@ def ChallengeResults(request):
                         i = 1                        
                         matches = question['matches']
                         for match in matches:
-                            # Find correct answer
-                            for index,answer in question['answers_with_count']:
-                                if answer.answerID == match.answerID:
-                                    correctAnswerIndex = index
-                                    break # Skip remainder of this inner for loop
+                            if match is not None:
+                                # Find correct answer
+                                for index,answer in question['answers_with_count']:
+                                    if answer['answerID'] == match['answerID_id']:
+                                        correctAnswerIndex = index
+                                        break # Skip remainder of this inner for loop
                                 
-                            answerInputName = question['index']+'-'+str(i)
-                            i = i + 1
-                            userAnswerIndex = int(request.POST[answerInputName])
-                            userAnswers.push( {'answerNumber':userAnswerIndex,'answerText':questions['answers'][userAnswerIndex-1].answerText} )
-                            if correctAnswerIndex == userAnswerIndex:
-                                userScore = userScore + valuePerAnswer
-                            studentAnswerList.push(str(match.matchingAnswerID)+":"+str(questions['answers'][userAnswerIndex-1].answerID))
+                                answerInputName = str(question['index'])+'-'+str(i)
+                                i = i + 1
+                                userAnswerIndex = int(request.POST[answerInputName])
+                                userAnswers.append( {'answerNumber':userAnswerIndex,'answerText':question['answers'][userAnswerIndex-1]['answerText']} )
+                                if correctAnswerIndex == userAnswerIndex:
+                                    userScore = userScore + valuePerAnswer
+                                    studentAnswerList.append(str(match['matchingAnswerID'])+":"+str(question['answers'][userAnswerIndex-1]['answerID']))
 
                         question['user_points'] = userScore
                         question['user_answers'] = userAnswers
-                    elif question['question'].type == QuestionTypes.trueFalse:
-                        answerInputName = question['index']+'-ans'
+                    elif questionType == QuestionTypes.trueFalse:
+                        answerInputName = str(question['index'])+'-ans'
                         if answerInputName not in request.POST:
                             question['user_points'] = 0
                             question['user_answer'] = {'answerNumber':"",'answerText':"No answer"}
+                            userAnswerValue = ""
                         else:
                             userAnswerValue = request.POST[answerInputName] == 't'
                             question['user_answer'] = {'answerText':str(userAnswerValue)}
-                            correctAnswerValue = CorrectAnswers.objects.get(questionID=question['question']).answerText == "True"
+                            correctAnswerValue = CorrectAnswers.objects.get(questionID=question['question']['questionID']).answerID.answerText == "True"
                             if userAnswerValue == correctAnswerValue:
                                 question['user_points'] = question['total_points']
                             else:
                                 question['user_points'] = 0
                         studentAnswerList = [str(userAnswerValue)]
-                    elif question['question'].type == QuestionTypes.essay:
+                    elif questionType == QuestionTypes.essay:
                         question['user_points']=0
                         question['user_answer']=request.POST[question['index']+'-ans']
                         studentAnswerList = [question['user_answer']]
-                    elif question['question'].type in dynamicQuestionTypesSet:
+                    elif questionType in dynamicQuestionTypesSet:
                         print("TODO: This dynamic question part")
                     
                     totalStudentScore += question['user_points']
@@ -223,9 +231,15 @@ def ChallengeResults(request):
                         studentChallengeAnswers.studentAnswer = studentAnswer
                         studentChallengeAnswers.save()
 
-                context_dict['questions'] = questions
+                # The sort on the next line should be unnecessary, but better safe than sorry
+                context_dict['questions'] = sorted(questions,key=lambda q:q['index'])
                 context_dict['total_user_points'] = totalStudentScore
                 context_dict['total_possible_points'] = totalPossibleScore
+                
+                register_event(Event.endChallenge,request,studentId,challengeId)
+
+                return render(request,'Students/ChallengeResults.html', context_dict)
+
 
 #-------------------------------------------------------------------------------------------
                 for challenge_question in challenge_questions:
