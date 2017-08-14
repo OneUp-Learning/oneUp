@@ -206,13 +206,14 @@ def ChallengeResults(request):
                             userAnswerValue = ""
                         else:
                             userAnswerValue = request.POST[answerInputName] == 't'
-                            question['user_answer'] = {'answerText':str(userAnswerValue)}
+                            question['user_answer'] = {'answerText':str(userAnswerValue),'answerValue':userAnswerValue}
                             correctAnswerValue = CorrectAnswers.objects.get(questionID=question['question']['questionID']).answerID.answerText == "True"
                             if userAnswerValue == correctAnswerValue:
                                 question['user_points'] = question['total_points']
                             else:
                                 question['user_points'] = 0
                         studentAnswerList = [str(userAnswerValue)]
+                        question['correctAnswerText'] = str(correctAnswerValue)
                     elif questionType == QuestionTypes.essay:
                         question['user_points']=0
                         question['user_answer']=request.POST[question['index']+'-ans']

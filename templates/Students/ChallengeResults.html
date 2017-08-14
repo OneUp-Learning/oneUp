@@ -29,7 +29,7 @@
 			{% for q in questions %}
 				<tr id="question"> 
 			<div id="question{{q.index}}">
-					<td colspan="3"><font style="font-weight:600">{{q.index}}. {{question.questionText|safe}}</font></td>
+				<td colspan="3"><font style="font-weight:600">{{q.index}}. {{q.question.questionText|safe}}</font></td>
 				</tr>									
 				<tr>
 					<td colspan="3">Your Answer:</td>
@@ -79,8 +79,8 @@
 					{{j}} .&nbsp;{{answer.answerText}}<br />
 				{% endfor %}</td>
 					<td  width="1%" !important>
-				{% for user_answer in user_answers %}
-					<input type="text" value={{user_answer.answerText}} style="height:1.75em; width:2.5em; border-bottom: 2px solid white;"  disabled="disabled">
+				{% for user_answer in q.user_answers %}
+					<input type="text" value={{user_answer.answerNumber}} style="height:1.75em; width:2.5em; border-bottom: 2px solid white;"  disabled="disabled">
 				{% endfor %}</td>
 					<td style="position:relative; left:-2em; bottom: 0.2em; text-align: left;" !important >
 				{% for match in q.matches %}
@@ -97,31 +97,28 @@
 					{{match.current_pos}} . &nbsp{{match.answerText}}<br />
 				{% endfor %}</td>
 					<td colspan="2" style="text-align: left;">
-        		{% for match in question.matches %}
+        		{% for match in q.matches %}
         			{{match.matchingAnswerText}}<br />	
 				{% endfor %}</td>
 				</tr>
 				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)</td>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
 				</tr>
-		{% elif question.type == questionTypes.trueFalse %}
+		{% elif q.question.type == questionTypes.trueFalse %}
 		<!-- true/false question -->
 				<tr>				
-					<td colspan="3"><input type="radio" name="{{question.questionID}}" value="True" {% ifequal user|stringformat:"s" "True" %}checked{% else %}disabled="disabled"{% endifequal %}>True<br />
-					<input type="radio" name="{{question.questionID}}" value="False" {% ifequal user|stringformat:"s" "False" %}checked{% else %}disabled="disabled"{% endifequal %}>False</td>
+					<td colspan="3"><input type="radio" name="{{q.question.questionID}}" value="True" {% if q.user_answer.answerValue %}checked{% else %}disabled="disabled"{% endif %}>True<br />
+					<input type="radio" name="{{q.question.questionID}}" value="False" {% if q.user_answer.answerValue %}disabled="disabled"{% else %}checked{% endif %}>False</td>
 				</tr>
 				<tr>
 					<td colspan="3">Correct Answer: <br>
-				{% for count,correct_answer in question.correct_answers %}
-					{{correct_answer.answerID.answerText}}
-				{% endfor %}</td>
+						{{q.correctAnswerText}}
+					</td>
 				</tr>
 				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)</td>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
 				</tr>
-		{% endif %}
-		
-		{% if question.typeID == '5' %}
+		{% elif q.question.type == questionTypes.essay %}
 		<!-- Essay question -->
 				<tr>
 					<td colspan="3"><textarea name="{{question.questionID}}" rows="10" cols="90" disabled="disabled">{{user}}</textarea></td>
