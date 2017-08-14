@@ -86,17 +86,15 @@ def ChallengeSetup(request):
                     
                         #getting the matching questions of the challenge from database
                         matchlist = []
-                        match_shuffle_list = []
                         for match in MatchingAnswers.objects.filter(questionID=q.questionID):
                             matchdict = makeSerializableCopyOfDjangoObjectDictionary(match)
                             matchdict['answers_count'] = list(range(1,len(answers)+1))
+                            matchdict['answerText'] = match.answerID.answerText
                             matchlist.append(matchdict)
                         
                         random.shuffle(matchlist)
     
-                        # This is to store the order of the matching answers.
-                        # The None is there as an initial space filler to be the 0 element.
-                        questSessionDict['matches']=[None]
+                        questSessionDict['matches']=[]
     
                         j = 1
                         for matchdict in matchlist:

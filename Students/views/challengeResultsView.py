@@ -5,7 +5,6 @@ Updated May/10/2017
 @author: iiscs
 '''
 from django.shortcuts import render, redirect
-from django import template
 from django.contrib.auth.decorators import login_required
 from time import strftime
 
@@ -16,13 +15,6 @@ from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
 from django.template.context_processors import request
-
-register = template.Library()
-
-
-# @register.filter(name='access')
-# def access(value, arg):
-#     return value[arg]
 
 def saveSkillPoints(questionId, challengeId, studentId, studentChallengeQuestion):
 
@@ -164,14 +156,20 @@ def ChallengeResults(request):
                             studentAnswerList = [str(userAnswer['answerID'])]
                     elif questionType == QuestionTypes.multipleAnswers:
                         answerInputName = str(question['index']) + '-ans[]'
-                        correctAnswerIds = [x.answerID.answerID for x in CorrectAnswers.objects.filter(questionID=question['question']['questionID'])]
+                        correctAnswers = [x.answerID for x in CorrectAnswers.objects.filter(questionID=question['question']['questionID'])]
+                        correctAnswerIds = [x.answerID for x in correctAnswers]
+                        question['correct_answer_texts'] = [x.answerText for x in correctAnswers]
+                        
                         userAnswerIndexes = request.POST.getlist(answerInputName)
-                        userAnswerIds = [question['answers'][int(x)-1]['answerID'] for x in userAnswerIndexes]
+                        # convert all to ints.
+                        userAnswerIndexes = [int(x) for x in userAnswerIndexes]
+
+                        userAnswerIds = [question['answers'][x-1]['answerID'] for x in userAnswerIndexes]
                         valuePerAnswer = question['total_points']/len(question['answers'])
                         numAnswersIncorrect = len([x for x in userAnswerIds if x not in correctAnswerIds])
                         numAnswersMissing = len([x for x in correctAnswerIds if x not in userAnswerIds])
                         question['user_points'] = question['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
-                        question['user_answers'] = [{'answerNumber':x,'answerText':question['answers'][int(x)-1]['answerText']} for x in userAnswerIndexes]
+                        question['user_answers'] = [{'answerNumber':x,'answerText':question['answers'][x-1]['answerText']} for x in userAnswerIndexes]
                         studentAnswerList = userAnswerIds
                     elif questionType == QuestionTypes.matching:
                         # Find the index for each correct matching answer
