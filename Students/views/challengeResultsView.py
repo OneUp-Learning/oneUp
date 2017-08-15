@@ -181,6 +181,7 @@ def ChallengeResults(request):
                         question['user_answers'] = userAnswers
                     elif questionType == QuestionTypes.trueFalse:
                         answerInputName = str(question['index'])+'-ans'
+                        correctAnswerValue = CorrectAnswers.objects.get(questionID=question['question']['questionID']).answerID.answerText == "True"
                         if answerInputName not in request.POST:
                             question['user_points'] = 0
                             question['user_answer'] = {'answerNumber':"",'answerText':"No answer"}
@@ -188,7 +189,6 @@ def ChallengeResults(request):
                         else:
                             userAnswerValue = request.POST[answerInputName] == 't'
                             question['user_answer'] = {'answerText':str(userAnswerValue),'answerValue':userAnswerValue}
-                            correctAnswerValue = CorrectAnswers.objects.get(questionID=question['question']['questionID']).answerID.answerText == "True"
                             if userAnswerValue == correctAnswerValue:
                                 question['user_points'] = question['total_points']
                             else:
