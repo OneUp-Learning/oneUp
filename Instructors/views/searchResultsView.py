@@ -4,10 +4,7 @@ Created on Apr 11, 2014
 @author: dichevad
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render
-
-from django.http import HttpResponse
 
 from Instructors.models import Questions, ResourceTags, Courses
 from Instructors.models import ChallengesQuestions, Challenges
@@ -43,28 +40,28 @@ def searchResults(request):
     selectedDifficulties = []
     selectedChallenges = []
     num_found_questions = 0
-    selectedChallenge = []
+    #selectedChallenge = []
     
       
     if request.POST:        
 
-        # get the list of all checked problem type
+        # get the list of all checked problem types
         qTypes = request.POST.getlist('selectedType')
         for i in range(0, len(qTypes)):
             selectedTypes.append(str(qTypes[i]))
             
-        # get the list of all checked problem difficulty
+        # get the list of all checked problem difficulties
         qDifficulties = request.POST.getlist('selectedDifficulty')
         for i in range(0, len(qDifficulties)):
             selectedDifficulties.append(str(qDifficulties[i]))
             
-        # get the list of all checked challenge
+        # get the list of all checked challenges
         qChallenges = request.POST.getlist('selectedChallenge')
         for i in range(0, len(qChallenges)):
-            selectedChallenge.append(str(qChallenges[i]))
+            selectedChallenges.append(str(qChallenges[i]))
             
             
-         # get the list of all checked problem tag
+        # get the list of all checked problem tags
         if request.POST['tags']:
             qTags = request.POST['tags']   
             selectedTags = [x.strip() for x in qTags.split(',')]
@@ -144,7 +141,7 @@ def searchResults(request):
             q_challengeId.append((ChallengesQuestions.objects.filter(questionID = question.questionID)[:1].get()).challengeID.challengeID)            
             num_found_questions = num_found_questions + 1 
 
-        #If there  no results where found then we pass empty true to html page.
+        #If no results were found then we pass empty true to html page.
         if not q_ID:
             context_dict['empty'] = 1
             
