@@ -8,13 +8,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from time import strftime
 
-from Instructors.models import Questions, StaticQuestions, Answers, CorrectAnswers, Challenges, Courses
-from Instructors.models import ChallengesQuestions, MatchingAnswers, QuestionsSkills
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
+from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills
+from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
-from django.template.context_processors import request
 from Instructors.lupaQuestion import LupaQuestion
 
 def saveSkillPoints(questionId, challengeId, studentId, studentChallengeQuestion):

@@ -7,28 +7,14 @@ Created on Feb 1, 2017
 import os
 from django.shortcuts import render, redirect
 
-from Students.models import Courses, Student, UploadedAvatarImage, StudentRegisteredCourses 
+from Students.models import Student, UploadedAvatarImage, StudentRegisteredCourses 
 from Students.views.utils import studentInitialContextDict
-from django.conf.global_settings import MEDIA_URL
 
 
 def avatarUpload(request):
     
     context_dict,currentCourse = studentInitialContextDict(request)
-    
-#     context_dict = {}
-#     
-#     context_dict["logged_in"] = request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"] = request.user.username
-#         
-#     # check if course was selected
-#     if 'currentCourseID' in request.session:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#     else:
-#         context_dict['course_Name'] = 'Not Selected'
-        
+            
     if request.POST:        
         avatarImage = request.FILES['myfile']
         avatarImageFileName = avatarImage.name

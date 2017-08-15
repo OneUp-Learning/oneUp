@@ -6,9 +6,8 @@ Created on Nov 3, 2016
 
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo, Courses, ActionArguments, Rules
+from Badges.models import VirtualCurrencyRuleInfo, ActionArguments
 from Badges.enums import Action
-from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
 
@@ -16,25 +15,7 @@ from django.contrib.auth.decorators import login_required
 def VirtualCurrencyDisplay(request):
 
     context_dict,currentCourse = studentInitialContextDict(request)
- 
-#     context_dict = { }
-#     
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username
-#         sID = Student.objects.get(user=request.user)
-#     
-#     # check if course was selected
-#     if 'currentCourseID' in request.session:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#         student = Student.objects.get(user=request.user)   
-#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-#         context_dict['avatar'] = st_crs.avatarImage          
-#         
-#     else:
-#         context_dict['course_Name'] = 'Not Selected'
-        
+         
     vcEarningRuleID = [] 
     vcEarningRuleName = []
     vcEarningRuleDescription = []

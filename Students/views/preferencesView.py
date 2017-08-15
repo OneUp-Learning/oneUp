@@ -3,35 +3,17 @@ Created on Sep 15, 2016
 #Updated The order of the fields to match the templates
 @author: Vendhan
 '''
-from django.template import RequestContext
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Skills, Courses, CoursesSkills, Topics
 from Badges.models import CourseConfigParams
-from Students.models import StudentConfigParams,Student, StudentRegisteredCourses
+from Students.models import StudentConfigParams
 from Students.views.utils import studentInitialContextDict
-from django.contrib.auth.models import User
 
 @login_required
 def preferencesView(request):
 
-    context_dict,currentCourse = studentInitialContextDict(request)
-   
-#     context_dict = { }  
-#     ccparams =[]
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username
-#         
-#     # check if course was selected
-#     if 'currentCourseID' in request.session:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#         student = Student.objects.get(user=request.user)   
-#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-#         context_dict['avatar'] = st_crs.avatarImage          
-        
+    context_dict,currentCourse = studentInitialContextDict(request)       
 
     if 'currentCourseID' in request.session:    
         
@@ -53,11 +35,8 @@ def preferencesView(request):
             scparams = StudentConfigParams.objects.get(pk=int(request.POST['scpID']))
             
         else:
-            #studentID = Student.objects.get(user=request.user)
             scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=student)
 
-#          print(studentID)
-            #scparams.studentID = User.objects.filter(userID=request.POST['userID'],courseID=currentCourse)
         if ccparams.studCanChangeBadgeVis:  
             scparams.displayBadges = "displayBadges" in request.POST
             

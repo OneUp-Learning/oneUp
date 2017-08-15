@@ -14,21 +14,6 @@ def avatar(request):
 
 	context_dict,currentCourse = studentInitialContextDict(request)
 
-# 	context_dict = {}
-# 
-# 	context_dict["logged_in"] = request.user.is_authenticated()
-# 	if request.user.is_authenticated():
-# 		context_dict["username"] = request.user.username
-# 		sID = Student.objects.get(user=request.user)		
-# 		
-# 	# check if course was selected
-# 	if 'currentCourseID' in request.session:
-# 		currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-# 		context_dict['course_Name'] = currentCourse.courseName
-# 		st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	  		
-# 		context_dict['avatar'] = st_crs.avatarImage
-# 	else:
-# 		context_dict['course_Name'] = 'Not Selected'
 
 	if 'currentCourseID' in request.session:	
 		extractPaths(context_dict, currentCourse)

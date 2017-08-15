@@ -4,9 +4,8 @@ Created on Sep 5, 2014
 @author: Swapna
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render
-from Instructors.models import Courses, Challenges
+from Instructors.models import Challenges
 from Students.models import StudentChallenges, Student
 from Students.views.utils import studentInitialContextDict
 from datetime import datetime
@@ -17,23 +16,6 @@ def ChallengesTaken(request):
     
     context_dict,currentCourse = studentInitialContextDict(request)
  
-#     context_dict = { }
-#     
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username      
-#     
-#     # check if course was selected
-#     if not 'currentCourseID' in request.session:
-#         context_dict['course_Name'] = 'Not Selected'
-#         context_dict['course_notselected'] = 'Please select a course'
-#     else:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#         student = Student.objects.get(user=request.user)   
-#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-#         context_dict['avatar'] = st_crs.avatarImage          
-
     if 'currentCourseID' in request.session:         
         studentChall_ID = []
         chall_ID = []      
