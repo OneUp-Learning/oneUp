@@ -102,7 +102,7 @@ class FeedbackType(models.Model):
 class MatchingAnswers(models.Model):
     matchingAnswerID = models.AutoField(primary_key=True)
     matchingAnswerText = models.CharField(max_length=100)
-    answerID = models.ForeignKey(Answers, verbose_name="the related question", db_index=True)
+    answerID = models.ForeignKey(Answers, verbose_name="the answer which this match goes with", db_index=True)
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     def __str__(self):              
         return str(self.answerID)+","+self.matchingAnswerText

@@ -4,7 +4,6 @@ Created on Apr 1, 2014
 @author: irwink
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
@@ -22,9 +21,6 @@ from xml.dom.expatbuilder import theDOMImplementation
 
 
 def dynamicQuestionForm(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
-    context = RequestContext(request)
     context_dict = { }
     
     context_dict["logged_in"]=request.user.is_authenticated()
@@ -146,11 +142,6 @@ end
             context_dict["code"] = code
             context_dict["numParts"] = 1
             context_dict['difficulty']="Easy"
-
-
-
-    #question = LupaQuestion(code,[],5,"edit",1)
-    #context_dict["test"] = question.getQuestionPart(1);
     
     if 'questionId' in request.POST:         
             return redirect('challengesView')
@@ -185,7 +176,7 @@ def makeLibs(dynamicQuestion):
 def dynamicQuestionPartAJAX(request):
     context_dict = { }
     if not lupa_available:
-        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server adminstrator to install it to enable dynamic problems.</B>"
+        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
@@ -239,7 +230,7 @@ def dynamicQuestionPartAJAX(request):
             # And now we need to evaluate the previous answers.
             answers = {}
             for value in request.POST:
-                if (value.startswith(uniqid+"_")): 
+                if (value.startswith(uniqid+"-")): 
                     answers[value[len(uniqid)+1:]] = request.POST[value]
             evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
             if lupaQuestion.error is not None:

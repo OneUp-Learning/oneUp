@@ -60,9 +60,11 @@ if lupa_spec is None:
             return self.error_str
         def serialize(self):
             return self.error_str
-
-
-
+        def setError(self,result, current_code):
+            return self.error_str
+        @staticmethod
+        def createFromDump(dump):
+            return LupaQuestion.error_str
 
 else:
     # All good.  This is the part which should be run under normal circumstances.
@@ -327,7 +329,7 @@ else:
         
     make_input =
         function (name,type,size)
-            local fullname = _uniqid..'_'..name
+            local fullname = _uniqid..'-'..name
             local originaltype = type
             type = string.upper(type)
             _inputs[_current_part][name] = type
