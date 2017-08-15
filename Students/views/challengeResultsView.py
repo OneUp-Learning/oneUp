@@ -15,6 +15,7 @@ from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
 from django.template.context_processors import request
+from Instructors.lupaQuestion import LupaQuestion
 
 def saveSkillPoints(questionId, challengeId, studentId, studentChallengeQuestion):
 
@@ -54,29 +55,11 @@ def ChallengeResults(request):
   
     context_dict,currentCourse = studentInitialContextDict(request)                 
 
-    if 'currentCourseID' in request.session:            
-        user_dict = { } #dictionary to store user answers, grade them (except for matching) and send them to html page  
-        match_sorted = {} #dictionary for saving the sorted order of the matching answer texts and also using it while grading
+    if 'currentCourseID' in request.session:
         instructorFeedback = "None" #Intially by default its saved none.. Updated after instructor's evaluation
-        match_question_dict = {} #dictionary for saving matching answers order that were shuffled in the test display page 
-        questionScore_dict = {} #dictionary for saving student's individual question score
-        questionTotal_dict = {} #dictionary for saving individual question total score
 
+        # This is included so that we can avoid magic numbers for question types in the template.
         context_dict['questionTypes']= QuestionTypes
-        
-        #Displaying the score and the user and correct answers
-        
-        questionObjects= []
-        useranswerObjects = []
-        matchquestionObjects = []
-        q_ID = []      # ID for questions
-        score_list = []
-        total_list = []
-        questionScore_list = []
-        questionTotal_list = []
-        
-        score=0
-        total=0
         
         if request.POST:      
             
@@ -90,10 +73,9 @@ def ChallengeResults(request):
                 studentId = Student.objects.get(user=request.user)
                 #print (studentId)
                 
-                currentCourseId = request.session['currentCourseID']
                 challengeId = request.POST['challengeId']
-                course = Courses.objects.get(pk=int(currentCourseId))
-                challenge = Challenges.objects.get(pk=int(request.POST['challengeId']))
+                course = Courses.objects.get(pk=currentCourse.courseID)
+                challenge = Challenges.objects.get(pk=challengeId)
                 context_dict['challengeName'] = challenge.challengeName
                 
                 if not challenge.isGraded:
@@ -131,7 +113,6 @@ def ChallengeResults(request):
 
                 questions = sessionDict['questions']
                 context_dict["questionCount"] = len(questions)
-                questionsDict = {}
                 totalStudentScore = 0
                 totalPossibleScore = 0
                 
@@ -219,7 +200,17 @@ def ChallengeResults(request):
                         question['user_answer']=request.POST[question['index']+'-ans']
                         studentAnswerList = [question['user_answer']]
                     elif questionType in dynamicQuestionTypesSet:
-                        print("TODO: This dynamic question part")
+                        if not question['hasMultipleParts']:
+                            lupaQuestion = LupaQuestion.createFromDump(question['lupaquestion'])
+                            answers = {}
+                            for value in request.POST:
+                                indexstring = str(question['index'])
+                                if (value.startswith(indexstring+"-")): 
+                                    answers[value[len(indexstring)+1:]] = request.POST[value]
+                            question['user_answers'] = answers
+                            studentAnswerList = [key+":"+answers[key] for key in answers.keys()]
+                            question['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)
+                            question['user_points'] = sum([eval['value'] for eval in question['evaluations'].values()])                            
                     
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']

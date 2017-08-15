@@ -142,11 +142,6 @@ end
             context_dict["code"] = code
             context_dict["numParts"] = 1
             context_dict['difficulty']="Easy"
-
-
-
-    #question = LupaQuestion(code,[],5,"edit",1)
-    #context_dict["test"] = question.getQuestionPart(1);
     
     if 'questionId' in request.POST:         
             return redirect('challengesView')

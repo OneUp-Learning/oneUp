@@ -125,7 +125,11 @@ def ChallengeSetup(request):
                             questSessionDict['lupaquestion'] = lupaQuest.serialize()
                             questdict['requestType'] = '_eval';
                             if numParts > 1:
-                                questdict['hasMultipleParts'] = 'True';
+                                questdict['hasMultipleParts'] = True
+                                questSessionDict['hasMultipleParts'] = True
+                            else:
+                                questdict['hasMultipleParts'] = False
+                                questSessionDict['hasMultipleParts'] = False
                        
                     qlist.append(questdict)
                     questSessionDict['question']=questdict

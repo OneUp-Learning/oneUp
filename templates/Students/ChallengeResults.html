@@ -121,17 +121,48 @@
 		{% elif q.question.type == questionTypes.essay %}
 		<!-- Essay question -->
 				<tr>
-					<td colspan="3"><textarea name="{{question.questionID}}" rows="10" cols="90" disabled="disabled">{{user}}</textarea></td>
+					<td colspan="3"><textarea name="{{q.question.questionID}}" rows="10" cols="90" disabled="disabled">{{q.user_answer}}</textarea></td>
 				</tr>
 				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{question_score}}</span> Point(s) out of <span>{{question_total}}</span> Point(s)</td>
+					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
+				</tr>
+		{% elif q.question.type == questionTypes.dynamic or q.question.type == questionTypes.templatedynamic %}
+			{% for answer_blank_name, user_answer_value in q.user_answers.items %}
+				<tr> <td>
+					For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}
+				</td> </tr>
+			{% endfor %}
+			{% if q.evaluations %}
+			  {% for answerName, answer in q.evaluations.items %}
+			  	<tr><td>	
+			  	{% if answer.success %}
+			  		<span style='color: green;'>&#10004;</span>You got {{answer.value}} points on answer {{answerName}} 
+			  	{% else %}
+					<span style='color: red;'>&#10006;</span>You got {{answer.value}} points on answer {{answerName}} 
+				{% endif %}
+		
+			  	{% if answer.details %}
+			  		<ul>
+			  		{% for testName, details in answer.details.items %}
+			  			<li>
+			  				{%if details.success%}
+								 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style='color: green;'>&#10004;</span>{{details.value}}/{{details.max_points}} points on criteria {{testName}} 
+			  				{%else%}
+							     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <span style='color: red;'>&#10006;</span> {{details.value}}/{{details.max_points}} points on criteria {{testName}}  
+			  				
+			  				{% endif %}
+			  			</li>
+			  		{% endfor %}
+			  		</ul>
+			  	{% endif %}
+			  	</tr></td>
+			 {% endfor %}
+			{% endif %}
+				<tr>
+					<td colspan="3"><font style="font-weight:600">Total for this question, you Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
 				</tr>
 		{% endif %}
-				<tr>
-					<td><input type="hidden" name="questionId" value="{{question.questionID}}"></td>
-				</tr>
 			</div> 
-  		<input type="hidden" name="challengeId" value="{{question.challengeID}}">		
 		{% endfor %}
 		</form>
 			</table>	
