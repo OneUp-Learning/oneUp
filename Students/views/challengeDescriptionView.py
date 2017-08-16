@@ -11,24 +11,7 @@ def ChallengeDescription(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
 
-    context_dict,currentCourse = studentInitialContextDict(request)
- 
-#     context_dict = { }
-#     
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username       
-#     
-#     # check if course was selected
-#     if not 'currentCourseID' in request.session:
-#         context_dict['course_Name'] = 'Not Selected'
-#         context_dict['course_notselected'] = 'Please select a course'
-#     else:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#         student = Student.objects.get(user=request.user)   
-#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-#         context_dict['avatar'] = st_crs.avatarImage                  
+    context_dict,currentCourse = studentInitialContextDict(request)                 
 
     if 'currentCourseID' in request.session:          
         string_attributes = ['challengeName','courseID','isGraded',                 #'challengeCategory','timeLimit','numberAttempts',

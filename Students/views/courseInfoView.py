@@ -12,19 +12,6 @@ def CourseInformation(request):
     
     context_dict,currentCourse = studentInitialContextDict(request)
     
-#     context_dict = { }
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username       
-#         
-#     if 'currentCourseID' in request.session:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#         context_dict['course_Description'] = currentCourse.courseDescription
-#         student = Student.objects.get(user=request.user)   
-#         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
-#         context_dict['avatar'] = st_crs.avatarImage          
-
     if 'currentCourseID' in request.session:  
         context_dict['course_Description'] = currentCourse.courseDescription
                         

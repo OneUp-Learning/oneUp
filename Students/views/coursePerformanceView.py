@@ -2,7 +2,6 @@
 Created on Feb 22, 2017
 
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 from Students.models import StudentChallenges, Student, StudentActivities, StudentRegisteredCourses
 from Instructors.models import Challenges, Courses, Activities
@@ -15,7 +14,6 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def CoursePerformance(request):
     # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
  
     context_dict = { }
     

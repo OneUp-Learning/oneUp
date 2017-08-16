@@ -17,7 +17,6 @@ def classAverChallengeScore(course,challenge):
     
     for user in users:
         if StudentChallenges.objects.filter(studentID=user,courseID=course, challengeID=challenge): 
-            # studentChallenges = StudentChallenges.objects.filter(studentID=user,courseID=course, challengeID=resource).latest('startTimestamp')
             # get all attempts for this student for this challenge
             studentChallenges = StudentChallenges.objects.filter(studentID=user,courseID=course, challengeID=challenge)
             chall_score = []
