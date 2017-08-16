@@ -50,7 +50,7 @@
 		  		{% endif %}
   				<table class="bg">
         			<tr>
-            			<th>Question Types</th>
+            			<th>Problem Types</th>
         			</tr>
         			<tr>
                 	<td> 				
@@ -79,7 +79,25 @@
 	    			{% endfor %}
  	    			
 	    				</td>
+	  				</tr>	  
+	  				
+					<tr>
+            			<th>Related Skills</th>
+        			</tr>
+        			<tr >
+                		<td> 	
+                							
+ 	    			{% for i,qskill in skill_range %}
+	    				<div id="qskill{{i}}">	      
+	     					<input type="checkbox" name="selectedSkills" value="{{qskill}}" >
+		     				{{qskill}}
+	      					<input type="hidden" name="qskill{{i}}" value="{{qskill}}">
+	    				</div>
+	    			{% endfor %}
+ 	    			
+	    				</td>
 	  				</tr>	  			
+	  							
 					<tr>
             			<th>Challenges</th>
         			</tr>
