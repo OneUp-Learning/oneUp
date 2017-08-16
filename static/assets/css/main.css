@@ -1854,7 +1854,6 @@ input[type="radio"] {
     margin-top: 9px;
     opacity: 100;
     width: 1em;
-    z-index: -1;
     vertical-align: center;
     -moz-transform: scale(1.5, 1.5);
     -webkit-transform: scale(1.5, 1.5);
