@@ -187,6 +187,8 @@ def ChallengeResults(request):
                         else:
                             userAnswerValue = request.POST[answerInputName] == 't'
                             question['user_answer'] = {'answerText':str(userAnswerValue),'answerValue':userAnswerValue}
+                            print('userAnswerValue '+str(userAnswerValue))
+                            print('correctAnswerValue ' + str(correctAnswerValue))
                             if userAnswerValue == correctAnswerValue:
                                 question['user_points'] = question['total_points']
                             else:
