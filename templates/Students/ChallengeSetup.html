@@ -40,7 +40,10 @@
                                         {% for j,answer in question.answers_with_count %}
                                         <!-- use a for loop and display the answers in radio buttons -->
                                         <label>
-                                            <input type="radio" name="{{i}}-ans" value="{{j}}">{{answer.answerText}}</label>
+                                            <input type="radio" name="{{i}}-ans" value="{{j}}"> 
+                                            {% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}
+                                            
+                                          
                                         {% endfor %}
                                     </td>
                                 </tr>
@@ -49,7 +52,10 @@
                                     <td colspan="2">{% for j,answer in question.answers_with_count %}
                                         <!-- use a for loop and display the answers in the check box -->
                                         <label>
-                                            <input type="checkbox" name="{{i}}-ans[]" value="{{j}}">{{answer.answerText}}</label>
+                                            <input type="checkbox" name="{{i}}-ans[]" value="{{j}}">
+                                             {% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}
+                                            
+                                         </label>
                                         {% endfor %}</td>
                                 </tr>
                                 {% elif question.type == questionTypes.matching %}

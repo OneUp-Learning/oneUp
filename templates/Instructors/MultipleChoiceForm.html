@@ -26,19 +26,23 @@
         document.question.elements['numAnswers'].value=numAnswers;
 
         /* Construct a new answer blank. */
-        var newElement = '<div id="ans'+numAnswers+'">\n'+
+        
+        var id = "ans"+numAnswers;
+		var name = "answer"+numAnswers;
+        var newElement = "<div id='"+id+"'>\n"+
 	     
-	     '<input type="radio" name="correctAnswer" value="'+
-	     numAnswers+'"> \n'+
-	     'Answer '+numAnswers+ ' ' +
-	     '<br><textarea style="border: solid 1px rgba(128, 128, 128, 0.5); resize:none" name ="answer'+numAnswers+'" rows="2" cols="70"></textarea><br>\n'+
-	     '<input type="hidden" name="ansPK'+numAnswers+'" value="">'+
-             '\n </div>';
+	      "<input type='radio' name='correctAnswer' value='"+ numAnswers+"'> \n"+
+	      "Answer "+numAnswers +
+	      "<br><textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' rows='2' cols='70' name ='"+name+"' id='"+name+"' ></textarea> <br>\n"+
+	      "<input type='hidden' name='ansPK"+numAnswers+"' value='ansPK"+numAnswers+"'/>"+
+             "\n </div>";
                 
         /* And put it in place. */
         var node = document.createTextNode(newElement);
         var previous = document.getElementById("ans"+(numAnswers-1));
         previous.insertAdjacentHTML('afterEnd',newElement);
+        
+        CKEDITOR.replace(name);
       }
 
       /* Removes the bottom answer */
@@ -119,6 +123,11 @@
                               <div id="ans{{i}}">
                               <input type="radio" name="correctAnswer" value="{{i}}" {{ansChecked}} required>Answer {{i}}<br> 
 			     			  <textarea style="border: solid 1px rgba(128, 128, 128, 0.5); resize:none" name="answer{{i}}" rows="2" cols="70" required>{{ansValue}}</textarea>
+                           		<script type="text/javascript" >
+                					// Replace the <textarea id="answer{{i}}"> with a CKEditor instance, using default configuration.
+                					CKEDITOR.replace( 'answer{{i}}' );
+            					</script>                        	
+
 			     			  <br>				   
 		      				  <input type="hidden" name="ansPK{{i}}" value="{{ansPK}}">                                 
                               </div>

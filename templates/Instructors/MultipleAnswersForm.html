@@ -27,14 +27,23 @@
         document.question.elements['numAnswers'].value=numAnswers;
 
         /* Construct a new answer blank. */
-        var newElement = '<div id="ans'+numAnswers+'"><input type="checkbox" name="correctAnswer" value="'+numAnswers+'">Answer '+numAnswers+
-	     '<br><textarea style="border: solid 1px rgba(128, 128, 128, 0.5); resize:none" name ="answer'+numAnswers+'" rows="2" cols="70" required></textarea><br>'+
-	     '<input type="hidden" name="ansPK'+numAnswers+'" value=""></div>';
-                
-        /* And put it in place. */
-        var node = document.createTextNode(newElement);
-        var previous = document.getElementById("ans"+(numAnswers-1));
-        previous.insertAdjacentHTML('afterEnd',newElement);
+  
+		 var id = "ans"+numAnswers;
+		 var name = "answer"+numAnswers;
+		 var newElement = "<div id='"+id+"'>\n"+
+		  
+		    "<input type='checkbox' name='correctAnswer' value='"+ numAnswers+"'> \n"+
+		    "Answer "+numAnswers +
+		    "<br><textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' rows='2' cols='70' name ='"+name+"' id='"+name+"' required></textarea> <br>\n"+
+		    "<input type='hidden' name='ansPK"+numAnswers+"' value=''/></div>";
+		         
+		 /* And put it in place. */
+		 var node = document.createTextNode(newElement);
+		 var previous = document.getElementById("ans"+(numAnswers-1));
+		 previous.insertAdjacentHTML('afterEnd',newElement);
+		 
+	     CKEDITOR.replace(name);
+          
       }
 
       /* Removes the bottom answer */
@@ -117,6 +126,11 @@
 		    					<div id="ans{{i}}">		      
 		      					<input type="checkbox" name="correctAnswer" value="{{i}}" {{ansChecked}} ><!-- required cannot be used here since it requires all options to be checked -->Answer {{i}}<br> 
 			     				<textarea style="border: solid 1px rgba(128, 128, 128, 0.5); resize:none" name="answer{{i}}" rows="2" cols="70">{{ansValue}}</textarea>
+	                           		<script type="text/javascript" >
+	                					// Replace the <textarea id="answer{{i}}"> with a CKEditor instance, using default configuration.
+	                					CKEDITOR.replace( 'answer{{i}}' );
+	            					</script>                        	
+			    			    
 			     				<br>				   
 		      					<input type="hidden" name="ansPK{{i}}" value="{{ansPK}}">
 		    					</div>
