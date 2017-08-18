@@ -1,14 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Courses, Topics, CoursesTopics
+from Instructors.models import Topics, CoursesTopics
 from Instructors.views import utils
 
 @login_required
 def topicsCreateView(request):
 
     context_dict,currentCourse = utils.initialContextDict(request)
-
-    string_attributes = ['topicName', 'topicPos'];
     
     if request.POST:
         
