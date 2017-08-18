@@ -35,7 +35,7 @@ def saveSkillPoints(questionId, challengeId, studentId, studentChallengeQuestion
                 
     return
 
-def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instructorFeedback):
+def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instructorFeedback,seed):
     
     studentChallengeQuestion = StudentChallengeQuestions()
     studentChallengeQuestion.studentChallengeID = studentChallenge
@@ -44,6 +44,7 @@ def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instru
     studentChallengeQuestion.questionTotal = c_ques_points
     studentChallengeQuestion.usedHint = "False"
     studentChallengeQuestion.instructorFeedback = instructorFeedback
+    studentChallengeQuestion.seed = seed
     studentChallengeQuestion.save()
 
     return studentChallengeQuestion
@@ -177,7 +178,7 @@ def ChallengeResults(request):
                                 userAnswers.append( {'answerNumber':userAnswerIndex,'answerText':question['answers'][userAnswerIndex-1]['answerText']} )
                                 if correctAnswerIndex == userAnswerIndex:
                                     userScore = userScore + valuePerAnswer
-                                    studentAnswerList.append(str(match['matchingAnswerID'])+":"+str(question['answers'][userAnswerIndex-1]['answerID']))
+                                studentAnswerList.append(str(match['matchingAnswerID'])+":"+str(question['answers'][userAnswerIndex-1]['answerID']))
 
                         question['user_points'] = userScore
                         question['user_answers'] = userAnswers
@@ -218,7 +219,11 @@ def ChallengeResults(request):
                     
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
-                    studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question['question']['questionID'], question['user_points'], question['total_points'], "")
+                    if 'seed' in question:
+                        seed = question['seed']
+                    else:
+                        seed = 0
+                    studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question['question']['questionID'], question['user_points'], question['total_points'], "",seed)
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
                         studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
