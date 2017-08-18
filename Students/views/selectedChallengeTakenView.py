@@ -5,17 +5,22 @@ Created on Sep 6, 2014
 '''
 from django.shortcuts import render
 
-from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Challenges, StaticQuestions
-from Students.models import StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
+from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Challenges, StaticQuestions, DynamicQuestions
+from Students.models import StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers
 from Students.views.utils import studentInitialContextDict
 
 from django.contrib.auth.decorators import login_required
+from Badges.enums import staticQuestionTypesSet, QuestionTypes
+from Instructors.lupaQuestion import lupa_available, CodeSegment, LupaQuestion
+from Instructors.views.dynamicQuestionView import makeLibs
 
 @login_required
 def SelectedChallengeTaken(request):
  
     context_dict,currentCourse = studentInitialContextDict(request)
-            
+    
+    context_dict['questionTypes'] = QuestionTypes
+    
     #Displaying the questions in the challenge which the student has opted 
     if 'currentCourseID' in request.session:    
        
@@ -44,6 +49,7 @@ def SelectedChallengeTaken(request):
             chall = Challenges.objects.get(pk=int(challengeId))
             challengeName = chall.challengeName
             
+            qlist = []
             
             challenge_questions = StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallengeId)
             for challenge_question in challenge_questions:
@@ -52,44 +58,51 @@ def SelectedChallengeTaken(request):
                 questionScoreObjects.append(challenge_question.questionScore)
                 questionTotalObjects.append(challenge_question.questionTotal)
                 useranswerIds.append(challenge_question.studentChallengeQuestionID)
-            print("Answer ids:"+str(useranswerIds))
-            
-            #student_answers = StudentChallengeAnswers.objects.filter(studentChallengeQuestionID = (StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallengeId)))
-            for answer_Id in useranswerIds:
-                answer_list = []
-                match_list = []
-                #studentAnswerId = StudentChallengeQuestions.objects.get(studentChallengeID=studentChallengeId, questionID=q)
-                studentAnswers = StudentChallengeAnswers.objects.filter(studentChallengeQuestionID=answer_Id)
-                matchShuffled = MatchShuffledAnswers.objects.filter(studentChallengeQuestionID=answer_Id)
+
+                studentAnswers = StudentChallengeAnswers.objects.filter(studentChallengeQuestionID=challenge_question)
+                match_list = MatchingAnswers.objects.filter(questionID=challenge_question.questionID)
                 
-                for stuAns in studentAnswers:
-                    answer_list.append(stuAns.studentAnswer)
-                useranswerObjects.append(answer_list)
- 
-                print("user answers:"+str(useranswerObjects))
-                
-                for matAns in matchShuffled:
-                    match_list.append(matAns.MatchShuffledAnswerText)
                 matchanswerObjects.append(match_list)
-                #else:
-                #useranswerObjects.append(studentAnswer.studentAnswer)
-                print("user answers:"+str(matchanswerObjects))
                 
-            #getting all the question of the challenge except the matching question
-            #challengeDetails = Challenges.objects.filter(challengeID = challengeId)
-            qlist = []
-            for q in questionObjects:
+                q = challenge_question.questionID
                 questdict = q.__dict__
                 
                 answers = Answers.objects.filter(questionID = q.questionID)
                 answer_range = range(1,len(answers)+1)
                 questdict['answers_with_count'] = zip(answer_range,answers)  
                 questdict['match_with_count'] = zip(answer_range,answers) 
-                
-                staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
-                questdict['questionText']=staticQuestion.questionText                                       
-                questdict['typeID']=str(q.type)
                 questdict['challengeID']= challengeId
+
+                if q.type == QuestionTypes.matching:
+                    userAnswerDict = {}                
+                    for stuAns in studentAnswers:
+                        matchAnswer = stuAns.studentAnswer
+                        parts = matchAnswer.split(':')
+                        userAnswerDict[int(parts[1])] = MatchingAnswers.objects.get(pk=parts[0]).matchingAnswerText
+                    useranswerObjects.append([userAnswerDict[ans.answerID] for ans in answers])                  
+                else:
+                    answer_list = []
+                    for stuAns in studentAnswers:
+                        answer_list.append(stuAns.studentAnswer)
+                    useranswerObjects.append(answer_list)
+
+                print("user answers:"+str(useranswerObjects))
+
+                if q.type in staticQuestionTypesSet:
+                    staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
+                    questdict['questionText']=staticQuestion.questionText
+                else:
+                    dynamicQuestion = DynamicQuestions.objects.get(pk=q.questionID)
+                    if not lupa_available:
+                        questdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+                    else:
+                        seed = challenge_question.seed                      
+                        code = [CodeSegment.new(CodeSegment.raw_lua,dynamicQuestion.code,"")]
+                        numParts = dynamicQuestion.numParts
+                        libs = makeLibs(dynamicQuestion)
+                        part = 1
+                        lupaQuest = LupaQuestion(code, libs, seed, "dummy_uniqid", numParts)
+                        questdict['questionText'] = lupaQuest.getQuestionPart(1)
                 
                 correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
                 canswer_range = range(1,len(correct_answers)+1)
