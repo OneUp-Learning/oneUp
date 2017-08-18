@@ -68,6 +68,7 @@ def ChallengeResults(request):
                 return redirect('/oneUp/students/ChallengesList')
             
             else: 
+                        
                 studentId = Student.objects.get(user=request.user)
                 #print (studentId)
                 
@@ -89,7 +90,8 @@ def ChallengeResults(request):
                 attemptId = 'challenge:'+challengeId + '@' + startTime
                 print("attemptID = "+attemptId)               
                 
-                if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=endTime).count() > 0:
+                # Do not grade the same challenge twice
+                if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
                     return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
                     
                 #save initial student-challenge information pair (no score)to db
@@ -103,6 +105,8 @@ def ChallengeResults(request):
                 studentChallenge.testTotal = 0 #initially its zero and updated after calculation at the end
                 studentChallenge.instructorFeedback = instructorFeedback
                 studentChallenge.save()
+                
+                #print(studentChallenge.endTimestamp - studentChallenge.startTimestamp)
                                 
                 sessionDict = request.session[attemptId]
                 if not sessionDict:
@@ -179,7 +183,7 @@ def ChallengeResults(request):
                         question['user_answers'] = userAnswers
                     elif questionType == QuestionTypes.trueFalse:
                         answerInputName = str(question['index'])+'-ans'
-                        correctAnswerValue = CorrectAnswers.objects.get(questionID=question['question']['questionID']).answerID.answerText == "True"
+                        correctAnswerValue = CorrectAnswers.objects.get(questionID=question['question']['questionID']).answerID.answerText == "true"
                         if answerInputName not in request.POST:
                             question['user_points'] = 0
                             question['user_answer'] = {'answerNumber':"",'answerText':"No answer"}
