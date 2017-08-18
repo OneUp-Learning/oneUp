@@ -35,7 +35,7 @@
             <div class="container">
             <div class="row">
         	<div class="12u">
-               {% if challenge %}
+        {% if challenge %}
 			<h1>Select Problems for <span>{{challengeName}}</span> </h1>
 		{% else %}      
             <h1>Search Problems</h1> 
@@ -45,6 +45,12 @@
 		<form name= "question" action="/oneUp/instructors/challengeSaveSelectedQuestions" method="POST">
 			{% csrf_token %}
 		<input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+		
+              {% if empty %}
+                  <h3>No results were found</h3><br>
+                  <a href="/oneUp/instructors/search?challengeID={{challengeID}}"><input type="button" value="Back"></a></td>
+              {% else %}
+		
 					<table class="bg">
 						<tr>
                             <th></th>
@@ -55,11 +61,6 @@
                             <th></th>
                         </tr>
                         
-                        {% if empty %}
-                        <tr><td></td>
-                        <td>**No Results Where Found**</td>
-                        </tr>
-                        {% else %}
                         
 		{% for i,q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId in question_range %}
 		<tr>  
@@ -93,15 +94,17 @@
 				</td>													
 		</tr>				
 		{% endfor %}
-		{% endif %}
-	</table>
-    	<tr>
+
+		</table>
+
     	<input type="hidden" name="challengeID" id="challengeID"
 				value="{{challengeID}}">
-      		<td><input type="submit" name="submit" value="Submit" class="button"/>
+      		<input type="submit" name="submit" value="Submit" class="button"/>
       		<button type="reset" value="Reset">Reset</button>
-      		<a href="/oneUp/instructors/search?challengeID={{challengeID}}"><input type="button" value="Back"></a></td>
-      	</tr>
+       	    <a href="/oneUp/instructors/search?challengeID={{challengeID}}"><input type="button" value="Back"></a>
+
+      	{% endif %}
+
       	</form>
 <!-- END DYNAMIC TABLE -->
          </div></div></div>

@@ -21,6 +21,7 @@
          	<div class="12u">
 			<h1> Results for Challenge<span> {{challengeName}}</span></h1>
 			<br>
+			
 			<table class="bg">
 				<tr style="font-size: 1.2em">
 					<td colspan="3">You scored <span>{{total_user_points}}</span> points out of <span>{{total_possible_points}}</span> points in this challenge.</td>
@@ -32,7 +33,7 @@
 				<td colspan="3"><font style="font-weight:600">{{q.index}}. {{q.question.questionText|safe}}</font></td>
 				</tr>									
 				<tr>
-					<td colspan="3">Your Answer:</td>
+					<td colspan="3"><b>Your Answer:</b></td>
 				</tr>
 		{% if q.question.type == questionTypes.multipleChoice %}
 		<!-- multiple choice question -->
@@ -41,12 +42,12 @@
 			<!-- use a for loop and display the answers in radio buttons -->
 					<input type="radio" name="{{q.question.questionID}}" value="{{answer.answerText}}" 
 					{% if q.user_answer.answerNumber == j %}checked{% else %}disabled="disabled"{% endif %}>
-					{{answer.answerText}}<br>
+					{{answer.answerText|safe}}<br/>
 			{% endfor %}</td>
 				</tr>
 				<tr>
-					<td colspan="3">Correct Answer:<br>
-						{{q.correct_answer_text}}<br>
+					<td colspan="3"><b>Correct Answer:</b>
+						{{q.correct_answer_text|safe}}<br>
 					</td>
 				</tr>
 				<tr>
@@ -58,13 +59,13 @@
 					<td colspan="3">
 				{% for j,answer in q.answers_with_count %}
 			<!-- use a for loop and display the answers in the check box -->
-					<input type="checkbox" name="{{q.question.questionID}}" value="{{answer.answerText}}"{% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %}>{{answer.answerText}}<br />
+					<input type="checkbox" name="{{q.question.questionID}}" value="{{answer.answerText}}"{% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %}>{{answer.answerText|safe}}<br />
 				{% endfor %}</td>
 				</tr>
 				<tr>
 					<td colspan="3">Correct Answer(s):<br />
 				{% for correct_answer_text in q.correct_answer_texts %}
-					{{correct_answer_text}}<br>
+					{{correct_answer_text|safe}}<br>
 				{% endfor %}</td>
 				</tr>
 				<tr>

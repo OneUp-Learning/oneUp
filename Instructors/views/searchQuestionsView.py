@@ -10,7 +10,7 @@ from django.shortcuts import render
 
 from django.http import HttpResponse
 
-from Instructors.models import Questions, Tags, Courses, Challenges
+from Instructors.models import Questions, Tags, Courses, Challenges, CoursesSkills
 #from Instructors.models import QuestionTypes
 from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
 
@@ -36,6 +36,7 @@ def searchQuestions(request):
     leveldiffs = []
     qchallenge = []
     qdifficulty = []
+    qskill = []
     qdifficulties = ['Easy', 'Medium', 'Hard']
 
 
@@ -47,6 +48,13 @@ def searchQuestions(request):
     for i in range(0, num_qdifficulties):
         qdifficulty.append(qdifficulties[i])
         
+
+    # Get skills from the DB
+    c_skills = CoursesSkills.objects.filter(courseID = currentCourse)
+    for cs in c_skills:
+        qskill.append(cs.skillID.skillName) 
+    
+    context_dict['skill_range'] = zip(range(1, c_skills.count() + 1), qskill)
             
     # Get challenges from the DB
     challenges = Challenges.objects.filter(courseID=currentCourse)

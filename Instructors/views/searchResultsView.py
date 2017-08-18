@@ -1,16 +1,14 @@
 '''
 Created on Apr 11, 2014
+Modified on 08/15/2017
 
-@author: dichevad
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render
 
-from django.http import HttpResponse
-
-from Instructors.models import Questions, ResourceTags, Courses
+from Instructors.models import Questions, ResourceTags, QuestionsSkills
 from Instructors.models import ChallengesQuestions, Challenges
+from Instructors.views.utils import initialContextDict
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
@@ -19,123 +17,113 @@ from django.contrib.auth.decorators import login_required
 
 
 def searchResults(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
- 
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
         
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = initialContextDict(request);        
 
     qTags = [] 
-    qTypes = []    
-    qChallenges = []
-    qDifficulties = []  
     selectedTags = []   
     selectedTypes = []
     selectedDifficulties = []
     selectedChallenges = []
-    num_found_questions = 0
-    selectedChallenge = []
-    
+    selectedSkills = []
+    num_found_questions = 0   
       
     if request.POST:        
 
-        # get the list of all checked problem type
-        qTypes = request.POST.getlist('selectedType')
-        for i in range(0, len(qTypes)):
-            selectedTypes.append(str(qTypes[i]))
+        # get the list of all checked problem types
+        selectedTypes = [qtype for qtype in request.POST.getlist('selectedType')]
             
-        # get the list of all checked problem difficulty
-        qDifficulties = request.POST.getlist('selectedDifficulty')
-        for i in range(0, len(qDifficulties)):
-            selectedDifficulties.append(str(qDifficulties[i]))
+        # get the list of all checked problem difficulties
+        selectedDifficulties = [qdificulty for qdificulty in request.POST.getlist('selectedDifficulty')]
+ 
+        # get the list of all checked skills
+        selectedSkills = [qskill for qskill in request.POST.getlist('selectedSkills')]
+           
+        # get the list of all checked challenges
+        selectedChallenges = [qchallenge for qchallenge in request.POST.getlist('selectedChallenge')]
             
-        # get the list of all checked challenge
-        qChallenges = request.POST.getlist('selectedChallenge')
-        for i in range(0, len(qChallenges)):
-            selectedChallenge.append(str(qChallenges[i]))
-            
-            
-         # get the list of all checked problem tag
+        # get the list of all checked problem tags
         if request.POST['tags']:
             qTags = request.POST['tags']   
             selectedTags = [x.strip() for x in qTags.split(',')]
             
-        q_object_type = []      
+        q_object_type = [] 
+        q_object_skills = []
         q_object_tags = []
         q_object_difficulty = []
         q_object_challenge = []
-        q_object = []
         
         questions = Questions.objects.all()
-        
-        #Checking for question type
-        if qTypes:
+
+        #Checking for challenges
+        if selectedChallenges:
+            
             for question in questions:
-                if str(question.type) in selectedTypes:
-                    q_object_type.append(question)
-                    
+                q_challenge_db = ChallengesQuestions.objects.filter(questionID = question)
+                q_challegenames_db = [qc.challengeID.challengeName for qc in q_challenge_db]  
+                              
+                # Check if the intersection of the two sets of challenge names for this question is not empty
+                # We want to return the question if it appears in any of the selected challenges
+ 
+                #if set(selectedChallenges).intersection(set(q_challegenames_db)):
+                if not set(selectedChallenges).isdisjoint(q_challegenames_db):                
+                    q_object_challenge.append(question)
+                      
         else:
-            q_object_type = questions
+            q_object_challenge = questions
+            
+        print(selectedChallenges)
+            
+        #Checking for skills
+        if selectedSkills:
+            # Find the skills to which this question is related
+            for question in q_object_challenge:
+                q_skill_db = QuestionsSkills.objects.filter(questionID = question)
+                q_skillnames_db = [qs.skillID.skillName for qs in q_skill_db]                
+
+                # We want to return the question if it is related to any of the selected in the filter form skills
+                if not set(selectedSkills).isdisjoint(q_skillnames_db):
+                    q_object_skills.append(question)                   
+        else:
+            q_object_skills = q_object_challenge
+
+        
+        # Filtering on question type
+        if selectedTypes:
+            q_object_type = [q for q in q_object_skills if str(q.type) in selectedTypes]                               
+        else:
+            q_object_type = q_object_skills
                     
-        #Checking for difficulty
-        if qDifficulties:
-            for question in q_object_type:
-                if (question.difficulty in selectedDifficulties):
-                    q_object_difficulty.append(question)
-                    
+        # Filtering on difficulty
+        if selectedDifficulties:
+            q_object_difficulty = [q for q in q_object_type if q.difficulty in selectedDifficulties]                                
         else:
             q_object_difficulty = q_object_type
                         
-        #Checking for challenges
-        if qChallenges:
-            for question in q_object_difficulty:
-                q_challenge_db = ChallengesQuestions.objects.filter(questionID = question)
-                for qc in q_challenge_db:
-                    q_challegenames_db = []
-                    q_challegenames_db.append(qc.challengeID.challengeName)                                              
-                    if sublistExists(qChallenges, q_challegenames_db):
-                        q_object_challenge.append(question)  
-        else:
-            q_object_challenge = q_object_difficulty
-                
         #Checking for tags
         if selectedTags:
-            for question in q_object_challenge:
+            for question in q_object_difficulty:
                 q_tags_db = ResourceTags.objects.filter(questionID = question)
-                for t in q_tags_db:
-                    q_tagnames_db = []
-                    q_tagnames_db.append(t.tagID.tagName) 
-
-                    print(q_tagnames_db)
-                    if sublistExists (selectedTags, q_tagnames_db):
-                        q_object_tags.append(question)       
-        else:
-            q_object_tags = q_object_challenge
+                q_tagnames_db = [t.tagID.tagName for t in q_tags_db]              
                 
-                                                                  
+                if not set(selectedTags).isdisjoint(q_tagnames_db):
+                    q_object_tags.append(question)       
+        else:
+            q_object_tags = q_object_difficulty
+                                                                                  
         q_ID = []      
         q_preview = []         
         q_type = []
         q_type_name = []
         q_difficulty = []
-        q_challenge = []
         q_challengeId= []
         
         for question in q_object_tags:
-        #the question satisfies the requirements
+ 
+            #the question satisfies the requirements
             q_ID.append(question.questionID)
             q_preview.append(question.preview)
             
-            #q_type.append(question.type)
             qtype=question.type
             q_type.append(qtype)
             q_type_name.append(QuestionTypes.questionTypes[qtype]['displayName'])
@@ -144,7 +132,7 @@ def searchResults(request):
             q_challengeId.append((ChallengesQuestions.objects.filter(questionID = question.questionID)[:1].get()).challengeID.challengeID)            
             num_found_questions = num_found_questions + 1 
 
-        #If there  no results where found then we pass empty true to html page.
+        #If no results were found then we pass empty=true to the html page
         if not q_ID:
             context_dict['empty'] = 1
             
@@ -159,6 +147,4 @@ def searchResults(request):
             return render(request,'Instructors/ChallengeReuseQuestions.html', context_dict)
         else:
             return render(request,'Instructors/QuestionsList.html', context_dict)
-        
-def sublistExists(list1,list2):
-    return set(list1).issubset(set(list2))
+

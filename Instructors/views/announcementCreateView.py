@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Announcements, Courses
 from Instructors.views.announcementListView import createContextForAnnouncementList
-from _datetime import datetime, tzinfo
 from time import time, strptime, struct_time
 from time import strftime
 import datetime
