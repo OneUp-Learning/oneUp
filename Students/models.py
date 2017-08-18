@@ -79,6 +79,7 @@ class StudentChallengeQuestions(models.Model):
     questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
     usedHint = models.BooleanField(default=True)
     instructorFeedback = models.CharField(max_length=200)
+    seed = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.studentChallengeQuestionID) +","+str(self.questionID)
 

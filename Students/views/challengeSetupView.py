@@ -117,9 +117,9 @@ def ChallengeSetup(request):
                             part = 1
                             lupaQuest = LupaQuestion(code, libs, seed, str(i+1), numParts)
 
-                            if (lupaQuest.error):
-                                context_dict['error']=lupaQuest.error
-                                return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
+#                            if (lupaQuest.error):
+#                                context_dict['error']=lupaQuest.error
+#                                return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
                             questdict['questionText'] = lupaQuest.getQuestionPart(1)
                             questSessionDict['lupaquestion'] = lupaQuest.serialize()
