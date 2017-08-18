@@ -46,19 +46,21 @@
                   <table class="bg">
                      <tr>
                         <th>Topic Name</th>
-                        <th> </th>
+                        <th>Topic Position</th>
+                        <th></th>
                      </tr>
-                     {% for i,topic_ID,topic_Name in topic_range %}
+                     {% for i,topicID,topicName,topicPos in topic_range %}
                      <tr>
                         <div id="topics{{i}}">
-                           <td>{{topic_Name}}</td>
+                           <td>{{topicName}}</td>
+                           <td>{{topicPos}}</td>
                            <td align="right">
                               <form action="/oneUp/instructors/deleteTopic " method="POST">
                                  {% csrf_token %}                                                                        
-                                 <input type="hidden" name="topicID" value="{{topic_ID}}">                           
+                                 <input type="hidden" name="topicID" value="{{topicID}}">                           
 <!--                                  <a href="/oneUp/instructors/subTopicsCreate?topicID={{topic_ID}}"><button type="button">Add Sub Topic</button></a>
                                  <a href="/oneUp/instructors/subTopicsListView?topicID={{topic_ID}}"><button type="button">Edit Sub Topic</button></a>
- -->                                 <a href="/oneUp/instructors/topicsCreate?topicID={{topic_ID}}"><button type="button">Edit</button></a>
+ -->                                 <a href="/oneUp/instructors/topicsCreate?topicID={{topicID}}"><button type="button">Edit</button></a>
                                  <input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
                               </form>
                            </td>

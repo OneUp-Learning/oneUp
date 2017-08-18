@@ -5,40 +5,33 @@ Last updated on 07/12/2017
 @author: Alex
 '''
 from django.shortcuts import render
-from Instructors.models import Courses, Topics, CoursesTopics
+from Instructors.models import Topics, CoursesTopics
 from Instructors.constants import  unspecified_topic_name
+from Instructors.views import utils
 from django.contrib.auth.decorators import login_required
-from inspect import currentframe
+
 
 @login_required
 def topicsListView(request):
   
-    context_dict = { }
+    context_dict,currentCourse = utils.initialContextDict(request)   
+           
+    topicID = []      
+    topicName = []
+    topicPos = []
+           
+    ctopics = CoursesTopics.objects.filter(courseID=currentCourse)
+    for ct in ctopics:
+        tId = ct.topicID.topicID
+        print(ct)
+         
+        topic = Topics.objects.get(topicID=tId)
+        print(topic)
+        if not topic.topicName == unspecified_topic_name:   # do not display the unspecified topic
+            topicID.append(tId)
+            topicName.append(topic.topicName)
+            topicPos.append(str(ct.topicPos))
 
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-    
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-          
-        topic_ID = []      
-        topic_Name = []
-               
-        ctopics = CoursesTopics.objects.filter(courseID=currentCourse)
-        for ct in ctopics:
-            topic_ID.append(ct.topicID.topicID) 
-
-            topics = Topics.objects.filter(topicID=ct.topicID.topicID)
-            for topic in topics:
-                if not topic.topicName == unspecified_topic_name:   # do not display the unspecified topic
-                    topic_Name.append(topic.topicName)
-
-        context_dict['topic_range'] = zip(range(1,ctopics.count()+1),topic_ID,topic_Name)
+    context_dict['topic_range'] = sorted(list(zip(range(1,ctopics.count()+1),topicID,topicName,topicPos)),key=lambda tup: tup[3])
 
     return render(request,'Instructors/TopicsList.html', context_dict)
