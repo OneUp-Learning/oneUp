@@ -238,8 +238,9 @@ class Topics(models.Model):
 class CoursesTopics(models.Model):
     topicID = models.ForeignKey('Instructors.Topics', verbose_name="topic")    
     courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses")
+    topicPos = models.IntegerField(default=0)
     def __str__(self):              
-        return str(self.courseID)+","+str(self.topicID)
+        return str(self.courseID)+","+str(self.topicID)+","+str(self.topicPos)
     
 class CoursesSubTopics(models.Model):
     subTopicID = models.AutoField(primary_key=True)
