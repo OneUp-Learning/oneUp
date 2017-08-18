@@ -178,7 +178,7 @@ def ChallengeResults(request):
                                 userAnswers.append( {'answerNumber':userAnswerIndex,'answerText':question['answers'][userAnswerIndex-1]['answerText']} )
                                 if correctAnswerIndex == userAnswerIndex:
                                     userScore = userScore + valuePerAnswer
-                                    studentAnswerList.append(str(match['matchingAnswerID'])+":"+str(question['answers'][userAnswerIndex-1]['answerID']))
+                                studentAnswerList.append(str(match['matchingAnswerID'])+":"+str(question['answers'][userAnswerIndex-1]['answerID']))
 
                         question['user_points'] = userScore
                         question['user_answers'] = userAnswers
