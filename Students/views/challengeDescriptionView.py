@@ -47,7 +47,7 @@ def ChallengeDescription(request):
                 context_dict['challengeID'] = challengeId
                 for attr in string_attributes:
                     context_dict[attr] = getattr(challenge, attr)
-
+                    
                 total_attempts = challenge.numberAttempts
                 if data == 99999:
                     context_dict['more_attempts'] = "unlimited"
