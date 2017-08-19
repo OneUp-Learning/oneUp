@@ -53,7 +53,7 @@ class InstructorRegisteredCourses(models.Model):
        
 class Difficulty(models.Model):
     difficultyID = models.AutoField(primary_key=True)
-    difficulty = models.CharField(max_length=75)
+    difficulty = models.CharField(max_length=75, default="")
     def __str__(self):              
         return str(self.difficulty)
 
@@ -70,8 +70,8 @@ class Questions(models.Model):
     preview = models.CharField(max_length=200)
     instructorNotes = models.CharField(max_length=300)
     type = models.IntegerField(default=0)
-    difficulty = models.CharField(max_length=50)
-    author = models.CharField(max_length=100)  
+    difficulty = models.CharField(max_length=50, default="")
+    author = models.CharField(max_length=100, default="")  
 #     topicID = models.ForeignKey(Topics, verbose_name="the related topic", db_index=True) 
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              
@@ -79,8 +79,8 @@ class Questions(models.Model):
     
 class StaticQuestions(Questions):
     questionText = models.CharField(max_length=1000)
-    correctAnswerFeedback = models.CharField(max_length=200)
-    incorrectAnswerFeedback = models.CharField(max_length=200)
+    correctAnswerFeedback = models.CharField(max_length=200, default="")
+    incorrectAnswerFeedback = models.CharField(max_length=200, default="")
 
 class CodeLibrary(models.Model):
     name = models.CharField(max_length=200)
@@ -95,7 +95,7 @@ class Answers(models.Model):
 
 class FeedbackType(models.Model):
     feedbackID = models.AutoField(primary_key=True)
-    feedbackText = models.CharField(max_length=100)
+    feedbackText = models.CharField(max_length=100, default="")
     def __str__(self):
         return str(self.feedbackText)
 
@@ -115,14 +115,14 @@ class CorrectAnswers(models.Model):
     
 class Prompts(models.Model):
     promptID = models.AutoField(primary_key=True)
-    promptText = models.CharField(max_length=100)
+    promptText = models.CharField(max_length=100, default="")
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     answerID = models.ForeignKey('Instructors.Answers', verbose_name="the correct answer for this prompt")
     
 class Goals(models.Model):    
     goalID = models.AutoField(primary_key=True)
     goalAuthor = models.CharField(max_length=75)
-    goalsCol = models.CharField(max_length=75)
+    goalsCol = models.CharField(max_length=75, default="")
     #...
     def __str__(self):
         return self.goalAuthor
@@ -139,7 +139,7 @@ class Challenges(models.Model):
     feedbackOption2 = models.BooleanField(default=False)
     feedbackOption3 = models.BooleanField(default=False)
     challengeAuthor = models.CharField(max_length=75)
-    challengeDifficulty = models.CharField(max_length=45)
+    challengeDifficulty = models.CharField(max_length=45, default="")
     isVisible = models.BooleanField(default=True)
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True)
@@ -172,7 +172,7 @@ class QuestionsSkills(models.Model):
 
 class Tags(models.Model):
     tagID = models.AutoField(primary_key=True)
-    tagName = models.CharField(max_length=75)
+    tagName = models.CharField(max_length=75, default="")
     def __str__(self):              
         return str(self.tagID)+","+self.tagName
 
@@ -207,12 +207,12 @@ class ChallengesQuestions(models.Model):
 class Activities(models.Model):
     activityID = models.AutoField(primary_key=True)
     activityName = models.CharField(max_length=75)
-    description = models.CharField(max_length=200)
-    points =  models.IntegerField()
+    description = models.CharField(max_length=200, default="")
+    points =  models.IntegerField(default=0)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
     #activityType = models.CharField(max_length=50)
     #difficulty = models.CharField(max_length=50)
-    instructorNotes = models.CharField(max_length=300)
+    instructorNotes = models.CharField(max_length=300, default="")
     author = models.CharField(max_length=100)  
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              
@@ -224,8 +224,8 @@ class Announcements(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
-    subject = models.CharField(max_length=25, default="  ")
-    message = models.CharField(max_length=300)
+    subject = models.CharField(max_length=25, default="")
+    message = models.CharField(max_length=300, default="")
     def __str__(self):              
         return str(self.announcementID)+","+str(self.authorID)+","+str(self.startTimestamp)
 
@@ -264,7 +264,7 @@ class ChallengesTopics(models.Model):
 class Milestones(models.Model):
     milestoneID = models.AutoField(primary_key=True)
     milestoneName = models.CharField(max_length=75)
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, default="")
     points =  models.IntegerField()
     authorID = models.ForeignKey(User, verbose_name="Author", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
