@@ -4,7 +4,6 @@ Created on August 2015
 @author: Alex
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Courses, Challenges
 from Students.models import StudentChallenges, Student

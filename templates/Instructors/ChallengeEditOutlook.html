@@ -262,7 +262,7 @@
 		{% for i,question in question_range %}
 		<tr> 
 			<div id="question{{i}}">
-				<th> {{question.questionText}}</th><th></th></tr>									
+				<th> {{question.questionText|safe}}</th><th></th></tr>									
 							
 							{% if question.typeID == '1' %}
 							<!-- multiple choice question -->
@@ -272,7 +272,7 @@
 									<!-- use a for loop and display the answers in radio buttons -->
 									<input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}"
 									 {% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
-									 {% else %}disabled="disabled"{% endifequal %}>{{answer.answerText}}<br />
+									 {% else %}disabled="disabled"{% endifequal %}>{{answer.answerText|safe}}<br />
 								{% endfor %}
 								{% endfor %}					
 							{% endif %}				
@@ -287,7 +287,7 @@
 									{% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
 									{% else %}
 								{% endifequal %}
-									>{{answer.answerText}}<br />
+									>{{answer.answerText|safe}}<br />
 								{% endfor %}
 								{% endfor %}
 							{% endif %}		
@@ -328,7 +328,7 @@
 	</script>
 	<td align="left">							
 		{% if warmUp %}
-           <a href="/oneUp/instructors/challengesList?warmUp">
+           <a href="/oneUp/instructors/warmUpChallengeList">
         {% else %}
            <a href="/oneUp/instructors/challengesList">
         {% endif %}

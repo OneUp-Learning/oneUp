@@ -4,7 +4,7 @@ Created on May 7, 2014
 @author: Swapna
 '''
 from django.shortcuts import render
-from Students.models import StudentChallenges, Student
+from Students.models import StudentChallenges
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges
 from time import strftime
@@ -31,7 +31,8 @@ def ChallengesList(request):
         chall_Name = []         
         chall_Difficulty = []
         
-        studentId = Student.objects.filter(user=request.user)
+        #studentId = Student.objects.filter(user=request.user)
+        studentId = context_dict['student']
         #Displaying the list of challenges from database
         
         # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)

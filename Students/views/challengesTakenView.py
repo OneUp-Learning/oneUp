@@ -27,7 +27,8 @@ def ChallengesTaken(request):
         warmUp=0
         
         #Displaying the list of challenges that the student has taken from database
-        studentId = Student.objects.filter(user=request.user)
+        #studentId = Student.objects.filter(user=request.user)
+        studentId = context_dict['student']
         
         if 'warmUp' in request.GET:
             context_dict['warmUp'] = 1
@@ -35,6 +36,7 @@ def ChallengesTaken(request):
                 
         if 'challengeID' in request.GET:
             context_dict['challengeID'] = request.GET['challengeID']
+            context_dict['challengeName'] = Challenges.objects.get(pk=request.GET['challengeID']).challengeName
             studentChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = request.GET['challengeID'])
         else:
             studentChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse)

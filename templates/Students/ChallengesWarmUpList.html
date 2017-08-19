@@ -10,13 +10,17 @@
       <body>
       <div id="page-wrapper">
 
-            {% include 'stheading.html' %}
+       {% if is_teacher %}    
+              {% include 'heading.html' %}
+       {% else %}
+              {% include 'stheading.html' %}
+       {% endif %}
 
             <div class="frame" id="grad" align="center">
          	<div class="container">
          	<div class="row">
          	<div class="12u">
-         		 <h1> Warm Up Challenges</h1>
+         		 <h1> Warm Up Challenges {% if is_teacher %} for {{student}} {% endif %}</h1>
 			</div>
 			</div>
 <!-- INSERTED DYNAMIC TABLE --> 
@@ -60,15 +64,15 @@
 				<font color="#FFFF00 ">&#9724;</font>
 				
 				{% elif score == 3 %} <!-- If score equals Above Average -->
-				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp" style="text-decoration:none;">
+				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
 				<font color="#0000FF "> &#9724;</font></a>
 				
 				{% elif score == 4 %} <!-- If score equals Average -->
-				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp" style="text-decoration:none;">
+				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
 				<font color="#00ace6 "> &#9724;</font></a>
 				
 				{% else %} <!-- If score equals Below Average -->
-				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp" style="text-decoration:none;">
+				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
 				<font color="#80dfff "> &#9724;</font></a>
 				{% endif %}
 				 

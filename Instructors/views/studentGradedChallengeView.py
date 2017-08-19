@@ -5,14 +5,9 @@ Created on August 25, 2015
 '''
 from django.shortcuts import render
 
-from django.template import RequestContext
-from django.shortcuts import render
-
 from Instructors.models import Answers, CorrectAnswers, MatchingAnswers, Courses, Challenges
-from Students.models import StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
-import random 
-from _ctypes import Array
-from _ast import Str
+from Students.models import StudentChallengeQuestions, StudentChallengeAnswers, MatchShuffledAnswers
+
 from django.contrib.auth.decorators import login_required
 
 @login_required
