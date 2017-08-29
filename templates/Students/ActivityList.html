@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+         
+         {% include 'scripts.html' %}
+         
+      </head>
+      <body>
+      <div id="page-wrapper">
+
+       {% if is_teacher %}    
+              {% include 'heading.html' %}
+       {% else %}
+              {% include 'stheading.html' %}
+       {% endif %}
+
+            <div class="frame" id="grad" align="center">
+         	<div class="container">
+         	<div class="row">
+         	<div class="12u">
+         		 <h1>Activities </h1>
+			</div></div>
+<!-- INSERTED DYNAMIC TABLE --> 
+			<div class="row">
+         	<div class="12u">
+    <div id="element2"><td align="left"> </div>
+
+            <table class="bg">
+                <tr>
+                    <th>Name</th>
+                    <th>Total Points</th>
+                    <th>Description</th> <th></th>
+					<th></th>
+                    <th></th> <th></th>
+                    					<th></th> <th></th>
+                    					<th></th> <th></th>
+                    					<th></th> <th></th>
+                    					<th></th> <th></th>
+                    				
+
+										
+                    
+                </tr>
+                
+                {% for i,instructorActivites , studentActivities in activity_range %}
+                <tr> 
+                    <td>{{instructorActivites.activityName}}</td>
+                    <td>{{instructorActivites.points}}</td>	
+                    <td>{{instructorActivites.description}} </td>
+                    <td></td> <td></td>
+                    <td></td> <td></td>
+                    <td></td> <td></td>
+                    
+                    <td align="left">
+                        {% csrf_token %} 
+                        <div>
+        				{% if is_teacher %}    
+                         <a href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}">
+                                <button class="button">View</button>
+                         </a> 
+        
+      					{% else %}
+                          <a href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}">
+                                <button class="button">Take</button>
+                            </a>
+                            <a href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}">
+                                <button class="button">View</button>
+                         </a>
+       					{% endif %}
+                        </div>															
+                        <input type="hidden" name="activityID" value="{{instructorActivites.activityID}}">
+				    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <a href="/oneUp/students/ChallengesTaken{% if is_teacher %}?userID={{student}}{% endif %}">
+            <button class="button">View All Completed Challenges</button></a>
+            
+            <!-- <a href="/oneUp/students/StudentCourseHome"> <button class="button">Back</button></a>  -->
+            
+            
+       {% if is_teacher %}    
+              <a href="/oneUp/instructors/studentChallengesCompleted?userID={{user}}">
+       {% else %}
+              <a href="/oneUp/students/StudentCourseHome"> <button class="button">Back</button></a> 
+
+       {% endif %}
+            
+            <br><br>
+       <!-- END DYNAMIC TABLE --> 
+         </div></div></div>
+            </div>
+         </div>
+         <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+
+      </body>
+   </html>

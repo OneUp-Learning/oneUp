@@ -12,6 +12,7 @@ from django.template.defaultfilters import default
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
+from Instructors.views.instructorHomeView import instructorHome
 
 # Create your models here.
  
@@ -46,7 +47,6 @@ class UploadedAvatarImage(models.Model):
                                        upload_to= avatarImageUploadLocation)
         avatarImageFileName = models.CharField(max_length=200, default='')
 
-    
 # Table listing all the students and the respective courses they are currently registered for   
 class StudentRegisteredCourses(models.Model):
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
@@ -129,7 +129,7 @@ class StudentActivities(models.Model):
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(default= datetime.now())
     activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="  ")
     def __str__(self):              
