@@ -105,13 +105,7 @@ nav,
 section {
     display: block;
 }
-body {
-    line-height: 1;
-    width: 100%;
-    /* added by Austin 08/26/2016 */
-    
-    height: 100%;
-}
+
 ol,
 ul {
     list-style: none;
@@ -1412,20 +1406,21 @@ body {
     }
 }
 /* Basic */
+html {
+  	height: 100%;
+}
 
 body {
-    background: #2A333E;
-    color: #5b5b5b;
+    background: radial-gradient(white, rgba(0, 0, 0, 0.53), rgba(42, 51, 62, 1.0));
     font-size: 15pt;
     line-height: 1.85em;
     font-family: 'Source Sans Pro', sans-serif;
     font-weight: 300;
-    height: 100%;
-    /*changed by Austin 08/26/2013*/
-    
     width: 100%;
-    margin: 0;
+  	margin: 0;
+  	min-height: 100%;
 }
+
 body.is-loading *,
 body.is-loading *:after,
 body.is-loading *:before {
@@ -1461,7 +1456,7 @@ h4,
 h5,
 h6 {
     font-weight: 400;
-    color: #483949;
+    color: #ffffff;
     line-height: 1.25em;
 }
 h1 a,
@@ -1494,7 +1489,7 @@ h4 {
 }
 strong,
 b {
-    color: #483949;
+    color: #2e3436;
 }
 em,
 i {
@@ -2108,7 +2103,7 @@ button,
     -webkit-transition: background-color 0.35s ease-in-out, color 0.35s ease-in-out, border-bottom-color 0.35s ease-in-out;
     -ms-transition: background-color 0.35s ease-in-out, color 0.35s ease-in-out, border-bottom-color 0.35s ease-in-out;
     transition: background-color 0.35s ease-in-out, color 0.35s ease-in-out, border-bottom-color 0.35s ease-in-out;
-    box-shadow: 3px 3px 5px rgb(38, 0, 77);
+    box-shadow: 3px 3px 5px rgb(75,75,76);
 }
 input[type="button"]:hover,
 input[type="submit"]:hover,
@@ -2160,7 +2155,7 @@ input[type="button"]:active,
 .button:active {
     -webkit-transform: translateY(3px);
     transform: translateY(3px);
-    box-shadow: 1px 1px 3px rgb(38, 0, 77);
+    box-shadow: 1px 1px 3px rgb(75,75,76);
 }
 #smallButton {
     /*used for delete*/
@@ -2250,10 +2245,9 @@ header {
     background-position: center center;
     /* Homepage background*/
     
-    background: radial-gradient(white, rgba(255, 255, 255, 0.4), rgba(42, 51, 62, 1.0));
+    /*background: radial-gradient(white, rgba(255, 255, 255, 0.4), rgba(42, 51, 62, 1.0));*/
     /*background-image: url("/static/images/header.jpg");*/
     
-    color: #fff;
     text-align: center;
     padding: 7.5em 0 2em 0;
     cursor: default;
@@ -2323,31 +2317,7 @@ body.homepage #header {
 body.homepage #header h1 {
     font-size: 4em;
 }
-/* Fading Color at start of page (yuck)
-		body.homepage #header:after {
-			content: '';
-			background: #1C0920;
-			display: block;
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			opacity: 0;
-			-moz-transition: opacity 2.5s ease-in-out;
-			-webkit-transition: opacity 2.5s ease-in-out;
-			-ms-transition: opacity 2.5s ease-in-out;
-			transition: opacity 2.5s ease-in-out;
-			-moz-transition-delay: 0.5s;
-			-webkit-transition-delay: 0.5s;
-			-ms-transition-delay: 0.5s;
-			transition-delay: 0.5s;
-		}
 
-	body.homepage.is-loading #header:after {
-		opacity: 1;
-	}
-	*/
 /* ---------------- New Navigation Bar ---------------------------*/
 /*
     ----Colors----
@@ -2388,7 +2358,7 @@ body.homepage #header h1 {
 
 .Nav_Top a,
 .Nav_Bottom a {
-    color: rgba(245, 245, 245, 0.5);
+    color: rgba(245, 245, 245, 1.0);
     text-decoration: none;
 }
 /* Navigation links on hover style */
@@ -2675,7 +2645,7 @@ in second and third dropdowns */
     padding: 0px 0px 3px 4px;
     /* padding: top-right-bottom-left */
     
-    color: rgba(245, 245, 245, 0.5);
+    color: rgba(245, 245, 245, 1.0);
     font-size: 15px;
     text-transform: none;
     transition: 0.25s;
@@ -2768,14 +2738,15 @@ in second and third dropdowns */
 /* Footer */
 
 #footer {
-    position: relative;
-    overflow: hidden;
-    /*padding: 6em 0 6em 0;*/
     
-    background: #35414f;
-    /*#2A333E;*/
-    
+    background: #35414f;    
     color: #fff;
+    height: 200px;
+    width: 100%;
+  	right: 0;
+  	position: absolute;
+  	/*bottom: 0;*/
+  	left: 0;
 }
 #footer .icon.circled {
     background: #fff;
@@ -3246,7 +3217,7 @@ div.heading {
     vertical-align: top;
 }
 #grad {
-    background: linear-gradient(white, transparent);
+    /*background: linear-gradient(white, transparent);*/
     background-size: 100% 1000px;
     background-repeat: no-repeat;
 }
