@@ -29,5 +29,6 @@ media/images/uploadedAvatarImages/*
 media/lua/uploadedLuaLibs/*
 media/textfiles/xmlfiles/*
 
-# Deployment secret key
+# Deployment stuff which shouldn't be checked in
 oneUp/secret.key
+oneUpVenv/*
