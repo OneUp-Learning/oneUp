@@ -12,6 +12,7 @@ from django.views.generic import RedirectView
 from Students.views.achievementsView import achievements
 from Students.views.allAnnouncementsView import allAnnouncements
 from Students.views.activitesView import ActivityList
+from Students.views.activityDescription import ActivityDetail
 from Students.views.avatarView import avatar
 from Students.views.avatarUploadView import avatarUpload
 from Students.views.challengesListView import ChallengesList
@@ -36,6 +37,7 @@ admin.autodiscover()
 
 urlpatterns = [    
     url(r'^achievements',achievements,name='achievements'),
+    url(r'^ActivityDescription', ActivityDetail, name = 'ActivityDescription'),
     url(r'^ActivityList', ActivityList, name = 'ActivityList'),
     url(r'^avatarUpload', avatarUpload, name='avatarUpload'),
     url(r'^avatar',avatar,name='avatar'),

@@ -29,13 +29,10 @@
                 <tr>
                     <th>Name</th>
                     <th>Total Points</th>
-                    <th>Description</th> <th></th>
+                    <th>Grade</th> <th></th>
 					<th></th>
                     <th></th> <th></th>
-                    					<th></th> <th></th>
-                    					<th></th> <th></th>
-                    					<th></th> <th></th>
-                    					<th></th> <th></th>
+                    <th></th> <th></th>
                     				
 
 										
@@ -46,8 +43,7 @@
                 <tr> 
                     <td>{{instructorActivites.activityName}}</td>
                     <td>{{instructorActivites.points}}</td>	
-                    <td>{{instructorActivites.description}} </td>
-                    <td></td> <td></td>
+                    <td>{{studentActivities.activityScore}}</td> <td></td>
                     <td></td> <td></td>
                     <td></td> <td></td>
                     
@@ -60,10 +56,7 @@
                          </a> 
         
       					{% else %}
-                          <a href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}">
-                                <button class="button">Take</button>
-                            </a>
-                            <a href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}">
+                            <a href="/oneUp/students/ActivityDescription?activityID={{studentActivities.studentActivityID}}">
                                 <button class="button">View</button>
                          </a>
        					{% endif %}
