@@ -31,7 +31,14 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['oneup.wssu.edu']
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
 
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
@@ -75,15 +82,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')   # DD
-
-TEMPLATE_DIRS = (                   # DD
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    TEMPLATE_PATH,
-)
 
 TEMPLATES = [
     {
