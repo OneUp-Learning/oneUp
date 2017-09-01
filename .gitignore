@@ -31,4 +31,5 @@ media/textfiles/xmlfiles/*
 
 # Deployment stuff which shouldn't be checked in
 oneUp/secret.key
+oneUp/prodDBpassword.txt
 oneUpVenv/*
