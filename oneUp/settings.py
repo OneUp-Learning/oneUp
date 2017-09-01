@@ -24,7 +24,7 @@ MEDIA_URL =  'media/' #This is for the html
 
 # SECURITY WARNING: keep the secret key used in production secret!
 with open('/var/www/wsgi-projects/oneUp/oneUp/secret.key') as f:
-    SECRET_KEY = f.read.strip()
+    SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -39,6 +39,8 @@ CACHES = {
         'LOCATION': '127.0.0.1:11211',
     }
 }
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
@@ -76,17 +78,22 @@ WSGI_APPLICATION = 'oneUp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+with open('/var/www/wsgi-projects/oneUp/oneUp/prodDBpassword.txt') as f:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'oneUp',
+            'USER': 'oneUpUser',
+            'PASSWORD': f.read().strip(),
+            'HOST': 'localhost',
+            'PORT': '',
+        }
     }
-}
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS' : [ TEMPLATE_PATH ],
+        'DIRS' : [ os.path.join(BASE_DIR,'template') ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
