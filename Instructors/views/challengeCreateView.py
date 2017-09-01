@@ -188,7 +188,7 @@ def challengeCreateView(request):
         #challengeQuestionsFilter.challengeQuestionsFilter(challenge, context_dict)  # deleted this on 02/16/2016  - not clear what it does, perhaps remained from warm up challenges
         
         if isGraded == "":
-            return redirect('/oneUp/instructors/challengesList?warmUp')
+            return redirect('/oneUp/instructors/warmUpChallengeList')
         else:
             return redirect('/oneUp/instructors/challengesList')
     
