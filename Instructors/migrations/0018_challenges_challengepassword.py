@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='challenges',
             name='challengePassword',
-            field=models.CharField(default=datetime.datetime(2016, 4, 27, 3, 52, 54, 509426, tzinfo=utc), max_length=30),
+            field=models.CharField(default=datetime.datetime(2016, 4, 27, 3, 52, 54, 509426, tzinfo=utc), max_length=200),
             preserve_default=False,
         ),
     ]

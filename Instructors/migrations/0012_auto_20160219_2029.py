@@ -12,16 +12,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='challenges',
-            name='endTimestamp',
-            field=models.DateTimeField(default=datetime.datetime.now, blank=True),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='challenges',
-            name='startTimestamp',
-            field=models.DateTimeField(default=datetime.datetime.now, blank=True),
-            preserve_default=True,
-        ),
     ]

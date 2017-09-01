@@ -82,8 +82,8 @@ with open('/var/www/wsgi-projects/oneUp/oneUp/prodDBpassword.txt') as f:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'oneUp',
-            'USER': 'oneUpUser',
+            'NAME': 'oneup',
+            'USER': 'oneupuser',
             'PASSWORD': f.read().strip(),
             'HOST': 'localhost',
             'PORT': '',
