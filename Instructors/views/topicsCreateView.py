@@ -19,7 +19,7 @@ def topicsCreateView(request):
             # Check if topic with this name already exists
             topics = Topics.objects.filter(topicName=request.POST['topicName'])
             if not topics:
-                topic = topics()
+                topic = Topics()
             else: 
                 topic = topics[0]
                 
