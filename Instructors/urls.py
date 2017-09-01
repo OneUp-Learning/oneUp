@@ -12,9 +12,7 @@ from Instructors.views.allAnnouncementsView import allAnnouncements
 from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
 from Instructors.views.challengeCreateView import challengeCreateView
 from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
-from Instructors.views.challengeEditView import challengeEditView
 from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
-from Instructors.views.challengeListView import ChallengesList
 from Instructors.views.challengeListView import challengesList, warmUpChallengeList
 
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
@@ -31,7 +29,6 @@ from Instructors.views.createStudentView import createStudentViewUnchecked
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 from Instructors.views.essayView import  essayForm
 
-from Instructors.views.filesListView import  filesList
 from Instructors.views.gameRulesView import gameRulesView
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
