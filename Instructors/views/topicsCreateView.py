@@ -19,16 +19,15 @@ def topicsCreateView(request):
             # Check if topic with this name already exists
             topics = Topics.objects.filter(topicName=request.POST['topicName'])
             if not topics:
-                topic = topics()
+                topic = Topics()
+                topic.topicName = request.POST['topicName']                   
+                topic.save()
             else: 
                 topic = topics[0]
                 
             courseTopic = CoursesTopics()
             courseTopic.topicID = topic
             courseTopic.courseID = currentCourse
-                
-        topic.topicName = request.POST['topicName']                   
-        topic.save()
 
         courseTopic.topicPos = int(request.POST['topicPos'])
         courseTopic.save()
