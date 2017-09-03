@@ -78,9 +78,9 @@ class Questions(models.Model):
         return str(self.questionID)+","+self.preview
     
 class StaticQuestions(Questions):
-    questionText = models.CharField(max_length=1000)
-    correctAnswerFeedback = models.CharField(max_length=200, default="")
-    incorrectAnswerFeedback = models.CharField(max_length=200, default="")
+    questionText = models.CharField(max_length=10000)
+    correctAnswerFeedback = models.CharField(max_length=1000, default="")
+    incorrectAnswerFeedback = models.CharField(max_length=1000, default="")
 
 class CodeLibrary(models.Model):
     name = models.CharField(max_length=200)
