@@ -276,8 +276,11 @@ def uploadChallenges(request):
         upfile.uploadedFileName = uploadedFileName
         upfile.uploadedFileCreator = request.user
         upfile.save()
-    
-        importChallenges(uploadedFileName)
+
+        # It is important we use upfile.uploadedFile.name because
+        # if there are two files with the same name, the file will
+        # get renamed.  This includes the rename.
+        importChallenges(upfile.uploadedFile.name)
         
         # TO DO:  After importing the challenges in the database, perhaps we need to delete the user's file
 
@@ -286,7 +289,7 @@ def uploadChallenges(request):
     
 def importChallenges(uploadedFileName):
          
-    fname = 'media/textfiles/xmlfiles/' + uploadedFileName
+    fname = uploadedFileName
     f = open(fname, 'r') 
     tree = parse(f)
 
