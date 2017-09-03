@@ -88,20 +88,20 @@ class CodeLibrary(models.Model):
        
 class Answers(models.Model):
     answerID = models.AutoField(primary_key=True)
-    answerText = models.CharField(max_length=100)
+    answerText = models.CharField(max_length=5000)
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     def __str__(self):              
         return str(self.answerID)+","+self.answerText
 
 class FeedbackType(models.Model):
     feedbackID = models.AutoField(primary_key=True)
-    feedbackText = models.CharField(max_length=100, default="")
+    feedbackText = models.CharField(max_length=1000, default="")
     def __str__(self):
         return str(self.feedbackText)
 
 class MatchingAnswers(models.Model):
     matchingAnswerID = models.AutoField(primary_key=True)
-    matchingAnswerText = models.CharField(max_length=100)
+    matchingAnswerText = models.CharField(max_length=5000)
     answerID = models.ForeignKey(Answers, verbose_name="the answer which this match goes with", db_index=True)
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     def __str__(self):              
@@ -115,7 +115,7 @@ class CorrectAnswers(models.Model):
     
 class Prompts(models.Model):
     promptID = models.AutoField(primary_key=True)
-    promptText = models.CharField(max_length=100, default="")
+    promptText = models.CharField(max_length=5000, default="")
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     answerID = models.ForeignKey('Instructors.Answers', verbose_name="the correct answer for this prompt")
     
