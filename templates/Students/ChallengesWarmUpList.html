@@ -25,12 +25,12 @@
 			</div>
 <!-- INSERTED DYNAMIC TABLE --> 
        		<div class="row">
-         	<div class="3u 12u(mobile)" align="left">
+         	<div  align="left">
          	
-        <font color="#0000FF ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Above Average</font><br>
-        <font color="#00ace6 ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Average</font><br>
-        <font color="#80dfff ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Below Average</font><br>
-        <font color="#FFFF00 ">&#9724; </font><font style="font-size:.7em;font-weight:600;">Not attempted</font>
+        <font color="#0000FF ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Above Average</font>&nbsp;&nbsp;
+        <font color="#00ace6 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Average</font>&nbsp;&nbsp;
+        <font color="#80dfff ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Below Average</font>&nbsp;&nbsp;
+        <font color="#FFFF00 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Not attempted</font>
         	</div></div>
     		<div class="row">
          	<div class="12u">
@@ -42,13 +42,13 @@
      
         <table class="bg">
            <tr>
-        		<th> <span style="color: red; font-weight: bolder;">***</span>Click the bullet symbol <font color="#0000FF ">&#9724;
+        		<th> <span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <font color="#0000FF ">&#9724;
         		</font> to view your attempt (if any) or click the actual link to take the warm up
-        		<span style="color: red; font-weight: bolder;">***</span></th>
+        		<span style="color: red; font-weight: bolder;">*</span></th>
         		
         	</tr>
 
-		{% for i,topic_ID,topic_Name, all_challenges in topic_range %}
+		{% for i,topic_ID,topic_Name,topic_Pos,all_challenges in topic_range %}
 
 		<tr> 
 		<input type="hidden" name="topicID" value="{{topic_ID}}">
@@ -58,7 +58,7 @@
 		<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		
 				{% if score == 1 %} <!-- If is empty -->
-				**No challenges available for this topic.**
+				 
 				
 				{% elif score == 2 %}  <!-- If score have not been taken -->
 				<font color="#FFFF00 ">&#9724;</font>
