@@ -1,11 +1,10 @@
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from Instructors.models import Answers, CorrectAnswers, Courses
-from Instructors.models import Challenges,  Topics, CoursesTopics, ChallengesTopics, StaticQuestions
+from Instructors.models import Challenges, Topics, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import utils, challengeListView
-from django.contrib.auth.decorators import login_required
 from Instructors.constants import unspecified_topic_name
+from django.contrib.auth.decorators import login_required
 
 from time import time
 import datetime
@@ -33,7 +32,6 @@ def challengeCreateView(request):
     qlist = []
     topic_ID = []
     topic_Name = []
-    tagString = ""
     
     context_dict['isVisible']=True
     context_dict['feedbackOption1']= True
@@ -45,9 +43,11 @@ def challengeCreateView(request):
     # Fetch the topics for this course from the database.
     course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
          
-    for t in course_topics:
-        topic_ID.append(t.topicID.topicID)
-        topic_Name.append(t.topicID.topicName)
+    for ct in course_topics:
+        topic_ID.append(ct.topicID.topicID)
+        topic_Name.append(ct.topicID.topicName)
+        if ct.topicID.topicName == unspecified_topic_name:
+            unspecified_topic = ct.topicID  # to be used when creating a new challenge
     
     # The range part is the index numbers.
     context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name)
@@ -176,9 +176,15 @@ def challengeCreateView(request):
         
         # Processing and saving topics for the challenge in DB
         topicsString = request.POST.get('newTopics', "default")
-        #topicSelected = request.POST.get('Topic')
-                    
-        utils.saveChallengesTopics(topicsString, challenge)                   
+
+        if topicsString == "" and not request.POST['challengeID']:  # new challenge & no topic specified           
+            newChallTopicsObject = ChallengesTopics()
+            newChallTopicsObject.challengeID = challenge
+            newChallTopicsObject.topicID = unspecified_topic                
+            newChallTopicsObject.save()
+
+        else:                       
+            utils.saveChallengesTopics(topicsString, challenge,unspecified_topic)                   
                         
         # Processing and saving tags in DB
         tagString = request.POST.get('tags', "default")
@@ -188,7 +194,7 @@ def challengeCreateView(request):
         #challengeQuestionsFilter.challengeQuestionsFilter(challenge, context_dict)  # deleted this on 02/16/2016  - not clear what it does, perhaps remained from warm up challenges
         
         if isGraded == "":
-            return redirect('/oneUp/instructors/challengesList?warmUp')
+            return redirect('/oneUp/instructors/warmUpChallengeList')
         else:
             return redirect('/oneUp/instructors/challengesList')
     
