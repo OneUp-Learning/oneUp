@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Challenges, Courses, Topics, CoursesTopics, ChallengesTopics
 from Instructors.views import utils, challengeListView
-from _datetime import datetime, tzinfo
+#from _datetime import datetime, tzinfo
 from time import time, strptime, struct_time
 from time import strftime
 import datetime

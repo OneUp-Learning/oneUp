@@ -153,7 +153,8 @@ def challengesForTopic(topic):
                     chall_visible.append('Visible')
                 else:
                     chall_visible.append('Not Visible')
-
+                    
+    print()
     #return zip(challenge_Name,challenge_ID, challenge_Difficulty, isVisible)
     return zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_Difficulty,chall_visible)
 
@@ -175,6 +176,7 @@ def warmUpChallengeList(request):
 
         topic_ID = []      
         topic_Name = [] 
+        topic_Pos = []        
         all_challenges_for_topic = []
 
         course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
@@ -185,18 +187,20 @@ def warmUpChallengeList(request):
             if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
                 topic_ID.append(tID)
                 topic_Name.append(tName)
-            
-            all_challenges_for_topic.append(challengesForTopic(ct.topicID))
-        
+                topic_Pos.append(str(ct.topicPos))
+                all_challenges_for_topic.append(challengesForTopic(ct.topicID))
+            else:
+                unspecified_topic = ct.topicID            
+                    
         # Add the challenges with unspecified topic at the end
-        unsp_topic = Topics.objects.filter(topicName=unspecified_topic_name)
-        if unsp_topic:
-            unsp_topicID = unsp_topic[0].topicID
-            topic_ID.append(unsp_topicID)
-            topic_Name.append(" ")   
-            all_challenges_for_topic.append(challengesForTopic(unsp_topicID))
-                         
-        context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name,all_challenges_for_topic)
+        if unspecified_topic:
+            topic_ID.append(unspecified_topic.topicID)
+            topic_Name.append("Miscellaneous") 
+            topic_Pos.append(str(course_topics.count()))  
+            all_challenges_for_topic.append(challengesForTopic(unspecified_topic))
+                        
+        #context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name,all_challenges_for_topic)
+        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])
 
     return render(request,'Instructors/ChallengesWarmUpList.html', context_dict)
     
