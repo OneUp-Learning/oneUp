@@ -77,7 +77,9 @@
 				{% endif %}
 				 
 				 <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
+				 {% if not is_teacher %}
 				 <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}" >
+				 {% endif %}
 				 <font color="Black "> {{challenge_Name}}</font></a> 
 				{% endfor %}	
 				</td>

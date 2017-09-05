@@ -301,7 +301,7 @@ def challengeCreateView(request):
                     
                     answers = Answers.objects.filter(questionID = q.questionID)
                     answer_range = range(1,len(answers)+1)
-                    questdict['answers_with_count'] = zip(answer_range,answers)  
+                    questdict['answers_with_count'] = list(zip(answer_range,answers))
                     questdict['match_with_count'] = zip(answer_range,answers) 
                     
                     staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
@@ -313,7 +313,7 @@ def challengeCreateView(request):
                     correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
                     print(correct_answers)
                     canswer_range = range(1,len(correct_answers)+1)
-                    questdict['correct_answers'] = zip(canswer_range,correct_answers)
+                    questdict['correct_answers'] = list(zip(canswer_range,correct_answers))
                     
                     
                     #getting the matching questions of the challenge from database
