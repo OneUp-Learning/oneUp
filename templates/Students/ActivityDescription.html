@@ -49,32 +49,47 @@
                   <td><b>Instructors Notes: </b></td> 			
    			   </tr>
    			   <tr>
-                  <td><b>{{activity.instructorFeedback}} </b></td> 			
+                  <td> &nbsp {{activity.instructorFeedback}} </td> 			
    			   </tr>
                 <tr>
-                  <td><b>Upload {{activity.activityID.activityName}}:</b></td> 			
-   			   </tr>
-               {%if isFile == False %}
-               <tr>
-                  <td>
-                     <input id="fileupload" name="actFile" type="file" />   
-                  </td>
-               </tr>
-               </table>
-   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
-   			<input align="center" type="submit" value="Upload" id="Upload"/> 
-   			 <a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
-               {% else %}
-               <tr>
-                  <td>
-                      <span style="padding-left: 10px;">  File {{fileName}} has already been uploaded. </span>
-                  </td>
-               </tr> 
-               </table>
-   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
-			<a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
-               {% endif %}
-              
+                
+                
+                
+                {% if canUpload == True%}
+	                  <td><b>Upload {{activity.activityID.activityName}}:</b></td> 			
+	   			   </tr>
+	               {%if isFile == False %}
+	               <tr>
+	                  <td>
+	                     <input id="fileupload" name="actFile" type="file" multiple />   
+	                  </td>
+	               </tr>
+	               </table>
+	   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
+	   			<input align="center" type="submit" value="Upload" id="Upload"/> 
+	   			 <a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
+	               
+	               {% else %}
+	               
+	               <tr>
+	                  <td>
+	                      <span style="padding-left: 10px;">  File 
+	               {% for file in fileName %}       
+	                      {{file}},
+	               {% endfor %}
+	                       has already been uploaded. </span>
+	                  </td>
+	               </tr> 
+	               </table>
+	   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
+				<a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
+	               {% endif %}
+	            
+	            {% else %}
+	           		</table>
+	           		<a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
+	            
+              	{% endif %}
         </form>
 		</div>
                                          

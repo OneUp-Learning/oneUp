@@ -60,11 +60,6 @@
                 </tr>
                 {% endfor %}
             </table>
-            <a href="/oneUp/students/ChallengesTaken{% if is_teacher %}?userID={{student}}{% endif %}">
-            <button class="button">View All Completed Challenges</button></a>
-            
-            <!-- <a href="/oneUp/students/StudentCourseHome"> <button class="button">Back</button></a>  -->
-            
             
        {% if is_teacher %}    
               <a href="/oneUp/instructors/studentChallengesCompleted?userID={{user}}">

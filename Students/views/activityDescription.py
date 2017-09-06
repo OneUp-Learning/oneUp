@@ -29,35 +29,54 @@ def ActivityDetail(request):
             context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
             
-            #Check and see if the activity file has already been uplaoded
-            try:
-               studentFile = StudentFile.objects.get(studentID=studentId, activity=studentActivities )
-               isFile = True
-               fileName = studentFile.fileName
-               context_dict['fileName'] = fileName
-            except ObjectDoesNotExist: #this means that we didn't get the object so its not in DB
-                isFile = False
-            
-            print(isFile)
-            
-            context_dict['isFile'] = isFile
+            #we are allowed to uplad files 
+            if(studentActivities.activityID.isFileAllowed == True):
+                context_dict['canUpload'] = True
+                #Check and see if the activity file has already been uplaoded
+                studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities )
+                if studentFile:
+                   isFile = True
+                   fileName = []
+                   for file in studentFile:
+                    fileName.append(file.fileName)
+                    context_dict['fileName'] = fileName
+                else:
+                    isFile = False
+                
+                print(isFile)
+                
+                context_dict['isFile'] = isFile
+                
+            else: #not allowed to upload files 
+                context_dict['canUpload'] = False
+
+                
                   
         
-        if request.POST and len(request.FILES) != 0 : #means that we are tryng to upload some activty 
-            file = request.FILES['actFile']
-            studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.POST['studentActivity'])
-                      
-            #Like the file to the student
-            studentFile = StudentFile()
-            studentFile.studentID = studentId
-            studentFile.courseID = currentCourse
-            studentFile.file = file
-            studentFile.fileName = file.name
-            studentFile.activity = studentActivities
-            studentFile.save()
+        if request.POST and len(request.FILES) > 0 : #means that we are tryng to upload some activty 
+            #print(len(request.FILES.getlist('actFile')))
             
-                
+            files = []
+            
+            for currentFile in request.FILES.getlist('actFile'):
+                    #print(currentFile.name)
+                    files.append(currentFile)
+                          
+            studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.POST['studentActivity'])
+            makeFileObjects(studentId, currentCourse, files, studentActivities)
+            context_dict['files'] = files
+                    
             return redirect('/oneUp/students/ActivityList', context_dict)
         return render(request,'Students/ActivityDescription.html', context_dict)
 
+def makeFileObjects(studentId, currentCourse,files, studentActivities):
+    #Like the file to the student
+    for i in range(0, len(files)):
+        studentFile = StudentFile()
+        studentFile.studentID = studentId
+        studentFile.courseID = currentCourse
+        studentFile.file = files[i]
+        studentFile.fileName = files[i].name
+        studentFile.activity = studentActivities
+        studentFile.save()
             

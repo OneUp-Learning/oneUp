@@ -210,6 +210,7 @@ class Activities(models.Model):
     description = models.CharField(max_length=200, default="")
     points =  models.IntegerField(default=0)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
+    isFileAllowed = models.BooleanField(default = True)
     #activityType = models.CharField(max_length=50)
     #difficulty = models.CharField(max_length=50)
     instructorNotes = models.CharField(max_length=300, default="")

@@ -66,22 +66,10 @@ def ActivityList(request):
                 currentActivity.timestamp = datetime.datetime.now()
                 currentActivity.activityScore = 0 
                 currentActivity.save()
-            
-            
-        
+
              
             # The range part is the index numbers.
         context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities)
         return render(request,'Students/ActivityList.html', context_dict)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     return render(request,'Students/ChallengesList.html', context_dict)
