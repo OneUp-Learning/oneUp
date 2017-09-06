@@ -1,5 +1,5 @@
 #import nltk
-from Instructors.models import Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
+from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
 from Instructors.constants import unspecified_topic_name
 from Badges.models import CourseConfigParams
 import re
@@ -251,41 +251,56 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
             # delete all previous skill for this question and course                            #AA 3/24/15
             resourceSkills = QuestionsSkills.objects.filter(questionID = question.questionID).delete()                                           
 
-def saveChallengesTopics(topicstring, challenge):        
+def saveChallengesTopics(topicstring, challenge, unspecified_topic):        
+
+        oldChallTopicNames = []
+        oldChallengeTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID)
+        for ct in oldChallengeTopics:
+            oldChallTopicNames.append(ct.topicID.topicName)
 
         #if topicstring is not null or empty
         if not topicstring == "":
             
-            # delete all previous topics for this challenge and course
-            resourceTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID).delete()
-                
+            newTopicNames = set() 
+            if not topicstring == "":              
             #split string into an array 
-            topicsList = topicstring.split(',')
-            print(topicsList)
+                topicsList = topicstring.split(',')       
+                for topic in topicsList:
+                    if not topic == '':
+                        newTopicNames.add(topic.strip())
+            else:
+                newTopicNames.add(unspecified_topic_name)           
+            print(newTopicNames)
+    
+            # Remove old topics for the challenge which are not in the list  of new topics  
+            for ct in oldChallengeTopics:
+                #if not ct.topicID.topicName in newTopicNames and not ct.topicID.topicName==unspecified_topic_name:
+                if not ct.topicID.topicName in newTopicNames:
+                    ct.delete()
             
-            topicNames = set()
-            for topic in topicsList:
-                if not topic == '':
-                    topicNames.add(topic.strip())
-            print(topicNames)
-            
-            # remove duplicates
-            #uniqueTopicNames = set(topicNames)
-            if len(topicNames) > 1:
-                topicNames.discard(unspecified_topic_name)
-                print(topicNames)
-            for topicName in topicNames:
-                print(topicName)               
-                topic = Topics.objects.filter(topicName=topicName)               
-
-                # now add the new topic for this challenge                              
-                newCTopicsObject = ChallengesTopics()
-                newCTopicsObject.challengeID = challenge
-                newCTopicsObject.topicID = topic[0]              
-                newCTopicsObject.save()
+            # add the new topics for this challenge
+            for topicName in newTopicNames:            
+    
+                if not topicName in oldChallTopicNames:                                              
+                    newCTopicsObject = ChallengesTopics()
+                    newCTopicsObject.challengeID = challenge
+                    topic = Topics.objects.filter(topicName=topicName)               
+                    newCTopicsObject.topicID = topic[0]              
+                    newCTopicsObject.save()
+                                        
         else:
-            # delete all previous topics for this challenge                    
-            resourceTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID).delete()               
+            # no new topics specified
+            # Remove old topics for the challenge which are not in the list  of new topics              
+            if not unspecified_topic_name in oldChallTopicNames:
+                for ct in oldChallengeTopics:                    
+                    ct.delete()
+                # Assign Unspecified topic to this challenge
+                newChallTopicsObject = ChallengesTopics()
+                newChallTopicsObject.challengeID = challenge
+                newChallTopicsObject.topicID = unspecified_topic                
+                newChallTopicsObject.save()
+                
+                                   
                                                                 
 def extractTags(resource, resourceIndicator):   
 
