@@ -7,6 +7,16 @@
 <body>
     <div>
         {% include 'stheading.html' %}
+        <script>
+        	// Disables links on the navigation bar so the user cannot go to another page without submitting
+        	var navigation = document.getElementsByClassName("Navigation")[0];
+        	var links = navigation.getElementsByTagName('a');
+        	for (var i=0, end=links.length; i<end; i++) {
+       	      links[i].onclick = function() {
+       	        return false;
+       	      };
+        	}
+        </script>
         <div class="frame" id="grad" align="center">
             <div class="container">
                 <div class="row">
@@ -30,7 +40,7 @@
                                 <tr id="question" style="background-color: rgba(144, 144, 144, 0.075);">
                                     <td colspan="2" style="text-align:left">
 
-                                        {% autoescape off %} {{i}}.{{question.questionText|safe}} {% endautoescape %}
+                                        {% autoescape off %} {{i}}. {{question.questionText|safe}} {% endautoescape %}
                                     </td>
 
                                 </tr>
