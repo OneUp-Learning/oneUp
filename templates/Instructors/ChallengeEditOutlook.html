@@ -262,7 +262,7 @@
 		{% for i,question in question_range %}
 		<tr> 
 			<div id="question{{i}}">
-				<th> {{question.questionText|safe}}</th><th></th></tr>									
+				<th> {{i}}. {{question.questionText|safe}}</th><th></th></tr>									
 							
 							{% if question.typeID == '1' %}
 							<!-- multiple choice question -->
