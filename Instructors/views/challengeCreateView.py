@@ -3,7 +3,7 @@ from Instructors.models import Answers, CorrectAnswers, Courses
 from Instructors.models import Challenges, Topics, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import utils, challengeListView
-from Instructors.constants import unspecified_topic_name, default_time_str
+from Instructors.constants import unspecified_topic_name
 from django.contrib.auth.decorators import login_required
 
 from time import time
@@ -80,9 +80,7 @@ def challengeCreateView(request):
        
         # Copy all strings from POST to database object.
         for attr in string_attributes:
-            if(attr in request.POST):
-                setattr(challenge,attr,request.POST[attr])
-
+            setattr(challenge,attr,request.POST[attr])
 
         # get the logged in user for an author                           
         if request.user.is_authenticated():
@@ -119,22 +117,23 @@ def challengeCreateView(request):
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.feedbackOption3)
         
         if(request.POST['startTime'] == ""):
-            challenge.startTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.startTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
         else:
             challenge.startTimestamp = datetime.datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.endTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
         else:
             if datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p"):
                 challenge.endTimestamp = datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
             else:
-                challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
+                challenge.endTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
         
         # Number of attempts
-        if('unlimittedAttempts' in request.POST):
+        num = str(request.POST.get('unlimittedAttempts','false'))
+        if num == str("true"):
             challenge.numberAttempts = 99999   # unlimited attempts
         else:
             num = request.POST['numberAttempts']  #empty string and number 0 evaluate to false
@@ -143,9 +142,10 @@ def challengeCreateView(request):
             else:
                 numberAttempts = int(request.POST.get("numberAttempts", 1))
                 challenge.numberAttempts = numberAttempts
-
+        
         # Time to complete the challenge
-        if('unlimittedTime' in request.POST):
+        time = str(request.POST.get('unlimittedTime','false'))
+        if time == str("true"):
             challenge.timeLimit = 99999   # unlimited time
         else:
             time = request.POST['timeLimit']    #empty string and number 0 evaluate to false
@@ -189,6 +189,9 @@ def challengeCreateView(request):
         # Processing and saving tags in DB
         tagString = request.POST.get('tags', "default")
         utils.saveChallengeTags(tagString, challenge)
+        
+        # Get information from DB to display on the Filter Questions web page  
+        #challengeQuestionsFilter.challengeQuestionsFilter(challenge, context_dict)  # deleted this on 02/16/2016  - not clear what it does, perhaps remained from warm up challenges
         
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
@@ -236,12 +239,8 @@ def challengeCreateView(request):
                 context_dict['unlimittedTime']=False 
             
                           
-            #if challenge.endTimestamp.strftime("%Y") < ("2900"): 
-            etime = challenge.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")
-            print('etime ', etime)
-            if etime != default_time_str: 
-                print('etime2 ', etime)   
-                context_dict['endTimestamp']=etime
+            if challenge.endTimestamp.strftime("%Y") < ("2900"):    
+                context_dict['endTimestamp']=getattr(challenge, 'endTimestamp').strftime("%m/%d/%Y %I:%M:%S %p")
             else:
                 context_dict['endTimestamp']=""
             

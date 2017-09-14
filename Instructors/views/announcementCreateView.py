@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Announcements, Courses
 from Instructors.views.announcementListView import createContextForAnnouncementList
-from Instructors.constants import default_time_str
 from time import time, strptime, struct_time
 from time import strftime
 import datetime
@@ -63,29 +62,14 @@ def announcementCreateView(request):
         
         announcement.courseID = currentCourse 
     
-        announcement.startTimestamp = strftime("%m/%d/%Y %I:%M:%S %p")
+        announcement.startTimestamp = strftime("%Y-%m-%d %H:%M:%S")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            announcement.endTimestamp = datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p")
+            announcement.endTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
         else:
             announcement.endTimestamp = datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
-            
-            
-            
-#         if(request.POST['endTime'] == ""):
-#             challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
-#         else:
-#             if datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p"):
-#                 challenge.endTimestamp = datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
-#             else:
-#                 challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
-
-
-
-
-            
         
         announcement.save();  #Writes to database.
                 
@@ -108,13 +92,11 @@ def announcementCreateView(request):
                     context_dict[attr]=getattr(announcement,attr)
 
                 # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-                #defaultTime = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
-                #announceEndTime = getattr(announcement, 'endTimestamp') 
-                etime = announcement.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")
+                defaultTime = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+                announceEndTime = getattr(announcement, 'endTimestamp') 
  
-                if etime != default_time_str:
-                    #displayEndTime = announceEndTime.strftime("%m/%d/%Y %I:%M:%S %p")
-                    displayEndTime = etime  
+                if (announceEndTime.year < defaultTime.year):
+                    displayEndTime = announceEndTime.strftime("%m/%d/%Y %I:%M:%S %p")  
                 else:
                     displayEndTime = ""
                     
