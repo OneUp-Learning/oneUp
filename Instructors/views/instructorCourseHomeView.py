@@ -1,6 +1,6 @@
 '''
 Created on Sep 10, 2016
-Last Updated Sep 12, 2016
+Last Updated Sep 14, 2017
 
 '''
 from django.shortcuts import render
@@ -10,8 +10,8 @@ from Badges.models import CourseConfigParams
 from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses,StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
-from _datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
+
 
 import inspect
 
