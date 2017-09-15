@@ -6,6 +6,10 @@ db.sqlite3
 # They should not go into version control
 **/__pycache__
 
+# pyc are compiled python files derived from the .py files.
+# They don't need to be in version control.
+**.pyc
+
 # SVN Stuff
 **/svn-commit.tmp~
 **/svn-commit.tmp
@@ -28,3 +32,8 @@ media/images/uploadedInstructorImages/*
 media/images/uploadedAvatarImages/*
 media/lua/uploadedLuaLibs/*
 media/textfiles/xmlfiles/*
+
+# Deployment stuff which shouldn't be checked in
+oneUp/secret.key
+oneUp/prodDBpassword.txt
+oneUpVenv/*

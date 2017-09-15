@@ -4,131 +4,6 @@
       <meta charset="utf-8" />
       
          {% include 'scripts.html' %}
-        <style>
-      	/* Theme 2 */
-         body {
-         	font-family: Roboto,sans-serif; 
-         	background-color: #ffffff; /*Website BG Color*/
-         }
-         /* Navigation */
-         .Navigation {
-         	height: 64px;
-         }
-         .Nav_Top {
-         	background-color: #161925;
-         	border-bottom: none;
-         	height: 64px;
-         }
-         .Nav_Top .nav_top_level {
-         	padding-top: 10px;
-         }
-         .Nav_Top .nav_top_level_items a {
-         	color: #ffffff; /*Navigation Top Text Color*/
-         }
-         .Nav_Bottom {
-         	background-color: #23395B; 
-         	box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.31);
-         }
-         .Nav_Bottom > p {
-         	color: #ffffff; /*Navigation Bottom Text Color (Course Name)*/
-         }
-         .Nav_Bottom .nav_login_items a {
-         	color: #ffffff; /*Navigation Bottom Link Text Color*/
-         }
-         .nav_second_level .nav_second_level_items a, 
-         .nav_third_level .nav_third_level_items a,
-         .nav_login_second_level .nav_login_second_level_items a {
-         	background: #161925; /*Navigation Drop-Down BG Color*/
-         }
-         .nav_second_level_items a:hover,
-         .nav_third_level_items a:hover,
-         .nav_second_level .nav_second_level_items a:hover,
-         .nav_login_second_level .nav_login_second_level_items a:hover {
-         	background: #23395B; /*Navigation Items Drop-Down BG Color on Hover*/
-         }
-         .nav_top_level .nav_top_level_items:hover:after,
-         .nav_second_level .nav_second_level_items:hover:after,
-         .nav_third_level .nav_third_level_items:hover:after,
-         .nav_login .nav_login_items:hover:after,
-         .nav_login_second_level .nav_login_second_level_items:hover:after {
-         	background: #CBF7ED; /*Navigation Bar Animation Color*/
-         }
-         /*Tables*/
-         .bg {
-         	padding-bottom: 0em; 
-         	margin-bottom: 15px; 
-         	box-shadow:0px 1px 6px 0px #2A333E;
-         }
-         .bg tbody tr:nth-child(1){
-         	background-color: #23395B; /*Table Heading BG Color*/
-         }
-         .bg tbody tr:nth-child(1) th {
-         	color: #ffffff; /*Table Heading Text Color*/
-         	
-         }
-         .bg tbody tr td{
-         	color: black; /*Table Rows Text Color*/
-         	font-size: 13px;
-         }
-         /*Buttons*/
-         a {
-         	border-bottom: none;
-         }
-         input[type="button"] { /*Regular Buttons*/
-         	background-color: #23395B; 
-         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
-         	color: #ffffff;
-         	font-size: 11pt;
-         }
-         input[type="button"]:hover {
-         	background-color: #23395B; 
-         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
-         	color: #ffffff;
-         }
-         input[type="button"].table   { /*Table Buttons*/
-         	background-color: #d9e7f1; 
-         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
-         	color: black;
-         	font-size: 11pt;
-         }
-         input[type="button"]:hover.table {
-         	background-color: #d9e7f1; 
-         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
-         	color: black;
-         }
-         input[type="submit"] { /*Submit Buttons*/
-         	background-color: #d9e7f1; 
-         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
-         	color: black;
-         	font-size: 11pt;
-         }
-         input[type="submit"]:hover {
-         	background-color: #23395B; 
-         	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.41);
-         	color: #ffffff;
-         }
-         /*Heading Text*/
-         h1,
-         .frame h1 {
-         	color: #23395B;
-         	font-size: 30px;
-         	font-weight: 200;
-         }
-         /*Footer*/
-         #footer {
-         	background-color: #23395B;
-         }
-         #footer ul.icons {
-         	background-color: #161925;
-         }
-         #footer ul.icons li a:hover {
-         	color: #CBF7ED; /*Footer Icons Hover Color*/
-         }
-         #footer .copyright {
-         	color: #ffffff; /*Footer Text Color*/
-         }
-      </style>
-     
 		
    </head>
    
@@ -146,7 +21,6 @@
                {% else %}
                <h1>Serious Challenges</h1>
                {% endif %}
-               <hr class="theme"/>
                <br />
                   <!-- INSERTED DYNAMIC TABLE -->  
                   {% if warmUp %}      
@@ -200,8 +74,6 @@
       <!-- Footer -->
 
        {% include 'footer.html' %}
-
-      </div>
       
    </body>
 </html>

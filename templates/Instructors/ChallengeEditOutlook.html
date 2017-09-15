@@ -262,7 +262,7 @@
 		{% for i,question in question_range %}
 		<tr> 
 			<div id="question{{i}}">
-				<th> {{question.questionText|safe}}</th><th></th></tr>									
+				<th> {{i}}. {{question.questionText|safe}}</th><th></th></tr>									
 							
 							{% if question.typeID == '1' %}
 							<!-- multiple choice question -->
@@ -274,26 +274,24 @@
 									 {% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
 									 {% else %}disabled="disabled"{% endifequal %}>{{answer.answerText|safe}}<br />
 								{% endfor %}
-								{% endfor %}					
-							{% endif %}				
-								</td></tr>	
-							{% if question.typeID == '2' %}
+								{% endfor %}
+								</td></tr>													
+							{% elif question.typeID == '2' %}
 							<!-- multiple answer question -->
 								<tr><td colspan="2">
-								{% for k,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in checkbox buttons -->						
+								<!-- use a for loop and display the answers in checkbox buttons -->
 								{% for j,answer in question.answers_with_count %}
 									
 									<input type="checkbox" name="{{question.questionID}}" value="{{answer.answerText}}"
-									{% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
-									{% else %}
-								{% endifequal %}
+									{% for k,correct_answer in question.correct_answers %}	
+										{% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
+										{% else %}
+										{% endifequal %}
+									{% endfor %}
 									>{{answer.answerText|safe}}<br />
 								{% endfor %}
-								{% endfor %}
-							{% endif %}		
-							</td></tr>
-						
-							{% if question.typeID == '3' %}
+								</td></tr>
+							{% elif question.typeID == '3' %}
 							<!-- matching question -->
 							<tr><td width="50%">{% for match_count,match_answer in question.match_with_count %}
 								<!-- use a for loop and display the answers in the matching form-->
@@ -306,17 +304,15 @@
 							{{match.matchingAnswerText}}
 							<br />	
 							{% endfor %}
-							{% endif %}			
-									</td></tr>	
-							{% if question.typeID == '4' %}
+							</td></tr>	
+							{% elif question.typeID == '4' %}
 							<!-- true/false question -->
 							{% for count,correct_answer in question.correct_answers %}
 							<tr><td colspan="2"><input type="radio" name="{{question.questionID}}" value="True" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "true" %}checked{% else %}disabled="disabled"{% endifequal %}>True<br />
 							<input type="radio" name="{{question.questionID}}" value="False" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "false" %}checked{% else %}disabled="disabled"{% endifequal %}>False
 							{% endfor %}
 							</td></tr>
-							{% endif %}
-							{% if question.typeID == '5' %}
+							{% elif question.typeID == '5' %}
 							<!-- Essay question -->
 							<tr><td colspan="2"><textarea name="{{question.questionID}}" rows="5" width="auto" placeholder="<Enter Answer Here>" readonly></textarea>
 							</td></tr>{% endif %}

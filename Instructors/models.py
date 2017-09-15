@@ -78,9 +78,9 @@ class Questions(models.Model):
         return str(self.questionID)+","+self.preview
     
 class StaticQuestions(Questions):
-    questionText = models.CharField(max_length=1000)
-    correctAnswerFeedback = models.CharField(max_length=200, default="")
-    incorrectAnswerFeedback = models.CharField(max_length=200, default="")
+    questionText = models.CharField(max_length=10000)
+    correctAnswerFeedback = models.CharField(max_length=1000, default="")
+    incorrectAnswerFeedback = models.CharField(max_length=1000, default="")
 
 class CodeLibrary(models.Model):
     name = models.CharField(max_length=200)
@@ -88,20 +88,20 @@ class CodeLibrary(models.Model):
        
 class Answers(models.Model):
     answerID = models.AutoField(primary_key=True)
-    answerText = models.CharField(max_length=100)
+    answerText = models.CharField(max_length=5000)
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     def __str__(self):              
         return str(self.answerID)+","+self.answerText
 
 class FeedbackType(models.Model):
     feedbackID = models.AutoField(primary_key=True)
-    feedbackText = models.CharField(max_length=100, default="")
+    feedbackText = models.CharField(max_length=1000, default="")
     def __str__(self):
         return str(self.feedbackText)
 
 class MatchingAnswers(models.Model):
     matchingAnswerID = models.AutoField(primary_key=True)
-    matchingAnswerText = models.CharField(max_length=100)
+    matchingAnswerText = models.CharField(max_length=5000)
     answerID = models.ForeignKey(Answers, verbose_name="the answer which this match goes with", db_index=True)
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     def __str__(self):              
@@ -115,7 +115,7 @@ class CorrectAnswers(models.Model):
     
 class Prompts(models.Model):
     promptID = models.AutoField(primary_key=True)
-    promptText = models.CharField(max_length=100, default="")
+    promptText = models.CharField(max_length=5000, default="")
     questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
     answerID = models.ForeignKey('Instructors.Answers', verbose_name="the correct answer for this prompt")
     
@@ -135,9 +135,9 @@ class Challenges(models.Model):
     numberAttempts = models.IntegerField()
     timeLimit = models.IntegerField()
     #feedbackOption = models.IntegerField()
-    feedbackOption1 = models.BooleanField(default=False)
-    feedbackOption2 = models.BooleanField(default=False)
-    feedbackOption3 = models.BooleanField(default=False)
+    displayCorrectAnswer = models.BooleanField(default=True)
+    displayCorrectAnswerFeedback = models.BooleanField(default=False)
+    displayIncorrectAnswerFeedback = models.BooleanField(default=False)
     challengeAuthor = models.CharField(max_length=75)
     challengeDifficulty = models.CharField(max_length=45, default="")
     isVisible = models.BooleanField(default=True)

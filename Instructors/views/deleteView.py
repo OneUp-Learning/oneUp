@@ -127,7 +127,7 @@ def deleteChallenge(request):
         context_dict['message']=message
     
     if 'warmUp' in request.GET:
-        return redirect('/oneUp/instructors/challengesList?warmUp', context_dict)
+        return redirect('/oneUp/instructors/warmUpChallengeList', context_dict)
     else:
         return redirect('/oneUp/instructors/challengesList', context_dict)
 

@@ -1,12 +1,6 @@
 import importlib
 from oneUp.settings import BASE_DIR
 import os
-from multiprocessing.process import ORIGINAL_DIR
-import code
-from _locale import CODESET
-from doctest import set_unittest_reportflags
-from django.contrib.admin.templatetags.admin_list import result_headers
-from pip._vendor.pyparsing import line
 
 lupa_spec = importlib.util.find_spec('lupa')
 lupa_available = True

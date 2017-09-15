@@ -1,11 +1,10 @@
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from Instructors.models import Answers, CorrectAnswers, Courses
-from Instructors.models import Challenges,  Topics, CoursesTopics, ChallengesTopics, StaticQuestions
+from Instructors.models import Challenges, Topics, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import utils, challengeListView
+from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
-from Instructors.constants import unspecified_topic_name
 
 from time import time
 import datetime
@@ -33,10 +32,9 @@ def challengeCreateView(request):
     qlist = []
     topic_ID = []
     topic_Name = []
-    tagString = ""
     
     context_dict['isVisible']=True
-    context_dict['feedbackOption1']= True
+    context_dict['displayCorrectAnswer']= True
     
     string_attributes = ['challengeName', 'challengeDifficulty',               ##'isGraded','challengeCategory', 'challengeDifficulty'
                   'numberAttempts','timeLimit','challengePassword'
@@ -45,9 +43,11 @@ def challengeCreateView(request):
     # Fetch the topics for this course from the database.
     course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
          
-    for t in course_topics:
-        topic_ID.append(t.topicID.topicID)
-        topic_Name.append(t.topicID.topicName)
+    for ct in course_topics:
+        topic_ID.append(ct.topicID.topicID)
+        topic_Name.append(ct.topicID.topicName)
+        if ct.topicID.topicName == unspecified_topic_name:
+            unspecified_topic = ct.topicID  # to be used when creating a new challenge
     
     # The range part is the index numbers.
     context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name)
@@ -74,13 +74,15 @@ def challengeCreateView(request):
             challenge.challengeDifficulty = ''
         context_dict['challengeDifficulty'] = challenge.challengeDifficulty
         
-        feedbackOption1 = str(request.POST.get('feedbackOption1','false'))  
-        feedbackOption2 = str(request.POST.get('feedbackOption2','false'))  
-        feedbackOption3 = str(request.POST.get('feedbackOption3','false'))        
+        displayCorrectAnswer = str(request.POST.get('displayCorrectAnswer','false'))  
+        displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))  
+        displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))        
        
         # Copy all strings from POST to database object.
         for attr in string_attributes:
-            setattr(challenge,attr,request.POST[attr])
+            if(attr in request.POST):
+                setattr(challenge,attr,request.POST[attr])
+
 
         # get the logged in user for an author                           
         if request.user.is_authenticated():
@@ -101,39 +103,38 @@ def challengeCreateView(request):
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.isVisible)
         
         
-        if feedbackOption1 == str("false"):
-            feedbackOption1 =""
-        challenge.feedbackOption1 = bool(feedbackOption1)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.feedbackOption1)
+        if displayCorrectAnswer == str("false"):
+            displayCorrectAnswer =""
+        challenge.displayCorrectAnswer = bool(displayCorrectAnswer)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswer)
         
-        if feedbackOption2 == str("false"):
-            feedbackOption2 =""
-        challenge.feedbackOption2 = bool(feedbackOption2)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.feedbackOption2)
+        if displayCorrectAnswerFeedback == str("false"):
+            displayCorrectAnswerFeedback =""
+        challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
         
-        if feedbackOption3 == str("false"):
-            feedbackOption3 =""
-        challenge.feedbackOption3 = bool(feedbackOption3)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.feedbackOption3)
+        if displayCorrectAnswerFeedback == str("false"):
+            displayCorrectAnswerFeedback =""
+        challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
         
         if(request.POST['startTime'] == ""):
-            challenge.startTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.startTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
         else:
             challenge.startTimestamp = datetime.datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            challenge.endTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
         else:
             if datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p"):
                 challenge.endTimestamp = datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
             else:
-                challenge.endTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+                challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
         
         # Number of attempts
-        num = str(request.POST.get('unlimittedAttempts','false'))
-        if num == str("true"):
+        if('unlimittedAttempts' in request.POST):
             challenge.numberAttempts = 99999   # unlimited attempts
         else:
             num = request.POST['numberAttempts']  #empty string and number 0 evaluate to false
@@ -142,10 +143,9 @@ def challengeCreateView(request):
             else:
                 numberAttempts = int(request.POST.get("numberAttempts", 1))
                 challenge.numberAttempts = numberAttempts
-        
+
         # Time to complete the challenge
-        time = str(request.POST.get('unlimittedTime','false'))
-        if time == str("true"):
+        if('unlimittedTime' in request.POST):
             challenge.timeLimit = 99999   # unlimited time
         else:
             time = request.POST['timeLimit']    #empty string and number 0 evaluate to false
@@ -176,16 +176,19 @@ def challengeCreateView(request):
         
         # Processing and saving topics for the challenge in DB
         topicsString = request.POST.get('newTopics', "default")
-        #topicSelected = request.POST.get('Topic')
-                    
-        utils.saveChallengesTopics(topicsString, challenge)                   
+
+        if topicsString == "" and not request.POST['challengeID']:  # new challenge & no topic specified           
+            newChallTopicsObject = ChallengesTopics()
+            newChallTopicsObject.challengeID = challenge
+            newChallTopicsObject.topicID = unspecified_topic                
+            newChallTopicsObject.save()
+
+        else:                       
+            utils.saveChallengesTopics(topicsString, challenge,unspecified_topic)                   
                         
         # Processing and saving tags in DB
         tagString = request.POST.get('tags', "default")
         utils.saveChallengeTags(tagString, challenge)
-        
-        # Get information from DB to display on the Filter Questions web page  
-        #challengeQuestionsFilter.challengeQuestionsFilter(challenge, context_dict)  # deleted this on 02/16/2016  - not clear what it does, perhaps remained from warm up challenges
         
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
@@ -233,8 +236,12 @@ def challengeCreateView(request):
                 context_dict['unlimittedTime']=False 
             
                           
-            if challenge.endTimestamp.strftime("%Y") < ("2900"):    
-                context_dict['endTimestamp']=getattr(challenge, 'endTimestamp').strftime("%m/%d/%Y %I:%M:%S %p")
+            #if challenge.endTimestamp.strftime("%Y") < ("2900"): 
+            etime = challenge.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")
+            print('etime ', etime)
+            if etime != default_time_str: 
+                print('etime2 ', etime)   
+                context_dict['endTimestamp']=etime
             else:
                 context_dict['endTimestamp']=""
             
@@ -256,20 +263,20 @@ def challengeCreateView(request):
             else:
                 context_dict['isVisible']=False
 
-            if challenge.feedbackOption1:
-                context_dict['feedbackOption1']=True
+            if challenge.displayCorrectAnswer:
+                context_dict['displayCorrectAnswer']=True
             else:
-                context_dict['feedbackOption1']=False 
+                context_dict['displayCorrectAnswer']=False 
                 
-            if challenge.feedbackOption2:
-                context_dict['feedbackOption2']=True
+            if challenge.displayCorrectAnswerFeedback:
+                context_dict['displayCorrectAnswerFeedback']=True
             else:
-                context_dict['feedbackOption2']=False 
+                context_dict['displayCorrectAnswerFeedback']=False 
                 
-            if challenge.feedbackOption3:
-                context_dict['feedbackOption3']=True
+            if challenge.displayCorrectAnswerFeedback:
+                context_dict['displayCorrectAnswerFeedback']=True
             else:
-                context_dict['feedbackOption3']=False 
+                context_dict['displayCorrectAnswerFeedback']=False 
                            
             # Get the challenge question information and put it in the context
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
@@ -295,7 +302,7 @@ def challengeCreateView(request):
                     
                     answers = Answers.objects.filter(questionID = q.questionID)
                     answer_range = range(1,len(answers)+1)
-                    questdict['answers_with_count'] = zip(answer_range,answers)  
+                    questdict['answers_with_count'] = list(zip(answer_range,answers))
                     questdict['match_with_count'] = zip(answer_range,answers) 
                     
                     staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
@@ -307,7 +314,7 @@ def challengeCreateView(request):
                     correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
                     print(correct_answers)
                     canswer_range = range(1,len(correct_answers)+1)
-                    questdict['correct_answers'] = zip(canswer_range,correct_answers)
+                    questdict['correct_answers'] = list(zip(canswer_range,correct_answers))
                     
                     
                     #getting the matching questions of the challenge from database

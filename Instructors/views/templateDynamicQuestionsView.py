@@ -6,7 +6,6 @@ Created on Apr 1, 2014
 
 from django.template import RequestContext
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 
 from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
 from Instructors.models import LuaLibrary, QuestionLibrary
@@ -16,16 +15,12 @@ from Instructors.views import utils
 
 from Badges.enums import QuestionTypes
 
-from django.views.decorators.csrf import csrf_exempt
-import sys
 import re
-from pickle import FALSE
 
 
 def templateDynamicQuestionForm(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
-    context = RequestContext(request)
     context_dict = { }
     
     context_dict["logged_in"]=request.user.is_authenticated()
@@ -81,14 +76,14 @@ def templateDynamicQuestionForm(request):
                 output += "\n"
             return output
         
-         #Takes the array and converts the parts into lua code            
+        #Takes the array and converts the parts into lua code            
         question.code = combineCodeSegments(templateToCodeSegments(question.setupCode,templateArray))
     
         # Fix the question type
         question.type = QuestionTypes.templatedynamic
         question.save();  #Writes to database.
         
-        #Querey that gets all objects that are in forgien key realtion to the question and deltes them all 
+        #Query that gets all objects that are in foreign key relation to the question and deletes them all 
         TemplateTextParts.objects.filter(dynamicQuestion=question).delete()
         
             
@@ -114,8 +109,7 @@ def templateDynamicQuestionForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            #TODO: get actual number of points?
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, 0 )
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']) )
                             
             # Processing and saving skills for the question in DB
             utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
@@ -165,15 +159,20 @@ def templateDynamicQuestionForm(request):
             
             context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
 
-            if 'challengeID' in request.GET:
-               # get the challenge points for this problem to display
-               #context_dict['points'] = ....
-               
-               # set default skill points - 1
-               context_dict['q_skill_points'] = int('1')
+            # Extract the tags from DB            
+            context_dict['tags'] = utils.extractTags(question, "question")
 
-               # Extract the skill                                        
-               context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
+
+            if 'challengeID' in request.GET:
+                # get the challenge points for this problem to display
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
+                context_dict['points'] = challenge_questions[0].points
+                    
+                # set default skill points - 1
+                context_dict['q_skill_points'] = int('1')
+
+                # Extract the skill                                        
+                context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
            
             
         else:

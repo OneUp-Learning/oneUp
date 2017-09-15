@@ -55,10 +55,10 @@
                         <td> 
                            <input style="border: solid 1px rgba(128, 128, 128, 0.5);" type="text" name="topicName" value="{{topicName}}" id="preview" pattern=".*\S+.*" required>
                         <td> 
-                           <input style="border: solid 1px rgba(128, 128, 128, 0.5);" type="text" name="topicPos" value="{{topicPos}}" id="preview" pattern=".*\S+.*" required>
+                           <input style="border: solid 1px rgba(128, 128, 128, 0.5);" type="number" name="topicPos" value="{{topicPos}}" id="preview" min="0" required>
                   </table>
                   <input type="submit" name="submit" value="Submit" class="button" onclick="return check();">
-                  <a href="/oneUp/instructors/topicsList"><input type="button" value="Done"></a>
+                  <a href="/oneUp/instructors/topicsList"><input type="button" value="Back"></a>
                   <br>
                   </form>
                   <!-- END DYNAMIC TABLE -->

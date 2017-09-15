@@ -12,9 +12,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='student',
-            old_name='avaterImage',
-            new_name='avatarImage',
-        ),
     ]
