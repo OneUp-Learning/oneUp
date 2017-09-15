@@ -5,10 +5,9 @@ Modified
 
 @author: Austin Hodge
 '''
-from django.template import RequestContext
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from Instructors.models import Announcements, Instructors, Courses, Challenges
+
+from Instructors.models import Challenges
+from Instructors.constants import default_time_str
 from time import strftime
 
 def createContextForUpcommingChallengesList(currentCourse, context_dict):
@@ -16,18 +15,16 @@ def createContextForUpcommingChallengesList(currentCourse, context_dict):
     chall_Name = []         
     start_Timestamp = []
     end_Timestamp = []
-    UnassignID = 0
         
     # Filter challenges to show only Graded(Serious Challenges) and sort by earlier dates first
     challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).order_by('endTimestamp')
-    currentTime = strftime("%Y-%m-%d %H:%M:%S")
-    
+    currentTime = strftime("%m/%d/%Y %I:%M:%S %p") 
     index = 0
     for item in challenges:
         if index < 3 and item.isVisible: # Showing first three upcomming assignments
-            # Check if current time is within the start and end time of the challenge
-            if currentTime > item.startTimestamp.strftime("%Y-%m-%d %H:%M:%S"):
-                if currentTime < item.endTimestamp.strftime("%Y-%m-%d %H:%M:%S"):
+            # Check if current time is within the start and end time of the challenge and that the endtime is not the default for 'unchecked' endtime
+            if currentTime > item.startTimestamp.strftime("%m/%d/%Y %I:%M:%S %p"):
+                if currentTime < item.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p") and not item.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")== default_time_str:
                     chall_ID.append(item.challengeID) #pk
                     chall_Name.append(item.challengeName)
                     start_Timestamp.append(item.startTimestamp)
@@ -35,5 +32,5 @@ def createContextForUpcommingChallengesList(currentCourse, context_dict):
                     index += 1
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = zip(range(1,challenges.count()+1),chall_ID,chall_Name,start_Timestamp,end_Timestamp)  ##,chall_Category
+    context_dict['challenge_range'] = zip(range(1,len(chall_ID)+1),chall_ID,chall_Name,start_Timestamp,end_Timestamp)  ##,chall_Category
     return context_dict

@@ -10,7 +10,7 @@ from Badges.models import CourseConfigParams
 from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses,StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
-from _datetime import datetime
+from datetime import datetime
 from datetime import timedelta
 
 import inspect
