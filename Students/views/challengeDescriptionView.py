@@ -16,7 +16,7 @@ def ChallengeDescription(request):
     if 'currentCourseID' in request.session:          
         string_attributes = ['challengeName','courseID','isGraded',                 #'challengeCategory','timeLimit','numberAttempts',
                       'challengeAuthor',
-                      'feedbackOption1','feedbackOption2','feedbackOption3',
+                      'displayCorrectAnswer','displayCorrectAnswerFeedback','displayIncorrectAnswerFeedback',
                       'challengeDifficulty', 'challengePassword']; # Added challengePassword AH
 
      
