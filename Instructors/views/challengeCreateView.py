@@ -34,7 +34,7 @@ def challengeCreateView(request):
     topic_Name = []
     
     context_dict['isVisible']=True
-    context_dict['feedbackOption1']= True
+    context_dict['displayCorrectAnswer']= True
     
     string_attributes = ['challengeName', 'challengeDifficulty',               ##'isGraded','challengeCategory', 'challengeDifficulty'
                   'numberAttempts','timeLimit','challengePassword'
@@ -74,9 +74,9 @@ def challengeCreateView(request):
             challenge.challengeDifficulty = ''
         context_dict['challengeDifficulty'] = challenge.challengeDifficulty
         
-        feedbackOption1 = str(request.POST.get('feedbackOption1','false'))  
-        feedbackOption2 = str(request.POST.get('feedbackOption2','false'))  
-        feedbackOption3 = str(request.POST.get('feedbackOption3','false'))        
+        displayCorrectAnswer = str(request.POST.get('displayCorrectAnswer','false'))  
+        displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))  
+        displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))        
        
         # Copy all strings from POST to database object.
         for attr in string_attributes:
@@ -103,20 +103,20 @@ def challengeCreateView(request):
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.isVisible)
         
         
-        if feedbackOption1 == str("false"):
-            feedbackOption1 =""
-        challenge.feedbackOption1 = bool(feedbackOption1)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.feedbackOption1)
+        if displayCorrectAnswer == str("false"):
+            displayCorrectAnswer =""
+        challenge.displayCorrectAnswer = bool(displayCorrectAnswer)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswer)
         
-        if feedbackOption2 == str("false"):
-            feedbackOption2 =""
-        challenge.feedbackOption2 = bool(feedbackOption2)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.feedbackOption2)
+        if displayCorrectAnswerFeedback == str("false"):
+            displayCorrectAnswerFeedback =""
+        challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
         
-        if feedbackOption3 == str("false"):
-            feedbackOption3 =""
-        challenge.feedbackOption3 = bool(feedbackOption3)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.feedbackOption3)
+        if displayCorrectAnswerFeedback == str("false"):
+            displayCorrectAnswerFeedback =""
+        challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
         
         if(request.POST['startTime'] == ""):
             challenge.startTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
@@ -263,20 +263,20 @@ def challengeCreateView(request):
             else:
                 context_dict['isVisible']=False
 
-            if challenge.feedbackOption1:
-                context_dict['feedbackOption1']=True
+            if challenge.displayCorrectAnswer:
+                context_dict['displayCorrectAnswer']=True
             else:
-                context_dict['feedbackOption1']=False 
+                context_dict['displayCorrectAnswer']=False 
                 
-            if challenge.feedbackOption2:
-                context_dict['feedbackOption2']=True
+            if challenge.displayCorrectAnswerFeedback:
+                context_dict['displayCorrectAnswerFeedback']=True
             else:
-                context_dict['feedbackOption2']=False 
+                context_dict['displayCorrectAnswerFeedback']=False 
                 
-            if challenge.feedbackOption3:
-                context_dict['feedbackOption3']=True
+            if challenge.displayCorrectAnswerFeedback:
+                context_dict['displayCorrectAnswerFeedback']=True
             else:
-                context_dict['feedbackOption3']=False 
+                context_dict['displayCorrectAnswerFeedback']=False 
                            
             # Get the challenge question information and put it in the context
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
