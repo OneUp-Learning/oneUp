@@ -40,6 +40,8 @@ def dynamicQuestionForm(request):
     string_attributes = ['preview','difficulty',
                          'instructorNotes','code','numParts'];
 
+    context_dict['skills'] = utils.getCourseSkills(currentCourse)
+
     if request.POST:
 
         # If there's an existing question, we wish to edit it.  If new question,
@@ -67,15 +69,13 @@ def dynamicQuestionForm(request):
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved        # 02/28/2015    
             
-
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
                 challenge_question.delete()
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            #TODO: calculate actual number of points.
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, 0)
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']))
 
             # save question-skill pair to db                    # 03/01/2015
             # first need to check whether a new skill is selected 
@@ -84,9 +84,7 @@ def dynamicQuestionForm(request):
                 courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
                 
                 # Processing and saving skills for the question in DB
-                skillString = request.POST.get('newSkills', "default")
-                #TODO: fix skills
-                #utils.saveQuestionSkills(skillString, question, challenge)
+                utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
             tagString = request.POST.get('tags', "default")
@@ -103,14 +101,13 @@ def dynamicQuestionForm(request):
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
         
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
-                context_dict["unassign"]= 1
+            context_dict["unassign"]= 1
                 
         if 'challengeID' in request.GET:
-                context_dict['challengeID'] = request.GET['challengeID']
-                chall = Challenges.objects.get(pk=int(request.GET['challengeID']))
-                context_dict['challengeName'] = chall.challengeName
-                context_dict['challenge'] = True    
-    
+            context_dict['challengeID'] = request.GET['challengeID']
+            chall = Challenges.objects.get(pk=int(request.GET['challengeID']))
+            context_dict['challengeName'] = chall.challengeName
+            context_dict['challenge'] = True
                 
         # If questionId is specified then we load for editing.
         if 'questionId' in request.GET:
@@ -123,6 +120,20 @@ def dynamicQuestionForm(request):
                 context_dict[attr]=getattr(question,attr)
                 
             context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
+
+            # Extract the tags from DB
+            context_dict['tags'] = utils.extractTags(question, "question")
+
+            if 'challengeID' in request.GET:
+                # get the challenge points for this problem to display
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
+                context_dict['points'] = challenge_questions[0].points
+                    
+                # set default skill points - 1
+                context_dict['q_skill_points'] = int('1')
+
+                # Extract the skill                                        
+                context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question) 
 
         else:
             code = '''\
