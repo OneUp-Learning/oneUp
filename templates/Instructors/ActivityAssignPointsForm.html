@@ -56,10 +56,16 @@
                             <th>Points</th>
                             <th>Instructor Feedback</th>
                         </tr>
-                        {% for i, student_ID, student_Name, student_Points, student_Feedback in assignedActivityPoints_range %}
+                        {% for i, student_ID, student_Name, student_Points, student_Feedback, zipFile_Name in assignedActivityPoints_range %}
                         <tr>
                          <div id="stud_act{{i}}">
-                            <td>{{student_Name}}</td> 
+                            <td>
+                            	{{student_Name}} <br /> 
+                            	
+                            <a href='../../media/studentActivites/{{zipFile_Name}}' download> Download</a>
+                               <!--   <a href='../../static/images/lightbulb-o.ico' download> Download</a> -->
+                            
+                            </td> 
                             <td>
                                <input id="extraSmallFormBox" type="number" name="student_Points{{student_ID}}" value="{{student_Points}}" min="0" required>
                             </td> 

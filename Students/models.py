@@ -151,9 +151,8 @@ class StudentFile(models.Model):
     fileName = models.CharField(max_length=200, default='')
     
     def delete(self):
-        if self.file:
-            self.file.delete()
-        super(StudentActivities, self).delete()
+        self.file.delete()
+        super(StudentFile, self).delete()
         
     def removeFile(self):
         self.file.delete()

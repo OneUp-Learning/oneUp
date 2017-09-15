@@ -3,7 +3,10 @@ Created on Aug 30, 2017
 
 @author: Joel A. Evans
 '''
-
+import os
+from django.core.files import File
+from oneUp.settings import MEDIA_ROOT
+from zipfile import ZipFile
 from django.shortcuts import render, redirect
 from Instructors.models import Activities, UploadedFiles
 from Students.models import StudentActivities, Student, StudentFile
@@ -70,13 +73,62 @@ def ActivityDetail(request):
         return render(request,'Students/ActivityDescription.html', context_dict)
 
 def makeFileObjects(studentId, currentCourse,files, studentActivities):
-    #Like the file to the student
-    for i in range(0, len(files)):
+    
+    #When given multiple files we zip them together
+    filesForZip = []
+    
+    if(len(files) == 1): #if there is one file make just save it 
         studentFile = StudentFile()
         studentFile.studentID = studentId
         studentFile.courseID = currentCourse
-        studentFile.file = files[i]
-        studentFile.fileName = files[i].name
+        studentFile.file = files[0]
+        studentFile.fileName = files[0].name
         studentFile.activity = studentActivities
         studentFile.save()
+    
+    else: #if there is more than one file save them and zip together
+        
+        for i in range(0, len(files)): #make student files so we can save files to hardrive
+            studentFile = StudentFile()
+            studentFile.studentID = studentId
+            studentFile.courseID = currentCourse
+            studentFile.file = files[i]
+            studentFile.fileName = files[i].name
+            studentFile.activity = studentActivities
+            studentFile.save()
+            filesForZip.append(studentFile)
+        
+        
+        #make zip file
+        firstName =studentId.user.first_name
+        lastName = studentId.user.last_name
+        activityName = studentActivities.activityID.activityName
+        zipName = firstName + lastName + activityName + '.zip'
+        zipPath = os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),zipName)
+
+        
+        zipFile = ZipFile(zipPath, "w")
+        
+        for objects in filesForZip:
+            fileName = objects.fileName
+            filePath = os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),fileName)
+            zipFile.write(filePath)
+        
+        zipFile.close()
+        
+        #link zip to an object
+        studentFile = StudentFile()
+        studentFile.studentID = studentId
+        studentFile.courseID = currentCourse
+        studentFile.file = File(open(zipPath, "rb"))
+        studentFile.fileName = zipName
+        studentFile.activity = studentActivities
+        studentFile.save()
+        
+        #delete oldFile objects
+        for object in filesForZip:
+            object.delete()
+    
+              
+            
             
