@@ -6,7 +6,7 @@ from datetime import datetime
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from Students.models import StudentRegisteredCourses, Student
+from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
 from Students.models import StudentActivities
 from Badges.events import register_event
@@ -66,14 +66,7 @@ def activityAssignPointsView(request):
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
-    
-    if request.method == 'GET':
-        print('hi')
-        
-        
-        
-        
-        
+            
     return redirect('/oneUp/instructors/activitiesList', context_dict)    
         
         
@@ -83,7 +76,7 @@ def createContextForPointsAssignment(request):
     student_Name = []
     student_Points = []    
     student_Feedback = []
-    zipFile_Name = []
+    File_Name = []
     
     studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
     
@@ -91,19 +84,29 @@ def createContextForPointsAssignment(request):
         student = stud_course.studentID
         student_ID.append(student.id)
         student_Name.append((student).user.get_full_name())
-        zipFile_Name.append(student.user.first_name + student.user.last_name + Activities.objects.get(activityID = request.GET['activityID']).activityName + '.zip')
+        
+        #zipFile_Name.append(student.user.first_name + student.user.last_name + Activities.objects.get(activityID = request.GET['activityID']).activityName + '.zip')
+        
         if (StudentActivities.objects.filter(activityID = request.GET['activityID'], studentID = student)).exists():
             stud_act = StudentActivities.objects.get(activityID = request.GET['activityID'], studentID = student)
             student_Points.append(stud_act.activityScore)
             student_Feedback.append(stud_act.instructorFeedback)
+            print('hi')
+            
+            studentFile = StudentFile.objects.filter(activity= stud_act, studentID =student)
+            print(studentFile)
+            if(studentFile):
+                File_Name.append(StudentFile.objects.get(activity= stud_act).fileName)
             #zipFile_Name.append(StudentFile.objects.get(activity = stud_act, studentID = student).fileName)
         else:
             student_Points.append("0")
             student_Feedback.append("")
+            File_Name.append(False)
+
         
     context_dict['activityID'] = request.GET['activityID']
     context_dict['activityName'] = Activities.objects.get(activityID = request.GET['activityID']).activityName
-    context_dict['assignedActivityPoints_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Feedback, zipFile_Name)
+    context_dict['assignedActivityPoints_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Feedback, File_Name)
     return context_dict
     
 @login_required
