@@ -56,10 +56,19 @@
                             <th>Points</th>
                             <th>Instructor Feedback</th>
                         </tr>
-                        {% for i, student_ID, student_Name, student_Points, student_Feedback in assignedActivityPoints_range %}
+                        {% for i, student_ID, student_Name, student_Points, student_Feedback, File_Name in assignedActivityPoints_range %}
                         <tr>
                          <div id="stud_act{{i}}">
-                            <td>{{student_Name}}</td> 
+                            <td>
+                            	{{student_Name}} <br /> 
+                            	
+                            	 {% if File_Name%}
+                              		<a href='../../media/studentActivities/{{File_Name}}' download> <input type="button" class="button" value="Download"></a>
+                              	 {% else %}
+                              	 	No file available 
+                              	 {% endif %}    
+                    
+                            </td> 
                             <td>
                                <input id="extraSmallFormBox" type="number" name="student_Points{{student_ID}}" value="{{student_Points}}" min="0" required>
                             </td> 

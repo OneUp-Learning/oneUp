@@ -2,7 +2,7 @@ import os
 
 from django.db import models
 from django.contrib.auth.models import User
-from Instructors.models import Courses, Challenges, Questions, Skills, Activities
+from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
 from Badges.models import Badges, VirtualCurrencyRuleInfo
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
@@ -12,6 +12,7 @@ from django.template.defaultfilters import default
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
+from Instructors.views.instructorHomeView import instructorHome
 
 # Create your models here.
  
@@ -45,7 +46,6 @@ class UploadedAvatarImage(models.Model):
         avatarImage = models.FileField(max_length=500,
                                        upload_to= avatarImageUploadLocation)
         avatarImageFileName = models.CharField(max_length=200, default='')
-
     
 # Table listing all the students and the respective courses they are currently registered for   
 class StudentRegisteredCourses(models.Model):
@@ -129,13 +129,34 @@ class StudentActivities(models.Model):
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(default= datetime.now())
     activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
-    instructorFeedback = models.CharField(max_length=200, default="  ")
+    instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
 #     +","+str(self.challengeID)    
     
+def fileUploadPath(instance,filename):
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),filename)
+
+
+#Object to hold student files and where they are located at 
+class StudentFile(models.Model):
+    studentFileID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
+    activity = models.ForeignKey(StudentActivities, verbose_name= 'the related activity')
+    timestamp = models.DateTimeField(default=datetime.now)
+    file = models.FileField(max_length=500,upload_to= fileUploadPath)
+    fileName = models.CharField(max_length=200, default='')
+    
+    def delete(self):
+        self.file.delete()
+        super(StudentFile, self).delete()
+        
+    def removeFile(self):
+        self.file.delete()
+
 class StudentEventLog(models.Model):
     student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
     course = models.ForeignKey(Courses, verbose_name="Course in Which event occurred", db_index=True)
