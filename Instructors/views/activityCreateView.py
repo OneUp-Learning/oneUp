@@ -43,6 +43,11 @@ def activityCreateView(request):
             setattr(activity,attr,request.POST[attr])
         
         activity.courseID = currentCourse; 
+        if request.POST['fileUpload'] == 'True':
+            activity.isFileAllowed = True
+        else:
+            activity.isFileAllowed = False
+            
                   
        # get the author                            
         if request.user.is_authenticated():
