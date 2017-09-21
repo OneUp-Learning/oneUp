@@ -15,10 +15,9 @@ from datetime import datetime
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 
-@login_required
-
-
 import inspect
+
+@login_required
 
 def lineno():
     """Returns the current line number in our program."""
