@@ -13,6 +13,9 @@ from Instructors.views.upcommingChallengesListView import createContextForUpcomm
 
 from datetime import datetime
 from datetime import timedelta
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 import inspect

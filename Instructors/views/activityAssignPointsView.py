@@ -13,6 +13,7 @@ from Badges.events import register_event
 from Badges.enums import Event
 from Instructors.views.activityListView import createContextForActivityList
 
+
 def activityAssignPointsView(request):   
     
     if request.method == 'POST':

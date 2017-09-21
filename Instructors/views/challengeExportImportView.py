@@ -13,6 +13,9 @@ from Badges.enums import QuestionTypes
 from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
 import os
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 def str2bool(value):
     return value in ('True', 'true') 

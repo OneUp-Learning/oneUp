@@ -6,6 +6,9 @@ Created on March 16, 2016
 from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Courses
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 def courseInformation(request):
 
