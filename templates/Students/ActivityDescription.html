@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   {% include 'scripts.html' %}
+ 
+</head>
+<body>
+	<div id="page-wrapper">
+
+       {% if is_teacher %}    
+              {% include 'heading.html' %}
+       {% else %}
+              {% include 'stheading.html' %}
+       {% endif %}
+ 
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>{{activity.activityID.activityName}}</h1>
+		</div>
+		</div>
+		<br />
+		
+		<div align="center">		
+		<form id="uploadbanner" action="/oneUp/students/ActivityDescription" enctype="multipart/form-data" method="POST" >
+			{% csrf_token %}   			
+   			<table class="bg" style="margin-bottom: .750em; width: 90%; align: center;">
+               <tr>
+                  <td><b>Activity Description: </b></td>
+               </tr>
+               <tr>
+                  <td>
+                  	<span style="padding-left: 10px;">  {{activity.activityID.description}}</span>
+                  </td>
+               </tr>  
+               <tr>
+               <tr>
+                  <td><b>Activity Points: </b></td>
+               </tr>
+                  <td>
+                  	<span style="padding-left: 10px;">  Total points: {{activity.activityID.points}} </span>
+                  	<br/> <span style="padding-left: 10px;">   Your Score: {{activity.activityScore}} </span>
+                  	
+                  </td>
+               </tr> 
+               <tr>
+                  <td><b>Instructors Notes: </b></td> 			
+   			   </tr>
+   			   <tr>
+                  <td> {{activity.instructorFeedback}} </td> 			
+   			   </tr>
+                <tr>
+                
+                
+                
+                {% if canUpload == True%}
+	                  <td><b>Upload {{activity.activityID.activityName}}:</b></td> 			
+	   			   </tr>
+	               {%if isFile == False %}
+	               <tr>
+	                  <td>
+	                     <input id="fileupload" name="actFile" type="file" multiple />   
+	                  </td>
+	               </tr>
+	               </table>
+	   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
+	   			<input align="center" type="submit" value="Upload" id="Upload"/> 
+	   			 <a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
+	               
+	               {% else %}
+	               
+	               <tr>
+	                  <td>
+	                      <span style="padding-left: 10px;">  File 
+	               {% for file in fileName %}       
+	                      {{file}},
+	               {% endfor %}
+	                       has already been uploaded. </span>
+	                  </td>
+	               </tr> 
+	               </table>
+	   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
+				<a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
+	               {% endif %}
+	            
+	            {% else %}
+	           		</table>
+	           		<a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
+	            
+              	{% endif %}
+        </form>
+		</div>
+                                         
+  
+		<br />
+            <br><br>
+        <!-- END DYNAMIC TABLE -->
+        </form>
+		</div>
+        </div>
+        </div>
+      	</div>
+	<!-- Footer -->
+
+     {% include 'footer.html' %}
+
+	</div>`
+	
+</body>
+</html>

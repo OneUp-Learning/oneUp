@@ -9,6 +9,9 @@ from django.shortcuts import render, redirect
 
 from Students.models import Student, UploadedAvatarImage, StudentRegisteredCourses 
 from Students.views.utils import studentInitialContextDict
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 def avatarUpload(request):
