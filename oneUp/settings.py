@@ -28,8 +28,6 @@ SECRET_KEY = '6l1(5i-qm34-eb!@un9gc%(g$o^=rgw8l++0!o9t6-^($qi6&k'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 # Including the static folder to access it in the urls.py
