@@ -77,12 +77,23 @@ programinterface.program_checker =
    function (rootdir,filename,compile_cmd,total_max_pts,tests)
       return function (text,pts)
 	 local startDir = lfs.currentdir()
-	 _debug_print(startDir)
-	 local workingDirName = uniqid..'_'..seed..'_'..username
-	 makeWorkingDir(rootdir,"model",workingDirName)
-	 concatFile(filename,text,workingDirName)
+	 _debug_print(startDir)	 
+	 local workingDirName = '/home/oneUpUserCodeSandbox/'..uniqid..'_'..seed..'_'..username
+   makeWorkingDir(rootdir,"model",workingDirName)
+   concatFile(filename,text,workingDirName)
+
+   local clean_up_dir = function ()
+      lfs.chdir(rootdir)
+      killdir(workingDirName)
+      
+
 	 lfs.chdir(workingDirName)
-	 os.execute(compile_cmd)
+   if pcall(function ()
+      os.execute(compile_cmd)
+   ) then 
+   else
+      
+   end
 	 local success = true
 	 local value = 0
 	 local ptsratio = pts/total_max_pts
@@ -90,7 +101,7 @@ programinterface.program_checker =
 	 for i,test in ipairs(tests) do
 	    os.execute("pwd")
 	    _debug_print(test['command'])
-	    local outputFileHandle = io.popen(test['command'],'r')
+	    local outputFileHandle = io.popen('sudo -u oneUpUserCodeSandbox firejail --net=none --overlay-tmpfs --quiet '..test['command'],'r')
 	    local firstLine = outputFileHandle:read("*l")
 	    local pointsAwarded = outputFileHandle:read("*n")
 	    outputFileHandle:close()
