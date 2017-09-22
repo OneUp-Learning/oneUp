@@ -4,7 +4,9 @@ from Instructors.constants import unspecified_topic_name
 from Badges.models import CourseConfigParams
 import re
 import string
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def saveTags(tagString, resource, resourceIndicator):
 
         #if tagString is not null or empty

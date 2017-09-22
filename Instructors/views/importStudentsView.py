@@ -10,6 +10,9 @@ from django.shortcuts import redirect
 from Instructors.models import Courses
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 

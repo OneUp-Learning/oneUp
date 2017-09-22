@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from Instructors.models import Announcements, Instructors, Courses
 from time import strftime
 
+
 def createContextForAnnouncementList(currentCourse, context_dict):
 
     announcement_ID = []      

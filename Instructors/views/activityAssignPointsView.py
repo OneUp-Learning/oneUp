@@ -14,6 +14,7 @@ from Badges.enums import Event
 from Instructors.views.activityListView import createContextForActivityList
 from django.template.context_processors import request
 
+
 def activityAssignPointsView(request):   
     
     if request.method == 'POST':

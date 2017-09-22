@@ -13,7 +13,7 @@ from Instructors.views.upcommingChallengesListView import createContextForUpcomm
 
 from datetime import datetime
 from datetime import timedelta
-
+from django.contrib.auth.decorators import login_required
 
 import inspect
 
@@ -200,7 +200,7 @@ def courseLeaderboard(currentCourse, context_dict):
         
     return context_dict
     
-
+@login_required
 def instructorCourseHome(request):
     
     context_dict = { }
