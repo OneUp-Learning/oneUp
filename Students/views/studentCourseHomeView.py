@@ -12,6 +12,9 @@ from Instructors.views.upcommingChallengesListView import createContextForUpcomm
 from Badges.enums import Event
 from Badges.models import  CourseConfigParams
 from Badges.events import register_event
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 def StudentCourseHome(request):

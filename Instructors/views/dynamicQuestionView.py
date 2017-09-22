@@ -18,6 +18,9 @@ from Badges.enums import QuestionTypes
 from django.views.decorators.csrf import csrf_exempt
 import sys
 from xml.dom.expatbuilder import theDOMImplementation
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 def dynamicQuestionForm(request):

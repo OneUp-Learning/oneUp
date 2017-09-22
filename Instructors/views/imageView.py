@@ -9,6 +9,9 @@ from django.shortcuts import render, redirect
 
 from Instructors.models import Courses, UploadedImages 
 from django.conf.global_settings import MEDIA_URL
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 def imageUpload(request):

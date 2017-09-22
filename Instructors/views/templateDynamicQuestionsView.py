@@ -16,6 +16,9 @@ from Instructors.views import utils
 from Badges.enums import QuestionTypes
 
 import re
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 def templateDynamicQuestionForm(request):
