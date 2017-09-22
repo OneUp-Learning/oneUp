@@ -9,9 +9,6 @@ Modified
 from Instructors.models import Challenges
 from Instructors.constants import default_time_str
 from time import strftime
-from django.contrib.auth.decorators import login_required
-
-@login_required
 
 def createContextForUpcommingChallengesList(currentCourse, context_dict):
     chall_ID = []      
