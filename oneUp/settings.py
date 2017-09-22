@@ -73,19 +73,10 @@ DATABASES = {
     }
 }
 
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')   # DD
-
-TEMPLATE_DIRS = (                   # DD
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    TEMPLATE_PATH,
-)
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS' : [ TEMPLATE_PATH ],
+        'DIRS' : [ os.path.join(BASE_DIR, 'templates') ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
