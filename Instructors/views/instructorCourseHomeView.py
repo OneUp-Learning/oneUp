@@ -17,8 +17,6 @@ from django.contrib.auth.decorators import login_required
 
 import inspect
 
-@login_required
-
 def lineno():
     """Returns the current line number in our program."""
     return inspect.currentframe().f_back.f_lineno
@@ -202,7 +200,7 @@ def courseLeaderboard(currentCourse, context_dict):
         
     return context_dict
     
-
+@login_required
 def instructorCourseHome(request):
     
     context_dict = { }
