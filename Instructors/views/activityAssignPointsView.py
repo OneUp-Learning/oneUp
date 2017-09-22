@@ -96,7 +96,14 @@ def createContextForPointsAssignment(request):
             studentFile = StudentFile.objects.filter(activity= stud_act, studentID =student)
             print(studentFile)
             if(studentFile):
-                File_Name.append(StudentFile.objects.get(activity= stud_act).fileName)
+                fName = StudentFile.objects.get(activity= stud_act).fileName
+                print(fName)
+                if(' ' in fName):
+                    fName = "_".join(fName.split())
+                    File_Name.append(fName)
+                    print(fName)
+                else:
+                    File_Name.append(fName)
             #zipFile_Name.append(StudentFile.objects.get(activity = stud_act, studentID = student).fileName)
         else:
             student_Points.append("0")
