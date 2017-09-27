@@ -150,7 +150,7 @@
     	for (var i=0;i<ace_editor_divs.length;i++) {
     		var new_editor = ace.edit(ace_editor_divs[i].id);
 		    new_editor.setTheme("ace/theme/chrome");
-			new_editor.setMode("ace/mode/"+ace_editor_divs[i].title);
+			new_editor.session.setMode("ace/mode/"+ace_editor_divs[i].title);
 			ace_editors[ace_editor_divs[i].id] = new_editor;
     	}
     	
