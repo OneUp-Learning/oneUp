@@ -1,8 +1,8 @@
 from django.conf.urls import url
 from django.contrib import admin
 
-from Administrators.views.createAdminView import createAdminViewUnchecked
-from Administrators.views.createTeacherView import createTeacherViewUnchecked
+#from Administrators.views.createAdminView import createAdminViewUnchecked
+#from Administrators.views.createTeacherView import createTeacherViewUnchecked
 from Administrators.views.loginView import loginView
 from Administrators.views.courseListView import courseListView
 from Administrators.views.setCourseView import setCourseView
@@ -19,8 +19,8 @@ admin.autodiscover()
 urlpatterns = [
     # Examples:
     url(r'^adminHome', adminHome, name='adminHomeView'),
-    url(r'^createAdmin', createAdminViewUnchecked, name='createAdminView'),
-    url(r'^createTeacher', createTeacherViewUnchecked, name='createTeacherView'),
+ #   url(r'^createAdmin', createAdminViewUnchecked, name='createAdminView'),
+ #   url(r'^createTeacher', createTeacherViewUnchecked, name='createTeacherView'),
     url(r'^createCourse', courseCreateView, name='courseCreateView'),
     url(r'^deleteCourse', courseDeleteView, name='courseDeleteView'),
     url(r'^deleteTeacher', teacherDeleteView, name='teacherDeleteView'),

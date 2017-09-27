@@ -3,6 +3,7 @@
 <head>
     {% include 'scripts.html' %}
     <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
+    <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
     <div>
@@ -125,7 +126,7 @@
                             </table>
                             <td colspan="2">
                                 <center>
-                                    <input type="submit" id="submit" name="submit" value="Submit Challenge" class="button" onclick="return confirm('Once you submit the test, it cannot be reverted. Do you want to review it??');">
+                                    <input type="submit" id="submit" name="submit" value="Submit Challenge" class="button" onclick="copyContentsToHidden();return confirm('Once you submit the test, it cannot be reverted. Do you want to review it??');">
                                 </center>
                             </td>
                             <td colspan="2">
@@ -142,5 +143,25 @@
     </div>
     <!-- Footer -->
     {% include 'footer.html' %}
+    
+    <script>
+    	var ace_editor_divs = document.getElementsByClassName('ace-editor');
+    	var ace_editors = {};
+    	for (var i=0;i<ace_editor_divs.length;i++) {
+    		var new_editor = ace.edit(ace_editor_divs[i].id);
+		    new_editor.setTheme("ace/theme/chrome");
+			new_editor.setMode("ace/mode/"+ace_editor_divs[i].title);
+			ace_editors[ace_editor_divs[i].id] = new_editor;
+    	}
+    	
+    	function copyContentsToHidden() {
+        	for (var i=0;i<ace_editor_divs.length;i++) {
+        		var name = ace_editor_divs[i].id;
+        		var editor = ace_editors[name];
+        		var hiddenfield = document.getElementById(name+"-hidden");
+        		hiddenfield.value = editor.getValue();
+        	}
+    	}
+    </script>
 </body>
 </html>
