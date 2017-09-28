@@ -220,6 +220,86 @@ public class ArrayBag<T> implements BagInterface<T> {
         return result;
     }  // end equals
     
+
+   	public static void main(String[] args) { 
+	    ArrayBag<String> testBag1 = new ArrayBag<String>();
+	    ArrayBag<String> testBag2 = new ArrayBag<String>();
+	    ArrayBag<String> testBag3 = new ArrayBag<String>();
+	    ArrayBag<String> testBag4 = new ArrayBag<String>(50);
+	    ArrayBag<String> testBag5 = new ArrayBag<String>(50);
+	    
+		// Initializing the bags
+	    // Empty bags
+        testBag1.clear();
+        testBag2.clear();
+
+        // A bag with a single item
+        testBag3.clear();
+        testBag3.add("A");
+
+        // A bag with "A" duplicated
+		String[] b4 = {"A", "C", "D", "A", "Z", "A"};
+        testBag4.clear();
+		for(int i=0; i<b4.length; i++)
+			testBag4.add(b4[i]);
+       
+        // The previous bag with all duplicates of "A" removed
+		String[] b5 = {"A", "C", "D", "Z"};		
+		for(int i=0; i<b5.length; i++)
+			testBag5.add(b5[i]);
+
+		// Testing Part
+		if ("test1".equals(args[0])) {
+		    runTest1(testBag1, testBag2, testBag3, testBag4, testBag5);
+		} else if ("test2".equals(args[0])) {
+		    runTest2(testBag1, testBag2, testBag3, testBag4, testBag5);
+		} else {
+		    runTest3(testBag1, testBag2, testBag3, testBag4, testBag5);
+		}
+	}
+	
+	// Check that it works on an empty bag
+   	public static void runTest1(ArrayBag<String> testBag1, ArrayBag<String> testBag2, ArrayBag<String> testBag3, ArrayBag<String> testBag4, ArrayBag<String> testBag5) {	
+	       
+		// System.out.println("Checking to see that we can remove duplicates on an empty bag and still have an empty bag");
+        testBag1.removeAllEntriesOf("A");
+        if (testBag1.equals(testBag2)) {
+            System.out.println("Success");
+            System.out.println(5);
+        } else {
+            System.out.println("*** Failed test");
+        }
+    }
+ 		
+    // Check that it works on a bag with a single item
+  	public static void runTest2(ArrayBag<String> testBag1, ArrayBag<String> testBag2, ArrayBag<String> testBag3, ArrayBag<String> testBag4, ArrayBag<String> testBag5) {	
+    
+        // System.out.println("Checking to see that we can remove the item in a singleton bag and get an empty bag");
+        testBag3.removeAllEntriesOf("A");
+        if (testBag3.isEmpty()) {
+            System.out.println("Success");
+            System.out.println(5);
+        } else {
+            System.out.println("*** Failed test");
+
+        }
+	}
+ 
+    // Check that it works on a bag with multiple copies of the item "A"
+  	public static void runTest3(ArrayBag<String> testBag1, ArrayBag<String> testBag2, ArrayBag<String> testBag3, ArrayBag<String> testBag4, ArrayBag<String> testBag5) {	
+    
+        //System.out.println("Checking to see that the method works on a bag with multiple copies of the item \"A\"");
+        
+        testBag4.removeAllEntriesOf("A");
+        if (testBag4.equals(testBag5)) {
+            System.out.println("Success");
+            System.out.println(5);
+        } else {
+            System.out.println("*** Failed test");
+        }
+       	System.out.println();
+    }			    
+	 
     
       /** Removes all occurrences of a given entry from this bag.
     @param anEntry the entry to be removed

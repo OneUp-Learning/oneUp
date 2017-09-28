@@ -1,0 +1,7 @@
+Complete the removeAllEntriesOf method of the ArrayBag class, which removes all occurrencies of a given  element.
+
+public static void removeAllEntriesOf(T anEntry) {
+
+ [{make_answer('ans1','code-java',5,checker,15)}]
+
+}
