@@ -187,6 +187,7 @@ def makeLibs(dynamicQuestion):
     libs = QuestionLibrary.objects.filter(question=dynamicQuestion)
     return [lib.library.libraryName for lib in libs]
 
+@login_required
 def dynamicQuestionPartAJAX(request):
     context_dict = { }
     if not lupa_available:

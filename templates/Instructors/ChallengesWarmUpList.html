@@ -58,11 +58,10 @@
 				  <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
 				  <td>
 					<table>
-                     {% for j,chall_ID,chall_Name, chall_Difficulty, chall_visible in all_challenges %}
+                     {% for j,chall_ID,chall_Name, chall_visible in all_challenges %}
                      <tr style="background-color: {% cycle '#EDF0F2' '#ffffff' %}; line-height: 20px;">
                         <div id="challenges{{j}}">
                            <td>{{chall_Name}}</td>
-                           <td>{{chall_Difficulty}}</td>
                            <td>{{chall_visible}}</td>
                            <td align="right">
 
