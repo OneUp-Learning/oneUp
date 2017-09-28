@@ -62,7 +62,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
     chall_ID = []      
     chall_Name = []         
     #chall_Category = []
-    chall_Difficulty = []
+    #chall_Difficulty = []
     chall_visible = []
     start_Timestamp = []
     end_Timestamp = []
@@ -82,7 +82,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
             chall_ID.append(item.challengeID) #pk
             chall_Name.append(item.challengeName)
             #chall_Category.append(item.challengeCategory)
-            chall_Difficulty.append(item.challengeDifficulty)
+            #chall_Difficulty.append(item.challengeDifficulty)
             if item.isVisible:
                 chall_visible.append("Visible")
             else:
@@ -99,7 +99,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                 end_Timestamp.append("")
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_Difficulty,chall_visible,start_Timestamp,end_Timestamp)  ##,chall_Category
+    context_dict['challenge_range'] = zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp)  ##,chall_Category
     return context_dict
 
 
@@ -139,7 +139,7 @@ def challengesForTopic(topic):
 
     chall_ID = []  
     chall_Name = [] 
-    chall_Difficulty = []
+    #chall_Difficulty = []
     chall_visible = []
     
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
@@ -148,7 +148,7 @@ def challengesForTopic(topic):
             if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=False):
                 chall_ID.append(challt.challengeID.challengeID)
                 chall_Name.append(challt.challengeID.challengeName)
-                chall_Difficulty.append(challt.challengeID.challengeDifficulty)
+                #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
                 if challt.challengeID.isVisible:
                     chall_visible.append('Visible')
                 else:
@@ -156,8 +156,9 @@ def challengesForTopic(topic):
                     
     print()
     #return zip(challenge_Name,challenge_ID, challenge_Difficulty, isVisible)
-    return zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_Difficulty,chall_visible)
+    return zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible)
 
+@login_required
 def warmUpChallengeList(request):
     
     # Warm challenged will be grouped by course topics

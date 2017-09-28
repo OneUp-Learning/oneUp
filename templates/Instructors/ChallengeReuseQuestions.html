@@ -56,13 +56,12 @@
                             <th></th>
                             <th>Problem</th>
                             <th>Type</th>
-                            <th>Difficulty</th>
                             <th>Points</th>
                             <th></th>
                         </tr>
                         
                         
-		{% for i,q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId in question_range %}
+		{% for i,q_ID,q_preview,q_type,q_type_name,q_challengeId in question_range %}
 		<tr>  
 			<div id="question{{i}}">
 				<td>
@@ -71,7 +70,6 @@
 				</td>					
 				<td> {{q_preview}}</td>
 				<td> {{q_type_name}}</td>
-				<td> {{q_difficulty}}</td>
 				<td style="vertical-align:middle;">
 					<input  style="border: solid 1px rgba(128, 128, 128, 0.5); width: 90px" type="text" name ="points{{i}}" value = "{{points}}">  
 					<input type="hidden" name ="questionID{{i}}" value = "{{q_ID}}" required>  

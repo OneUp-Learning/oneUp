@@ -12,7 +12,7 @@ from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 
 
 
@@ -26,7 +26,7 @@ def process_file(filename):
         ls.append((names[1], names[0],  names[2]+'@rams.wssu.edu',names[2] ))
     return ls[1:]
 
-
+@login_required
 def importStudents(request):
     
     context_dict = { }

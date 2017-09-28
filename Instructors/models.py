@@ -51,11 +51,11 @@ class InstructorRegisteredCourses(models.Model):
     
     
        
-class Difficulty(models.Model):
-    difficultyID = models.AutoField(primary_key=True)
-    difficulty = models.CharField(max_length=75, default="")
-    def __str__(self):              
-        return str(self.difficulty)
+#class Difficulty(models.Model):
+    #difficultyID = models.AutoField(primary_key=True)
+    #difficulty = models.CharField(max_length=75, default="")
+    #def __str__(self):              
+        #return str(self.difficulty)
 
     
 # class Topics(models.Model):

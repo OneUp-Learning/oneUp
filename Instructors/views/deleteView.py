@@ -131,6 +131,7 @@ def deleteChallenge(request):
     else:
         return redirect('/oneUp/instructors/challengesList', context_dict)
 
+@login_required
 def deleteSkill(request):
  
     context_dict = { }
@@ -150,6 +151,7 @@ def deleteSkill(request):
         
     return redirect('/oneUp/instructors/skillsList', context_dict)
 
+@login_required
 def deleteStudent(request):
  
     context_dict = { }
@@ -188,6 +190,7 @@ def deleteStudent(request):
         
     return redirect('/oneUp/instructors/createStudentListView', context_dict)
 
+@login_required
 def deleteUser(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -215,6 +218,7 @@ def deleteUser(request):
         
     return redirect('/oneUp/instructors/createStudentListView', context_dict)
 
+@login_required
 def deleteTopic(request):
  
     context_dict = { }
@@ -234,6 +238,7 @@ def deleteTopic(request):
         
     return redirect('/oneUp/instructors/topicsList', context_dict)
 
+@login_required
 def deleteSubTopic(request):
  
     context_dict = { }
@@ -273,6 +278,7 @@ def deleteActivity(request):
         
     return redirect('/oneUp/instructors/activitiesList', context_dict)
 
+@login_required
 def deleteAnnouncement(request):
  
     context_dict = { }
@@ -291,6 +297,7 @@ def deleteAnnouncement(request):
         
     return redirect('/oneUp/instructors/announcementList', context_dict)
 
+@login_required
 def deleteMilestone(request):
  
     context_dict = { }
