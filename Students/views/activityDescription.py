@@ -85,6 +85,9 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         studentFile.fileName = files[0].name
         studentFile.activity = studentActivities
         studentFile.save()
+        studentFile.fileName = os.path.basename(studentFile.file.name) 
+        studentFile.save()
+
     
     else: #if there is more than one file save them and zip together
         
@@ -105,13 +108,11 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         activityName = studentActivities.activityID.activityName
         zipName = firstName + lastName + activityName + '.zip'
         zipPath = os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),zipName)
-
         
         zipFile = ZipFile(zipPath, "w")
         
         for objects in filesForZip:
-            fileName = objects.fileName
-            filePath = os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),fileName)
+            filePath = objects.file.name
             zipFile.write(filePath)
         
         zipFile.close()
