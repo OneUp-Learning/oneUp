@@ -1,5 +1,3 @@
-local lfs = require "lfs"
-
 local _debug_print = print
 
 local binaryFormat = package.cpath:match("%p[\\|/]?%p(%a+)")
@@ -100,16 +98,15 @@ function (rootdir,filename,compile_cmd,total_max_pts,tests)
     makeWorkingDir(rootdir,"model",workingDirName)
     concatFile(filename,text,workingDirName)
 
-    lfs.chdir(workingDirName)
     local result = 0
-    result = os.execute(compile_cmd)
+    result = os.execute('cd '..workingDirName..';'..compile_cmd)
     
     local success = true
     local value = 0
     local ptsratio = pts/total_max_pts
     local details = {}
     for i,test in ipairs(tests) do
-      local outputFileHandle = io.popen('sudo -u oneUpUserCodeSandbox firejail --net=none --quiet '..test['command'],'r')
+      local outputFileHandle = io.popen('cd '..workingDirName..'; sudo -u oneUpUserCodeSandbox firejail --net=none --quiet '..test['command'],'r')
       local firstLine = outputFileHandle:read("*l")
       if firstLine == nil then
         firstLine = ""
