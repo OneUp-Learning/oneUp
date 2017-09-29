@@ -55,16 +55,14 @@
             <table class="bg">
                 <tr>
                     <th>Name</th>
-                    <th>Difficulty</th>
                     <th>Score</th>
                     <th>Number of Attempts</th>
                     <th> </th>
                 </tr>
                 
-                {% for i,chall_ID,chall_Name, chall_Difficulty,grade, numberOfAttempts in challenge_range %}
+                {% for i,chall_ID,chall_Name,grade, numberOfAttempts in challenge_range %}
                 <tr> 
-                    <td>{{chall_Name}}</td>
-                    <td>{{chall_Difficulty}}</td>	
+                    <td>{{chall_Name}}</td>	
                     <td>{{grade}}</td>
                     <td>{{numberOfAttempts}}</td>			
                     <td align="right">

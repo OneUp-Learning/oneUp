@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Milestones, Courses
 
+
 def createContextForMilestoneList(request):
     context_dict = { }
     # check if course was selected

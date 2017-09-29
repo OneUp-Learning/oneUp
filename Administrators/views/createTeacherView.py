@@ -12,9 +12,7 @@ from django.shortcuts import render
 from oneUp.auth import createTeachers, checkPermBeforeView, teachers
 from django.contrib.auth.models import User
 
-from django.contrib.auth.decorators import login_required
 
-@login_required
 def createTeacherView(request):
     checkPermBeforeView(createTeachers,request,createTeacherViewUnchecked)
 

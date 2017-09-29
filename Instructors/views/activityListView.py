@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from Instructors.models import Activities, Courses
 from Students.models import StudentRegisteredCourses, StudentActivities
 
+@login_required
 def createContextForActivityList(request):
     
     context_dict = { }

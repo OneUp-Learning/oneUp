@@ -15,11 +15,12 @@ import xml.etree.ElementTree as eTree
 import os
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 
 def str2bool(value):
     return value in ('True', 'true') 
 
+@login_required
 def exportChallenges(request):   
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated()

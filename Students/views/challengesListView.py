@@ -29,7 +29,7 @@ def ChallengesList(request):
     if 'currentCourseID' in request.session:             
         chall_ID = []      
         chall_Name = []         
-        chall_Difficulty = []
+        #chall_Difficulty = []
         
         #studentId = Student.objects.filter(user=request.user)
         studentId = context_dict['student']
@@ -105,9 +105,9 @@ def ChallengesList(request):
             for item in challenges:
                 chall_ID.append(item.challengeID) #pk
                 chall_Name.append(item.challengeName)
-                chall_Difficulty.append(item.challengeDifficulty)
+                #chall_Difficulty.append(item.challengeDifficulty)
              
             # The range part is the index numbers.
-            context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,chall_Difficulty,grade, numberOfAttempts)
+            context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts)
 
     return render(request,'Students/ChallengesList.html', context_dict)
