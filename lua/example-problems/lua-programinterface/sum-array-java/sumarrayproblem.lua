@@ -1,12 +1,7 @@
-part_1_text = function ()
-    return 'What is 1+1?' .. make_input('answer1','int',10)
-end
-evaluate_answer_1 = function(answers)
-    if (tonumber(answers.answer1)==2)
-       then return {answer1={success=true,value=10}}
-       else return {answer1={success=false,value=0}}      
-    end
-end
-part_1_max_points = function()
-    return {answer1=10}
-end
+tests = {
+   {name="test1",command="java SumArray test1", points=5},
+   {name="test2",command="java SumArray test2", points=5},
+   {name="test3",command="java SumArray test3", points=5}}
+
+checker = programinterface.program_checker("/home/kirwin/workspace/oneUp-GIT/lua/example-problems/lua-programinterface/sum-array-java","SumArray.java","javac *.java",15,tests)
+
