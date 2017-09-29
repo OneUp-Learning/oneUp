@@ -75,8 +75,7 @@ local killdir = function(dir)
 end
 
 local makeWorkingDir = function(rootDir,modelDir,newDir)
-  lfs.chdir(rootDir)
-  copydirectory(modelDir,newDir)
+  copydirectory(rootdir..pathsep..modelDir,rootdir..pathsep..newDir)
 end
 
 local concatFile = function(filename,text,workingDirName)
@@ -91,7 +90,6 @@ local concatFile = function(filename,text,workingDirName)
   tailfile:close()
 end
 
-programinterface.program_checker =
 function (rootdir,filename,compile_cmd,total_max_pts,tests)
   return function (text,pts) 
     local workingDirName = '/home/oneUpUserCodeSandbox/'..getRandomDirName()
