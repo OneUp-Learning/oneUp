@@ -114,6 +114,7 @@
                                 <script type="text/javascript">
                                     <!-- Set time out for the test if the time limit has reached -->
                                     var duration = {{testDuration}}; //time limit in minutes from database
+                                    var now = new Date();
                                     var milli = now.getMilliseconds(); //current time in milliseconds
                                     var limit = milli + (duration * 1000 * 60); // test time duration in milliseconds (current time + time limit in milliseconds)
 
