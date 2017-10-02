@@ -16,10 +16,11 @@ from Instructors.models import Courses
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 
-@login_required
+
 def createStudentView(request):
     checkPermBeforeView(createStudents,request,createStudentViewUnchecked)
 
+@login_required
 def createStudentViewUnchecked(request):
  
     context_dict = { 'usertype':'Student', 'message':'' }

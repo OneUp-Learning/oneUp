@@ -1,5 +1,3 @@
-local lfs = require "lfs"
-
 local _debug_print = print
 
 local binaryFormat = package.cpath:match("%p[\\|/]?%p(%a+)")
@@ -77,16 +75,15 @@ local killdir = function(dir)
 end
 
 local makeWorkingDir = function(rootDir,modelDir,newDir)
-  lfs.chdir(rootDir)
-  copydirectory(modelDir,newDir)
+  copydirectory(rootDir..pathsep..modelDir,newDir)
 end
 
-local concatFile = function(filename,text,workingDirName)
+local concatFile = function(rootdir,filename,text,workingDirName)
   local workingFileName = workingDirName..pathsep..filename
-  cp(filename..".head",workingFileName)
+  cp(rootdir..pathsep..filename..".head",workingFileName)
   local outfile = io.open(workingFileName,"a")
   outfile:write(text)
-  local tailfile = io.open(filename..".tail","r")
+  local tailfile = io.open(rootdir..pathsep..filename..".tail","r")
   tailfiletext = tailfile:read("*a")
   outfile:write(tailfiletext)
   outfile:close()
@@ -98,18 +95,17 @@ function (rootdir,filename,compile_cmd,total_max_pts,tests)
   return function (text,pts) 
     local workingDirName = '/home/oneUpUserCodeSandbox/'..getRandomDirName()
     makeWorkingDir(rootdir,"model",workingDirName)
-    concatFile(filename,text,workingDirName)
+    concatFile(rootdir,filename,text,workingDirName)
 
-    lfs.chdir(workingDirName)
     local result = 0
-    result = os.execute(compile_cmd)
+    result = os.execute('cd '..workingDirName..';'..compile_cmd)
     
     local success = true
     local value = 0
     local ptsratio = pts/total_max_pts
     local details = {}
     for i,test in ipairs(tests) do
-      local outputFileHandle = io.popen('sudo -u oneUpUserCodeSandbox firejail --net=none --quiet '..test['command'],'r')
+      local outputFileHandle = io.popen('cd '..workingDirName..'; sudo -u oneUpUserCodeSandbox firejail --net=none --quiet '..test['command'],'r')
       local firstLine = outputFileHandle:read("*l")
       if firstLine == nil then
         firstLine = ""

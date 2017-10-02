@@ -3,8 +3,7 @@
 
 from Students.models import Student, StudentChallenges, StudentCourseSkills, StudentRegisteredCourses
 from django.contrib.auth.decorators import login_required
-
-@login_required                                      
+                                      
 def classAverChallengeScore(course,challenge):  
 
     count = 0

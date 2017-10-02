@@ -10,7 +10,6 @@ from datetime import datetime
 from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name
 from django.contrib.auth.models import User
 
-@login_required
 def courseCreateView(request):
     
         context_dict = { }

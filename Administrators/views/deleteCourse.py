@@ -3,9 +3,7 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from Instructors.models import Courses
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 
-@login_required
 def courseDeleteView(request):
     
         context_dict = { }
