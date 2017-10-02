@@ -5,9 +5,7 @@ from django.shortcuts import render, redirect
 
 from Instructors.models import Courses
 
-from django.contrib.auth.decorators import login_required
 
-@login_required
 def courseListView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.

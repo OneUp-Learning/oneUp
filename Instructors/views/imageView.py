@@ -61,6 +61,7 @@ def imageDelete(request):
     return redirect('/oneUp/instructors/imageList', context_dict)
     
        
+@login_required
 def imageList(request):
  
     context_dict = { }

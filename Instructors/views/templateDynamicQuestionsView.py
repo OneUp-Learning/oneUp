@@ -19,8 +19,6 @@ import re
 from django.contrib.auth.decorators import login_required
 
 @login_required
-
-
 def templateDynamicQuestionForm(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.

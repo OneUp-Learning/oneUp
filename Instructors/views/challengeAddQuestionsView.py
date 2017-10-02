@@ -46,7 +46,7 @@ def challengeAddQuestionsView(request):
         q_preview = []         
         q_type = []
         q_challenge = []
-        q_difficulty = []
+        #q_difficulty = []
         q_author = []
 
         questions = Questions.objects.all()
@@ -80,12 +80,12 @@ def challengeAddQuestionsView(request):
                 q_ID.append(question.questionID)
                 q_preview.append(question.preview)
                 q_type.append(question.type)
-                q_difficulty.append(question.difficulty)
+                #q_difficulty.append(question.difficulty)
                 q_author.append(question.author)
 
             
         context_dict['challengeID'] = challenge.challengeID
-        context_dict['question_range'] = zip(range(1,questions.count()+1),q_ID,q_preview,q_type,q_difficulty,q_author)        
+        context_dict['question_range'] = zip(range(1,questions.count()+1),q_ID,q_preview,q_type,q_author)        
 
     return render(request,'Instructors/ChallengeReuseQuestions.html', context_dict)
 

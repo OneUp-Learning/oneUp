@@ -32,17 +32,15 @@
                   <table class="bg">
                      <tr>
                         <th>Name</th>
-                        <th>Difficulty</th>
                         <th>Status</th>
                         <th>Display From</th>
                         <th>Display Until</th>
                         <th></th>
                      </tr>
-                     {% for i,chall_ID,chall_Name, chall_Difficulty, chall_visible,start_Timestamp,end_Timestamp in challenge_range %}
+                     {% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp in challenge_range %}
                      <tr style="background-color: {% cycle '#EDF0F2' '#ffffff' %}; line-height: 20px;">
                         <div id="challenges{{i}}">
                            <td>{{chall_Name}}</td>
-                           <td>{{chall_Difficulty}}</td>
                            <td>{{chall_visible}}</td>
                            <td>{{start_Timestamp}}</td>
                            <td>{{end_Timestamp}}</td>
