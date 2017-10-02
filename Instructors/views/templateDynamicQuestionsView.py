@@ -216,6 +216,10 @@ def templateToCodeSegments(setupCode,templateArray):
             return function(b,pts)
                 a = tonumber(a)
                 b = tonumber(b)
+                fudgefraction = tonumbeR(fudgefraction)
+                if a == nil or b == nil or fudgefraction == nil then
+                    return {success=false,value=0}
+                end
                 local diff = math.abs(a-b)
                 if diff/a<fudgefraction then
                     return {success=true,value=pts}
