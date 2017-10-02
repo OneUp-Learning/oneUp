@@ -58,11 +58,11 @@ oneUp.word_list_equality = function(wl)
       local sep = string.match(b,"[^%a%d]*")
       b = string.sub(b,sep:len()+1)
     end
-    if table.getn(wl) ~= table.getn(blist) then 
+    if #wl ~= #blist then 
       return {success=false,value=0}
     else
       for i,v in ipairs(wl) do
-        if v ~= blist[i] then
+        if string.upper(v) ~= string.upper(blist[i]) then
           return {success=false,value=0}
         end
       end
@@ -73,6 +73,9 @@ end
 
 oneUp.string_equality_ignore_spaces = function(str)
   return function(b,pts)
+    if b == nil then
+       return {success=false,value=0}
+    end
     local str_no_space = str:gsub("%s*","")
     local b_no_space = b:gsub("%s*","")
     if str_no_space == b_no_space then
