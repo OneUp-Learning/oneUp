@@ -92,21 +92,26 @@ def createContextForPointsAssignment(request):
             stud_act = StudentActivities.objects.get(activityID = request.GET['activityID'], studentID = student)
             student_Points.append(stud_act.activityScore)
             student_Feedback.append(stud_act.instructorFeedback)
-            print('hi')
+            #print('hi')
             
             studentFile = StudentFile.objects.filter(activity= stud_act, studentID =student)
             print(studentFile)
             if(studentFile):
                 fName = StudentFile.objects.get(activity= stud_act).fileName
                 print(fName)
-                if(' ' in fName):
-                    fName = "_".join(fName.split())
-                    File_Name.append(fName)
-                    print(fName)
-                else:
-                    File_Name.append(fName)
+#                 if(' ' in fName):
+#                     fName = "_".join(fName.split())
+#                     File_Name.append(fName)
+#                     print(fName)
+#                 else:
+                File_Name.append(fName)
+            else:
+                File_Name.append(False)
+
+                
             #zipFile_Name.append(StudentFile.objects.get(activity = stud_act, studentID = student).fileName)
         else:
+            print('ELSE')
             student_Points.append("0")
             student_Feedback.append("")
             File_Name.append(False)
