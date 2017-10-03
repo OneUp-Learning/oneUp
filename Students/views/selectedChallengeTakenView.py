@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from Badges.enums import staticQuestionTypesSet, QuestionTypes
 from Instructors.lupaQuestion import lupa_available, CodeSegment, LupaQuestion
 from Instructors.views.dynamicQuestionView import makeLibs
+from Instructors.views.challengeListView import warmUpChallengeList
 
 @login_required
 def SelectedChallengeTaken(request):
@@ -31,23 +32,33 @@ def SelectedChallengeTaken(request):
         useranswerIds = []
         questionScoreObjects = []
         questionTotalObjects = []
+        entireScore = 0
+        
         
         if 'warmUp' in request.GET:
             context_dict['warmUp'] = 1
+           
         
         if request.GET:
             # Getting the challenge information which the student has selected
             if 'studentChallengeID' in request.GET:  
                 studentChallengeId = request.GET['studentChallengeID']
                 context_dict['studentChallengeID'] = request.GET['studentChallengeID']
+                   
             else:
                 student = context_dict['student']
                 challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
                 studentChallengeId = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challenge.challengeID)
-                
+                 
             challengeId = request.GET['challengeID']
             chall = Challenges.objects.get(pk=int(challengeId))
             challengeName = chall.challengeName
+            
+            studentChallenges = StudentChallenges.objects.filter( courseID=currentCourse,challengeID=challengeId)
+                 
+            for Schallenges in studentChallenges:
+                if int(Schallenges.challengeID.challengeID) == int(challengeId):
+                    entireScore = Schallenges.testScore
             
             qlist = []
             
@@ -118,8 +129,9 @@ def SelectedChallengeTaken(request):
                 questdict['matches']=matchlist
                 qlist.append(questdict)
             context_dict['challengeID']= challengeId
-            context_dict['chall_Name'] = challengeName        
-            context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist,useranswerObjects,matchanswerObjects,questionScoreObjects,questionTotalObjects)
+            context_dict['chall_Name'] = challengeName
+            context_dict['entireScore'] = entireScore        
+            context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist,useranswerObjects,matchanswerObjects,questionScoreObjects,questionTotalObjects )
                
     return render(request,'Students/SelectedChallengeTaken.html', context_dict)
 
