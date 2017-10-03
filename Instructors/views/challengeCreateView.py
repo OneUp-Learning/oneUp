@@ -41,13 +41,12 @@ def challengeCreateView(request):
                   ];   
     
     # Fetch the topics for this course from the database.
-    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
-         
+    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)   
     for ct in course_topics:
         topic_ID.append(ct.topicID.topicID)
         topic_Name.append(ct.topicID.topicName)
-        if ct.topicID.topicName == unspecified_topic_name:
-            unspecified_topic = ct.topicID  # to be used when creating a new challenge
+      
+    unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
     
     # The range part is the index numbers.
     context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name)

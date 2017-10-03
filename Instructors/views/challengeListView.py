@@ -179,6 +179,7 @@ def warmUpChallengeList(request):
         topic_Name = [] 
         topic_Pos = []        
         all_challenges_for_topic = []
+        hasUnspecified_topic = False
 
         course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
         for ct in course_topics:
@@ -191,10 +192,11 @@ def warmUpChallengeList(request):
                 topic_Pos.append(str(ct.topicPos))
                 all_challenges_for_topic.append(challengesForTopic(ct.topicID))
             else:
-                unspecified_topic = ct.topicID            
+                unspecified_topic = ct.topicID 
+                hasUnspecified_topic=True           
                     
         # Add the challenges with unspecified topic at the end
-        if unspecified_topic:
+        if hasUnspecified_topic:
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous") 
             topic_Pos.append(str(course_topics.count()))  
