@@ -338,6 +338,8 @@ def importChallenges(uploadedFileName):
         if not el_challengeTopics is None: 
             for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'):
                 challengeTopic = ChallengesTopics()
+                
+                # We have to search for the topic name in CourseTopics, NOT in Topics, since there are topics with the same names and different IDs
                 topic = Topics.objects.filter(topicName=el_challengeTopic.find('topicName').text)
                 if topic:
                     challengeTopic.topicID = topic[0]
