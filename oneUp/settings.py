@@ -29,8 +29,6 @@ with open('/var/www/wsgi-projects/oneUp/oneUp/secret.key') as f:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-TEMPLATE_DEBUG = False
-
 ALLOWED_HOSTS = ['oneup.wssu.edu']
 
 CACHES = {
