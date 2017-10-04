@@ -215,7 +215,7 @@ else:
                 if link.version == version:
                     return link
             dictionary = json.loads(dump)
-            link = LupaRuntimeLink(dictionary['libs'],int(dictionary['seed']),False)
+            link = LupaRuntimeLink(dictionary['libs'],float(dictionary['seed']),False)
             link.history = dictionary['history']
             link.uuid = uuid
             link.version = version
