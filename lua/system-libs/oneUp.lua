@@ -25,6 +25,9 @@ oneUp.exact_equality_with_partial_credit_range = function(a,range,partialpts)
   return function(b,pts)
     a = tonumber(a)
     b = tonumber(b)
+    if b==nil then
+      return {success=false,value=0}
+    end
     if a==b then
       return {success=true,value=pts}
     elseif math.abs(a-b) <= range then
@@ -39,6 +42,10 @@ oneUp.approximate_equality = function(a,fudgefraction)
   return function(b,pts)
     a = tonumber(a)
     b = tonumber(b)
+    fudgefraction = tonumber(fudgefraction)
+    if a == nil or b == nil or fudgefraction == nil then
+      return {success=false,value=0}
+    end
     local diff = math.abs(a-b)
     if diff/a<fudgefraction then
       return {success=true,value=pts}

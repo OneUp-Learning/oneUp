@@ -215,7 +215,7 @@ else:
                 if link.version == version:
                     return link
             dictionary = json.loads(dump)
-            link = LupaRuntimeLink(dictionary['libs'],int(dictionary['seed']),False)
+            link = LupaRuntimeLink(dictionary['libs'],float(dictionary['seed']),False)
             link.history = dictionary['history']
             link.uuid = uuid
             link.version = version
@@ -444,11 +444,13 @@ else:
         def answerQuestionPart(self,n,answer_dict):
             runtime = self.getRuntime()
             if runtime is None:
+                print("ERROR: no runtime")
                 return False
             (success,evalAnswerFunc) = runtime.eval('evaluate_answer_'+str(n))
             if not success:
                 self.updateRuntime(runtime)
                 self.setError(evalAnswerFunc,"")
+                print("ERROR: no evaluate_answer_1 function")
                 return False
             if evalAnswerFunc is None:
                 self.updateRuntime(runtime)
@@ -456,6 +458,7 @@ else:
                                'number':n,
                                'function_name':'evaluate_answer_'+str(n)},
                               "")
+                print("ERROR: "+str(self.error))
                 return False
             self.updateRuntime(runtime)
             try:
@@ -463,6 +466,7 @@ else:
             except LuaError as luaerr:
                 self.updateRuntime(runtime)
                 self.setError(parseLuaError(luaerr), 'evaluate_answer_'+str(n)+'('+str(answer_dict)+')')
+                print("ERROR: "+str(self.error))
                 return False                
                 
             # There are problems dealing with Lua tables in Django templates, so we create
