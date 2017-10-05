@@ -220,15 +220,15 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     elif (operandType == OperandTypes.challengeSet):
         if operandValue == 0:
             # All challenges in this course
-            return Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")
+            return [ch.challengeID for ch in Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")]
         else:
-            return [challset.challenge for challset in ChallengeSet.objects.filter(condition=condition)]
+            return [challset.challenge.challengeID for challset in ChallengeSet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.activitySet):
         if operandValue == 0:
             # All activities in this course
-            return Activities.objects.filter(courseID = course)
+            return [act.activityID for act in Activities.objects.filter(courseID = course)]
         else:
-            return [actset.activity for actset in ActivitySet.objects.filter(condition=condition)]
+            return [actset.activity.activityID for actset in ActivitySet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.conditionSet):
         return [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
     else:
