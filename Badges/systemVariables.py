@@ -22,7 +22,7 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
     else:
         if objectType not in functions:
             return "Error: no function defined to calculate this system variable for the specified object type (or no function defined to calculate it at all)!"
-        object = objectTypeToObjectClass.objects.get(pk=objectID)
+        object = objectTypeToObjectClass[objectType].objects.get(pk=objectID)
         return functions[objectType](course,student,object)
 
 def getNumAttempts(course,student,challenge):

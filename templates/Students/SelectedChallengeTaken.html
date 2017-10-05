@@ -23,6 +23,7 @@
          	<div class="12u">
          		 <h1>Challenge <span>{{chall_Name}}</span></h1>
 			</div></div>
+			
 <!-- INSERTED DYNAMIC TABLE --> 
         
 		<!--<form name= "ChallengeTaken" action="/oneUp/students/ChallengesTaken" method="GET">-->
@@ -31,9 +32,12 @@
 			{% csrf_token %}
 
 	<table class="bg">
+	
+	<thead align="left">Total Score: {{entireScore}}</thead>
 		<form>
+		
 		{% for i,question,user,match_shuffled,score,total in question_range %}
-  	
+		
 		<tr id="question">  
 		
 			<div id="question{{i}}">
