@@ -1,0 +1,148 @@
+<!-- Style Sheet for embedded topics section -->
+<style>
+	#Topic table {
+		border: 1px solid;
+		border-radius: 1em;
+		margin: 0em 10em 0em 0.5em;
+	}
+	#challengeTopicDiv {
+		min-height: 3em;
+		display: 'block';			
+	}
+	#challengeTopicList {
+		padding:0;
+		margin:0;
+		list-style: none;
+		overflow: hidden;
+	}
+	#challengeTopicList li {
+		display: block;
+		border: 1px solid;
+		border-radius: 0.5em;
+		list-style-type:none;
+		margin: 0.25em 0.25em 0.25em 0.25em ;
+		background: #1FADFF;
+		position: relative;	
+		float: left;
+		padding:0.25em 0.25em 0.25em 0.25em;
+	}
+	#challengeTopicList li input {
+		width: 2em;
+	}
+	#challengeTopicList li span {
+		font-size: 140%;
+		cursor: pointer;
+		cursor: hand;
+	}
+	#challengeTopicSelectorTD {
+		vertical-align: middle
+	}
+	.challengeTopicFirstCol {
+		width: 20%
+	}
+	.challengeTopicSecondCol {
+		width: 80%
+	}
+	
+
+</style>
+
+<tr><td><table id="topicTable">
+	<colgroup>
+		<col class="challengeTopicFirstCol">
+		<col class="challengeTopicSecondCol">
+	</colgroup>
+	<tbody>	
+	<tr><td>Add Topic:</td> <td>Selected Topics</td></tr>
+	<tr><td id="#challengeTopicSelectorTD"><select id="challengeTopicSelector" onchange="selectTopic(this);this.selectedIndex=0;">
+	<option value="">Choose topic</option>
+	{%for i,topic_ID, topic_Name in topic_range%}
+		<option value="{{topic_ID}}">{{topic_Name}}</option>
+	{%endfor%}
+</select></td>
+
+<td>
+<div id="challengeTopicDiv"></div>
+</td></tr>
+</tbody>
+</table>
+</td></tr>
+
+<script>
+	// Javascript for embedded topics section.
+
+	var challengeTopicDiv = document.getElementById("challengeTopicDiv");
+	function challengeTopic_ul() {
+		var ul = document.getElementById("challengeTopicList");
+		if (ul) {
+			return ul;
+		} else {
+			ul = document.createElement('ul');
+			ul.id = "challengeTopicList";
+			ul.class = "selectionList";			
+			challengeTopicDiv.appendChild(ul);
+			return ul;
+		}
+	}
+
+	// Note: this function does not ensure that name is not already selected
+	function challengeTopicByNameAndID(name,id,value) {
+		var li = document.createElement('li');
+
+		var hidden_name_input = document.createElement('input');
+		hidden_name_input.type = 'hidden';
+		hidden_name_input.name = 'topics[]';
+		hidden_name_input.value = id;
+		
+		var name_text = document.createTextNode(name+" ");
+		
+		var deleteSpan = document.createElement('span');
+		deleteSpan.setAttribute('onclick','removeTopic(this)');		
+		var deleteX = document.createTextNode(" \u00D7");
+		deleteSpan.appendChild(deleteX);
+		
+		li.appendChild(hidden_name_input);
+		li.appendChild(name_text);
+		li.appendChild(deleteSpan);
+		
+		challengeTopic_ul().appendChild(li);
+		
+	}
+
+	function removeTopic(delNode) {
+		var parentSpan = delNode.parentNode;
+		var parentLi = parentSpan.parentNode;
+		parentLi.removeChild(parentSpan);
+		var ul = challengeTopic_ul();
+		var numChoicesRemaining = ul.getElementsByTagName('input').length;
+		if (numChoicesRemaining == 0) {
+			challengeTopicDiv.removeChild(ul);
+		}
+	}
+	
+	var topicsSelected = [{%for t in all_Topics%}{name:"{{t.name}}",id:{{t.ID}}},{%endfor%}];
+	for (var i = 0; i<topicsSelected.length; i++) {
+		challengeTopicByNameAndID(topicsSelected[i].name,topicsSelected[i].id,topicsSelected[i].value);
+	}
+	
+	function selectTopic(select) {
+		
+		var topic_ID = select.options[select.selectedIndex].value;
+		var topic_name = select.options[select.selectedIndex].text;
+		
+		if (topic_ID == "") {
+			return
+		}
+		
+		var choices = challengeTopic_ul().getElementsByTagName('input');
+		var i = 0;
+		for (i = 0; i < choices.length; i++) {
+			if (choices[i].value == topic_ID) {
+				// Already selected.  Nothing more to be done.
+				return
+			}
+		}
+		
+		challengeTopicByNameAndID(topic_name,topic_ID,1);
+	}	
+</script>

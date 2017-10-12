@@ -45,8 +45,9 @@ def challengeCreateView(request):
     for ct in course_topics:
         topic_ID.append(ct.topicID.topicID)
         topic_Name.append(ct.topicID.topicName)
-      
+        
     unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
+      
     
     # The range part is the index numbers.
     context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name)
@@ -173,18 +174,26 @@ def challengeCreateView(request):
                        
         challenge.save();  #Save challenge to database
         
+        
+        # Old Processing and saving topics for the challenge in DB and it's commented and the alternative one is used
+        #topicsString = ''
+        #topicsList = request.POST.getlist('topics[]')
+         
+        #for t in topicsList:
+            #topicsString +=t+','
+        #topicsString = 'relation,sql'
+#         topicsString = request.POST.get('newTopics', "default")
+#         if topicsString == "" and not request.POST['challengeID']:  # new challenge & no topic specified           
+#             newChallTopicsObject = ChallengesTopics()
+#             newChallTopicsObject.challengeID = challenge
+#             newChallTopicsObject.topicID = unspecified_topic                
+#             newChallTopicsObject.save()
+#  
+#         else:                       
+#             utils.saveChallengesTopics(topicsString, challenge,unspecified_topic)                   
+#        
         # Processing and saving topics for the challenge in DB
-        topicsString = request.POST.get('newTopics', "default")
-
-        if topicsString == "" and not request.POST['challengeID']:  # new challenge & no topic specified           
-            newChallTopicsObject = ChallengesTopics()
-            newChallTopicsObject.challengeID = challenge
-            newChallTopicsObject.topicID = unspecified_topic                
-            newChallTopicsObject.save()
-
-        else:                       
-            utils.saveChallengesTopics(topicsString, challenge,unspecified_topic)                   
-                        
+        utils.addTopicsToChallenge(challenge,request.POST.getlist('topics[]'),unspecified_topic)                 
         # Processing and saving tags in DB
         tagString = request.POST.get('tags', "default")
         utils.saveChallengeTags(tagString, challenge)
@@ -289,8 +298,8 @@ def challengeCreateView(request):
             
             # If not challenge.isGraded:
             # Extract the topics                                       
-            context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
-            
+            #context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
+            context_dict['all_Topics'] = utils.getTopicsForChallenge(challenge)
             # The following information is needed for the challenge 'view' option            
             for q in questionObjects:
                 
