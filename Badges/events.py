@@ -182,7 +182,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
     print("Operand 2 = "+str(operand2))
     
-    if (condition.operation == '='):
+    if (condition.operation == '=='):
         return operand1==operand2
     if (condition.operation == '>'):
         return operand1>operand2

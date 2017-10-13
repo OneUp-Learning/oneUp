@@ -66,64 +66,7 @@
         
       });
     </script> 
-    <script>
-    function addTopic() {
-  	    var x = document.getElementById("SelectedTopic");
-  	    var e = document.getElementById("SelectTopic");
-  	    var option = document.createElement("option");
-  	  var exists = false; 
-  		$('#SelectedTopic  option').each(function(){
-  	  	if (this.value == e.options[e.selectedIndex].value) {
-  	    	exists = true;
-  	  	}
-  		});
-  	    if(!exists && e.options[e.selectedIndex].value != ""){
-  	    	//console.log("Topic added");
-  	    	option.text = e.options[e.selectedIndex].text;
-  	    	option.value = e.options[e.selectedIndex].value;
-  	    	x.add(option);
-  	    }
-  	    
-  	  if( $('#SelectedTopic').has('option').length > 0)
- 	    	document.getElementById('removeTopics').style.display = 'initial';
- 	    else
- 	    	document.getElementById('removeTopics').style.display = 'none';
-  	}
-    // Removes topic from 'Added Topics' box (AH)
-    function removeTopic() {
-  	    var x = document.getElementById("SelectedTopic");
-  	   
-  	    if(x.options.length){
-  	    	if(!x.options[x.selectedIndex])
-  	    		alert('Topic to remove is not selected!');
-  	    	else
-  	    		x.remove(x.selectedIndex);
-  	    }
-  	  if( $('#SelectedTopic').has('option').length > 0)
- 	    	document.getElementById('removeTopics').style.display = 'initial';
- 	    else
- 	    	document.getElementById('removeTopics').style.display = 'none';
-  	}
-    $(document).ready(function() {
-    	if( $('#SelectedTopic').has('option').length > 0)
-   	    	document.getElementById('removeTopics').style.display = 'initial';
-   	    else
-   	    	document.getElementById('removeTopics').style.display = 'none';
-    	
-    });
-    function prepareSubmit(){
-    	  var x = document.getElementById("SelectedTopic");
-    	  var txt = "";
-    	  for(var i =0; i < x.options.length; i++){
-    		  if(i < x.options.length-1)
-    		  	txt += x.options[i].text + ",";
-    		  else
-    			txt += x.options[i].text;
-    	  }
-    	  
-    	  document.getElementById("newTopics").value=txt;
-      }
-    </script>
+ 
     <script type="text/javascript">
          function goToNewPage()
          {
@@ -285,25 +228,9 @@
                     <th>Topics </th>
                 	</tr> 
                 	<tr>
-		 				<td>
-                              Add Topic to Challenge<br> 
-                              <select name="Topic" id="SelectTopic" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" style="width:170px">
-                                 <option value="" selected>Select Topic</option>
-                                 {% for i,topic_ID,topic_Name in topic_range %}
-                                 <div id="topic{{i}}">
-                                    <option value="{{topic_Name}}">{{topic_Name}}</option>
-                                 </div>
-                                 {% endfor %}
-                              </select>
-                              <button type="button" id="addTopics"  style="margin-top: 0.3em; margin-bottom: 0.4em" onclick="addTopic()">Add Topic</button>
-	    					  <div>Added Topics</div> 
-                              <select id="SelectedTopic" name="S_Topic" font-family= "Tahoma, Geneva, sans-serif" style="width:150px; height:100px;" size="8">
-                                 {% for i, topic_ID, topic_Name in all_Topics %}
-                                 	<option value={{topic_Name}}>{{topic_Name}}</option>
-                                 {% endfor %}
-                              </select>
-                             <button type="button" id="removeTopics" onclick="removeTopic()">Remove Topic</button>
-                           </td>
+                           <td>
+                             {% include "Instructors/ChallengeTopicEmbed.html" %}                           
+ 							</td>
                         </tr>
                         
                     <tr>
