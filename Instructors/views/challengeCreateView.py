@@ -75,7 +75,8 @@ def challengeCreateView(request):
         
         displayCorrectAnswer = str(request.POST.get('displayCorrectAnswer','false'))  
         displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))  
-        displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))        
+        #displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))
+        displayIncorrectAnswerFeedback = str(request.POST.get('displayIncorrectAnswerFeedback','false'))         
        
         # Copy all strings from POST to database object.
         for attr in string_attributes:
@@ -112,10 +113,11 @@ def challengeCreateView(request):
         challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
         
-        if displayCorrectAnswerFeedback == str("false"):
-            displayCorrectAnswerFeedback =""
-        challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
+        if displayIncorrectAnswerFeedback == str("false"):
+            displayIncorrectAnswerFeedback =""
+        challenge.displayIncorrectAnswerFeedback = bool(displayIncorrectAnswerFeedback)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayIncorrectAnswerFeedback)
+        
         
         if(request.POST['startTime'] == ""):
             challenge.startTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
@@ -271,11 +273,12 @@ def challengeCreateView(request):
                 context_dict['displayCorrectAnswerFeedback']=True
             else:
                 context_dict['displayCorrectAnswerFeedback']=False 
-                
-            if challenge.displayCorrectAnswerFeedback:
-                context_dict['displayCorrectAnswerFeedback']=True
+             
+            if challenge.displayIncorrectAnswerFeedback:
+                context_dict['displayIncorrectAnswerFeedback']=True
             else:
-                context_dict['displayCorrectAnswerFeedback']=False 
+                context_dict['displayIncorrectAnswerFeedback']=False 
+                 
                            
             # Get the challenge question information and put it in the context
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)

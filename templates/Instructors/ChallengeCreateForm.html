@@ -320,32 +320,33 @@
 					<tr>
             			<th>Feedback Options</th>
         			</tr>
-            		{% if feedbackOption1 %}
+            		{% if displayCorrectAnswer %}
             		<tr>
-						<td><input type="checkbox" name="feedbackOption1" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer</td>
+						<td><input type="checkbox" name="displayCorrectAnswer" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% else %}
 					<tr>
-						<td><input type="checkbox" name="feedbackOption1"  style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer</td>
+						<td><input type="checkbox" name="displayCorrectAnswer"  style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% endif %}
 					
-					{% if feedbackOption2 %}
+					{% if displayCorrectAnswerFeedback %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2"value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="displayCorrectAnswerFeedback"value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% else %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2" style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="displayCorrectAnswerFeedback" style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% endif %}
-					{% if feedbackOption3 %}
-					<tr >			
-						<td style="padding-bottom: .75em"><input type="checkbox" name="feedbackOption3" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
+					
+					{% if displayIncorrectAnswerFeedback %}
+					<tr >	
+						<td><input type="checkbox" name="displayIncorrectAnswerFeedback"value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>	
 					</tr>
 					{% else %}
-					<tr >			
-						<td style="padding-bottom: .75em" ><input type="checkbox" name="feedbackOption3" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
+					<tr >	
+						<td><input type="checkbox" name="displayIncorrectAnswerFeedback" style="vertical-align: -2px" />&nbsp;&nbsp;Display Incorrect Answer Feedback</td>	
 					</tr>			
 					{% endif %}
 					</table>	
