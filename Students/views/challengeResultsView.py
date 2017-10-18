@@ -43,7 +43,7 @@ def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instru
     studentChallengeQuestion.questionScore = ma_point
     studentChallengeQuestion.questionTotal = c_ques_points
     studentChallengeQuestion.usedHint = "False"
-    studentChallengeQuestion.instructorFeedback = instructorFeedback
+    #studentChallengeQuestion.instructorFeedback = instructorFeedback
     studentChallengeQuestion.seed = seed
     studentChallengeQuestion.save()
 
@@ -55,7 +55,7 @@ def ChallengeResults(request):
     context_dict,currentCourse = studentInitialContextDict(request)                 
 
     if 'currentCourseID' in request.session:
-        instructorFeedback = "None" #Intially by default its saved none.. Updated after instructor's evaluation
+         #Intially by default its saved none.. Updated after instructor's evaluation
 
         # This is included so that we can avoid magic numbers for question types in the template.
         context_dict['questionTypes']= QuestionTypes
@@ -77,6 +77,8 @@ def ChallengeResults(request):
                 course = Courses.objects.get(pk=currentCourse.courseID)
                 challenge = Challenges.objects.get(pk=challengeId)
                 context_dict['challengeName'] = challenge.challengeName
+                #context_dict['instructorFeedback'] = challenge.instructorFeedback
+                
                 
                 if not challenge.isGraded:
                     print ("warmUp")
@@ -104,7 +106,7 @@ def ChallengeResults(request):
                 studentChallenge.endTimestamp = endTime
                 studentChallenge.testScore = 0 #initially its zero and updated after calculation at the end
                 studentChallenge.testTotal = 0 #initially its zero and updated after calculation at the end
-                studentChallenge.instructorFeedback = instructorFeedback
+              #  studentChallenge.instructorFeedback = instructorFeedback 
                 studentChallenge.save()
                 
                 #print(studentChallenge.endTimestamp - studentChallenge.startTimestamp)
@@ -215,7 +217,10 @@ def ChallengeResults(request):
                             question['user_answers'] = answers
                             studentAnswerList = [key+":"+answers[key] for key in answers.keys()]
                             question['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)
-                            question['user_points'] = sum([eval['value'] for eval in question['evaluations'].values()])                            
+                            if question['evaluations']:
+                                question['user_points'] = sum([eval['value'] for eval in question['evaluations'].values()])
+                            else:
+                                question['user_points'] = 0
                     
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']

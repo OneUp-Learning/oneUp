@@ -41,13 +41,13 @@ def challengeCreateView(request):
                   ];   
     
     # Fetch the topics for this course from the database.
-    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
-         
+    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)   
     for ct in course_topics:
         topic_ID.append(ct.topicID.topicID)
         topic_Name.append(ct.topicID.topicName)
-        if ct.topicID.topicName == unspecified_topic_name:
-            unspecified_topic = ct.topicID  # to be used when creating a new challenge
+        
+    unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
+      
     
     # The range part is the index numbers.
     context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name)
@@ -76,7 +76,8 @@ def challengeCreateView(request):
         
         displayCorrectAnswer = str(request.POST.get('displayCorrectAnswer','false'))  
         displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))  
-        displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))        
+        #displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))
+        displayIncorrectAnswerFeedback = str(request.POST.get('displayIncorrectAnswerFeedback','false'))         
        
         # Copy all strings from POST to database object.
         for attr in string_attributes:
@@ -113,10 +114,11 @@ def challengeCreateView(request):
         challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
         
-        if displayCorrectAnswerFeedback == str("false"):
-            displayCorrectAnswerFeedback =""
-        challenge.displayCorrectAnswerFeedback = bool(displayCorrectAnswerFeedback)
-        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
+        if displayIncorrectAnswerFeedback == str("false"):
+            displayIncorrectAnswerFeedback =""
+        challenge.displayIncorrectAnswerFeedback = bool(displayIncorrectAnswerFeedback)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayIncorrectAnswerFeedback)
+        
         
         if(request.POST['startTime'] == ""):
             challenge.startTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
@@ -174,18 +176,26 @@ def challengeCreateView(request):
                        
         challenge.save();  #Save challenge to database
         
+        
+        # Old Processing and saving topics for the challenge in DB and it's commented and the alternative one is used
+        #topicsString = ''
+        #topicsList = request.POST.getlist('topics[]')
+         
+        #for t in topicsList:
+            #topicsString +=t+','
+        #topicsString = 'relation,sql'
+#         topicsString = request.POST.get('newTopics', "default")
+#         if topicsString == "" and not request.POST['challengeID']:  # new challenge & no topic specified           
+#             newChallTopicsObject = ChallengesTopics()
+#             newChallTopicsObject.challengeID = challenge
+#             newChallTopicsObject.topicID = unspecified_topic                
+#             newChallTopicsObject.save()
+#  
+#         else:                       
+#             utils.saveChallengesTopics(topicsString, challenge,unspecified_topic)                   
+#        
         # Processing and saving topics for the challenge in DB
-        topicsString = request.POST.get('newTopics', "default")
-
-        if topicsString == "" and not request.POST['challengeID']:  # new challenge & no topic specified           
-            newChallTopicsObject = ChallengesTopics()
-            newChallTopicsObject.challengeID = challenge
-            newChallTopicsObject.topicID = unspecified_topic                
-            newChallTopicsObject.save()
-
-        else:                       
-            utils.saveChallengesTopics(topicsString, challenge,unspecified_topic)                   
-                        
+        utils.addTopicsToChallenge(challenge,request.POST.getlist('topics[]'),unspecified_topic)                 
         # Processing and saving tags in DB
         tagString = request.POST.get('tags', "default")
         utils.saveChallengeTags(tagString, challenge)
@@ -272,11 +282,12 @@ def challengeCreateView(request):
                 context_dict['displayCorrectAnswerFeedback']=True
             else:
                 context_dict['displayCorrectAnswerFeedback']=False 
-                
-            if challenge.displayCorrectAnswerFeedback:
-                context_dict['displayCorrectAnswerFeedback']=True
+             
+            if challenge.displayIncorrectAnswerFeedback:
+                context_dict['displayIncorrectAnswerFeedback']=True
             else:
-                context_dict['displayCorrectAnswerFeedback']=False 
+                context_dict['displayIncorrectAnswerFeedback']=False 
+                 
                            
             # Get the challenge question information and put it in the context
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
@@ -290,8 +301,8 @@ def challengeCreateView(request):
             
             # If not challenge.isGraded:
             # Extract the topics                                       
-            context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
-            
+            #context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
+            context_dict['all_Topics'] = utils.getTopicsForChallenge(challenge)
             # The following information is needed for the challenge 'view' option            
             for q in questionObjects:
                 
