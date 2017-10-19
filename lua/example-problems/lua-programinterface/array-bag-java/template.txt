@@ -2,6 +2,6 @@ Complete the removeAllEntriesOf method of the ArrayBag class, which removes all 
 
 public static void removeAllEntriesOf(T anEntry) {
 
- [{make_answer('ans1','code-java',5,checker,15)}]
+ [{make_answer('ans1','code-java',10,checker,10)}]
 
 }
