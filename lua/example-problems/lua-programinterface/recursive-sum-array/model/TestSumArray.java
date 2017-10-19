@@ -29,7 +29,7 @@ public class TestSumArray {
         result = rm.sum(array, 0, 0);        
         if(result==4) {
             System.out.println("Success");
-            System.out.println(1);
+            System.out.println(2);
         }
         else
             System.out.println("*** Failed test");
@@ -42,7 +42,7 @@ public class TestSumArray {
         int result = rm.sum(array2, 0, 1);        
         if(result==5) {
             System.out.println("Success");
-            System.out.println(1);
+            System.out.println(2);
         }
         else
         	System.out.println("*** Failed test");
@@ -55,7 +55,7 @@ public class TestSumArray {
         int result = rm.sum(array3, 0, 2);        
         if(result==17) {
             System.out.println("Success");
-            System.out.println(1);
+            System.out.println(2);
         }
         else
         	System.out.println("*** Failed test");
@@ -68,7 +68,7 @@ public class TestSumArray {
         int result = rm.sum(array5, 0, 4);        
         if(result==94) {
             System.out.println("Success");
-            System.out.println(1);
+            System.out.println(2);
         }
         else
         	System.out.println("*** Failed test");     		
@@ -80,7 +80,7 @@ public class TestSumArray {
         int result = rm.sum(array6, 0, 5);        
         if(result==113) {
             System.out.println("Success");
-            System.out.println(1);
+            System.out.println(2);
         }
         else
         	System.out.println("*** Failed test");
