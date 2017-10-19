@@ -265,7 +265,7 @@ public class ArrayBag<T> implements BagInterface<T> {
         testBag1.removeAllEntriesOf("A");
         if (testBag1.equals(testBag2)) {
             System.out.println("Success");
-            System.out.println(5);
+            System.out.println(3);
         } else {
             System.out.println("*** Failed test");
         }
@@ -278,7 +278,7 @@ public class ArrayBag<T> implements BagInterface<T> {
         testBag3.removeAllEntriesOf("A");
         if (testBag3.isEmpty()) {
             System.out.println("Success");
-            System.out.println(5);
+            System.out.println(3);
         } else {
             System.out.println("*** Failed test");
 
@@ -293,7 +293,7 @@ public class ArrayBag<T> implements BagInterface<T> {
         testBag4.removeAllEntriesOf("A");
         if (testBag4.equals(testBag5)) {
             System.out.println("Success");
-            System.out.println(5);
+            System.out.println(4);
         } else {
             System.out.println("*** Failed test");
         }
