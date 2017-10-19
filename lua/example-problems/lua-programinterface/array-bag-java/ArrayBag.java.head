@@ -244,7 +244,7 @@ public class ArrayBag<T> implements BagInterface<T> {
 			testBag4.add(b4[i]);
        
         // The previous bag with all duplicates of "A" removed
-		String[] b5 = {"A", "C", "D", "Z"};		
+		String[] b5 = {"C", "D", "Z"};		
 		for(int i=0; i<b5.length; i++)
 			testBag5.add(b5[i]);
 
