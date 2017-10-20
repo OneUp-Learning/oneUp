@@ -89,14 +89,14 @@ def exportChallenges(request):
             el_timeLimit = SubElement(el_challenge, 'timeLimit')
             el_timeLimit.text = str(challenge.timeLimit)            
  
-            el_feedbackOption1 = SubElement(el_challenge, 'feedbackOption1')
-            el_feedbackOption1.text = str(challenge.feedbackOption1)            
+            el_feedbackOption1 = SubElement(el_challenge, 'displayCorrectAnswer')
+            el_feedbackOption1.text = str(challenge.displayCorrectAnswer)            
          
-            el_feedbackOption2 = SubElement(el_challenge, 'feedbackOption2')
-            el_feedbackOption2.text = str(challenge.feedbackOption2)            
+            el_feedbackOption2 = SubElement(el_challenge, 'displayCorrectAnswerFeedback')
+            el_feedbackOption2.text = str(challenge.displayCorrectAnswerFeedback)            
          
-            el_feedbackOption3 = SubElement(el_challenge, 'feedbackOption3')
-            el_feedbackOption3.text = str(challenge.feedbackOption3)            
+            el_feedbackOption3 = SubElement(el_challenge, 'displayIncorrectAnswerFeedback')
+            el_feedbackOption3.text = str(challenge.displayIncorrectAnswerFeedback)            
          
             el_challengeAuthor = SubElement(el_challenge, 'challengeAuthor')
             el_challengeAuthor.text = challenge.challengeAuthor            
@@ -291,7 +291,15 @@ def uploadChallenges(request):
 
         return redirect('/oneUp/instructors/instructorCourseHome') 
     
+ 
+def findWithAlt(ele, name1, name2):
+    result = ele.find(name1)
+    if result == None: 
+        result = ele.find(name2)
     
+    return result
+       
+   
 def importChallenges(uploadedFileName, currentCourse):
          
     fname = uploadedFileName
@@ -314,10 +322,9 @@ def importChallenges(uploadedFileName, currentCourse):
         challenge.isGraded = str2bool(el_challenge.find('isGraded').text)
         challenge.numberAttempts = int(el_challenge.find('numberAttempts').text)
         challenge.timeLimit = int(el_challenge.find('timeLimit').text)
-        challenge.feedbackOption1 = str2bool(el_challenge.find('feedbackOption1').text)
-        challenge.feedbackOption2 = str2bool(el_challenge.find('feedbackOption2').text)
-        
-        challenge.feedbackOption3 = str2bool(el_challenge.find('feedbackOption3').text)
+        challenge.feedbackOption1 = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswer', 'feedbackOption1').text)
+        challenge.feedbackOption2 = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswerFeedback', 'feedbackOption2').text)
+        challenge.feedbackOption3 = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
         challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
         challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
         if not challenge.challengeDifficulty:
