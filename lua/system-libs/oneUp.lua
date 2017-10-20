@@ -69,7 +69,7 @@ oneUp.word_list_equality = function(wl)
       return {success=false,value=0}
     else
       for i,v in ipairs(wl) do
-        if v ~= blist[i] then
+        if string.upper(v) ~= string.upper(blist[i]) then
           return {success=false,value=0}
         end
       end
@@ -82,7 +82,7 @@ oneUp.string_equality_ignore_spaces = function(str)
   return function(b,pts)
     local str_no_space = str:gsub("%s*","")
     local b_no_space = b:gsub("%s*","")
-    if str_no_space == b_no_space then
+    if string.upper(str_no_space) == string.upper(b_no_space) then
       return {success=true,value=pts}
     else
       return {success=false,value=0}
