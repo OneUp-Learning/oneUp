@@ -1,0 +1,11 @@
+Write a method splice() that adds all items in queue2 to the end of the queue on which the method is applied.
+
+	// The firstNode of the first chain will be the firstNode of the result
+	// The lastNode of the second chain will be the last node of the result
+
+	public QueueInterface<T>  splice(QueueInterface<T> queue2) {
+
+ [{make_answer('ans1','code-java',10,checker,10)}]
+
+
+     }
