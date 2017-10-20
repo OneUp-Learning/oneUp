@@ -65,7 +65,7 @@ oneUp.word_list_equality = function(wl)
       local sep = string.match(b,"[^%a%d]*")
       b = string.sub(b,sep:len()+1)
     end
-    if table.getn(wl) ~= table.getn(blist) then 
+    if #wl ~= #blist then 
       return {success=false,value=0}
     else
       for i,v in ipairs(wl) do
