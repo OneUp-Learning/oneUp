@@ -5,4 +5,4 @@ tests = {
    {name="Both queues not empty",command="java TestSplice test4", points=2}     
 }
    
-checker = programinterface.program_checker("/home/dichevad/workspace/oneUpNew/lua/example-problems/lua-programinterface/linked-queue-splice","TestSplice.java","javac *.java",8,tests)
+checker = programinterface.program_checker("/home/dichevad/workspace/oneUpNew/lua/example-problems/lua-programinterface/linked-queue-splice","LinkedQueue.java","javac *.java",8,tests)
