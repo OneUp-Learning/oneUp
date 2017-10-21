@@ -26,11 +26,5 @@ public interface QueueInterface<T>
   
   /*  Removes all entries from this queue. */
   public void clear();
-
- /* Add all items in queue2 to the end of the queue on which the method is applied.
- * The firstNode of the first chain will be the firstNode of the result
- * The lastNode of the second chain will be the last node of the result
- */
-   public QueueInterface<T>  splice(QueueInterface<T> queue2);
    
 } // end QueueInterface

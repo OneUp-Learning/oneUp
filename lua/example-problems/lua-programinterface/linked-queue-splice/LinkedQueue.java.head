@@ -77,6 +77,51 @@ public class LinkedQueue<T> implements QueueInterface<T>
 		//s = s.substring(0, s.lastIndexOf(',') - 1);
 		return s;
 	}
+	
+	public int size()
+	{
+		int size = 0;
+		
+		Node currentNode = firstNode; 
+		while (currentNode != null){
+			size++;
+			currentNode = currentNode.next;
+		}		
+		return size;
+	} // end size	
+	
+	/** Check to see if two queues are the same.  
+	 * @param aQueue another linked queue to check this queue against
+	 * @return true if all the items in this queue and the other queue are equals
+	 */
+
+    public boolean equals(LinkedQueue<T> aQueue) {
+        boolean isEqual = false; // result of comparison of lists
+
+        Node currOne = firstNode;
+        Node currTwo = aQueue.firstNode;
+        int counter;
+
+        if (size() == aQueue.size()) {
+            // lists have equal lengths, so traverse both and compare items as you go:
+            // (NOTE: loop is skipped if lists are empty)
+
+            while ((currOne != null) && (currOne.getData()).equals(currTwo.getData())) {
+                currOne = currOne.getNextNode();
+                currTwo = currTwo.getNextNode();
+            } // end while
+
+            isEqual = currOne == null;
+        } else // lists have unequal lengths
+        {
+            isEqual = false;
+        }
+
+        return isEqual;
+    } // end equals
+
+	    
+	
 
 	private class Node
 	{
@@ -120,4 +165,4 @@ public class LinkedQueue<T> implements QueueInterface<T>
 	// The firstNode of the first chain will be the firstNode of the result
 	// The lastNode of the second chain will be the last node of the result
 
-	public QueueInterface<T> splice(QueueInterface<T> queue2) {
+	public LinkedQueue<T> splice(LinkedQueue<T> queue2) {
