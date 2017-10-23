@@ -11,6 +11,8 @@ from time import strftime
 import datetime
 from django.db.models import Q
 
+
+
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -50,6 +52,8 @@ def ChallengesList(request):
         gradeMin = []
         
         numberOfAttempts = []
+        
+        
 
         for challenge in challenges:
             
@@ -105,7 +109,9 @@ def ChallengesList(request):
             for item in challenges:
                 chall_ID.append(item.challengeID) #pk
                 chall_Name.append(item.challengeName)
+                print(item.challengeName)
                 #chall_Difficulty.append(item.challengeDifficulty)
+            
              
             # The range part is the index numbers.
             context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts)

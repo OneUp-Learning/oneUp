@@ -19,7 +19,7 @@ from Instructors.views.instructorHomeView import instructorHome
 # Student Information Table used for login purposes.
 class Student(models.Model):
     user = models.OneToOneField(User, default=0)
-    #User Attributes:
+    #User Attrbutes:
     # username varchar(30)
     # first_name varchar(30)
     # last_name varchar(30)
