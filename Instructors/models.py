@@ -192,6 +192,7 @@ class ChallengeTags(models.Model):
 class ChallengesQuestions(models.Model):
     challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenge")
     questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
+    questionPosition = models.IntegerField(default = 0)
     points =  models.IntegerField()
     def __str__(self):              
         return str(self.challengeID)+","+str(self.questionID)
