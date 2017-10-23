@@ -120,6 +120,7 @@ def totalTimeSpentOnQuestions(course,student):
     questionStartTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.startQuestion)
     questionEndTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.endQuestion)
     #assert that the two are of equal size
+
     if (questionStartTimes.count() == questionEndTimes.count()):
         #Accumulate the elapsed time for all questions in the database with matching student and course ID's
         #initialize totalTime as arbitrary datetime object in order to accumulate elapsed time
@@ -154,6 +155,119 @@ def getConsecutiveDaysLoggedIn(course,student):
             consecutive_days = 0
         previous_day = d
     return consecutive_days
+
+def getConsecutiveDaysWarmUpChallengesTaken(course,student): 
+    from Students.models import StudentEventLog
+    from Students.models import StudentChallenges
+       
+    # list to store taken warm up challenges
+    warmUpChallList = []
+    
+    # filter all the ended challenge events
+    eventObjects = StudentEventLog.objects.filter(student=student, course=course,event = Event.endChallenge)
+    
+    for event in eventObjects:
+        
+        if event.objectType == ObjectTypes.challenge:
+            
+            try:
+                #get a specific challenge by its ID
+                challenge = Challenges.objects.get(challengeID=event.objectID)
+                print(challenge.challengeName)
+            except:
+                continue
+            
+            # if the challenge is not graded then it's a warm up challenge and put in it in the list
+            if not challenge.isGraded and challenge not in warmUpChallList:
+                warmUpChallList.append(challenge)
+                
+    print(warmUpChallList)  
+        
+    # list to store the taken challenges dates      
+    warmUpChallDates = []
+    for warmUpChall in warmUpChallList:
+        try:
+            event = StudentEventLog.objects.get(student=student, course=course,objectType=ObjectTypes.challenge, objectID=warmUpChall.challengeID, event = Event.endChallenge)
+        except:
+            continue
+        # convert date to string to make it easier to extract the day, month and year
+        eventDate = str(event.timestamp)
+        warmUpChallDates.append(eventDate)
+        
+    # lists to store days, months, and years of the taken warm up challenges
+    days = []
+    months = []
+    years = []
+
+    # extract dates
+    for date in warmUpChallDates:
+        if int(date[8:10]) not in days:
+            days.append(int(date[8:10]))
+            months.append(int(date[5:7]))
+            years.append(int(date[0:4]))
+    
+    # To get today's date  
+    today = datetime.today()
+     
+    # Start consecutiveDays with 1    
+    consecutiveDays = 1
+    
+    # if student did not take warmupChallenge in any day, 0 will be returned as consecutiveDays
+    if days == []:
+        return 0
+    
+    # if student took only one challenge and the challenge's date is today return 1 as consecutiveDays otherwise 0
+    elif len(days) == 1:
+        
+        if days[0] == today.day or (days[0]+1) == today.day and months[0] == today.month and years[0] == today.year:
+            return 1 
+        else:
+            return 0
+         
+    else:
+        previousDay = days[0]
+        previousMonth = months[0]
+        previousYear = years[0]
+        
+        i = 0
+        
+        for day in days:
+            
+            # if previous plus 1 is equal to day then increment consecutiveDays by 1
+            if (previousDay+1) == day and previousMonth == months[i] and previousYear == years[i]:
+                previousDay = day
+                print(previousDay)
+                print()
+                previousMonth = months[i]
+                previousYear = years[i]
+                consecutiveDays +=1
+            
+            # if the day is the 1th of the month and previous is between 28 and 31 then increment consecutiveDays by 1
+            elif day == 1 and previousDay == 28 or previousDay == 29 or previousDay == 30 or previousDay == 31 and previousMonth == (previousMonth+1) or previousMonth == 12:
+                previousDay = day
+                previousMonth = months[i]
+                previousYear = years[i]
+                consecutiveDays +=1 
+            
+            # if i = 0 , this means the first iteration of the loop so continue to the second iteration
+            elif i == 0:
+                continue
+            
+            # if it's else then set consecutiveDays to as it start from the beginning
+            else:
+                consecutiveDays = 1 
+                previousDay = days[i+1]
+                
+            i += 1
+     
+    # if the last day the warm up challenge taken is not today then return 0 as consecutiveDays    
+    if days[i] != today.day :
+        consecutiveDays = 0
+    
+    
+    print(consecutiveDays)
+                 
+    return consecutiveDays
         
 def getActivitiesCompleted(course,student):
     from Students.models import StudentEventLog
@@ -180,10 +294,6 @@ def getConsecutiveClassesAttended(course,student):
 def getConsecutiveWeeksOnLeaderboard(course,student):    
     # This one I'm not clear on the meaning of.  Which leaderboard?  Do you have to be there at least one day a week or all week?
     # Are we keeping historical leaderboard data?
-    return 0
-
-def getConsecutiveDaysWarmUpChallengesTaken(course,student):    
-    #TODO: Actually implement this.
     return 0
 
 class SystemVariable():
