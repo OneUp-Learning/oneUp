@@ -2,12 +2,13 @@
 # Created on  11/20/2015
 # Dillon Perry, Austin Hodge
 #
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
+from Instructors.views.utils import utcDate
 from Students.models import StudentActivities
 from Badges.events import register_event
 from Badges.enums import Event
@@ -34,7 +35,7 @@ def activityAssignPointsView(request):
                     # Override the activity with the student points (AH)
                     assignment.activityScore = studentPoints
                     assignment.instructorFeedback =  request.POST['student_Feedback' + str(student.studentID.id)]
-                    assignment.timestamp = datetime.now()
+                    assignment.timestamp = utcDate()
                     assignment.save()
 
                     #Register event for participationNoted
@@ -51,7 +52,7 @@ def activityAssignPointsView(request):
                     assignment.activityID = Activities.objects.get(activityID = request.POST['activityID'])
                     assignment.studentID = Student.objects.get(pk = student.studentID.id)
                     assignment.activityScore = studentPoints
-                    assignment.timestamp = datetime.now()
+                    assignment.timestamp = utcDate()
                     assignment.instructorFeedback =  request.POST['student_Feedback' + str(student.studentID.id)]
                     assignment.courseID = Courses.objects.get(courseID=currentCourse)
                     assignment.save()

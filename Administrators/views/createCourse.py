@@ -7,7 +7,8 @@ from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 
-from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name
+from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str
+from Instructors.views.utils import utcDate
 from django.contrib.auth.models import User
 
 def courseCreateView(request):
@@ -61,18 +62,18 @@ def courseCreateView(request):
             ccp.courseID = course
             if 'course_start_date' in request.POST and request.POST['course_start_date']:
                 if(request.POST['course_start_date'] == ""):
-                    ccp.courseStartDate = (datetime.strptime("2999/12/31","%Y-%m-%d"))
+                    ccp.courseStartDate = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
                 else:
-                    ccp.courseStartDate = datetime.strptime(request.POST['course_start_date'], "%m/%d/%Y %I:%M:%S %p")
+                    ccp.courseStartDate = utcDate(request.POST['course_start_date'], "%m/%d/%Y %I:%M:%S %p")
                     print(ccp.courseStartDate)
 
                 print(request.POST['course_start_date'])
                 #ccp.courseStartDate = datetime(request.POST['course_start_date'])
             if 'course_end_date' in request.POST and request.POST['course_end_date']:
                 if(request.POST['course_end_date'] == ""):
-                    ccp.courseEndDate = (datetime.strptime("2999/12/31","%Y-%m-%d"))
+                    ccp.courseEndDate = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
                 else:
-                    ccp.courseEndDate = datetime.strptime(request.POST['course_end_date'], "%m/%d/%Y %I:%M:%S %p")
+                    ccp.courseEndDate = utcDate(request.POST['course_end_date'], "%m/%d/%Y %I:%M:%S %p")
                     print(ccp.courseEndDate)
                 #ccp.courseStartDate = datetime(request.POST['course_end_date'])
             ccp.save()

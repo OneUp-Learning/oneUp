@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 import random 
-from time import strftime
+from datetime import datetime
 
 from Instructors.models import Challenges, Answers, DynamicQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
+from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet,\
@@ -38,9 +39,9 @@ def ChallengeSetup(request):
                 context_dict['challengeName'] = challenge.challengeName
                 context_dict['testDuration'] = challenge.timeLimit
 
-                starttime = strftime("%Y-%m-%d %H:%M:%S")
-                context_dict['startTime'] = starttime 
-                attemptId = 'challenge:'+challengeId + '@' + starttime
+                starttime = utcDate()
+                context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M %p")
+                attemptId = 'challenge:'+challengeId + '@' + starttime.strftime("%m/%d/%Y %I:%M %p")
                 
                 sessionDict = {}
                 sessionDict['challengeId']=challengeId
