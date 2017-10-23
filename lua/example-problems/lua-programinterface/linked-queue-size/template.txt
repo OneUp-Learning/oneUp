@@ -1,0 +1,8 @@
+  //  Write a method size() that checks the size of the queue
+  	// The value returned should be an int
+  
+	public int size() {
+
+ [{make_answer('ans1','code-java',10,checker,10)}]
+
+}
