@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from Instructors.models import Answers, CorrectAnswers, Courses
-from Instructors.models import Challenges, Topics, CoursesTopics, ChallengesTopics, StaticQuestions
+from Instructors.models import Challenges, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import utils, challengeListView
+from Instructors.views.utils import utcDate
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
 
 from time import time
-import datetime
+from datetime import datetime
 
 
 @login_required
@@ -118,19 +119,19 @@ def challengeCreateView(request):
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
         
         if(request.POST['startTime'] == ""):
-            challenge.startTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            challenge.startTimestamp = datetime.datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
+            challenge.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            if datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p"):
-                challenge.endTimestamp = datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
+            if datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p"):
+                challenge.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
             else:
-                challenge.endTimestamp = (datetime.datetime.strptime(default_time_str ,"%m/%d/%Y %I:%M:%S %p"))
+                challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         
         # Number of attempts
         if('unlimittedAttempts' in request.POST):
@@ -236,7 +237,7 @@ def challengeCreateView(request):
             
                           
             #if challenge.endTimestamp.strftime("%Y") < ("2900"): 
-            etime = challenge.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")
+            etime = datetime.strptime(str(challenge.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M:%S %p")
             print('etime ', etime)
             if etime != default_time_str: 
                 print('etime2 ', etime)   
@@ -246,7 +247,7 @@ def challengeCreateView(request):
             
             print(challenge.startTimestamp.strftime("%Y")) 
             if challenge.startTimestamp.strftime("%Y") < ("2900"):
-                context_dict['startTimestamp']=getattr(challenge, 'startTimestamp').strftime("%m/%d/%Y %I:%M:%S %p")
+                context_dict['startTimestamp']= datetime.strptime(str(getattr(challenge, 'startTimestamp')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['startTimestamp']=""
             
@@ -345,7 +346,5 @@ def challengeCreateView(request):
         return render(request,'Instructors/ChallengeEditOutlook.html', context_dict)    #view
     else:   
         return render(request,'Instructors/ChallengeCreateForm.html', context_dict)     #edit
- 
-    #return redirect('/oneUp/instructors/challengeEdit')
-  
+   
 
