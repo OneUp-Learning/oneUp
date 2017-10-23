@@ -1,0 +1,11 @@
+  //  Write a method dequeue() that removes the first element from the queue
+  	
+  	//The firstNode element is the element that must be removed
+  	//The firstNode must point to the next element
+  	//The value of the firstNode should be returned
+  
+	public T dequeue() {
+
+ [{make_answer('ans1','code-java',10,checker,10)}]
+
+}

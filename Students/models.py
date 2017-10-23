@@ -163,8 +163,8 @@ class StudentEventLog(models.Model):
     event = models.IntegerField(default=-1,verbose_name="the event which occurred.  Should be a reference to the Event enum", db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name="timestamp", db_index=True)
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
-    objectID = models.IntegerField(verbose_name="index into the appropriate tab\
-le")
+    objectID = models.IntegerField(verbose_name="index into the appropriate table")
+    
     def __str__(self):
         return 'Event '+str(self.event)+ ' at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
     
@@ -197,10 +197,14 @@ class StudentConfigParams(models.Model):
         +str(self.displayClassRanking)    
 
 
-class Leaderboards(models.Model):
-    leaderboardID = models.AutoField(primary_key=True)
+class StudentLeaderboardHistory(models.Model):
+    id = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    leaderboardPosition = models.IntegerField(default=0) # Position is ranked starting from 1.
+    startTimestamp = models.DateTimeField(auto_now_add=True, verbose_name="Start Timestamp", db_index=True)
+    endTimestamp = models.DateTimeField(null=True, blank=True, verbose_name="End Timestamp", db_index=True)
+
     def __str__(self):              
-        return str(self.leaderboardID)+","+str(self.studentID)                      
+        return str(self.id)+", "+str(self.studentID)+", Position: "+str(self.leaderboardPosition)+", Start Timestamp: "+str(self.startTimestamp)+", End Timestamp: "+str(self.endTimestamp)                             
            

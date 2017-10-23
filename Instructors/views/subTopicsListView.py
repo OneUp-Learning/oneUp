@@ -3,7 +3,6 @@ Created on Oct 1, 2015
 
 @author: Alex
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Skills, Courses, CoursesSkills, Topics, CoursesTopics,CoursesSubTopics
 from django.contrib.auth.decorators import login_required

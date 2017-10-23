@@ -1,0 +1,9 @@
+// Write a method equals() that checks to see if two queues are equal
+
+	//Method should return a boolean value
+	
+	public boolean equals(LinkedQueue<T> aQueue) {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

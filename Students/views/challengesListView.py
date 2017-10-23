@@ -7,8 +7,9 @@ from django.shortcuts import render
 from Students.models import StudentChallenges
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges , ChallengesQuestions
-from time import strftime
-import datetime
+from Instructors.views.utils import utcDate
+from Instructors.constants import default_time_str
+from datetime import datetime
 from django.db.models import Q
 
 
@@ -38,8 +39,8 @@ def ChallengesList(request):
         #Displaying the list of challenges from database
         
         # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-        defaultTime = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
-        currentTime = strftime("%Y-%m-%d %H:%M:%S")
+        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        currentTime = utcDate()
         # Select if startTime is greater than(__gt) currentTime and 
         # if endTime is less than(__lt) currentTime (AH)
         
