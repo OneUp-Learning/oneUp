@@ -178,9 +178,25 @@ def getConsecutiveClassesAttended(course,student):
     return 0
 
 def getConsecutiveWeeksOnLeaderboard(course,student):    
+    import math
+    from datetime import datetime
+    from Students.models import StudentLeaderboardHistory
     # This one I'm not clear on the meaning of.  Which leaderboard?  Do you have to be there at least one day a week or all week?
     # Are we keeping historical leaderboard data?
-    return 0
+    # Assuming student has to be on leaderboard for atleast 7 days (AH)
+    studentLog = StudentLeaderboardHistory.objects.filter(courseID = course, studentID = student, endTimestamp=None).values('startTimestamp')
+    if not studentLog.exists():
+        return 0
+    
+    startDate = studentLog['startTimestamp'].date()
+    latestDate = datetime.now(tz=timezone.utc).date()
+    delta = startDate - latestDate
+    print(startDate)
+    print(latestDate)
+    print(delta)
+    print(delta.days)
+    return math.trunc(delta.days/7)
+    
 
 def getConsecutiveDaysWarmUpChallengesTaken(course,student):    
     #TODO: Actually implement this.
