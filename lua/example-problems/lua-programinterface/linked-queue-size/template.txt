@@ -1,5 +1,4 @@
-The class LinkedQueue implements the interface QueueInterface by using a linked structure. The variables 'firstNode' and 'lastNode' are instance variables in this class of type Node; the first one references the node at the front of the queue and the second one - the node at the back of the queue.
-In the class LinkedQueue write a method size() that checks the size of the queue.
+The class LinkedQueue implements the interface QueueInterface by using a linked structure. The variables 'firstNode' and 'lastNode' are instance variables in this class of type Node; the first one references the node at the front of the queue and the second one - the node at the back of the queue. In the class LinkedQueue write a method size() that checks the size of the queue.
   	// The value returned should be an int
   
 	public int size() {
