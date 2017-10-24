@@ -6,4 +6,4 @@ tests = {
 
 }
    
-checker = programinterface.program_checker("/home/dichevad/workspace/oneUp/lua/example-problems/lua-programinterface/linked-queue-equals","TestEquals.java","javac *.java",8,tests)
+checker = programinterface.program_checker("/home/dichevad/workspace/oneUpNew/lua/example-problems/lua-programinterface/linked-queue-equals","LinkedQueue.java","javac *.java",8,tests)
