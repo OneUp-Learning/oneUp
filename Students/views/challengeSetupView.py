@@ -65,6 +65,7 @@ def ChallengeSetup(request):
                     q = questionObjects[i]
 
                     questSessionDict = {}
+                    questSessionDict['id']=q.questionID
                     questSessionDict['index']=i+1
                     questSessionDict['total_points']=challenge_questions.get(questionID=q).points
                     

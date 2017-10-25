@@ -89,7 +89,7 @@ def ChallengeResults(request):
                 print("Start Time: "+request.POST['startTime'])
                 startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")  
                 #end time of the test is the current time when it is navigated to this page
-                endTime = utcDate() 
+                endTime = utcDate()
                 print("End Time:"+ endTime.strftime("%m/%d/%Y %I:%M %p"))
 
                 attemptId = 'challenge:'+challengeId + '@' + startTime.strftime("%m/%d/%Y %I:%M %p")
@@ -115,8 +115,16 @@ def ChallengeResults(request):
                                 
                 sessionDict = request.session[attemptId]
                 if not sessionDict:
-                    #TODO: make appropriate error message for here.
+                    context_dict['errorName'] = "Challenge not begun"
+                    context_dict['errorMessage'] = "An attempt to submit challenge "+challenge.challengeName+" has occurred, but this system has " + \
+                        "no record of that challenge begin taken."
+                    return render(request, "Students/ChallengeError.html", context_dict)
                     print("challenge result requested for challenge not begun.")
+
+                if (endTime - startTime).total_seconds() > (challenge.timeLimit+1) * 60: # We add a one minute fudge factor to account for things like network delays
+                    context_dict['errorName'] = "Time Expired"
+                    context_dict['errorMessage'] = "Time expired prior to the submission of this challenge."
+                    return render(request, "Students/ChallengeError.html", context_dict)
 
                 questions = sessionDict['questions']
                 context_dict["questionCount"] = len(questions)
@@ -223,7 +231,7 @@ def ChallengeResults(request):
                                 question['user_points'] = sum([eval['value'] for eval in question['evaluations'].values()])
                             else:
                                 question['user_points'] = 0
-                    
+                                        
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
                     if 'seed' in question:
@@ -231,6 +239,11 @@ def ChallengeResults(request):
                     else:
                         seed = 0
                     studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question['question']['questionID'], question['user_points'], question['total_points'], "",seed)
+
+                    # Award skills if the answer was correct.
+                    if question['user_points'] == question['total_points']:
+                        saveSkillPoints(question['id'], challengeId, studentId, studentChallengeQuestion)
+
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
                         studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
