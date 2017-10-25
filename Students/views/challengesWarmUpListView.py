@@ -21,7 +21,7 @@ def challengesForTopic(topic, student, currentCourse):
     challenge_topic = ChallengesTopics.objects.filter(topicID=topic)
     if challenge_topic:           
         for ct in challenge_topic:
-            if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True):
+            if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
                 chall = ct.challengeID.challengeID
                 challenge_ID.append(chall)
                 challenge_Name.append(ct.challengeID.challengeName)
@@ -91,7 +91,7 @@ def ChallengesWarmUpList(request):
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous") 
             topic_Pos.append(str(course_topics.count()))  
-            all_challenges_for_topic.append(challengesForTopic(unspecified_topic, student, currentCourse, ))
+            all_challenges_for_topic.append(challengesForTopic(unspecified_topic, student, currentCourse))
             
              
         context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])
