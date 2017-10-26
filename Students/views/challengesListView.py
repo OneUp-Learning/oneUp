@@ -90,6 +90,13 @@ def ChallengesList(request):
                     gradeMax.append('Not Completed')
                     gradeMin.append('Not Completed')
                     numberOfAttempts.append("0")
+                    
+            else:
+                gradeLast.append('Not Completed')
+                gradeFirst.append('Not Completed')
+                gradeMax.append('Not Completed')
+                gradeMin.append('Not Completed')
+                numberOfAttempts.append("0")
 
         if optionSelected == '1':
             grade = gradeLast
