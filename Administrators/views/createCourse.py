@@ -64,7 +64,7 @@ def courseCreateView(request):
                 if(request.POST['course_start_date'] == ""):
                     ccp.courseStartDate = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
                 else:
-                    ccp.courseStartDate = utcDate(request.POST['course_start_date'], "%m/%d/%Y %I:%M:%S %p")
+                    ccp.courseStartDate = utcDate(request.POST['course_start_date'], "%m/%d/%Y %I:%M %p")
                     print(ccp.courseStartDate)
 
                 print(request.POST['course_start_date'])
@@ -73,7 +73,7 @@ def courseCreateView(request):
                 if(request.POST['course_end_date'] == ""):
                     ccp.courseEndDate = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
                 else:
-                    ccp.courseEndDate = utcDate(request.POST['course_end_date'], "%m/%d/%Y %I:%M:%S %p")
+                    ccp.courseEndDate = utcDate(request.POST['course_end_date'], "%m/%d/%Y %I:%M %p")
                     print(ccp.courseEndDate)
                 #ccp.courseStartDate = datetime(request.POST['course_end_date'])
             ccp.save()
