@@ -54,49 +54,49 @@ def ChallengesList(request):
         
         numberOfAttempts = []
         
-        
+        if not challenges:
+            print('No challenge')
+            context_dict['no_challenge'] = 'Sorry!! there are no challenges associated with the course chosen..'
+        else:
 
-        for challenge in challenges:
-            
-            challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
-            
-            if challQuestions:
-              
-                if StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge ):
+            for challenge in challenges:
+                
+                challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
+                
+                if challQuestions:
+                  
+                    chall_ID.append(challenge.challengeID) #pk
+                    chall_Name.append(challenge.challengeName)
+                    print(challenge.challengeName)
                     
-                    sChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge)
-                    latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
-                    earliestSC =StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).earliest('startTimestamp')
-                    
-                    gradeLast.append(str(latestSC.testScore) + " / " + str(latestSC.testTotal))
-                    gradeFirst.append(str(earliestSC.testScore) + " / " + str(earliestSC.testTotal))
-    
-                    gradeID  = []
-                    
-                    numberOfAttempts.append(len(sChallenges))
-                    
-                    for sc in sChallenges:
-                        gradeID.append(int(sc.testScore))
-    
-                    gMax = (max(gradeID))
-                    gMin = (min(gradeID))
-                    
-                    gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.testTotal))
-                    gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.testTotal))
-                    
-                else:
-                    gradeLast.append('Not Completed')
-                    gradeFirst.append('Not Completed')
-                    gradeMax.append('Not Completed')
-                    gradeMin.append('Not Completed')
-                    numberOfAttempts.append("0")
-                    
-            else:
-                gradeLast.append('Not Completed')
-                gradeFirst.append('Not Completed')
-                gradeMax.append('Not Completed')
-                gradeMin.append('Not Completed')
-                numberOfAttempts.append("0")
+                    if StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge ):
+                        
+                        sChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge)
+                        latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
+                        earliestSC =StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).earliest('startTimestamp')
+                        
+                        gradeLast.append(str(latestSC.testScore) + " / " + str(latestSC.testTotal))
+                        gradeFirst.append(str(earliestSC.testScore) + " / " + str(earliestSC.testTotal))
+        
+                        gradeID  = []
+                        
+                        numberOfAttempts.append(len(sChallenges))
+                        
+                        for sc in sChallenges:
+                            gradeID.append(int(sc.testScore))
+        
+                        gMax = (max(gradeID))
+                        gMin = (min(gradeID))
+                        
+                        gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.testTotal))
+                        gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.testTotal))
+                        
+                    else:
+                        gradeLast.append('Not Completed')
+                        gradeFirst.append('Not Completed')
+                        gradeMax.append('Not Completed')
+                        gradeMin.append('Not Completed')
+                        numberOfAttempts.append("0")
 
         if optionSelected == '1':
             grade = gradeLast
@@ -108,20 +108,8 @@ def ChallengesList(request):
             grade = gradeMin
         else:
             grade = gradeLast
-        
-        
-        if not challenges:
-            print('No challenge')
-            context_dict['no_challenge'] = 'Sorry!! there are no challenges associated with the course chosen..'
-        else:
-            for item in challenges:
-                chall_ID.append(item.challengeID) #pk
-                chall_Name.append(item.challengeName)
-                print(item.challengeName)
-                #chall_Difficulty.append(item.challengeDifficulty)
-            
-             
-            # The range part is the index numbers.
-            context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts)
+
+        # The range part is the index numbers.
+        context_dict['challenge_range'] = zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts)
 
     return render(request,'Students/ChallengesList.html', context_dict)
