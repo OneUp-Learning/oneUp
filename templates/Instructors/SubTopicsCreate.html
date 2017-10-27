@@ -41,49 +41,17 @@
     <script type="text/javascript"
      src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
     </script>
-    <script type="text/javascript">
-       $('#datetimepicker').datetimepicker({
-         format: 'dd/MM/yyyy hh:mm:ss',
-         language: 'pt-BR'
-       });
-    </script>  
+    
     <script type="text/javascript">
     // This script handels the datetime fields (AH)
       $(function() {
-          $('#datetimepicker2').datetimepicker({
-              language: 'en',
-              pick12HourFormat: true,
-            
-            });
+        
          $('#datetimepicker3').datetimepicker({
            language: 'en',
            pick12HourFormat: true,
            
          });
-        // Called when first datefield(Display From) is changed (AH)
-        $("#datetimepicker2").on('changeDate', function(e) {
-            // Sets the Start Date of the second datefield(Display Until) to be the assigned date of the
-            // first datefield(Display From) (AH)
-          $("#datetimepicker3").data('datetimepicker').setStartDate(e.date);
-            // If the saved date for the second datefield is somehow before the first datefield date,
-            // set the second datefield to be the same as the first datefield (AH)
-          if($("#datetimepicker3").data('datetimepicker').getDate() < e.date){
-            $("#datetimepicker3").data('datetimepicker').setDate(e.date);
-          }
-          console.log(e.date.toString());
-        });
-        // Called when first datefield(Display From) is changed (AH)
-        $("#datetimepicker3").on('changeDate', function(e) {
-            // Sets the End Date of the first datefield(Display From) to be the assigned date of the
-            // second datefield(Display Until) (AH)
-          $("#datetimepicker2").data('datetimepicker').setEndDate(e.date);
-            // If the saved date for the first datefield is somehow after the second datefield date,
-            // set the first datefield to be the same as the second datefield (AH)
-          if($("#datetimepicker2").data('datetimepicker').getDate() > e.date){
-            $("#datetimepicker2").data('datetimepicker').setDate(e.date);
-          }
-            console.log(e.date.toString());
-        });
+       
         
       });
     </script>    
@@ -139,7 +107,7 @@
                         <td>Display Date:</td>
                         <td>
                         <div id="datetimepicker3" class="input-append">
-                            <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="displayDate" value="{{displayDate}}">
+                            <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="displayDate" value="{{displayDate}}">
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
                             </span>
