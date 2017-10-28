@@ -259,10 +259,10 @@ def getConsecutiveWeeksOnLeaderboard(course,student):
     studentLog = StudentLeaderboardHistory.objects.filter(courseID = course, studentID = student, endTimestamp=None).values('startTimestamp')
     if not studentLog.exists():
         return 0
-    
+    studentLog = studentLog[0]
     startDate = studentLog['startTimestamp'].date()
     latestDate = datetime.now(tz=timezone.utc).date()
-    delta = startDate - latestDate
+    delta = latestDate - startDate
     print(startDate)
     print(latestDate)
     print(delta)

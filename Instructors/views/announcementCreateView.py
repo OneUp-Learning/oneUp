@@ -68,7 +68,7 @@ def announcementCreateView(request):
         if(request.POST['endTime'] == ""):
             announcement.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            announcement.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
+            announcement.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
         
         announcement.save();  #Writes to database.
                 

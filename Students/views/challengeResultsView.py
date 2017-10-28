@@ -260,6 +260,7 @@ def ChallengeResults(request):
                 studentChallenge.save()
                 
                 register_event(Event.endChallenge,request,studentId,challengeId)
+                register_event(Event.leaderboardUpdate,request,studentId, challengeId)
                 updateLeaderboard(course)
     return render(request,'Students/ChallengeResults.html', context_dict)
 
