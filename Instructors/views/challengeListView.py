@@ -189,7 +189,7 @@ def warmUpChallengeList(request):
             if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
                 topic_ID.append(tID)
                 topic_Name.append(tName)
-                topic_Pos.append(str(ct.topicPos))
+                topic_Pos.append(ct.topicPos)
                 all_challenges_for_topic.append(challengesForTopic(ct.topicID, currentCourse))
             else:
                 unspecified_topic = ct.topicID 
@@ -199,7 +199,8 @@ def warmUpChallengeList(request):
         if hasUnspecified_topic:
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous") 
-            topic_Pos.append(str(course_topics.count()))  
+            max_pos = max(topic_Pos)
+            topic_Pos.append(max_pos+1) 
             all_challenges_for_topic.append(challengesForTopic(unspecified_topic, currentCourse))
                         
         #context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name,all_challenges_for_topic)

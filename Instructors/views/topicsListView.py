@@ -30,7 +30,7 @@ def topicsListView(request):
         if not topic.topicName == unspecified_topic_name:   # do not display the unspecified topic
             topicID.append(tId)
             topicName.append(topic.topicName)
-            topicPos.append(str(ct.topicPos))
+            topicPos.append(ct.topicPos)
 
     context_dict['topic_range'] = sorted(list(zip(range(1,ctopics.count()+1),topicID,topicName,topicPos)),key=lambda tup: tup[3])
 
