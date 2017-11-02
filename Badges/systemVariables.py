@@ -201,10 +201,6 @@ def getConsecutiveDaysWarmUpChallengesTaken(course,student):
         
         for date in warmUpChallDates[1:len(warmUpChallDates)-1]:
             
-            print(previousDate)
-            print(date)
-            
-            print(date - previousDate)
             if(date - previousDate) == 1:
                 consecutiveDays +=1
                 previousDate = date
@@ -213,17 +209,11 @@ def getConsecutiveDaysWarmUpChallengesTaken(course,student):
             else:
                 consecutiveDays = 1
                 previousDate = date
-                
-        print()
-        print(today)
-        print(warmUpChallDates[len(warmUpChallDates)-1])
-        print()
-        
+            
         # if the last day the challenge taken is not today then return 0
         if warmUpChallDates[len(warmUpChallDates)-1] != today:
             consecutiveDays = 0
         
-        print(consecutiveDays)
         return consecutiveDays
         
     
