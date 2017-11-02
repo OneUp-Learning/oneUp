@@ -39,7 +39,7 @@ def templateDynamicQuestionForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','difficulty',
-                         'instructorNotes','setupCode','numParts'];
+                         'instructorNotes','setupCode','numParts','author'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
     
@@ -59,11 +59,11 @@ def templateDynamicQuestionForm(request):
         #used to fill in info for question text 
         question.questonText = ''  
         
-        # get the author                            # 03/10/2015
-        if request.user.is_authenticated():
+        # if user did not specify author of the question, the author will be the user
+        if question.author == '':
             question.author = request.user.username
-        else:
-            question.author = ""
+            
+        question.save();  #Writes to database.
            
         #loops through and adds the multiple parts(the actual text) into to the template array   
         templateArray = [] 
