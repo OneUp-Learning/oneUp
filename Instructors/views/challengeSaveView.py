@@ -82,14 +82,14 @@ def challengeSaveView(request):
         if(request.POST['startTime'] == ""):
             challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            challenge.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
+            challenge.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
             challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            challenge.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
+            challenge.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
         
         numberAttempts = int(request.POST.get("numberAttempts", 1))
         timeLimit = int(request.POST.get("timeLimit", 45))

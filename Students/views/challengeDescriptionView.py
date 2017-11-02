@@ -1,6 +1,8 @@
 import datetime
 from django.shortcuts import render
 from Instructors.models import Challenges 
+from Instructors.views.utils import utcDate
+from Instructors.constants import default_time_str
 from Students.models import Student, StudentChallenges
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
@@ -17,8 +19,8 @@ def ChallengeDescription(request):
     if 'currentCourseID' in request.session:   
         chall_ID = []      
         chall_Name = []  
-        defaultTime = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
-        currentTime = strftime("%Y-%m-%d %H:%M:%S")       
+        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        currentTime = utcDate()   
         string_attributes = ['challengeName','courseID','isGraded',                 #'challengeCategory','timeLimit','numberAttempts',
                       'challengeAuthor',
                       'displayCorrectAnswer','displayCorrectAnswerFeedback','displayIncorrectAnswerFeedback',

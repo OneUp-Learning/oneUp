@@ -24,6 +24,16 @@
          }
       </script>
 		
+     <script type = "text/javascript">
+	 	function validateFileSelection() {
+         	x = document.forms["uploader"]["studentslist"].value;
+		 	if ( x == "" ) {
+        		alert("Please choose a file.");
+        		return false;
+    		}
+	}
+	
+</script>
    </head>
    <body>
       <!-- START PAGE SOURCE -->
@@ -39,7 +49,7 @@
                <h1>Students</h1>
                <br />
                   <!-- INSERTED DYNAMIC TABLE -->
-                <form id="uploadbanner" action="/oneUp/instructors/importStudentsView" enctype="multipart/form-data" method="POST" >
+                <form id="uploadbanner" name = "uploader" action="/oneUp/instructors/importStudentsView" enctype="multipart/form-data" onsubmit="return validateFileSelection()" method="POST" >
                      {% csrf_token %}
                 <input id="fileupload" name="studentslist" type="file" />
                 <input type="submit" value="Import Students" id="Upload" />
