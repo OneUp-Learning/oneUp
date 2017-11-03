@@ -27,11 +27,11 @@ def avatarUpload(request):
         avatarImagePerson.save()
         
         #path = os.path.join('../../media/images/uploadedAvatarImages/', avatarImageFileName)
-        path = avatarImagePerson.avatarImage.url 
+        path = '/'+ str(avatarImagePerson.avatarImage.url)
         
         student = Student.objects.get(user=request.user)       
         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)     
-        st_crs.avatarImage = avatarImageFileName
+        st_crs.avatarImage = path
         st_crs.save()
         
         context_dict['avatarImage'] = avatarImage
