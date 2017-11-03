@@ -481,7 +481,7 @@ else:
                 pyanswer = {}
                 pyanswer['success']=answer['success']
                 pyanswer['value']=answer['value']
-                pyanswer['seqnum']=runtime.eval("_inputs["+n+"]['"+answer_name+"']['_sequence_number']")
+                pyanswer['seqnum']=runtime.eval("_inputs["+str(n)+"]['"+answer_name+"']['_sequence_number']")
                 if 'details' in answer:
                     pydetails = {}
                     details = answer['details']
