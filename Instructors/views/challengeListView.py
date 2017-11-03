@@ -198,8 +198,11 @@ def warmUpChallengeList(request):
         # Add the challenges with unspecified topic at the end
         if hasUnspecified_topic:
             topic_ID.append(unspecified_topic.topicID)
-            topic_Name.append("Miscellaneous") 
-            max_pos = max(topic_Pos)
+            topic_Name.append("Miscellaneous")
+            if topic_Pos: 
+                max_pos = max(topic_Pos)
+            else:
+                max_pos = 0
             topic_Pos.append(max_pos+1) 
             all_challenges_for_topic.append(challengesForTopic(unspecified_topic, currentCourse))
                         
