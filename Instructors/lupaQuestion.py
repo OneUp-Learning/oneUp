@@ -499,7 +499,8 @@ else:
                         pydetail['value'] = detail['value']
                         pydetail['max_points'] = detail['max_points']
                         pydetails.append(pydetail)
-                    pyanswer['details']=pydetails.sort(key=lambda x: x['seqnum'])
+                    pydetails.sort(key=lambda x: x['seqnum'])
+                    pyanswer['details']=pydetails
                 pyresults.append(pyanswer)
                 
             pyresults.sort(key=lambda x: x['seqnum'])
