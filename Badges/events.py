@@ -10,6 +10,7 @@ from builtins import getattr
 import decimal
 from Instructors.models import Challenges
 from Badges.systemVariables import calculate_system_variable
+from Instructors.views.utils import utcDate
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -26,7 +27,7 @@ def register_event(eventID, request, student=None, objectId=None):
     # Create event log entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
-    eventEntry.timestamp = datetime.now()
+    eventEntry.timestamp = utcDate()
     courseIDint = int(request.session['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
@@ -66,7 +67,11 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.challengeExpiration):
         eventEntry.objectType = ObjectTypes.challenge
         eventEntry.objectID = objectId
-    
+        
+    if(eventID == Event.leaderboardUpdate):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+        
     # Virtual Currency Events
     if(eventID == Event.buyAttempt):
         eventEntry.objectType = ObjectTypes.form
@@ -182,7 +187,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
     print("Operand 2 = "+str(operand2))
     
-    if (condition.operation == '=='):
+    if (condition.operation == '='):
         return operand1==operand2
     if (condition.operation == '>'):
         return operand1>operand2
@@ -258,7 +263,7 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         studentBadge.studentID = studentID
         studentBadge.badgeID = badge
         studentBadge.objectID = objectIDPassed
-        studentBadge.timestamp = datetime.now()         # AV #Timestamp for badge assignment date
+        studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
         studentBadge.save()
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         return

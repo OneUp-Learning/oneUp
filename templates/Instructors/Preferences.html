@@ -86,7 +86,7 @@
                         <!-- gamificationUsed Checkbox-->
                         <tr>
                            <td class="left"> Enable gamification</td>
-                           <td style="position:relative; right:-3.2em;" !important><input type="checkbox" align="right" name="gamificationUsed" value="true" checked="true"></td>
+                           <td style="position:relative; right:-2.8em;" !important><input type="checkbox" align="right" name="gamificationUsed" value="true" checked="true"></td>
                         </tr>
                      </table>
                   </div>
@@ -102,7 +102,7 @@
                         </tr>
                         <tr>
                            <td class="left"> Number of top students to be displayed on the leaderboard </td>
-                           <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
+                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
                         </tr>
                         {% else %}
                         <tr>
@@ -111,45 +111,45 @@
                         </tr>
                         <tr>
                            <td class="left"> Number of top students to be displayed on the leaderboard </td>
-                           <td><input style="max-width: 8em; max-height: 2em; border: solid 1px;" type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}"></td>
+                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px;" type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}"></td>
                         </tr>
                         {% endif %}           
                         {% if classSkillsDisplayed %}
                         <tr>
                            <td class="left"> Display skill points on the leaderboard</td>
-                           <td style="position:relative; right:-3.3em;" !important>  <input type="checkbox" align="right;" !important name="classSkillsDisplayed" value="true" checked="true" ></td>
+                           <td style="position:relative; right:-3.2em;" !important>  <input type="checkbox" align="right;" !important name="classSkillsDisplayed" value="true" checked="true" ></td>
                         </tr>
                         <tr>
                            <td class="left"> Number of top students to be displayed for each skill</td>
-                           <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
+                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
                         </tr>
                         {% else %}
                         <tr>
                            <td class="left"> Display skill points on the leaderboard</td>
-                           <td style="position:relative; right:-3.3em;" !important> <input type="checkbox" align="left" name="classSkillsDisplayed" value="true" ></td>
+                           <td style="position:relative; right:-3.2em;" !important> <input type="checkbox" align="left" name="classSkillsDisplayed" value="true" ></td>
                         </tr>
                         <tr>
                            <td class="left"> Number of top students to be displayed for each skill</td>
-                           <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
+                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
                         </tr>
                         {% endif %}                                       
                         {% if badgesUsed %}
                         <tr>
                            <td class="left"> Enable the use of badges</td>
-                           <td style="position:relative; right:-3.3em;" !important><input type="checkbox" id="ck1" align="right" name="badgesUsed" value="true" checked="true"></td>
+                           <td style="position:relative; right:-3.2em;" !important><input type="checkbox" id="ck1" align="right" name="badgesUsed" value="true" checked="true"></td>
                         </tr>
                         <tr>
                            <td class="left"> Number of recent badges to be displayed on the leaderboard </td>
-                           <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
+                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
                         </tr>
                         {% else %}
                         <tr>
                            <td class="left"> Enable the use of badges</td>
-                           <td style="position:relative; right:-3.3em;" !important> <input type="checkbox" align="left" name="badgesUsed" ></td>
+                           <td style="position:relative; right:-3.2em;" !important> <input type="checkbox" align="left" name="badgesUsed" ></td>
                         </tr>
                         <tr>
                            <td class="left"> Number of recent badges to be displayed on the leaderboard </td>
-                           <td><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
+                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
                         </tr>
                         {% endif %}
                      </table>
@@ -172,13 +172,13 @@
                         {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
                         <tr>
                            <td class="left">Students can change skill points visibility </td>
-                           </td>  
+                           
                            <td style="position:relative; right: 0.3em;" !important ><input type="checkbox" align="left" name="studCanChangeClassSkillsVis" value="true" checked="true"></td>
                         </tr>
                         {% else %}
                         <tr>
                            <td class="left">Students can change skill points visibility  </td>
-                           </td>  
+                          
                            <td style="position:relative; right: 0.3em;" !important ><input type="checkbox" align="left" name="studCanChangeClassSkillsVis"></td>
                         </tr>
                         {% endif %}
@@ -207,111 +207,127 @@
                      </table>
                   </div>
                      <div class="7u 12u(mobile)">
-                        <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                           <th>Course Attributes</th>
-                           <th></th>
-                           <!-- levelingUsed Checkbox-->
+                     <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
+                        <th>Course Attributes</th>
+                        <th></th>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                          <!-- levelingUsed Checkbox-->
                            {% if levelingUsed %}
-                           <tr>
+                        <tr>
+                           <td class="left"> Enable leaderboard</td>
+                           <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="right" name="levelingUsed" value="true" checked="true"></td>
+                        </tr>
+                          {% else %}
+                         <tr>
                               <td class="left"> Enable leveling</td>
-                              <td style="position:relative; right: -4.5em;" !important><input type="checkbox" align="left" name="levelingUsed" value="true" checked="true"></td>
+                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="levelingUsed"></td>
+                          </tr>
+                           {% endif %}
+						   {% if virtualCurrencyUsed %}
+                           <tr>
+                              <td class="left"> Enable virtual currency</td>
+                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="right" name="virtualCurrencyUsed" value="true" checked="true"></td>
+                           </tr>
+                           <tr>
+                              <td class="left"> Increase the virtual currency of all students by ($$)</td>
+                              <td style="position:relative; right:-2.3em;" !important> <input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="virtualCurrencyAdded" value="{{virtualCurrencyAdded}}" required></td></td>
                            </tr>
                            {% else %}
                            <tr>
-                              <td class="left"> Enable leveling</td>
-                              <td style="position:relative; right:-4.5em;" !important><input type="checkbox" align="left" name="levelingUsed"></td>
+                              <td class="left"> Enable virtual currency</td>
+                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="virtualCurrencyUsed"></td>
+                           </tr>
+                           <tr>
+                              <td class="left"> Increase the virtual currency of all students by ($$)</td>
+                              <td style="position:relative; right:-2.3em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="virtualCurrencyAdded" value="0"></td>
                            </tr>
                            {% endif %}
-                           {% if virtualCurrencyUsed %}
-                           <tr>
-                              <td class="left"> Enable virtual currency</td>
-                              <td style="position:relative; right:-4.5em;" !important><input type="checkbox" align="right" name="virtualCurrencyUsed" value="true" checked="true"></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Add virtual currency to student accounts (course bucks)</td>
-                              <td style="position:relative; right:-2.5em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="virtualCurrencyAdded" value="{{virtualCurrencyAdded}}"></td>
-                           </tr>
-                           {% else %}
-                           <tr>
-                              <td class="left"> Enable virtual currency</td>
-                              <td style="position:relative; right:-4.5em;" !important><input type="checkbox" align="left" name="virtualCurrencyUsed"></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Add virtual currency to student accounts (amount of course bucks)</td>
-                              <td style="position:relative; right:-2.5em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="virtualCurrencyAdded" value="0"></td>
-                           </tr>
-                           {% endif %}
-                           <!-- avatarUsed Checkbox-->
+                            <!-- avatarUsed Checkbox-->
                            {% if avatarUsed %}
                            <tr>
                               <td class="left"> Enable the use of avatars</td>
-                              <td style="position:relative; right:-4.5em;" !important><input type="checkbox" align="left" name="avatarUsed" value="true" checked="true"></td>
+                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="avatarUsed" value="true" checked="true"></td>
                            </tr>
                            {% else %}
                            <tr>
                               <td class="left"> Enable the use of avatars</td>
-                              <td style="position:relative; right:-4.5em;" !important><input type="checkbox" align="left" name="avatarUsed"></td>
+                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="avatarUsed"></td>
                            </tr>
                            {% endif %}
                            <!-- classAverageUsed Checkbox-->
                            {% if classAverageUsed %}
                            <tr>
                               <td class="left"> Display class average on student achievement page</td>
-                              <td style="position:relative; right:-4.5em;" !important><input type="checkbox" align="left" name="classAverageUsed" value="true" checked="true"></td>
+                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="classAverageUsed" value="true" checked="true"></td>
                            </tr>
                            {% else %}
                            <tr>
                               <td class="left"> Display class average on student achievement page</td>
-                              <td style="position:relative; right:-4.5em;" !important><input type="checkbox" align="left" name="classAverageUsed"></td>
+                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="classAverageUsed"></td>
                            </tr>
                            {% endif %}
-                           <!-- courseStartDate courseEndDate Checkbox-->
+                              <!-- courseStartDate courseEndDate Checkbox-->
                            <tr>
                               <td class="left"> Set course start date</td>
-                              <td style="position:relative; right:-1.6em;" !important><input type="date" align="left" name="courseStartDate"></td>
+                              <td style="position:relative; right:-0.2em;" !important><input type="date" style="width:165px;" align="left" name="courseStartDate"></td>
                            </tr>
-                           <tr>
+                            <tr>
                               <td class="left"> Set course end date</td>
-                              <td style="position:relative; right:-1.6em;" !important><input type="date" align="left" name="courseEndDate"></td>
+                              <td style="position:relative; right:-0.2em;" !important><input type="date" style="width:165px;" align="left" name="courseEndDate"></td>
                            </tr>
                            <tr>
                               <td class="left"> Set leaderboard update frequency (in days)</td>
-                              <td style="position:relative; right:-2.5em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="leaderboardUpdateFreq" value="{{leaderboardUpdateFreq}}" required></td>
+                              <td style="position:relative; right:-2.3em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="leaderboardUpdateFreq" value="{{leaderboardUpdateFreq}}" required></td>
                            </tr>
                           
                         </table>
+                        
+                           
+
+
+
+
                         <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
                            <th>Calculating Total XP Points</th>
                            <th></th>
                            <tr>
                               <td class="left"> Weight of <i>serious challenge points (in % )</i>  </td>
-                              <td style="position:relative; right:-5.2em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSChallenge" value="{{xpWeightSChallenge}}" required></td>
+                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSChallenge" value="{{xpWeightSChallenge}}" required></td>
                            </tr>
                            <tr>
                               <td class="left"> Weight of <i>warmup challenge points (in % )</i>  </td>
-                              <td style="position:relative; right:-5.2em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightWChallenge" value="{{xpWeightWChallenge}}" required></td>
+                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightWChallenge" value="{{xpWeightWChallenge}}" required></td>
                            </tr>
                            <tr>
                               <td class="left"> Weight of <i>skill points (in % )</i></td>
-                              <td style="position:relative; right:-5.2em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSP" value="{{xpWeightSP}}" required></td>
+                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSP" value="{{xpWeightSP}}" required></td>
                            </tr>
                            <tr>
                               <td class="left"> Weight of <i>activity points (in % )</i>  </td>
-                              <td style="position:relative; right:-5.2em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="xpWeightAPoints" value="{{xpWeightAPoints}}" required></td>
+                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightAPoints" value="{{xpWeightAPoints}}" required></td>
                            </tr>
                         </table>
+                            </div>
+                     <div class="7u 12u(mobile)">
                         <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
                            <th>Thresholds for Challenge Difficulty</th>
                            <th></th>
                            <tr>
                               <td class="left"> From <i>easy</i> to <i>medium</i></td>
-                              <td style="position:relative; right:-6.2em;" !important><input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelMedium" value="{{thresholdToLevelMedium}}" required></td>
+                              <td style="position:relative; right:-4.9em;" !important> <input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelMedium" value="{{thresholdToLevelMedium}}" required></td>
                            </tr>
                            <tr>
                               <td class="left"> From <i>medium</i> to <i>high</i></td>
-                              <td style="position:relative; right:-6.2em;" !important> <input style="max-width: 8em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelDifficulty" value="{{thresholdToLevelDifficulty}}" required></td>
+                              <td style="position:relative; right:-4.9em;" !important> <input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelDifficulty" value="{{thresholdToLevelDifficulty}}" required></td>
                            </tr>
                         </table>
+                        </div>
                         <div class="6u 12u(mobile)">
                            <input type="submit" align="center" id="save" name="save" value="Save" class="button">
                            <a href="/oneUp/instructors/instructorCourseHome">

@@ -16,7 +16,7 @@ admin.site.register(StudentCourseSkills)
 admin.site.register(StudentEventLog)
 admin.site.register(StudentRegisteredCourses)
 admin.site.register(StudentConfigParams)
-admin.site.register(Leaderboards)
+admin.site.register(StudentLeaderboardHistory)
 admin.site.register(StudentFile)
 admin.site.register(UploadedAvatarImage)
 

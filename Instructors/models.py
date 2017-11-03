@@ -133,7 +133,7 @@ class Challenges(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) 
     isGraded = models.BooleanField(default=False)
     numberAttempts = models.IntegerField()
-    timeLimit = models.IntegerField()
+    timeLimit = models.IntegerField(verbose_name="time limit for the challenge in minutes")
     #feedbackOption = models.IntegerField()
     displayCorrectAnswer = models.BooleanField(default=True)
     displayCorrectAnswerFeedback = models.BooleanField(default=False)
@@ -192,6 +192,7 @@ class ChallengeTags(models.Model):
 class ChallengesQuestions(models.Model):
     challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenge")
     questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
+    questionPosition = models.IntegerField(default = 0)
     points =  models.IntegerField()
     def __str__(self):              
         return str(self.challengeID)+","+str(self.questionID)

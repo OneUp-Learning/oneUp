@@ -1,12 +1,12 @@
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Skills, Courses, CoursesSkills, Topics, CoursesTopics, CoursesSubTopics
-from Instructors.constants import unspecified_topic_name
+from Instructors.constants import unspecified_topic_name, default_time_str
+from Instructors.views.utils import utcDate
 # from Instructors.views import utils, TopicsListView, subTopicsListView
 
 from time import time
-import datetime
+from datetime import datetime
 from inspect import currentframe
 
 def get_linenumber():
@@ -72,10 +72,10 @@ def subTopicsCreateView(request):
 #         if(request.POST['displayDate'] == ""):
 #             subtopic.displayDate = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
 #         else:
-        if datetime.datetime.strptime(request.POST['displayDate'], "%m/%d/%Y %I:%M:%S %p"):
-                subtopic.displayDate = (datetime.datetime.strptime(request.POST['displayDate'], "%m/%d/%Y %I:%M:%S %p"))
+        if datetime.strptime(request.POST['displayDate'], "%m/%d/%Y %I:%M %p"):
+                subtopic.displayDate = utcDate(request.POST['displayDate'], "%m/%d/%Y %I:%M %p")
         else:
-                subtopic.displayDate = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+                subtopic.displayDate = utcDate(default_time_str,"%m/%d/%Y %I:%M:%S %p")
                               
 
         subtopic.save();  #Save subtopic to database
@@ -120,8 +120,7 @@ def subTopicsCreateView(request):
             context_dict['subTopicPos']=subtopic.subTopicPos
             context_dict['thresholdXP']=subtopic.thresholdXP
             context_dict['thresholdSP']=subtopic.thresholdSP
-            print(get_linenumber(),subtopic.displayDate.strftime("%m/%d/%y")) 
-            context_dict['displayDate']=getattr(subtopic, 'displayDate').strftime("%m/%d/%Y %I:%M:%S %p")
+            context_dict['displayDate']= datetime.strptime(str(getattr(subtopic, 'displayDate')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
 
         return render(request,'Instructors/subTopicsCreate.html', context_dict)     #edit  
 

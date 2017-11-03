@@ -480,3 +480,18 @@ def initialContextDict(request):
         
     return (context_dict,currentCourse)
 
+def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
+    ''' Converts date str to datetime.datetime object with utc timezone.
+        Method should be used before storing dates in DateTimeField.
+    '''
+    from datetime import datetime, timezone
+    
+    if date == "None":
+        dt = datetime.now(tz=timezone.utc).replace(microsecond=0)
+        print("Current UTC: ", dt)
+        return dt
+    
+    dt = datetime.strptime(date, form)
+    
+    print("Converted Time to UTC: " , dt.replace(tzinfo=timezone.utc))
+    return dt.replace(tzinfo=timezone.utc)  

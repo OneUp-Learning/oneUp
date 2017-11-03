@@ -80,6 +80,9 @@ end
 
 oneUp.string_equality_ignore_spaces = function(str)
   return function(b,pts)
+    if b == nil then
+       return {success=false,value=0}
+    end
     local str_no_space = str:gsub("%s*","")
     local b_no_space = b:gsub("%s*","")
     if string.upper(str_no_space) == string.upper(b_no_space) then

@@ -135,7 +135,7 @@ def challengesList(request):
     return render(request,'Instructors/ChallengesList.html', context_dict)
     
 
-def challengesForTopic(topic):
+def challengesForTopic(topic, currentCourse):
 
     chall_ID = []  
     chall_Name = [] 
@@ -145,7 +145,7 @@ def challengesForTopic(topic):
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
     if challenge_topics:           
         for challt in challenge_topics:
-            if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=False):
+            if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=False, courseID=currentCourse):
                 chall_ID.append(challt.challengeID.challengeID)
                 chall_Name.append(challt.challengeID.challengeName)
                 #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
@@ -189,8 +189,8 @@ def warmUpChallengeList(request):
             if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
                 topic_ID.append(tID)
                 topic_Name.append(tName)
-                topic_Pos.append(str(ct.topicPos))
-                all_challenges_for_topic.append(challengesForTopic(ct.topicID))
+                topic_Pos.append(ct.topicPos)
+                all_challenges_for_topic.append(challengesForTopic(ct.topicID, currentCourse))
             else:
                 unspecified_topic = ct.topicID 
                 hasUnspecified_topic=True           
@@ -198,9 +198,13 @@ def warmUpChallengeList(request):
         # Add the challenges with unspecified topic at the end
         if hasUnspecified_topic:
             topic_ID.append(unspecified_topic.topicID)
-            topic_Name.append("Miscellaneous") 
-            topic_Pos.append(str(course_topics.count()))  
-            all_challenges_for_topic.append(challengesForTopic(unspecified_topic))
+            topic_Name.append("Miscellaneous")
+            if topic_Pos: 
+                max_pos = max(topic_Pos)
+            else:
+                max_pos = 0
+            topic_Pos.append(max_pos+1) 
+            all_challenges_for_topic.append(challengesForTopic(unspecified_topic, currentCourse))
                         
         #context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name,all_challenges_for_topic)
         context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])

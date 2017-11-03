@@ -37,7 +37,6 @@ def studentChallengesCompleted(request):
         total = []
         first_Name = []      
         last_Name = []
-        chall_N = []
         
         if request.GET['userID'] == '-':
             context_dict['no_challenge'] = 'No challenge have being taken'
@@ -75,7 +74,7 @@ def studentChallengesCompleted(request):
                     chall_ID.append(item.challengeID.challengeID) 
                     chall_Name.append(item.challengeID.challengeName)
                     chall_Difficulty.append(item.challengeID.challengeDifficulty)
-                    strTime = datetime.strptime(str(item.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p" )
+                    strTime = datetime.strptime(str(item.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
                     dateTaken.append(strTime)
                     score.append(item.testScore)
                     total.append(item.testTotal)
