@@ -29,10 +29,11 @@
 	  {% for answer in evaluations %}
 	  	<tr><td>	
 	  	{% if answer.success %}
-	  		<span style='color: green;'>&#10004;</span>You got {{answer.value}} points on answer {{answer.name}} 
+	  		<span style='color: green;'>&#10004;</span>
 	  	{% else %}
-			<span style='color: red;'>&#10006;</span>You got {{answer.value}} points on answer {{answer.name}} 
+			<span style='color: red;'>&#10006;</span>
 		{% endif %}
+		You got {{answer.value}} points on answer {{answer.name}} 
 
 	  	{% if answer.details %}
 	  		<ul>
