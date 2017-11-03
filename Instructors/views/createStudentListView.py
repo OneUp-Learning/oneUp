@@ -38,14 +38,13 @@ def createStudentListView(request):
     courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
     for cs in courseStudents:
         s = cs.studentID
-
         userID.append(s.user)
         first_Name.append(s.user.first_name)
         last_Name.append(s.user.last_name)
         user_Email.append(s.user.email)
         user_Login.append(s.user.last_login)
         user_Avatar.append(cs.avatarImage)
-                    
+               
     # The range part is the index numbers.
     context_dict['user_range'] = zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Login, user_Avatar)
                

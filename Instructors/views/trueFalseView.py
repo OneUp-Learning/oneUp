@@ -33,7 +33,7 @@ def trueFalseNewForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','questionText','difficulty','correctAnswerFeedback',
-                  'incorrectAnswerFeedback','instructorNotes'];
+                  'incorrectAnswerFeedback','instructorNotes','author'];
     bool_values = ['true', 'false']
 
     if 'view' in request.GET:
@@ -72,12 +72,9 @@ def trueFalseNewForm(request):
         # Fix the question type
         question.type = QuestionTypes.trueFalse
         
-        # get the author                            
-        if request.user.is_authenticated():
+        if question.author == '':
             question.author = request.user.username
-        else:
-            question.author = ""
-
+        
         question.save();  
         
         # The index of the correct answer.
