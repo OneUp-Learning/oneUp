@@ -474,27 +474,35 @@ else:
                 return False                
                 
             # There are problems dealing with Lua tables in Django templates, so we create
-            # Python dictionaries instead.
-            pyresults = {}
+            # Python lists instead.  This also gives us a chance to sort things into the correct order.
+            pyresults = []
             for answer_name in results:
                 answer = results[answer_name]
                 pyanswer = {}
                 pyanswer['success']=answer['success']
                 pyanswer['value']=answer['value']
-                pyanswer['seqnum']=runtime.eval("_inputs["+str(n)+"]['"+answer_name+"']['_sequence_number']")
+                (success,pyanswer['seqnum'])=runtime.eval("_inputs["+str(n)+"]['"+answer_name+"']['seqnum']")
+                if not success:
+                    self.updateRuntime(runtime)
+                    self.setError(evalAnswerFunc,"")
+                    print("ERROR: something went wrong with sequence numbers (this should not happen)")
+                    return False
+                pyanswer['name']=answer_name
                 if 'details' in answer:
-                    pydetails = {}
-                    details = answer['details']
+                    pydetails = []
                     for detail_name in answer['details']:
                         detail = answer['details'][detail_name]
                         pydetail = {}
                         pydetail['seqnum'] = detail['seqnum']
+                        pydetail['name'] = detail_name
                         pydetail['success'] = detail['success']
                         pydetail['value'] = detail['value']
                         pydetail['max_points'] = detail['max_points']
-                        pydetails[detail_name] = pydetail
-                    pyanswer['details']=pydetails
-                pyresults[answer_name]=pyanswer
+                        pydetails.append(pydetail)
+                    pyanswer['details']=pydetails.sort(key=lambda x: x['seqnum'])
+                pyresults.append(pyanswer)
+                
+            pyresults.sort(key=lambda x: x['seqnum'])
             #print(pyresults)
             
             return pyresults
