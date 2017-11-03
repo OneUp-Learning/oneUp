@@ -312,6 +312,7 @@ else:
         function (num_inputs)
             for i=1,num_inputs do
                 _inputs[i]={}
+                _inputs[i]['_sequence_number']=1
             end
         end
     _current_part = 1
@@ -326,8 +327,11 @@ else:
             local fullname = _uniqid..'-'..name
             local originaltype = type
             type = string.upper(type)
-            _inputs[_current_part][name] = type
-            local i,j = string.find(type,"CODE")
+            _inputs[_current_part][name] = {}
+            _inputs[_current_part][name]['type'] = type
+            _inputs[_current_part][name]['seqnum'] = _inputs[_current_part]['_sequence_number']
+            _inputs[_current_part]['_sequence_number'] = _inputs[_current_part]['_sequence_number'] + 1
+            local i,j = string.find(type,'CODE')
             if i ~= nil then
                 local lang = string.sub(originaltype,j+2,-1)
                 -- Now we trim whitespace from lang
@@ -477,12 +481,14 @@ else:
                 pyanswer = {}
                 pyanswer['success']=answer['success']
                 pyanswer['value']=answer['value']
+                pyanswer['seqnum']=runtime.eval("_inputs["+n+"]['"+answer_name+"']['_sequence_number']")
                 if 'details' in answer:
                     pydetails = {}
                     details = answer['details']
                     for detail_name in answer['details']:
                         detail = answer['details'][detail_name]
                         pydetail = {}
+                        pydetail['seqnum'] = detail['seqnum']
                         pydetail['success'] = detail['success']
                         pydetail['value'] = detail['value']
                         pydetail['max_points'] = detail['max_points']
