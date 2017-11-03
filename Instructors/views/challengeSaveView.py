@@ -1,13 +1,10 @@
-from django.template import RequestContext
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Challenges, Courses, Topics, CoursesTopics, ChallengesTopics
 from Instructors.views import utils, challengeListView
-#from _datetime import datetime, tzinfo
-from time import time, strptime, struct_time
-from time import strftime
-import datetime
+from Instructors.views.utils import utcDate
+from Instructors.constants import default_time_str
 
 @login_required
 def challengeSaveView(request):
@@ -83,16 +80,16 @@ def challengeSaveView(request):
 
         
         if(request.POST['startTime'] == ""):
-            challenge.startTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            challenge.startTimestamp = datetime.datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
+            challenge.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            challenge.endTimestamp = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
+            challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            challenge.endTimestamp = datetime.datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M:%S %p")
+            challenge.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
         
         numberAttempts = int(request.POST.get("numberAttempts", 1))
         timeLimit = int(request.POST.get("timeLimit", 45))

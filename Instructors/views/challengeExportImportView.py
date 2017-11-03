@@ -5,9 +5,10 @@ Created on May 1, 2017
 '''
 from django.shortcuts import redirect, render, HttpResponse
 
-from Instructors.models import Courses, Challenges, ChallengesTopics, ChallengesQuestions, Questions, StaticQuestions 
+from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, Questions, StaticQuestions 
 from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles, Topics 
 from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
+from Instructors.constants import unspecified_topic_name
 from Badges.enums import QuestionTypes
 
 from xml.etree.ElementTree import Element, SubElement, parse
@@ -76,9 +77,9 @@ def exportChallenges(request):
             el_Name = SubElement(el_challenge, 'challengeName')
             el_Name.text = challenge.challengeName
  
-            el_courseID = SubElement(el_challenge, 'courseID')
-            el_courseID.text = str(challenge.courseID.courseID)            
- 
+#             el_courseID = SubElement(el_challenge, 'courseID')
+#             el_courseID.text = str(challenge.courseID.courseID)            
+#  
             el_isGraded = SubElement(el_challenge, 'isGraded')
             el_isGraded.text = str(challenge.isGraded)            
  
@@ -88,14 +89,14 @@ def exportChallenges(request):
             el_timeLimit = SubElement(el_challenge, 'timeLimit')
             el_timeLimit.text = str(challenge.timeLimit)            
  
-            el_feedbackOption1 = SubElement(el_challenge, 'feedbackOption1')
-            el_feedbackOption1.text = str(challenge.feedbackOption1)            
+            el_feedbackOption1 = SubElement(el_challenge, 'displayCorrectAnswer')
+            el_feedbackOption1.text = str(challenge.displayCorrectAnswer)            
          
-            el_feedbackOption2 = SubElement(el_challenge, 'feedbackOption2')
-            el_feedbackOption2.text = str(challenge.feedbackOption2)            
+            el_feedbackOption2 = SubElement(el_challenge, 'displayCorrectAnswerFeedback')
+            el_feedbackOption2.text = str(challenge.displayCorrectAnswerFeedback)            
          
-            el_feedbackOption3 = SubElement(el_challenge, 'feedbackOption3')
-            el_feedbackOption3.text = str(challenge.feedbackOption3)            
+            el_feedbackOption3 = SubElement(el_challenge, 'displayIncorrectAnswerFeedback')
+            el_feedbackOption3.text = str(challenge.displayIncorrectAnswerFeedback)            
          
             el_challengeAuthor = SubElement(el_challenge, 'challengeAuthor')
             el_challengeAuthor.text = challenge.challengeAuthor            
@@ -284,14 +285,22 @@ def uploadChallenges(request):
         # It is important we use upfile.uploadedFile.name because
         # if there are two files with the same name, the file will
         # get renamed.  This includes the rename.
-        importChallenges(upfile.uploadedFile.name)
+        importChallenges(upfile.uploadedFile.name, currentCourse)
         
         # TO DO:  After importing the challenges in the database, perhaps we need to delete the user's file
 
         return redirect('/oneUp/instructors/instructorCourseHome') 
     
+ 
+def findWithAlt(ele, name1, name2):
+    result = ele.find(name1)
+    if result == None: 
+        result = ele.find(name2)
     
-def importChallenges(uploadedFileName):
+    return result
+       
+   
+def importChallenges(uploadedFileName, currentCourse):
          
     fname = uploadedFileName
     f = open(fname, 'r') 
@@ -304,20 +313,18 @@ def importChallenges(uploadedFileName):
     for el_challenge in root[0]:
         
         # Handle the challenge element information
-        print(el_challenge)
         # Create new challenge
         challenge = Challenges()  
                        
         # Set the attributes to database object
         challenge.challengeName = el_challenge.find('challengeName').text
-        challenge.courseID = Courses.objects.get(pk=int(el_challenge.find('courseID').text))
+        challenge.courseID = currentCourse
         challenge.isGraded = str2bool(el_challenge.find('isGraded').text)
         challenge.numberAttempts = int(el_challenge.find('numberAttempts').text)
         challenge.timeLimit = int(el_challenge.find('timeLimit').text)
-        challenge.feedbackOption1 = str2bool(el_challenge.find('feedbackOption1').text)
-        challenge.feedbackOption2 = str2bool(el_challenge.find('feedbackOption2').text)
-        
-        challenge.feedbackOption3 = str2bool(el_challenge.find('feedbackOption3').text)
+        challenge.feedbackOption1 = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswer', 'feedbackOption1').text)
+        challenge.feedbackOption2 = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswerFeedback', 'feedbackOption2').text)
+        challenge.feedbackOption3 = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
         challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
         challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
         if not challenge.challengeDifficulty:
@@ -338,12 +345,20 @@ def importChallenges(uploadedFileName):
         if not el_challengeTopics is None: 
             for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'):
                 challengeTopic = ChallengesTopics()
-                topic = Topics.objects.filter(topicName=el_challengeTopic.find('topicName').text)
-                if topic:
-                    challengeTopic.topicID = topic[0]
+                
+                # We have to search for the topic name in CourseTopics 
+                topicName=el_challengeTopic.find('topicName').text
+                courseTopics = CoursesTopics.objects.filter(courseID=currentCourse, topicID__topicName=topicName)
+                if courseTopics:
+                    challengeTopic.topicID = courseTopics[0].topicID
+                else:
+                    # there is no topic with this name for this course, add the challenge to the course Unspecified topic
+                    unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
+                    challengeTopic.topicID = unspecified_topic
+                    
                 challengeTopic.challengeID = challenge
-                challengeTopic.save()
-              
+                challengeTopic.save()                
+                
         # Get all ChallengeQuestions
         el_challengeQuestions = el_challenge.find('ChallengeQuestions')        
         for el_challengeQuestion in el_challengeQuestions.findall('ChallengeQuestion'):

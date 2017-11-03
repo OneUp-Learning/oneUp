@@ -1,0 +1,11 @@
+The class LinkedQueue implements the interface QueueInterface by using a linked structure. The variables 'firstNode' and 'lastNode' are instance variables in this class of type Node; the first one references the node at the front of the queue and the second one - the node at the back of the queue. In the class LinkedQueue write a method splice() in the LinkedQueue class that adds all items in queue2 to the end of the queue on which the method is applied.
+
+	// The firstNode of the first chain will be the firstNode of the result
+	// The lastNode of the second chain will be the last node of the result
+
+	public LinkedQueue<T> splice(LinkedQueue<T> queue2) {
+
+ [{make_answer('ans1','code-java',8,checker,8)}]
+
+
+     }

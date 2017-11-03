@@ -10,6 +10,7 @@ from builtins import getattr
 import decimal
 from Instructors.models import Challenges
 from Badges.systemVariables import calculate_system_variable
+from Instructors.views.utils import utcDate
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -26,7 +27,7 @@ def register_event(eventID, request, student=None, objectId=None):
     # Create event log entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
-    eventEntry.timestamp = datetime.now()
+    eventEntry.timestamp = utcDate()
     courseIDint = int(request.session['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
@@ -66,7 +67,11 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.challengeExpiration):
         eventEntry.objectType = ObjectTypes.challenge
         eventEntry.objectID = objectId
-    
+        
+    if(eventID == Event.leaderboardUpdate):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+        
     # Virtual Currency Events
     if(eventID == Event.buyAttempt):
         eventEntry.objectType = ObjectTypes.form
@@ -220,15 +225,15 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     elif (operandType == OperandTypes.challengeSet):
         if operandValue == 0:
             # All challenges in this course
-            return Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")
+            return [ch.challengeID for ch in Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")]
         else:
-            return [challset.challenge for challset in ChallengeSet.objects.filter(condition=condition)]
+            return [challset.challenge.challengeID for challset in ChallengeSet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.activitySet):
         if operandValue == 0:
             # All activities in this course
-            return Activities.objects.filter(courseID = course)
+            return [act.activityID for act in Activities.objects.filter(courseID = course)]
         else:
-            return [actset.activity for actset in ActivitySet.objects.filter(condition=condition)]
+            return [actset.activity.activityID for actset in ActivitySet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.conditionSet):
         return [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
     else:
@@ -258,7 +263,7 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         studentBadge.studentID = studentID
         studentBadge.badgeID = badge
         studentBadge.objectID = objectIDPassed
-        studentBadge.timestamp = datetime.now()         # AV #Timestamp for badge assignment date
+        studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
         studentBadge.save()
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         return
