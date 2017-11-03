@@ -228,7 +228,7 @@ def ChallengeResults(request):
                             studentAnswerList = [key+":"+answers[key] for key in answers.keys()]
                             question['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)
                             if question['evaluations']:
-                                question['user_points'] = sum([eval['value'] for eval in question['evaluations'].values()])
+                                question['user_points'] = sum([eval['value'] for eval in question['evaluations']])
                             else:
                                 question['user_points'] = 0
                                         
