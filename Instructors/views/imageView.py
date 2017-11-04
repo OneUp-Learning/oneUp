@@ -29,7 +29,7 @@ def imageUpload(request):
         
     if request.POST and len(request.FILES) != 0:        
         imageFile = request.FILES['imagefile']
-        imageFileName = imageFile.name
+        imageFileName = os.path.basename(imageFile.name)
         
         imageObject = UploadedImages() 
         imageObject.imageFile = imageFile

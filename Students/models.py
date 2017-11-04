@@ -39,12 +39,12 @@ class Student(models.Model):
   
 def avatarImageUploadLocation(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
-                                     'images/uploadedAvatarImages'),filename)
+                                ''),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
         avatarImage = models.FileField(max_length=500,
-                                       upload_to= avatarImageUploadLocation)
+                                       upload_to= 'images/uploadedAvatarImages')
         avatarImageFileName = models.CharField(max_length=200, default='')
     
 # Table listing all the students and the respective courses they are currently registered for   

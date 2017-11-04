@@ -126,6 +126,7 @@ function (rootdir,filename,compile_cmd,total_max_pts,tests)
       end
       details[test['name']] =
         {
+          seqnum=i,
           value=testpoints,
           max_points=test['points']*ptsratio,
           success=testsuccess
