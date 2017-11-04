@@ -138,7 +138,7 @@ class Challenges(models.Model):
     displayCorrectAnswer = models.BooleanField(default=True)
     displayCorrectAnswerFeedback = models.BooleanField(default=False)
     displayIncorrectAnswerFeedback = models.BooleanField(default=False)
-    challengeAuthor = models.CharField(max_length=75)
+    challengeAuthor = models.CharField(max_length=75,default="unknown")
     challengeDifficulty = models.CharField(max_length=45, default="")
     isVisible = models.BooleanField(default=True)
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
