@@ -1,37 +1,43 @@
-          <header>
-            <nav class="Navigation">
-               <div class="Nav_Top">
-                  <ul class="nav_top_level">
-                     <a class="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
-                     <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
-                     <li class="nav_top_level_items">
-                        <a href="/oneUp/home.html">Home</a>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="/oneUp/aboutUs">About OneUp</a>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="/oneUp/contact-us">Contact Us</a>
-                     </li>
-                  </ul>
-               </div>
-               <div class="Nav_Bottom">
-                  {% if logged_in %}
-                  <!--   <p>Home</p> -->
-                  <ul class="nav_login">
-                     <li class="nav_login_items">
-                        <a href="#">Welcome, {{username}}   <i class="fa fa-chevron-down"></i></a>
-                        <ul class="nav_login_second_level">
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/administrators/courses">Change Course</a>
-                           </li>
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/students/Logout">Logout</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-                  {% endif %}
-               </div>
-            </nav>
-         </header>
+<header>
+    <ul id="account" class="dropdown-content">
+        <li><p class="center-align">Welcome, {{username}}</p></li>            
+        <li><p class="center-align">Course: {{course_Name}}</p></li>
+        <li class="divider"></li>
+        <li><a href="/oneUp/students/Logout">Logout</a></li>
+    </ul>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo"><i class="material-icons">lightbulb_outline</i>OneUp</a>
+      <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+      <ul class="right hide-on-med-and-down">
+          <li><a href="/oneUp/home.html">Home</a></li>
+          <li><a href="/oneUp/aboutUs">About OneUp</a></li>
+          <li><a href="/oneUp/contact-us">Contact Us</a></li>
+          {% if logged_in %}            
+          <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="account"><i class="material-icons">more_vert</i></a></li>
+          {% endif %}
+      </ul>
+      <ul class="side-nav" id="mobile-demo">
+          {% if logged_in %} 
+        <li>
+          <div class="user-view">
+              <div class="background">
+                <img src="/static/images/pic01.jpg">
+              </div>
+              <a href="#!user"><img class="circle" src="/static/images/avatars/25.png"></a>
+              <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
+              <a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
+            </div>
+          </li>
+          {% endif %}
+          <li><a href="/oneUp/home.html">Home</a></li>
+          <li><a href="/oneUp/aboutUs">About OneUp</a></li>
+          <li><a href="/oneUp/contact-us">Contact Us</a></li>
+          {% if logged_in %}                        
+          <li class="divider"></li>
+          <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>
+          {% endif %}
+      </ul>
+    </div>
+  </nav>
+</header>

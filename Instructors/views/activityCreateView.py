@@ -8,26 +8,16 @@ from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Activities, Courses
 from Instructors.views.activityListView import createContextForActivityList
+from Instructors.views.utils import initialContextDict
 
 @login_required
 def activityCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     string_attributes = ['activityName','description','points','instructorNotes'];
     
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
     
     if request.POST:
 
@@ -43,7 +33,7 @@ def activityCreateView(request):
             setattr(activity,attr,request.POST[attr])
         
         activity.courseID = currentCourse; 
-        if request.POST['fileUpload'] == 'True':
+        if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
         else:
             activity.isFileAllowed = False
@@ -57,13 +47,6 @@ def activityCreateView(request):
 
         activity.save();  #Writes to database.
          
-        # prepare context for Activity List      
-        context_dict = createContextForActivityList(request) 
-
-        context_dict["logged_in"]=request.user.is_authenticated()
-        if request.user.is_authenticated():
-            context_dict["username"]=request.user.username
-                
         return render(request,'Instructors/ActivitiesList.html', context_dict)
 
     ######################################

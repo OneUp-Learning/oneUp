@@ -1,84 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">
-      
-          {% include 'scripts.html' %}
-          
-        <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }            
-         }
-      </script>
+      {% include 'scripts.html' %}
    </head>
    <body>
-      <div>
-       
-       {% include 'heading.html' %}
-       
-         <!-- START PAGE SOURCE -->
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-            <div class="12u">
-               <h1>Class Activities</h1>
-			</div></div>
-			<div class="row">
-            <div class="12u">
-                  <!-- INSERTED DYNAMIC TABLE -->
-                  <a href="/oneUp/instructors/createActivity"><input type="button" value="Add New Activity"></a>
-            <br><br>
-                  <table class="bg">
-                     <tr>
-                        <th>Activity Name</th>
-                        <th>Description</th>
-                        <th>Default Points</th>
-                        <th> </th>
-                     </tr>
-                     {% for i,activity_ID,activity_Name,description, points in activity_range %}
-                     <tr>
-                        <div id="challenges{{i}}">
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Class Activities</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="row right-align">
+                  <div class="col s12">
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity"><i class="material-icons left">toys</i>Add New Activity</a>                    
+                  </div>
+               </div>
+               <div class="card-panel">
+                  <table>
+                     <thead>
+                        <tr>
+                           <th>Activity Name</th>
+                           <th>Description</th>
+                           <th>Default Points</th>
+                           <th> </th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {% for i,activity_ID,activity_Name,description, points in activity_range %}
+                        <tr>
                            <td>{{activity_Name}}</td>
                            <td>{{description}}</td>
                            <td>{{points}}</td>
-                           <td align="right">
+                           <td>
                               <form action="/oneUp/instructors/deleteActivity " method="POST">
                                  {% csrf_token %} 
-                                 <a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><button type="button">Edit</button></a>
-                                 <a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><button type="button">Assign Points</button></a>                                                                       
                                  <input type="hidden" name="activityID" value="{{activity_ID}}">
-                                 <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                                 <div class="hide-on-med-and-up">
+                                    <div class="row">
+                                       <a class="waves-effect waves-light btn secondary-content" href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons right">edit</i>Edit</a>
+                                    </div>
+                                    <div class="row">
+                                       <a class="waves-effect waves-light btn secondary-content" href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons right">playlist_add</i>Assign Points</a>
+                                    </div>
+                                    <div class="row">
+                                       <button class="btn waves-effect waves-light modal-trigger secondary-content" href="#modal_delete">Delete
+                                       <i class="material-icons right">close</i>
+                                       </button>
+                                    </div>
+                                 </div>
+                                 <div class="hide-on-small-only">
+                                    <a class="modal-trigger tooltipped secondary-content" href="#modal_delete" data-delay="50" data-position="right" data-tooltip="Delete Activity"><i class="material-icons right">close</i></a>
+                                    <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons right">edit</i>Edit</a>
+                                    <a class="waves-effect waves-light btn" href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons right">playlist_add</i>Assign Points</a>
+                                 </div>
+                                 <div id="modal_delete" class="modal">
+                                    <div class="modal-content">
+                                       <h5>Are you sure you want to delete?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                       </button>                                        
+                                    </div>
+                                 </div>
                               </form>
                            </td>
-                        </div>
-                     </tr>
-                     {% endfor %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                           <td class="center-align" colspan="4">No Activities</td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
                   </table>
-                  <!-- END DYNAMIC TABLE -->
-                </div></div>
-				
-         </div></div></div>
-         <!-- Footer -->
-   
-       {% include 'footer.html' %}
-    
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

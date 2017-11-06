@@ -34,7 +34,7 @@ def avatar(request):
 
 	return render(request, 'Students/Avatar.html', context_dict)
 
-def extractPaths(context_dict, currentCourse): #funcation used to get the names from the file locaiton
+def extractPaths(context_dict, currentCourse): #function used to get the names from the file locaiton
 
 	#Find all used avatars
 	usedAvatars = []

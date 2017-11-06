@@ -1,146 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      
        {% include 'scripts.html' %}
-       
-      <script>
-         window.location.hash="no-back-button";
-         window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
-         window.onhashchange=function(){window.location.hash="no-back-button";}
-      </script>
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
    </head>
    <body>
-      <div id="page-wrapper">
-
          {% include 'stheading.html' %}
-
-        <div class="frame" id="grad" align="center">
-            <div class="container">
-                <div class="row">
-                    <div class="12u">
-                        <h1>Student View Preferences</h1>
+<main>
+                <div class="row center-align">
+                    <div class="col s12">
+                        <h3>Student View Preferences</h3>
                     </div>
                 </div>
-
                 <div class="row">
-                    <div class="12u">
-                        <br>
-                        <br>
-                        <!-- INSERTED DYNAMIC TABLE -->
+                    <div class="col s12 m6 offset-m3">
+                        <div class="card">
                         <form name="StudentConfigParam" action="/oneUp/students/Preferences" method="POST">
                             {% csrf_token %} 
                             <input type="hidden" name="scpID" id="scpID" value="{{scpID}}">
-                               
-                            <table class="bg">
-                                <tr>
-                                    <th>Configure View Options</th>
-                                    <th></th>
-                                </tr>
-                                
-                                {% if studCanChangeBadgeVis %}
-                                <tr>
+                            <div class="card-content">
+                                    <span class="card-title">Configure View Options</span>
+                            {% if studCanChangeBadgeVis %}
+                            <div class="switch">
+                                <label>
+                                    Display Class Badges
                                     {% if displayBadges %}
-                                       <td> Display badges</td>
-                                       <td><input type="checkbox" name="displayBadges" value="true" checked="true" /></td>
-                                	{% else %}
-                                       <td> Display badges</td>  
-                                       <td><input type="checkbox" align="right" name="displayBadges"></td>
-                                	{% endif %}
-                                </tr>	
-								{% endif %}
-								
-                                <!-- Class Average Visibility -->
-                                {% if studCanChangeclassAverageVis %}
-                                <tr>
-                                    {% if displayClassAverage %}
-                                       <td> Display class average in your Achievements page</td>
-                                       <td><input type="checkbox" name="displayClassAverage" value="true" checked="true" /></td>
-                                	{% else %}
-                                       <td> Display class average in your Achievements page</td> 
-                                       <td><input type="checkbox" align="right" name="displayClassAverage"></td>
-                                	{% endif %}
-                                </tr>                                                                                                                           
-                                {% endif %}
-                                
-                                <!-- Display Leaderboard -->
-                                {% if studCanChangeLeaderboardVis %}
-                                <tr>
-                                    {% if displayLeaderBoard %}
-                                         <td> Display class leaderboard</td>
-                                         <td><input type="checkbox" name="displayLeaderBoard" value="true" checked="true" /></td>
-                                     {% else %}
-                                         <td> Display class leaderboard</td> 
-                                         <td><input type="checkbox" align="right" name="displayLeaderBoard"></td>
+                                    <input name="displayBadges" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="displayBadges" type="checkbox">
                                     {% endif %}
-                                </tr>                                 
-                                {% endif %}
-                                
-                                  <!-- Display Class Skills -->
-                                {% if studCanChangeClassSkillsVis %}
-                                <tr>
-                                     {% if displayClassSkills %}
-                                         <td> Display class skills</td>
-                                         <td><input type="checkbox" name="displayClassSkills" value="true" checked="true" /></td>
-                                     {% else %}
-                                        <td> Display class skills</td> 
-                                        <td><input type="checkbox" align="right" name="displayClassSkills"></td>
-                                     {% endif %}
-                                </tr>                             
-                                {% endif %}
-
- <!-- 							{% if levellingDisplayed %}
-                               <tr>
-                                    <td>  Levelling</td>
-                                    <td><input type="checkbox" align='right' name="levellingDisplayed" value="true" checked="true" /></td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td>  Levelling</td>
-                                    <td><input type="checkbox" align='right' name="levellingDisplayed"  /></td>
-                                </tr>
-                                {% endif %}
- -->
-                            </table>
-                            
-                            {% if studCanChangeLeaderboardVis or studCanChangeClassSkillsVis or studCanChangeBadgeVis or studCanChangeclassAverageVis %}
-                                 <input type="submit" id="save" name="save" value="Save" class="button" onClick="redirect();">
-                                 <a href="/oneUp/students/StudentCourseHome"><input type="button" id="cancel" name="cancel" value="Cancel"></a><br>
-                            {% else %}
-                            
-                                 <a href="/oneUp/students/StudentCourseHome"><input type="button" id="back" name="back" value="Back"></a><br>
-                            
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
                             {% endif %}
+                            {% if studCanChangeclassAverageVis %}
+                            <div class="switch">
+                                <label>
+                                    Display Class Averages
+                                    {% if displayClassAverage %}
+                                    <input name="displayClassAverage" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="displayClassAverage" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
+                            {% endif %}
+                            {% if studCanChangeLeaderboardVis %}
+                            <div class="switch">
+                                <label>
+                                    Display Class Leaderboard
+                                    {% if displayLeaderBoard %}
+                                    <input name="displayLeaderBoard" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="displayLeaderBoard" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
+                            {% endif %}
+                            {% if studCanChangeClassSkillsVis %}
+                            <div class="switch">
+                                <label>
+                                    Display Class Skills
+                                    {% if displayClassSkills %}
+                                    <input name="displayClassSkills" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="displayClassSkills" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
+                            {% endif %}
+                            </div>
+                            <div class="card-action">
+                            {% if studCanChangeLeaderboardVis or studCanChangeClassSkillsVis or studCanChangeBadgeVis or studCanChangeclassAverageVis %}
+                                <button class="btn waves-effect waves-light" type="submit" name="save" value="Login" onClick="redirect();">Save
+                                    <i class="material-icons right">done</i>
+                                  </button> 
+                                  <a class="waves-effect waves-light btn secondary-content" href="/oneUp/students/StudentCourseHome"><i class="material-icons right">close</i>Cancel</a>
+                            {% else %}
+                            <a class="waves-effect waves-light btn secondary-content" href="/oneUp/students/StudentCourseHome"><i class="material-icons right">navigate_before</i>Return</a>
+                            {% endif %}
+                            </div>
                         </form>
-                        <!-- END DYNAMIC TABLE -->
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-        
-  <!-- Footer -->
-
+        </main>
        {% include 'footer.html' %}
-
-
       </body>
    </html>

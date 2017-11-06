@@ -10,23 +10,34 @@ from django.shortcuts import render
 from Badges.models import Badges, Courses
 
 from django.contrib.auth.decorators import login_required
+from Students.views.utils import studentInitialContextDict
+from Badges.models import CourseConfigParams
+from Students.models import StudentConfigParams
+
 
 @login_required
 def BadgesMain(request):
  
-    context_dict = { }
+    context_dict,currentCourse = studentInitialContextDict(request)    
+    c_ccparams = CourseConfigParams.objects.filter(courseID=currentCourse)
     
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-    
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-        
+    if len(c_ccparams) > 0:
+        ccparams = c_ccparams[0] 
+        print('ccparams', ccparams)
+        context_dict['studCanChangeBadgeVis']=ccparams.studCanChangeBadgeVis
+        context_dict['studCanChangeLeaderboardVis']=ccparams.studCanChangeLeaderboardVis
+        context_dict['studCanChangeClassSkillsVis']=ccparams.studCanChangeClassSkillsVis
+        context_dict['studCanChangeclassAverageVis']=ccparams.studCanChangeclassAverageVis 
+    sID = context_dict['student']
+    scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)    
+    if len(scparamsList) > 0:
+        scparams = scparamsList[0]
+        context_dict["displayBadges"]=scparams.displayBadges
+        context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
+        context_dict["displayClassAverage"]=scparams.displayClassAverage
+        context_dict["displayClassSkills"]=scparams.displayClassSkills  
+
+    context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse) 
     badgeId = [] 
     badgeName = []
     badgeImage = []

@@ -50,11 +50,9 @@ def challengesForTopic(topic, student, currentCourse):
                 else:
                     score.append(2)
     else:
-        challenge_ID.append('')
-        challenge_Name.append('')
-        score.append(1)
+        return '0'
 
-    return zip(challenge_Name,challenge_ID,score)
+    return list(zip(challenge_Name,challenge_ID,score))
     
     
 @login_required
@@ -70,6 +68,7 @@ def ChallengesWarmUpList(request):
         topic_ID = []      
         topic_Name = [] 
         topic_Pos = []  
+        challenges_count = []
         all_challenges_for_topic = []
         
         course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
@@ -82,8 +81,11 @@ def ChallengesWarmUpList(request):
             if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
                 topic_ID.append(tID)
                 topic_Name.append(tName)
-                topic_Pos.append(str(ct.topicPos))            
-                all_challenges_for_topic.append(challengesForTopic(ct.topicID, student, currentCourse))
+                topic_Pos.append(str(ct.topicPos))   
+                topic_challenges = challengesForTopic(ct.topicID, student, currentCourse) 
+                challenges_count.append(len(list(topic_challenges)))
+                topic_challenges = challengesForTopic(ct.topicID, student, currentCourse) 
+                all_challenges_for_topic.append(topic_challenges)
             else:
                 unspecified_topic = ct.topicID  
                 hasUnspecifiedTopic = True          
@@ -93,11 +95,10 @@ def ChallengesWarmUpList(request):
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous") 
             topic_Pos.append(str(course_topics.count()))  
-
+            challenges_count.append(0)
             all_challenges_for_topic.append(challengesForTopic(unspecified_topic, student, currentCourse))
-               
+            
      
-        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])
-        #context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])
+        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
 
     return render(request,'Students/ChallengesWarmUpList.html', context_dict)

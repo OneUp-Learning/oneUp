@@ -1,110 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">
-      
-         {% include 'scripts.html' %}
-         
-      <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
+      {% include 'scripts.html' %}
    </head>
-   
    <body>
-      <div id="page-wrapper">
-      
-       {% include 'heading.html' %}
-       
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-            <div class="12u">
-               <h1>Create/Edit Class Activity</h1>
-               <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
-                  <!-- INSERTED PAGE CONTENT -->
-                  <form name="question" action="/oneUp/instructors/createActivity" method="POST">
-                     {% csrf_token %}
-                     {% if activityID %}
-                     <input type="hidden" name="activityID" id="activityID"
-                        value="{{activityID}}">
-                     {% endif %}
-                     <table class="bg">
-                        <tr>
-                           <td>Activity Name <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <input id="mediumFormBox" type="text" name="activityName" value="{{activityName}}" pattern=".*\S+.*" required>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td>Activity Description </td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <textarea id="mediumFormBox" name="description" rows="3" value="">{{description}}</textarea>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td>Default Points <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <input id="extraSmallFormBox" type="number" name="points" maxlength="4" value="{{points}}" min="0" required >
-                             
-                           </td>
-                        </tr>
-                        <tr>
-                           <td>Allow Students to Upload Files <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td><input type= radio name='fileUpload' value='True' required checked="checked"> Yes</td>
-                        </tr>
-                        <tr>
-                           <td><input type=radio name='fileUpload' value='False'> No</td>
-                        </tr>
-                        <tr>
-                           <td>Instructor Notes </td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <textarea id="mediumFormBox" name="instructorNotes" rows="3">{{instructorNotes}}</textarea>
-                           </td>
-                        </tr>
-                     </table>
-                     <input type="submit" name="submit" value="Submit" class="button">
-                     <a href="/oneUp/instructors/activitiesList"><button type="button" class="button special" value="Reset">Cancel</button></a>
-                  </form>
-                  <br>
-                  <!-- END INSERTED PAGE CONTENT -->
-         </div></div></div>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Create/Edit Class Activity</h3>
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
+            </div>
          </div>
-         <!-- Footer -->
-         
-        {% include 'footer.html' %}
-
-      </div>
-    
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form name="question" action="/oneUp/instructors/createActivity" method="POST">
+                  {% csrf_token %}
+                  {% if activityID %}
+                  <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
+                  {% endif %}
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Name" value="{{activityName}}" name="activityName" id="act_name" type="text" class="validate" pattern=".*\S+.*" required>
+                              <label for="act_name"><span class= "red-text">*</span> Activity Name</label>
+                           </div>
+                           <div class="input-field col s12">
+                              <textarea id="act_description" name="description" class="materialize-textarea">{{description}}</textarea>
+                              <label for="act_description">Activity Description</label>
+                           </div>
+                           <div class="input-field col s12">
+                              <input placeholder="Points" value="{{points}}" name="points" id="act_points" maxlength="4" type="number" class="validate" min="0" required>
+                              <label for="act_points"><span class= "red-text">*</span> Default Points</label>
+                           </div>
+                              <div class="col s12">
+                                <input name="fileUpload" type="checkbox" id="file_upload"/>
+                                    <label for="file_upload">Allow Students to Upload Files</label>
+                                </div>
+                           <div class="input-field col s12">
+                              <textarea id="instructor_notes" name="instructorNotes" class="materialize-textarea">{{instructorNotes}}</textarea>
+                              <label for="instructor_notes">Instructor Notes</label>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="card-action right-align">
+                        <button class="btn waves-effect waves-light" type="submit" name="submit">Submit
+                        <i class="material-icons right">send</i>
+                        </button>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/activitiesList"><i class="material-icons left">close</i>Cancel</a>                                                                  
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

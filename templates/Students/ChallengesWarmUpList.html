@@ -1,102 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-    <meta charset="utf-8">
-    
-        {% include 'scripts.html' %}
-        
-         
-     </head>
-      <body>
-      <div id="page-wrapper">
-
-       {% if is_teacher %}    
-              {% include 'heading.html' %}
-       {% else %}
-              {% include 'stheading.html' %}
-       {% endif %}
-
-            <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-         	<div class="12u">
-         		 <h1> Warm Up Challenges {% if is_teacher %} for {{student}} {% endif %}</h1>
-			</div>
-			</div>
-<!-- INSERTED DYNAMIC TABLE --> 
-       		<div class="row">
-         	<div  align="left">
-         	
-        <font color="#0000FF ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Above Average</font>&nbsp;&nbsp;
-        <font color="#00ace6 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Average</font>&nbsp;&nbsp;
-        <font color="#80dfff ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Below Average</font>&nbsp;&nbsp;
-        <font color="#FFFF00 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Not attempted</font>
-        	</div></div>
-    		<div class="row">
-         	<div class="12u">
-     {% if course_notselected %}
-        <p> Please select a course to view the challenges associated with it.</p>
-       {% elif no_challenge %} 
-       <p> {{no_challenge}} </p>
-       {% else %}
-     
-        <table class="bg">
-           <tr>
-        		<th> <span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <font color="#0000FF ">&#9724;
-        		</font> to view your attempt (if any) or click the actual link to take the warm up
-        		<span style="color: red; font-weight: bolder;">*</span></th>
-        		
-        	</tr>
-
-		{% for i,topic_ID,topic_Name,topic_Pos,all_challenges in topic_range %}
-
-		<tr> 
-		<input type="hidden" name="topicID" value="{{topic_ID}}">
-		<td><b>{{topic_Name}}</b>
-		{% for challenge_Name,challenge_ID,score in all_challenges %}
-		<input type="hidden" name="score" value="{{score}}">
-		<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		
-				{% if score == 1 %} <!-- If is empty -->
-				 
-				
-				{% elif score == 2 %}  <!-- If score have not been taken -->
-				<font color="#FFFF00 ">&#9724;</font>
-				
-				{% elif score == 3 %} <!-- If score equals Above Average -->
-				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
-				<font color="#0000FF "> &#9724;</font></a>
-				
-				{% elif score == 4 %} <!-- If score equals Average -->
-				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
-				<font color="#00ace6 "> &#9724;</font></a>
-				
-				{% else %} <!-- If score equals Below Average -->
-				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
-				<font color="#80dfff "> &#9724;</font></a>
-				{% endif %}
-				 
-				 <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
-				 {% if not is_teacher %}
-				 <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}" >
-				 {% endif %}
-				 <font color="Black "> {{challenge_Name}}</font></a> 
-				{% endfor %}	
-				</td>
-								
-			
-		</tr>
-		{% endfor %}
-	</table>
-	{% endif %} 
-<!-- END DYNAMIC TABLE --> 
-            </div></div></div>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% if is_teacher %}    
+      {% include 'heading.html' %}
+      {% else %}
+      {% include 'stheading.html' %}
+      {% endif %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3> Warm Up Challenges {% if is_teacher %} for {{student}} {% endif %}</h3>
             </div>
          </div>
-         <!-- Footer -->
-
-        {% include 'footer.html' %}
-
-    
-      </body>
-   </html>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card-panel">
+                  <div class="center-align">
+                     <font color="#0000FF ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Above Average</font>&nbsp;&nbsp;
+                     <font color="#00ace6 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Average</font>&nbsp;&nbsp;
+                     <font color="#80dfff ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Below Average</font>&nbsp;&nbsp;
+                     <font color="#FFFF00 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Not attempted</font>
+                  </div>
+                  <p><span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <font color="#0000FF ">&#9724;
+                     </font> to view your attempt (if any) or click the actual link to take the warm up
+                     <span style="color: red; font-weight: bolder;">*</span>
+                  </p>
+                  <ul class="collapsible popout" data-collapsible="accordion">
+                     {% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
+                     <input type="hidden" name="topicID" value="{{topic_ID}}">
+                     <li>
+                        <div class="collapsible-header"><i class="material-icons">filter_drama</i>{{topic_Name}}
+                           {% if not all_challenges == '0' %}
+                           <span class="badge">{{challenges_count}}</span>
+                        </div>
+                        <div class="collapsible-body">
+                           <ul class="collection">
+                              {% for challenge_Name,challenge_ID,score in all_challenges %}
+                              <input type="hidden" name="score" value="{{score}}">
+                              <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
+                              <li class="collection-item">
+                                 <div>
+                                    {% if not is_teacher %}
+                                    <a class="tooltipped" data-position="down" data-delay="50" data-tooltip="Take Challenge" href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}" >
+                                    {{challenge_Name}}
+                                    </a>
+                                    {% else %}
+                                    {{challenge_Name}}
+                                    {% endif %}
+                                    {% if score == 2 %}  <!-- If score have not been taken -->
+                                    <a href="#!" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Take Challenge">
+                                    <font color="#FFFF00"> &#9724;</font></a>
+                                    {% elif score == 3 %} <!-- If score equals Above Average -->
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Above Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
+                                    <font color="#0000FF "> &#9724;</font></a>
+                                    {% elif score == 4 %} <!-- If score equals Average -->
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
+                                    <font color="#00ace6 "> &#9724;</font></a>
+                                    {% else %} <!-- If score equals Below Average -->
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Below Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
+                                    <font color="#80dfff "> &#9724;</font></a>
+                                    {% endif %}
+                                 </div>
+                              </li>
+                              {% endfor %}
+                           </ul>
+                        </div>
+                        {% else %}
+                        <span class="badge">0</span>
+               </div>
+               {% endif %}
+               </li>
+               {% empty %}
+               <li>No topics</li>
+               {% endfor %}
+               </ul>
+            </div>
+         </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

@@ -8,19 +8,13 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Activities, Courses
 from Students.models import StudentRegisteredCourses, StudentActivities
+from Instructors.views.utils import initialContextDict
 
 @login_required
 def createContextForActivityList(request):
     
-    context_dict = { }
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-    
-
+    context_dict, currentCourse = initialContextDict(request)
+   
     activity_ID = []      
     activity_Name = []         
     description = []
@@ -71,10 +65,6 @@ def createContextForActivityList(request):
 @login_required
 def activityList(request):
  
-    context_dict = createContextForActivityList(request)
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username        
+    context_dict = createContextForActivityList(request)    
 
     return render(request,'Instructors/ActivitiesList.html', context_dict)

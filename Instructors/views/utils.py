@@ -5,6 +5,8 @@ from Badges.models import CourseConfigParams
 import re
 import string
 from django.contrib.auth.decorators import login_required
+from oneUp.logger import logger
+import json
 
 @login_required
 def saveTags(tagString, resource, resourceIndicator):
@@ -106,52 +108,38 @@ def saveSkills(skillstring, resource, resourceIndicator):
                     print (str(newSkillsObject.questionID))
                     newSkillsObject.save()
                                         
-def saveChallengeTags(tagString, challenge):        #DD 02/24/2015
+def saveChallengeTags(tagString, challenge): 
 
-        #if tagString is not null or empty
-        if not tagString == "":
-            
-            #split string into an array 
-            tagsList = tagString.split(',') 
-            tagsList2 = []
-            # Removes whitespaces and disregards empty tags
-            for tword in tagsList:
-                tword = tword.strip()
-                if tword != "":
-                    tagsList2.append(tword)
-            
-            for tagWord in tagsList2:
-                
-                tagExists = False  #used to check if a tag exists already                              
-                for item in Tags.objects.all():
-                    if tagWord == str(item.tagName):
-                        tagExists = True
-                        break
-
-                if not tagExists:
-                    #create new tag                    
-                    newTag = Tags()
-                    newTag.tagName = tagWord
-                    newTag.save()
+    tags = json.loads(tagString)
+    logger.debug("[POST] tags: " + str(tags))
+    newTags = [tag['tag'] for tag in tags]
+    if len(tags) > 0:
+        tagExists = False  #used to check if a tag exists already  
+        for tag in newTags:                            
+            for item in Tags.objects.all():
+                if tag == str(item.tagName):
+                    tagExists = True
+                    break
+            if not tagExists:
+                #create new tag                    
+                newTag = Tags()
+                newTag.tagName = tag
+                newTag.save()
    
-            # delete all previous tags for this challenge
-            resourceTags = ChallengeTags.objects.filter(challengeID = challenge.challengeID).delete()
-                
-            # now add the new tags for this challenge 
-            for tagWord in tagsList2:                 
-                #create a new tag-challenge object              
-                newTagsObject = ChallengeTags()
-                newTagsObject.challengeID = challenge
-                
-                # find tagID
-                for tempTag in Tags.objects.all():
-                    if tempTag.tagName == tagWord:
-                        newTagsObject.tagID = Tags(tempTag.tagID)
-                        break                
-               
-                newTagsObject.save()
-                print (str("Tagid: ") + str(newTagsObject.tagID))   
-                             
+    # delete all previous tags for this challenge
+    resourceTags = ChallengeTags.objects.filter(challengeID = challenge.challengeID).delete()
+        
+    # now add the new tags for this challenge 
+    for tag in newTags:                 
+        #create a new tag-challenge object              
+        newTagsObject = ChallengeTags()
+        newTagsObject.challengeID = challenge
+        # find tagID
+        for tempTag in Tags.objects.all():
+            if tempTag.tagName == tag:
+                newTagsObject.tagID = Tags(tempTag.tagID)
+                break                
+        newTagsObject.save()
                                 
 def saveQuestionTags(tagString, question):        #DD 02/24/2015
 
@@ -304,32 +292,19 @@ def saveChallengesTopics(topicstring, challenge, unspecified_topic):
                                            
                                                                 
 def extractTags(resource, resourceIndicator):   
-
     if resourceIndicator == "question":
         resourceTags = ResourceTags.objects.filter(questionID = resource.questionID)
-    else:
-        # "challenge"
+    elif resourceIndicator == "challenge":
         resourceTags = ChallengeTags.objects.filter(challengeID = resource.challengeID)
-     
-    tagstring = ""
-    commaCheck = False
 
-    for tag in resourceTags:
-        #split tag string to get just tag ID
-#         tagSplit = str(tag.tagID).split(",")
-#         tagID = int(tagSplit[0])
-                    
-        if commaCheck:
-            tagstring = str(tagstring + ",")
-        #holds tag record
-#         tempTag = Tags.objects.get(pk=int(tagID))
-#         tagstring = str(tagstring + tempTag.tagName)
-        tagName = tag.tagID.tagName
-        tagstring = str(tagstring + tagName)        
-  
-        commaCheck = True                                        
-        
-    return tagstring  
+    tags = []
+    for t in resourceTags:
+        tag = {}
+        tag['tag'] = t.tagID.tagName
+        tags.append(tag)
+
+    logger.debug("Tags To JSON: " + json.dumps(tags))
+    return json.dumps(tags)  
 
 def extractSkills(resource, resourceIndicator):   
 
@@ -352,22 +327,6 @@ def extractSkills(resource, resourceIndicator):
         count+=1
                                                     
     return zip(range(1,count),skill_ID,skill_Name, skill_Points)  
-
-def extractTopics(resource, resourceIndicator):   
-
-    if resourceIndicator == "challenge":
-        resourceTopics = ChallengesTopics.objects.filter(challengeID = resource.challengeID)
-     
-    topic_ID = []
-    topic_Name = []
-    count = 1
-    for topic in resourceTopics: 
-        topic_ID.append(topic.topicID)        
-        topic_Name.append(topic.topicID.topicName)
-        count+= 1
-                                                    
-    return zip(range(1, count), topic_ID, topic_Name)
-
 
 def getCourseSkills(course):
     # Fetch the skills for this course from the database.
@@ -399,17 +358,30 @@ def getSkillsForQuestion(challenge,question):
 
 def getTopicsForChallenge(challenge):
     challTopics = ChallengesTopics.objects.filter(challengeID=challenge)
-    
-    topics_list = []
-    
-    for topic in challTopics:
-        topicDict = {}
-        topicDict['name'] = topic.topicID.topicName
-        topicDict['ID'] = topic.topicID.topicID
-        topics_list.append(topicDict)
-    
-    return topics_list
-    
+    topics = []
+    for t in challTopics:
+        topic = {}
+        topic['tag'] = t.topicID.topicName
+        topic['id'] = t.topicID.topicID
+        topics.append(topic)
+
+    logger.debug("Topics To JSON: " + json.dumps(topics))
+
+    return json.dumps(topics)
+
+def autoCompleteTopicsToJson(currentCourse):
+    topics = {}
+    createdTopics = []
+    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)   
+    for ct in course_topics:
+        if ct.topicID.topicName != unspecified_topic_name:
+            topics[ct.topicID.topicName] = ''
+            createdTopics.append({'tag': ct.topicID.topicName, 'id': ct.topicID.topicID})
+
+    logger.debug("Auto Topics To JSON: " + json.dumps(topics))
+    logger.debug("Created Topics: " + json.dumps(createdTopics))
+    return json.dumps(topics), json.dumps(createdTopics)
+
 def addSkillsToQuestion(challenge,question,skills,points):
     pointsDict = {}
     for (skillID,point) in zip(skills,points):
@@ -439,15 +411,16 @@ def addSkillsToQuestion(challenge,question,skills,points):
                 
 def addTopicsToChallenge(challenge, topics, unspecified_topic):
     
-    print("addTopicsToChallenge")
-    print(topics)
-    if len(topics) > 0:
-        print("sucess")
+    tops = json.loads(topics)
+    logger.debug("[POST] topics: " + str(tops))
+    if len(tops) > 0:
+        newTopicsIDs = [topic["id"] for topic in tops]
+
         challTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID)
         existingIDs = [cTp.topicID.topicID for cTp in challTopics]
-        deletionIDs = [id for id in existingIDs if id not in topics]
-        newIDs = [id for id in topics if id not in existingIDs]
-        
+        deletionIDs = [id for id in existingIDs if id not in newTopicsIDs]
+        newIDs = [id for id in newTopicsIDs if id not in existingIDs]
+
         ChallengesTopics.objects.filter(topicID__in=deletionIDs).delete()
         
         for id in newIDs:

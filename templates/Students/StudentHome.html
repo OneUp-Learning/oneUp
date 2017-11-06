@@ -6,61 +6,69 @@
         
       </head>
       <body>
-      	<div id="page-wrapper">
-
           {% include 'stheading0.html' %}
 
-          <div class="frame" id="grad" align="center">
-         <div class="container">
- 			<!-- This row below is used to give the space between this and the nav bar -->        
-         	<div class="row">
-                  <div class="12u">
-                     
-
-                  </div>
-               </div>
-         <div class="row">
-         		<div class="6u 12u(mobile)" >
-         			<table class="bg" id="bglinks">
-         				<th>Latest Announcements</th>
-         				<th> </th>
-         				<th> </th>
-							{% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
-		                     <tr>
-		                        <div id={{announcement_ID}}>
-		                           	<td class="left" style="padding: .25em 0em .7em 1.5em">{{announcement_course}}: </td>
-		                           	<td class="left">{{subject}}</td>
-                    				<td class="left">{{start_timestamp}}</td>
-		                           <!-- td style="padding:.25em 0em .35em 0em">{{skill_Name}}</td  -->
-		                        </div>
-		                     </tr>
-                     		{% endfor %}
-         			</table>
-         		</div>
-         		<div class="6u 12u(mobile)">
-           			<table class="bg" id="bglinks">
-            			<th>Your Courses</th>
-            			<th> </th> <!-- This is needed to fill in the th above the buttons -->
-               				{% for i,course_ID,course_Name in course_range %}
-               			<tr>
-            			<td class="left" style="padding-top:0em">{{course_Name}}</td>
-               			<td class="left" style="padding:.25em 0em .5em 0em"><form action="/oneUp/setCourse" method="POST">
-                       	 {% csrf_token %}                                                                        
-                        	<input type="hidden" name="courseID" value="{{course_ID}}">
-                       	 <input type="submit" name="submit" value="Select">                           
-                     	</form></td>
-            			</tr>
-               				{% endfor %}
-         			</table>
-            	</div>
-         	</div>
-         </div>
-         </div>
-         <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-      </div>
-      
+		  <main>
+				<div class="row">
+					<div class="col s12 m12 l8 offset-l2">
+				<div class="row">
+						<div class="col s12 m6">
+							<div class="card-panel">
+							<table>
+								<thead>
+								<th>Latest Announcements</th>
+								<th> </th>
+								<th> </th>
+								</thead>
+								<tbody>
+								   {% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
+									<tr>
+										<td>{{announcement_course}}: </td>
+										<td>{{subject}}</td>
+										<td>{{start_timestamp}}</td>
+									</tr>
+									{% empty %}
+									<tr>
+										<td>No Announcements</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+							</div>
+						</div>
+						<div class="col s12 m6">
+							<div class="card-panel">
+							<table>
+								<thead>
+									<th>Your Courses</th>
+								</thead>
+								<tbody>
+									{% for i,course_ID,course_Name in course_range %}
+									<tr>
+										<td>{{course_Name}}</td>
+										<td>
+											<form action="/oneUp/setCourse" method="POST">
+											{% csrf_token %}                                                                        
+												<input type="hidden" name="courseID" value="{{course_ID}}">
+												<button class="btn waves-effect waves-light cyan" type="submit" name="submit" value="Select">Select
+												</button>                         
+											</form>
+										</td>
+									</tr>
+									{% empty %}
+									<tr>
+										<td>No Courses</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+							</div>
+						</div>
+				</div>
+				
+				</div>
+				</div>
+			</main>
+       {% include 'footer.html' %}      
       </body>
    </html>

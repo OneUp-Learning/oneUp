@@ -8,6 +8,7 @@ from Instructors.models import Challenges, Courses, Activities
 from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate
 from django.db.models import Q
+from Students.views.utils import studentInitialContextDict
 
 from django.contrib.auth.decorators import login_required
 
@@ -15,30 +16,17 @@ from django.contrib.auth.decorators import login_required
 def CoursePerformance(request):
     # Request the context of the request.
  
-    context_dict = { }
+    context_dict,currentCourse = studentInitialContextDict(request)
     
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username             
-  
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
         context_dict['ID'] = request.GET['ID']
     else:
         optionSelected = 0
         
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        print('current course:'+str(currentCourse))
-        context_dict['course_Name'] = currentCourse.courseName
-        
-        studentId = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage          
+    if 'currentCourseID' in request.session:    
+        student = context_dict['student']  
+        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
                    
         # Activity and Challenges
         assignmentID = []
@@ -53,7 +41,7 @@ def CoursePerformance(request):
         defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         currentTime = utcDate()
         
-        stud_activities = StudentActivities.objects.filter(studentID=studentId, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))
+        stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))
         for sa in stud_activities:
             assignmentID.append(sa.studentActivityID)
             a = Activities.objects.get(pk=sa.activityID.activityID)
@@ -69,10 +57,10 @@ def CoursePerformance(request):
         challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
         
         for challenge in challenges:  
-            if StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge) :
+            if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse, challengeID = challenge) :
                 
-                sChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge)
-                latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
+                sChallenges = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse, challengeID = challenge)
+                latestSC = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
 
                 gradeID  = []
                        

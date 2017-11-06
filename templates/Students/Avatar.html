@@ -1,77 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-
-   {% include 'scripts.html' %}
- 
- <script type = "text/javascript">
-	function validateFileSelection() {
-         x = document.forms["uploader"]["myfile"].value;
-		 if ( x == "" ) {
-        		alert("Please choose a file.");
-        		return false;
-    		}
-	}
-	
-</script>
-
-</head>
-<body>
-	<div id="page-wrapper">
-
-         {% include 'stheading.html' %}
- 
-		<div class="frame" id="grad" align="center">
-        <div class="container">
-        <div class="row">
-        <div class="12u">
-        	<h1>Avatar Selection </h1>
-		</div>
-		</div>
-		</br>
-		
-		<div>
-		
-		<form id="uploadbanner" name = "uploader" action="/oneUp/students/avatarUploadView" enctype="multipart/form-data" onsubmit="return validateFileSelection()" method="POST" >
-			{% csrf_token %}
-   			<input id="fileupload" name="myfile" type="file" /> <!-- i need action to call funciton in python  -->
-   			<input type="submit" value="Upload" id="Upload" />
-		</form>
-		</div>
-		<br/>
-		
-		<form action="/oneUp/students/avatarView " method="POST">
-		{% csrf_token %}
-       <!-- INSERTED DYNAMIC TABLE --> 
-            <table class="bg" id="avatarTable">
-            	{% for i, avatar in avatarPaths %}
-            	<tr>
-					<td><img alt="Avatar Image" width="76px" height="76px" src="/{{avatar}}"></td>
-					<td style="vertical-align:middle"><input type="checkbox" value="/{{avatar}}" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
-		 		</tr>
-		 		{% endfor %}
-		 		
-		 		{% for i, upload in uploadedAvatarPaths %}
-            	<tr>
-					<td><img alt="Avatar Image" width="76px" height="76px" src="/{{upload}}"></td>
-					<td style="vertical-align:middle"><input type="checkbox" value="/{{upload}}" name="avatar" style="vertical-align: -2px"/>&nbsp;&nbsp;Select</td>
-		 		</tr>
-		 		{% endfor %}
-        	</table>
-        	 <input type="submit" name="submit" value="Save" class="button"> <!-- Make sure that this acutally saves the inforamtion selected --> 
-        	 <a href="/oneUp/students/StudentCourseHome"><input type="button" class="special" value="Cancel"></a> 
-            <br><br>
-        <!-- END DYNAMIC TABLE -->
-        </form>
-		</div>
-        </div>
-        </div>
-      	</div>
-	<!-- Footer -->
-
-     {% include 'footer.html' %}
-
-	</div>`
-	
-</body>
+   <head>
+      {% include 'scripts.html' %}
+      <script type = "text/javascript">
+         function validateFileSelection() {
+                 x = document.forms["uploader"]["myfile"].value;
+         	 if ( x == "" ) {
+                		alert("Please choose a file.");
+                		return false;
+            		}
+         }
+         
+      </script>
+   </head>
+   <body>
+      {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Avatar Selection </h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form id="uploadbanner" name = "uploader" action="/oneUp/students/avatarUploadView" enctype="multipart/form-data" onsubmit="return validateFileSelection()" method="POST" >
+                  {% csrf_token %}
+                  <div class="file-field input-field">
+                     <div class="btn">
+                        <span>File</span>
+                        <input id="fileupload" name="myfile" type="file">
+                     </div>
+                     <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" placeholder="Choose Image">
+                     </div>
+                  </div>
+                  <button class="btn waves-effect waves-light" type="submit" id="Upload" name="upload" value="Upload">Upload
+                  <i class="material-icons right">file_upload</i>
+                  </button> 
+               </form>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <form action="/oneUp/students/avatarView " method="POST">
+                     {% csrf_token %}
+                     <div class="card-content">
+                     <div class="row">
+                     {% for i, avatar in avatarPaths %}
+                     <div class="col s12 m3">
+                        <input name="avatar" type="radio" id="a{{i}}" value="/{{avatar}}"/>
+                        <label for="a{{i}}"><img alt="Avatar Image" width="76px" height="76px" src="/{{avatar}}"></label>
+                     </div>
+                     {% endfor %}	
+                     {% for i, upload in uploadedAvatarPaths %}
+                     <div class="col s12 m3">
+                        <input name="avatar" type="radio" id="u{{i}}" value="/{{upload}}" />
+                        <label for="u{{i}}"><img alt="Avatar Image" width="76px" height="76px" src="/{{upload}}"></label>
+                     </div>
+                     {% endfor %}
+                     </div>
+                     </div>
+                     <div class="card-action">
+                     <button class="btn waves-effect waves-light" type="submit" name="submit" value="Save">Save
+                     <i class="material-icons right">done</i>
+                     </button> 
+                     <a class="waves-effect waves-light btn secondary-content" href="/oneUp/students/StudentCourseHome"><i class="material-icons right">close</i>Cancel</a>
+                  </div>
+                </form>
+               </div>
+            </div>
+         </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}	
+   </body>
 </html>

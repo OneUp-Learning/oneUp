@@ -1,77 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8" />
-      
-         {% include 'scripts.html' %}
-		
+      {% include 'scripts.html' %}
    </head>
-   
    <body>
-     <div>
-
-        {% include 'heading.html' %}
-            
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
                {% if warmUp %}
-               <h1>Warm Up Challenges</h1>
+               <h3>Warm Up Challenges</h3>
                {% else %}
-               <h1>Serious Challenges</h1>
+               <h3>Serious Challenges</h3>
                {% endif %}
-               <br />
-                  <!-- INSERTED DYNAMIC TABLE -->  
-                  {% if warmUp %}      
-                  <a href="/oneUp/instructors/challengeCreate?warmUp"><input type="button" value="Add New Warm Up Challenge"></a>
-                  {% else %}
-                  <a href="/oneUp/instructors/challengeCreate"><input type="button" value="Add New Challenge"></a>
-                  {% endif %}
-                  <br /><br />
-                  <table class="bg">
-                     <tr>
-                        <th>Name</th>
-                        <th>Status</th>
-                        <th>Display From</th>
-                        <th>Display Until</th>
-                        <th></th>
-                     </tr>
-                     {% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp in challenge_range %}
-                     <tr style="background-color: {% cycle '#EDF0F2' '#ffffff' %}; line-height: 20px;">
-                        <div id="challenges{{i}}">
+            </div>
+         </div>
+         <div class="row right-align">
+            <div class="col s12 m8 offset-m2">
+               {% if warmUp %}      
+               <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?warmUp"><i class="material-icons left">add_circle</i>Create Warmup Challenge</a>
+               {% else %}
+               <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate"><i class="material-icons left">add_circle</i>Create Serious Challenge</a>
+               {% endif %}
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card-panel">
+                  <table>
+                     <thead>
+                        <tr>
+                           <th>Name</th>
+                           <th>Status</th>
+                           <th>Display From</th>
+                           <th>Display Until</th>
+                           <th class="secondary-content">
+                              {% if warmUp %}
+                              <a class="tooltipped" href="/oneUp/instructors/challengeCreate?warmUp" data-position="top" data-delay="50" data-tooltip="Create WarmUp Challenge"><i class="material-icons" >add_circle</i></a>
+                              {% else %}
+                              <a class="tooltipped" href="/oneUp/instructors/challengeCreate" data-position="top" data-delay="50" data-tooltip="Create Serious Challenge"><i class="material-icons" >add_circle</i></a>
+                              {% endif %}
+                           </th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp in challenge_range %}
+                        <tr>
                            <td>{{chall_Name}}</td>
                            <td>{{chall_visible}}</td>
                            <td>{{start_Timestamp}}</td>
                            <td>{{end_Timestamp}}</td>
-                           <td align="right">
-                           {% if warmUp %}
-                              <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
-                              {% csrf_token %} 
-                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><input type="button" class="table" value="View"></a>                 
-                                 <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a> 
-                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                            
-                           {% else %}
-                              <form action="/oneUp/instructors/deleteChallenge" method="POST">
-                              {% csrf_token %} 
-                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view"><input type="button" class="table" value="View"></a> 
-                                 <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a>
-                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                                             
-                           {% endif %}                                 
-                                 <input type="hidden" name="challengeID" value="{{chall_ID}}">
-                                 <input type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?')">
-                              </form>
+                           <td>
+                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <ul id='dropdown1' class='dropdown-content'>
+                                 {% if warmUp %}
+                                 <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
+                                    {% csrf_token %} 
+                                    <li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a></li>
+                                    <li><a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a></li>
+                                    <li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
+                                    {% else %}
+                                 <form action="/oneUp/instructors/deleteChallenge" method="POST">
+                                    {% csrf_token %} 
+                                    <li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view">View</a></li>
+                                    <li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}">Edit</a></li>
+                                    <li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
+                                    {% endif %}    
+                                    <input type="hidden" name="challengeID" value="{{chall_ID}}">    
+                                    <li class="divider"></li>                         
+                                    <li><a class="modal-trigger" href="#modal_delete">Delete</a></li>
+                                    
+                              </ul>
+                              <div id="modal_delete" class="modal">
+                                    <div class="modal-content">
+                                       <h5>Are you sure you want to delete?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                       </button>                                        
+                                    </div>
+                                 </div>
+                                </form>                                                                
                            </td>
-                        </div>
-                     </tr>
-                     {% endfor %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                           <td class="center-align" colspan="5">No Challenges</td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
                   </table>
-                  <!-- END DYNAMIC TABLE -->
-         </div></div></div></div>
-      </div>
-      <!-- Footer -->
-
-       {% include 'footer.html' %}
-      
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

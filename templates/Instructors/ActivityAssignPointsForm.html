@@ -1,96 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">
-      
-          {% include 'scripts.html' %}
-          
-        <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }            
-         }
-      </script>
+      {% include 'scripts.html' %}
    </head>
    <body>
       <div>
-       
-       {% include 'heading.html' %}
-       
-         <!-- START PAGE SOURCE -->
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-            <div class="12u">
-               <h1>{{activityName}}</h1>
-			</div></div>
-			<div class="row">
-            <div class="12u">
-            <br/>
-                    <!-- INSERTED ASSIGN FORM -->
-                    <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
-                        {% csrf_token %} 
-                        {% if activityID %} 
-                            <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
-                        {% endif %}
-                        <table class="bg">
-                        <tr>
-                            <th>Student</th>
-                            <th>Points</th>
-                            <th>Instructor Feedback</th>
-                        </tr>
-                        {% for i, student_ID, student_Name, student_Points, student_Feedback, File_Name in assignedActivityPoints_range %}
-                        <tr>
-                         <div id="stud_act{{i}}">
-                            <td>
-                            	{{student_Name}} <br /> 
-                            	
-                            	 {% if File_Name%}
-                              		<a href='../../media/studentActivities/{{File_Name}}' download> <input type="button" class="button" value="Download"></a>
-                              	 {% else %}
-                              	 	No file available 
-                              	 {% endif %}    
-                    
-                            </td> 
-                            <td>
-                               <input id="extraSmallFormBox" type="number" name="student_Points{{student_ID}}" value="{{student_Points}}" min="0" required>
-                            </td> 
-                            <td>
-                              <textarea id="mediumFormBox" name="student_Feedback{{student_ID}}" rows="2">{{student_Feedback}}</textarea>
-                            </td>  
-                          </div>                        
-                        </tr>
-                        {% endfor %}
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>{{activityName}}</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
+                  {% csrf_token %} 
+                  {% if activityID %} 
+                  <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
+                  {% endif %}
+                  <div class="card">
+                     <div class="card-content">
+                        <table>
+                           <thead>
+                              <tr>
+                                 <th>Student</th>
+                                 <th>Points</th>
+                                 <th>Instructor Feedback</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {% for i, student_ID, student_Name, student_Points, student_Feedback, File_Name in assignedActivityPoints_range %}
+                              <tr>
+                                 <td>
+                                    <p>{{student_Name}} 
+                                       {% if File_Name%}
+                                       <a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">get_app</i>Download File</a>
+                                    </p>
+                                    {% else %}
+                                    (No file available)</p> 
+                                    {% endif %}    
+                                 </td>
+                                 <td>
+                                    <div class="input-field col s12">
+                                       <input placeholder="Points" value="{{student_Points}}" name="student_Points{{student_ID}}" id="student_points"  type="number" class="validate" min="0" required>
+                                    </div>
+                                 </td>
+                                 <td>
+                                    <div class="input-field col s12">
+                                       <textarea id="student_feedback" name="student_Feedback{{student_ID}}" class="materialize-textarea">{{student_Feedback}}</textarea>
+                                    </div>
+                                 </td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td>No Students in the course!</td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
                         </table>
-                        <input type="submit" name="submit" value="Save" class="button">								
-			            <a href="/oneUp/instructors/activitiesList">
-						<input type="button" class="special" value="Cancel"></a>
-                    </form>
-                    <!-- END ASSIGN FORM -->
-				</div></div>
-				
-         </div></div>
-         <!-- Footer -->
-   
-       {% include 'footer.html' %}
-    
-      </div>
+                     </div>
+                     <div class="card-action right-align">
+                        <button class="btn waves-effect waves-light" type="submit" name="submit">Save
+                        <i class="material-icons right">send</i>
+                        </button>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/activitiesList"><i class="material-icons left">close</i>Cancel</a>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

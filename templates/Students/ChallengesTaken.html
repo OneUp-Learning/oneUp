@@ -6,8 +6,6 @@
 
       </head>
       <body>
-      <div id="page-wrapper">
-
        {% if is_teacher %}    
               {% include 'heading.html' %}
        {% else %}
@@ -15,65 +13,61 @@
        {% endif %}
           
 
-            <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-         	<div class="12u">
+            <main>
+         	<div class="row center-align">
+         	<div class="col s12">
  
-         		 <h1>Challenge Results for <i>{{student}} </i></h1>
-         	</div></div>
-<!-- INSERTED DYNAMIC TABLE --> 
+         		 <h3>Challenge Results for <i>{{student}} </i></h3>
+			 </div>
+		</div>
         	<div class="row">
-         	<div class="12u">
-        	<table class="bg">
-        		<tr id="headerRow">
+         	<div class="col s12 m8 offset-m2">
+				 <div class="card">
+					 <div class="card-content">
+        	<table>
+				<thead>
+        		<tr>
         			<th>Name</th>
-        			<!-- <th>Difficulty<th>-->
         			<th>Time Taken</th>
         			<th>Your Score </th>
         			<th>Max Score</th>
         			<th></th>
         		</tr>
-
+				</thead>
+				<tbody>
         		{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in challenge_range %}
-        		<tr class="{% cycle 'bgcolor1' 'bgcolor2' %}"> 			
+        		<tr> 			
         			<td>{{chall_Name}}</td>
-        			<!--<td>{{chall_Difficulty}}</td>	-->
         			<td>{{dateTaken}}</td>
         			<td>{{score}}</td>
         			<td>{{total}}</td>			
-        			<td align="center">
-        				{% csrf_token %} 
-        				<div>
-        				
+        			<tr>
          				{% if is_teacher %}    	         			
-	                       <a href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{student}}{% if warmUp %}&warmUp{% endif %}">
-	                          <button class="button">View</button>
-	                       </a>       
+	                       <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{student}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
       					{% else  %}
-	                        <a href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}">
-	                           <button class="button">View</button>
-	                        </a>
+	                        <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
  	                    {% endif %}       				
-        				
-                        </div>															
-        				<input type="hidden" name="studentChallengeID" value="{{studentChall_ID}}">
         			</td> 
-        		</tr>
-        		{% endfor %}
-        	</table>
+				</tr>
+				{% empty %}
+				<tr>
+					<td class="center-align" colspan="5">You have not completed any challenges</td>
+				</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+			</div>
+			<div class="card-action right-align">
         	{% if warmUp %}
-			<a href="/oneUp/students/ChallengesWarmUpList{% if is_teacher %}?userID={{student}}{% endif %}"><button type="button" value="Reset">Back</button></a>
+			<a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
 			{% else %}
-			<a href="/oneUp/students/ChallengesList{% if is_teacher %}?userID={{student}}{% endif %}"><button type="button" value="Reset">Back</button></a>
+			<a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
 			{% endif %}
-			<br>
-        <!-- END DYNAMIC TABLE --> 
-         </div></div></div>
-            </div>
-         </div>
-         <!-- Footer -->
-
+			</div>
+			</div>
+			</div>
+			</div>
+</main>
         {% include 'footer.html' %}
 
 
