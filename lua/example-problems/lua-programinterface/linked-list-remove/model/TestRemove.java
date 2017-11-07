@@ -29,7 +29,7 @@ public class TestRemove {
 		}
 				
 	}
-	public static void initlists(){
+	public static void initlists(){    
 		
 		//Initializing
 		list1.clear();
@@ -53,7 +53,6 @@ public class TestRemove {
 		list2.add(4);
 		
 		//Original elements
-
 		int[] a1 = {1,2,3,4,5};
 		
 		//Initializing lists with original values
