@@ -1,0 +1,10 @@
+// Write a method remove() that removes a random element from a bag
+
+	//Should return the entry if removal is successful
+	//Should return null otherwise
+	
+	public T remove() {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

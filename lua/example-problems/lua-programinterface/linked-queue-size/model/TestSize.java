@@ -1,21 +1,20 @@
 public class TestSize{
 	
-	private static QueueInterface<Integer> queue1 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue2 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue3 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue1 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue2 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue3 = new LinkedQueue<Integer>();
 	
 	public static void main(String[] args)
 	{
 		// Testing Part
 		initQueue();
-		if ("test1".equals(args[0])) {
+		
 		    runTest1();
-		} else if ("test2".equals(args[0])){
+		
 		    runTest2(); 
-		}
-		else {
+		
 	    	runTest3();
-	    }
+	  
 	}
 	
 	public static void initQueue() {
@@ -45,11 +44,12 @@ public class TestSize{
 	}
 	
 	public static void runTest1() {
-		int result = queue1.size();
-		if(result == null)
+		LinkedQueue<Integer> result = new LinkedQueue<Integer>();
+		result.enqueue(queue1.size())
+		if(result.dequeue().equals(0))
 		{
 			System.out.println("Success");
-			System.out.println(3.34;
+			System.out.println(3.34);
 		}
 		else {
 			System.out.println("*** Failed test");
@@ -57,7 +57,7 @@ public class TestSize{
 	}
 	public static void runTest2() {
 		int result = queue2.size();
-		if(result != null)
+		if(result == 5)
 		{
 			System.out.println("Success");
 			System.out.println(3.33);
@@ -68,7 +68,7 @@ public class TestSize{
 	}
 	public static void runTest3() {
 		int result = queue3.size();
-		if(result = 4)
+		if(result == 4)
 		{
 			System.out.println("Success");
 			System.out.println(3.33);

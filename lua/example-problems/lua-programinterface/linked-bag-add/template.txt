@@ -1,0 +1,9 @@
+// Write a method add() that adds an element to a bag
+
+	//Should add the item at the beginning of the bag
+	
+	public boolean add1(T newEntry){
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

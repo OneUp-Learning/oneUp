@@ -1,0 +1,10 @@
+// Write a method duplicateAll() that duplicates every item in the bag
+
+	//Should return true if the duplication was possible
+	//Should check to see if bag is empty
+	
+	public boolean duplicateAll() {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

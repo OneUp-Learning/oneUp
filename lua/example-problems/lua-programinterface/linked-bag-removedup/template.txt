@@ -1,0 +1,11 @@
+// Write a method removeDuplicates() that removes repeating elements in a bag
+
+	//Should add each unique item to a chain
+	//Should check each item in the bag and compare it to
+	//all others
+	
+	 public void removeDuplicates() {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

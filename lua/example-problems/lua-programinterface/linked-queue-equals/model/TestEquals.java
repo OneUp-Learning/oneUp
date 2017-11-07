@@ -1,33 +1,28 @@
 public class TestEquals {
-	private static QueueInterface<Integer> queue1 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue2 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue3 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue4 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue5 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue6 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue7 = new LinkedQueue<Integer>();
-	private static QueueInterface<Integer> queue8 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue1 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue2 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue3 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue4 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue5 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue6 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue7 = new LinkedQueue<Integer>();
+	private static LinkedQueue<Integer> queue8 = new LinkedQueue<Integer>();
 	
 	public static void main (String[] args)
 	{
 		initQueue();
 		//Testing Part
-		if ("test1".equals(args[0]))
-		{
+		
 			runTest1();
-		}
-		else if ("test2".equals(args[0]))
-		{
+		
 			runTest2();
-		}
-		else if ("test3".equals(args[0])) {
+		
 			runTest3();
-		}
-		else {
+		
 			runTest4();
-		}
+		
 	}
-	public static void initQueue();
+	public static void initQueue() {
 	//Initializing
 	queue1.clear();
 	queue2.clear();
@@ -79,7 +74,7 @@ public class TestEquals {
 			System.out.println("Success");
             System.out.println(2);
         }
-        else
+        else {
             System.out.println("*** Failed test");
 		}
 	}
@@ -91,7 +86,7 @@ public class TestEquals {
 			System.out.println("Success");
             System.out.println(2);
         }
-        else
+        else {
             System.out.println("*** Failed test");
 		}
 	}
@@ -103,7 +98,7 @@ public class TestEquals {
 			System.out.println("Success");
             System.out.println(2);
         }
-        else
+        else {
             System.out.println("*** Failed test");
 		}
 	}
@@ -115,7 +110,8 @@ public class TestEquals {
 			System.out.println("Success");
             System.out.println(2);
         }
-        else
+        else {
             System.out.println("*** Failed test");
 		}
+	}
 }

@@ -1,0 +1,12 @@
+// Write a method remove() that removes an item from a specified position
+
+	//The method should return null if it fails
+	//If successful, it should return the item removed
+	//Should check to see if the entry is the first item
+	//Should use nodeBefore and nodeAfter to remove item
+
+	public T remove(int givenPosition){
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

@@ -1,0 +1,11 @@
+// Write a method cycle() method that cycles the first item to the end of a list
+
+	//First item should be at the end of the list
+	//Should only work for lists with more than one item
+
+
+	public void cycle(){
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}
