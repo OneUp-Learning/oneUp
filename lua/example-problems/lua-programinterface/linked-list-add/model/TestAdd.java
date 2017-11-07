@@ -67,7 +67,7 @@ public class TestAdd {
 	}
 	public static void runTest2(){
 		//Adds to a list with only one element
-		list2.add1(3,2);
+		list2.add1(2,3);
 		if(list2.contains(3) && list2.getEntry(2) == 3){
 			System.out.println("Success");
             System.out.println(2);
