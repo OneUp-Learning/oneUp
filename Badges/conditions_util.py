@@ -266,7 +266,7 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             elif parts[1] == "topic":
                 cond.operand1Type = OperandTypes.topicSet
             else:
-                print("not activities or challenges, instead: "+parts[1])
+                print("not activities, challenges, or topics, instead: "+parts[1])
                 return None
             subCond = condTable[int(parts[3])]
             if subCond is None:
@@ -294,6 +294,12 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                         challengeSetItem.challenge_id = int(challenge)
                         challengeSetItem.condition = cond
                         challengeSetItem.save()
+                elif cond.operand1Type == OperandTypes.topicSet:
+                    for topic in subThingieIndexList:
+                        topicSetItem = TopicSet()
+                        topicSetItem.topic_id = int(topic)
+                        topicSetItem.condition = cond
+                        topicSetItem.save()
                 else:
                     print("for leaving at the return which should never happen")
                     return None
@@ -399,6 +405,6 @@ def setUpContextDictForConditions(context_dict,course):
     
     context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list },
                                    {"name":"activity","plural":"activities", "objects":act_list},
-                                   {"name":"topic","plural":"topics","object":topic_list},]
+                                   {"name":"topic","plural":"topics","objects":topic_list},]
     context_dict['defaultObject'] = "challenge"
     return context_dict
