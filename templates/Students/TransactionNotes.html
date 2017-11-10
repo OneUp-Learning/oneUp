@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+
+        {% include 'scripts.html' %}
+
+	</head>
+   <body>
+   
+        {% include 'stheading.html' %}  
+          
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Transaction</h1>
+		</div>
+		</div>
+		<div class="row">
+               <div class="12u">
+                  <table class="bg">
+                     <thead>
+                        <tr>
+                           <th>Item Name</th>
+                           <th>Item Description</th>
+                           <th>Date Purchased</th>
+                           <th>Item Cost</th>
+                           <th>Current Status</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td>{{name}}</td>
+                           <td>{{description}}</td>
+                           <td>{{purchaseDate}}</td>
+                           <td>{{total}}</td>
+                           <td><b>{{status}}</b></td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+        <div class="row">
+        <div class="12u"> 
+            <table class="bg">
+            <thead>
+        		<tr>
+ 					<th>Note From Instructor</th>
+        		</tr>
+        		</thead>
+        		<tbody>
+        		<tr> 
+        			<td>{{noteForStudent}}</td>
+        		</tr>
+        		</tbody>
+        	</table>
+        	<a href="/oneUp/students/Transactions"><button class="button" type="button">Back</button></a>
+        	
+		</div>
+        </div>
+        </div>
+      	</div>
+      
+        {% include 'footer.html' %}
+           
+   </body>
+</html>
