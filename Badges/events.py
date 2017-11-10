@@ -73,10 +73,10 @@ def register_event(eventID, request, student=None, objectId=None):
         eventEntry.objectID = objectId
         
     # Virtual Currency Events
-    if(eventID == Event.buyAttempt):
+    if(eventID == Event.instructorHelp):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-    if(eventID == Event.buyHint):
+    if(eventID == Event.buyAttempt):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
     if(eventID == Event.extendDeadline):
@@ -109,6 +109,10 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.chooseBackgroundForYourName):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
+    if(eventID == Event.buyExtraCreditPoints):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    
     
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
