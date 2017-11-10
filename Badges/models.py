@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.db import models
-from Instructors.models import Courses, Challenges, Skills, Activities
+from Instructors.models import Courses, Challenges, Skills, Activities, Topics
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 
@@ -335,3 +335,10 @@ class ConditionSet(models.Model):
     def __str__(self):
         return "ConditionSet for Condition: "+str(self.parentCondition)+" includes Condition: "+str(self.conditionInSet)
     
+class TopicSet(models.Model):
+    condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topics,verbose_name="the topic included in the set",db_index=True,on_delete=models.CASCADE)
+    def __str__(self):
+        return "TopicSet for Condition: "+str(self.condition)+" includes Topic: "+str(self.topic)
+
+

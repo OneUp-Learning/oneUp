@@ -1,13 +1,14 @@
 from Badges.enums import Event, ObjectTypes
 
 from datetime import datetime
-from Instructors.models import Challenges, Activities, Questions
+from Instructors.models import Challenges, Activities, Questions, Topics
 from django.utils import timezone
     
 objectTypeToObjectClass = {
     ObjectTypes.activity: Activities,
     ObjectTypes.challenge: Challenges,
     ObjectTypes.question: Questions,
+    ObjectTypes.topic: Topics,
 }
     
 # This is where we evaluate the system variables in their appropriate
