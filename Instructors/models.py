@@ -197,11 +197,12 @@ class ChallengesQuestions(models.Model):
     def __str__(self):              
         return str(self.challengeID)+","+str(self.questionID)
     @staticmethod
-    def addQuestionToChallenge(question, challenge, points):
+    def addQuestionToChallenge(question, challenge, points, position):
         cq = ChallengesQuestions()
         cq.challengeID = challenge
         cq.questionID = question
         cq.points = points
+        cq.questionPosition = position
         cq.save()
         return cq
 

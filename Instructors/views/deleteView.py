@@ -47,8 +47,17 @@ def deleteQuestionFromChallenge(request):
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
                 for cq in challenge_question:
                     points=cq.points
+                    position=cq.questionPosition
                 question = Questions.objects.get(pk=int(request.POST['questionId']))           
                 message = "Question #"+str(question.questionID)+ " "+question.preview+" successfully deleted from Challenge "
+                
+                # Once a question is deleted, the positions of the rest of question after it are shift one position one
+                chall_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID'])
+                for chall_question in chall_questions:
+                    if chall_question.questionPosition > position:
+                        chall_question.questionPosition -= 1
+                        chall_question.save()
+                
                 challenge_question.delete()
                 unassign = 0
                 
@@ -68,7 +77,7 @@ def deleteQuestionFromChallenge(request):
                     question.delete()
                     unassign =1
                 else:
-                    ChallengesQuestions.addQuestionToChallenge(question, challenge,points)
+                    ChallengesQuestions.addQuestionToChallenge(question, challenge,points,position)
                     
                            
         except Questions.DoesNotExist:

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from Students.models import StudentEventLog, StudentRegisteredCourses
+from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions
 from Students.views.utils import studentInitialContextDict
 
 from Badges.models import Rules, ActionArguments
@@ -20,9 +20,10 @@ def transactionsView(request):
                 
     currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount         
      
-    transactions = StudentEventLog.objects.filter(student = student, course = course).filter(event__in=[Event.buyHint, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.getDifferentProblem,
+    # Get all transactions for the student and send it to the webpage
+    transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.getDifferentProblem,
                                                                                                         Event.seeClassAverage, Event.chooseLabPartner, Event.chooseProjectPartner, Event.uploadOwnAvatar, Event.chooseDashboardBackground,
-                                                                                                        Event.getSurpriseAward, Event.chooseBackgroundForYourName]).order_by('-timestamp')
+                                                                                                        Event.getSurpriseAward, Event.chooseBackgroundForYourName, Event.buyExtraCreditPoints]).order_by('-studentEvent__timestamp')
     # Code from virtual currency shop view
     def getRulesForEvent(event):
         return Rules.objects.filter(ruleevents__event=event, courseID=course)
@@ -59,20 +60,27 @@ def transactionsView(request):
     name = []
     purchaseDate = []
     description = []
+    status = []
     total = []
+    transactionID = []
     
     for transaction in transactions:
-        event = Event.events[transaction.event]
+        event = Event.events[transaction.studentEvent.event]
         name.append(event['displayName'])
         description.append(event['description'])
-        purchaseDate.append(datetime.strptime(str(transaction.timestamp), "%Y-%m-%d %H:%M:%S.%f+00:00").strftime("%m/%d/%Y %I:%M %p"))
-        total.append(getBuyAmountForEvent(transaction.event)[1])
-        
+        purchaseDate.append(datetime.strptime(str(transaction.studentEvent.timestamp), "%Y-%m-%d %H:%M:%S.%f+00:00").strftime("%m/%d/%Y %I:%M %p"))
+        total.append(getBuyAmountForEvent(transaction.studentEvent.event)[1])
+        status.append(transaction.status)
+        transactionID.append(transaction.transactionID)
+    
+    #logger.debug(transactionID)
     #logger.debug(name)
     #logger.debug(description)
     #logger.debug(purchaseDate)
     #logger.debug(total)
     
-    context_dict['transactions'] = zip(name,description,purchaseDate, total)
+    # Sort by status (Request -> In Progress -> Complete)
+    context_dict['transactions'] = sorted(zip(transactionID, name,description,purchaseDate, total, status), key=lambda s : s[5][1])
+    context_dict['studentName'] = student.user.first_name + " " + student.user.last_name
     context_dict['studentVirtualCurrency'] = currentStudentCurrencyAmmount
     return render(request,"Students/Transactions.html",context_dict)
