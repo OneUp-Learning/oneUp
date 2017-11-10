@@ -5,7 +5,7 @@ from Instructors.views import utils
 
 @login_required
 def topicsCreateView(request):
-
+    
     context_dict,currentCourse = utils.initialContextDict(request)
     
     if request.POST:

@@ -68,7 +68,6 @@ def createStudentViewUnchecked(request):
             print(usersId)
         
             if not users and not usersId:
-                print('ewwrong2')
                 user = User.objects.create_user(uname,email,pword)
                 user.first_name = firstname
                 user.last_name = lastname
@@ -84,11 +83,11 @@ def createStudentViewUnchecked(request):
             else:
                 context_dict = {}
                 if users and usersId:
-                    context_dict['user_taken'] = 'Both Email and User ID already in use. Please verify your information.'
+                    context_dict['user_taken'] = '*Both Email and User ID already in use. Please verify your information.'
                 elif usersId:
-                    context_dict['user_taken'] = 'User ID already taken. Please choose another User ID.'
+                    context_dict['user_taken'] = '*User ID already taken. Please choose another User ID.'
                 elif users:
-                    context_dict['user_taken'] = 'Email already in use. Please verify your information.'
+                    context_dict['user_taken'] = '*Email already in use. Please verify your information.'
                 uniqueUsername = False
                 print("this user name is taken")
                 return render(request,"Administrators/CreateUser.html", context_dict)

@@ -29,6 +29,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     q_type_name = []
     q_type_displayName = []
     q_difficulty = []
+    q_position = []
 
     # If questionId is specified then we load for editing.
     challenge = Challenges.objects.get(pk=int(challengeId))    
@@ -41,6 +42,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
          
     for challenge_question in challenge_questions:
         questionObjects.append(challenge_question.questionID)
+        q_position.append(challenge_question.questionPosition)
  
     for question in questionObjects:
         q_ID.append(question.questionID)
@@ -49,10 +51,12 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
         q_type_name.append(QuestionTypes.questionTypes[q_type]['name'])
         q_type_displayName.append(QuestionTypes.questionTypes[q_type]['displayName'])
         q_difficulty.append(question.difficulty)
+        
+    
                 
         
     # The range part is the index numbers.
-    context_dict['question_range'] = zip(range(1,len(questionObjects)+1),q_ID,q_preview,q_type_name,q_type_displayName, q_difficulty)   
+    context_dict['question_range'] = sorted(list(zip(range(1,len(questionObjects)+1),q_ID,q_preview,q_type_name,q_type_displayName, q_difficulty, q_position )), key=lambda tup: tup[6])
     
     return context_dict
 
