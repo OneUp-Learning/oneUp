@@ -5,8 +5,9 @@ Created on Jan 27, 2017
 '''
 
 from Badges.enums import Event, OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
-from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet
-from Instructors.models import Activities, Challenges
+from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet,\
+    TopicSet
+from Instructors.models import Activities, Challenges, CoursesTopics
 from json import dumps
 from Badges.systemVariables import SystemVariable
 
@@ -262,6 +263,8 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                 cond.operand1Type = OperandTypes.activitySet
             elif parts[1] == "challenge":
                 cond.operand1Type = OperandTypes.challengeSet
+            elif parts[1] == "topic":
+                cond.operand1Type = OperandTypes.topicSet
             else:
                 print("not activities or challenges, instead: "+parts[1])
                 return None
@@ -351,6 +354,11 @@ def databaseConditionToJSONString(condition):
             challengeIDs = [challSet.challenge.challengeID for challSet in ChallengeSet.objects.filter(condition=condition)]
             for challengeID in challengeIDs:
                 output += '"'+str(challengeID)+'",'
+        elif condition.operand1Type == OperandTypes.topicSet:
+            output += 'topic","objects":['
+            topicsIDs = [topicSet.topic.topicID for topicSet in TopicSet.objects.filter(condition=condition)]
+            for topicID in topicsIDs:
+                output += '"'+str(topicID)+'",'
         else: # Other types not supported in FOR_ALL or FOR_ANY conditions.
             return ""
         # In the next statement, we presuppose that the type of the second operand is a condition because it is supposed to be
@@ -387,8 +395,10 @@ def setUpContextDictForConditions(context_dict,course):
 
     chall_list = [{"id":ch.challengeID,"name":ch.challengeName} for ch in Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")]
     act_list = [{"id":act.activityID,"name":act.activityName} for act in Activities.objects.filter(courseID = course)]
+    topic_list = [{"id":ct.topicID.topicID,"name":ct.topicID.topicName} for ct in CoursesTopics.objects.filter(courseID = course)]
     
     context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list },
-                                   {"name":"activity","plural":"activities", "objects":act_list}]
+                                   {"name":"activity","plural":"activities", "objects":act_list},
+                                   {"name":"topic","plural":"topics","object":topic_list},]
     context_dict['defaultObject'] = "challenge"
     return context_dict
