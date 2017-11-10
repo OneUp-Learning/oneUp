@@ -39,12 +39,12 @@ class Student(models.Model):
   
 def avatarImageUploadLocation(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
-                                     'images/uploadedAvatarImages'),filename)
+                                ''),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
         avatarImage = models.FileField(max_length=500,
-                                       upload_to= avatarImageUploadLocation)
+                                       upload_to= 'images/uploadedAvatarImages')
         avatarImageFileName = models.CharField(max_length=200, default='')
     
 # Table listing all the students and the respective courses they are currently registered for   
@@ -168,7 +168,19 @@ class StudentEventLog(models.Model):
     def __str__(self):
         return 'Event '+str(self.event)+ ' at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
     
-
+class StudentVirtualCurrencyTransactions(models.Model):
+    transactionID = models.AutoField(primary_key=True)
+    student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
+    course = models.ForeignKey(Courses, verbose_name="Course in Which event occurred", db_index=True)
+    studentEvent = models.ForeignKey(StudentEventLog,verbose_name="the Student Event Log", db_index=True)
+    objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
+    objectID = models.IntegerField(verbose_name="index into the appropriate table")
+    status = models.CharField(max_length=200, default='Requested')
+    noteForStudent = models.CharField(max_length=300)
+    instructorNote = models.CharField(max_length=300)
+    
+    def __str__(self):
+        return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote)
 # '''
 # Student Configuration parameters (goes into studetns.models.py)
 # -    Selecting to activate specific game mechanics rules (categories of rules)
