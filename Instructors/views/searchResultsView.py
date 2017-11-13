@@ -26,25 +26,30 @@ def searchResults(request):
     selectedSkills = []
     num_found_questions = 0   
       
-    if request.POST:        
+    if request.method == 'POST':        
 
-        # get the list of all checked problem types
-        selectedTypes = [qtype for qtype in request.POST.getlist('selectedType')]
+        if 'type' in request.POST:
+            # get the list of all checked problem types
+            selectedTypes = [qtype for qtype in request.POST.getlist('type')]
+        if 'difficulty' in request.POST:
+            # get the list of all checked problem difficulties
+            selectedDifficulties = [qdificulty for qdificulty in request.POST.getlist('difficulty')]
+        if 'skill' in request.POST:
+            # get the list of all checked skills
+            selectedSkills = [qskill for qskill in request.POST.getlist('skill')]
+        if 'challenge' in request.POST:
+            # get the list of all checked challenges
+            selectedChallenges = [qchallenge for qchallenge in request.POST.getlist('challenge')]
+        if 'tags' in request.POST:
+            # get the list of all checked problem tags
+            selectedTags = request.POST['tags']
             
-        # get the list of all checked problem difficulties
-        selectedDifficulties = [qdificulty for qdificulty in request.POST.getlist('selectedDifficulty')]
- 
-        # get the list of all checked skills
-        selectedSkills = [qskill for qskill in request.POST.getlist('selectedSkills')]
-           
-        # get the list of all checked challenges
-        selectedChallenges = [qchallenge for qchallenge in request.POST.getlist('selectedChallenge')]
-            
-        # get the list of all checked problem tags
-        if request.POST['tags']:
-            qTags = request.POST['tags']   
-            selectedTags = [x.strip() for x in qTags.split(',')]
-            
+        print(selectedTypes)
+        print(selectedDifficulties)
+        print(selectedSkills)
+        print(selectedChallenges)
+        print(selectedTags)
+
         q_object_type = [] 
         q_object_skills = []
         q_object_tags = []
@@ -69,9 +74,7 @@ def searchResults(request):
                       
         else:
             q_object_challenge = questions
-            
-        print(selectedChallenges)
-            
+                        
         #Checking for skills
         if selectedSkills:
             # Find the skills to which this question is related
@@ -142,7 +145,5 @@ def searchResults(request):
             context_dict['challenge'] = True
             challenge = Challenges.objects.get(pk=int(request.POST['challengeID']))
             context_dict['challengeName'] = challenge.challengeName            
-            return render(request,'Instructors/ChallengeReuseQuestions.html', context_dict)
-        else:
-            return render(request,'Instructors/QuestionsList.html', context_dict)
+        return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
 

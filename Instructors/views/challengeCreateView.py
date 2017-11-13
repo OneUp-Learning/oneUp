@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect
 from Instructors.models import Answers, CorrectAnswers, Courses
 from Instructors.models import Challenges, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
-from Instructors.views import utils, challengeListView
-from Instructors.views.utils import utcDate, initialContextDict
+from Instructors.views import challengeListView
+from Instructors.views.utils import utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
+
+from Badges.enums import ObjectTypes
 
 from time import time
 from datetime import datetime
@@ -28,7 +30,7 @@ def challengeCreateView(request):
 
     unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
       
-    context_dict['topicsAuto'], context_dict['createdTopics'] = utils.autoCompleteTopicsToJson(currentCourse)
+    context_dict['topicsAuto'], context_dict['createdTopics'] = autoCompleteTopicsToJson(currentCourse)
     
     if request.method == "POST":
         logger.debug("[POST] " + str(context_dict))
@@ -137,9 +139,9 @@ def challengeCreateView(request):
                               
         challenge.save();  #Save challenge to database
         # check if course was selected
-        utils.addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic)                 
+        addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic)                 
         # Processing and saving tags in DB
-        utils.saveChallengeTags(request.POST['tags'], challenge)
+        saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)
         
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
@@ -232,9 +234,9 @@ def challengeCreateView(request):
             challengeDetails = Challenges.objects.filter(challengeID = challengeId)
             
             # Extract the topics                                       
-            context_dict['topics'] = utils.getTopicsForChallenge(challenge)
+            context_dict['topics'] = getTopicsForChallenge(challenge)
             # Extract the tags from DB            
-            context_dict['tags'] = utils.extractTags(challenge, "challenge")
+            context_dict['tags'] = extractTags(challenge, "challenge")
 
             # The following information is needed for the challenge 'view' option            
             for q in questionObjects:

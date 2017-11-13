@@ -2,66 +2,12 @@
 from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
 from Instructors.constants import unspecified_topic_name
 from Badges.models import CourseConfigParams
+from Badges.enums import ObjectTypes
 import re
 import string
 from django.contrib.auth.decorators import login_required
 from oneUp.logger import logger
 import json
-
-@login_required
-def saveTags(tagString, resource, resourceIndicator):
-
-        #if tagString is not null or empty
-        if not tagString == "":
-            
-            #split string into an array 
-            tagsList = tagString.split(',') 
-            
-            tagsList2 = []
-            # Removes whitespaces and disregards empty tags
-            for tword in tagsList:
-                tword = tword.strip()
-                if tword != "":
-                    tagsList2.append(tword)   
-            print ("in utils:  end of split list")
-            
-            for tagWord in tagsList2:
-                tagExists = False  #used to check if a tag exists already
-                
-                #create a new tag-object; check what is tagged object - question or challenge               
-                if resourceIndicator == "question":
-                    newTagsObject = ResourceTags()
-                elif resourceIndicator == "challenge":
-                    newTagsObject = ChallengeTags()
-               
-                #if the tag already exists... set tagExists to 1
-                for item in Tags.objects.all():
-                    if tagWord == str(item.tagName):
-                        tagExists = True
-                        break
-
-                if not tagExists:
-                    #create new tag                    
-                    newTag = Tags()
-                    newTag.tagName = tagWord
-                    newTag.save()
-   
-                for tempTag in Tags.objects.all():
-                    if tempTag.tagName == tagWord:
-                        #check if there is such tag for this resource
-                        
-                        newTagsObject.tagID = Tags(tempTag.tagID)
-                        print (str("Tagid: ") + str(tempTag.tagID))
-                        break
-                
-                if resourceIndicator == "question":
-                    newTagsObject.questionID = resource
-                    print (str("questionID: ") + str(newTagsObject.questionID))
-                    print (str(newTagsObject.questionID))
-                    newTagsObject.save()
-                elif resourceIndicator == "challenge":
-                    newTagsObject.challengeID = resource
-                    newTagsObject.save()
 
 def saveSkills(skillstring, resource, resourceIndicator):
 
@@ -108,7 +54,7 @@ def saveSkills(skillstring, resource, resourceIndicator):
                     print (str(newSkillsObject.questionID))
                     newSkillsObject.save()
                                         
-def saveChallengeTags(tagString, challenge): 
+def saveTags(tagString, resource, type): 
 
     tags = json.loads(tagString)
     logger.debug("[POST] tags: " + str(tags))
@@ -127,13 +73,20 @@ def saveChallengeTags(tagString, challenge):
                 newTag.save()
    
     # delete all previous tags for this challenge
-    resourceTags = ChallengeTags.objects.filter(challengeID = challenge.challengeID).delete()
+    if type == ObjectTypes.challenge:
+        resourceTags = ChallengeTags.objects.filter(challengeID = resource.challengeID).delete()
+    elif type == ObjectTypes.question:
+        resourceTags = ResourceTags.objects.filter(questionID = resource.questionID).delete()
         
     # now add the new tags for this challenge 
     for tag in newTags:                 
-        #create a new tag-challenge object              
-        newTagsObject = ChallengeTags()
-        newTagsObject.challengeID = challenge
+        #create a new tag-challenge object    
+        if type == ObjectTypes.challenge:          
+            newTagsObject = ChallengeTags()
+            newTagsObject.challengeID = challenge
+        elif type == ObjectTypes.question:
+            newTagsObject = ResourceTags()
+            newTagsObject.questionID = question
         # find tagID
         for tempTag in Tags.objects.all():
             if tempTag.tagName == tag:
@@ -141,56 +94,6 @@ def saveChallengeTags(tagString, challenge):
                 break                
         newTagsObject.save()
                                 
-def saveQuestionTags(tagString, question):        #DD 02/24/2015
-
-        #if tagString is not null or empty
-        if not tagString == "":
-            
-            #split string into an array 
-            tagsList = tagString.split(',') 
-            tagsList2 = []
-            # Removes whitespaces and disregards empty tags
-            for tword in tagsList:
-                tword = tword.strip()
-                if tword != "":
-                    tagsList2.append(tword)
-            print ("in utils:  end of split list")
-            
-            for tagWord in tagsList2:
-                
-                # Removing leading and trailing spaces
-                tagWord = tagWord.strip()
-
-                tagExists = False  #used to check if a tag exists already                              
-                for item in Tags.objects.all():
-                    if tagWord == str(item.tagName):
-                        tagExists = True
-                        break
-
-                if not tagExists:
-                    #create new tag                    
-                    newTag = Tags()
-                    newTag.tagName = tagWord
-                    newTag.save()
-   
-            # delete all previous tags for this challenge
-            resourceTags = ResourceTags.objects.filter(questionID = question.questionID).delete()
-                
-            # now add the new tags for this challenge 
-            for tagWord in tagsList2:                 
-                #create a new tag-challenge object              
-                newTagsObject = ResourceTags()
-                newTagsObject.questionID = question
-                
-                # find tagID
-                for tempTag in Tags.objects.all():
-                    if tempTag.tagName == tagWord:
-                        newTagsObject.tagID = Tags(tempTag.tagID)
-                        break                
-               
-                newTagsObject.save()
-                print (str("Tagid: ") + str(newTagsObject.tagID))                
-
 def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
 
         #if skillstring is not null or empty
@@ -289,8 +192,7 @@ def saveChallengesTopics(topicstring, challenge, unspecified_topic):
                 newChallTopicsObject.challengeID = challenge
                 newChallTopicsObject.topicID = unspecified_topic                
                 newChallTopicsObject.save()
-                                           
-                                                                
+                                                                                                         
 def extractTags(resource, resourceIndicator):   
     if resourceIndicator == "question":
         resourceTags = ResourceTags.objects.filter(questionID = resource.questionID)
@@ -348,10 +250,10 @@ def getSkillsForQuestion(challenge,question):
     skill_list = []
     
     for qskill in qskills:
-        skillDict = {}
-        skillDict['name'] = qskill.skillID.skillName
-        skillDict['ID'] = qskill.skillID.skillID
-        skillDict['value'] = qskill.questionSkillPoints
+        skill = {}
+        skill['tag'] = qskill.skillID.skillName
+        skill['id'] = qskill.skillID.skillID
+        skill['value'] = qskill.questionSkillPoints
         skill_list.append(skillDict)
         
     return skill_list
@@ -433,8 +335,6 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic):
         challTopic.challengeID = challenge
         challTopic.topicID = unspecified_topic
         challTopic.save()
-         
-    
 # Sets up the logged_in, username, and course_Name entries in the context_dict and then returns it along with the currentCourse if any.
 def initialContextDict(request):
     context_dict = {}

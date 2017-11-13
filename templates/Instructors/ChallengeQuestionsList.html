@@ -1,159 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">
-      
-        {% include 'scripts.html' %}
-      
-      <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
+      {% include 'scripts.html' %}
+      <script>
+         $(document).ready(function(){
+             $('#create').on('click', function(){
+                 var val = $('#create-type').find(':selected').val();
+                 if (val){
+                     top.location.href = val;
+                 }
+             });
+         
+             $('.chips').material_chip();
+             $('.chips-tags').material_chip({
+                 placeholder: 'Enter a tag'
+             });
+             $('#search').submit(function(){
+                 var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+         
+                 $('#search').append($(tags));
+                 console.log($('.chips-tags').material_chip('data'));
+             });
+         });
       </script>
    </head>
-   
    <body>
-      <div id="page-wrapper">
-
-         {% include 'heading.html' %}
-  
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
-            {% if unassign %}  
-     			<h1>{{challengeName}}</h1>
-     		{% else %}
-     			<h1>Problems for <span>{{challengeName}}</span></h1>
-     		{% endif %}
-               <br /> 
-<!-- INSERTED PAGE CONTENT -->
-     	<div id="element2"> 
-     	<form name="menuform">
-        	{% if challenge %} 
-            <select name="menu1" style="background:rgba(255,255,255,.75); width:230px" required>
-            	<option value="" disabled selected>Select Problem Type</option>
-                <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False</option>
-                <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
-                <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
-                <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
-                <!-- <option value="/oneUp/instructors/forms/EssayForm?challengeID={{challengeID}}">Essay</option> -->
-                {%if lupa_available%}
-                  <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Template)</option>
-                  <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Raw Lua)</option>
-                {%endif%}
-        	</select>
-            {%else%} 
-            <select name="menu1" style="background:rgba(255,255,255,.75); width:230px" required>
-            	<option value="" disabled selected>Select Problem Type</option>
-                <option value="/oneUp/instructors/forms/TrueFalseForm">True/False</option>
-                <option value="/oneUp/instructors/forms/MultipleChoiceForm">Multiple Choice</option>
-                <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
-                <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
-                <option value="/oneUp/instructors/forms/EssayForm">Essay</option>
-                {%if lupa_available%}
-				  <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)</option>
-                  <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
-                {%endif%}
-            </select>                           						
-    		{%endif%}
-   		</div>
-        <div id="element3"> <a><input type="button" name="Submit" value="Create Problem" 
-        	onClick="top.location.href = this.form.menu1.options[this.form.menu1.selectedIndex].value;
-            return false;"></a> 
-        </form>
-        </div>
-        {% if unassign != 1%} 
-		<div style="text-align:left;padding-bottom:.5em">
-		<a href="/oneUp/instructors/search?challengeID={{challengeID}}">
-        <input type="button" value="Filter Problems"></a>
-        </div>
-        {% else %}<br><br>
-        {% endif %}
-        <table class="bg">
-		<tr>
-                <th>Problem Name</th>
-                <th>Problem Type</th>
-                <th></th>
-            </tr>
-    		{% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty in question_range %}
-    		<tr> 		
-    				<td> {{q_preview}}</td>
-    				<td> {{q_type_displayName}}</td>
-    				<td align="right">	
-    					<form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
-    						{% csrf_token %} 				
-    				
-    						{% if q_type_name == 'multipleChoice' %}
-    						<a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}"><button type="button">Edit</button></a>
-    						{%endif%}				
-    						{% if q_type_name == 'multipleAnswers' %}
-    						<a href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
-    						{%endif%}	
-    						{% if q_type_name == 'matching' %}
-    						<a href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
-    						{%endif%}								
-    						{% if q_type_name == 'trueFalse' %}
-    						<a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
-    						{%endif%}
-    						{% if q_type_name == 'essay' %}
-    						<a href="/oneUp/instructors/forms/EssayForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
-    						{%endif%}
-    						{% if q_type_name == 'dynamic' %}
-    						<a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
-    						{%endif%}
-    						{% if q_type_name == 'templatedynamic' %}
-    						<a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}" ><button type="button">Edit</button></a>
-    						{%endif%}
-
-    						{% if challenge %}    						
-    						<input type="hidden" name="challengeID" value="{{challengeID}}">
-    						{%endif%}
-    																	    
-    						<input type="hidden" name="questionId" value="{{q_ID}}">
-    						<input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
-     					</form>
-    				</td>								
-    		</tr>				
-    		{% endfor %}
-    	</table>
-    	{% if warmUp %}
-            <a href="/oneUp/instructors/warmUpChallengeList">
-        	<input type="button" value="Back" class="button"></a>
-        {% elif serious %}
-        	<a href="/oneUp/instructors/challengesList">
-            <input type="button" value="Back" class="button"></a>
-        {% elif unassign %}
-            <!-- (display nothing) this "elif" can be left out, but it was kept for clarity -->
-        {% endif %}
-        
-		<!-- END INSERTED PAGE CONTENT -->
-         </div></div></div></div>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               {% if unassign %}  
+               <h3>{{challengeName}}</h3>
+               {% else %}
+               <h3>Problems for {{challengeName}}</h3>
+               {% endif %}
+            </div>
          </div>
-         <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-      </div>
-     
+         <div class="row right-align">
+            <div class="col s12 m8 offset-m2">
+               <a class="modal-trigger waves-effect waves-light btn" href="#modal-create"><i class="material-icons left">add_circle</i>Create Problem</a>  
+               <div id="modal-create" class="modal modal-fixed-footer bottom-sheet">
+                  <div class="modal-content">
+                     <div class="row center-align">
+                        <div class="col s12 m8 offset-m2">
+                           <h4>Select Problem Type</h4>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="input-field col s12 m8 offset-m2">
+                           {% if challenge %} 
+                           <select id="create-type" required>
+                              <option value="" disabled selected>Select Problem Type</option>
+                              <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False</option>
+                              <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
+                              <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
+                              <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
+                              {%if lupa_available%}
+                              <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Template)</option>
+                              <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Raw Lua)</option>
+                              {%endif%}
+                           </select>
+                           {%else%} 
+                           <select id="create-type" required>
+                              <option value="" disabled selected>Select Problem Type</option>
+                              <option value="/oneUp/instructors/forms/TrueFalseForm">True/False</option>
+                              <option value="/oneUp/instructors/forms/MultipleChoiceForm">Multiple Choice</option>
+                              <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
+                              <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
+                              <option value="/oneUp/instructors/forms/EssayForm">Essay</option>
+                              {%if lupa_available%}
+                              <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)</option>
+                              <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
+                              {%endif%}
+                           </select>
+                           {%endif%}
+                           <label>Problem Type</label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="modal-footer">
+                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn" id="create">Create Problem</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <div class="card-content">
+                     <table>
+                        <thead>
+                           <tr>
+                              <th>Problem Name</th>
+                              <th>Problem Type</th>
+                              {% if unassign != 1%}                               
+                              <th>
+                                 <a class="modal-trigger tooltipped secondary-content" href="#modal-filter" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Filter Problems"><i class="material-icons">filter_list</i></a>                                
+                                 <div id="modal-filter" class="modal modal-fixed-footer">
+                                    <form id="search" name="search" action="/oneUp/instructors/sresults" method="POST">
+                                       <div class="modal-content">
+                                          <div class="row center-align">
+                                             <div class="col s12 m8 offset-m2">
+                                                <h4>Filter Problems</h4>
+                                             </div>
+                                          </div>
+                                          {% csrf_token %}
+                                          {% if challenge %}
+                                          <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+                                          {% endif %}
+                                          <div class="row">
+                                             <div class="col s12">
+                                                <h5>Problem Type</h5>
+                                             </div>
+                                             <div class="input-field col s12">
+                                                <select name="type" multiple>
+                                                    <option value="" disabled selected>Choose your option</option>
+                                                    {% for i,displayName in qtypes_range %}
+                                                    <option value="{{i}}">{{displayName}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <label>Select Problem Types</label>
+                                             </div>
+                                          </div>
+                                          {% if has_difficulty %}
+                                          <div class="row">
+                                             <div class="col s12">
+                                                <h5>Difficulty</h5>
+                                             </div>
+                                             <div class="input-field col s12">
+                                                <select name="difficulty" multiple>
+                                                   <option value="" disabled selected>Choose your option</option>
+                                                   {% for i,displayName in qdifficulty_range %}
+                                                   <option value="{{i}}">{{displayName}}</option>
+                                                   {% endfor %}
+                                                </select>
+                                                <label>Select Difficulty</label>
+                                             </div>
+                                          </div>
+                                          {% endif %}
+                                          {% if has_skills %}
+                                          <div class="row">
+                                             <div class="col s12">
+                                                <h5>Related Skill</h5>
+                                             </div>
+                                             <div class="input-field col s12">
+                                                <select name="skill" multiple>
+                                                   <option value="" disabled selected>Choose your option</option>
+                                                   {% for i, displayName in skill_range %}
+                                                   <option value="{{i}}">{{displayName}}</option>
+                                                   {% endfor %}
+                                                </select>
+                                                <label>Select Related Skills</label>
+                                             </div>
+                                          </div>
+                                          {% endif %}
+                                          {% if has_challenges %}
+                                          <div class="row">
+                                             <div class="col s12">
+                                                <h5>Challenges</h5>
+                                             </div>
+                                             <div class="input-field col s12">
+                                                <select name="challenge" multiple>
+                                                   <option value="" disabled selected>Choose your option</option>
+                                                   {% for i, displayName in challenge_range %}
+                                                   <option value="{{displayName}}">{{displayName}}</option>
+                                                   {% endfor %}
+                                                </select>
+                                                <label>Select Challenges</label>
+                                             </div>
+                                          </div>
+                                          {% endif %}
+                                          <div class="row">
+                                             <div class="col s12">
+                                                <h5>Tags</h5>
+                                             </div>
+                                             <div class="col s12">
+                                                <label for="tags">Add Tags</label>
+                                                <div id="tags" class="chips chips-tags"></div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                       <div class="modal-footer">
+                                          <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                          <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Search">Search
+                                          </button>                                        
+                                       </div>
+                                    </form>
+                                 </div>
+                              </th>
+                              {% endif %}
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty in question_range %}
+                           <tr>
+                              <td>{{q_preview}}</td>
+                              <td>{{q_type_displayName}}</td>
+                              <td>
+                                 <form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                    <ul id='dropdown1' class='dropdown-content'>
+                                       {% csrf_token %} 
+                                       {% if q_type_name == 'multipleChoice' %}
+                                       <li><a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% endif %}
+                                       {% if q_type_name == 'multipleAnswers' %}
+                                       <li><a href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% endif %}
+                                       {% if q_type_name == 'matching' %}
+                                       <li><a href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% endif %}
+                                       {% if q_type_name == 'trueFalse' %}
+                                       <li><a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% endif %}
+                                       {% if q_type_name == 'essay' %}
+                                       <li><a href="/oneUp/instructors/forms/EssayForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% endif %}
+                                       {% if q_type_name == 'dynamic' %}
+                                       <li><a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% endif %}
+                                       {% if q_type_name == 'templatedynamic' %}
+                                       <li><a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% endif %}
+                                       {% if challenge %}    						
+                                       <input type="hidden" name="challengeID" value="{{challengeID}}">
+                                       {%endif%}   
+                                       <input type="hidden" name="questionId" value="{{q_ID}}">
+                                       <li class="divider"></li>
+                                       <li><a class="modal-trigger" href="#modal_delete">Delete</a></li>
+                                    </ul>
+                                    <div id="modal_delete" class="modal">
+                                       <div class="modal-content">
+                                          <h5>Are you sure you want to delete?</h5>
+                                       </div>
+                                       <div class="modal-footer">
+                                          <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                          <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                          </button>                                        
+                                       </div>
+                                    </div>
+                                 </form>
+                              </td>
+                           </tr>
+                           {% empty %}
+                           <tr>
+                              <td class="center-align" colspan="3">No Questions</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+                  <div class="card-action right-align">
+                     {% if warmUp %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/warmUpChallengeList"><i class="material-icons left">navigate_before</i>Back</a>
+                     {% elif serious %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengesList"><i class="material-icons left">navigate_before</i>Back</a>
+                     {% endif %}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>
