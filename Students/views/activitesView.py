@@ -33,6 +33,7 @@ def ActivityList(request):
         instructorActivites = []
         studentActivities = []
         points = []
+        attempts = []
                 
         studentId = context_dict['student'] #get student
         
@@ -51,6 +52,8 @@ def ActivityList(request):
                  
             if(currentActivity): #if we got the student activity add it to the list
                 studentActivities.append(currentActivity)
+        
+                
                 if(currentActivity.activityScore == 0 and currentActivity.graded == False):
                     points.append("-")
                 else:
@@ -65,6 +68,13 @@ def ActivityList(request):
                 currentActivity.timestamp = datetime.datetime.now()
                 currentActivity.activityScore = 0 
                 currentActivity.save()
+                
+                studentActivities.append(currentActivity)
+                if(currentActivity.activityScore == 0 and currentActivity.graded == False):
+                    points.append("-")
+                else:
+                    points.append(str(currentActivity.activityScore))
+                
              
             # The range part is the index numbers.
         context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points)

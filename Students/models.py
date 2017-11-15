@@ -133,6 +133,7 @@ class StudentActivities(models.Model):
     activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
     graded = models.BooleanField(default=False)
+    numOfUploads = models.IntegerField(default = 0)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
 #     +","+str(self.challengeID)    
@@ -150,6 +151,8 @@ class StudentFile(models.Model):
     timestamp = models.DateTimeField(default=datetime.now)
     file = models.FileField(max_length=500,upload_to= fileUploadPath)
     fileName = models.CharField(max_length=200, default='')
+    latest = models.BooleanField(default = True)
+    
     
     def delete(self):
         self.file.delete()
