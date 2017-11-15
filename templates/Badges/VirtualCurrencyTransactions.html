@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+
+        {% include 'scripts.html' %}
+
+	</head>
+   <body>
+   
+        {% include 'heading.html' %}  
+          
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Students Transactions</h1>
+		</div>
+		</div>
+        <div class="row">
+        <div class="12u"> 
+            <a href="/oneUp/badges/VirtualCurrencyCompletedTransactions"><input type="button" value="View Completed Transactions"></a>
+            <br /><br />
+            <table class="bg">
+        		<tr>
+        			<th>Student</th>
+        			<th>Item Name</th>
+        			<th>Item Description</th>
+        			<th>Date Purchased</th>
+ 					<th>Item Cost</th>
+ 					<th>Status</th>
+ 					<th></th>
+        		</tr>
+        		{% for transactionID, student, name, description, purchaseDate, total, status in transactions %}
+        		<tr> 
+        			<td>{{student}}</td>
+        			<td>{{name}}</td>
+        			<td>{{description}}</td>
+        			<td>{{purchaseDate}}</td>
+        			<td>{{total}}</td>
+        			<td><b>{{status}}</b></td>
+        			<td><a href="/oneUp/badges/UpdateVirtualCurrencyTransaction?transactionID={{transactionID}}"><input type="button" class="table" value="Update"></a></td>
+        		</tr>
+        		{% empty %}
+        		<tr>
+        			<td>No transactions</td>
+        		</tr>
+        		{% endfor %}
+       			
+        	</table>
+		</div>
+        </div>
+        </div>
+      	</div>
+      <!-- Footer -->
+      
+        {% include 'footer.html' %}
+           
+   </body>
+</html>
