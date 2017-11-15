@@ -32,6 +32,7 @@ def ActivityList(request):
         currentCourse = request.session['currentCourseID']
         instructorActivites = []
         studentActivities = []
+        points = []
                 
         studentId = context_dict['student'] #get student
         
@@ -50,6 +51,10 @@ def ActivityList(request):
                  
             if(currentActivity): #if we got the student activity add it to the list
                 studentActivities.append(currentActivity)
+                if(currentActivity.activityScore == 0 and currentActivity.graded == False):
+                    points.append("-")
+                else:
+                    points.append(str(currentActivity.activityScore))
                 
             else: #make the student activity and add it to he list 
                 print('Makeing the activity ' + str(act))
@@ -62,7 +67,7 @@ def ActivityList(request):
                 currentActivity.save()
              
             # The range part is the index numbers.
-        context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities)
+        context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points)
         return render(request,'Students/ActivityList.html', context_dict)
 
-    return render(request,'Students/ChallengesList.html', context_dict)
+    return render(request,'Students/ActivityList.html', context_dict)

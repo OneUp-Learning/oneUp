@@ -82,8 +82,14 @@
                            <td><input type= radio name='fileUpload' value='True' required checked="checked"> Yes</td>
                         </tr>
                         <tr>
-                           <td><input type=radio name='fileUpload' value='False'> No</td>
+                           <td><input type= radio name='fileUpload' value='False' required > No</td>
                         </tr>
+                        <tr>
+                           <td>Upload attempts<span class = "red">*</span></td>
+                        </tr>
+                        <td>
+                              <input id="extraSmallFormBox" type="number" name="attempts" maxlength="4" value="{{uploadAttempts}}" min="0" required >     
+                         </td>
                         <tr>
                            <td>Instructor Notes </td>
                         </tr>

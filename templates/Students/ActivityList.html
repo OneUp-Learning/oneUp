@@ -33,11 +33,11 @@
                     <th></th> <th></th>                    
                 </tr>
                 
-                {% for i,instructorActivites , studentActivities in activity_range %}
+                {% for i,instructorActivites , studentActivities, points in activity_range%}
                 <tr> 
                     <td>{{instructorActivites.activityName}}</td>
                     <td>{{instructorActivites.points}}</td>	
-                    <td>{{studentActivities.activityScore}}</td> <td></td>
+                    <td>{{points}}</td> <td></td>
                     <td></td> <td></td>
                     <td></td> <td></td>
                     

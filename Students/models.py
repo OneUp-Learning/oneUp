@@ -132,6 +132,7 @@ class StudentActivities(models.Model):
     timestamp = models.DateTimeField(default= datetime.now)
     activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
+    graded = models.BooleanField(default=False)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
 #     +","+str(self.challengeID)    
