@@ -47,18 +47,17 @@
 
 </style>
 
-<tr><td><table id="skillTable">
+<table id="skillTable">
 	<colgroup>
 		<col class="problmeSkillFirstCol">
 		<col class="problemSkillSecondCol">
 	</colgroup>
 	<tbody>
-	<th colspan="2"> Skills </th>
 	<tr><td>Add Skill:</td> <td>Skill Points</td></tr>
 	<tr><td id="#problemSkillSelectorTD"><select id="problemSkillSelector" onchange="selectSkill(this);this.selectedIndex=0;">
 	<option value="">Choose skill</option>
 	{%for skill in skills%}
-		<option value="{{skill.ID}}">{{skill.name}}</option>
+		<option value="{{skill.id}}">{{skill.name}}</option>
 	{%endfor%}
 </select></td>
 
@@ -67,7 +66,6 @@
 </td></tr>
 </tbody>
 </table>
-</td></tr>
 
 <script>
 	// Javascript for embedded skills section.
@@ -127,7 +125,7 @@
 		}
 	}
 	
-	var skillsSelected = [{%for skill in selectedSkills%}{name:"{{skill.name}}",id:{{skill.ID}},value:{{skill.value}}},{%endfor%}];
+	var skillsSelected = [{%for skill in selectedSkills%}{name:"{{skill.name}}",id:{{skill.id}},value:{{skill.value}}},{%endfor%}];
 	for (var i = 0; i<skillsSelected.length; i++) {
 		selectSkillByNameAndID(skillsSelected[i].name,skillsSelected[i].id,skillsSelected[i].value);
 	}

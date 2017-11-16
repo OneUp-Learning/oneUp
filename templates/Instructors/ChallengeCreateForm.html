@@ -18,48 +18,48 @@
       </script>
       <script>
          $( document ).ready(function(){
-         var endDate = $('#endTime').bootstrapMaterialDatePicker({
-         weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
-         });
-         
-         var startDate = $('#startTime').bootstrapMaterialDatePicker({
-         weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
-         }).on('change', function(e, date) {
-         $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
-         });
-         
-         $('.chips').material_chip();
-         $('.chips-tags').material_chip({
-         data: JSON.parse('{{ tags | escapejs }}'),
-         placeholder: 'Enter a tag',
-         });
-         $('.chips-topics-autocomplete').material_chip({
-         data: JSON.parse('{{ topics | escapejs }}'),
-         placeholder: 'Choose a topic',
-         autocompleteOptions: {
-         	data: JSON.parse('{{ topicsAuto | escapejs }}'),
-         	limit: Infinity,
-         	minLength: 0
-         }
-         });
-         $('.chips-topics-autocomplete').on('chip.add', function(e, chip){
-         var topics = JSON.parse('{{createdTopics | escapejs }}')
-         for(var i = 0; i < topics.length; i++) {
-         	var topic = topics[i];
-         	if(chip['tag'] == topic.tag){
-         		chip['id'] = topic.id
-         	}
-         }
-         });
-         $('#form').submit(function(){
-         var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
-         var topics = $("<input>").attr("type", "hidden").attr("name", "topics").val(JSON.stringify($('.chips-topics-autocomplete').material_chip('data')));
-         
-         $('#form').append($(tags));
-         $('#form').append($(topics));
-         console.log($('.chips-tags').material_chip('data'));
-         console.log($('.chips-topics-autocomplete').material_chip('data'));
-         });
+          var endDate = $('#endTime').bootstrapMaterialDatePicker({
+            weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+          });
+          
+          var startDate = $('#startTime').bootstrapMaterialDatePicker({
+            weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
+          }).on('change', function(e, date) {
+            $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
+          });
+          
+          $('.chips').material_chip();
+          $('.chips-tags').material_chip({
+            data: JSON.parse('{{ tags | escapejs }}'),
+            placeholder: 'Enter a tag',
+          });
+          $('.chips-topics-autocomplete').material_chip({
+            data: JSON.parse('{{ topics | escapejs }}'),
+            placeholder: 'Choose a topic',
+            autocompleteOptions: {
+              data: JSON.parse('{{ topicsAuto | escapejs }}'),
+              limit: Infinity,
+              minLength: 0
+            }
+          });
+          $('.chips-topics-autocomplete').on('chip.add', function(e, chip){
+            var topics = JSON.parse('{{createdTopics | escapejs }}')
+            for(var i = 0; i < topics.length; i++) {
+              var topic = topics[i];
+              if(chip['tag'] == topic.tag){
+                chip['id'] = topic.id
+              }
+            }
+          });
+          $('#form').submit(function(){
+            var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+            var topics = $("<input>").attr("type", "hidden").attr("name", "topics").val(JSON.stringify($('.chips-topics-autocomplete').material_chip('data')));
+            
+            $('#form').append($(tags));
+            $('#form').append($(topics));
+            console.log($('.chips-tags').material_chip('data'));
+            console.log($('.chips-topics-autocomplete').material_chip('data'));
+          });
          });
       </script>
    </head>

@@ -14,10 +14,8 @@ from Badges.enums import QuestionTypes
 from django.contrib.auth.decorators import login_required
 
 @login_required
-def searchResults(request):
+def searchResults(request, context_dict):
         
-    context_dict, currentCourse = initialContextDict(request);        
-
     qTags = [] 
     selectedTags = []   
     selectedTypes = []
@@ -43,12 +41,6 @@ def searchResults(request):
         if 'tags' in request.POST:
             # get the list of all checked problem tags
             selectedTags = request.POST['tags']
-            
-        print(selectedTypes)
-        print(selectedDifficulties)
-        print(selectedSkills)
-        print(selectedChallenges)
-        print(selectedTags)
 
         q_object_type = [] 
         q_object_skills = []
@@ -144,6 +136,8 @@ def searchResults(request):
             context_dict['challengeID'] = request.POST['challengeID']
             context_dict['challenge'] = True
             challenge = Challenges.objects.get(pk=int(request.POST['challengeID']))
-            context_dict['challengeName'] = challenge.challengeName            
+            context_dict['challengeName'] = challenge.challengeName    
+                
+        return context_dict    
         return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
 

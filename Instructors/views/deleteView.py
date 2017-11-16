@@ -13,7 +13,6 @@ from Students.models import Student, StudentRegisteredCourses
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
 
 @login_required
-
 def deleteQuestion(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -34,7 +33,7 @@ def deleteQuestion(request):
 
         
     return redirect('/oneUp/instructors/questionList', context_dict)
-
+@login_required
 def deleteQuestionFromChallenge(request):                 
  
     context_dict = { }
@@ -83,7 +82,7 @@ def deleteQuestionFromChallenge(request):
         return redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict)
     else:
         return redirect('/oneUp/instructors/challengeQuestionsList?challengeID=' + challengeID, context_dict)
-
+@login_required
 def deleteChallenge(request):
  
     context_dict = { }

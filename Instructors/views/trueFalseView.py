@@ -13,9 +13,11 @@ from Badges.enums import QuestionTypes, ObjectTypes
 
 from django.contrib.auth.decorators import login_required
 
+import logging
+
 @login_required
 def trueFalseNewForm(request):
- 
+    logger = logging.getLogger(__name__)
     context_dict, currentCourse = initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.
@@ -39,7 +41,7 @@ def trueFalseNewForm(request):
     num_answers = 2    #'true' and 'false'
     
     context_dict['skills'] = getCourseSkills(currentCourse)
-    
+
     if request.method == 'POST':
 
         # If there's an existing question, we wish to edit it.  If new question,
@@ -47,7 +49,7 @@ def trueFalseNewForm(request):
         if 'questionId' in request.POST:
             qi = request.POST['questionId']
             if not qi == "":
-                print('questionId '+request.POST['questionId'])
+                logger.debug('questionId '+request.POST['questionId'])
                 question = StaticQuestions.objects.get(pk=int(qi))
             else:
                 question = StaticQuestions()
@@ -77,7 +79,7 @@ def trueFalseNewForm(request):
         for x in range(1, num_answers + 1):
 
             # If PK is returned, we fetch from the database
-            if 'ansPK'+str(x) in request.POST:
+            if 'ansPK'+str(x) in request.POST and request.POST['ansPK'+str(x)] != '':
                 answer = Answers.objects.get(pk=int(request.POST['ansPK'+str(x)]))
                 answer.answerText = bool_values[x-1] # answers are always 'true' and 'false'
                 answer.save()
@@ -193,7 +195,7 @@ def trueFalseNewForm(request):
         context_dict['num_answers'] = num_answers
         # The range part is the index numbers.
         context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked)
-     
+        logger.debug(context_dict)
         if 'questionId' in request.POST:         
             return redirect('challengesView')
     

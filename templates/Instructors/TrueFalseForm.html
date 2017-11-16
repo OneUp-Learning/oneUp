@@ -71,7 +71,7 @@
                             </div>
                            {% for i,ansValue,ansPK,ansChecked in answer_range %}
                            <div class="col s12">
-                              <input name="correctAnswer" type="radio" id="answer_{{i}}" {% if ansChecked %} checked {% endif %}/>
+                              <input name="correctAnswer" type="radio" id="answer_{{i}}" value="{{i}}" required {% if ansChecked %} checked {% endif %}/>
                               {% if i == 1 %}
                               <label for="answer_{{i}}">True</label>
                               {% else %}
@@ -83,9 +83,8 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select name="difficulty">
-                                 <option value="" disabled selected>Choose Difficulty</option>
-                                 <option id="Easy" value="Easy">Easy</option>
+                              <select name="difficulty" required>
+                                 <option id="Easy" value="Easy" selected>Easy</option>
                                  <option id="Medium" value="Medium">Medium</option>
                                  <option id="Hard" value="Hard">Hard</option>
                               </select>
@@ -112,7 +111,12 @@
                         {% endif %}
                         <div class="row">
                            <div class="col s12">
-                              {% include "Instructors/ProblemSkillEmbed.html" %}
+                                <div class="col s12">
+                                        <h5>Skills</h5>
+                                </div>
+                                <div class="col s12">
+                               {% include "Instructors/ProblemSkillEmbed.html" %}
+                               </div>
                            </div>
                         </div>
                         {% endif %}

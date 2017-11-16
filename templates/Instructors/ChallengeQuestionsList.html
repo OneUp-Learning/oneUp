@@ -98,7 +98,8 @@
                               <th>
                                  <a class="modal-trigger tooltipped secondary-content" href="#modal-filter" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Filter Problems"><i class="material-icons">filter_list</i></a>                                
                                  <div id="modal-filter" class="modal modal-fixed-footer">
-                                    <form id="search" name="search" action="/oneUp/instructors/sresults" method="POST">
+                                    <form id="search" name="search" action="/oneUp/instructors/challengeQuestionsList?questionID=" method="POST">
+                                       <input type="hidden" name="context_dict"  value="{{context_dict}}">
                                        <div class="modal-content">
                                           <div class="row center-align">
                                              <div class="col s12 m8 offset-m2">
@@ -199,6 +200,11 @@
                               <td>{{q_type_displayName}}</td>
                               <td>
                                  <form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
+                                    {% csrf_token %}
+                                    {% if challenge %}    						
+                                    <input type="hidden" name="challengeID" value="{{challengeID}}">
+                                    {%endif%}   
+                                    <input type="hidden" name="questionId" value="{{q_ID}}">
                                     <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                     <ul id='dropdown1' class='dropdown-content'>
                                        {% csrf_token %} 
@@ -223,10 +229,6 @@
                                        {% if q_type_name == 'templatedynamic' %}
                                        <li><a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
                                        {% endif %}
-                                       {% if challenge %}    						
-                                       <input type="hidden" name="challengeID" value="{{challengeID}}">
-                                       {%endif%}   
-                                       <input type="hidden" name="questionId" value="{{q_ID}}">
                                        <li class="divider"></li>
                                        <li><a class="modal-trigger" href="#modal_delete">Delete</a></li>
                                     </ul>

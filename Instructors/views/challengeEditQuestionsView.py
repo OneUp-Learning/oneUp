@@ -3,10 +3,15 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Challenges, Courses, CoursesSkills
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
+from Instructors.views.searchResultsView import searchResults
 from Instructors.views.utils import initialContextDict
 from Instructors.lupaQuestion import lupa_available
 
 from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 def makeContextDictForSearch(context_dict, currentCourse):
     qchallenge = []
@@ -60,9 +65,8 @@ def challengeEditQuestionsView(request):
         context_dict['challengeName'] = challenge.challengeName
 
         context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
-        
-        
-                                       
+    
+                                 
     if 'problems' in request.GET:
         context_dict["unassign"]= 1
         chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
@@ -72,6 +76,10 @@ def challengeEditQuestionsView(request):
         context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)
 
     context_dict = makeContextDictForSearch(context_dict, currentCourse)
+
+    if request.method == 'POST':
+        context_dict = searchResults(request, context_dict)
+    logger.debug(context_dict)
     return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
 
   
