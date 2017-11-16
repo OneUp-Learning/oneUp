@@ -1,6 +1,6 @@
 from Badges.models import Rules, ActionArguments, Conditions, Badges,\
     ActivitySet
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, Activities, ConditionSet, Dates
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, TopicSet, Activities, ConditionSet, Dates
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
     StudentRegisteredCourses
@@ -8,7 +8,7 @@ from datetime import datetime
 from django.utils import timezone
 from builtins import getattr
 import decimal
-from Instructors.models import Challenges
+from Instructors.models import Challenges, CoursesTopics
 from Badges.systemVariables import calculate_system_variable
 from Instructors.views.utils import utcDate
 
@@ -158,6 +158,8 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
             return ObjectTypes.challenge
         if (operandType == OperandTypes.activitySet):
             return ObjectTypes.activity
+        if (operandType == OperandTypes.topicSet):
+            return ObjectTypes.topic
         return 0 # Error
     def forallforany_helper(forall):
         for object in operand1:
@@ -238,6 +240,12 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
             return [act.activityID for act in Activities.objects.filter(courseID = course)]
         else:
             return [actset.activity.activityID for actset in ActivitySet.objects.filter(condition=condition)]
+    elif (operandType == OperandTypes.topicSet):
+        if operandValue == 0:
+            # All topics in thie course
+            return [ct.topicID.topicID for ct in CoursesTopics.objects.filter(courseID = course)]
+        else:
+            return [topicset.topic.topicID for topicset in TopicSet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.conditionSet):
         return [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
     else:
