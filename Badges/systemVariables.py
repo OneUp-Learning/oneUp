@@ -79,8 +79,9 @@ def getMaxTestScore(course,student,challenge):
     highestTestScore = allTestScores.latest('testScore') #.latest() also gets the max for an integer value
     return highestTestScore
 
-def getPercentageOfScoreOutOfMaxChallengeScore(course, student, challenge):
+def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     #return the percentage of the higest text score
+    # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
     
     from django.db.models import Max
     
@@ -397,9 +398,12 @@ class SystemVariable():
     challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
     numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier
     numDaysSubmissionLate = 913 #Number of days an assignment is submitted late
-    consecutiveDaysWarmUpChallengesTaken = 914  #Consecutive days warm up challenges are taken
+    averageTestScore = 914  # Average Test Score
     consecutiveWeeksOnLeaderboard = 915 #Consecutive weeks on the leaderboard
     consecutiveClassesAttended = 916 #The number of consecutive classes a student has attended
+    consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
+    consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
+    percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
     
     systemVariables = {
         numAttempts:{
@@ -535,17 +539,29 @@ class SystemVariable():
                 ObjectTypes.challenge: calcNumDaysSubmissionLate
             }
         },                       
-        consecutiveDaysWarmUpChallengesTaken:{
-            'index': consecutiveDaysWarmUpChallengesTaken,
-            'name':'consecutiveDaysWarmUpChallengesTaken',
-            'displayName':'Consecutive Days Warm Up Challenges Taken',
-            'description':'The number of consecutive days a student has taken Warm-up challenges.',
+        consecutiveDaysWarmUpChallengesTaken30Percent:{
+            'index': consecutiveDaysWarmUpChallengesTaken30Percent,
+            'name':'consecutiveDaysWarmUpChallengesTaken30Percent',
+            'displayName':'Consecutive Days Warm Up Challenges (at least 30% correct) Taken ',
+            'description':'The number of consecutive days a student has taken Warm-up challenges (at least 30% correct).',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
             'functions':{
                 ObjectTypes.none: getConsecutiveDaysWarmUpChallengesTaken30Percent
             }
         },
+        consecutiveDaysWarmUpChallengesTaken75Percent:{
+            'index': consecutiveDaysWarmUpChallengesTaken75Percent,
+            'name':'consecutiveDaysWarmUpChallengesTaken75Percent',
+            'displayName':'Consecutive Days Warm Up Challenges (at least 75% correct) Taken ',
+            'description':'The number of consecutive days a student has taken Warm-up challenges (at least 75% correct).',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'int',
+            'functions':{
+                ObjectTypes.none: getConsecutiveDaysWarmUpChallengesTaken75Percent
+            }
+        },
+                       
         consecutiveWeeksOnLeaderboard:{
             'index': consecutiveWeeksOnLeaderboard,
             'name':'consecutiveWeeksOnLeaderboard',
@@ -569,6 +585,29 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getConsecutiveClassesAttended
             },
-        },                                              
+        }, 
+        percentOfScoreOutOfMaxChallengeScore:{
+            'index': percentOfScoreOutOfMaxChallengeScore,
+            'name':'percentOfScoreOutOfMaxChallengeScore',
+            'displayName':'Percent of student score out of max challenge score',
+            'description':'Percentage of student score (for the max scored attempt) out of max challenge score.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'float',
+            'functions':{
+                ObjectTypes.none:getPercentOfScoreOutOfMaxChallengeScore
+            },
+        },                                             
+        averageTestScore:{
+            'index': averageTestScore,
+            'name':'averageTestScore',
+            'displayName':'Average Test Score',
+            'description':'Average Test Score.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'float',
+            'functions':{
+                ObjectTypes.none:getAverageTestScore
+            },
+        },                        
+                                                                    
             
     }
