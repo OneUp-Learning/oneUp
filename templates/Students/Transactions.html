@@ -2,6 +2,30 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+      <script>
+         $( document ).ready(function(){
+          $('.create').on('click', function(e){
+        	  e.preventDefault();
+        	  var student = $(this).data('student');
+        	  var item = $(this).data('item');
+        	  var description = $(this).data('description');
+        	  var currency = $(this).data('currency');
+        	  var date = $(this).data('date');
+  
+         	 var doc = new jsPDF({
+         		  orientation: 'landscape'
+         		})
+         	 doc.setFontSize(20)
+         		doc.text('Congrats! '+ student + '', 20, 15)
+         		doc.text('Item bought: '+ item + '', 20, 35)
+         		doc.text('Description: '+ description + '', 20, 60)
+         		doc.text('You have earned: '+ currency +' VC', 20, 90)
+         		doc.text('Date Earned: '+ date + '', 20, 120)
+         		doc.save('certificate.pdf')
+          });
+         });
+      </script>
    </head>
    <body>
       {% include 'stheading.html' %}  
@@ -22,20 +46,29 @@
                               <th>Item Description</th>
                               <th>Date Purchased</th>
                               <th>Item Cost</th>
-                              <th>Your current balance: {{studentVirtualCurrency}}</th>
+                              <th>Item Status</th>
+                              <th>View Notes</th>
+                              <th>Download Receipt</th>
                            </tr>
                         </thead>
                         <tbody>
-                           {% for name, description, purchaseDate, total in transactions %}
+                           {% for transactionID, name, description, purchaseDate, total, status in transactions %}
                            <tr>
                               <td>{{name}}</td>
                               <td>{{description}}</td>
                               <td>{{purchaseDate}}</td>
-                              <td colspan=2>{{total}}</td>
+                              <td>{{total}}</td>
+                              <td><b>{{status}}</b></td>
+                              <td><a href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><input type="button" class="table" value="View Note From Instructor"></a></td>
+                              {% if status != 'Complete' %}
+                              <td><a class="create" href="#!" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{purchaseDate}}"><button class="button" type="button">Download</button></a></td>
+                              {% else %}
+                              <td></td>
+                              {% endif %}
                            </tr>
                            {% empty %}
                            <tr>
-                              <td class="center-align" colspan="5">No transactions</td>
+                              <td class="center-align" colspan="7">No transactions</td>
                            </tr>
                            {% endfor %}
                         </tbody>

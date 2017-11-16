@@ -114,18 +114,20 @@ class Event():
     
     spendingVirtualCurrency = 814  #When a student has spent VC
     
-    buyHint = 850  #Buy one hint for an assignment
-    buyAttempt = 851 #Buy a permission for one re-submission of an assignment
-    extendDeadline = 852 #Extend the deadline of an assignment with 12 hours 
-    dropLowestAssignGrade = 853 #Drop the lowest assignment grade
-    getDifferentProblem = 854 #Get a different dynamic problem on a test
-    seeClassAverage = 855 #See aggregated class information
-    chooseLabPartner = 856 #Choose a lab partner
-    chooseProjectPartner = 857 #Choose a project partner
-    uploadOwnAvatar = 858 # Spending VC
-    chooseDashboardBackground = 859 #Choose a background for the student dashboard
-    getSurpriseAward = 860 #Get a small surprise award from the instructor
-    chooseBackgroundForYourName = 861
+    instructorHelp = 850  # Get instructor help for an assignment
+    buyAttempt = 851 # Buy another attempt for re-submission of an assignment
+    extendDeadline = 852 # Extend the deadline of an assignment
+    dropLowestAssignGrade = 853 # Drop the lowest assignment grade
+    getDifferentProblem = 854 # Get a different dynamic problem on a test
+    seeClassAverage = 855 # See aggregated class information
+    chooseLabPartner = 856 # Choose a lab partner
+    chooseProjectPartner = 857 # Choose a project partner
+    uploadOwnAvatar = 858 # Upload own avatar
+    chooseDashboardBackground = 859 # Choose a background for the student dashboard
+    getSurpriseAward = 860 # Get a small surprise award from the instructor
+    chooseBackgroundForYourName = 861 # ?
+    buyExtraCreditPoints = 862 # Buy extra credit points for an assignment 
+
     
     events = {
               startChallenge: {
@@ -206,29 +208,29 @@ class Event():
                         'displayName':'Challenge Expiration',
                         'description':'The time allowed for students to take a challenge expires.'
                           },
-              buyHint: {
-                        'index': buyHint,
-                        'name':'buyHint',
-                        'displayName':'Buy Hint',
-                        'description':'Buy one hint for an assignment'
+              instructorHelp: {
+                        'index': instructorHelp,
+                        'name':'instructorHelp',
+                        'displayName':'Buy Instructor Help',
+                        'description':'Receive Help from the Instructor on an assignment'
                         },
               buyAttempt: {
                         'index': buyAttempt,
                         'name':'buyAttempt',
                         'displayName':'Buy Attempt',
-                        'description':'Buy a permission for one re-submission of an assignment'
+                        'description':'Buy another attempt for re-submission of an assignment'
                         },
               extendDeadline: {
                         'index': extendDeadline,
                         'name':'extendDeadline',
                         'displayName':'Extend Deadline',
-                        'description':'Extend the due date for an assignment with 12 hours'
+                        'description':'Extend the due date for an assignment'
                         },              
               dropLowestAssignGrade: {
                         'index': dropLowestAssignGrade,
                         'name':'dropLowestAssignGrade',
                         'displayName':'Drop Lowest Assignment Grade',
-                        'description':'Drop the lowest of your assignment grades'
+                        'description':'Drop your lowest assignment grade'
                         },              
               getDifferentProblem: {
                         'index': getDifferentProblem,
@@ -277,6 +279,12 @@ class Event():
                         'name':'getSurpriseAward',
                         'displayName':'Get Surprise Award',
                         'description':'Get a small surprise award from the instructor'
+                        },
+              buyExtraCreditPoints: {
+                        'index': buyExtraCreditPoints,
+                        'name':'buyExtraCreditPoints',
+                        'displayName':'Buy Extra Credit Point',
+                        'description':'Receive extra credit point for an assignment'
                         }
                             
               }
@@ -299,12 +307,14 @@ class ObjectTypes():
     form=1304 # Used in the case of handling general form submits (user login, etc.)
     none=1305 # Not an actual object, but used to indicate that a variable only makes sense in the global context
                 # rather than the context of any particular object in circumstances where that is needed.
+    topic=1306
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
         question:"question",
         form:"form",
         none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
+        topic:"topic",
     }
 
 class OperandTypes():
@@ -319,6 +329,7 @@ class OperandTypes():
     boolean=1009
     dateConstant=1010
     noOperand=1011
+    topicSet=1012
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',

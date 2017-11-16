@@ -18,6 +18,7 @@ from Instructors.views.challengeListView import challengesList, warmUpChallengeL
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
 from Instructors.views.challengeSaveView import challengeSaveView
+from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
 
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
@@ -148,6 +149,7 @@ urlpatterns = [
     url(r'^luaLibEdit',libEdit,name="Lua Library Edit"),        
     url(r'^luaLibUploadView',luaLibUpload,name="Lua Library Upload"),
     url(r'^luaLibConfirmDelete',libDeleteConfirmView,name="Lua Library Deletion Confirmation"),
+    url(r'^reorderChallengeSaveQuestions', reorderChallengeSaveQuestions, name='reorderChallengeSaveQuestions'),
    
 
 ]

@@ -1,13 +1,14 @@
 from Badges.enums import Event, ObjectTypes
 
 from datetime import datetime
-from Instructors.models import Challenges, Activities, Questions
+from Instructors.models import Challenges, Activities, Questions, Topics
 from django.utils import timezone
     
 objectTypeToObjectClass = {
     ObjectTypes.activity: Activities,
     ObjectTypes.challenge: Challenges,
     ObjectTypes.question: Questions,
+    ObjectTypes.topic: Topics,
 }
     
 # This is where we evaluate the system variables in their appropriate
@@ -241,10 +242,8 @@ def getConsecutiveClassesAttended(course,student):
 
 def getConsecutiveWeeksOnLeaderboard(course,student):    
     import math
-    from datetime import datetime
     from Students.models import StudentLeaderboardHistory
-    # This one I'm not clear on the meaning of.  Which leaderboard?  Do you have to be there at least one day a week or all week?
-    # Are we keeping historical leaderboard data?
+
     # Assuming student has to be on leaderboard for atleast 7 days (AH)
     studentLog = StudentLeaderboardHistory.objects.filter(courseID = course, studentID = student, endTimestamp=None).values('startTimestamp')
     if not studentLog.exists():
@@ -253,10 +252,7 @@ def getConsecutiveWeeksOnLeaderboard(course,student):
     startDate = studentLog['startTimestamp'].date()
     latestDate = datetime.now(tz=timezone.utc).date()
     delta = latestDate - startDate
-    print(startDate)
-    print(latestDate)
-    print(delta)
-    print(delta.days)
+
     return math.trunc(delta.days/7)
     
 
