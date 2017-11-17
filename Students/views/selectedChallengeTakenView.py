@@ -132,6 +132,7 @@ def SelectedChallengeTaken(request):
             context_dict['chall_Name'] = challengeName
             context_dict['entireScore'] = entireScore        
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist,useranswerObjects,matchanswerObjects,questionScoreObjects,questionTotalObjects )
-               
+             
+            
     return render(request,'Students/SelectedChallengeTaken.html', context_dict)
 

@@ -10,9 +10,6 @@ from Instructors.constants import  unspecified_topic_name
 from Students.models import StudentChallenges
 from Students.views.utils import studentInitialContextDict
 
-from Badges.systemVariables import getConsecutiveDaysWarmUpChallengesTaken
-
-
 from django.contrib.auth.decorators import login_required
 
 def challengesForTopic(topic, student, currentCourse):
