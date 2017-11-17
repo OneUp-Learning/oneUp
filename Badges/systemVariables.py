@@ -788,7 +788,7 @@ class SystemVariable():
             'displayName':'Score Difference from Last Completed Challenge',
             'description':'Score difference from last complete challenge/warmup challenge and a specific challenge.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
-            'type':'float',
+            'type':'int',
             'objectsDefinedFor':[ObjectTypes.challenge],
             'functions':{
                 ObjectTypes.challenge:getConsecutiveScoresDifference
