@@ -130,7 +130,7 @@ class StudentActivities(models.Model):
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
     timestamp = models.DateTimeField(default= datetime.now)
-    activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
+    activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
