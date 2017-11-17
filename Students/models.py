@@ -64,8 +64,8 @@ class StudentChallenges(models.Model):
     challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
-    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student (We think). Need to test to figure out for certain.
-    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score (We think). Need to test to figure out for certain.
+    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
+    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score 
     instructorFeedback = models.CharField(max_length=200)
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
