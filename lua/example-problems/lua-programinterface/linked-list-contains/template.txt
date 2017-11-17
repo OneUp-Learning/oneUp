@@ -1,7 +1,9 @@
+
  Write a method contains() that checks whether a certain element is in a list
 
 	// Should go iterate through the list until entry is found or it reaches the end
 	// If the entry isn't found, the method should return false
+
 
 	public boolean contains(T anEntry)
 	

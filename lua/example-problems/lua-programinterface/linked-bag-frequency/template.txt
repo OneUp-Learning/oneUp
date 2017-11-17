@@ -1,0 +1,10 @@
+// Write a method getFrequency() that counts how many times an element appears in a bag
+
+	//Should accept an entry to look for
+	//Should return the number of it the entry appears
+	
+	public int getFrequencyOf(T anEntry) {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

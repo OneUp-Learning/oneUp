@@ -7,10 +7,12 @@ from Students.views.utils import studentInitialContextDict
 from Badges.models import Rules, ActionArguments
 from Badges.enums import Action, Event, ObjectTypes
 from Badges.events import register_event
+import logging
 
 @login_required
 def virtualCurrencyShopView(request):
- 
+    logger = logging.getLogger(__name__)
+    
     context_dict,currentCourse = studentInitialContextDict(request)
  
     if 'currentCourseID' in request.session:  
@@ -52,27 +54,33 @@ def virtualCurrencyShopView(request):
         
         # Gets all the serious challenges for certain events that require the student to pick a challenge
         def getChallengesForEvent(event):
-            from Instructors.models import Challenges , ChallengesQuestions
+            from Instructors.models import Challenges , ChallengesQuestions, Activities
             from Instructors.constants import default_time_str
             from Instructors.views.utils import utcDate
             from django.db.models import Q
 
             
             challenges_id = []
-            challegnes_name = []
+            challenges_name = []
             if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.buyExtraCreditPoints]:
                 defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
                 currentTime = utcDate()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+                activites = Activities.objects.filter(courseID=currentCourse)
+                
                 for challenge in challenges:
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                     # Only pick challenges that have questions assigned to them
                     if challQuestions:
                         challenges_id.append(challenge.challengeID)
-                        challegnes_name.append(challenge.challengeName)
+                        challenges_name.append(challenge.challengeName)
+                for activity in activites:
+                    challenges_id.append(activity.activityID)
+                    challenges_name.append(activity.activityName)
+                    
                 if len(challenges_id) == 0:
                     return None
-                return zip(challenges_id, challegnes_name) 
+                return zip(challenges_id, challenges_name) 
             else:
                 return None
                    

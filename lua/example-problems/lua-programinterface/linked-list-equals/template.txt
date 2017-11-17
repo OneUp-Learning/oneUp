@@ -1,3 +1,4 @@
+
 Write a method equals() that checks to see if two lists are equal. Hint: Check to see if lists are equal in size; If the lists are unequal sizes, should be automatic false 
 
    /** Check to see if two lists are the same.  
@@ -8,5 +9,6 @@ Write a method equals() that checks to see if two lists are equal. Hint: Check t
 	public boolean equals(LList<T> aList){
 	
 	[{make_answer('ans1','code-java',12,checker,12)}]
+
 	
 	}

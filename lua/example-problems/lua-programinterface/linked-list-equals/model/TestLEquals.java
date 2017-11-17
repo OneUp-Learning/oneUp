@@ -1,3 +1,4 @@
+
 public class TestLEquals {
 	private static LList<Integer> list1 = new LList<Integer>();
 	private static LList<Integer> list2 = new LList<Integer>();
@@ -197,7 +198,6 @@ public class TestLEquals {
 	}	
 }
 		
-
 		
 				
 		

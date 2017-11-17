@@ -57,6 +57,12 @@
                             <th>Instructor Feedback</th>
                         </tr>
                         {% for i, student_ID, student_Name, student_Points, student_Feedback, File_Name in assignedActivityPoints_range %}
+                        <input type="hidden" id="{{student_ID}}_points_graded" class="isGraded" value="False"> 
+                        
+                        
+                        </input>
+                        
+                        
                         <tr>
                          <div id="stud_act{{i}}">
                             <td>
@@ -70,10 +76,10 @@
                     
                             </td> 
                             <td>
-                               <input id="extraSmallFormBox" type="number" name="student_Points{{student_ID}}" value="{{student_Points}}" min="0" required>
+                               <input id="{{student_ID}}_points" class="points" type="number" name="student_Points{{student_ID}}" value="{{student_Points}}" min="-1" required>
                             </td> 
                             <td>
-                              <textarea id="mediumFormBox" name="student_Feedback{{student_ID}}" rows="2">{{student_Feedback}}</textarea>
+                              <textarea id="{{student_ID}}_feedBack" name="student_Feedback{{student_ID}}" rows="2">{{student_Feedback}}</textarea>
                             </td>  
                           </div>                        
                         </tr>
@@ -90,7 +96,19 @@
          <!-- Footer -->
    
        {% include 'footer.html' %}
-    
       </div>
+      <script>
+      	function pointsChanged(){
+      		var gradedHidden = document.getElementById(this.id + "_graded");
+      		gradedHidden.value = true; 
+      	}
+      	
+      	var points = document.getElementsByClassName("points");
+      	
+      	[].forEach.call(points, function(p){
+      		p.addEventListener("change",pointsChanged);
+      	});
+
+      </script> 
    </body>
 </html>
