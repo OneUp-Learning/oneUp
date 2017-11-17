@@ -6,4 +6,6 @@ tests = {
    {name="A list without the desired element",command="java TestContains test5", points=2}
 }
    
+
 checker = programinterface.program_checker("/home/dichevad/workspace/oneUpNew/lua/example-problems/lua-programinterface/linked-list-contains","LList.java","javac *.java",10,tests)
+

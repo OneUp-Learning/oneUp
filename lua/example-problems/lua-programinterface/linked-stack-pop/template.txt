@@ -1,0 +1,11 @@
+// Write a method pop() that removes an element from the top of a stack
+
+	//Should return the element if stack is not empty
+	//Should decrease the size of the stack
+	//If the stack is empty, should return null
+	
+	 public T pop(){
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

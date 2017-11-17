@@ -1,0 +1,10 @@
+// Write a method getReferenceTo() that returns the node of an element
+
+	//Should locate the entry in the bag
+	//Should return node containing entry, null otherwise
+	
+	private Node getReferenceTo(T anEntry) {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

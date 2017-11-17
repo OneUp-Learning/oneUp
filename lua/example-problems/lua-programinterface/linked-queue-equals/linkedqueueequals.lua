@@ -6,7 +6,7 @@ tests = {
    {name="Two queues with different sizes : the first shorter",command="java TestEquals test5", points=2},
    {name="Two queues with different sizes : the first longer",command="java TestEquals test6", points=2},
    {name="Two equal queues",command="java TestEquals test7", points=3}
-
 }
    
+
 checker = programinterface.program_checker("/home/dichevad/workspace/oneUpNew/lua/example-problems/lua-programinterface/linked-queue-equals","LinkedQueue.java","javac *.java",12,tests)
