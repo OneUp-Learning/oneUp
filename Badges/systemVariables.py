@@ -592,7 +592,7 @@ class SystemVariable():
             'displayName':'Percent of student score out of max challenge score',
             'description':'Percentage of student score (for the max scored attempt) out of max challenge score.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
-            'type':'float',
+            'type':'int',
             'functions':{
                 ObjectTypes.none:getPercentOfScoreOutOfMaxChallengeScore
             },
@@ -603,7 +603,7 @@ class SystemVariable():
             'displayName':'Average Test Score',
             'description':'Average Test Score.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
-            'type':'float',
+            'type':'int',
             'functions':{
                 ObjectTypes.none:getAverageTestScore
             },
