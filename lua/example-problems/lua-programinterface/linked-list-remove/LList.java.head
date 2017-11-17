@@ -21,7 +21,7 @@ import java.io.*;
  * @version 3.1 (Modified for the Solution)
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  */
-class LList<T> implements ListInterface<T> {
+class LList<T> {
 
     private Node firstNode;  // reference to first node
     private int numberOfEntries;
@@ -49,7 +49,7 @@ class LList<T> implements ListInterface<T> {
         numberOfEntries++;
     } // end add
 
-    public boolean add(int newPosition, T newEntry) { 
+    public boolean add(int newPosition, T newEntry) {
         boolean isSuccessful = true;
         if ((newPosition >= 1) && (newPosition <= numberOfEntries + 1)) {
             Node newNode = new Node(newEntry);
@@ -70,8 +70,6 @@ class LList<T> implements ListInterface<T> {
         }
         return isSuccessful;
     } // end add
-
-    
 
     public boolean contains(T anEntry) {
         boolean found = false;
@@ -297,6 +295,6 @@ class LList<T> implements ListInterface<T> {
             firstNode = second;
         }
     }
-    //Create a method that removes an element at a given position in the list
     
- 	public T remove(int givenPosition){
+    public T remove(int givenPosition) {
+

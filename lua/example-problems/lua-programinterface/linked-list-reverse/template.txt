@@ -1,7 +1,8 @@
-// Write a method reverse() that reverses the order of items in a list
 
-	//The method should only go through the process if there is more than one element
-	//Should cycle through the entire list
+Write a method reverse() that reverses the order of items in a list
+
+	// The method should only go through the process if there is more than one element
+	// Should cycle through the entire list
 
 	public void reverse(){
 	

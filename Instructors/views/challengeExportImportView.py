@@ -322,9 +322,9 @@ def importChallenges(uploadedFileName, currentCourse):
         challenge.isGraded = str2bool(el_challenge.find('isGraded').text)
         challenge.numberAttempts = int(el_challenge.find('numberAttempts').text)
         challenge.timeLimit = int(el_challenge.find('timeLimit').text)
-        challenge.feedbackOption1 = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswer', 'feedbackOption1').text)
-        challenge.feedbackOption2 = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswerFeedback', 'feedbackOption2').text)
-        challenge.feedbackOption3 = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
+        challenge.displayCorrectAnswer = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswer', 'feedbackOption1').text)
+        challenge.displayCorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswerFeedback', 'feedbackOption2').text)
+        challenge.displayIncorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
         challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
         challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
         if not challenge.challengeDifficulty:

@@ -1,6 +1,3 @@
-
-import java.io.*;
-
 /** An linked implementation of the ADT List.
  * 
  * This code is from Chapter 14 of 
@@ -21,7 +18,7 @@ import java.io.*;
  * @version 3.1 (Modified for the Solution)
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  */
-class LList<T> implements ListInterface<T> {
+class LList<T>  {
 
     private Node firstNode;  // reference to first node
     private int numberOfEntries;
@@ -49,7 +46,7 @@ class LList<T> implements ListInterface<T> {
         numberOfEntries++;
     } // end add
 
-    public boolean add(int newPosition, T newEntry) { 
+    public boolean add(int newPosition, T newEntry) {
         boolean isSuccessful = true;
         if ((newPosition >= 1) && (newPosition <= numberOfEntries + 1)) {
             Node newNode = new Node(newEntry);
@@ -278,43 +275,3 @@ class LList<T> implements ListInterface<T> {
     /** Reverse the order of items in a list
      */
     public void reverse() {
-
-        if (numberOfEntries > 1) // only need to do this for lists of numberOfEntries 2 or more
-        {
-            Node next = firstNode.getNextNode();
-            Node rest = null;
-
-            while (next != null) // more reverse action needed
-            {
-                // Link back
-                firstNode.setNextNode(rest);
-                rest = firstNode;
-                firstNode = next;
-                next = next.getNextNode();
-            }
-
-            // Need a final link back
-            firstNode.setNextNode(rest);
-        }
-    }
-
-    /** Cycle the first item to the end of the list
-     */
-    public void cycle() {      
-
-        if (numberOfEntries > 1) // only need to do this for lists of numberOfEntries 2 or more
-        {
-            Node last = getNodeAt(numberOfEntries);
-            Node second = firstNode.getNextNode();
-
-            // Make the last node point to the first node
-            last.setNextNode(firstNode);
-
-            // Move the end of the list
-            firstNode.setNextNode(null);
-
-            // Move the front
-            firstNode = second;
-        }
-    }
-}

@@ -1,9 +1,9 @@
-// Write a method remove() that removes an item from a specified position
 
-	//The method should return null if it fails
-	//If successful, it should return the item removed
-	//Should check to see if the entry is the first item
-	//Should use nodeBefore and nodeAfter to remove item
+Write a method remove() that removes an element from a specified position in the list.  You can use the method getNodeAt(int givenPosition) from the ListInterface, which returns the node in the list at the given position.
+
+	// The method should return null if it fails
+	// If successful, it should return the item removed
+	// Should check to see if the entry is the first item
 
 	public T remove(int givenPosition){
 	

@@ -5,7 +5,7 @@
    @author Frank M. Carrano
    @version 3.0
 */
-public class LinkedQueue<T> implements QueueInterface<T>
+public class LinkedQueue<T> 
 {
   private Node firstNode; // references node at front of queue
   private Node lastNode;  // references node at back of queue
@@ -15,18 +15,6 @@ public class LinkedQueue<T> implements QueueInterface<T>
 		firstNode = null;
 		lastNode = null;
 	} // end default constructor
-	
-	public void enqueue(T newEntry)
-	{
-		Node newNode = new Node(newEntry, null);
-		
-		if (isEmpty())
-			firstNode = newNode;
-		else
-			lastNode.setNextNode(newNode);
-
-		lastNode = newNode;
-	} // end enqueue
 
 	public T getFront()
 	{
@@ -38,6 +26,18 @@ public class LinkedQueue<T> implements QueueInterface<T>
 		return front;
 	} // end getFront
 
+	public void enqueue(T newEntry)
+	{
+		Node newNode = new Node(newEntry, null);
+		
+		if (isEmpty())
+			firstNode = newNode;
+		else
+			lastNode.setNextNode(newNode);
+
+		lastNode = newNode;
+	} // end enqueue
+	
 	public T dequeue()
 	{
 		T front = null;
@@ -115,6 +115,7 @@ public class LinkedQueue<T> implements QueueInterface<T>
 			next = nextNode;
 		} // end setNextNode
 	} // end Node
+		
 	
 	// Write a method that will return the size of the queue
 	public int size() {

@@ -21,7 +21,7 @@ import java.io.*;
  * @version 3.1 (Modified for the Solution)
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  */
-class LList<T> implements ListInterface<T> {
+class LList<T> {
 
     private Node firstNode;  // reference to first node
     private int numberOfEntries;
@@ -238,85 +238,12 @@ class LList<T> implements ListInterface<T> {
     } // end display
 
     
-   /** Check to see if two lists are the same.  
-    * @param aList another linked list to check this list against
-    * @return true if all the items in this list and the other list are equals
-    */  
-    public boolean equals(LList<T> aList) {
-        boolean isEqual = false; // result of comparison of lists
-
-        Node currOne = firstNode;
-        Node currTwo = aList.firstNode;
-        int counter;
-
-        if (numberOfEntries == aList.numberOfEntries) {
-            // lists have equal lengths, so traverse both and compare items as you go:
-            // (NOTE: loop is skipped if lists are empty)
-
-            while ((currOne != null) && (currOne.getData()).equals(currTwo.getData())) {
-                currOne = currOne.getNextNode();
-                currTwo = currTwo.getNextNode();
-            } // end while
-
-            isEqual = currOne == null;
-        } else // lists have unequal lengths
-        {
-            isEqual = false;
-        }
-
-        return isEqual;
-    } // end equals
-
-            
     /*********************************************************************
      * 
      * METHODS TO BE COMPLETED
      * 
      ***********************************************************************/
-     
 
-    /** Reverse the order of items in a list
-     */
-    public void reverse() {
-
-        if (numberOfEntries > 1) // only need to do this for lists of numberOfEntries 2 or more
-        {
-            Node next = firstNode.getNextNode();
-            Node rest = null;
-
-            while (next != null) // more reverse action needed
-            {
-                // Link back
-                firstNode.setNextNode(rest);
-                rest = firstNode;
-                firstNode = next;
-                next = next.getNextNode();
-            }
-
-            // Need a final link back
-            firstNode.setNextNode(rest);
-        }
-    }
-
-    /** Cycle the first item to the end of the list
-     */
-    public void cycle() {      
-
-        if (numberOfEntries > 1) // only need to do this for lists of numberOfEntries 2 or more
-        {
-            Node last = getNodeAt(numberOfEntries);
-            Node second = firstNode.getNextNode();
-
-            // Make the last node point to the first node
-            last.setNextNode(firstNode);
-
-            // Move the end of the list
-            firstNode.setNextNode(null);
-
-            // Move the front
-            firstNode = second;
-        }
-    }
     //Create a method that compares two lists to see if they
     //have the same elements
 	public boolean equals(LList<T> aList){

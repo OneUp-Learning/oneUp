@@ -1,91 +1,143 @@
-
 public class TestRemove {
-	private static LList<Integer> List1 = new LList<Integer>();
-	private static LList<Integer> List2 = new LList<Integer>();
-	private static LList<Integer> List3 = new LList<Integer>();
-	private static LList<Integer> List4 = new LList<Integer>();
+	private static LList<Integer> list1 = new LList<Integer>();
+	private static LList<Integer> list2 = new LList<Integer>();
+	private static LList<Integer> list3 = new LList<Integer>();
+	private static LList<Integer> list4 = new LList<Integer>();
+	private static LList<Integer> list5 = new LList<Integer>();
+	private static LList<Integer> list6 = new LList<Integer>();
+	private static LList<Integer> list7 = new LList<Integer>();
+	private static LList<Integer> list8 = new LList<Integer>();
+	private static LList<Integer> list9 = new LList<Integer>();
+	
+	
 	
 	public static void main(String[] args) {
-		//Initialize Lists
-		initLists();
+		//Initialize lists
+		initlists();
 		
-		runTest1();
-		
-		runTest2();
-		
-		runTest3();
+		if ("test1".equals(args[0])) {
+			runTest1();
+		} else if ("test2".equals(args[0])) {
+			runTest2();
+		} else if ("test3".equals(args[0])) {
+			runTest3();
+		} else if ("test4".equals(args[0])) {
+			runTest4();
+		} else {
+			runTest5();
+		}
 				
 	}
-	public static void initLists(){
+	public static void initlists(){    
 		
 		//Initializing
-		List1.clear();
-		List2.clear();
-		List3.clear();
+		list1.clear();
+		list2.clear();
+		list3.clear();
+		list4.clear();
+		list5.clear();
+		list6.clear();
+		list7.clear();
+		list8.clear();
+		list9.clear();
 		
-		//One List that is empty
-		List1.clear();
 		
-		//One List with elements
+		//One list that is empty
+		list1.clear();
+		
+		//Empty list for comparison
+		list9.clear();
+		
+		//One list with one element
+		list2.add(4);
+		
+		//Original elements
 		int[] a1 = {1,2,3,4,5};
 		
+		//Initializing lists with original values
 		for (int i = 0; i < a1.length; i++)
 		{
-			List2.add(a1[i]);
+			list3.add(a1[i]);
+			list4.add(a1[i]);
+			list5.add(a1[i]);
 		}
-		int[] a2 = {2,3,4,5};
 		
+		//Array with list removed from front
+		int[] a2 = {2,3,4,5};
+		//Array with item removed from middle
+		int[] a3 = {1,2,4,5};
+		//Array with item removed from end
+		int[] a4 = {1,2,3,4};
+		//
 		for (int i = 0; i < a2.length; i++)
 		{
-			List3.add(a2[i]);
+			list6.add(a2[i]);
+			list7.add(a3[i]);
+			list8.add(a4[i]);
 		}
 		
-		//One List with one element
-		List4.add(4);
 		
-		}
-	
+	}
+	//Checks an Empty list
 	public static void runTest1(){
-		//Checks an Empty List
-		if(List1.remove(1) == null){
+		
+		if(list1.remove(1) == null && list1.equals(list9)){
 			System.out.println("Success");
-            System.out.println(3.34);
+            System.out.println(2);
         }
         else
             System.out.println("*** Failed test");
 		}
 	
+	
+	
+	//Checking a list with only one entry
 	public static void runTest2(){
-		//Checking a list after removing the first entry,
-		//Then comparing to a similar list
+			int result = list2.remove(1);
+			{
+				if(list2.equals(list9) && result == 4){
+					System.out.println("Success");
+		            System.out.println(2);
+		        }
+		        else
+		            System.out.println("*** Failed test");
+				}
+			}
+	//Checking a list after removing the first entry,
+	public static void runTest3(){
+		
 		LList<Integer> result = new LList<Integer>();
-		result.add(List2.remove(1));
-		if(List2.equals(List3) && result.contains(1)){
+		result.add(list3.remove(1));
+		if(list3.equals(list6) && result.contains(1)){
 			System.out.println("Success");
-            System.out.println(3.33);
+            System.out.println(2);
         }
         else
             System.out.println("*** Failed test");
 			
 		}
-		
-	
-	public static void runTest3(){
-		//Checking a List with only one entry
+	//Checking a list after removing an entry from the middle
+	public static void runTest4(){
 		LList<Integer> result = new LList<Integer>();
-		result.add(List4.remove(1));
-		{
-			if(result.contains(4)){
-				System.out.println("Success");
-	            System.out.println(3.33);
-	        }
-	        else
-	            System.out.println("*** Failed test");
-			}
+		result.add(list4.remove(3));
+		if(list4.equals(list7)){
+			System.out.println("Success");
+            System.out.println(2);
+        }
+        else
+            System.out.println("*** Failed test");
+			
 		}
+	//Checking a list after removing an entry from the end
+	public static void runTest5(){
+		LList<Integer> result = new LList<Integer>();
+		result.add(list5.remove(5));
+		if(list5.equals(list8)){
+			System.out.println("Success");
+			System.out.println(2);
+		}
+		else
+			System.out.println("*** Failed test");
+	}
 		
 	}
-
-	
-
-

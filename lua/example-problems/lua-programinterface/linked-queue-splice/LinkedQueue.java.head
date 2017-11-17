@@ -5,7 +5,7 @@
    @author Frank M. Carrano
    @version 3.0
 */
-public class LinkedQueue<T> implements QueueInterface<T>
+public class LinkedQueue<T> 
 {
   private Node firstNode; // references node at front of queue
   private Node lastNode;  // references node at back of queue

@@ -133,7 +133,7 @@ class Challenges(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) 
     isGraded = models.BooleanField(default=False)
     numberAttempts = models.IntegerField()
-    timeLimit = models.IntegerField()
+    timeLimit = models.IntegerField(verbose_name="time limit for the challenge in minutes")
     #feedbackOption = models.IntegerField()
     displayCorrectAnswer = models.BooleanField(default=True)
     displayCorrectAnswerFeedback = models.BooleanField(default=False)

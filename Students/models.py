@@ -19,7 +19,7 @@ from Instructors.views.instructorHomeView import instructorHome
 # Student Information Table used for login purposes.
 class Student(models.Model):
     user = models.OneToOneField(User, default=0)
-    #User Attributes:
+    #User Attrbutes:
     # username varchar(30)
     # first_name varchar(30)
     # last_name varchar(30)
@@ -39,12 +39,12 @@ class Student(models.Model):
   
 def avatarImageUploadLocation(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
-                                     'images/uploadedAvatarImages'),filename)
+                                ''),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
         avatarImage = models.FileField(max_length=500,
-                                       upload_to= avatarImageUploadLocation)
+                                       upload_to= 'images/uploadedAvatarImages')
         avatarImageFileName = models.CharField(max_length=200, default='')
     
 # Table listing all the students and the respective courses they are currently registered for   

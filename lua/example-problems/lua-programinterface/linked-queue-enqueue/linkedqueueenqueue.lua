@@ -5,4 +5,4 @@ tests = {
 
 }
    
-checker = programinterface.program_checker("/home/codepotato/workspacee/oneUp/lua/example-problems/lua-programinterface/linked-queue-enqueue","LinkedQueue.java","javac *.java",10,tests)
+checker = programinterface.program_checker("/home/dichevad/workspace/oneUpNew/lua/example-problems/lua-programinterface/linked-queue-enqueue","LinkedQueue.java","javac *.java",10,tests)

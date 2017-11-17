@@ -1,52 +1,51 @@
 
 public class TestContains {
-	private static LList<Integer> List1 = new LList<Integer>();
-	private static LList<Integer> List2 = new LList<Integer>();
-	private static LList<Integer> List3 = new LList<Integer>();
-	private static LList<Integer> List4 = new LList<Integer>();
-	private static LList<Integer> List5 = new LList<Integer>();
+	private static LList<Integer> list1 = new LList<Integer>();
+	private static LList<Integer> list2 = new LList<Integer>();
+	private static LList<Integer> list3 = new LList<Integer>();
+	private static LList<Integer> list4 = new LList<Integer>();
+	private static LList<Integer> list5 = new LList<Integer>();
 	
 	
 	public static void main(String[] args) {
-		//Initialize Lists
+		//Initialize lists
 		initLists();
 		
-		runTest1();
-		
-		runTest2();
-		
-		runTest3();
-		
-		runTest4();
-		
-		runTest5();
-		
-		
+		if ("test1".equals(args[0])) {
+			runTest1();
+		} else if ("test2".equals(args[0])) {
+			runTest2();
+		} else if ("test3".equals(args[0])) {
+			runTest3();
+		} else if ("test4".equals(args[0])) {
+			runTest4();
+		} else {
+			runTest5();
+		}
 	}
 	
 	public static void initLists(){
 		//Initializing
-		List1.clear();
-		List2.clear();
-		List3.clear();
-		List4.clear();
-		List5.clear();
-		
-		
+		list1.clear();
+		list2.clear();
+		list3.clear();
+		list4.clear();
+		list5.clear();
+				
 		//One empty list
-		List1.clear();
+		list1.clear();
 		
 		//A list with only one element
-		List2.add(17);
+		list2.add(17);
 		
 		//A list with two elements
-		List3.add(27);
-		List3.add(18);
+		list3.add(27);
+		list3.add(18);
 		
 		//A list with multiple elements
 		int[] a1 = {1,2,3,4,5};
 		for(int i = 0; i < a1.length; i++){
-			List4.add(a1[i]);
+			list4.add(a1[i]);
 		}
 		
 		//Another list with multiple elements, but without
@@ -54,14 +53,14 @@ public class TestContains {
 		
 		int[] a2 = {5,3,6,8,0,3};
 		for(int i = 0; i < a2.length; i++){
-			List5.add(a2[i]);
+			list5.add(a2[i]);
 		}
 	}
-	
+	//Checks an empty list for an element
+			//Should return false
 	public static void runTest1(){
-		//Checks an empty list for an element
-		//Should return false
-		if (!List1.contains(1))
+		
+		if (!list1.contains(1))
 		{
 			System.out.println("Success");
             System.out.println(2);
@@ -71,10 +70,11 @@ public class TestContains {
 		}
 		
 	}
+	//Checks a single element list
+	//Should return true
 	public static void runTest2(){
-		//Checks a single element list
-		//Should return true
-		if (List2.contains(17)){
+		
+		if (list2.contains(17)){
 			System.out.println("Success");
             System.out.println(2);
         }
@@ -82,10 +82,11 @@ public class TestContains {
             System.out.println("*** Failed test");
 		}
 	}
+	//Checks a two element list
+	//Should return true
 	public static void runTest3(){
-		//Checks a two element list
-		//Should return true
-		if (List3.contains(18)){
+		
+		if (list3.contains(18)){
 			System.out.println("Success");
             System.out.println(2);
         }
@@ -94,10 +95,10 @@ public class TestContains {
 		}
 		
 	}
+	//Checks a list with multiple elements
+	//Should return true
 	public static void runTest4(){
-		//Checks a list with multiple elements
-		//Should return true
-		if (List4.contains(4)){
+		if (list4.contains(4)){
 			System.out.println("Success");
             System.out.println(2);
         }
@@ -106,19 +107,17 @@ public class TestContains {
 		}
 		
 	}
+	//Checks a list with multiple elements for an element it doesn't have
+	//Should return false
 	public static void runTest5(){
-		//Checks a list with multiple elements for an element it doesn't have
-		//Should return false
-		if (!List5.contains(37)){
+		
+		if (!list5.contains(37)){
 			System.out.println("Success");
             System.out.println(2);
         }
         else {
             System.out.println("*** Failed test");
-		}
-		
-	}
-	
-	
-
+		}		
+	}	
 }
+

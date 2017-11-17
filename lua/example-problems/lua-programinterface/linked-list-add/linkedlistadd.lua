@@ -6,4 +6,5 @@ tests = {
    {name="Element added to beginning of list",command="java TestAdd test5", points=2} 
 }
    
-checker = programinterface.program_checker("/home/codepotato/workspacee/oneUp/lua/example-problems/lua-programinterface/linked-list-add","LList.java","javac *.java",10,tests)
+
+checker = programinterface.program_checker("/home/dichevad/workspace/oneUpNew/lua/example-problems/lua-programinterface/linked-list-add","LList.java","javac *.java",10,tests)

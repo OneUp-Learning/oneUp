@@ -19,13 +19,7 @@
     </script>
     <script type="text/javascript"
      src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
-    </script>
-    <script type="text/javascript">
-       $('#datetimepicker').datetimepicker({
-         format: 'dd/MM/yyyy hh:mm:ss',
-         language: 'pt-BR'
-       });
-    </script>  
+    </script> 
     <script type="text/javascript">
  	// This script handels the datetime fields (AH)
       $(function() {
@@ -36,20 +30,27 @@
             });
          $('#datetimepicker3').datetimepicker({
            language: 'en',
-           pick12HourFormat: true,
-           
+           pick12HourFormat: true           
          });
+         if($("#datetimepicker3").data('datetimepicker').getDate() == $("#datetimepicker2").data('datetimepicker').getDate()){
+             $("#datetimepicker3").data('datetimepicker').setDate(null);
+         }
         // Called when first datefield(Display From) is changed (AH)
    		$("#datetimepicker2").on('changeDate', function(e) {
    			// Sets the Start Date of the second datefield(Display Until) to be the assigned date of the
    			// first datefield(Display From) (AH)
-   		  $("#datetimepicker3").data('datetimepicker').setStartDate(e.date);
-   			// If the saved date for the second datefield is somehow before the first datefield date,
-   			// set the second datefield to be the same as the first datefield (AH)
-   		  if($("#datetimepicker3").data('datetimepicker').getDate() < e.date){
-   			$("#datetimepicker3").data('datetimepicker').setDate(e.date);
-   		  }
-		  console.log(e.date.toString());
+   			
+   			console.log($("#datetimepicker3").data('datetimepicker').getDate());
+   			if($("#datetimepicker3").data('datetimepicker').getDate() != null){
+   		  		$("#datetimepicker3").data('datetimepicker').setStartDate(e.date);
+	   			// If the saved date for the second datefield is somehow before the first datefield date,
+	   			// set the second datefield to be the same as the first datefield (AH)
+	   			
+	   		  	if($("#datetimepicker3").data('datetimepicker').getDate() < e.date){
+	   				$("#datetimepicker3").data('datetimepicker').setDate(e.date);
+	   		  	}
+			  	console.log(e.date);
+   			}
 		});
    		// Called when first datefield(Display From) is changed (AH)
    		$("#datetimepicker3").on('changeDate', function(e) {
@@ -61,7 +62,7 @@
   		  if($("#datetimepicker2").data('datetimepicker').getDate() > e.date){
   			$("#datetimepicker2").data('datetimepicker').setDate(e.date);
   		  }
-  			console.log(e.date.toString());
+  			console.log(e.date);
   		});
         
       });
@@ -174,7 +175,7 @@
                     		<br>
                     		Display From:<div id="datetimepicker2" class="input-append">
 
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
 
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
@@ -182,7 +183,7 @@
                         </div>
                     		Display Until:<div id="datetimepicker3" class="input-append">
 
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
                             </span>

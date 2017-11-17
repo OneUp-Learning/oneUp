@@ -26,27 +26,26 @@ public class TestSize{
 		//One queue with no elements
 		queue1.clear();
 		
-		//One queue with elements
-		int[] a1 = {1,2,3,4,5};
+		//One queue with  1 element
+		int[] a1 = {1};
 		
 		for(int i = 0; i < a1.length;i++)
 		{
 			queue2.enqueue(a1[i]);
 		}
-		//One queue with 4 elements
+		//One queue with 5 elements
 		
-		int[] a2 = {1,2,3,4};
+		int[] a2 = {1,2,3,4,5};
 		
 		for(int i = 0; i < a2.length;i++)
 		{
 			queue3.enqueue(a2[i]);
 		}
 	}
-	
+	// empty queue
 	public static void runTest1() {
-		LinkedQueue<Integer> result = new LinkedQueue<Integer>();
-		result.enqueue(queue1.size())
-		if(result.dequeue().equals(0))
+		int result = queue1.size();
+		if(queue1.size() == 0)
 		{
 			System.out.println("Success");
 			System.out.println(3.34);
@@ -55,9 +54,15 @@ public class TestSize{
 			System.out.println("*** Failed test");
 		}
 	}
+	
+	// queue with 1 element
 	public static void runTest2() {
+<<<<<<< HEAD
 		int result = queue2.size();
 		if(result == 5)
+=======
+		if(queue2.size() == 1)
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 		{
 			System.out.println("Success");
 			System.out.println(3.33);
@@ -66,9 +71,14 @@ public class TestSize{
 			System.out.println("*** Failed test");
 		}
 	}
+	// queue with 5 elements
 	public static void runTest3() {
+<<<<<<< HEAD
 		int result = queue3.size();
 		if(result == 4)
+=======
+		if(queue3.size() == 5)
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 		{
 			System.out.println("Success");
 			System.out.println(3.33);

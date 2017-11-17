@@ -1,10 +1,10 @@
-// Write a method add() that adds an element to a list in a certain position
+// Write a method equals() that compares two linked bags
 
-	//Should make a case if the list is empty by adding the entry to first position
-	//If not empty, should use nodeBefore and nodeAfter to place entry
-	//Method should use getNodeAt(int givenPosition)
+	//Should check against another bag
+	//Return true if both bags have the same objects
+	//With the same frequencies
 	
-	public boolean add1(int newPosition, T newEntry){
+	public boolean equals(LinkedBag<T> aBag) {
 	
 	[{make_answer('ans1','code-java',10,checker,10)}]
 	

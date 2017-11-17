@@ -21,7 +21,7 @@ import java.io.*;
  * @version 3.1 (Modified for the Solution)
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  */
-class LList<T> implements ListInterface<T> {
+class LList<T> {
 
     private Node firstNode;  // reference to first node
     private int numberOfEntries;
@@ -273,30 +273,6 @@ class LList<T> implements ListInterface<T> {
      * METHODS TO BE COMPLETED
      * 
      ***********************************************************************/
-     
-
-    /** Reverse the order of items in a list
-     */
-    public void reverse() {
-
-        if (numberOfEntries > 1) // only need to do this for lists of numberOfEntries 2 or more
-        {
-            Node next = firstNode.getNextNode();
-            Node rest = null;
-
-            while (next != null) // more reverse action needed
-            {
-                // Link back
-                firstNode.setNextNode(rest);
-                rest = firstNode;
-                firstNode = next;
-                next = next.getNextNode();
-            }
-
-            // Need a final link back
-            firstNode.setNextNode(rest);
-        }
-    }
 
     
     //Create a method that cycles the first item to the end of the list

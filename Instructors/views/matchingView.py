@@ -35,7 +35,7 @@ def matchingForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','questionText','difficulty','correctAnswerFeedback',
-                  'incorrectAnswerFeedback','instructorNotes'];
+                  'incorrectAnswerFeedback','instructorNotes','author'];
 
     # We set these structures up here for later use.
     
@@ -72,13 +72,12 @@ def matchingForm(request):
         # Fix the question type
         question.type = QuestionTypes.matching;
 
-        # get the author                            
-        if request.user.is_authenticated():
+        
+        if question.author == '':
             question.author = request.user.username
-        else:
-            question.author = ""
-         
-        question.save();  
+            
+        question.save();  #Writes to database.
+          
 
         # The number of answers is always sent.
         num_answers = int(request.POST['numAnswers'])

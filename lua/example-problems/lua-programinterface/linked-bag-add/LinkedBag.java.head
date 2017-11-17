@@ -347,7 +347,7 @@ public class LinkedBag<T>{
 
     //Adds a new entry to the bag
     
-    public boolean add1(){
+    public boolean add1(T newEntry){
     
 
 

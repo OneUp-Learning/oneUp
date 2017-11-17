@@ -1,0 +1,10 @@
+// Write a method peek() that checks the top element of a stack
+
+	//Should return the element if stack is not empty
+	//If the stack is empty, should return null
+	
+	 public T peek() {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

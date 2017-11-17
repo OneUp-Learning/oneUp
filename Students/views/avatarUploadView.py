@@ -18,14 +18,16 @@ def avatarUpload(request):
             
     if request.POST:        
         avatarImage = request.FILES['myfile']
-        avatarImageFileName = avatarImage.name
+        avatarImageFileName = os.path.basename(avatarImage.name)
+        print(avatarImageFileName)
         
         avatarImagePerson = UploadedAvatarImage() 
         avatarImagePerson.avatarImage = avatarImage
         avatarImagePerson.avatarImageFileName = avatarImageFileName
         avatarImagePerson.save()
         
-        path = os.path.join('../../media/images/uploadedAvatarImages/', avatarImageFileName)
+        #path = os.path.join('../../media/images/uploadedAvatarImages/', avatarImageFileName)
+        path = '/'+ str(avatarImagePerson.avatarImage.url)
         
         student = Student.objects.get(user=request.user)       
         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)     

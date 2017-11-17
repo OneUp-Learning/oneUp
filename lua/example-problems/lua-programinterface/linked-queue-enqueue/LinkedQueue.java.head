@@ -5,7 +5,7 @@
    @author Frank M. Carrano
    @version 3.0
 */
-public class LinkedQueue<T> implements QueueInterface<T>
+public class LinkedQueue<T> 
 {
   private Node firstNode; // references node at front of queue
   private Node lastNode;  // references node at back of queue
@@ -26,6 +26,18 @@ public class LinkedQueue<T> implements QueueInterface<T>
 		return front;
 	} // end getFront
 
+	public void enqueue(T newEntry)
+	{
+		Node newNode = new Node(newEntry, null);
+		
+		if (isEmpty())
+			firstNode = newNode;
+		else
+			lastNode.setNextNode(newNode);
+
+		lastNode = newNode;
+	} // end enqueue
+	
 	public T dequeue()
 	{
 		T front = null;
@@ -66,6 +78,49 @@ public class LinkedQueue<T> implements QueueInterface<T>
 		return s;
 	}
 
+	public int size()
+	{
+		int size = 0;
+		
+		Node currentNode = firstNode; 
+		while (currentNode != null){
+			size++;
+			currentNode = currentNode.next;
+		}		
+		return size;
+	} // end clear	
+	
+		
+ 	/** Check to see if two queues are the same.  
+	 * @param aQueue another linked queue to check this queue against
+	 * @return true if all the items in this queue and the other queue are equals
+	 */
+
+    public boolean equals(LinkedQueue<T> aQueue) {
+        boolean isEqual = false; // result of comparison of lists
+
+        Node currOne = firstNode;
+        Node currTwo = aQueue.firstNode;
+        int counter;
+
+        if (size() == aQueue.size()) {
+            // lists have equal lengths, so traverse both and compare items as you go:
+            // (NOTE: loop is skipped if lists are empty)
+
+            while ((currOne != null) && (currOne.getData()).equals(currTwo.getData())) {
+                currOne = currOne.getNextNode();
+                currTwo = currTwo.getNextNode();
+            } // end while
+
+            isEqual = currOne == null;
+        } else // lists have unequal lengths
+        {
+            isEqual = false;
+        }
+
+        return isEqual;
+    } // end equals	
+
 	private class Node
 	{
 		private T    data; // entry in queue
@@ -105,5 +160,5 @@ public class LinkedQueue<T> implements QueueInterface<T>
 	} // end Node
 	
 	// Write a method that will return the size of the queue
-	public void enqueue(T newEntry) {
+	public void enqueue1(T newEntry) {
 	

@@ -37,7 +37,7 @@ def StudentCourseHome(request):
         context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
         context_dict['course_Name'] = currentCourse.courseName
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage    
+        context_dict['avatar'] =  st_crs.avatarImage    
                       
         context_dict = courseLeaderboard(currentCourse, context_dict)
            

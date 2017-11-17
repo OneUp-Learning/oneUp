@@ -412,7 +412,7 @@ public class LinkedBag<T>{
 		}
 	}
 
-}
+
 
 
     // Locates a given entry within this bag.

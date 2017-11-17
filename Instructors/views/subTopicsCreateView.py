@@ -72,8 +72,8 @@ def subTopicsCreateView(request):
 #         if(request.POST['displayDate'] == ""):
 #             subtopic.displayDate = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
 #         else:
-        if datetime.strptime(request.POST['displayDate'], "%m/%d/%Y %I:%M:%S %p"):
-                subtopic.displayDate = utcDate(request.POST['displayDate'], "%m/%d/%Y %I:%M:%S %p")
+        if datetime.strptime(request.POST['displayDate'], "%m/%d/%Y %I:%M %p"):
+                subtopic.displayDate = utcDate(request.POST['displayDate'], "%m/%d/%Y %I:%M %p")
         else:
                 subtopic.displayDate = utcDate(default_time_str,"%m/%d/%Y %I:%M:%S %p")
                               

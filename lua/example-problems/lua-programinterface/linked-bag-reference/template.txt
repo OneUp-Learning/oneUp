@@ -1,10 +1,9 @@
-// Write a method add() that adds an element to a list in a certain position
+// Write a method getReferenceTo() that returns the node of an element
 
-	//Should make a case if the list is empty by adding the entry to first position
-	//If not empty, should use nodeBefore and nodeAfter to place entry
-	//Method should use getNodeAt(int givenPosition)
+	//Should locate the entry in the bag
+	//Should return node containing entry, null otherwise
 	
-	public boolean add1(int newPosition, T newEntry){
+	private Node getReferenceTo(T anEntry) {
 	
 	[{make_answer('ans1','code-java',10,checker,10)}]
 	
