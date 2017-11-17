@@ -60,7 +60,7 @@ def activityScore(course,student,activity):
 def getPercentageCorrect(course,student,challenge):
     #Return the actual correct percentage from the fired event
     #Get the student score
-    allScores = getTestScores(course,challenge)
+    allScores = getTestScores(course,student,challenge)
     if allScores.exists():
         testScore = allScores.latest('testScore')
     else:
@@ -79,6 +79,47 @@ def getMaxTestScore(course,student,challenge):
     highestTestScore = allTestScores.latest('testScore') #.latest() also gets the max for an integer value
     return highestTestScore
 
+def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
+    #return the percentage of the higest text score
+    # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
+    
+    from django.db.models import Max
+    
+    max = 0
+    maxPercentage = 0
+    allScores = getTestScores(course,student,challenge)
+    if allScores.exists():
+        #max = allScores.aggregate(Max('testScore'))
+        #max = max['testScore__max']
+        maxObject = allScores.latest('testScore')
+        max = maxObject.testScore
+        print("maxxxxxxxxxx" +str(max))
+    else:
+        return 0
+  
+    if float(maxObject.testTotal) != 0:
+        maxPercentage = (float(max)/float(maxObject.testTotal)) * 100
+            
+    print("Maxpercentage: " + str(maxPercentage))
+    return maxPercentage
+    
+def getAverageTestScore(course, students, challenge):
+    #return the average score of the a challenge
+    
+    maxScores = 0.0
+    
+    for student in students:
+        allScores = getTestScores(course,student,challenge)
+        if allScores.exists():
+            maxScore = allScores.latest('testScore').testScore
+        
+            maxScores += maxScore
+        
+    if len(students) != 0:
+        return maxScores/float(len(students))
+    else:
+        return 0
+    
 def getMinTestScore(course,student,challenge):
     #return the min test score achieved out of the entire class for a challenge
     allTestScores = getAllTestScores(course,challenge)
@@ -157,26 +198,39 @@ def getConsecutiveDaysLoggedIn(course,student):
         previous_day = d
     return consecutive_days
 
-def getConsecutiveDaysWarmUpChallengesTaken(course,student): 
+def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student): 
     from Students.models import StudentEventLog
+    from Students.models import StudentChallenges
     
     warmUpChallDates = []
     # filter all the ended challenge events
     eventObjects = StudentEventLog.objects.filter(student=student, course=course,event = Event.endChallenge)
     
+    entirePoints = 0.0
+    earnedPoints = 0.0
+    scorePecentage = 0.0
+    
+    
     for event in eventObjects:
         
         if event.objectType == ObjectTypes.challenge:
             
-            try:
-                #get a specific challenge by its ID
-                challenge = Challenges.objects.get(challengeID=event.objectID)
-                print(challenge.challengeName)
-            except:
-                continue
+            
+            #get a specific challenge by its ID
+            chall = 0
+            challenges = Challenges.objects.filter(courseID = course, challengeID=event.objectID)
+            for challenge in challenges:
+                chall = challenge
+            studentChallenges = StudentChallenges.objects.filter(courseID=course, challengeID=event.objectID)
+            for studentChallenge in studentChallenges:
+                entirePoints = studentChallenge.testTotal
+                earnedPoints = studentChallenge.testScore
+                
+            if entirePoints != 0.0:
+                scorePecentage = (earnedPoints / entirePoints) * 100
             
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
-            if not challenge.isGraded:
+            if not chall.isGraded and scorePecentage >= 30.0:
                 #eventDate = str(event.timestamp)
                 warmUpChallDates.append(event.timestamp.date())
      
@@ -214,7 +268,81 @@ def getConsecutiveDaysWarmUpChallengesTaken(course,student):
         # if the last day the challenge taken is not today then return 0
         if warmUpChallDates[len(warmUpChallDates)-1] != today:
             consecutiveDays = 0
+        print("30 Percentage " +str(consecutiveDays))
+        return consecutiveDays
+    
+def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student): 
+    from Students.models import StudentEventLog
+    from Students.models import StudentChallenges
+    
+    warmUpChallDates = []
+    # filter all the ended challenge events
+    eventObjects = StudentEventLog.objects.filter(student=student, course=course,event = Event.endChallenge)
+    
+    entirePoints = 0.0
+    earnedPoints = 0.0
+    scorePecentage = 0.0
+    
+    
+    for event in eventObjects:
         
+        if event.objectType == ObjectTypes.challenge:
+            
+            
+                #get a specific challenge by its ID
+                chall = 0
+                challenges = Challenges.objects.filter(courseID = course, challengeID=event.objectID)
+                for challenge in challenges:
+                    chall = challenge
+                studentChallenges = StudentChallenges.objects.filter(courseID=course, challengeID=event.objectID)
+                for studentChallenge in studentChallenges:
+                    entirePoints = studentChallenge.testTotal
+                    earnedPoints = studentChallenge.testScore
+                
+                if entirePoints != 0.0:
+                    scorePecentage = (earnedPoints / entirePoints) * 100
+            
+                # if the challenge is not graded then it's a warm up challenge and put in it in the list
+                if not challenge.isGraded and scorePecentage >= 75.0:
+                    #eventDate = str(event.timestamp)
+                    warmUpChallDates.append(event.timestamp.date())
+     
+    # get today's date in utc            
+    today = datetime.now(tz=timezone.utc).date()
+    
+    # if the student did not take any challenge return 0 as consecutiveDays
+    if warmUpChallDates == []:
+        return 0
+    
+    # if the student took only one challenge and the date is today return 1 otherwise 0
+    elif len(warmUpChallDates) == 1:
+        if warmUpChallDates[0] == today:
+            return 1
+        else:
+            return 0
+        
+    else:
+        
+        consecutiveDays = 1
+        
+        previousDate = warmUpChallDates[0]
+        
+        for date in warmUpChallDates[1:len(warmUpChallDates)-1]:
+            
+            if(date - previousDate) == 1:
+                consecutiveDays +=1
+                previousDate = date
+            elif (date - previousDate) == 0:
+                continue
+            else:
+                consecutiveDays = 1
+                previousDate = date
+            
+        # if the last day the challenge taken is not today then return 0
+        if warmUpChallDates[len(warmUpChallDates)-1] != today:
+            consecutiveDays = 0
+            
+        print("30 Percentage " +str(consecutiveDays))
         return consecutiveDays
         
     
@@ -270,9 +398,12 @@ class SystemVariable():
     challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
     numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier
     numDaysSubmissionLate = 913 #Number of days an assignment is submitted late
-    consecutiveDaysWarmUpChallengesTaken = 914  #Consecutive days warm up challenges are taken
+    averageTestScore = 914  # Average Test Score
     consecutiveWeeksOnLeaderboard = 915 #Consecutive weeks on the leaderboard
     consecutiveClassesAttended = 916 #The number of consecutive classes a student has attended
+    consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
+    consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
+    percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
     
     systemVariables = {
         numAttempts:{
@@ -408,17 +539,29 @@ class SystemVariable():
                 ObjectTypes.challenge: calcNumDaysSubmissionLate
             }
         },                       
-        consecutiveDaysWarmUpChallengesTaken:{
-            'index': consecutiveDaysWarmUpChallengesTaken,
-            'name':'consecutiveDaysWarmUpChallengesTaken',
-            'displayName':'Consecutive Days Warm Up Challenges Taken',
-            'description':'The number of consecutive days a student has taken Warm-up challenges.',
+        consecutiveDaysWarmUpChallengesTaken30Percent:{
+            'index': consecutiveDaysWarmUpChallengesTaken30Percent,
+            'name':'consecutiveDaysWarmUpChallengesTaken30Percent',
+            'displayName':'Consecutive Days Warm Up Challenges (at least 30% correct) Taken ',
+            'description':'The number of consecutive days a student has taken Warm-up challenges (at least 30% correct).',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
             'functions':{
-                ObjectTypes.none: getConsecutiveDaysWarmUpChallengesTaken
+                ObjectTypes.none: getConsecutiveDaysWarmUpChallengesTaken30Percent
             }
         },
+        consecutiveDaysWarmUpChallengesTaken75Percent:{
+            'index': consecutiveDaysWarmUpChallengesTaken75Percent,
+            'name':'consecutiveDaysWarmUpChallengesTaken75Percent',
+            'displayName':'Consecutive Days Warm Up Challenges (at least 75% correct) Taken ',
+            'description':'The number of consecutive days a student has taken Warm-up challenges (at least 75% correct).',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'int',
+            'functions':{
+                ObjectTypes.none: getConsecutiveDaysWarmUpChallengesTaken75Percent
+            }
+        },
+                       
         consecutiveWeeksOnLeaderboard:{
             'index': consecutiveWeeksOnLeaderboard,
             'name':'consecutiveWeeksOnLeaderboard',
@@ -442,6 +585,29 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getConsecutiveClassesAttended
             },
-        },                                              
+        }, 
+        percentOfScoreOutOfMaxChallengeScore:{
+            'index': percentOfScoreOutOfMaxChallengeScore,
+            'name':'percentOfScoreOutOfMaxChallengeScore',
+            'displayName':'Percent of student score out of max challenge score',
+            'description':'Percentage of student score (for the max scored attempt) out of max challenge score.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'float',
+            'functions':{
+                ObjectTypes.none:getPercentOfScoreOutOfMaxChallengeScore
+            },
+        },                                             
+        averageTestScore:{
+            'index': averageTestScore,
+            'name':'averageTestScore',
+            'displayName':'Average Test Score',
+            'description':'Average Test Score.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'float',
+            'functions':{
+                ObjectTypes.none:getAverageTestScore
+            },
+        },                        
+                                                                    
             
     }
