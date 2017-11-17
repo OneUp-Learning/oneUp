@@ -64,8 +64,8 @@ class StudentChallenges(models.Model):
     challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
-    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student (We think). Need to test to figure out for certain.
-    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score (We think). Need to test to figure out for certain.
+    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
+    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score 
     instructorFeedback = models.CharField(max_length=200)
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
@@ -130,8 +130,10 @@ class StudentActivities(models.Model):
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
     timestamp = models.DateTimeField(default= datetime.now)
-    activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
+    activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
+    graded = models.BooleanField(default=False)
+    numOfUploads = models.IntegerField(default = 0)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
 #     +","+str(self.challengeID)    
@@ -149,6 +151,8 @@ class StudentFile(models.Model):
     timestamp = models.DateTimeField(default=datetime.now)
     file = models.FileField(max_length=500,upload_to= fileUploadPath)
     fileName = models.CharField(max_length=200, default='')
+    latest = models.BooleanField(default = True)
+    
     
     def delete(self):
         self.file.delete()
@@ -168,7 +172,19 @@ class StudentEventLog(models.Model):
     def __str__(self):
         return 'Event '+str(self.event)+ ' at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
     
-
+class StudentVirtualCurrencyTransactions(models.Model):
+    transactionID = models.AutoField(primary_key=True)
+    student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
+    course = models.ForeignKey(Courses, verbose_name="Course in Which event occurred", db_index=True)
+    studentEvent = models.ForeignKey(StudentEventLog,verbose_name="the Student Event Log", db_index=True)
+    objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
+    objectID = models.IntegerField(verbose_name="index into the appropriate table")
+    status = models.CharField(max_length=200, default='Requested')
+    noteForStudent = models.CharField(max_length=300)
+    instructorNote = models.CharField(max_length=300)
+    
+    def __str__(self):
+        return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote)
 # '''
 # Student Configuration parameters (goes into studetns.models.py)
 # -    Selecting to activate specific game mechanics rules (categories of rules)

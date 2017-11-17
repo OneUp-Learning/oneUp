@@ -104,13 +104,18 @@ def templateDynamicQuestionForm(request):
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
             
+            position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
+            
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
+                for chall_question in challenge_question:
+                    position = chall_question.questionPosition
+                
                 challenge_question.delete()
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']) )
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']) , position)
                             
             # Processing and saving skills for the question in DB
             utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))

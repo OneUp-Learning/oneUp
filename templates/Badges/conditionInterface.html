@@ -137,7 +137,11 @@
       <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
       	<div class="cond-atom-helper">
 			<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
-		  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled selected>choose a variable</option>
+		  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true"
+		  	  		{% for objectType in objectTypes %}
+		  	  			data-cond-context-{{objectType.name}}="true" 
+		  	  		{% endfor %}
+		  	  		disabled selected>choose a variable</option>
 			  {% for variable in variables %}
 			  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
 			  	  {% for object in variable.objects %}
@@ -153,7 +157,11 @@
 			</select>
 			<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
 			<select name="cond-rhs-var" hidden class="cond-rhs-var" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
-		  	  <option value="0" data-cond-context-global="true" data-cond-context-challenge="true" data-cond-context-activity="true" disabled selected>choose a variable</option>
+		  	  <option value="0" data-cond-context-global="true"
+		  	  		{% for objectType in objectTypes %}
+		  	  			data-cond-context-{{objectType.name}}="true" 
+		  	  		{% endfor %}
+		  	  		disabled selected>choose a variable</option>
 			  {% for variable in variables %}
 			  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
 			  	  {% for object in variable.objects %}
@@ -433,7 +441,7 @@
         item.parentNode.removeChild(item);
       }
 
-      var condForAllTypeList = ["challenge","activity",]
+      var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
       function condChangeForAllType(select) {
         var currentType = select.options[select.selectedIndex].value;
         var oldType = select.dataset.condOldType;
@@ -652,7 +660,7 @@
         var forAllDiv = clonePrototype("condForPrototype");
         targetParent.insertBefore(forAllDiv,blank);
         condPrepareEmptyDescendants(blankDiv,"none");
-        condPrepareEmptyDescendants(forAllDiv,"challenge");
+        condPrepareEmptyDescendants(forAllDiv,"{{defaultObject}}");
 
         forAllDiv.addEventListener("dragstart",condHandleDragStartMove,false);
         forAllDiv.addEventListener("dragend",condHandleDragEnd,false);

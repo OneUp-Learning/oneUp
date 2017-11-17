@@ -197,11 +197,12 @@ class ChallengesQuestions(models.Model):
     def __str__(self):              
         return str(self.challengeID)+","+str(self.questionID)
     @staticmethod
-    def addQuestionToChallenge(question, challenge, points):
+    def addQuestionToChallenge(question, challenge, points, position):
         cq = ChallengesQuestions()
         cq.challengeID = challenge
         cq.questionID = question
         cq.points = points
+        cq.questionPosition = position
         cq.save()
         return cq
 
@@ -212,6 +213,7 @@ class Activities(models.Model):
     points =  models.IntegerField(default=0)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)
+    uploadAttempts = models.IntegerField(default=1)
     #activityType = models.CharField(max_length=50)
     #difficulty = models.CharField(max_length=50)
     instructorNotes = models.CharField(max_length=300, default="")

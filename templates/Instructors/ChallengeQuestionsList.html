@@ -82,23 +82,36 @@
             return false;"></a> 
         </form>
         </div>
+        <form name="question" action="/oneUp/instructors/reorderChallengeSaveQuestions" method="POST">
+        {% csrf_token %}
+        	
+        
         {% if unassign != 1%} 
 		<div style="text-align:left;padding-bottom:.5em">
 		<a href="/oneUp/instructors/search?challengeID={{challengeID}}">
         <input type="button" value="Filter Problems"></a>
-        </div>
+       
         {% else %}<br><br>
         {% endif %}
+        <input style="float:right" type="submit" name="submit" value="Reorder Questions" class="button">
+        <input type="hidden" name="challengeID" value="{{challengeID}}" id="challengeID">	
+       
+        </div>
         <table class="bg">
 		<tr>
                 <th>Problem Name</th>
                 <th>Problem Type</th>
-                <th></th>
+                <th width="15%">Problem Position</th>
+                
             </tr>
-    		{% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty in question_range %}
+    		{% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty , q_position in question_range %}
     		<tr> 		
     				<td> {{q_preview}}</td>
     				<td> {{q_type_displayName}}</td>
+    				<td>
+    				<input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="{{q_ID}}" value="{{q_position}}" id="q_position" pattern=".*\S+.*" required>
+    				</td>
+    				</form>
     				<td align="right">	
     					<form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
     						{% csrf_token %} 				
@@ -132,7 +145,8 @@
     						<input type="hidden" name="questionId" value="{{q_ID}}">
     						<input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
      					</form>
-    				</td>								
+    				</td>
+    									
     		</tr>				
     		{% endfor %}
     	</table>
