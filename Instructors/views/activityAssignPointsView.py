@@ -103,10 +103,10 @@ def createContextForPointsAssignment(request):
             
             student_Feedback.append(stud_act.instructorFeedback)
             
-            studentFile = StudentFile.objects.filter(activity= stud_act, studentID =student)
+            studentFile = StudentFile.objects.get(activity= stud_act, studentID =student, latest=True)
             print(studentFile)
             if(studentFile):
-                fName = StudentFile.objects.get(activity= stud_act).fileName
+                fName = studentFile.fileName
                 print(fName)
 #                 if(' ' in fName):
 #                     fName = "_".join(fName.split())
