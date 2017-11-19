@@ -42,7 +42,14 @@ def ActivityList(request):
         
         #make the student activities
         for act in activities:
-            instructorActivites.append(act) # add the activities to the list so we can display
+            
+            # if today is after the data it was assigninged display it 
+            if act.startTimestamp.date() <= datetime.datetime.today().date():
+                instructorActivites.append(act) # add the activities to the list so we can display
+            else: #Today is before the day it is assigend
+                break
+
+                
             
             # get the activity record for this student
             try:
