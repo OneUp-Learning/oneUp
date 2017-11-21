@@ -1,6 +1,6 @@
-// Write a method peek() that checks the top element of a stack
+// Write a method peek() that returns the top element of a stack
 
-	//Should return the element if stack is not empty
+	//Should return the top element if stack is not empty
 	//If the stack is empty, should return null
 	
 	 public T peek() {

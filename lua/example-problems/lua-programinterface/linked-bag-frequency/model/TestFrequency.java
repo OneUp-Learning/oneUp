@@ -83,7 +83,7 @@ public class TestFrequency {
 		result = bag3.getFrequencyOf(2);
 		if (result == 4){
 			System.out.println("Success");
-        	System.out.println(2);
+        	System.out.println(3);
 		}
 		else {
 			System.out.println("*** Failed test");
@@ -96,7 +96,7 @@ public class TestFrequency {
 		result = bag4.getFrequencyOf(2);
 		if (result == 0){
 			System.out.println("Success");
-        	System.out.println(2);
+        	System.out.println(3);
         }
         else {
         	System.out.println("*** Failed test");
