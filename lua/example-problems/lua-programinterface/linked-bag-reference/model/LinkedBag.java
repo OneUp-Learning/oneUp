@@ -422,7 +422,7 @@ public class LinkedBag<T>{
 		if (bag3.getReferenceTo(5) != null)
 		{
 			System.out.println("Success");
-            System.out.println(3.33);
+            System.out.println(3.34;
         }
         else {
             System.out.println("*** Failed test");

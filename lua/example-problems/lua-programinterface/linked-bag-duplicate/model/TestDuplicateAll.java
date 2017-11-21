@@ -107,7 +107,7 @@ public class TestDuplicateAll {
 		bag5.duplicateAll();
 		if(bag5.equals(bag6)){
 			System.out.println("Success");
-			System.out.println(2);
+			System.out.println(3);
 		}
 		else{
 			System.out.println("*** Failed Test");
@@ -118,7 +118,7 @@ public class TestDuplicateAll {
 		bag7.duplicateAll();
 		if(bag7.equals(bag8)){
 			System.out.println("Success");
-			System.out.println(2);
+			System.out.println(3);
 		}
 		else{
 			System.out.println("*** Failed Test");
