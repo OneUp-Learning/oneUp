@@ -132,7 +132,7 @@ def achievements(request):
                 for w in wc:        # for each attempt of this challenge
                     gradeID.append(int(w.testScore)) 
                     print(w.testScore) 
-                    s_testTotal = s.testTotal
+                    s_testTotal = w.testTotal
                 maxWC = max(gradeID)                
                 totalScorePointsWC += maxWC
                 
