@@ -1,17 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">
+      <meta charset="utf-8">      
+      <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="screen"
+     href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">
+    {% include 'scripts.html' %}  
       
-         {% include 'scripts.html' %}
-         
-      <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
       <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
+   	<script type="text/javascript"
+     src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+    </script> 
+    <script type="text/javascript"
+     src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js">
+    </script>
+    <script type="text/javascript"
+     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">
+    </script>
+    <script type="text/javascript"
+     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
+    </script> 
+    <script type="text/javascript">
+ 	// This script handels the datetime fields (AH)
+      $(function() {
+    	  $('#datetimepicker2').datetimepicker({
+              language: 'en',
+              pick12HourFormat: true,
+            
+            });
+         $('#datetimepicker3').datetimepicker({
+           language: 'en',
+           pick12HourFormat: true           
+         });
+         if($("#datetimepicker3").data('datetimepicker').getDate() == $("#datetimepicker2").data('datetimepicker').getDate()){
+             $("#datetimepicker3").data('datetimepicker').setDate(null);
+         }
+        // Called when first datefield(Display From) is changed (AH)
+   		$("#datetimepicker2").on('changeDate', function(e) {
+   			// Sets the Start Date of the second datefield(Display Until) to be the assigned date of the
+   			// first datefield(Display From) (AH)
+   			
+   			console.log($("#datetimepicker3").data('datetimepicker').getDate());
+   			if($("#datetimepicker3").data('datetimepicker').getDate() != null){
+   		  		$("#datetimepicker3").data('datetimepicker').setStartDate(e.date);
+	   			// If the saved date for the second datefield is somehow before the first datefield date,
+	   			// set the second datefield to be the same as the first datefield (AH)
+	   			
+	   		  	if($("#datetimepicker3").data('datetimepicker').getDate() < e.date){
+	   				$("#datetimepicker3").data('datetimepicker').setDate(e.date);
+	   		  	}
+			  	console.log(e.date);
+   			}
+		});
+   		// Called when first datefield(Display From) is changed (AH)
+   		$("#datetimepicker3").on('changeDate', function(e) {
+   			// Sets the End Date of the first datefield(Display From) to be the assigned date of the
+   			// second datefield(Display Until) (AH)
+  		  $("#datetimepicker2").data('datetimepicker').setEndDate(e.date);
+  			// If the saved date for the first datefield is somehow after the second datefield date,
+ 			// set the first datefield to be the same as the second datefield (AH)
+  		  if($("#datetimepicker2").data('datetimepicker').getDate() > e.date){
+  			$("#datetimepicker2").data('datetimepicker').setDate(e.date);
+  		  }
+  			console.log(e.date);
+  		});
+        
+      });
+    </script> 
+ 
+    <script type="text/javascript">
          function goToNewPage()
          {
              var url1 = document.getElementById('qtype').value;
@@ -33,26 +90,26 @@
    
    <body>
       <div id="page-wrapper">
-      
-       {% include 'heading.html' %}
-       
-         <div class="frame" id="grad" align="center">
+
+        {% include 'heading.html' %}
+                     
+         <div class="frame"  align="center">
             <div class="container">
             <div class="row">
             <div class="12u">
-               <h1>Create/Edit Class Activity</h1>
+            <h1>Create/Edit Class Activity</h1>
                <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
-                  <!-- INSERTED PAGE CONTENT -->
-                  <form name="question" action="/oneUp/instructors/createActivity" method="POST">
-                     {% csrf_token %}
-                     {% if activityID %}
-                     <input type="hidden" name="activityID" id="activityID"
-                        value="{{activityID}}">
-                     {% endif %}
-                     <table class="bg">
-                        <tr>
-                           <td>Activity Name <span class = "red">*</span></td>
-                        </tr>
+               <div>
+<!-- INSERTED PAGE CONTENT -->
+			<form name="question" action="/oneUp/instructors/createActivity" method="POST">
+               {% csrf_token %}
+               {% if activityID %}
+              		<input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
+               {% endif %}
+				<table class="bg">
+				<tr>
+                   <td>Activity Name <span class = "red">*</span></td>
+                </tr>
                         <tr>
                            <td>
                               <input id="mediumFormBox" type="text" name="activityName" value="{{activityName}}" pattern=".*\S+.*" required>
@@ -75,7 +132,29 @@
                              
                            </td>
                         </tr>
-                        <tr>
+            		<tr>
+            			<th>Availability</th>
+        			</tr>
+        			<tr>
+                    	<td>
+                    		Display From:<div id="datetimepicker2" class="input-append">
+
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
+
+                            <span class="add-on" style="height:2.75em; line-height:2em">
+                            	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                            </span>
+                        </div>
+                    		Display Until:<div id="datetimepicker3" class="input-append">
+
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                            <span class="add-on" style="height:2.75em; line-height:2em">
+                            	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                            </span>
+                        </div>
+                    	</td>
+            		</tr>
+            		<tr>
                            <td>Allow Students to Upload Files <span class = "red">*</span></td>
                         </tr>
                         <tr>
@@ -104,13 +183,12 @@
                   </form>
                   <br>
                   <!-- END INSERTED PAGE CONTENT -->
-         </div></div></div>
+         </div></div></div></div>
          </div>
          <!-- Footer -->
-         
-        {% include 'footer.html' %}
+
+       {% include 'footer.html' %}
 
       </div>
-    
    </body>
 </html>

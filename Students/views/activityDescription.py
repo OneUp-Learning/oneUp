@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from Instructors.models import Activities, UploadedFiles
 from Students.models import StudentActivities, Student, StudentFile
 from Students.views.utils import studentInitialContextDict
-from datetime import datetime
+from datetime import datetime, date
 from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import activityScore
 from django.core.exceptions import ObjectDoesNotExist
@@ -32,8 +32,17 @@ def ActivityDetail(request):
             context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
             
+            #Need to add the comparsion for time
+            dueTime = datetime.strptime(str(studentActivities.activityID.endTimestamp.time()), "%H:%M:%S" )
+            print(dueTime.strftime("%I:%M %p"))
+            currentTime = datetime.strptime(datetime.utcnow().time().strftime("%H:%M:%S"), "%H:%M:%S")
+            print(currentTime.strftime("%I:%M %p"))
+            
+
+            
             #we are allowed to uplad files 
-            if(studentActivities.activityID.isFileAllowed == True):
+            if(studentActivities.activityID.isFileAllowed == True and studentActivities.activityID.endTimestamp.date() >= datetime.today().date()):
+               #and studentActivities.activityID.endTimestamp.time() > datetime.now().time()):
                 context_dict['canUpload'] = True
                 
                 
