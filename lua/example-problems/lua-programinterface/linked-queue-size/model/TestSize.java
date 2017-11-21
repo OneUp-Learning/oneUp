@@ -8,14 +8,13 @@ public class TestSize{
 	{
 		// Testing Part
 		initQueue();
-		if ("test1".equals(args[0])) {
+		
 		    runTest1();
-		} else if ("test2".equals(args[0])){
+		
 		    runTest2(); 
-		}
-		else {
+		
 	    	runTest3();
-	    }
+	  
 	}
 	
 	public static void initQueue() {
@@ -58,7 +57,12 @@ public class TestSize{
 	
 	// queue with 1 element
 	public static void runTest2() {
+<<<<<<< HEAD
+		int result = queue2.size();
+		if(result == 5)
+=======
 		if(queue2.size() == 1)
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 		{
 			System.out.println("Success");
 			System.out.println(3.33);
@@ -69,7 +73,12 @@ public class TestSize{
 	}
 	// queue with 5 elements
 	public static void runTest3() {
+<<<<<<< HEAD
+		int result = queue3.size();
+		if(result == 4)
+=======
 		if(queue3.size() == 5)
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 		{
 			System.out.println("Success");
 			System.out.println(3.33);

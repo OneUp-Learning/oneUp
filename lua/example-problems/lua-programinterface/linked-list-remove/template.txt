@@ -1,3 +1,4 @@
+
 Write a method remove() that removes an element from a specified position in the list.  You can use the method getNodeAt(int givenPosition) from the ListInterface, which returns the node in the list at the given position.
 
 	// The method should return null if it fails

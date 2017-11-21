@@ -2,7 +2,7 @@ public class TestDequeue {
 	private static LinkedQueue<Integer> queue1 = new LinkedQueue<Integer>();
 	private static LinkedQueue<Integer> queue2 = new LinkedQueue<Integer>();
 	private static LinkedQueue<Integer> queue3 = new LinkedQueue<Integer>();
-	
+
 	public static void main (String[] args)
 	{
 		initQueue();
@@ -51,8 +51,13 @@ public class TestDequeue {
 	}
 	public static void runTest2() {
 		
+<<<<<<< HEAD
+		
+		if(queue2.dequeue() != null)
+=======
 		queue2.dequeue();
 		if(queue2.equals(queue3))
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 		{
 			System.out.println("Success");
             System.out.println(5);

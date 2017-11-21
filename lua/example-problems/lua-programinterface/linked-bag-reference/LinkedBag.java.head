@@ -1,0 +1,424 @@
+
+
+/**
+A class of bags whose entries are stored in a chain of linked nodes.
+The bag is never full.
+@author Frank M. Carrano
+ * 
+ * The toString method is overwritten to give a nice display of the items in
+ * the bag in this format Bag{Size:# <1> <2> <3> <4> }
+ * //- * @version 3.0
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>        
+ * @version 3.1 (Modified for the Solution)
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ */
+public class LinkedBag<T>{
+
+    private Node firstNode; // reference to first node
+    private int numberOfEntries;
+
+    public LinkedBag() {
+        firstNode = null;
+        numberOfEntries = 0;
+    } // end default constructor
+
+    /** Sees whether this bag is empty.
+    @return true if the bag is empty, or false if not */
+    public boolean isEmpty() {
+        return numberOfEntries == 0;
+    } // end isEmpty
+
+    /** Gets the current number of entries in this bag.
+    @return the integer number of entries currently in the bag */
+    public int getCurrentSize() {
+        return numberOfEntries;
+    } // end getCurrentSize
+
+    /** Sees whether this bag is full.
+    @return always returns false (linked bags are never full) */
+    public boolean isFull() {
+        return false;
+    } // end isFull
+
+    /** Adds a new entry to this bag.
+    @param newEntry the object to be added as a new entry
+    @return true */
+    public boolean add(T newEntry) // OutOfMemoryError possible
+    {
+        // add to beginning of chain:
+        Node newNode = new Node(newEntry);
+        newNode.next = firstNode; // make new node reference rest of chain
+        // (firstNode is null if chain is empty)
+        firstNode = newNode; // new node is at beginning of chain
+        numberOfEntries++;
+        return true;
+    } // end add
+
+    /** Retrieves all entries that are in this bag.
+    @return a newly allocated array of all the entries in the bag */
+    public T[] toArray() {
+        // the cast is safe because the new array contains null entries
+        @SuppressWarnings("unchecked")
+        T[] result = (T[]) new Object[numberOfEntries]; // unchecked cast
+        int index = 0;
+        Node currentNode = firstNode;
+        while ((index < numberOfEntries) && (currentNode != null)) {
+            result[index] = currentNode.data;
+            index++;
+            currentNode = currentNode.next;
+        } // end while
+        return result;
+    } // end toArray
+
+    /** Counts the number of times a given entry appears in this bag.
+    @param anEntry the entry to be counted
+    @return the number of times anEntry appears in the bag */
+    public int getFrequencyOf(T anEntry) {
+        int frequency = 0;
+        int counter = 0;
+        Node currentNode = firstNode;
+        while ((counter < numberOfEntries) && (currentNode != null)) {
+            if (anEntry.equals(currentNode.data)) {
+                frequency++;
+            }
+            counter++;
+            currentNode = currentNode.next;
+        } // end while
+        return frequency;
+    } // end getFrequencyOf
+
+    public boolean contains(T anEntry) {
+        boolean found = false;
+        Node currentNode = firstNode;
+        while (!found && (currentNode != null)) {
+            if (anEntry.equals(currentNode.data)) {
+                found = true;
+            } else {
+                currentNode = currentNode.next;
+            }
+        } // end while
+        return found;
+    } // end contains
+
+    /** Removes one occurrence of a given entry from this bag, if possible.
+    @param anEntry the entry to be removed
+    @return true if the removal was successful, or false otherwise */
+    public boolean remove(T anEntry) {
+        boolean result = false;
+        Node nodeN = getReferenceTo(anEntry);
+        if (nodeN != null) {
+            nodeN.data = firstNode.data; // replace located entry with entry
+                // in first node
+            remove(); // remove first node
+            result = true;
+        } // end if
+        return result;
+    } // end remove
+    
+
+    public void clear() {
+        while (!isEmpty()) {
+            remove();
+        }
+    } // end clear
+
+    private class Node {
+
+        private T data; // entry in bag
+        private Node next; // link to next node
+
+        private Node(T dataPortion) {
+            this(dataPortion, null);
+        } // end constructor
+
+        private Node(T dataPortion, Node nextNode) {
+            data = dataPortion;
+            next = nextNode;
+        } // end constructor
+    } // end Node
+
+    /** Removes one unspecified entry from this bag, if possible.
+    @return either the removed entry, if the removal was successful,
+    or null otherwise */
+    public T remove() {
+        T result = null;
+
+        // MODIFY THIS METHOD TO REMOVE A RANDOM ITEM FROM THE BAG
+
+
+//-        if (firstNode != null) {
+//-            result = firstNode.data;
+//-            firstNode = firstNode.next; // remove first node from chain
+//-            numberOfEntries--;
+//-        } // end if
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        if (numberOfEntries > 0) {
+            // Generate a random location for the item to remove.
+            java.util.Random generator = new java.util.Random();
+            int location = generator.nextInt(numberOfEntries);
+
+            // Get the node of the item to remove
+            Node scout = firstNode;
+            for (int i = 0; i < location; i++) {
+                scout = scout.next;
+            }
+
+            result = scout.data;
+            numberOfEntries--;
+
+            // Copy the data for the first node to the position of the item we are removing.
+            scout.data = firstNode.data;
+
+            // Remove the first node
+            firstNode = firstNode.next;
+
+        } // end if
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        return result;
+    } // end remove
+
+    /** Override the equals method so that we can tell if two bags contain the same items
+     * the contents in the bag.
+     * @return a string representation of the contents of the bag */
+    public String toString() {
+
+        String result = "Bag{Size:" + numberOfEntries + " ";
+
+        Node scout = firstNode;
+
+        for (int index = 0; index < numberOfEntries; index++) {
+            result += "<" + scout.data + "> ";
+            scout = scout.next;
+        } // end for
+
+        result += "}";
+        return result;
+    } // end toArray
+
+    /*********************************************************************
+     * 
+     * METHODS TO BE COMPLETED
+     * 
+    
+     * 
+     *     ***********************************************************************/
+    /** Check to see if two bags are equals.  
+     * @param aBag another object to check this bag against
+     * @return true the two bags contain the same objects with the same frequencies
+     */
+    public boolean equals(LinkedBag<T> aBag) {
+        boolean result = false; // result of comparison of bags
+
+        // COMPLETE THIS METHOD 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // This solution is not the most efficient as it invoves multiple
+        // scans of both bags.  A more efficient way to solve this problem
+        // is to use an efficient sort and then do a linear comparison of the
+        // two bags.  Conceptually it is cleaner as well since we don't have
+        // to worry about duplicates explicitly.
+
+
+        Node currentNode;  // position in this bag
+
+
+        if (numberOfEntries == aBag.getCurrentSize()) {
+            // Provisionally these are the same
+            result = true;
+
+            // the bags have equal sizes, so see if all items are present with the right frequencies
+            currentNode = firstNode;
+            while (currentNode != null) {
+                // Get the frequency of the item in this bag
+                int countInThisBag = getFrequencyOf(currentNode.data);
+
+                int countInOtherBag = aBag.getFrequencyOf(currentNode.data);
+
+                if (countInThisBag != countInOtherBag) {
+                    result = false;
+                }
+                currentNode = currentNode.next;
+            }  // end for
+
+        }
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        return result;
+    }  // end equals
+
+    /** Duplicate all the items in a bag.
+     * @return true if the duplication is possible
+     */
+    public boolean duplicateAll() {
+        boolean success = true; // should always return true
+
+        // COMPLETE THIS METHOD 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        Node currentNode = firstNode;  // position of item to duplicate in the bag
+        while (currentNode != null) {
+            // place the duplicate in the front
+            Node newNode = new Node(currentNode.data);
+            newNode.next = firstNode;
+
+            // update the firstNode reference
+            firstNode = newNode;
+
+            // update the size
+            numberOfEntries++;
+
+            // update the scout
+            currentNode = currentNode.next;
+        }
+
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        return success;
+    }  // end duplicateAll
+
+    
+    /** 
+     * Remove all duplicate items from a bag
+     */
+    public void removeDuplicates() {
+
+        // COMPLETE THIS METHOD 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        // scan over the chain adding each unique item to a new chain
+
+    	// Create a second chain with head newChain
+        Node chain2 = null;
+        int sizeChain2 = 0;
+
+        Node currentOriginal = firstNode;
+        while (currentOriginal != null) {
+        	
+            T value = currentOriginal.data;
+            boolean isDuplicate = false;
+
+            Node currentUnique = chain2;
+            // Check to see if the current value is in our chain of unique values
+            while (currentUnique != null && !isDuplicate) {
+                if (value.equals(currentUnique.data)) {
+                    isDuplicate = true;
+                } else {
+                    currentUnique = currentUnique.next;
+                }
+            }
+
+            // Add to the new chain if we found a non duplicate value
+            if (!isDuplicate) {
+                sizeChain2++;
+                Node newNode = new Node(value);
+
+                newNode.next = chain2;
+                chain2 = newNode;
+            }
+
+            // Check the next value
+            currentOriginal = currentOriginal.next;
+        }
+
+        numberOfEntries = sizeChain2;
+        firstNode = chain2;
+
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    }  // end removeDuplicates
+
+
+
+	private static LinkedBag<Integer> bag1 = new LinkedBag<Integer>();
+	private static LinkedBag<Integer> bag2 = new LinkedBag<Integer>();
+	private static LinkedBag<Integer> bag3 = new LinkedBag<Integer>();
+	
+	public static void main(String[] args)
+	{
+		initBags();
+		
+		if("test1".equals(args[0])){
+			runTest1();
+		}
+		
+		else if ("test2".equals(args[0])){
+			runTest2();
+		}
+		
+		else {
+			runTest3();
+		}
+	}
+	
+	public static void initBags()
+	{
+		//Initializing
+		bag1.clear();
+		bag2.clear();
+		bag3.clear();
+		
+		//An empty bag
+		bag1.clear();
+		
+		//A bag with only one element
+		bag2.add(7);
+		
+		//A bag with a few elements
+		int[] b1 = {1,2,3,4,5};
+		
+		for (int i = 0; i < b1.length; i++)
+		{
+			bag3.add(b1[i]);
+		}
+		
+		
+	}
+	
+	public static void runTest1()
+	{
+		if (bag1.getReferenceTo(1) == null)
+		{
+				System.out.println("Success");
+	            System.out.println(3.33);
+	        }
+	        else {
+	            System.out.println("*** Failed test");
+			}
+	}
+		
+	public static void runTest2()
+	{
+		if (bag2.getReferenceTo(7) != null)
+		{
+			System.out.println("Success");
+        System.out.println(3.33);
+		}
+    else {
+        System.out.println("*** Failed test");
+    	}
+	}
+	public static void runTest3()
+	{
+		if (bag3.getReferenceTo(5) != null)
+		{
+			System.out.println("Success");
+            System.out.println(3.33);
+        }
+        else {
+            System.out.println("*** Failed test");
+		}
+	}
+
+
+
+
+    // Locates a given entry within this bag.
+	// Returns a reference to the node containing the entry, if located,
+	// or null otherwise.
+    private Node getReferenceTo(T anEntry) {
+    
+
+

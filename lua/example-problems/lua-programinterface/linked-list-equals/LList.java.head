@@ -243,7 +243,7 @@ class LList<T> {
      * METHODS TO BE COMPLETED
      * 
      ***********************************************************************/
-     
+
     //Create a method that compares two lists to see if they
     //have the same elements
 	public boolean equals(LList<T> aList){
