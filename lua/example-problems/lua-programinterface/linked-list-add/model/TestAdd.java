@@ -1,5 +1,6 @@
 
 public class TestAdd {
+
 	private static LList<Integer> list1 = new LList<Integer>();
 	private static LList<Integer> list2 = new LList<Integer>();
 	private static LList<Integer> list3 = new LList<Integer>();
@@ -105,6 +106,7 @@ public class TestAdd {
 		//Adds element at the beginning of the list
 		list5.add1(1, 6);
 		if(list5.contains(6) && list5.getEntry(1) == 6){
+
 			System.out.println("Success");
             System.out.println(2);
         }

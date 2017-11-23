@@ -34,10 +34,38 @@
                               <input placeholder="Points" value="{{points}}" name="points" id="act_points" maxlength="4" type="number" class="validate" min="0" required>
                               <label for="act_points"><span class= "red-text">*</span> Default Points</label>
                            </div>
+                           <tr>
+                            <th>Availability</th>
+                        </tr>
+                        <tr>
+                                <td>
+                                  Display From:<div id="datetimepicker2" class="input-append">
+          
+                                           <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
+          
+                                      <span class="add-on" style="height:2.75em; line-height:2em">
+                                        <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                                      </span>
+                                  </div>
+                                  Display Until:<div id="datetimepicker3" class="input-append">
+          
+                                           <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                                      <span class="add-on" style="height:2.75em; line-height:2em">
+                                        <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                                      </span>
+                                  </div>
+                                </td>
+                          </tr>
                               <div class="col s12">
                                 <input name="fileUpload" type="checkbox" id="file_upload"/>
                                     <label for="file_upload">Allow Students to Upload Files</label>
                                 </div>
+                                <tr>
+                                  <td>Upload attempts<span class = "red">*</span></td>
+                               </tr>
+                               <td>
+                                     <input id="extraSmallFormBox" type="number" name="attempts" maxlength="4" value="{{uploadAttempts}}" min="0" required >     
+                                </td>
                            <div class="input-field col s12">
                               <textarea id="instructor_notes" name="instructorNotes" class="materialize-textarea">{{instructorNotes}}</textarea>
                               <label for="instructor_notes">Instructor Notes</label>

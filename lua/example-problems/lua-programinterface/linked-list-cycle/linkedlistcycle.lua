@@ -1,4 +1,5 @@
 tests = {
+
    {name="An empty list",command="java TestCycle test1", points=2},
    {name="A list with one element",command="java TestCycle test2", points=2},
    {name="A list with two elements",command="java TestCycle test3", points=3},

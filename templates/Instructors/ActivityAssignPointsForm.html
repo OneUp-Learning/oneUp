@@ -2,6 +2,19 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <script>
+        function pointsChanged(){
+            var gradedHidden = document.getElementById(this.id + "_graded");
+            gradedHidden.value = true; 
+        }
+        
+        var points = document.getElementsByClassName("points");
+        
+        [].forEach.call(points, function(p){
+            p.addEventListener("change",pointsChanged);
+        });
+
+    </script> 
    </head>
    <body>
       <div>

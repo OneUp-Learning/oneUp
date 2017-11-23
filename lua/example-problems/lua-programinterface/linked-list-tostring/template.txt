@@ -1,0 +1,11 @@
+// Write a method toString() that compiles a string of the elements of the list
+
+	//The method should go through each element in the list
+	//Should create a string even if the list is empty
+
+
+	public String toString(){
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from Instructors.models import Activities, UploadedFiles
 from Students.models import StudentActivities, Student, StudentFile
 from Students.views.utils import studentInitialContextDict
-from datetime import datetime
+from datetime import datetime, date
 from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import activityScore
 from django.core.exceptions import ObjectDoesNotExist
@@ -32,21 +32,54 @@ def ActivityDetail(request):
             context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
             
+            #Need to add the comparsion for time
+            dueTime = datetime.strptime(str(studentActivities.activityID.endTimestamp.time()), "%H:%M:%S" )
+            print(dueTime.strftime("%I:%M %p"))
+            currentTime = datetime.strptime(datetime.utcnow().time().strftime("%H:%M:%S"), "%H:%M:%S")
+            print(currentTime.strftime("%I:%M %p"))
+            
+
+            
             #we are allowed to uplad files 
-            if(studentActivities.activityID.isFileAllowed == True):
+            if(studentActivities.activityID.isFileAllowed == True and studentActivities.activityID.endTimestamp.date() >= datetime.today().date()):
+               #and studentActivities.activityID.endTimestamp.time() > datetime.now().time()):
                 context_dict['canUpload'] = True
+                
+                
                 #Check and see if the activity file has already been uplaoded
-                studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities )
-                if studentFile:
-                   isFile = True
-                   fileName = []
-                   for file in studentFile:
-                    fileName.append(file.fileName)
+                studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True )
+                
+                if(studentActivities.graded):
+                    isFile = True
+                    fileName = []
+                    for file in studentFile:
+                        name = os.path.basename(file.file.name)
+                        fileName.append(name)
                     context_dict['fileName'] = fileName
                 else:
-                    isFile = False
-                
-                print(isFile)
+                    
+                    #if you upload a file and you are out of uploads
+                    if studentFile and studentActivities.activityID.uploadAttempts == studentActivities.numOfUploads:
+                       isFile = True
+                       fileName = []
+                       for file in studentFile:
+                        name = os.path.basename(file.file.name)
+                        fileName.append(name)
+                        context_dict['fileName'] = fileName
+                        
+                    #uploaded a file but can still add more files    
+                    elif studentFile and studentActivities.numOfUploads < studentActivities.activityID.uploadAttempts:
+                        isFile = False
+                        fileName = []
+                        for file in studentFile:
+                            fileName.append(file.fileName)
+                            context_dict['fileName'] = fileName
+                             
+                    #You haven't uploaded a file
+                    else:
+                        isFile = False
+                    
+                    print(isFile)
                 
                 context_dict['isFile'] = isFile
                 
@@ -67,12 +100,25 @@ def ActivityDetail(request):
                           
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.POST['studentActivity'])
             makeFileObjects(studentId, currentCourse, files, studentActivities)
+            
+            print(studentActivities.numOfUploads)
+            studentActivities.numOfUploads = studentActivities.numOfUploads + 1
+            studentActivities.save()
+            print(studentActivities.numOfUploads)
+
+            
             context_dict['files'] = files
                     
             return redirect('/oneUp/students/ActivityList', context_dict)
         return render(request,'Students/ActivityDescription.html', context_dict)
 
 def makeFileObjects(studentId, currentCourse,files, studentActivities):
+    
+    oldStudentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities)
+    for f in oldStudentFile:
+        f.latest = False
+        f.save()
+
     
     #When given multiple files we zip them together
     filesForZip = []

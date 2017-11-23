@@ -298,5 +298,3 @@ class LList<T> {
     
     public T remove(int givenPosition) {
 
-    
-    

@@ -64,8 +64,8 @@ class StudentChallenges(models.Model):
     challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
-    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student (We think). Need to test to figure out for certain.
-    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score (We think). Need to test to figure out for certain.
+    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
+    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score 
     instructorFeedback = models.CharField(max_length=200)
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
@@ -130,8 +130,10 @@ class StudentActivities(models.Model):
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
     timestamp = models.DateTimeField(default= datetime.now)
-    activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
+    activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
+    graded = models.BooleanField(default=False)
+    numOfUploads = models.IntegerField(default = 0)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
 #     +","+str(self.challengeID)    
@@ -149,6 +151,8 @@ class StudentFile(models.Model):
     timestamp = models.DateTimeField(default=datetime.now)
     file = models.FileField(max_length=500,upload_to= fileUploadPath)
     fileName = models.CharField(max_length=200, default='')
+    latest = models.BooleanField(default = True)
+    
     
     def delete(self):
         self.file.delete()

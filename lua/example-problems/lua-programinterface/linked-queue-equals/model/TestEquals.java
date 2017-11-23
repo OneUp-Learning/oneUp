@@ -6,18 +6,45 @@ public class TestEquals {
 	private static LinkedQueue<Integer> queue5 = new LinkedQueue<Integer>();
 	private static LinkedQueue<Integer> queue6 = new LinkedQueue<Integer>();
 	private static LinkedQueue<Integer> queue7 = new LinkedQueue<Integer>();
+<<<<<<< HEAD
+	private static LinkedQueue<Integer> queue8 = new LinkedQueue<Integer>();
+	
+	public static void main (String[] args)
+	{
+=======
 
 	public static void main(String[] args) {
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 		initQueue();
+<<<<<<< HEAD
+		//Testing Part
+		
+=======
 		// Testing Part
 		if ("test1".equals(args[0])) {
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 			runTest1();
+<<<<<<< HEAD
+		
+=======
 		} else if ("test2".equals(args[0])) {
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 			runTest2();
+<<<<<<< HEAD
+		
+=======
 		} else if ("test3".equals(args[0])) {
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 			runTest3();
+<<<<<<< HEAD
+		
+=======
 		} else if ("test4".equals(args[0])) {
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 			runTest4();
+<<<<<<< HEAD
+		
+=======
 		} else if ("test5".equals(args[0])) {
 			runTest5();
 		} else if ("test6".equals(args[0])) {
@@ -25,7 +52,32 @@ public class TestEquals {
 		} else {
 			runTest7();
 		}
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 	}
+<<<<<<< HEAD
+	public static void initQueue() {
+	//Initializing
+	queue1.clear();
+	queue2.clear();
+	queue3.clear();
+	queue4.clear();
+	queue5.clear();
+	queue6.clear();
+	queue7.clear();
+	queue8.clear();
+	
+	//Both queues empty
+	queue1.clear();
+	queue2.clear();
+	
+	//One queue empty, other with elements
+	queue3.clear();
+	
+	int[] a1 = {1,2,3,4,5};
+	for (int i = 0; i < a1.length;i++)
+	{
+		queue4.enqueue(a1[i]);
+=======
 
 	public static void initQueue() {
 		// Initializing
@@ -60,6 +112,7 @@ public class TestEquals {
 			queue7.enqueue(a7[i]);
 		}
 
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 	}
 
 	// Both queues empty
@@ -69,7 +122,7 @@ public class TestEquals {
 			System.out.println("Success");
             System.out.println(1);
         }
-        else
+        else {
             System.out.println("*** Failed test");
 	}
 
@@ -78,9 +131,17 @@ public class TestEquals {
 		boolean result = queue3.equals(queue4);
 		if (!result) {
 			System.out.println("Success");
+<<<<<<< HEAD
+            System.out.println(2);
+        }
+        else {
+            System.out.println("*** Failed test");
+		}
+=======
 			System.out.println(1);
 		} else
 			System.out.println("*** Failed test");
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 	}
 
 	// First queue with elements, second queue empty
@@ -88,9 +149,17 @@ public class TestEquals {
 		boolean result = queue4.equals(queue3);
 		if (!result) {
 			System.out.println("Success");
+<<<<<<< HEAD
+            System.out.println(2);
+        }
+        else {
+            System.out.println("*** Failed test");
+		}
+=======
 			System.out.println(1);
 		} else
 			System.out.println("*** Failed test");
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 	}
 
 	// Two queues equal size but different elements
@@ -98,6 +167,14 @@ public class TestEquals {
 		boolean result = queue4.equals(queue6);
 		if (!result) {
 			System.out.println("Success");
+<<<<<<< HEAD
+            System.out.println(2);
+        }
+        else {
+            System.out.println("*** Failed test");
+		}
+	}
+=======
 			System.out.println(2);
 		} else
 			System.out.println("*** Failed test");
@@ -133,4 +210,5 @@ public class TestEquals {
 			System.out.println("*** Failed test");
 	}
 	
+>>>>>>> branch 'master' of /var/gitrepos/oneUp
 }

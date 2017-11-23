@@ -1,4 +1,3 @@
-
 /** An linked implementation of the ADT List.
  * 
  * This code is from Chapter 14 of 
@@ -276,5 +275,3 @@ class LList<T>  {
     /** Reverse the order of items in a list
      */
     public void reverse() {
-
-    

@@ -217,6 +217,7 @@
 			<br><span class="cond-hidden-error cond-blank-{{objectType.name}}-list-error">One or more {{objectType.plural}} must be added or the all {{objectType.plural}} 
 			box should be checked</span>
 		{% endfor %}
+		<span class="cond-hidden-error cond-no-subcond-error">For all/for any blocks must contain at least one condition.</span>
 		<div class="cond-for-sub">
 			<div class="cond-empty">&nbsp;</div>
 		</div>
@@ -319,8 +320,12 @@
     				condShowError(node,"cond-blank-"+thingieTypeName+"-list-error");
     				errorsPresent = true;
     			}
+    			if (node.getElementsByClassName("cond-atom").length == 0) {
+    				condShowError(node,"cond-no-subcond-error");
+    				errorsPresent = true;
+    			}
 				var errorInAtLeastOneSub = checkForErrorsInChildren(subCondsDiv,"cond-item");
-				return errorsPresent;
+				return errorsPresent || errorInAtLeastOneSub;
     		} else if (node.dataset.condType == "or") {
     			return checkForErrorsInChildren(node,"cond-or-sub");
     		} else if (node.dataset.condType == "orSub") {
@@ -736,6 +741,19 @@
 
         var targetParent = e.target.parentNode;
         var insideQualifier = e.target.dataset.condInsideQualifier;
+        if (insideQualifier != "none") {
+        	// We have just dragged something new inside a For.  We need to
+        	// turn off the error message for that for if the new thing we have dragged is
+        	// an atom.
+        	if (condDragSource.id == "condAtomIcon" || condDragSource.dataset.condType == "atom") {
+        		// Find ancestor which is the for object so that we can hide the error.
+        		var ancestor = targetParent;
+        		while (ancestor.dataset.condType != "for") {
+        			ancestor = ancestor.parentNode;
+        		}
+        		condHideError(ancestor,["cond-no-subcond-error"]);
+        	}
+        }
         if (condDragSource.id == "condOrIcon") {
 			condCreateOrNode(targetParent,e.target,insideQualifier);
 			targetParent.removeChild(e.target);
