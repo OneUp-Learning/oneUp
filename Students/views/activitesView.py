@@ -82,8 +82,7 @@ def ActivityList(request):
                 else:
                     points.append(str(currentActivity.activityScore))
                 
-             
-            # The range part is the index numbers.
+         # The range part is the index numbers.
         context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points)
         return render(request,'Students/ActivityList.html', context_dict)
 

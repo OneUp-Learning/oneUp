@@ -48,7 +48,6 @@ def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instru
     #studentChallengeQuestion.instructorFeedback = instructorFeedback
     studentChallengeQuestion.seed = seed
     studentChallengeQuestion.save()
-
     return studentChallengeQuestion
 
 @login_required
@@ -262,5 +261,10 @@ def ChallengeResults(request):
                 register_event(Event.endChallenge,request,studentId,challengeId)
                 register_event(Event.leaderboardUpdate,request,studentId, challengeId)
                 updateLeaderboard(course)
+                
+                print("studentChallege ", studentChallenge)
+                print("studentId ", studentId)
+                
+            
     return render(request,'Students/ChallengeResults.html', context_dict)
 
