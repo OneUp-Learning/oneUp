@@ -1,84 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-         
-          {% include 'scripts.html' %}
-         
-      </head>
-      <body>
-      <div id="page-wrapper">
-
-          {% include 'stheading.html' %}
-
-            <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-         	<div class="12u">
-         		<h1>Challenges</h1>
- 
-			</div></div>
-			<div class="row">
-			<div class="4u 1u(mobile)">&nbsp;</div>
-         	<div class="4u 10u(mobile)">
-                  <table class="bg" style="text-align:center">
-                  		<tr><td>{{challengeName}}</td></tr>
-                
-               {% if unAvailable %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
-						<tr><td>{{unAvailable}}
-						<br>Please Try other challenges..</td></tr>
-						<form name= "testList" action="/oneUp/students/ChallengesList" method="GET">
-      						{% csrf_token %}
-      						<tr><td><input type="submit" name="submit" value="Ok" class="button"></td></tr>
-      					</form>
-                
-                
- 				{%  elif no_attempt %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
-						<tr><td>{{no_attempt}}
-						<br>You can not take this challenge anymore.. Try other challenges..</td></tr>
-						<form name= "testList" action="/oneUp/students/ChallengesList" method="GET">
-      						{% csrf_token %}
-      						<tr><td><input type="submit" name="submit" value="Ok" class="button"></td></tr>
-      					</form>
-      					
-                {% else %}
-	                		<form name="ChallengeDescription" action="/oneUp/students/ChallengeSetup" method="POST">
-	                		{% csrf_token %}
-
-	                        <tr><td>Difficulty Level: <span>{{challengeDifficulty}}</span></td></tr>
-
-							<tr><td>Time Limit (in minutes): <span>{{timeLimit}}</span> </td></tr>
-							<tr><td>Allowed number of attempts: <span>{{more_attempts}}</span></td></tr>
-							
-			                {% if last_attempt %}<!--if student has only 1 attempt left, then this message is displayed-->
-									<tr><td>{{last_attempt}}</td></tr>
-							{% endif %}
-						
-							<tr>
-								<td><b>Note:</b> If you navigate away from the challenge page before submitting the challenge, you will loose all entered information and will not be allowed to resubmit this attempt.
-								</td>
-							</tr>								
-						
-						{% if challengePassword %}
-							{% if form.errors %}
-							<b>Your username and password didn't match. Please try again.</b>
-							{% endif %}
-								<tr><td>Password:</td></tr>
-								<tr><td><input type="text" name="password" value="" size="50" style="height:20px;" required></td></tr>
-						{% endif %}
-		                    	<tr><td><input type="submit" name="submit" value="Go!" class="button"></td></tr>
-								<input type="hidden" name="challengeId" value="{{challengeID}}">
-								</form>
-				{% endif %}
-                  </table>   
-         </div>
-         <div class="4u 1u(mobile)">&nbsp;</div>
-         </div></div>
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>{{challengeName}}</h3>
             </div>
          </div>
-         <!-- Footer -->
-
-        {% include 'footer.html' %}
-
-    
-      </body>
-   </html>
+         <div class="row">
+            <div class="col s12 m4 offset-m4">
+               <div class="card">
+                  <form name="ChallengeDescription" action="/oneUp/students/ChallengeSetup" method="POST">
+                     {% csrf_token %}
+                     <input type="hidden" name="challengeId" value="{{challengeID}}">					
+                     <div class="card-content">
+                        {% if unAvailable %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
+                        <h5>{{unAvailable}}</h5>
+                        <p>Please Try other challenges</p>
+                        {%  elif no_attempt %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
+                        <h5>{{no_attempt}}</h5>
+                        <p>You can not take this challenge anymore. Try other challenges</p>
+                        {% else %}
+                        <p class="flow-text">Difficulty: <b>{{challengeDifficulty}}</b></p>
+                        <p class="flow-text">Time Limit (Minutes): <b>{{timeLimit}}</b></p>
+                        <p class="flow-text">Number of Attempts: <b>{{more_attempts}}</b></p>
+                        {% if last_attempt %}<!--if student has only 1 attempt left, then this message is displayed-->
+                        <p>{{last_attempt}}</p>
+                        {% endif %}
+                        <blockquote>
+                           <b>Note:</b> If you navigate away from the challenge page before submitting the challenge, you will loose all entered information and will not be allowed to resubmit this attempt.
+                        </blockquote>
+                        {% if challengePassword %}
+                        {% if form.errors %}
+                        <b>Your username and password didn't match. Please try again.</b>
+                        {% endif %}
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Password" value="{{challengeName}}" name="password" id="password" type="text" class="validate" pattern=".*\S+.*" required>
+                              <label for="password">Password</label>
+                           </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                     </div>
+                     <div class="card-action">
+                        {% if unAvailable or no_attempt %}
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList"><i class="material-icons left">navigate_before</i>Back</a>
+                        {% endif %}
+                        <button class="btn waves-effect waves-light" type="submit" name="submit">Go!
+                        <i class="material-icons right">send</i>
+                        </button>
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

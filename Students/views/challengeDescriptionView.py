@@ -43,18 +43,18 @@ def ChallengeDescription(request):
                 if challenge in challenges:
                     context_dict['available'] = "This challenge can be taken"
                 else:
-                    context_dict['unAvailable'] = "This challenge can not be taken at this time "    
+                    context_dict['unAvailable'] = "This challenge can not be taken at this time"    
                 
                 data = getattr(challenge,'timeLimit')
                 if data == 99999:
-                    context_dict['timeLimit'] = "no time limit"
+                    context_dict['timeLimit'] = "None"
                 else:
                     context_dict['timeLimit']= data
                     
                 data = getattr(challenge,'numberAttempts')
                 print(str(data))
                 if data == 99999:
-                    context_dict['numberAttempts'] = "unlimited"
+                    context_dict['numberAttempts'] = "Unlimited"
                 else:
                     context_dict['numberAttempts']= data
                 
@@ -64,7 +64,7 @@ def ChallengeDescription(request):
                     
                 total_attempts = challenge.numberAttempts
                 if data == 99999:
-                    context_dict['more_attempts'] = "unlimited"
+                    context_dict['more_attempts'] = "Unlimited"
                 else:                             
                     # getting the number of attempts to check if the student is out of attempts
                     student_attempts = StudentChallenges.objects.filter(studentID=studentId, challengeID=challengeId) 

@@ -169,7 +169,7 @@ def trueFalseNewForm(request):
                 checked = False #element must be completely omitted for not checked
                 for correctAnswer in correctAnswers:
                     if correctAnswer.answerID == answer:
-                        checked = True; 
+                        checked = True
                 ansChecked.append(checked)
             answersSet = True
 
@@ -200,7 +200,6 @@ def trueFalseNewForm(request):
         context_dict['num_answers'] = num_answers
         # The range part is the index numbers.
         context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked)
-        logger.debug(context_dict)
         if 'questionId' in request.POST:         
             return redirect('challengesView')
     

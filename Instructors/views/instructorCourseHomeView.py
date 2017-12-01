@@ -16,6 +16,8 @@ from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 
 import inspect
+import logging
+logger = logging.getLogger(__name__)
 
 def lineno():
     """Returns the current line number in our program."""
@@ -166,6 +168,7 @@ def courseLeaderboard(currentCourse, context_dict):
                     if skillPoints > 0:
                         st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
                         uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
+                        logger.debug('[GET] ' + str(uSkillInfo))
                         usersInfo.append(uSkillInfo)
                          
                 skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentsDisplayed]}

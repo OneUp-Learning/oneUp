@@ -105,7 +105,10 @@
                              <td>{{skill.skillName}} </td>
                              <td>
                                 {% for usi in skill.usersInfo %} 
-                                <img alt="Avatar Image" width="30px" height="30px" src="{{usi.avatarImage}}"> &nbsp;{{usi.skillPoints}}  &nbsp;&nbsp;&nbsp;&nbsp;
+                                <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                    <img src="{{usi.avatarImage}}">
+                                    {{usi.skillPoints}}
+                                    </div>
                                 {% endfor %}
                              </td>
                           </tr>

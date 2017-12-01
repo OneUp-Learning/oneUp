@@ -3,14 +3,6 @@
 <head>
 
    {% include 'scripts.html' %}
- 
-<script>
-    window.location.hash = "no-back-button";
-    window.location.hash = "Again-No-back-button";//again because google chrome don't insert first hash into history
-    window.onhashchange = function() {
-        window.location.hash = "no-back-button";
-    }
-</script>
 
 </head>
 <body>
@@ -111,7 +103,7 @@
                                             <td>{{skill.skillName}}</td>
                                             <td>
                                                     {% for usi in skill.usersInfo %} 
-                                                <div class="chip">
+                                                <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
                                                     <img src="{{usi.avatarImage}}">
                                                     {{usi.skillPoints}}
                                                     </div>

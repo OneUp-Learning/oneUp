@@ -204,8 +204,8 @@
                                     <input type="hidden" name="challengeID" value="{{challengeID}}">
                                     {%endif%}   
                                     <input type="hidden" name="questionId" value="{{q_ID}}">
-                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                    <ul id='dropdown1' class='dropdown-content'>
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                    <ul id='dropdown{{i}}' class='dropdown-content'>
                                        {% csrf_token %} 
                                        {% if q_type_name == 'multipleChoice' %}
                                        <li><a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
