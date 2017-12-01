@@ -214,7 +214,7 @@
 			</div>
 			<div class="cond-for-list cond-{{objectType.name}}-selected-list">
 			</div>  
-			<br><span class="cond-hidden-error cond-blank-{{objectType.name}}-list-error">One or more {{objectType.plural}} must be added or the all {{objectType.plural}} 
+			<span class="cond-hidden-error cond-blank-{{objectType.name}}-list-error"><br>One or more {{objectType.plural}} must be added or the all {{objectType.plural}} 
 			box should be checked</span>
 		{% endfor %}
 		<span class="cond-hidden-error cond-no-subcond-error">For all/for any blocks must contain at least one condition.</span>
@@ -1062,6 +1062,7 @@
 				condAddThingieToListByNameAndId(listDiv,condObjectsNameToId[cond.objectType][cond.objects[i]],cond.objects[i])
 			}
 			var empty = forDiv.getElementsByClassName("cond-empty")[0];
+			condChangeForAllType(typeSelector);
 			condCreateUIFromCondition(cond.subCond,empty,cond.objectType);
    		}
    		
