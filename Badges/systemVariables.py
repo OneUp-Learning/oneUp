@@ -60,7 +60,7 @@ def activityScore(course,student,activity):
     return scores.latest('timestamp').activityScore
 
 # Utility function used by other functions.
-def getActivityScore(course, activity):
+def getActivityScore(course, student ,activity):
     from Students.models import StudentActivities
     
     activities = StudentActivities.objects.filter(courseID=course, activityID=activity)
@@ -71,7 +71,7 @@ def getActivityScore(course, activity):
         
     return scores
 
-def getMaxActivityScore(course, activity):
+def getMaxActivityScore(course, student, activity):
     '''Return the highest score of an activity per course'''
     
     scores = getActivityScore(course, activity)
@@ -81,7 +81,7 @@ def getMaxActivityScore(course, activity):
     else:
         return 0
         
-def getMinActivityScore(course, activity):
+def getMinActivityScore(course, student, activity):
     '''Return the lowest score of an activity per course'''
     scores = getActivityScore(course, activity)
     
@@ -90,7 +90,7 @@ def getMinActivityScore(course, activity):
     else:
         return 0
     
-def getAverageActivityScore(course, activity):
+def getAverageActivityScore(course,student, activity):
     '''Return the average score of an activity per course'''
     scores = getActivityScore(course, activity)
     
@@ -98,8 +98,9 @@ def getAverageActivityScore(course, activity):
         return (float(sum(scores))/float(len(scores)))
     else:
         return 0
-    
-def getPercentageOfCorrectAnswersPerChallengePerStudent(student, challenge):
+   
+# the function accept studentChallengeID, not studentID 
+def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challenge):
     '''return percentage of correctly answered questions out of all the questions'''
     from Students.models import StudentChallengeQuestions
     from Instructors.models import ChallengesQuestions
@@ -805,7 +806,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
             'functions':{
-                ObjectTypes.none:getPercentOfScoreOutOfMaxChallengeScore
+                ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
             },
         },                                             
         averageTestScore:{
@@ -816,7 +817,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
             'functions':{
-                ObjectTypes.none:getAverageTestScore
+                ObjectTypes.challenge:getAverageTestScore
             },
         },                        
         uniqueChallengesAttempted:{
