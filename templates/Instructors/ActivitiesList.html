@@ -25,7 +25,9 @@
                            <th>Activity Name</th>
                            <th>Description</th>
                            <th>Default Points</th>
-                           <th> </th>
+                           <th class="secondary-content">
+                                <a class="tooltipped" href="/oneUp/instructors/createActivity" data-position="top" data-delay="50" data-tooltip="Create Activity"><i class="material-icons" >add_circle</i></a>
+                            </th>
                         </tr>
                      </thead>
                      <tbody>
@@ -35,33 +37,22 @@
                            <td>{{description}}</td>
                            <td>{{points}}</td>
                            <td>
-                              <form action="/oneUp/instructors/deleteActivity " method="POST">
-                                 {% csrf_token %} 
-                                 <input type="hidden" name="activityID" value="{{activity_ID}}">
-                                 <div class="hide-on-med-and-up">
-                                    <div class="row">
-                                       <a class="waves-effect waves-light btn secondary-content" href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons right">edit</i>Edit</a>
-                                    </div>
-                                    <div class="row">
-                                       <a class="waves-effect waves-light btn secondary-content" href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons right">playlist_add</i>Assign Points</a>
-                                    </div>
-                                    <div class="row">
-                                       <button class="btn waves-effect waves-light modal-trigger secondary-content" href="#modal_delete">Delete
-                                       <i class="material-icons right">close</i>
-                                       </button>
-                                    </div>
-                                 </div>
-                                 <div class="hide-on-small-only">
-                                    <a class="modal-trigger tooltipped secondary-content" href="#modal_delete" data-delay="50" data-position="right" data-tooltip="Delete Activity"><i class="material-icons right">close</i></a>
-                                    <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons right">edit</i>Edit</a>
-                                    <a class="waves-effect waves-light btn" href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons right">playlist_add</i>Assign Points</a>
-                                 </div>
+                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='options-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <form action="/oneUp/instructors/deleteActivity" method="POST">
+                                {% csrf_token %}    
+                                <input type="hidden" name="activityID" value="{{activity_ID}}">                                
+                                 <ul id='options-{{i}}' class='dropdown-content'>
+                                    <li><a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons">edit</i>Edit</a></li>
+                                    <li><a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons">playlist_add</i>Assign Points</a></li>
+                                    <li class="divider"></li>
+                                    <li><a class="modal-trigger" href="#modal_delete">Delete</a></li>
+                                 </ul>
                                  <div id="modal_delete" class="modal">
                                     <div class="modal-content">
                                        <h5>Are you sure you want to delete?</h5>
                                     </div>
                                     <div class="modal-footer">
-                                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
                                        <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
                                        </button>                                        
                                     </div>

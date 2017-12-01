@@ -17,7 +17,6 @@ from Instructors.views.challengeListView import challengesList, warmUpChallengeL
 
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
-from Instructors.views.challengeSaveView import challengeSaveView
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
 
 from Instructors.views.classAchievementsView import classAchievements
@@ -87,7 +86,6 @@ urlpatterns = [
     url(r'^challengeQuestionsList',challengeEditQuestionsView, name='challengeEditQuestionsView'),
     url(r'^challengesList',challengesList, name='ChallengesList'),
     url(r'^challengeSaveSelectedQuestions',challengeSaveSelectedQuestions, name='challengeSaveSelectedQuestions'),
-    url(r'^challengeSave',challengeSaveView, name='challengeSaveView'),
     url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='challengesList'),
     url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
     url(r'^classAchievements',classAchievements, name='classAchievements'),

@@ -46,8 +46,14 @@
             var topics = JSON.parse('{{createdTopics | escapejs }}')
             for(var i = 0; i < topics.length; i++) {
               var topic = topics[i];
+              topic.tag = topic.tag.replace(/\s+/g, '').toLowerCase()
+              chip['tag'] = chip['tag'].replace(/\s+/g, '').toLowerCase()
               if(chip['tag'] == topic.tag){
                 chip['id'] = topic.id
+                break
+              }
+              else {
+                chip['id'] = -1
               }
             }
           });

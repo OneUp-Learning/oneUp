@@ -98,8 +98,7 @@
                               <th>
                                  <a class="modal-trigger tooltipped secondary-content" href="#modal-filter" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Filter Problems"><i class="material-icons">filter_list</i></a>                                
                                  <div id="modal-filter" class="modal modal-fixed-footer">
-                                    <form id="search" name="search" action="/oneUp/instructors/challengeQuestionsList?questionID=" method="POST">
-                                       <input type="hidden" name="context_dict"  value="{{context_dict}}">
+                                    <form id="search" name="search" action="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}" method="POST">
                                        <div class="modal-content">
                                           <div class="row center-align">
                                              <div class="col s12 m8 offset-m2">
@@ -194,7 +193,7 @@
                            </tr>
                         </thead>
                         <tbody>
-                           {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty in question_range %}
+                           {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, t in question_range %}
                            <tr>
                               <td>{{q_preview}}</td>
                               <td>{{q_type_displayName}}</td>

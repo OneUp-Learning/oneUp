@@ -38,7 +38,7 @@ def CoursePerformance(request):
         assignmentFeedback = []
     
         # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         currentTime = utcDate()
         
         stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))

@@ -39,7 +39,7 @@ def ChallengesList(request):
         #Displaying the list of challenges from database
         
         # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         currentTime = utcDate()
         # Select if startTime is greater than(__gt) currentTime and 
         # if endTime is less than(__lt) currentTime (AH)

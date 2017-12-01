@@ -310,8 +310,9 @@ def addSkillsToQuestion(challenge,question,skills,points):
                 qsk.questionSkillPoints = pointsDict[id]
                 qsk.save()
                 
-def addTopicsToChallenge(challenge, topics, unspecified_topic):
+def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
     
+    logger.debug("[POST] t: " + str(topics))
     tops = json.loads(topics)
     logger.debug("[POST] topics: " + str(tops))
     if len(tops) > 0:
@@ -323,12 +324,31 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic):
         newIDs = [id for id in newTopicsIDs if id not in existingIDs]
 
         ChallengesTopics.objects.filter(topicID__in=deletionIDs).delete()
-        
-        for id in newIDs:
-            newChallTopics = ChallengesTopics()
-            newChallTopics.challengeID = challenge
-            newChallTopics.topicID = Topics.objects.get(pk=id)
-            newChallTopics.save()
+
+        for topic in tops:
+            if topic['id'] in newIDs and topic['id'] != -1:
+                newChallTopics = ChallengesTopics()
+                newChallTopics.challengeID = challenge
+                newChallTopics.topicID = Topics.objects.get(pk=topic['id'])
+                newChallTopics.save()
+                continue
+            if topic['id'] in newIDs:
+                newTopic = Topics()           
+                newTopic.topicName = topic['tag']                   
+                newTopic.save()
+
+                courseTopic = CoursesTopics()
+                courseTopic.topicID = newTopic
+                courseTopic.courseID = currentCourse
+                courseTopic.topicPos = 1
+                courseTopic.save()
+
+                newChallTopics = ChallengesTopics()
+                newChallTopics.challengeID = challenge
+                newChallTopics.topicID = newTopic
+                newChallTopics.save()
+                
+
     else:
         challTopic = ChallengesTopics()
         challTopic.challengeID = challenge

@@ -19,7 +19,7 @@ def ChallengeDescription(request):
     if 'currentCourseID' in request.session:   
         chall_ID = []      
         chall_Name = []  
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         currentTime = utcDate()   
         string_attributes = ['challengeName','courseID','isGraded',                 #'challengeCategory','timeLimit','numberAttempts',
                       'challengeAuthor',
