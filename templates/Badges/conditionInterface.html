@@ -1016,10 +1016,11 @@
 	    	var lhsVariable = atomDiv.getElementsByClassName("cond-var")[0];
 			selectOptionByValue(lhsVariable,cond.lhs);
  			var valueCheckBox = atomDiv.getElementsByClassName("cond-value")[0];
-			if (cond.rhsType == "V") {
+			if (cond.rhstype == "V") {
 				valueCheckBox.checked = false;
 	    		var rhsVariable = atomDiv.getElementsByClassName("cond-rhs-var")[0];
 	    		selectOptionByValue(rhsVariable,cond.rhsvalue);
+	    		condToggleAtomType(valueCheckBox);
 			} else {
 				valueCheckBox.checked = true;
 				var charToType = { "X":"checkbox", "Y":"date", "T":"text","N":"number"};

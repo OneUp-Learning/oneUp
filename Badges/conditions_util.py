@@ -326,7 +326,7 @@ def databaseConditionToJSONString(condition):
         else: # No problem
             output += str(condition.operand1Value)+'","rhstype":"'
         if condition.operand2Type == OperandTypes.systemVariable:
-            output += 'V","rhsvalue":"'+condition.operand2Value+'"}'
+            output += 'V","rhsvalue":"'+str(condition.operand2Value)+'"}'
         elif condition.operand2Type == OperandTypes.boolean:
             output += 'X","rhsvalue":"'+str(condition.operand2Value==1)+'"}'
         elif condition.operand2Type == OperandTypes.immediateInteger:
