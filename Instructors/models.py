@@ -168,7 +168,7 @@ class QuestionsSkills(models.Model):
     courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses", default=-1)    
     questionSkillPoints =  models.IntegerField(default=1)
     def __str__(self):              
-        return "QuestionSkill: {Question:("+str(self.questionID)+"),Skill:("+str(self.skillID)+"),Challenge:("+str(self.challengeID)+"),points:"+str(self.questionSkillPoints)+"}"
+        return "QuestionSkill: {Question:("+str(self.questionID)+"),Skill:("+str(self.skillID)+"),Course:("+str(self.courseID)+"),points:"+str(self.questionSkillPoints)+"}"
 
 class Tags(models.Model):
     tagID = models.AutoField(primary_key=True)
