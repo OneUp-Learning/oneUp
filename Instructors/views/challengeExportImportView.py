@@ -145,7 +145,7 @@ def exportChallenges(request):
                 el_author.text = question.author
                 
                 # Skills for this question
-                questionSkills = QuestionsSkills.objects.filter(questionID=question, challengeID=challenge)
+                questionSkills = QuestionsSkills.objects.filter(questionID=question, courseID = currentCourse)
 
                 if questionSkills:
                     el_skills = SubElement(el_question, 'Skills')

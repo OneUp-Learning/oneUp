@@ -805,6 +805,7 @@ class SystemVariable():
             'description':'Percentage of student score (for the max scored attempt) out of max challenge score.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
+            'objectsDefinedFor':[ObjectTypes.challenge],
             'functions':{
                 ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
             },

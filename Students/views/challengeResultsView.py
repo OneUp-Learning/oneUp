@@ -17,10 +17,10 @@ from Badges.event_utils import updateLeaderboard
 from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
 from Instructors.lupaQuestion import LupaQuestion
 
-def saveSkillPoints(questionId, challengeId, studentId, studentChallengeQuestion):
+def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
     # get all skills to which this question contributes
-    questionSkills = QuestionsSkills.objects.filter(questionID=questionId, challengeID=challengeId)
+    questionSkills = QuestionsSkills.objects.filter(questionID=questionId, courseID=course)
     if questionSkills:
         for qskill in questionSkills:
 
@@ -86,17 +86,17 @@ def ChallengeResults(request):
                     context_dict['warmUp'] = 1
                     
                 print("Start Time: "+request.POST['startTime'])
-                startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")  
+                startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")  
                 #end time of the test is the current time when it is navigated to this page
                 endTime = utcDate()
                 print("End Time:"+ endTime.strftime("%m/%d/%Y %I:%M %p"))
 
-                attemptId = 'challenge:'+challengeId + '@' + startTime.strftime("%m/%d/%Y %I:%M %p")
+                attemptId = 'challenge:'+challengeId + '@' + startTime.strftime("%m/%d/%Y %I:%M:%S %p")
                 print("attemptID = "+attemptId)               
                 
                 # Do not grade the same challenge twice
-                if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
-                    return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+                #if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
+                    #return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
                     
                 #save initial student-challenge information pair (no score)to db
                 studentChallenge = StudentChallenges()
@@ -241,7 +241,7 @@ def ChallengeResults(request):
 
                     # Award skills if the answer was correct.
                     if question['user_points'] == question['total_points']:
-                        saveSkillPoints(question['id'], challengeId, studentId, studentChallengeQuestion)
+                        saveSkillPoints(question['id'], currentCourse, studentId, studentChallengeQuestion)
 
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()

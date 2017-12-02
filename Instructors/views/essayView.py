@@ -109,7 +109,7 @@ def essayForm(request):
                 
                 # Processing and saving skills for the question in DB
                 skillString = request.POST.get('newSkills', "default")
-                utils.saveQuestionSkills(skillString, question, challenge)
+                utils.saveQuestionSkills(skillString, question, currentCourse)
     
 
         # Processing and saving tags in DB                        #AA 3/24/15

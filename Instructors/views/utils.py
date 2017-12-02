@@ -203,7 +203,7 @@ def saveQuestionTags(tagString, question):        #DD 02/24/2015
                 newTagsObject.save()
                 print (str("Tagid: ") + str(newTagsObject.tagID))                
 
-def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
+def saveQuestionSkills(skillstring, question, course):        #03/18/2015
 
         #if skillstring is not null or empty
         if not skillstring == "":
@@ -233,7 +233,7 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
                               
                 # now add the new skill for this question                 
                 # Check if skill is created of same type (AH)
-                createdSkill = QuestionsSkills.objects.filter(skillID = skillID, questionID = question.questionID, challengeID = challenge.challengeID)
+                createdSkill = QuestionsSkills.objects.filter(skillID = skillID, questionID = question.questionID, courseID = course)
                 
                 if (createdSkill):
                     # Update skill with the new skillPoints (AH)
@@ -244,7 +244,7 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
                     # create a new skill-question object
                     newQSkillsObject = QuestionsSkills()
                     newQSkillsObject.questionID = question
-                    newQSkillsObject.challengeID = challenge
+                    newQSkillsObject.courseID = course
                     newQSkillsObject.questionSkillPoints = int(skillPoints)
                     newQSkillsObject.skillID = Skills(skillID)                
                    
@@ -383,8 +383,8 @@ def getCourseSkills(course):
         
     return skill_list
 
-def getSkillsForQuestion(challenge,question):
-    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
+def getSkillsForQuestion(course,question):
+    qskills = QuestionsSkills.objects.filter(questionID = question, courseID=course)
     
     skill_list = []
     
@@ -410,11 +410,11 @@ def getTopicsForChallenge(challenge):
     
     return topics_list
     
-def addSkillsToQuestion(challenge,question,skills,points):
+def addSkillsToQuestion(course,question,skills,points):
     pointsDict = {}
     for (skillID,point) in zip(skills,points):
         pointsDict[skillID] = point
-    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
+    qskills = QuestionsSkills.objects.filter(questionID = question, courseID=course)
     existingIDs = [qsk.skillID.skillID for qsk in qskills]
     deletionIDs = [id for id in existingIDs if id not in skills]
     newIDs = [id for id in skills if id not in existingIDs]
@@ -425,7 +425,7 @@ def addSkillsToQuestion(challenge,question,skills,points):
     for id in newIDs:
         newQSkill = QuestionsSkills()
         newQSkill.questionID = question
-        newQSkill.challengeID = challenge
+        newQSkill.courseID = course
         newQSkill.skillID = Skills.objects.get(pk=id)
         newQSkill.questionSkillPoints = pointsDict[id]
         newQSkill.save()

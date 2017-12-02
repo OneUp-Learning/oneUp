@@ -165,7 +165,7 @@ class CoursesSkills(models.Model):
 class QuestionsSkills(models.Model):
     skillID = models.ForeignKey('Instructors.Skills', verbose_name="skill")    
     questionID = models.ForeignKey('Instructors.Questions', verbose_name="questions")
-    challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenges")   
+    courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses", default=-1)    
     questionSkillPoints =  models.IntegerField(default=1)
     def __str__(self):              
         return "QuestionSkill: {Question:("+str(self.questionID)+"),Skill:("+str(self.skillID)+"),Challenge:("+str(self.challengeID)+"),points:"+str(self.questionSkillPoints)+"}"

@@ -145,7 +145,7 @@ def matchingForm(request):
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
                     
             # Processing and saving skills for the question in DB
-            utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
         # Processing and saving tags in DB                        
         tagString = request.POST.get('tags', "default")
@@ -215,7 +215,7 @@ def matchingForm(request):
                     context_dict['q_skill_points'] = int('1')
 
                     # Extract the skill                                        
-                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
+                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(currentCourse,question)                    
             
     if 'challengeID' in request.GET:
         print('challengeID  '+request.GET['challengeID']) 
