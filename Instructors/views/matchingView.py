@@ -135,7 +135,7 @@ def matchingForm(request):
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
                     
             # Processing and saving skills for the question in DB
-            addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
         # Processing and saving tags in DB                        
         saveTags(request.POST['tags'], question, ObjectTypes.question)
@@ -204,25 +204,25 @@ def matchingForm(request):
                 context_dict['q_skill_points'] = int('1')
 
                 # Extract the skill                                        
-                context_dict['selectedSkills'] = getSkillsForQuestion(request.GET['challengeID'],question)                    
+                context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)                    
                 logger.debug('[GET] challengeID  '+request.GET['challengeID'])
                     
-        # If we didn't run that code to load the values for the answers, then we make
-        # blank lists.  We do this because we need to use a zipped list and a for
-        # in order for the template stuff to be happy with us.  Doing that requires that
-        # all the lists have the same length
-        if not answersSet:
-            for i in range(0,num_answers):
-                ansValue.append("")
-                ansPK.append("")
-                ansChecked.append("")
-                matchText.append("")  
+    # If we didn't run that code to load the values for the answers, then we make
+    # blank lists.  We do this because we need to use a zipped list and a for
+    # in order for the template stuff to be happy with us.  Doing that requires that
+    # all the lists have the same length
+    if not answersSet:
+        for i in range(0,num_answers):
+            ansValue.append("")
+            ansPK.append("")
+            ansChecked.append("")
+            matchText.append("")  
 
-        context_dict['num_answers'] = num_answers
-        # The range part is the index numbers.
-        context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked,matchText)
-        
-        if 'questionId' in request.POST:         
-            return redirect('challengesView')
+    context_dict['num_answers'] = num_answers
+    # The range part is the index numbers.
+    context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked,matchText)
+    
+    if 'questionId' in request.POST:         
+        return redirect('challengesView')
 
     return render(request,'Instructors/MatchingForm.html', context_dict)

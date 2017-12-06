@@ -138,7 +138,7 @@ def multipleChoiceForm(request):
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
 
            
-            addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
 
         # Processing and saving tags in DB                        
         saveTags(request.POST['tags'], question, ObjectTypes.question)
@@ -208,10 +208,8 @@ def multipleChoiceForm(request):
                 context_dict['q_skill_points'] = int('1')
                 
                 # Extract the skill                                        
-                context_dict['selectedSkills'] = getSkillsForQuestion(request.GET['challengeID'],question)
-            
-                logger.debug('[GET] challengeID: '+request.GET['challengeID'])  
-                
+                context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)
+                            
         # If we didn't run that code to load the values for the answers, then we make
         # blank lists.  We do this because we need to use a zipped list and a for
         # in order for the template stuff to be happy with us.  Doing that requires tha

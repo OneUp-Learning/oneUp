@@ -129,7 +129,7 @@ def multipleAnswersForm(request):
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
 
             # Processing and saving skills for the question in DB
-            addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
 
         # Processing and saving tags in DB                        
@@ -197,7 +197,7 @@ def multipleAnswersForm(request):
                 context_dict['q_skill_points'] = int('1')
                 
                 # Extract the skill                                        
-                context_dict['selectedSkills'] = getSkillsForQuestion(request.GET['challengeID'],question)                    
+                context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)                    
                 
                 logger.debug('[GET] challengeID  '+request.GET['challengeID'])  
                 

@@ -40,8 +40,8 @@ def ChallengeSetup(request):
                 context_dict['testDuration'] = challenge.timeLimit
 
                 starttime = utcDate()
-                context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M %p")
-                attemptId = 'challenge:'+challengeId + '@' + starttime.strftime("%m/%d/%Y %I:%M %p")
+                context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+                attemptId = 'challenge:'+challengeId + '@' + starttime.strftime("%m/%d/%Y %I:%M:%S %p")
                 
                 sessionDict = {}
                 sessionDict['challengeId']=challengeId

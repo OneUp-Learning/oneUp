@@ -10,49 +10,48 @@ from oneUp.logger import logger
 import json
 
 def saveSkills(skillstring, resource, resourceIndicator):
-
-        #if skillstring is not null or empty
-        if not skillstring == "":
+    #if skillstring is not null or empty
+    if not skillstring == "":
+        
+        #split string into an array 
+        skillsList = skillstring.split(',') 
+                    
+        for skillWord in skillsList:
             
-            #split string into an array 
-            skillsList = skillstring.split(',') 
-                       
-            for skillWord in skillsList:
-                
-                # removing leading and trailing white spaces
-                skillWord = skillWord.strip()
+            # removing leading and trailing white spaces
+            skillWord = skillWord.strip()
 
-                skillExists = False  #used to check if a tag exists already
-                
-                #create a new tag-object; check what is tagged object - question or challenge               
-                if resourceIndicator == "question":
-                    newSkillsObject = QuestionsSkills()
-               
-                #if the tag already exists... set tagExists to 1
-                for item in Skills.objects.all():
-                    if skillWord == str(item.skillName):
-                        skillExists = True
-                        break
+            skillExists = False  #used to check if a tag exists already
+            
+            #create a new tag-object; check what is tagged object - question or challenge               
+            if resourceIndicator == "question":
+                newSkillsObject = QuestionsSkills()
+            
+            #if the tag already exists... set tagExists to 1
+            for item in Skills.objects.all():
+                if skillWord == str(item.skillName):
+                    skillExists = True
+                    break
 
-                if not skillExists:
-                    #create new tag                    
-                    newSkill = Skills()
-                    newSkill.SkillName = skillWord
-                    newSkill.save()
-   
-                for tempSkill in Skills.objects.all():
-                    if tempSkill.skillName == skillWord:
-                        #check if there is such tag for this resource
-                        
-                        newSkillsObject.skillID = Skills(tempSkill.skillID)
-                        print (str("Tagid: ") + str(tempSkill.skillID))
-                        break
-                
-                if resourceIndicator == "question":
-                    newSkillsObject.questionID = resource
-                    print (str("questionID: ") + str(newSkillsObject.questionID))
-                    print (str(newSkillsObject.questionID))
-                    newSkillsObject.save()
+            if not skillExists:
+                #create new tag                    
+                newSkill = Skills()
+                newSkill.SkillName = skillWord
+                newSkill.save()
+
+            for tempSkill in Skills.objects.all():
+                if tempSkill.skillName == skillWord:
+                    #check if there is such tag for this resource
+                    
+                    newSkillsObject.skillID = Skills(tempSkill.skillID)
+                    print (str("Tagid: ") + str(tempSkill.skillID))
+                    break
+            
+            if resourceIndicator == "question":
+                newSkillsObject.questionID = resource
+                print (str("questionID: ") + str(newSkillsObject.questionID))
+                print (str(newSkillsObject.questionID))
+                newSkillsObject.save()
                                         
 def saveTags(tagString, resource, resourceType): 
     tags = json.loads(tagString)
@@ -93,104 +92,102 @@ def saveTags(tagString, resource, resourceType):
                 break                
         newTagsObject.save()
                                 
-def saveQuestionSkills(skillstring, question, challenge):
-
-        #if skillstring is not null or empty
-        if not skillstring == "":
+def saveQuestionSkills(skillstring, question, course):
+    #if skillstring is not null or empty
+    if not skillstring == "":
+        
+        # delete all previous skill for this question and course
+        resourceSkills = QuestionsSkills.objects.filter(questionID = question.questionID).delete()
             
-            # delete all previous skill for this question and course
-            resourceSkills = QuestionsSkills.objects.filter(questionID = question.questionID).delete()
+        #split string into an array 
+        skillsList = skillstring.split(',')
+        #print(skillsList)
+        #Break the elements in skillslist of name and skill points
+        for skill in skillsList:
+            #skillName, skillPoints = skill.word_tokenize()
+            skillName, skillPoints = skill.split('(')
+            
+            # removing leading and trailing white spaces
+            skillName = skillName.strip()
+            skillPoints = skillPoints[:-1]
+            print ("skillName: "+skillName)
+            print ("skillPoints: "+skillPoints)
+            
+            # find the skillID for this skillName
+            for s in Skills.objects.all():
+                if skillName == s.skillName:
+                    skillID = s.skillID
+
+                            
+            # now add the new skill for this question                 
+            # Check if skill is created of same type (AH)
+            createdSkill = QuestionsSkills.objects.filter(skillID = skillID, questionID = question.questionID, courseID = course)
+            
+            if (createdSkill):
+                # Update skill with the new skillPoints (AH)
+                skillObj = createdSkill[0]
+                skillObj.questionSkillPoints = int(skillPoints)
+                skillObj.save()
+            else:              
+                # create a new skill-question object
+                newQSkillsObject = QuestionsSkills()
+                newQSkillsObject.questionID = question
+                newQSkillsObject.courseID = course
+                newQSkillsObject.questionSkillPoints = int(skillPoints)
+                newQSkillsObject.skillID = Skills(skillID)                
                 
-            #split string into an array 
-            skillsList = skillstring.split(',')
-            #print(skillsList)
-            #Break the elements in skillslist of name and skill points
-            for skill in skillsList:
-                #skillName, skillPoints = skill.word_tokenize()
-                skillName, skillPoints = skill.split('(')
-                
-                # removing leading and trailing white spaces
-                skillName = skillName.strip()
-                skillPoints = skillPoints[:-1]
-                print ("skillName: "+skillName)
-                print ("skillPoints: "+skillPoints)
-                
-                # find the skillID for this skillName
-                for s in Skills.objects.all():
-                    if skillName == s.skillName:
-                        skillID = s.skillID
-  
-                              
-                # now add the new skill for this question                 
-                # Check if skill is created of same type (AH)
-                createdSkill = QuestionsSkills.objects.filter(skillID = skillID, questionID = question.questionID, challengeID = challenge.challengeID)
-                
-                if (createdSkill):
-                    # Update skill with the new skillPoints (AH)
-                    skillObj = createdSkill[0]
-                    skillObj.questionSkillPoints = int(skillPoints)
-                    skillObj.save()
-                else:              
-                    # create a new skill-question object
-                    newQSkillsObject = QuestionsSkills()
-                    newQSkillsObject.questionID = question
-                    newQSkillsObject.challengeID = challenge
-                    newQSkillsObject.questionSkillPoints = int(skillPoints)
-                    newQSkillsObject.skillID = Skills(skillID)                
-                   
-                    newQSkillsObject.save()
-        else:
-            # delete all previous skill for this question and course                            #AA 3/24/15
-            resourceSkills = QuestionsSkills.objects.filter(questionID = question.questionID).delete()                                           
+                newQSkillsObject.save()
+    else:
+        # delete all previous skill for this question and course                            #AA 3/24/15
+        resourceSkills = QuestionsSkills.objects.filter(questionID = question.questionID).delete()                                           
 
 def saveChallengesTopics(topicstring, challenge, unspecified_topic):        
+    oldChallTopicNames = []
+    oldChallengeTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID)
+    for ct in oldChallengeTopics:
+        oldChallTopicNames.append(ct.topicID.topicName)
 
-        oldChallTopicNames = []
-        oldChallengeTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID)
-        for ct in oldChallengeTopics:
-            oldChallTopicNames.append(ct.topicID.topicName)
-
-        #if topicstring is not null or empty
-        if topicstring == "":
-            
-            newTopicNames = set() 
-            if not topicstring == "":              
-            #split string into an array 
-                topicsList = topicstring.split(',')       
-                for topic in topicsList:
-                    if not topic == '':
-                        newTopicNames.add(topic.strip())
-            else:
-                newTopicNames.add(unspecified_topic_name)           
-            print(newTopicNames)
-    
-            # Remove old topics for the challenge which are not in the list  of new topics  
-            for ct in oldChallengeTopics:
-                #if not ct.topicID.topicName in newTopicNames and not ct.topicID.topicName==unspecified_topic_name:
-                if not ct.topicID.topicName in newTopicNames:
-                    ct.delete()
-            
-            # add the new topics for this challenge
-            for topicName in newTopicNames:            
-    
-                if not topicName in oldChallTopicNames:                                              
-                    newCTopicsObject = ChallengesTopics()
-                    newCTopicsObject.challengeID = challenge
-                    topic = Topics.objects.filter(topicName=topicName)               
-                    newCTopicsObject.topicID = Topics.objects.get(pk=topicName)            
-                    newCTopicsObject.save()
-                                        
+    #if topicstring is not null or empty
+    if topicstring == "":
+        
+        newTopicNames = set() 
+        if not topicstring == "":              
+        #split string into an array 
+            topicsList = topicstring.split(',')       
+            for topic in topicsList:
+                if not topic == '':
+                    newTopicNames.add(topic.strip())
         else:
-            # no new topics specified
-            # Remove old topics for the challenge which are not in the list  of new topics              
-            if not unspecified_topic_name in oldChallTopicNames:
-                for ct in oldChallengeTopics:                    
-                    ct.delete()
-                # Assign Unspecified topic to this challenge
-                newChallTopicsObject = ChallengesTopics()
-                newChallTopicsObject.challengeID = challenge
-                newChallTopicsObject.topicID = unspecified_topic                
-                newChallTopicsObject.save()
+            newTopicNames.add(unspecified_topic_name)           
+        print(newTopicNames)
+
+        # Remove old topics for the challenge which are not in the list  of new topics  
+        for ct in oldChallengeTopics:
+            #if not ct.topicID.topicName in newTopicNames and not ct.topicID.topicName==unspecified_topic_name:
+            if not ct.topicID.topicName in newTopicNames:
+                ct.delete()
+        
+        # add the new topics for this challenge
+        for topicName in newTopicNames:            
+
+            if not topicName in oldChallTopicNames:                                              
+                newCTopicsObject = ChallengesTopics()
+                newCTopicsObject.challengeID = challenge
+                topic = Topics.objects.filter(topicName=topicName)               
+                newCTopicsObject.topicID = Topics.objects.get(pk=topicName)            
+                newCTopicsObject.save()
+                                    
+    else:
+        # no new topics specified
+        # Remove old topics for the challenge which are not in the list  of new topics              
+        if not unspecified_topic_name in oldChallTopicNames:
+            for ct in oldChallengeTopics:                    
+                ct.delete()
+            # Assign Unspecified topic to this challenge
+            newChallTopicsObject = ChallengesTopics()
+            newChallTopicsObject.challengeID = challenge
+            newChallTopicsObject.topicID = unspecified_topic                
+            newChallTopicsObject.save()
                                                                                                          
 def extractTags(resource, resourceIndicator):   
     if resourceIndicator == "question":
@@ -243,8 +240,8 @@ def getCourseSkills(course):
         
     return skill_list
 
-def getSkillsForQuestion(challenge,question):
-    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
+def getSkillsForQuestion(course,question):
+    qskills = QuestionsSkills.objects.filter(questionID = question, courseID=course)
     
     skill_list = []
     
@@ -283,11 +280,11 @@ def autoCompleteTopicsToJson(currentCourse):
     logger.debug("Created Topics: " + json.dumps(createdTopics))
     return json.dumps(topics), json.dumps(createdTopics)
 
-def addSkillsToQuestion(challenge,question,skills,points):
+def addSkillsToQuestion(course,question,skills,points):
     pointsDict = {}
     for (skillID,point) in zip(skills,points):
         pointsDict[skillID] = point
-    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
+    qskills = QuestionsSkills.objects.filter(questionID = question, courseID=course)
     existingIDs = [qsk.skillID.skillID for qsk in qskills]
     deletionIDs = [id for id in existingIDs if id not in skills]
     newIDs = [id for id in skills if id not in existingIDs]
@@ -298,7 +295,7 @@ def addSkillsToQuestion(challenge,question,skills,points):
     for id in newIDs:
         newQSkill = QuestionsSkills()
         newQSkill.questionID = question
-        newQSkill.challengeID = challenge
+        newQSkill.courseID = course
         newQSkill.skillID = Skills.objects.get(pk=id)
         newQSkill.questionSkillPoints = pointsDict[id]
         newQSkill.save()

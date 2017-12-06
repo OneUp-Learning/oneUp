@@ -124,7 +124,7 @@ def trueFalseNewForm(request):
             ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
 
             # Processing and saving skills for the question in DB
-            addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
             saveTags(request.POST['tags'], question, ObjectTypes.question)
@@ -185,12 +185,13 @@ def trueFalseNewForm(request):
                 context_dict['q_skill_points'] = int('1')
 
                 # Extract the skill                                        
-                context_dict['selectedSkills'] = getSkillsForQuestion(request.GET['challengeID'],question)                    
-             
-        # If we didn't run that code to load the values for the answers, then we make
-        # blank lists.  We do this because we need to use a zipped list and a for
-        # in order for the template stuff to be happy with us.  Doing that requires that
-        # all the lists have the same length
+                context_dict['selectedSkills'] = utils.getSkillsForQuestion(currentCourse,question)                    
+
+                            
+    # If we didn't run that code to load the values for the answers, then we make
+    # blank lists.  We do this because we need to use a zipped list and a for
+    # in order for the template stuff to be happy with us.  Doing that requires that
+    # all the lists have the same length
         if not answersSet:
             for i in range(0,num_answers):
                 ansValue.append("")
