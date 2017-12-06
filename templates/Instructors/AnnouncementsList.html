@@ -32,8 +32,8 @@
                            <td>{{author_ID}}</td>
                            <td>{{start_Timestamp}}</td>
                            <td>
-                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                              <ul id='dropdown1' class='dropdown-content'>
+                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='announcement{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <ul id='announcement{{i}}' class='dropdown-content'>
                                  <form action="/oneUp/instructors/deleteAnnouncement" method="POST">
                                     {% csrf_token %} 
                                     <li><a href="/oneUp/instructors/announcementCreate?announcementID={{announcement_ID}}">Edit</a></li>

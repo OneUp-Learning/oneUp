@@ -12,6 +12,12 @@ from Instructors.models import Announcements, Instructors, Courses
 from Instructors.views.utils import utcDate
 from datetime import datetime
 
+def insert_newlines(string, every=10):
+    lines = []
+    for i in range(0, len(string), every):
+        lines.append(string[i:i+every])
+    return '\n'.join(lines)
+
 # Added boolean to check if viewing from announcements page or course home page
 def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
 
@@ -32,7 +38,7 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
             start_Timestamp.append(announcement.startTimestamp)
             end_Timestamp.append(announcement.endTimestamp)
             subject.append(announcement.subject[:25])
-            message.append(announcement.message[:300])
+            message.append(insert_newlines(announcement.message[:300]))
     else: # Only shows the first three
         for announcement in announcements:
             if index < 3:
@@ -41,7 +47,7 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
                 start_Timestamp.append(announcement.startTimestamp)
                 end_Timestamp.append(announcement.endTimestamp)
                 subject.append(announcement.subject[:25])
-                message.append(announcement.message[:300])
+                message.append(insert_newlines(announcement.message[:300]))
                 index += 1
     
       

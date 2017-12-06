@@ -37,11 +37,11 @@
                            <td>{{description}}</td>
                            <td>{{points}}</td>
                            <td>
-                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='options-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='activity{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                               <form action="/oneUp/instructors/deleteActivity" method="POST">
                                 {% csrf_token %}    
                                 <input type="hidden" name="activityID" value="{{activity_ID}}">                                
-                                 <ul id='options-{{i}}' class='dropdown-content'>
+                                 <ul id='activity{{i}}' class='dropdown-content'>
                                     <li><a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons">edit</i>Edit</a></li>
                                     <li><a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons">playlist_add</i>Assign Points</a></li>
                                     <li class="divider"></li>

@@ -22,7 +22,7 @@ def announcementCreateView(request):
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
-    string_attributes = ['subject','message'];
+    string_attributes = ['subject','message']
     
     # check if course was selected
     if 'currentCourseID' in request.session:
@@ -66,7 +66,7 @@ def announcementCreateView(request):
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            announcement.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+            announcement.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
             announcement.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
         
@@ -91,7 +91,7 @@ def announcementCreateView(request):
                     context_dict[attr]=getattr(announcement,attr)
 
                 # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-                defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+                defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
                 announceEndTime = getattr(announcement, 'endTimestamp') 
  
                 if (announceEndTime.year < defaultTime.year):
