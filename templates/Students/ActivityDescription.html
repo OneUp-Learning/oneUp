@@ -23,7 +23,10 @@
 		</div>
 		<br />
 		
-		<div align="center">		
+		<div align="center">	
+		
+		
+			
 		<form id="uploadbanner" action="/oneUp/students/ActivityDescription" enctype="multipart/form-data" method="POST" >
 			{% csrf_token %}   			
    			<table class="bg" style="margin-bottom: .750em; width: 90%; align: center;">
@@ -68,7 +71,7 @@
 	               {%if isFile == False %}
 	               <tr>
 	                  <td>
-	                     <input id="fileupload" name="actFile" type="file" multiple />   
+	                     <input id="fileupload" name="actFile" type="file" multiple required/>   
 	                  </td>
 	               </tr>
 	               </table>
