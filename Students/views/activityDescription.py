@@ -15,6 +15,7 @@ from datetime import datetime, date
 from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import activityScore
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 #from requests.api import request
 
 @login_required
@@ -33,7 +34,7 @@ def ActivityDetail(request):
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
             
             #Need to add the comparsion for time
-            dueTime = datetime.strptime(str(studentActivities.activityID.endTimestamp.time()), "%H:%M:%S" )
+            dueTime = datetime.strptime(str(studentActivities.activityID.endTimestamp.time()).split(".")[0], "%H:%M:%S" )
             print(dueTime.strftime("%I:%M %p"))
             currentTime = datetime.strptime(datetime.utcnow().time().strftime("%H:%M:%S"), "%H:%M:%S")
             print(currentTime.strftime("%I:%M %p"))
@@ -110,6 +111,7 @@ def ActivityDetail(request):
             context_dict['files'] = files
                     
             return redirect('/oneUp/students/ActivityList', context_dict)
+            
         return render(request,'Students/ActivityDescription.html', context_dict)
 
 def makeFileObjects(studentId, currentCourse,files, studentActivities):

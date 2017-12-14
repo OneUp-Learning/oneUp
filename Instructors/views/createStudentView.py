@@ -12,10 +12,13 @@ from oneUp.auth import createStudents, checkPermBeforeView
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from Instructors.views.createStudentListView import createStudentListView
+from Instructors.views.utils import initialContextDict
 from Instructors.models import Courses
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+import logging
 
+logger = logging.getLogger(__name__)
 
 def createStudentView(request):
     checkPermBeforeView(createStudents,request,createStudentViewUnchecked)
@@ -23,20 +26,10 @@ def createStudentView(request):
 @login_required
 def createStudentViewUnchecked(request):
  
-    context_dict = { 'usertype':'Student', 'message':'' }
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-    
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-        currentCourse = 1
+    context_dict, currentCourse = initialContextDict(request)
+    context_dict['usertype'] = 'Student'
+    context_dict['message'] = ''
+    ccparams = context_dict['ccparams']
         
     if request.POST:
         
@@ -81,7 +74,6 @@ def createStudentViewUnchecked(request):
                 
             # oumar
             else:
-                context_dict = {}
                 if users and usersId:
                     context_dict['user_taken'] = '*Both Email and User ID already in use. Please verify your information.'
                 elif usersId:
@@ -100,8 +92,10 @@ def createStudentViewUnchecked(request):
                 studentRegisteredCourses.studentID = student
                 studentRegisteredCourses.courseID = currentCourse
                 studentRegisteredCourses.avatarImage = anonymous_avatar
+                if ccparams.virtualCurrencyAdded:
+                    studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
                 studentRegisteredCourses.save()
-                
+                logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
                 # Create new Config Parameters
                 scparams = StudentConfigParams()
                 scparams.courseID = currentCourse

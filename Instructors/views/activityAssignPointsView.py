@@ -103,7 +103,7 @@ def createContextForPointsAssignment(request):
             
             student_Feedback.append(stud_act.instructorFeedback)
             
-            studentFile = StudentFile.objects.get(activity= stud_act, studentID =student, latest=True)
+            studentFile = StudentFile.objects.filter(activity= stud_act, studentID =student, latest=True).first()
             print(studentFile)
             if(studentFile):
                 fName = studentFile.fileName

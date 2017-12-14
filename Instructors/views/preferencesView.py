@@ -67,8 +67,8 @@ def preferencesView(request):
         ccparams.virtualCurrencyUsed  = "virtualCurrencyUsed" in request.POST
         # Should the new currency be added to the previous ot replace it??
         #the first is uncommented below
-        # ccparams.virtualCurrencyAdded =  request.POST.get('virtualCurrencyAdded')
-        ccparams.virtualCurrencyAdded +=  int(request.POST.get('virtualCurrencyAdded'))
+        ccparams.virtualCurrencyAdded =  request.POST.get('virtualCurrencyAdded')
+        #ccparams.virtualCurrencyAdded +=  int(request.POST.get('virtualCurrencyAdded'))
         
         #If students were already added to the class: Add the specified quantity to the account of every student in this class
         st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)

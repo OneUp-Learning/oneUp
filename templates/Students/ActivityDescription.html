@@ -40,7 +40,7 @@
                         </div>
                         {% if canUpload == True %}
                         <div class="section">
-                           <h4>Upload File</h4>
+                           <h4>Upload {{activity.activityID.activityName}}:</h4>
                            {% csrf_token %}   		
                            <input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">	
                            {%if isFile == False %}

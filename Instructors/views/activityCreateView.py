@@ -87,8 +87,22 @@ def activityCreateView(request):
                     context_dict[attr]=getattr(activity,attr)
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
-                context_dict['startTimestamp']= activity.startTimestamp
-                context_dict['endTimestamp']= activity.endTimestamp
+#                 context_dict['startTimestamp']= activity.startTimestamp
+#                 context_dict['endTimestamp']= activity.endTimestamp
+                
+                etime = datetime.strptime(str(activity.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                print('etime ', etime)
+                if etime != default_time_str: 
+                    print('etime2 ', etime)   
+                    context_dict['endTimestamp']=etime
+                else:
+                    context_dict['endTimestamp']=""
+            
+                print(activity.startTimestamp.strftime("%Y")) 
+                if activity.startTimestamp.strftime("%Y") < ("2900"):
+                    context_dict['startTimestamp']= datetime.strptime(str(getattr(activity, 'startTimestamp')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                else:
+                    context_dict['startTimestamp']=""
 
 
     return render(request,'Instructors/ActivityCreateForm.html', context_dict)
