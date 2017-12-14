@@ -1,91 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8">
-      
-         {% include 'scripts.html' %}
-      
-      <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }            
-         }
-      </script>
+   <head>      
+      {% include 'scripts.html' %}
    </head>
-   
    <body>
-
-     <div>
-
-         {% include 'heading.html' %}
-
-            <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-            <div class="12u">
-               <h1>Create/Edit <span>Milestone</span></h1>
-               <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
-                  <!-- INSERTED PAGE CONTENT -->
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Create/Edit <i>Milestone</i></h3>
+               <p><span class= "red-text">*</span> Denotes Required Fields</p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
                   <form name="question" action="/oneUp/instructors/createMilestone" method="POST">
                      {% csrf_token %}
                      {% if milestoneID %}
                      <input type="hidden" name="milestoneID" id="milestoneID" value="{{milestoneID}}">
                      {% endif %}
-                     <table class="bg">
-                        <tr>
-                           <td>Milestone Name <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <input id="mediumFormBox" type="text" name="milestoneName" value="{{milestoneName}}" pattern=".*\S+.*" required><br>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td>Milestone Description <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <textarea id="mediumFormBox" name="description" rows="2" maxlength='100' value="">{{description}}</textarea>
-                              <font style="font-size:.8em;">Limit 100 characters</font>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td>Max Points <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <input id="extraSmallFormBox" type="text" name="points" maxlength="4" value={{points}}>
-                           </td>
-                        </tr>
-                     </table>
-                     <input type="submit" name="submit" value="Submit" class="button">
-                     <a href="/oneUp/instructors/milestonesList"><button type="button" class="special button" value="Reset">Cancel</button></a>
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input value="{{milestoneName}}" name="milestoneName" id="milestoneName" type="text" class="validate" pattern=".*\S+.*" required>
+                              <label for="milestoneName"><span class='red-text'>*</span> Milestone Name</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <textarea name="description" id="description" class="materialize-textarea validate" data-length="100">{{description}}</textarea>
+                              <label for="description"><span class='red-text'>*</span> Milestone Description</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input value="{{points}}" name="points" id="points" type="number" class="validate" min="0" max="9999" required>
+                              <label for="points"><span class='red-text'>*</span> Max Points</label>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="card-action right-align">
+                        <button class="btn waves-effect waves-light" type="submit" name="submit">Create<i class="material-icons right">send</i></button>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/milestonesList"><i class="material-icons left">close</i>Cancel</a>
+                     </div>
                   </form>
-                  <!-- END INSERTED PAGE CONTENT -->
-         </div></div></div>
-         </div></div>
-         <!-- Footer -->
-
-        {% include 'footer.html' %}
-
-      </div>
-   
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

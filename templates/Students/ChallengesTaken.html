@@ -1,75 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-
+   <head>
       {% include 'scripts.html' %}
-
-      </head>
-      <body>
-       {% if is_teacher %}    
-              {% include 'heading.html' %}
-       {% else %}
-              {% include 'stheading.html' %}
-       {% endif %}
-          
-
-            <main>
-         	<div class="row center-align">
-         	<div class="col s12">
- 
-         		 <h3>Challenge Results for <i>{{student}} </i></h3>
-			 </div>
-		</div>
-        	<div class="row">
-         	<div class="col s12 m8 offset-m2">
-				 <div class="card">
-					 <div class="card-content">
-        	<table>
-				<thead>
-        		<tr>
-        			<th>Name</th>
-        			<th>Time Taken</th>
-        			<th>Your Score </th>
-        			<th>Max Score</th>
-        			<th></th>
-        		</tr>
-				</thead>
-				<tbody>
-        		{% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in challenge_range %}
-        		<tr> 			
-        			<td>{{chall_Name}}</td>
-        			<td>{{dateTaken}}</td>
-        			<td>{{score}}</td>
-        			<td>{{total}}</td>			
-        			<tr>
-         				{% if is_teacher %}    	         			
-	                       <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{student}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
-      					{% else  %}
-	                        <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
- 	                    {% endif %}       				
-        			</td> 
-				</tr>
-				{% empty %}
-				<tr>
-					<td class="center-align" colspan="5">You have not completed this challenge</td>
-				</tr>
-				{% endfor %}
-				</tbody>
-			</table>
-			</div>
-			<div class="card-action right-align">
-        	{% if warmUp %}
-			<a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
-			{% else %}
-			<a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
-			{% endif %}
-			</div>
-			</div>
-			</div>
-			</div>
-</main>
-        {% include 'footer.html' %}
-
-
-      </body>
-   </html>
+   </head>
+   <body>
+      {% if is_teacher %}    
+      {% include 'heading.html' %}
+      {% else %}
+      {% include 'stheading.html' %}
+      {% endif %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Challenge Results for <i>{{student}} </i></h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <div class="card-content">
+                     <table>
+                        <thead>
+                           <tr>
+                              <th>Challenge Name</th>
+                              <th>Time Taken</th>
+                              <th>Your Score </th>
+                              <th>Max Score</th>
+                              <th></th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in challenge_range %}
+                           <tr>
+                              <td>{{chall_Name}}</td>
+                              <td>{{dateTaken}}</td>
+                              <td>{{score}}</td>
+                              <td>{{total}}</td>
+                              <td>{% if is_teacher %}    	         			
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{student}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
+                              {% else  %}
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
+                              {% endif %}       				
+                              </td> 
+                           </tr>
+                           {% empty %}
+                           <tr>
+                              <td class="center-align" colspan="5">You have not completed this challenge</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+                  <div class="card-action right-align">
+                     {% if warmUp %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
+                     {% else %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
+                     {% endif %}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

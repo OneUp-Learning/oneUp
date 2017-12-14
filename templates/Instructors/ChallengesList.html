@@ -51,27 +51,28 @@
                            <td>{{start_Timestamp}}</td>
                            <td>{{end_Timestamp}}</td>
                            <td>
-                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                              <ul id='dropdown1' class='dropdown-content'>
-                                 {% if warmUp %}
-                                 <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
-                                    {% csrf_token %} 
+                              {% if warmUp %}
+                              <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
+                              {% else %}
+                              <form action="/oneUp/instructors/deleteChallenge" method="POST">
+                              {% endif %}
+                              {% csrf_token %}
+                              <input type="hidden" name="challengeID" value="{{chall_ID}}"> 
+                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <ul id='dropdown{{i}}' class='dropdown-content'>
+                                    {% if warmUp %}
                                     <li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a></li>
                                     <li><a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a></li>
                                     <li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
                                     {% else %}
-                                 <form action="/oneUp/instructors/deleteChallenge" method="POST">
-                                    {% csrf_token %} 
                                     <li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view">View</a></li>
                                     <li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}">Edit</a></li>
                                     <li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
                                     {% endif %}    
-                                    <input type="hidden" name="challengeID" value="{{chall_ID}}">    
                                     <li class="divider"></li>                         
-                                    <li><a class="modal-trigger" href="#modal_delete">Delete</a></li>
-                                    
+                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
                               </ul>
-                              <div id="modal_delete" class="modal">
+                              <div id="modal_delete{{i}}" class="modal">
                                     <div class="modal-content">
                                        <h5>Are you sure you want to delete?</h5>
                                     </div>

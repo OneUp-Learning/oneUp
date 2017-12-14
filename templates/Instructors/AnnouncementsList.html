@@ -32,26 +32,26 @@
                            <td>{{author_ID}}</td>
                            <td>{{start_Timestamp}}</td>
                            <td>
-                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='announcement{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                              <ul id='announcement{{i}}' class='dropdown-content'>
-                                 <form action="/oneUp/instructors/deleteAnnouncement" method="POST">
-                                    {% csrf_token %} 
+                              <form action="/oneUp/instructors/deleteAnnouncement" method="POST">
+                                 {% csrf_token %} 
+                                 <input type="hidden" name="announcementID" value="{{announcement_ID}}">
+                                 <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='announcement{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                 <ul id='announcement{{i}}' class='dropdown-content'>
                                     <li><a href="/oneUp/instructors/announcementCreate?announcementID={{announcement_ID}}">Edit</a></li>
-                                    <input type="hidden" name="announcementID" value="{{announcement_ID}}">
                                     <li class="divider"></li>
-                                    <li><a class="modal-trigger" href="#modal_delete">Delete</a></li>
-                              </ul>
-                              <div id="modal_delete" class="modal">
-                              <div class="modal-content">
-                              <h5>Are you sure you want to delete?</h5>
-                              </div>
-                              <div class="modal-footer">
-                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
-                              <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
-                              </button>                                        
-                              </div>
-                              </div>
-                              </form>                                                                
+                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                 </ul>
+                                 <div id="modal_delete{{i}}" class="modal">
+                                    <div class="modal-content">
+                                       <h5>Are you sure you want to delete?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                       </button>                                        
+                                    </div>
+                                 </div>
+                              </form>
                            </td>
                         </tr>
                         {% empty %}

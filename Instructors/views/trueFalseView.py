@@ -185,7 +185,7 @@ def trueFalseNewForm(request):
                 context_dict['q_skill_points'] = int('1')
 
                 # Extract the skill                                        
-                context_dict['selectedSkills'] = utils.getSkillsForQuestion(currentCourse,question)                    
+                context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)                    
 
                             
     # If we didn't run that code to load the values for the answers, then we make
