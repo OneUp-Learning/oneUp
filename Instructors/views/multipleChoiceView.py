@@ -36,7 +36,7 @@ def multipleChoiceForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','questionText','difficulty','correctAnswerFeedback', # 04/09
-                  'incorrectAnswerFeedback','instructorNotes'];
+                  'incorrectAnswerFeedback','instructorNotes','author'];
 
     # We set these structures up here for later use.
     
@@ -72,11 +72,10 @@ def multipleChoiceForm(request):
         # Fix the question type
         question.type = QuestionTypes.multipleChoice;
         
-        # Get the author                            # 03/10/2015
-        if request.user.is_authenticated():
+        
+        if question.author == '':
             question.author = request.user.username
-        else:
-            question.author = ""
+            
         question.save();  #Writes to database.
         
         # The number of answers is always sent.
@@ -136,20 +135,25 @@ def multipleChoiceForm(request):
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
   
+            position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
+            
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
+                for chall_question in challenge_question:
+                    position = chall_question.questionPosition
+                
                 challenge_question.delete()
-
+                
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']))
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
 
             if request.session['currentCourseID']:          
                 courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
                 
                 # Processing and saving skills for the question in DB
                 skillString = request.POST.get('newSkills', "default")
-                utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+                utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
 
         # Processing and saving tags in DB                        
         tagString = request.POST.get('tags', "default")
@@ -220,7 +224,7 @@ def multipleChoiceForm(request):
                     context_dict['q_skill_points'] = int('1')
                     
                     # Extract the skill                                        
-                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)
+                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(currentCourse,question)
             
     if 'challengeID' in request.GET:
         print('challengeID  '+request.GET['challengeID'])  

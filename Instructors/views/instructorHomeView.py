@@ -7,6 +7,9 @@ from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Courses, InstructorRegisteredCourses, Announcements, Challenges
 from time import strftime
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 def instructorHome(request):
  

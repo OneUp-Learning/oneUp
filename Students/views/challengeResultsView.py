@@ -6,19 +6,21 @@ Updated May/10/2017
 '''
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from time import strftime
+from datetime import datetime
 
+from Instructors.views.utils import utcDate
 from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
+from Badges.event_utils import updateLeaderboard
 from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
 from Instructors.lupaQuestion import LupaQuestion
 
-def saveSkillPoints(questionId, challengeId, studentId, studentChallengeQuestion):
+def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
     # get all skills to which this question contributes
-    questionSkills = QuestionsSkills.objects.filter(questionID=questionId, challengeID=challengeId)
+    questionSkills = QuestionsSkills.objects.filter(questionID=questionId, courseID=course)
     if questionSkills:
         for qskill in questionSkills:
 
@@ -43,10 +45,9 @@ def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instru
     studentChallengeQuestion.questionScore = ma_point
     studentChallengeQuestion.questionTotal = c_ques_points
     studentChallengeQuestion.usedHint = "False"
-    studentChallengeQuestion.instructorFeedback = instructorFeedback
+    #studentChallengeQuestion.instructorFeedback = instructorFeedback
     studentChallengeQuestion.seed = seed
     studentChallengeQuestion.save()
-
     return studentChallengeQuestion
 
 @login_required
@@ -55,7 +56,7 @@ def ChallengeResults(request):
     context_dict,currentCourse = studentInitialContextDict(request)                 
 
     if 'currentCourseID' in request.session:
-        instructorFeedback = "None" #Intially by default its saved none.. Updated after instructor's evaluation
+         #Intially by default its saved none.. Updated after instructor's evaluation
 
         # This is included so that we can avoid magic numbers for question types in the template.
         context_dict['questionTypes']= QuestionTypes
@@ -77,23 +78,25 @@ def ChallengeResults(request):
                 course = Courses.objects.get(pk=currentCourse.courseID)
                 challenge = Challenges.objects.get(pk=challengeId)
                 context_dict['challengeName'] = challenge.challengeName
+                #context_dict['instructorFeedback'] = challenge.instructorFeedback
+                
                 
                 if not challenge.isGraded:
                     print ("warmUp")
                     context_dict['warmUp'] = 1
                     
-                print("Start Time:"+request.POST['startTime'])
-                startTime = request.POST['startTime']    
+                print("Start Time: "+request.POST['startTime'])
+                startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")  
                 #end time of the test is the current time when it is navigated to this page
-                endTime = strftime("%Y-%m-%d %H:%M:%S") #the end time is in yyyy-mm-dd hh:mm:ss format similar to start time
-                print("End Time:"+str(endTime))
+                endTime = utcDate()
+                print("End Time:"+ endTime.strftime("%m/%d/%Y %I:%M %p"))
 
-                attemptId = 'challenge:'+challengeId + '@' + startTime
+                attemptId = 'challenge:'+challengeId + '@' + startTime.strftime("%m/%d/%Y %I:%M:%S %p")
                 print("attemptID = "+attemptId)               
                 
                 # Do not grade the same challenge twice
-                if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
-                    return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+                #if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
+                    #return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
                     
                 #save initial student-challenge information pair (no score)to db
                 studentChallenge = StudentChallenges()
@@ -104,15 +107,23 @@ def ChallengeResults(request):
                 studentChallenge.endTimestamp = endTime
                 studentChallenge.testScore = 0 #initially its zero and updated after calculation at the end
                 studentChallenge.testTotal = 0 #initially its zero and updated after calculation at the end
-                studentChallenge.instructorFeedback = instructorFeedback
+              #  studentChallenge.instructorFeedback = instructorFeedback 
                 studentChallenge.save()
                 
                 #print(studentChallenge.endTimestamp - studentChallenge.startTimestamp)
                                 
                 sessionDict = request.session[attemptId]
                 if not sessionDict:
-                    #TODO: make appropriate error message for here.
+                    context_dict['errorName'] = "Challenge not begun"
+                    context_dict['errorMessage'] = "An attempt to submit challenge "+challenge.challengeName+" has occurred, but this system has " + \
+                        "no record of that challenge begin taken."
+                    return render(request, "Students/ChallengeError.html", context_dict)
                     print("challenge result requested for challenge not begun.")
+
+                if (endTime - startTime).total_seconds() > (challenge.timeLimit+1) * 60: # We add a one minute fudge factor to account for things like network delays
+                    context_dict['errorName'] = "Time Expired"
+                    context_dict['errorMessage'] = "Time expired prior to the submission of this challenge."
+                    return render(request, "Students/ChallengeError.html", context_dict)
 
                 questions = sessionDict['questions']
                 context_dict["questionCount"] = len(questions)
@@ -216,10 +227,10 @@ def ChallengeResults(request):
                             studentAnswerList = [key+":"+answers[key] for key in answers.keys()]
                             question['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)
                             if question['evaluations']:
-                                question['user_points'] = sum([eval['value'] for eval in question['evaluations'].values()])
+                                question['user_points'] = sum([eval['value'] for eval in question['evaluations']])
                             else:
                                 question['user_points'] = 0
-                    
+                                        
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
                     if 'seed' in question:
@@ -227,6 +238,11 @@ def ChallengeResults(request):
                     else:
                         seed = 0
                     studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question['question']['questionID'], question['user_points'], question['total_points'], "",seed)
+
+                    # Award skills if the answer was correct.
+                    if question['user_points'] == question['total_points']:
+                        saveSkillPoints(question['id'], currentCourse, studentId, studentChallengeQuestion)
+
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
                         studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
@@ -243,6 +259,12 @@ def ChallengeResults(request):
                 studentChallenge.save()
                 
                 register_event(Event.endChallenge,request,studentId,challengeId)
-
+                register_event(Event.leaderboardUpdate,request,studentId, challengeId)
+                updateLeaderboard(course)
+                
+                print("studentChallege ", studentChallenge)
+                print("studentId ", studentId)
+                
+            
     return render(request,'Students/ChallengeResults.html', context_dict)
 

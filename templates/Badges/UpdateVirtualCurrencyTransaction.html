@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% include 'heading.html' %}  
+      <div class="frame" id="grad" align="center">
+         <div class="container">
+            <div class="row">
+               <div class="12u">
+                  <h1>Transaction </h1>
+               </div>
+            </div>
+            <div class="row">
+               <div class="12u">
+                  <table class="bg">
+                     <thead>
+                        <tr>
+                           <th>Student</th>
+                           <th>Item Name</th>
+                           <th>Item Description</th>
+                           <th>Date Purchased</th>
+                           <th>Item Cost</th>
+                           <th>Current Status</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td>{{student}}</td>
+                           <td>{{name}}</td>
+                           <td>{{description}}</td>
+                           <td>{{purchaseDate}}</td>
+                           <td>{{total}}</td>
+                           <td><b>{{status}}</b></td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+            <div class="row">
+               <div class="12u">
+                  <form name="UpdateTransaction" action="/oneUp/badges/UpdateVirtualCurrencyTransaction" method="post">
+                     {% csrf_token %}
+                     <input type="hidden" name="transactionID" value="{{transactionID}}">
+                     <table class="bg">
+                        <tr>
+                           <th>Set Status</th>
+                        </tr>
+                        <tr>
+                           <td>
+                              <div class="select-wrapper">
+                                 <select name="updateStatus" style="width: 190px" >
+                                    <option value="{{status}}"selected>Update Status</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option  value="Complete">Complete</option>
+                                 </select>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <th>Note for Student</th>
+                        </tr>
+                        <tr>
+                           <td><textarea style="margin-bottom:0" id="mediumFormBox" name="studentNotes">{{noteForStudent}}</textarea>
+                        </tr>
+                        <tr>
+                           <th>Instructor Notes</th>
+                        </tr>
+                        <tr>
+                           <td><textarea style="margin-bottom:0" id="mediumFormBox" name="instructorNotes">{{instructorNote}}</textarea>
+                        </tr>
+                     </table>
+                     <input type="submit" name="submit" value="Update" class="button">								
+                     <a href="/oneUp/badges/VirtualCurrencyTransactions">
+                     <input type="button" class="special" value="Cancel"></a>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Footer -->
+      {% include 'footer.html' %}
+   </body>
+</html>

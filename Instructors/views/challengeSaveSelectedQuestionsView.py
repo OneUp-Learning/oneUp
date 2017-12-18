@@ -50,7 +50,7 @@ def challengeSaveSelectedQuestions(request):
         
         print("selected list"+str(selectedQuestions))
         print ("max value"+str(max(selectedQuestions)))
-           
+        
         # For each question in Selected       
         for i in range(1,int(max(selectedQuestions))+1):
             if i in selectedQuestions:

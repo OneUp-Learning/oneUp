@@ -9,6 +9,9 @@ from django.shortcuts import render, redirect
 
 from Instructors.models import Courses, UploadedImages 
 from django.conf.global_settings import MEDIA_URL
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 
 def imageUpload(request):
@@ -26,7 +29,7 @@ def imageUpload(request):
         
     if request.POST and len(request.FILES) != 0:        
         imageFile = request.FILES['imagefile']
-        imageFileName = imageFile.name
+        imageFileName = os.path.basename(imageFile.name)
         
         imageObject = UploadedImages() 
         imageObject.imageFile = imageFile
@@ -58,6 +61,7 @@ def imageDelete(request):
     return redirect('/oneUp/instructors/imageList', context_dict)
     
        
+@login_required
 def imageList(request):
  
     context_dict = { }

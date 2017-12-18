@@ -51,11 +51,11 @@ class InstructorRegisteredCourses(models.Model):
     
     
        
-class Difficulty(models.Model):
-    difficultyID = models.AutoField(primary_key=True)
-    difficulty = models.CharField(max_length=75, default="")
-    def __str__(self):              
-        return str(self.difficulty)
+#class Difficulty(models.Model):
+    #difficultyID = models.AutoField(primary_key=True)
+    #difficulty = models.CharField(max_length=75, default="")
+    #def __str__(self):              
+        #return str(self.difficulty)
 
     
 # class Topics(models.Model):
@@ -133,11 +133,11 @@ class Challenges(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) 
     isGraded = models.BooleanField(default=False)
     numberAttempts = models.IntegerField()
-    timeLimit = models.IntegerField()
+    timeLimit = models.IntegerField(verbose_name="time limit for the challenge in minutes")
     #feedbackOption = models.IntegerField()
-    feedbackOption1 = models.BooleanField(default=False)
-    feedbackOption2 = models.BooleanField(default=False)
-    feedbackOption3 = models.BooleanField(default=False)
+    displayCorrectAnswer = models.BooleanField(default=True)
+    displayCorrectAnswerFeedback = models.BooleanField(default=False)
+    displayIncorrectAnswerFeedback = models.BooleanField(default=False)
     challengeAuthor = models.CharField(max_length=75)
     challengeDifficulty = models.CharField(max_length=45, default="")
     isVisible = models.BooleanField(default=True)
@@ -165,10 +165,10 @@ class CoursesSkills(models.Model):
 class QuestionsSkills(models.Model):
     skillID = models.ForeignKey('Instructors.Skills', verbose_name="skill")    
     questionID = models.ForeignKey('Instructors.Questions', verbose_name="questions")
-    challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenges")   
+    courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses", default=-1)    
     questionSkillPoints =  models.IntegerField(default=1)
     def __str__(self):              
-        return "QuestionSkill: {Question:("+str(self.questionID)+"),Skill:("+str(self.skillID)+"),Challenge:("+str(self.challengeID)+"),points:"+str(self.questionSkillPoints)+"}"
+        return "QuestionSkill: {Question:("+str(self.questionID)+"),Skill:("+str(self.skillID)+"),Course:("+str(self.courseID)+"),points:"+str(self.questionSkillPoints)+"}"
 
 class Tags(models.Model):
     tagID = models.AutoField(primary_key=True)
@@ -192,15 +192,17 @@ class ChallengeTags(models.Model):
 class ChallengesQuestions(models.Model):
     challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenge")
     questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
+    questionPosition = models.IntegerField(default = 0)
     points =  models.IntegerField()
     def __str__(self):              
         return str(self.challengeID)+","+str(self.questionID)
     @staticmethod
-    def addQuestionToChallenge(question, challenge, points):
+    def addQuestionToChallenge(question, challenge, points, position):
         cq = ChallengesQuestions()
         cq.challengeID = challenge
         cq.questionID = question
         cq.points = points
+        cq.questionPosition = position
         cq.save()
         return cq
 
@@ -210,11 +212,12 @@ class Activities(models.Model):
     description = models.CharField(max_length=200, default="")
     points =  models.IntegerField(default=0)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
-    #activityType = models.CharField(max_length=50)
-    #difficulty = models.CharField(max_length=50)
+    isFileAllowed = models.BooleanField(default = True)
+    uploadAttempts = models.IntegerField(default=1)
     instructorNotes = models.CharField(max_length=300, default="")
-    author = models.CharField(max_length=100)  
-#     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
+    author = models.CharField(max_length=100) 
+    startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
+    endTimestamp = models.DateTimeField(default=datetime.now, blank=True )
     def __str__(self):              
         return str(self.activityID)+","+self.activityName
         

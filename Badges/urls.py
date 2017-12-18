@@ -19,7 +19,11 @@ from Badges.views.editVirtualCurrencySpendRuleView import EditVirtualCurrencySpe
 from Badges.views.saveBadgeView import SaveBadge
 from Badges.views.saveVirtualCurrencyRule import SaveVirtualCurrencyRule
 from Badges.views.saveVirtualCurrencySpendRule import SaveVirtualCurrencySpendRule
-from Badges.views.virtualCurrencyListView import VirtualCurrencyList
+from Badges.views.UpdateVirtualCurrencyTransaction import updateVirtualCurrencyTransaction
+from Badges.views.virtualCurrencyEarnRuleList import virtualCurrencyEarnRuleList
+from Badges.views.virtualCurrencySpendRuleList import virtualCurrencySpendRuleList
+from Badges.views.VirtualCurrencyTransactions import virtualCurrencyTransactions
+from Badges.views.VirtualCurrencyCompletedTransactions import virtualCurrencyCompletedTransactions
 from Badges.views.conditionTestView import conditionTestView
 
 admin.autodiscover()
@@ -36,7 +40,11 @@ urlpatterns = [
     url(r'^SaveBadge',SaveBadge, name='SaveBadge'),
     url(r'^SaveVirtualCurrencyRule',SaveVirtualCurrencyRule, name='Save Virtual Currency Rule'),
     url(r'^SaveVirtualCurrencySpendRule',SaveVirtualCurrencySpendRule, name='Save Virtual Currency Spend Rule'),
-    url(r'^InstructorVirtualCurrencyList',VirtualCurrencyList, name='Instructor Virtual Currency List'),
+    url(r'^VirtualCurrencyEarnRuleList',virtualCurrencyEarnRuleList, name='Instructor Virtual Currency Earn Rule List'),
+    url(r'^VirtualCurrencySpendRuleList',virtualCurrencySpendRuleList, name='Instructor Virtual Currency Spend Rule List'),
     url(r'^ConditionTestView',conditionTestView, name="Condition Test View"),
+    url(r'^UpdateVirtualCurrencyTransaction',updateVirtualCurrencyTransaction, name="Update Virtual Currency Transaction"),
+    url(r'^VirtualCurrencyTransactions',virtualCurrencyTransactions, name="Virtual Currency Transactions"),
+    url(r'^VirtualCurrencyCompletedTransactions',virtualCurrencyCompletedTransactions, name="Virtual Currency Completed Transactions"),
     
 ]

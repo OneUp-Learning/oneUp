@@ -2,6 +2,9 @@ from Instructors.lupaQuestion import LupaRuntimeLink
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.contrib.auth.decorators import login_required
+
+@login_required
 
 def luaTestView(request):
 	context = RequestContext(request)

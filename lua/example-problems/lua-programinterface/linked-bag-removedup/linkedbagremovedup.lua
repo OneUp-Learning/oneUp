@@ -6,4 +6,4 @@ tests = {
    {name="A bag with multiple similar elements",command="java TestRemoveDuplicate test5", points=2} 
 }
    
-checker = programinterface.program_checker("/home/codepotato/workspacee/oneUp/lua/example-problems/lua-programinterface/linked-bag-removedup","LinkedBag.java","javac *.java",10,tests)
+checker = programinterface.program_checker("/var/www/wsgi-projects/oneUp/lua/example-problems/lua-programinterface/linked-bag-removedup","LinkedBag.java","javac *.java",10,tests)

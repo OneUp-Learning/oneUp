@@ -19,13 +19,7 @@
     </script>
     <script type="text/javascript"
      src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
-    </script>
-    <script type="text/javascript">
-       $('#datetimepicker').datetimepicker({
-         format: 'dd/MM/yyyy hh:mm:ss',
-         language: 'pt-BR'
-       });
-    </script>  
+    </script> 
     <script type="text/javascript">
  	// This script handels the datetime fields (AH)
       $(function() {
@@ -36,20 +30,27 @@
             });
          $('#datetimepicker3').datetimepicker({
            language: 'en',
-           pick12HourFormat: true,
-           
+           pick12HourFormat: true           
          });
+         if($("#datetimepicker3").data('datetimepicker').getDate() == $("#datetimepicker2").data('datetimepicker').getDate()){
+             $("#datetimepicker3").data('datetimepicker').setDate(null);
+         }
         // Called when first datefield(Display From) is changed (AH)
    		$("#datetimepicker2").on('changeDate', function(e) {
    			// Sets the Start Date of the second datefield(Display Until) to be the assigned date of the
    			// first datefield(Display From) (AH)
-   		  $("#datetimepicker3").data('datetimepicker').setStartDate(e.date);
-   			// If the saved date for the second datefield is somehow before the first datefield date,
-   			// set the second datefield to be the same as the first datefield (AH)
-   		  if($("#datetimepicker3").data('datetimepicker').getDate() < e.date){
-   			$("#datetimepicker3").data('datetimepicker').setDate(e.date);
-   		  }
-		  console.log(e.date.toString());
+   			
+   			console.log($("#datetimepicker3").data('datetimepicker').getDate());
+   			if($("#datetimepicker3").data('datetimepicker').getDate() != null){
+   		  		$("#datetimepicker3").data('datetimepicker').setStartDate(e.date);
+	   			// If the saved date for the second datefield is somehow before the first datefield date,
+	   			// set the second datefield to be the same as the first datefield (AH)
+	   			
+	   		  	if($("#datetimepicker3").data('datetimepicker').getDate() < e.date){
+	   				$("#datetimepicker3").data('datetimepicker').setDate(e.date);
+	   		  	}
+			  	console.log(e.date);
+   			}
 		});
    		// Called when first datefield(Display From) is changed (AH)
    		$("#datetimepicker3").on('changeDate', function(e) {
@@ -61,69 +62,12 @@
   		  if($("#datetimepicker2").data('datetimepicker').getDate() > e.date){
   			$("#datetimepicker2").data('datetimepicker').setDate(e.date);
   		  }
-  			console.log(e.date.toString());
+  			console.log(e.date);
   		});
         
       });
     </script> 
-    <script>
-    function addTopic() {
-  	    var x = document.getElementById("SelectedTopic");
-  	    var e = document.getElementById("SelectTopic");
-  	    var option = document.createElement("option");
-  	  var exists = false; 
-  		$('#SelectedTopic  option').each(function(){
-  	  	if (this.value == e.options[e.selectedIndex].value) {
-  	    	exists = true;
-  	  	}
-  		});
-  	    if(!exists && e.options[e.selectedIndex].value != ""){
-  	    	//console.log("Topic added");
-  	    	option.text = e.options[e.selectedIndex].text;
-  	    	option.value = e.options[e.selectedIndex].value;
-  	    	x.add(option);
-  	    }
-  	    
-  	  if( $('#SelectedTopic').has('option').length > 0)
- 	    	document.getElementById('removeTopics').style.display = 'initial';
- 	    else
- 	    	document.getElementById('removeTopics').style.display = 'none';
-  	}
-    // Removes topic from 'Added Topics' box (AH)
-    function removeTopic() {
-  	    var x = document.getElementById("SelectedTopic");
-  	   
-  	    if(x.options.length){
-  	    	if(!x.options[x.selectedIndex])
-  	    		alert('Topic to remove is not selected!');
-  	    	else
-  	    		x.remove(x.selectedIndex);
-  	    }
-  	  if( $('#SelectedTopic').has('option').length > 0)
- 	    	document.getElementById('removeTopics').style.display = 'initial';
- 	    else
- 	    	document.getElementById('removeTopics').style.display = 'none';
-  	}
-    $(document).ready(function() {
-    	if( $('#SelectedTopic').has('option').length > 0)
-   	    	document.getElementById('removeTopics').style.display = 'initial';
-   	    else
-   	    	document.getElementById('removeTopics').style.display = 'none';
-    	
-    });
-    function prepareSubmit(){
-    	  var x = document.getElementById("SelectedTopic");
-    	  var txt = "";
-    	  for(var i =0; i < x.options.length; i++){
-    		  if(i < x.options.length-1)
-    		  	txt += x.options[i].text + ",";
-    		  else
-    			txt += x.options[i].text;
-    	  }
-    	  
-    	  document.getElementById("newTopics").value=txt;
-      }
-    </script>
+ 
     <script type="text/javascript">
          function goToNewPage()
          {
@@ -231,7 +175,7 @@
                     		<br>
                     		Display From:<div id="datetimepicker2" class="input-append">
 
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
 
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
@@ -239,7 +183,7 @@
                         </div>
                     		Display Until:<div id="datetimepicker3" class="input-append">
 
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
                             </span>
@@ -285,25 +229,9 @@
                     <th>Topics </th>
                 	</tr> 
                 	<tr>
-		 				<td>
-                              Add Topic to Challenge<br> 
-                              <select name="Topic" id="SelectTopic" accesskey="target" font-family= "Tahoma, Geneva, sans-serif" style="width:170px">
-                                 <option value="" selected>Select Topic</option>
-                                 {% for i,topic_ID,topic_Name in topic_range %}
-                                 <div id="topic{{i}}">
-                                    <option value="{{topic_Name}}">{{topic_Name}}</option>
-                                 </div>
-                                 {% endfor %}
-                              </select>
-                              <button type="button" id="addTopics"  style="margin-top: 0.3em; margin-bottom: 0.4em" onclick="addTopic()">Add Topic</button>
-	    					  <div>Added Topics</div> 
-                              <select id="SelectedTopic" name="S_Topic" font-family= "Tahoma, Geneva, sans-serif" style="width:150px; height:100px;" size="8">
-                                 {% for i, topic_ID, topic_Name in all_Topics %}
-                                 	<option value={{topic_Name}}>{{topic_Name}}</option>
-                                 {% endfor %}
-                              </select>
-                             <button type="button" id="removeTopics" onclick="removeTopic()">Remove Topic</button>
-                           </td>
+                           <td>
+                             {% include "Instructors/ChallengeTopicEmbed.html" %}                           
+ 							</td>
                         </tr>
                         
                     <tr>
@@ -320,32 +248,33 @@
 					<tr>
             			<th>Feedback Options</th>
         			</tr>
-            		{% if feedbackOption1 %}
+            		{% if displayCorrectAnswer %}
             		<tr>
-						<td><input type="checkbox" name="feedbackOption1" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer</td>
+						<td><input type="checkbox" name="displayCorrectAnswer" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% else %}
 					<tr>
-						<td><input type="checkbox" name="feedbackOption1"  style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer</td>
+						<td><input type="checkbox" name="displayCorrectAnswer"  style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% endif %}
 					
-					{% if feedbackOption2 %}
+					{% if displayCorrectAnswerFeedback %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2"value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="displayCorrectAnswerFeedback"value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% else %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2" style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="displayCorrectAnswerFeedback" style="vertical-align: -2px" />&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% endif %}
-					{% if feedbackOption3 %}
-					<tr >			
-						<td style="padding-bottom: .75em"><input type="checkbox" name="feedbackOption3" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
+					
+					{% if displayIncorrectAnswerFeedback %}
+					<tr >	
+						<td><input type="checkbox" name="displayIncorrectAnswerFeedback"value="true" checked="true" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>	
 					</tr>
 					{% else %}
-					<tr >			
-						<td style="padding-bottom: .75em" ><input type="checkbox" name="feedbackOption3" style="vertical-align: -2px"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
+					<tr >	
+						<td><input type="checkbox" name="displayIncorrectAnswerFeedback" style="vertical-align: -2px" />&nbsp;&nbsp;Display Incorrect Answer Feedback</td>	
 					</tr>			
 					{% endif %}
 					</table>	

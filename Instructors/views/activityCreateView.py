@@ -5,10 +5,12 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
 from Instructors.models import Activities, Courses
 from Instructors.views.activityListView import createContextForActivityList
-
+from Instructors.views.utils import utcDate
+from Instructors.constants import unspecified_topic_name, default_time_str
+from time import time
+from datetime import datetime
 @login_required
 def activityCreateView(request):
     # Request the context of the request.
@@ -43,6 +45,32 @@ def activityCreateView(request):
             setattr(activity,attr,request.POST[attr])
         
         activity.courseID = currentCourse; 
+        if request.POST['fileUpload'] == 'True':
+            activity.isFileAllowed = True
+        else:
+            activity.isFileAllowed = False
+            
+        #Set the number of attempts
+        if request.POST['attempts']:
+            print(request.POST['attempts'])
+            activity.uploadAttempts = request.POST['attempts']
+            
+        #Set the start date and end data to show the activity
+        if(request.POST['startTime'] == ""):
+            activity.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        else:
+            activity.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
+        
+        #if user does not specify an expiration date, it assigns a default value really far in the future
+        #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
+        if(request.POST['endTime'] == ""):
+            activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        else:
+            if datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
+                activity.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+            else:
+                activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+            
                   
        # get the author                            
         if request.user.is_authenticated():
@@ -75,5 +103,24 @@ def activityCreateView(request):
                 context_dict['activityID'] = request.GET['activityID']
                 for attr in string_attributes:
                     context_dict[attr]=getattr(activity,attr)
+                
+                context_dict['uploadAttempts']= activity.uploadAttempts
+#                 context_dict['startTimestamp']= activity.startTimestamp
+#                 context_dict['endTimestamp']= activity.endTimestamp
+                
+                etime = datetime.strptime(str(activity.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                print('etime ', etime)
+                if etime != default_time_str: 
+                    print('etime2 ', etime)   
+                    context_dict['endTimestamp']=etime
+                else:
+                    context_dict['endTimestamp']=""
+            
+                print(activity.startTimestamp.strftime("%Y")) 
+                if activity.startTimestamp.strftime("%Y") < ("2900"):
+                    context_dict['startTimestamp']= datetime.strptime(str(getattr(activity, 'startTimestamp')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                else:
+                    context_dict['startTimestamp']=""
+
 
     return render(request,'Instructors/ActivityCreateForm.html', context_dict)

@@ -1,6 +1,6 @@
 from Badges.models import Rules, ActionArguments, Conditions, Badges,\
     ActivitySet
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, Activities, ConditionSet, Dates
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, TopicSet, Activities, ConditionSet, Dates
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
     StudentRegisteredCourses
@@ -8,8 +8,9 @@ from datetime import datetime
 from django.utils import timezone
 from builtins import getattr
 import decimal
-from Instructors.models import Challenges
+from Instructors.models import Challenges, CoursesTopics
 from Badges.systemVariables import calculate_system_variable
+from Instructors.views.utils import utcDate
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -26,7 +27,7 @@ def register_event(eventID, request, student=None, objectId=None):
     # Create event log entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
-    eventEntry.timestamp = datetime.now()
+    eventEntry.timestamp = utcDate()
     courseIDint = int(request.session['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
@@ -66,12 +67,16 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.challengeExpiration):
         eventEntry.objectType = ObjectTypes.challenge
         eventEntry.objectID = objectId
-    
+        
+    if(eventID == Event.leaderboardUpdate):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+        
     # Virtual Currency Events
-    if(eventID == Event.buyAttempt):
+    if(eventID == Event.instructorHelp):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-    if(eventID == Event.buyHint):
+    if(eventID == Event.buyAttempt):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
     if(eventID == Event.extendDeadline):
@@ -104,6 +109,10 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.chooseBackgroundForYourName):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
+    if(eventID == Event.buyExtraCreditPoints):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    
     
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
@@ -149,6 +158,8 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
             return ObjectTypes.challenge
         if (operandType == OperandTypes.activitySet):
             return ObjectTypes.activity
+        if (operandType == OperandTypes.topicSet):
+            return ObjectTypes.topic
         return 0 # Error
     def forallforany_helper(forall):
         for object in operand1:
@@ -220,15 +231,21 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     elif (operandType == OperandTypes.challengeSet):
         if operandValue == 0:
             # All challenges in this course
-            return Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")
+            return [ch.challengeID for ch in Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")]
         else:
-            return [challset.challenge for challset in ChallengeSet.objects.filter(condition=condition)]
+            return [challset.challenge.challengeID for challset in ChallengeSet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.activitySet):
         if operandValue == 0:
             # All activities in this course
-            return Activities.objects.filter(courseID = course)
+            return [act.activityID for act in Activities.objects.filter(courseID = course)]
         else:
-            return [actset.activity for actset in ActivitySet.objects.filter(condition=condition)]
+            return [actset.activity.activityID for actset in ActivitySet.objects.filter(condition=condition)]
+    elif (operandType == OperandTypes.topicSet):
+        if operandValue == 0:
+            # All topics in thie course
+            return [ct.topicID.topicID for ct in CoursesTopics.objects.filter(courseID = course)]
+        else:
+            return [topicset.topic.topicID for topicset in TopicSet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.conditionSet):
         return [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
     else:
@@ -258,7 +275,7 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         studentBadge.studentID = studentID
         studentBadge.badgeID = badge
         studentBadge.objectID = objectIDPassed
-        studentBadge.timestamp = datetime.now()         # AV #Timestamp for badge assignment date
+        studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
         studentBadge.save()
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         return

@@ -9,22 +9,25 @@ from django.shortcuts import render, redirect
 
 from Students.models import Student, UploadedAvatarImage, StudentRegisteredCourses 
 from Students.views.utils import studentInitialContextDict
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def avatarUpload(request):
     
     context_dict,currentCourse = studentInitialContextDict(request)
             
     if request.POST:        
         avatarImage = request.FILES['myfile']
-        avatarImageFileName = avatarImage.name
+        avatarImageFileName = os.path.basename(avatarImage.name)
+        print(avatarImageFileName)
         
         avatarImagePerson = UploadedAvatarImage() 
         avatarImagePerson.avatarImage = avatarImage
         avatarImagePerson.avatarImageFileName = avatarImageFileName
         avatarImagePerson.save()
         
-        path = os.path.join('../../media/images/uploadedAvatarImages/', avatarImageFileName)
+        #path = os.path.join('../../media/images/uploadedAvatarImages/', avatarImageFileName)
+        path = '/'+ str(avatarImagePerson.avatarImage.url)
         
         student = Student.objects.get(user=request.user)       
         st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)     

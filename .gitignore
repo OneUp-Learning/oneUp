@@ -37,3 +37,6 @@ media/textfiles/xmlfiles/*
 oneUp/secret.key
 oneUp/prodDBpassword.txt
 oneUpVenv/*
+
+media/studentActivities/*
+/.metadata/

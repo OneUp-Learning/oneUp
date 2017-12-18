@@ -11,6 +11,8 @@ from django.views.generic import RedirectView
 
 from Students.views.achievementsView import achievements
 from Students.views.allAnnouncementsView import allAnnouncements
+from Students.views.activitesView import ActivityList
+from Students.views.activityDescription import ActivityDetail
 from Students.views.avatarView import avatar
 from Students.views.avatarUploadView import avatarUpload
 from Students.views.challengesListView import ChallengesList
@@ -27,6 +29,8 @@ from Students.views.preferencesView import preferencesView
 from Students.views.selectedChallengeTakenView import SelectedChallengeTaken
 from Students.views.studentCourseHomeView import StudentCourseHome
 from Students.views.studentHomeView import StudentHome
+from Students.views.transactionsView import transactionsView
+from Students.views.transactionNotesView import transactionNotesView
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
 
@@ -35,6 +39,8 @@ admin.autodiscover()
 
 urlpatterns = [    
     url(r'^achievements',achievements,name='achievements'),
+    url(r'^ActivityDescription', ActivityDetail, name = 'ActivityDescription'),
+    url(r'^ActivityList', ActivityList, name = 'ActivityList'),
     url(r'^avatarUpload', avatarUpload, name='avatarUpload'),
     url(r'^avatar',avatar,name='avatar'),
     url(r'^ChallengesWarmUpList',ChallengesWarmUpList, name='ChallengesWarmUpList'),
@@ -51,6 +57,8 @@ urlpatterns = [
     url(r'^SelectedChallengeTaken',SelectedChallengeTaken, name='SelectedChallengeTaken'),
     url(r'^StudentCourseHome',StudentCourseHome, name='StudentCourseHome'),
     url(r'^StudentHome',StudentHome, name='StudentHome'),
+    url(r'^Transactions',transactionsView, name='Transactions'),
+    url(r'^TransactionNotes',transactionNotesView, name='Transaction Notes'),
     url(r'^VirtualCurrencyRules',VirtualCurrencyDisplay, name='Virtual Currency Rule List'),
     url(r'^VirtualCurrencyShop',virtualCurrencyShopView, name='Virtual Current Shop'),
 
