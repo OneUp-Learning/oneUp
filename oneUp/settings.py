@@ -23,10 +23,20 @@ MEDIA_URL =  'media/' #This is for the html
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '6l1(5i-qm34-eb!@un9gc%(g$o^=rgw8l++0!o9t6-^($qi6&k'
+with open('/var/www/wsgi-projects/oneUp/oneUp/secret.key') as f:
+    SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 # Logging Levels: DEBUG(Everything) : INFO(Except DEBUG) : WARNING(Except INFO & DEBUG) : ERROR(CRITICAL & ERROR) : CRITICAL(ONLY)
 LOGGING_LEVEL = 'DEBUG'
@@ -51,7 +61,7 @@ LOGGING = {
         'level': LOGGING_LEVEL
     },   
 }
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['oneup.wssu.edu']
 
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
@@ -85,16 +95,20 @@ ROOT_URLCONF = 'oneUp.urls'
 
 WSGI_APPLICATION = 'oneUp.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+with open('/var/www/wsgi-projects/oneUp/oneUp/prodDBpassword.txt') as f:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'oneup',
+            'USER': 'oneupuser',
+            'PASSWORD': f.read().strip(),
+            'HOST': 'localhost',
+            'PORT': '',
+        }
     }
-}
 
 TEMPLATES = [
     {
