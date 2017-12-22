@@ -127,6 +127,8 @@ class Event():
     getSurpriseAward = 860 # Get a small surprise award from the instructor
     chooseBackgroundForYourName = 861 # ?
     buyExtraCreditPoints = 862 # Buy extra credit points for an assignment 
+    
+    visitedDashboard = 870 # Loaded the dashboard page.
 
     
     events = {

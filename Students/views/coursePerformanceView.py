@@ -7,6 +7,7 @@ from Students.models import StudentChallenges, Student, StudentActivities, Stude
 from Instructors.models import Challenges, Courses, Activities
 from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate
+from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
 
 from django.contrib.auth.decorators import login_required
@@ -15,11 +16,7 @@ from django.contrib.auth.decorators import login_required
 def CoursePerformance(request):
     # Request the context of the request.
  
-    context_dict = { }
-    
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username             
+    context_dict, currentCourse = studentInitialContextDict(request)            
   
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
@@ -27,18 +24,8 @@ def CoursePerformance(request):
     else:
         optionSelected = 0
         
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        print('current course:'+str(currentCourse))
-        context_dict['course_Name'] = currentCourse.courseName
         
-        studentId = Student.objects.get(user=request.user)   
-        st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
-        context_dict['avatar'] = st_crs.avatarImage          
+        studentId = context_dict['student']          
                    
         # Activity and Challenges
         assignmentID = []
