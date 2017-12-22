@@ -14,8 +14,6 @@ from Badges.enums import QuestionTypes
 from django.contrib.auth.decorators import login_required
 
 @login_required
-
-
 def searchResults(request):
         
     context_dict, currentCourse = initialContextDict(request);        

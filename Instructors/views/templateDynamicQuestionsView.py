@@ -39,7 +39,7 @@ def templateDynamicQuestionForm(request):
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','difficulty',
-                         'instructorNotes','setupCode','numParts'];
+                         'instructorNotes','setupCode','numParts','author'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
     
@@ -59,11 +59,11 @@ def templateDynamicQuestionForm(request):
         #used to fill in info for question text 
         question.questonText = ''  
         
-        # get the author                            # 03/10/2015
-        if request.user.is_authenticated():
+        # if user did not specify author of the question, the author will be the user
+        if question.author == '':
             question.author = request.user.username
-        else:
-            question.author = ""
+            
+        question.save();  #Writes to database.
            
         #loops through and adds the multiple parts(the actual text) into to the template array   
         templateArray = [] 
@@ -104,16 +104,21 @@ def templateDynamicQuestionForm(request):
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
             
+            position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
+            
             if  'questionId' in request.POST:                         
                 challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
+                for chall_question in challenge_question:
+                    position = chall_question.questionPosition
+                
                 challenge_question.delete()
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']) )
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']) , position)
                             
             # Processing and saving skills for the question in DB
-            utils.addSkillsToQuestion(challenge,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
             tagString = request.POST.get('tags', "default")
@@ -173,7 +178,7 @@ def templateDynamicQuestionForm(request):
                 context_dict['q_skill_points'] = int('1')
 
                 # Extract the skill                                        
-                context_dict['selectedSkills'] = utils.getSkillsForQuestion(request.GET['challengeID'],question)                    
+                context_dict['selectedSkills'] = utils.getSkillsForQuestion(currentCourse,question)                    
            
             
         else:

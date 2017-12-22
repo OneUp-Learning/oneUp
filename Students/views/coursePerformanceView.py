@@ -5,8 +5,8 @@ Created on Feb 22, 2017
 from django.shortcuts import render
 from Students.models import StudentChallenges, Student, StudentActivities, StudentRegisteredCourses
 from Instructors.models import Challenges, Courses, Activities
-from time import strftime
-import datetime
+from Instructors.constants import default_time_str
+from Instructors.views.utils import utcDate
 from django.db.models import Q
 
 from django.contrib.auth.decorators import login_required
@@ -50,8 +50,8 @@ def CoursePerformance(request):
         assignmentFeedback = []
     
         # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-        defaultTime = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
-        currentTime = strftime("%Y-%m-%d %H:%M:%S")
+        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        currentTime = utcDate()
         
         stud_activities = StudentActivities.objects.filter(studentID=studentId, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))
         for sa in stud_activities:

@@ -2,7 +2,7 @@ import os
 
 from django.db import models
 from django.contrib.auth.models import User
-from Instructors.models import Courses, Challenges, Questions, Skills, Activities
+from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
 from Badges.models import Badges, VirtualCurrencyRuleInfo
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
@@ -12,13 +12,14 @@ from django.template.defaultfilters import default
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
+from Instructors.views.instructorHomeView import instructorHome
 
 # Create your models here.
  
 # Student Information Table used for login purposes.
 class Student(models.Model):
     user = models.OneToOneField(User, default=0)
-    #User Attributes:
+    #User Attrbutes:
     # username varchar(30)
     # first_name varchar(30)
     # last_name varchar(30)
@@ -38,14 +39,13 @@ class Student(models.Model):
   
 def avatarImageUploadLocation(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
-                                     'images/uploadedAvatarImages'),filename)
+                                ''),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
         avatarImage = models.FileField(max_length=500,
-                                       upload_to= avatarImageUploadLocation)
+                                       upload_to= 'images/uploadedAvatarImages')
         avatarImageFileName = models.CharField(max_length=200, default='')
-
     
 # Table listing all the students and the respective courses they are currently registered for   
 class StudentRegisteredCourses(models.Model):
@@ -64,8 +64,8 @@ class StudentChallenges(models.Model):
     challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
-    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student (We think). Need to test to figure out for certain.
-    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score (We think). Need to test to figure out for certain.
+    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
+    testTotal = models.DecimalField(decimal_places=2, max_digits=6)  #Total possible score 
     instructorFeedback = models.CharField(max_length=200)
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
@@ -129,25 +129,62 @@ class StudentActivities(models.Model):
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
-    timestamp = models.DateTimeField()
-    activityScore = models.DecimalField(decimal_places=2, max_digits=6)  
-    instructorFeedback = models.CharField(max_length=200, default="  ")
+    timestamp = models.DateTimeField(default= datetime.now)
+    activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
+    instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
+    graded = models.BooleanField(default=False)
+    numOfUploads = models.IntegerField(default = 0)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
 #     +","+str(self.challengeID)    
     
+def fileUploadPath(instance,filename):
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),filename)
+
+
+#Object to hold student files and where they are located at 
+class StudentFile(models.Model):
+    studentFileID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
+    activity = models.ForeignKey(StudentActivities, verbose_name= 'the related activity')
+    timestamp = models.DateTimeField(default=datetime.now)
+    file = models.FileField(max_length=500,upload_to= fileUploadPath)
+    fileName = models.CharField(max_length=200, default='')
+    latest = models.BooleanField(default = True)
+    
+    
+    def delete(self):
+        self.file.delete()
+        super(StudentFile, self).delete()
+        
+    def removeFile(self):
+        self.file.delete()
+
 class StudentEventLog(models.Model):
     student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
     course = models.ForeignKey(Courses, verbose_name="Course in Which event occurred", db_index=True)
     event = models.IntegerField(default=-1,verbose_name="the event which occurred.  Should be a reference to the Event enum", db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name="timestamp", db_index=True)
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
-    objectID = models.IntegerField(verbose_name="index into the appropriate tab\
-le")
+    objectID = models.IntegerField(verbose_name="index into the appropriate table")
+    
     def __str__(self):
         return 'Event '+str(self.event)+ ' at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
     
-
+class StudentVirtualCurrencyTransactions(models.Model):
+    transactionID = models.AutoField(primary_key=True)
+    student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
+    course = models.ForeignKey(Courses, verbose_name="Course in Which event occurred", db_index=True)
+    studentEvent = models.ForeignKey(StudentEventLog,verbose_name="the Student Event Log", db_index=True)
+    objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
+    objectID = models.IntegerField(verbose_name="index into the appropriate table")
+    status = models.CharField(max_length=200, default='Requested')
+    noteForStudent = models.CharField(max_length=300)
+    instructorNote = models.CharField(max_length=300)
+    
+    def __str__(self):
+        return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote)
 # '''
 # Student Configuration parameters (goes into studetns.models.py)
 # -    Selecting to activate specific game mechanics rules (categories of rules)
@@ -176,10 +213,14 @@ class StudentConfigParams(models.Model):
         +str(self.displayClassRanking)    
 
 
-class Leaderboards(models.Model):
-    leaderboardID = models.AutoField(primary_key=True)
+class StudentLeaderboardHistory(models.Model):
+    id = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    leaderboardPosition = models.IntegerField(default=0) # Position is ranked starting from 1.
+    startTimestamp = models.DateTimeField(auto_now_add=True, verbose_name="Start Timestamp", db_index=True)
+    endTimestamp = models.DateTimeField(null=True, blank=True, verbose_name="End Timestamp", db_index=True)
+
     def __str__(self):              
-        return str(self.leaderboardID)+","+str(self.studentID)                      
+        return str(self.id)+", "+str(self.studentID)+", Position: "+str(self.leaderboardPosition)+", Start Timestamp: "+str(self.startTimestamp)+", End Timestamp: "+str(self.endTimestamp)                             
            

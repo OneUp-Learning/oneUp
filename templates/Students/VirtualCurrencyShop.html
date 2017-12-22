@@ -26,7 +26,7 @@
         			<th>Price</th>
         			<th>Quantity</th>
  					<th>Cost</th>
-        			
+        			<th>For Assignment</th>
         			<th></th>
         		</tr>
         		{% for buyOpt in buyOptions %}
@@ -34,8 +34,17 @@
         			<td style="vertical-align:middle">{{buyOpt.displayName}}</td>
         			<td>{{buyOpt.description}}</td>
         			<td>{{buyOpt.cost}}</td>
-        			<td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0"></td>		
-        			<td><div id="priceFor{{buyOpt.id}}">0</div>
+        			<td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0" {% if buyOpt.challenges == None %}readonly{% endif %}></td>		
+        			<td><div id="priceFor{{buyOpt.id}}">0</div></td>
+        			<td>
+        				{% if buyOpt.challenges != None %}
+        				<select name="challengeFor{{buyOpt.name}}">
+        				{% for id, name in buyOpt.challenges %}
+        					<option value="{{id}}">{{name}}</option>
+        				{% endfor %}
+        				</select>
+        				{% endif %}
+        			</td>
         			<td style="vertical-align:middle; text-align:right">					
         				{% csrf_token %}
         			</td>
@@ -51,6 +60,7 @@
         	</table>
         	
         	<input type="submit" value="Buy" >
+        	<a href="/oneUp/students/Transactions"><button class="button" type="button">View Transactions</button></a>
         	<a href="/oneUp/students/StudentCourseHome"><button class="button special" type="button">Cancel</button></a>
         	
         	</form>

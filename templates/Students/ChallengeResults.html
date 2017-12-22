@@ -35,6 +35,9 @@
 				<tr>
 					<td colspan="3"><b>Your Answer:</b></td>
 				</tr>
+				
+				
+				
 		{% if q.question.type == questionTypes.multipleChoice %}
 		<!-- multiple choice question -->
 				<tr><td colspan="3"> 
@@ -50,6 +53,8 @@
 						{{q.correct_answer_text|safe}}<br>
 					</td>
 				</tr>
+				<! PLace instructor feedback, once we have established exactly what feedbakc we want given >
+				
 				<tr>
 					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)</td>
 				</tr>
@@ -68,6 +73,9 @@
 					{{correct_answer_text|safe}}<br>
 				{% endfor %}</td>
 				</tr>
+				
+				<! PLace instructor feedback, once we have established exactly what feedbakc we want given>
+				
 				<tr>
 					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
 				</tr>
@@ -91,6 +99,9 @@
 				<tr>
 					<td colspan="3">Correct Answer:</td>
 				</tr>
+				
+				<! PLace instructor feedback, once we have established exactly what feedbakc we want given>
+				
 				<tr>
 					<td width="50%">
 				{% for match in q.matches %}
@@ -116,6 +127,10 @@
 						{{q.correctAnswerText}}
 					</td>
 				</tr>
+				
+				<!–– PLace instructor feedback, once we have established exactly what feedbakc we want given ––>
+				
+				
 				<tr>
 					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
 				</tr>
@@ -134,24 +149,26 @@
 				</td> </tr>
 			{% endfor %}
 			{% if q.evaluations %}
-			  {% for answerName, answer in q.evaluations.items %}
+			  {% for answer in q.evaluations %}
 			  	<tr><td>	
 			  	{% if answer.success %}
-			  		<span style='color: green;'>&#10004;</span>You got {{answer.value}} points on answer {{answerName}} 
+			  		<span style='color: green;'>&#10004;</span> 
 			  	{% else %}
-					<span style='color: red;'>&#10006;</span>You got {{answer.value}} points on answer {{answerName}} 
+					<span style='color: red;'>&#10006;</span>
 				{% endif %}
+				You got {{answer.value}} points on answer {{answer.name}}
 		
 			  	{% if answer.details %}
 			  		<ul>
-			  		{% for testName, details in answer.details.items %}
+			  		{% for detail in answer.details %}
 			  			<li>
-			  				{%if details.success%}
-								 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style='color: green;'>&#10004;</span>{{details.value}}/{{details.max_points}} points on criteria {{testName}} 
+			  				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  
+			  				{%if detail.success%}
+								<span style='color: green;'>&#10004;</span> 
 			  				{%else%}
-							     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <span style='color: red;'>&#10006;</span> {{details.value}}/{{details.max_points}} points on criteria {{testName}}  
-			  				
+							    <span style='color: red;'>&#10006;</span> 
 			  				{% endif %}
+			  				{{detail.value}}/{{detail.max_points}} points on criteria {{detail.name}}
 			  			</li>
 			  		{% endfor %}
 			  		</ul>

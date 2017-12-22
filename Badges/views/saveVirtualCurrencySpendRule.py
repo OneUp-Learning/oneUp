@@ -90,7 +90,7 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo = VirtualCurrencyRuleInfo()  # create new VC RuleInfo
                     # Create New Condition (Template condition(1 == 1) because no condition is required for this rule)
                     newCondition = Conditions()
-                    newCondition.operation = '=='
+                    newCondition.operation = '='
                     newCondition.operand1Type = OperandTypes.immediateInteger
                     newCondition.operand1Value = 1
                     newCondition.operand2Type = OperandTypes.immediateInteger

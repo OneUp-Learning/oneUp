@@ -26,12 +26,6 @@
      src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
     </script>
     <script type="text/javascript">
-       $('#datetimepicker').datetimepicker({
-         format: 'dd/MM/yyyy hh:mm:ss',
-         language: 'pt-BR'
-       });
-    </script>  
-    <script type="text/javascript">
     // This script handels the datetime fields (AH)
       $(function() {
     	  $('#datetimepicker2').datetimepicker({
@@ -129,7 +123,7 @@
                     		<br>
                     		Display From:<div id="datetimepicker2" class="input-append">
 
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
 
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i class="fa fa-calendar" aria-hidden="true"></i>
@@ -137,7 +131,7 @@
                         </div>
                     		Display Until:<div id="datetimepicker3" class="input-append">
 
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i class="fa fa-calendar" aria-hidden="true"></i>
                             </span>
@@ -224,32 +218,35 @@
 					<tr>
             			<th>Feedback Options</th>
         			</tr>
-        			{% if feedbackOption1 %}
+        			
+        			{% if displayCorrectAnswer %}
             		<tr>
-						<td><input type="checkbox" name="feedbackOption1" value="true" checked="true">&nbsp;&nbsp;Display Correct Answer</td>
+						<td><input type="checkbox" name="displayCorrectAnswer" value="true" checked="true">&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% else %}
 					<tr>
-						<td><input type="checkbox" name="feedbackOption1">&nbsp;&nbsp;Display Correct Answer</td>
+						<td><input type="checkbox" name="displayCorrectAnswer">&nbsp;&nbsp;Display Correct Answer</td>
 					</tr>
 					{% endif %}
 					
-					{% if feedbackOption2 %}
+					
+					{% if displayCorrectAnswerFeedback %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2"value="true" checked="true"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="displayCorrectAnswerFeedback"value="true" checked="true"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% else %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption2"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
+						<td><input type="checkbox" name="displayCorrectAnswerFeedback"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
 					</tr>
 					{% endif %}
-					{% if feedbackOption3 %}
+					
+					{% if displayIncorrectAnswerFeedback %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption3" value="true" checked="true"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
+						<td><input type="checkbox" name="displayIncorrectAnswerFeedback" value="true" checked="true"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
 					</tr>
 					{% else %}
 					<tr>			
-						<td><input type="checkbox" name="feedbackOption3"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
+						<td><input type="checkbox" name="displayIncorrectAnswerFeedback"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
 					</tr>
 					{% endif %}	
 				</table>	

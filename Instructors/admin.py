@@ -6,7 +6,7 @@ from Instructors.models import Courses, InstructorRegisteredCourses, Tags, Resou
     TemplateDynamicQuestions, Topics, CoursesTopics, ChallengesTopics
 from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages, UploadedFiles
 from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, DependentLibrary,\
-    QuestionLibrary
+    QuestionLibrary, UploadedFiles
 from django.template.backends.django import Template
 
 admin.site.register(Announcements)
@@ -43,6 +43,7 @@ admin.site.register(CoursesTopics)
 admin.site.register(DependentLibrary)
 admin.site.register(LuaLibrary)
 admin.site.register(QuestionLibrary)
+
 
 
 

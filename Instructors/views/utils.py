@@ -4,7 +4,9 @@ from Instructors.constants import unspecified_topic_name
 from Badges.models import CourseConfigParams
 import re
 import string
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def saveTags(tagString, resource, resourceIndicator):
 
         #if tagString is not null or empty
@@ -201,7 +203,7 @@ def saveQuestionTags(tagString, question):        #DD 02/24/2015
                 newTagsObject.save()
                 print (str("Tagid: ") + str(newTagsObject.tagID))                
 
-def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
+def saveQuestionSkills(skillstring, question, course):        #03/18/2015
 
         #if skillstring is not null or empty
         if not skillstring == "":
@@ -231,7 +233,7 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
                               
                 # now add the new skill for this question                 
                 # Check if skill is created of same type (AH)
-                createdSkill = QuestionsSkills.objects.filter(skillID = skillID, questionID = question.questionID, challengeID = challenge.challengeID)
+                createdSkill = QuestionsSkills.objects.filter(skillID = skillID, questionID = question.questionID, courseID = course)
                 
                 if (createdSkill):
                     # Update skill with the new skillPoints (AH)
@@ -242,7 +244,7 @@ def saveQuestionSkills(skillstring, question, challenge):        #03/18/2015
                     # create a new skill-question object
                     newQSkillsObject = QuestionsSkills()
                     newQSkillsObject.questionID = question
-                    newQSkillsObject.challengeID = challenge
+                    newQSkillsObject.courseID = course
                     newQSkillsObject.questionSkillPoints = int(skillPoints)
                     newQSkillsObject.skillID = Skills(skillID)                
                    
@@ -259,7 +261,7 @@ def saveChallengesTopics(topicstring, challenge, unspecified_topic):
             oldChallTopicNames.append(ct.topicID.topicName)
 
         #if topicstring is not null or empty
-        if not topicstring == "":
+        if topicstring == "":
             
             newTopicNames = set() 
             if not topicstring == "":              
@@ -285,7 +287,7 @@ def saveChallengesTopics(topicstring, challenge, unspecified_topic):
                     newCTopicsObject = ChallengesTopics()
                     newCTopicsObject.challengeID = challenge
                     topic = Topics.objects.filter(topicName=topicName)               
-                    newCTopicsObject.topicID = topic[0]              
+                    newCTopicsObject.topicID = Topics.objects.get(pk=topicName)            
                     newCTopicsObject.save()
                                         
         else:
@@ -299,8 +301,7 @@ def saveChallengesTopics(topicstring, challenge, unspecified_topic):
                 newChallTopicsObject.challengeID = challenge
                 newChallTopicsObject.topicID = unspecified_topic                
                 newChallTopicsObject.save()
-                
-                                   
+                                           
                                                                 
 def extractTags(resource, resourceIndicator):   
 
@@ -382,8 +383,8 @@ def getCourseSkills(course):
         
     return skill_list
 
-def getSkillsForQuestion(challenge,question):
-    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
+def getSkillsForQuestion(course,question):
+    qskills = QuestionsSkills.objects.filter(questionID = question, courseID=course)
     
     skill_list = []
     
@@ -396,11 +397,24 @@ def getSkillsForQuestion(challenge,question):
         
     return skill_list
 
-def addSkillsToQuestion(challenge,question,skills,points):
+def getTopicsForChallenge(challenge):
+    challTopics = ChallengesTopics.objects.filter(challengeID=challenge)
+    
+    topics_list = []
+    
+    for topic in challTopics:
+        topicDict = {}
+        topicDict['name'] = topic.topicID.topicName
+        topicDict['ID'] = topic.topicID.topicID
+        topics_list.append(topicDict)
+    
+    return topics_list
+    
+def addSkillsToQuestion(course,question,skills,points):
     pointsDict = {}
     for (skillID,point) in zip(skills,points):
         pointsDict[skillID] = point
-    qskills = QuestionsSkills.objects.filter(questionID = question, challengeID=challenge)
+    qskills = QuestionsSkills.objects.filter(questionID = question, courseID=course)
     existingIDs = [qsk.skillID.skillID for qsk in qskills]
     deletionIDs = [id for id in existingIDs if id not in skills]
     newIDs = [id for id in skills if id not in existingIDs]
@@ -411,7 +425,7 @@ def addSkillsToQuestion(challenge,question,skills,points):
     for id in newIDs:
         newQSkill = QuestionsSkills()
         newQSkill.questionID = question
-        newQSkill.challengeID = challenge
+        newQSkill.courseID = course
         newQSkill.skillID = Skills.objects.get(pk=id)
         newQSkill.questionSkillPoints = pointsDict[id]
         newQSkill.save()
@@ -422,7 +436,32 @@ def addSkillsToQuestion(challenge,question,skills,points):
             if qsk.questionSkillPoints != pointsDict[id]:
                 qsk.questionSkillPoints = pointsDict[id]
                 qsk.save()
-
+                
+def addTopicsToChallenge(challenge, topics, unspecified_topic):
+    
+    print("addTopicsToChallenge")
+    print(topics)
+    if len(topics) > 0:
+        print("sucess")
+        challTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID)
+        existingIDs = [cTp.topicID.topicID for cTp in challTopics]
+        deletionIDs = [id for id in existingIDs if id not in topics]
+        newIDs = [id for id in topics if id not in existingIDs]
+        
+        ChallengesTopics.objects.filter(topicID__in=deletionIDs).delete()
+        
+        for id in newIDs:
+            newChallTopics = ChallengesTopics()
+            newChallTopics.challengeID = challenge
+            newChallTopics.topicID = Topics.objects.get(pk=id)
+            newChallTopics.save()
+    else:
+        challTopic = ChallengesTopics()
+        challTopic.challengeID = challenge
+        challTopic.topicID = unspecified_topic
+        challTopic.save()
+         
+    
 # Sets up the logged_in, username, and course_Name entries in the context_dict and then returns it along with the currentCourse if any.
 def initialContextDict(request):
     context_dict = {}
@@ -441,3 +480,18 @@ def initialContextDict(request):
         
     return (context_dict,currentCourse)
 
+def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
+    ''' Converts date str to datetime.datetime object with utc timezone.
+        Method should be used before storing dates in DateTimeField.
+    '''
+    from datetime import datetime, timezone
+    
+    if date == "None":
+        dt = datetime.now(tz=timezone.utc).replace(microsecond=0)
+        print("Current UTC: ", dt)
+        return dt
+    
+    dt = datetime.strptime(date, form)
+    
+    print("Converted Time to UTC: " , dt.replace(tzinfo=timezone.utc))
+    return dt.replace(tzinfo=timezone.utc)  

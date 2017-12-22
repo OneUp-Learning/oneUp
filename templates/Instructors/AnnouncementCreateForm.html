@@ -100,9 +100,9 @@
                     	<div class="well">
                     	<div id="datetimepicker2" class="input-append">
                         	{% if endTimestamp != "" %}
-                                <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
+                                <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
                             {% else %}
-                                <input id="smallFormBox" data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="endTime" value=""></input>
+                                <input id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value=""></input>
                             {% endif %}
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>

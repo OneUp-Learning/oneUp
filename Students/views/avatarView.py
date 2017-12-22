@@ -9,7 +9,9 @@ import glob
 
 from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def avatar(request):
 
 	context_dict,currentCourse = studentInitialContextDict(request)
