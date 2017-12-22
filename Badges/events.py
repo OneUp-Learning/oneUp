@@ -112,6 +112,9 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.buyExtraCreditPoints):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
+    if(eventID == Event.visitedDashboard):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
     
     
     print('eventEntry: '+str(eventEntry))  

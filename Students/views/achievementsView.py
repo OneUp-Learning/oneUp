@@ -14,6 +14,8 @@ from Students.views.utils import studentInitialContextDict
 from Students.models import StudentConfigParams
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from Badges.events import register_event
+from Badges.enums import Event
 
 @login_required
 def achievements(request):
@@ -24,6 +26,8 @@ def achievements(request):
 
 
     studentId = context_dict['student']
+    
+    register_event(Event.visitedDashboard, request, studentId, None)
    
     st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
     context_dict['avatar'] = st_crs.avatarImage  
