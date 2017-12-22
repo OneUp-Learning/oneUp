@@ -7,3 +7,4 @@ tests = {
 }
    
 checker = programinterface.program_checker("/var/www/wsgi-projects/oneUp/lua/example-problems/lua-programinterface/linked-bag-removedup","LinkedBag.java","javac *.java",10,tests)
+
