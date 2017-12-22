@@ -19,7 +19,7 @@ from setuptools.command.build_ext import if_dl
 @login_required
 def EditVirtualCurrencySpendRule(request):
  
-    context_dict, currentCourse = initialContextDict()
+    context_dict, currentCourse = initialContextDict(request)
             
     # Getting all the Spending Rules information which has been selected
     rules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, courseID = currentCourse)
