@@ -25,6 +25,7 @@ def CreateVcRule(request):
     context_dict['editOrCreate']="create"
     context_dict['capitalEditOrCreate']="Create"
     context_dict['saveOrCreate']="create"
+    context_dict['captialSaveOrCreate'] = "Create"
 
     return render(request,'Badges/EditVirtualCurrencyRule.html', context_dict)
 

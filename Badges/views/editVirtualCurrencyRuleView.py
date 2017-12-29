@@ -41,5 +41,7 @@ def EditVirtualCurrencyRule(request):
     context_dict['editOrCreate']="edit"
     context_dict['capitalEditOrCreate']="Edit"
     context_dict['saveOrCreate']="save"
+    context_dict['captialSaveOrCreate'] = "Save"
+
     
     return render(request,'Badges/EditVirtualCurrencyRule.html', context_dict)

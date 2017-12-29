@@ -14,24 +14,22 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def BadgesDisplay(request):
  
-    context_dict,currentCourse = studentInitialContextDict(request)
-    
-    # check if course was selected
-    if 'currentCourseID' in request.session:             
-        badgeId = [] 
-        badgeName = []
-        badgeImage = []
-        badgeDescription = []
-            
-        #Displaying the list of challenges from database
-        badges = Badges.objects.filter(courseID=currentCourse)
-        for badge in badges:
-            badgeId.append(badge.badgeID)
-            badgeName.append(badge.badgeName)
-            badgeImage.append(badge.badgeImage)
-            badgeDescription.append(badge.badgeDescription)
-                        
-        # The range part is the index numbers.
-        context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription)
+    context_dict, currentCourse = studentInitialContextDict(request)
+        
+    badgeId = [] 
+    badgeName = []
+    badgeImage = []
+    badgeDescription = []
+        
+    #Displaying the list of challenges from database
+    badges = Badges.objects.filter(courseID=currentCourse)
+    for badge in badges:
+        badgeId.append(badge.badgeID)
+        badgeName.append(badge.badgeName)
+        badgeImage.append(badge.badgeImage)
+        badgeDescription.append(badge.badgeDescription)
+                    
+    # The range part is the index numbers.
+    context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription)
 
-        return render(request,'Students/CourseBadges.html', context_dict)
+    return render(request,'Students/CourseBadges.html', context_dict)
