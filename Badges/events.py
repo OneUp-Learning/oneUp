@@ -11,6 +11,8 @@ import decimal
 from Instructors.models import Challenges, CoursesTopics
 from Badges.systemVariables import calculate_system_variable
 from Instructors.views.utils import utcDate
+from notify.signals import notify
+from django.contrib.auth.models import User
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -278,8 +280,22 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
         studentBadge.save()
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
+        
+        #Test to make notifactions 
+        
+        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You Won a Badge', nf_type='gained_Badge')
+
+        
+        
+        
+        
         return
+    
+    
+    
     if (actionID == Action.createNotification):
+        print("In notifications ")
+
         #Create a notification.
         return
     if (actionID == Action.addSkillPoints):

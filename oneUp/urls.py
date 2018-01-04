@@ -20,7 +20,8 @@ urlpatterns = [
     url(r'^oneUp/badges/', include('Badges.urls')),
     url(r'^oneUp/administrators/',include('Administrators.urls')),
     url(r'^oneUp/',include('Administrators.urls')),
-    url(r'^login$', login, {'template_name':'login.html'})
+    url(r'^login$', login, {'template_name':'login.html'}),
+    url(r'^notifications/', include('notify.urls', 'notifications')),
 ]
 
 
