@@ -82,9 +82,11 @@
 									href="/oneUp/students/Logout">Logout</a></li>
 							</ul></li>
 							
+						&nbsp;&nbsp;&nbsp;
+						
 						<li class="nav_login_items">
 						<img src="/static/images/horn.png"> <!-- This needs to be linked to an actual notification page -->
-							<ul class="nav_login_second_level" style="width: 300px;">
+							<ul class="nav_login_second_level" style="width: 275px;">
 								<div id="noteparent" class="notification-box-list">
 								{% render_notifications using request.user.notifications.active for box %}
 								</div>
