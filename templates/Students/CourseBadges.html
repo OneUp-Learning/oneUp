@@ -5,8 +5,11 @@
 <head>
   
    {% include 'scripts.html' %}  
-    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>   
-    <!--  <script src="{% static "notify/notifyX.js" %}"></script> -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    
+            {% load notification_tags %}
+        {% include_notify_js_variables %} 
+    <script src="{% static "notify/notifyX.js" %}"></script>
      
 </head>
 
@@ -43,13 +46,14 @@
         	</table>
         <!-- END DYNAMIC TABLE -->
         
-      
-        {% load notification_tags %}
+
+        
+        <div id="noteparent" class="notification-box-list">
 		{% user_notifications %}
+		</div>
 		
 		
-		
-		<!--  NOTE BELOW WILL BE LINKED AND NOT HARD CODED. IT IS HARD CODED NOW TO TEST A FEW THINGS -->
+		<!--  NOTE BELOW WILL BE LINKED AND NOT HARD CODED. IT IS HARD CODED NOW TO TEST A FEW THINGS 
 		
 		
 		<script type="text/javascript">
@@ -221,7 +225,7 @@
 		});
 		
 		</script>
-		
+		-->
 		
 		
 		
