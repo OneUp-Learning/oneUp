@@ -1,3 +1,10 @@
+          {% load staticfiles %}
+          
+           <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+       
+       {% load notification_tags %}
+       {% include_notify_js_variables %} 
+    <script src="{% static "notify/notifyX.js" %}"></script>
        <header>
 			<nav class="Navigation">
 				<div class="Nav_Top">
@@ -59,6 +66,8 @@
 						{% endif %}
 					</ul>
 				</div>
+				
+				
 				<div class="Nav_Bottom">
 					{% if logged_in %}
 					<p>Course: {{course_Name}}</p>
@@ -72,6 +81,15 @@
 								<li class="nav_login_second_level_items"><a
 									href="/oneUp/students/Logout">Logout</a></li>
 							</ul></li>
+							
+						<li class="nav_login_items">
+						<img src="/static/images/horn.png"> <!-- This needs to be linked to an actual notification page -->
+							<ul class="nav_login_second_level" style="width: 300px;">
+								<div id="noteparent" class="notification-box-list">
+								{% render_notifications using request.user.notifications.active for box %}
+								</div>
+							</ul></li>
+						
 					</ul>
 					{% endif %}
 				</div>

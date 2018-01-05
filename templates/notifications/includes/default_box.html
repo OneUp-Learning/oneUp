@@ -1,0 +1,5 @@
+<li data-nf-id="{{ notification.id }}"
+class="nav_login_second_level_items notification list-group-item {{ notification.read|yesno:'read,unread' }}">
+    <a href="#">{{ notification.verb }}
+    <span class="timesince">{{ notification.created|timesince }} ago</span></a>
+</li>
