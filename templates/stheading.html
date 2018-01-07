@@ -4,7 +4,7 @@
 {% include_notify_js_variables %} 
 <script src="{% static "notify/notifyX.js" %}"></script>
 <script>
-	$(document).ready(function countUnread() {
+	function countNotifications(){
 		numItems = $('.navNotifications').length;
 		if(numItems == 0){
 			numItems = null;
@@ -18,7 +18,19 @@
 		} else {
 			document.getElementById("notificationCount").textContent=numItems;
 		}
+		
+	}
+	
+	$(document).ready(function() {
+		countNotifications();
+		setInterval(function(){
+			countNotifications();
+		}, 5000);
 	});
+	
+	
+	
+	
 </script>
 <style>
 .button__badge {
