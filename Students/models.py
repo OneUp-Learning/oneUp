@@ -195,11 +195,11 @@ class StudentConfigParams(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
 
-    displayBadges = models.BooleanField(default=False)                          ## Student Dashboard display fields
-    displayLeaderBoard = models.BooleanField(default=False)
-    displayClassSkills = models.BooleanField(default=False) 
-    displayClassAverage = models.BooleanField(default=False) 
-    displayClassRanking = models.BooleanField(default=False)
+    displayBadges = models.BooleanField(default=True)                          ## Student Dashboard display fields
+    displayLeaderBoard = models.BooleanField(default=True)
+    displayClassSkills = models.BooleanField(default=True) 
+    displayClassAverage = models.BooleanField(default=True) 
+    displayClassRanking = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
     
     def __str__(self):
