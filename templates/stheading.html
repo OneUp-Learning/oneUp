@@ -26,12 +26,9 @@
 		setInterval(function(){
 			countNotifications();
 		}, 5000);
-	});
-	
-	
-	
-	
+	});	
 </script>
+
 <style>
 .button__badge {
   background-color: #fa3e3e;
@@ -131,7 +128,7 @@
 						
 						<li class="nav_login_items">
 						<img src="/static/images/horn.png"><span class="button__badge" id='notificationCount'></span> <!-- This needs to be linked to an actual notification page -->
-							<ul class="nav_login_second_level" style="width: 275px;">
+							<ul class="nav_login_second_level" style="width: 195px;">  <!-- Width can be between 200 and 300 still playing with it -->
 								<div id="noteparent" class="notification-box-list">
 								{% user_notifications for box %}
 								</div>
