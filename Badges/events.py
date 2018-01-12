@@ -130,7 +130,7 @@ def register_event(eventID, request, student=None, objectId=None):
         condition = potential.conditionID
         if check_condition(condition,courseId,student,eventEntry.objectType,objectId):
             print('after check_condition')
-            fire_action(potential,courseId,student,objectId)
+            fire_action(potential,courseId,student,eventEntry)
             
     return eventEntry
 
@@ -256,7 +256,7 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     else:
         return "Bad operand type value"
 
-def fire_action(rule,courseID,studentID,objectIDPassed):
+def fire_action(rule,courseID,studentID,eventEntry):
     print("In fire_action ")
     actionID = rule.actionID
     args = ActionArguments.objects.filter(ruleID = rule)
@@ -269,7 +269,7 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         
         #Make sure the student hasn't already been awarded this badge
         #If the student has already received this badge, they will not be awarded again
-        studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId, objectID = objectIDPassed)
+        studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
         for existingBadge in studentBadges:
             if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
                 print("Student " + str(studentID) + " has already earned badge " + str(badge))
@@ -279,7 +279,7 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         studentBadge = StudentBadges()
         studentBadge.studentID = studentID
         studentBadge.badgeID = badge
-        studentBadge.objectID = objectIDPassed
+        studentBadge.objectID = eventEntry.objectID
         studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
         studentBadge.save()
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
@@ -305,6 +305,7 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         vcRuleAmount = int(ruleIdString)
         # Get the student
         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+        
         # Increase the student virtual currency amount
         student.virtualCurrencyAmount += vcRuleAmount
         student.save()

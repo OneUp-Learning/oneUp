@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import setUpContextDictForConditions, databaseConditionToJSONString
 from Instructors.views.utils import initialContextDict
 
+from Badges.enums import VirtualCurrencyAwardFrequency
+
 @login_required
 def EditVirtualCurrencyRule(request):
  
@@ -33,7 +35,11 @@ def EditVirtualCurrencyRule(request):
             condition = rule.ruleID.conditionID
             print("Condition: "+str(condition))
                  
-            context_dict['initialCond'] = databaseConditionToJSONString(condition)           
+            context_dict['initialCond'] = databaseConditionToJSONString(condition)
+            
+            context_dict['awardFrequency']=rule.awardFrequency
+
+    context_dict['awardFrequencyOptions']=VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency
 
     # The range part is the index numbers.
     context_dict['vcRule'] = rule
