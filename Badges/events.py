@@ -284,17 +284,10 @@ def fire_action(rule,courseID,studentID,objectIDPassed):
         studentBadge.save()
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         
-        #Test to make notifactions 
-        
+        #Test to make notifications 
         notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You Won a Badge', nf_type='gained_Badge')
 
-        
-        
-        
-        
         return
-    
-    
     
     if (actionID == Action.createNotification):
         print("In notifications ")
