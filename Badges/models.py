@@ -176,7 +176,15 @@ class VirtualCurrencyRuleInfo(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     def __str__(self):              
-        return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)   
+        return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
+class VirtualCurrencyCustomRuleInfo(models.Model):
+    vcRuleID = models.AutoField(primary_key=True)
+    vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
+    vcRuleDescription = models.CharField(max_length=100)
+    vcRuleAmount = models.IntegerField()
+    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    def __str__(self):
+        return "VirtualCurrencyCustomRuleInfo"
 # System Variables (standard variables for the Python methods) Table
 
 # system variables and their operation type
