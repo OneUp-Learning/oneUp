@@ -127,7 +127,7 @@ class Event():
     getSurpriseAward = 860 # Get a small surprise award from the instructor
     chooseBackgroundForYourName = 861 # ?
     buyExtraCreditPoints = 862 # Buy extra credit points for an assignment 
-    
+        
     visitedDashboard = 870 # Loaded the dashboard page.
 
     
@@ -392,3 +392,38 @@ class QuestionTypes():
 
 staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.essay }
 dynamicQuestionTypesSet = { QuestionTypes.dynamic, QuestionTypes.templatedynamic }
+
+class VirtualCurrencyAwardFrequency:
+    justOnce = 1100
+    perChallenge = 1101
+    perActivity = 1102
+    perTopic = 1103
+    daily = 1104
+    weekly = 1105
+    virtualCurrencyAwardFrequency = {
+        justOnce:{
+            'index': justOnce,
+            'name': 'Just Once Ever',
+        },
+        perChallenge:{
+            'index': perChallenge,
+            'name': 'Once per Challenge',
+        },
+        perActivity:{
+            'index': perActivity,
+            'name': 'Once per Activity',
+        },
+        perTopic:{
+            'index': perTopic,
+            'name': 'Once per Topic',
+        },
+        daily:{
+            'index': daily,
+            'name': 'Once per day',
+        },
+        weekly:{
+            'index': weekly,
+            'name': 'Once per day',
+        },
+    }
+            
