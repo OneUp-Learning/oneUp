@@ -397,33 +397,38 @@ class VirtualCurrencyAwardFrequency:
     justOnce = 1100
     perChallenge = 1101
     perActivity = 1102
-    perTopic = 1103
+    # PerTopic, daily, and weekly are commented out because the work to support it right now is too much for the available time.
+    # It's not bad in general, but removed until I have time to do the work -KI
+    #perTopic = 1103
     daily = 1104
     weekly = 1105
     virtualCurrencyAwardFrequency = {
         justOnce:{
             'index': justOnce,
             'name': 'Just Once Ever',
+            'objectType': ObjectTypes.none,
         },
         perChallenge:{
             'index': perChallenge,
             'name': 'Once per Challenge',
+            'objectType': ObjectTypes.challenge,
         },
         perActivity:{
             'index': perActivity,
             'name': 'Once per Activity',
+            'objectType': ObjectTypes.activity,
         },
-        perTopic:{
-            'index': perTopic,
-            'name': 'Once per Topic',
-        },
-        daily:{
-            'index': daily,
-            'name': 'Once per day',
-        },
-        weekly:{
-            'index': weekly,
-            'name': 'Once per day',
-        },
+        #perTopic:{
+        #    'index': perTopic,
+        #    'name': 'Once per Topic',
+        #},
+        #daily:{
+        #    'index': daily,
+        #    'name': 'Once per day',
+        #},
+        #weekly:{
+        #    'index': weekly,
+        #    'name': 'Once per day',
+        #},
     }
             

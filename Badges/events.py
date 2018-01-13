@@ -1,7 +1,8 @@
 from Badges.models import Rules, ActionArguments, Conditions, Badges,\
-    ActivitySet
+    ActivitySet, VirtualCurrencyRuleInfo
 from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, TopicSet, Activities, ConditionSet, Dates
-from Badges.enums import OperandTypes, ObjectTypes, Event, Action
+from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
+    VirtualCurrencyAwardFrequency
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
     StudentRegisteredCourses
 from datetime import datetime
@@ -122,13 +123,21 @@ def register_event(eventID, request, student=None, objectId=None):
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
     
-    
     # check for rules which are triggered by this event
     potentials = Rules.objects.filter(courseID=courseId).filter(ruleevents__event=eventID)
     print(potentials)
     for potential in potentials:
         condition = potential.conditionID
-        if check_condition(condition,courseId,student,eventEntry.objectType,objectId):
+
+        ## KI: All of this vcAwardType stuff is hacky.  When there's enough time to make sure everything is done right
+        ## we should replace it with a more complete interface for having certain conditions specific to 
+        ## the object which the event creates.
+        vcRule = VirtualCurrencyRuleInfo.objects.filter(vcRuleID=potential).first()
+        if vcRule:
+            vcAwardType = vcRule.awardFrequency
+        else:
+            vcAwardType = VirtualCurrencyAwardFrequency.justOnce
+        if check_condition(condition,courseId,student,eventEntry.objectType,objectId,vcAwardType):
             print('after check_condition')
             fire_action(potential,courseId,student,eventEntry)
             
@@ -136,13 +145,13 @@ def register_event(eventID, request, student=None, objectId=None):
 
 # This method checks whether or not a given condition is true
 # in the appropriate context.
-def check_condition(condition, course, student, objectType, objectID):
+def check_condition(condition, course, student, objectType, objectID, vcAwardType):
     return check_condition_helper(condition, course, student, 
-                                  objectType,objectID, {})
+                                  objectType,objectID, {}, vcAwardType)
 
 # Helper function for the above.  Includes a hash table so that
 # it can avoid loops. (Circular Conditions)
-def check_condition_helper(condition, course, student, objectType, objectID, ht):
+def check_condition_helper(condition, course, student, objectType, objectID, ht, vcAwardType):
     if condition in ht:
         return False
     
@@ -178,7 +187,15 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     if (condition.operation == 'FOR_ALL'):
         return forallforany_helper(True)
     if (condition.operation == 'FOR_ANY'):
-        return forallforany_helper(False)
+        # Here is where we special-case things.  If we're in a virtual currency rule, we treat "for any" as just referring to this particular object.
+        # If this particular object is not on the list, we just return false.
+        if vcAwardType == VirtualCurrencyAwardFrequency.justOnce or VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency[vcAwardType]['objectType']!=operandSetTypeToObjectType(condition.operand1Type):
+            return forallforany_helper(False)
+        else:
+            if object not in operand1:
+                return False
+            else:
+                return get_operand_value(condition.operand2Type, condition.operand2Value, course, student, objectType, objectID, ht, condition)
     
     def andor_helper(isAnd):
         for cond in operand1:
