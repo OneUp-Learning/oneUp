@@ -189,6 +189,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
 
 class VirtualCurrencyAwardRecord(models.Model):
     id = models.AutoField(primary_key=True)
+    student = models.ForeignKey(Student)
     vcRule = models.ForeignKey(VirtualCurrencyRuleInfo)
     timestamp = models.DateTimeField(auto_now_add=True)
     object = models.IntegerField()
