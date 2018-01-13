@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics
-from Badges.enums import Event, OperandTypes, Action
+from Badges.enums import Event, OperandTypes, Action, VirtualCurrencyAwardFrequency
 from Badges.systemVariables import SystemVariable
 
 # Create your models here.
@@ -166,6 +166,7 @@ class Badges(models.Model):
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
+
 # Virtual Currency Table
 class VirtualCurrencyRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
@@ -175,9 +176,10 @@ class VirtualCurrencyRuleInfo(models.Model):
     vcRuleType = models.BooleanField(default=True) # True: earning , False: spending
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
-    awardFrequency = models.IntegerField() # See enums.py for award frequency options.
+    awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):              
         return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
+
 class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
     vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
@@ -187,15 +189,6 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo"
 
-class VirtualCurrencyAwardRecord(models.Model):
-    id = models.AutoField(primary_key=True)
-    student = models.ForeignKey(Student)
-    vcRule = models.ForeignKey(VirtualCurrencyRuleInfo)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    object = models.IntegerField()
-    def __str__(self):
-        return "VirtualCurrencyAwardRecord( vcRule#:"+str(self.vcRule.vcRuleID)+" object#:"+str(self.object)+" )"
- 
 # Dates Table
 class Dates(models.Model):
     dateID = models.AutoField(primary_key=True)

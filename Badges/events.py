@@ -4,7 +4,7 @@ from Badges.models import FloatConstants, StringConstants, ChallengeSet, Activit
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     VirtualCurrencyAwardFrequency
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
-    StudentRegisteredCourses
+    StudentRegisteredCourses, StudentVirtualCurrency
 from datetime import datetime
 from django.utils import timezone
 from builtins import getattr
@@ -315,31 +315,39 @@ def fire_action(rule,courseID,studentID,eventEntry):
         #Add skill points to a student
         return
     
-    if (actionID == Action.increaseVirtualCurrency):
+    if actionID == Action.increaseVirtualCurrency or actionID == Action.decreaseVirtualCurrency:
         ruleIdArg = args.get(sequenceNumber=1)
         # Get the virtual currency that is associated with the rule
         ruleIdString = ruleIdArg.argumentValue
         vcRuleAmount = int(ruleIdString)
         # Get the student
         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+
+        vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
         
-        # Increase the student virtual currency amount
-        student.virtualCurrencyAmount += vcRuleAmount
-        student.save()
-        return
+        if actionID == Action.increaseVirtualCurrency and vcRule.awardFrequency != VirtualCurrencyAwardFrequency.justOnce:
+            if StudentVirtualCurrency.objects.filter(studentID = student, objectID = eventEntry.objectID, vcRuleID = vcRule).exists():
+                # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
+                return
+        
+        studVCRec = StudentVirtualCurrency()
+        studVCRec.studentID = student
+        studVCRec.objectID = eventEntry.objectID
+        studVCRec.vcRuleID = vcRule
+        studVCRec.save()
+        
+        if actionID == Action.increaseVirtualCurrency:
+            # Increase the student virtual currency amount
+            student.virtualCurrencyAmount += vcRuleAmount
+            student.save()
+            return
     
-    if (actionID == Action.decreaseVirtualCurrency):
-        ruleIdArg = args.get(sequenceNumber=1)
-        # Get the virtual currency that is associated with the rule
-        ruleIdString = ruleIdArg.argumentValue
-        vcRuleAmount = int(ruleIdString)
-        # Get the student
-        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
-        # Decrease the student virtual currency amount
-        if student.virtualCurrencyAmount >= vcRuleAmount:
-            student.virtualCurrencyAmount -= vcRuleAmount
-        else:
-            #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
-            print('this purchase did not go through')
-        student.save()
-        return
+        if actionID == Action.decreaseVirtualCurrency:
+            # Decrease the student virtual currency amount
+            if student.virtualCurrencyAmount >= vcRuleAmount:
+                student.virtualCurrencyAmount -= vcRuleAmount
+            else:
+                #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
+                print('this purchase did not go through')
+            student.save()
+            return
