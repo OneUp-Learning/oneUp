@@ -189,14 +189,6 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo"
 
-class VirtualCurrencyAwardRecord(models.Model):
-    id = models.AutoField(primary_key=True)
-    vcRule = models.ForeignKey(VirtualCurrencyRuleInfo)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    object = models.IntegerField()
-    def __str__(self):
-        return "VirtualCurrencyAwardRecord( vcRule#:"+str(self.vcRule.vcRuleID)+" object#:"+str(self.object)+" )"
- 
 # Dates Table
 class Dates(models.Model):
     dateID = models.AutoField(primary_key=True)
