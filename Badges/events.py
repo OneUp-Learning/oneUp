@@ -132,7 +132,7 @@ def register_event(eventID, request, student=None, objectId=None):
         ## KI: All of this vcAwardType stuff is hacky.  When there's enough time to make sure everything is done right
         ## we should replace it with a more complete interface for having certain conditions specific to 
         ## the object which the event creates.
-        vcRule = VirtualCurrencyRuleInfo.objects.filter(vcRuleID=potential).first()
+        vcRule = VirtualCurrencyRuleInfo.objects.filter(ruleID=potential.ruleID).first()
         if vcRule:
             vcAwardType = vcRule.awardFrequency
         else:
@@ -158,7 +158,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     print("Evaluating condition:"+str(condition))
     
     # Fetch operands
-    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition)
+    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition,vcAwardType)
     
     print("Operand 1 = "+str(operand1))
 
@@ -177,7 +177,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
         return 0 # Error
     def forallforany_helper(forall):
         for object in operand1:
-            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), object, ht, condition):
+            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), object, ht, condition,vcAwardType):
                 if not forall:
                     return True
             else:
@@ -189,13 +189,19 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'FOR_ANY'):
         # Here is where we special-case things.  If we're in a virtual currency rule, we treat "for any" as just referring to this particular object.
         # If this particular object is not on the list, we just return false.
+        print("Checking VC workaround in Events!! vcAwardType: "+str(vcAwardType)+"  operandType: "+str(condition.operand1Type))
         if vcAwardType == VirtualCurrencyAwardFrequency.justOnce or VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency[vcAwardType]['objectType']!=operandSetTypeToObjectType(condition.operand1Type):
+            print("Workaround INACTIVE")
             return forallforany_helper(False)
         else:
-            if object not in operand1:
+            print("Workaround ACTIVE")
+            if int(objectID) not in operand1:
+                print("Object: "+str(objectID)+" not in set "+str(operand1))
+                print(str(type(objectID))+" "+str(type(operand1)))
                 return False
             else:
-                return get_operand_value(condition.operand2Type, condition.operand2Value, course, student, objectType, objectID, ht, condition)
+                print("Object in set")
+                return get_operand_value(condition.operand2Type, condition.operand2Value, course, student, objectType, objectID, ht, condition,vcAwardType)
     
     def andor_helper(isAnd):
         for cond in operand1:
@@ -212,7 +218,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'OR') and (condition.operand1Type == OperandTypes.conditionSet):
         return andor_helper(True)
 
-    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
+    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition, vcAwardType)
     print("Operand 2 = "+str(operand2))
     
     if (condition.operation == '='):
@@ -234,14 +240,14 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
 
 # Takes and operand type and value and finds the appropriate
 # value for it.
-def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition):
+def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition, vcAwardType):
     if (operandType == OperandTypes.immediateInteger):
         return operandValue
     elif (operandType == OperandTypes.boolean):
         return operandValue == 1
     elif (operandType == OperandTypes.condition):
         inner_condition = Conditions.objects.get(pk=operandValue)
-        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht)
+        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht,vcAwardType)
     elif (operandType == OperandTypes.floatConstant):
         return FloatConstants.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.stringConstant):
@@ -325,14 +331,21 @@ def fire_action(rule,courseID,studentID,eventEntry):
 
         vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
         
-        if actionID == Action.increaseVirtualCurrency and vcRule.awardFrequency != VirtualCurrencyAwardFrequency.justOnce:
-            if StudentVirtualCurrency.objects.filter(studentID = student, objectID = eventEntry.objectID, vcRuleID = vcRule).exists():
+        if actionID == Action.increaseVirtualCurrency:
+            if vcRule.awardFrequency == VirtualCurrencyAwardFrequency.justOnce:
+                searchObject = 0
+            else:
+                searchObject = eventEntry.objectID
+            if StudentVirtualCurrency.objects.filter(studentID = student.studentID, objectID = searchObject, vcRuleID = vcRule).exists():
                 # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
                 return
-        
+                        
         studVCRec = StudentVirtualCurrency()
-        studVCRec.studentID = student
-        studVCRec.objectID = eventEntry.objectID
+        studVCRec.studentID = student.studentID
+        if vcRule.awardFrequency == VirtualCurrencyAwardFrequency.justOnce:
+            studVCRec.objectID = 0
+        else:
+            studVCRec.objectID = eventEntry.objectID
         studVCRec.vcRuleID = vcRule
         studVCRec.save()
         

@@ -68,6 +68,9 @@ def SaveVirtualCurrencyRule(request):
             vcRuleDescription = request.POST['ruleDescription'] # The entered Rule Description
             print("rule description: "+str(vcRuleDescription))
             vcRuleAmount = request.POST['ruleAmount'] # The entered Virtual Currency amount
+            
+            if 'edit' in request.POST:
+                vcRuleInfo.ruleID.delete()
                             
             ruleCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,currentCourse)
                 
@@ -93,6 +96,7 @@ def SaveVirtualCurrencyRule(request):
             vcRuleInfo.vcRuleDescription = vcRuleDescription
             vcRuleInfo.vcRuleType = True # Earning type
             vcRuleInfo.assignToChallenges = 0 # We should delete this from the model soon.
+            vcRuleInfo.awardFrequency = int(request.POST['awardFrequency'])
             vcRuleInfo.save()
             
             ruleID = vcRuleInfo
@@ -106,5 +110,5 @@ def SaveVirtualCurrencyRule(request):
                 actionArgument.save()
                 
                 
-    return redirect("/oneUp/badges/InstructorVirtualCurrencyList")
+    return redirect("/oneUp/badges/VirtualCurrencyEarnRuleList")
     

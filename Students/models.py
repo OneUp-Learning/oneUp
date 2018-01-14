@@ -119,8 +119,8 @@ class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
     vcRuleID = models.ForeignKey(VirtualCurrencyRuleInfo, verbose_name="the virtual currency rule", db_index=True)
-    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a virtual currency award
-    timestamp = models.DateTimeField(default=datetime.now, blank=True, auto_now_add=True) # AV # Timestamp for badge assignment date
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a v
+    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
         return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
 

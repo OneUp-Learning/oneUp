@@ -33,10 +33,10 @@
                         <tr>
                         	<td colspan="5">
                         		<select name="awardFrequency">
-                        		{% for awardFrequencyOption in awardFrequencyOptions %}
+                        		{% for dummy,awardFrequencyOption in awardFrequencyOptions.items %}
                         			<option value="{{awardFrequencyOption.index}}" 
                         				{% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}
-                        			>{{awardFrequency.name}}</option>
+                        			>{{awardFrequencyOption.name}}</option>
                         		{% endfor %}
                         		</select>
                         	</td>
