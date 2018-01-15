@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from Instructors.views.utils import initialContextDict
 from Badges.conditions_util import setUpContextDictForConditions
+from Badges.systemVariables import logger
 
 from Badges.enums import VirtualCurrencyAwardFrequency
 
@@ -27,9 +28,9 @@ def CreateVcRule(request):
     context_dict['capitalEditOrCreate']="Create"
     context_dict['saveOrCreate']="create"
     context_dict['captialSaveOrCreate'] = "Create"
-    
     context_dict['awardFrequency']=VirtualCurrencyAwardFrequency.justOnce
     context_dict['awardFrequencyOptions']=VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency
-
+    context_dict['isRuleCustom'] = request.GET['isRuleCustom'] in ['true', 'True']
+    
     return render(request,'Badges/EditVirtualCurrencyRule.html', context_dict)
 
