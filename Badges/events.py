@@ -205,7 +205,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     
     def andor_helper(isAnd):
         for cond in operand1:
-            if check_condition_helper(cond, course, student, objectType, objectID, ht):
+            if check_condition_helper(cond, course, student, objectType, objectID, ht, vcAwardType):
                 if not isAnd:
                     return True
             else:
