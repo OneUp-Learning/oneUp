@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from Instructors.views.utils import initialContextDict
 from Badges.conditions_util import setUpContextDictForConditions
 
+from Badges.enums import VirtualCurrencyAwardFrequency
 
 # This sets up the page used to create the badge, but does not, in fact, create any badges.
 # Badges are actually created in the saveBadgeView class.
@@ -26,6 +27,9 @@ def CreateVcRule(request):
     context_dict['capitalEditOrCreate']="Create"
     context_dict['saveOrCreate']="create"
     context_dict['captialSaveOrCreate'] = "Create"
+    
+    context_dict['awardFrequency']=VirtualCurrencyAwardFrequency.justOnce
+    context_dict['awardFrequencyOptions']=VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency
 
     return render(request,'Badges/EditVirtualCurrencyRule.html', context_dict)
 

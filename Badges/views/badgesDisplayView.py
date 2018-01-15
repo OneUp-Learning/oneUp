@@ -10,6 +10,8 @@ from Badges.models import Badges, Courses
 from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
+from notify.models import NotificationQueryset, Notification
+import this
 
 @login_required
 def BadgesDisplay(request):
@@ -28,6 +30,7 @@ def BadgesDisplay(request):
         badgeName.append(badge.badgeName)
         badgeImage.append(badge.badgeImage)
         badgeDescription.append(badge.badgeDescription)
+             
                     
     # The range part is the index numbers.
     context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription)

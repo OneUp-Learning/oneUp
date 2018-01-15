@@ -119,8 +119,8 @@ class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
     vcRuleID = models.ForeignKey(VirtualCurrencyRuleInfo, verbose_name="the virtual currency rule", db_index=True)
-    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a badge
-    timestamp = models.DateTimeField(default=datetime.now, blank=True) # AV # Timestamp for badge assignment date
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a v
+    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
         return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
 
@@ -195,11 +195,11 @@ class StudentConfigParams(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
 
-    displayBadges = models.BooleanField(default=False)                          ## Student Dashboard display fields
-    displayLeaderBoard = models.BooleanField(default=False)
-    displayClassSkills = models.BooleanField(default=False) 
-    displayClassAverage = models.BooleanField(default=False) 
-    displayClassRanking = models.BooleanField(default=False)
+    displayBadges = models.BooleanField(default=True)                          ## Student Dashboard display fields
+    displayLeaderBoard = models.BooleanField(default=True)
+    displayClassSkills = models.BooleanField(default=True) 
+    displayClassAverage = models.BooleanField(default=True) 
+    displayClassRanking = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
     
     def __str__(self):
