@@ -60,7 +60,7 @@ def activityScore(course,student,activity):
     return scores.latest('timestamp').activityScore
 
 # Utility function used by other functions.
-def getActivityScore(course, student ,activity):
+def getActivityScore(course, activity):
     from Students.models import StudentActivities
     
     activities = StudentActivities.objects.filter(courseID=course, activityID=activity)
