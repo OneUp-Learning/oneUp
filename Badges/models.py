@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics
-from Badges.enums import Event, OperandTypes, Action
+from Badges.enums import Event, OperandTypes, Action, VirtualCurrencyAwardFrequency
 from Badges.systemVariables import SystemVariable
 
 # Create your models here.
@@ -166,6 +166,7 @@ class Badges(models.Model):
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
+
 # Virtual Currency Table
 class VirtualCurrencyRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
@@ -175,31 +176,19 @@ class VirtualCurrencyRuleInfo(models.Model):
     vcRuleType = models.BooleanField(default=True) # True: earning , False: spending
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
+    awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):              
-        return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)   
-# System Variables (standard variables for the Python methods) Table
+        return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
 
-# system variables and their operation type
-# No. of attempts : Count
-# Test Score : Average
-# percentage of correct answers : Percentile
-# Max. of test scores : Max
-# Min. of test scores : Min
-# Min. and Max. of test scores is the minimum or maximum test-score of all the student's attempts for a particular test. These variables can be used to see the improvement of the student between attempts. For eg. a test's total score is 100 and a student scores 10 in 1st attempt and 100 in another attempt, then, min of test scores - max of test scores = 90 is a great imrovement. 
-# Time to submit test (time taken by a student to complete a test) : Subtraction (time_submitted - time_started)
-# Date of attempting test (the date when student has attempted the test for first time)
+class VirtualCurrencyCustomRuleInfo(models.Model):
+    vcRuleID = models.AutoField(primary_key=True)
+    vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
+    vcRuleDescription = models.CharField(max_length=100)
+    vcRuleAmount = models.IntegerField()
+    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    def __str__(self):
+        return "VirtualCurrencyCustomRuleInfo"
 
-
-# Class removed and replaced with enumerated type - Keith
-#class SystemVariables(models.Model):
-#    systemVariableID = models.AutoField(primary_key=True)
-#    variableName = models.CharField(max_length=30) # e.g. test score, number of attempts, 
-#    variableDescription = models.CharField(max_length=100)
-#    readOnlyIndicator = models.BooleanField(default=True)
-#    operation = models.CharField(max_length=100) # COUNT, MIN, MAX, SUM. we don't need this operation column as the system variables are predefined and instructor is going to choose only from these set of variables. So using the name of the variable we can know how are we going to calculate/achieve them in the python code.
-#    def __str__(self):              
-#        return str(self.systemVariableID)+","+str(self.variableName)
- 
 # Dates Table
 class Dates(models.Model):
     dateID = models.AutoField(primary_key=True)

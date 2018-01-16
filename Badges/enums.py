@@ -127,7 +127,7 @@ class Event():
     getSurpriseAward = 860 # Get a small surprise award from the instructor
     chooseBackgroundForYourName = 861 # ?
     buyExtraCreditPoints = 862 # Buy extra credit points for an assignment 
-    
+        
     visitedDashboard = 870 # Loaded the dashboard page.
 
     
@@ -392,3 +392,44 @@ class QuestionTypes():
 
 staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.essay }
 dynamicQuestionTypesSet = { QuestionTypes.dynamic, QuestionTypes.templatedynamic }
+
+class VirtualCurrencyAwardFrequency:
+    justOnce = 1100
+    perChallenge = 1101
+    perActivity = 1102
+    # PerTopic, daily, and weekly are commented out because the work to support it right now is too much for the available time.
+    # It's not bad in general, but removed until I have time to do the work -KI
+    #perTopic = 1103
+    #daily = 1104
+    #weekly = 1105
+    virtualCurrencyAwardFrequency = {
+        justOnce:{
+            'index': justOnce,
+            'name': 'Just Once Ever',
+            'objectType': ObjectTypes.none,
+        },
+        perChallenge:{
+            'index': perChallenge,
+            'name': 'Once per Challenge',
+            'objectType': ObjectTypes.challenge,
+
+        },
+        perActivity:{
+            'index': perActivity,
+            'name': 'Once per Activity',
+            'objectType': ObjectTypes.activity,
+        },
+        #perTopic:{
+        #    'index': perTopic,
+        #    'name': 'Once per Topic',
+        #},
+        #daily:{
+        #    'index': daily,
+        #    'name': 'Once per day',
+        #},
+        #weekly:{
+        #    'index': weekly,
+        #    'name': 'Once per day',
+        #},
+    }
+            

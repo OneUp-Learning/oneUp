@@ -4,6 +4,9 @@
 /* mark, rp, rt, ruby, summary, time {
 	display:inline;
 } */
+
+
+
 html {
     min-width:940px;
     margin:0px;
@@ -592,3 +595,4 @@ footer .footerlink {
 a {
 	outline:none;
 }
+

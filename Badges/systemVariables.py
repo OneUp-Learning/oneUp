@@ -60,7 +60,7 @@ def activityScore(course,student,activity):
     return scores.latest('timestamp').activityScore
 
 # Utility function used by other functions.
-def getActivityScore(course, student ,activity):
+def getActivityScore(course, activity):
     from Students.models import StudentActivities
     
     activities = StudentActivities.objects.filter(courseID=course, activityID=activity)
@@ -334,7 +334,7 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student):
         if warmUpChallDates[len(warmUpChallDates)-1] != today:
             consecutiveDays = 0
         return consecutiveDays
-    
+    True
 def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student): 
     from Students.models import StudentEventLog
     warmUpChallDates = []
@@ -442,8 +442,8 @@ def getConsecutiveWeeksOnLeaderboard(course,student):
     return math.trunc(delta.days/7)
 
 def getNumberOfUniqueChallengesAttempted(course, student):
-    ''' Get the number of serious challenges the student has taken.'''    
-    challenges = Challenges.objects.filter(courseID=course, isGraded=True)
+    ''' Get the number of unique warmup challenges the student has taken.'''    
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     attempted = 0
     for challenge in challenges:
         studentChallenges = getNumAttempts(course, student, challenge)
@@ -528,7 +528,10 @@ def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):
             challengesGreaterThan += 1
     logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
     return challengesGreaterThan
-        
+
+def isWarmUpChallenge(course,student,challenge):
+    return not challenge.isGraded
+
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -561,6 +564,7 @@ class SystemVariable():
     numDaysActivitySubmissionLate = 929 # Difference of days between submission and due date
     numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
+    isWarmUp = 932 # is a warm-up challenge
     
     systemVariables = {
         numAttempts:{
@@ -781,7 +785,6 @@ class SystemVariable():
             'description':'The number of consecutive weeks a student has been at the top 3 positions of the Leaderboard.',
             'eventsWhichCanChangeThis':[Event.leaderboardUpdate],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.none],
             'functions':{
                 ObjectTypes.none: getConsecutiveWeeksOnLeaderboard
             }
@@ -793,7 +796,6 @@ class SystemVariable():
             'description':'The number of consecutive classes a student has attended.',
             'eventsWhichCanChangeThis':[Event.instructorAction],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.none],
             'functions':{
                 ObjectTypes.none:getConsecutiveClassesAttended
             },
@@ -805,7 +807,6 @@ class SystemVariable():
             'description':'Percentage of student score (for the max scored attempt) out of max challenge score.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.challenge],
             'functions':{
                 ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
             },
@@ -828,7 +829,6 @@ class SystemVariable():
             'description':'The number of unique challenges attempted by the student.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.none],
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueChallengesAttempted
             },
@@ -840,7 +840,6 @@ class SystemVariable():
             'description':'The number of warmup challenges with a score greater than 30%.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.none],
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan30Percent
             },
@@ -852,7 +851,6 @@ class SystemVariable():
             'description':'The number of warmup challenges with a score greater than 75%.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.none],
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75Percent
             },
@@ -864,7 +862,6 @@ class SystemVariable():
             'description':'The number of warmup challenges with a score greater than 75% for a specific topic.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.topic],
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic
             },
@@ -876,7 +873,6 @@ class SystemVariable():
             'description':'The total minutes spent on all warmup challenges',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.none],
             'functions':{
                 ObjectTypes.none:getTotalMinutesSpentOnWarmupChallenges
             },
@@ -899,9 +895,19 @@ class SystemVariable():
             'description':'Score difference from last complete challenge/warmup challenge and a specific challenge.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
-            'objectsDefinedFor':[ObjectTypes.challenge],
             'functions':{
                 ObjectTypes.challenge:getConsecutiveScoresDifference
             },
-        }   
+        },
+        isWarmUp:{
+            'index': isWarmUp,
+            'name': 'isWarmUp',
+            'displayName': 'Is WarmUp Challenge',
+            'description': 'True if the challenge in question is a warmup challenge, false if serious.',
+            'eventsWhichCanChangeThis':[],
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.challenge:isWarmUpChallenge
+            },
+        },
     }
