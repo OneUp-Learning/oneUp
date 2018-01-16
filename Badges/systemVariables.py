@@ -334,7 +334,7 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student):
         if warmUpChallDates[len(warmUpChallDates)-1] != today:
             consecutiveDays = 0
         return consecutiveDays
-    
+    True
 def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student): 
     from Students.models import StudentEventLog
     warmUpChallDates = []
@@ -442,8 +442,8 @@ def getConsecutiveWeeksOnLeaderboard(course,student):
     return math.trunc(delta.days/7)
 
 def getNumberOfUniqueChallengesAttempted(course, student):
-    ''' Get the number of serious challenges the student has taken.'''    
-    challenges = Challenges.objects.filter(courseID=course, isGraded=True)
+    ''' Get the number of unique warmup challenges the student has taken.'''    
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     attempted = 0
     for challenge in challenges:
         studentChallenges = getNumAttempts(course, student, challenge)
