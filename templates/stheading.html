@@ -6,17 +6,34 @@
 <script src="{% static "notify/notifyX.js" %}"></script>
 <script>
 	function countNotifications(){
-		numItems = $('.navNotifications').length;
+		numItems = Math.trunc($('.navNotifications').length/2.0);
+		$('.tooltipped').tooltip({delay: 50});
 		if(numItems == 0){
 			numItems = null;
-			document.getElementById("notification-count").style.display = "none";
-			x  = document.getElementById("noteparent").children;
+
+			document.getElementById("notification-count1").setAttribute('data-tooltip', "No Notifications");
+			document.getElementById('notification-count1').children[0].innerHTML = 'notifications';
+
+			x = document.getElementById("noteparent1").children;
+			x = x[0];
+			y = document.createElement('li');
+			y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
+			x.parentNode.replaceChild(y, x);
+
+			document.getElementById("notification-count2").style.display = "none";
+
+			x = document.getElementById("noteparent2").children;
 			x = x[0];
 			y = document.createElement('li');
 			y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
 			x.parentNode.replaceChild(y, x);
 		} else {
-			document.getElementById("notification-count").textContent=numItems;
+			document.getElementById("notification-count1").setAttribute('data-tooltip', numItems + " New");
+			document.getElementById('notification-count1').children[0].innerHTML = 'notifications_active';
+
+			document.getElementById("notification-count2").style.display = "visible";
+			document.getElementById("notification-count2").textContent= numItems;
+
 		}
 		
 	}
@@ -26,6 +43,7 @@
 		setInterval(function(){
 			countNotifications();
 		}, 5000);
+		$('.tooltipped').tooltip({delay: 50});
 	});	
 </script>
 		<ul id="account" class="dropdown-content">
@@ -77,11 +95,11 @@
 				</li>
 				{% endif %}
 				<li>
-					<a class='dropdown-button' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications'>
-						<img src="/static/images/horn.png"><span id='notification-count' class="new badge red" data-badge-caption="custom caption"></span> <!-- This needs to be linked to an actual notification page -->
+					<a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
+						<i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
 					</a>
 					<ul id="notifications" class="dropdown-content">
-						<div id="noteparent" class="notification-box-list">
+						<div id="noteparent1" class="notification-box-list">
 						{% user_notifications for box %}
 						</div>
 					</ul>
@@ -145,10 +163,10 @@
 						</li>
 						{% endif %}
 						<li>
-							<a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications<span id='notification-count' class="new badge red" data-badge-caption="custom caption"></span></a>
+							<a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
 							<div class='collapsible-body'>
 								<ul>
-									<div id="noteparent" class="notification-box-list">
+									<div id="noteparent2" class="notification-box-list">
 									{% user_notifications for box %}
 									</div>								
 								</ul>
