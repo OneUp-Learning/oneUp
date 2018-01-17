@@ -402,13 +402,71 @@ def getNumDaysSubmissionEarlyActivity(course, student , activity):
     print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
     return getDaysDifferenceActity(activity,studentActivity[0])
 
-# utility function return defference in days between the submission and due date
+# utility function return difference in days between the submission and due date
 def getDaysDifferenceActity(activity, studentActivity):
     deadline = activity.endTimestamp
     submission = studentActivity.timestamp
     print("Deadline ", deadline)
     print("submission", submission)
     return deadline - submission
+
+def getScoreDifferenceFromLastActivity(course, student, activity):
+    '''Returns the difference between the student scores for the latest and the previous activities'''
+
+    from Students.models import StudentActivities
+    currentActivityScore = activityScore(course, student , activity)
+
+    #filter database by timestamp
+    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('-timestamp')
+    
+    if len(activityObjects)>1:
+        return currentActivityScore - activityObjects[1].activityScore                                          
+    else:
+        return currentActivityScore
+
+def getPercentageOfActivityScore(course, student , activity):
+    '''Returns the percentage of the student's activity score out of the max possible score'''
+    from Instructors.models import Activities
+    totalScoreObject = Activities.objects.get(courseID=course, activityID=activity)
+    if totalScoreObject:
+        totalScore = totalScoreObject.points
+        #print("Activity score ", (float(activityScore(course, student, activity))/float(totalScore)) * 100)
+        return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
+    else:
+        return 0
+ 
+def getScorePercentageDifferenceFromLastActivity(course, student, activity):
+    '''Returns the difference between the percentages of the student's scores for the latest and the previous activities'''  
+      
+    from Students.models import StudentActivities
+    
+    currentActivityScorePercentage = getPercentageOfActivityScore(course, student , activity)
+    #filter database by timestamp
+    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('-timestamp')
+    
+    if len(activityObjects)>1:
+        previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObjects[1].activityID.activityID)
+        print("the difference in percentage from last Activity ", (currentActivityScorePercentage - previousActivityScorePercentage ) )
+        return currentActivityScorePercentage - previousActivityScorePercentage                                          
+    else:
+        return currentActivityScorePercentage 
+
+def getPercentageOfMaxActivityScore(course, student, activity):
+    '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
+    
+    highestScore = getMaxActivityScore(course, student, activity)
+    totalScoreObject = Activities.objects.get(activityID=activity, courseID=course)
+    if totalScoreObject:
+        totalScore = totalScoreObject.points
+        #avoiding division by zer0
+        if totalScore != 0:
+            print("percentage of score out of max activity score ", (float(highestScore)/float(totalScore))*100.0)
+            return ((float(highestScore)/float(totalScore))*100.0)
+        else:
+            return 0.0
+    else:
+        return 0.0 
+    
 
 def getDaysBetweenCurrentTimeAndDeadline(challenge):
     deadline = challenge.endTimestamp
@@ -548,7 +606,7 @@ class SystemVariable():
     numDaysSubmissionLate = 913 #Number of days an assignment is submitted late
     averageTestScore = 914  # Average Test Score
     consecutiveWeeksOnLeaderboard = 915 #Consecutive weeks on the leaderboard
-    consecutiveClassesAttended = 916 #The number of consecutive classes a student has attended
+    consecutiveClassesAttended = 916 #The numbedifference between the student scores for the latest and the previous activitiesr of consecutive classes a student has attended
     consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
     percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
@@ -565,6 +623,9 @@ class SystemVariable():
     numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
     isWarmUp = 932 # is a warm-up challenge
+    scoreDifferenceFromLastActivity = 933 # Difference between the student scores for the latest and the previous activities
+    scorePercentageDifferenceFromLastActivity = 934 # Difference between the percentages of the student's scores for the latest and the previous activities'''      
+    percentageOfMaxActivityScore = 935 # Percentage of the highest score for the course out of the max possible score for this activity
     
     systemVariables = {
         numAttempts:{
@@ -892,7 +953,7 @@ class SystemVariable():
             'index': differenceFromLastChallengeScore,
             'name':'differenceFromLastChallengeScore',
             'displayName':'Score Difference from Last Completed Challenge',
-            'description':'Score difference from last complete challenge/warmup challenge and a specific challenge.',
+            'description':'Score difference from last completed challenge/warmup challenge and a specific challenge.',
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
             'functions':{
@@ -910,4 +971,37 @@ class SystemVariable():
                 ObjectTypes.challenge:isWarmUpChallenge
             },
         },
+        scoreDifferenceFromLastActivity:{
+            'index': scoreDifferenceFromLastActivity,
+            'name':'scoreDifferenceFromLastActivity',
+            'displayName':'Score Difference from Last Completed Activity',
+            'description':'Score difference of the last completed activity from the activity preceding it.',
+            'eventsWhichCanChangeThis':[Event.instructorAction],
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getScoreDifferenceFromLastActivity
+            },
+        },
+         scorePercentageDifferenceFromLastActivity:{
+            'index': scorePercentageDifferenceFromLastActivity,
+            'name':'scorePercentageDifferenceFromLastActivity',
+            'displayName':'Score Percentage Difference from Last Completed Activity',
+            'description':'Difference of the score percentage of the last completed activity from the activity preceding it.',
+            'eventsWhichCanChangeThis':[Event.instructorAction],
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getScorePercentageDifferenceFromLastActivity
+            },
+        }, 
+        percentageOfMaxActivityScore:{
+            'index': percentageOfMaxActivityScore,
+            'name':'percentageOfMaxActivityScore',
+            'displayName':'Percentage of the Max Score for the Course for this Activity',
+            'description':'Percentage of the highest score for the course out of the max possible score for this activity.',
+            'eventsWhichCanChangeThis':[Event.instructorAction],
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getPercentageOfMaxActivityScore
+            },
+        },                                              
     }
