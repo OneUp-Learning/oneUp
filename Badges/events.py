@@ -74,6 +74,10 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.leaderboardUpdate):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
+    
+    if(eventID == Event.visitedDashboard):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId    
         
     # Virtual Currency Events
     if(eventID == Event.instructorHelp):
