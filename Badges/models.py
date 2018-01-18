@@ -167,18 +167,8 @@ class Badges(models.Model):
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
 
-# Virtual Currency Table for both automatically and manually handled VC rules
-class VirtualCurrencyCustomRuleInfo(models.Model):
-    vcRuleID = models.AutoField(primary_key=True)
-    vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
-    vcRuleDescription = models.CharField(max_length=100)
-    vcRuleAmount = models.IntegerField()
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
-    def __str__(self):
-        return "VirtualCurrencyCustomRuleInfo"
-
-# Virtual Currency Table for the automatically handled VC rules
-class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
+# Virtual Currency Table
+class VirtualCurrencyRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
     vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
     vcRuleDescription = models.CharField(max_length=100)
@@ -189,6 +179,15 @@ class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
     awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):              
         return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
+
+class VirtualCurrencyCustomRuleInfo(models.Model):
+    vcRuleID = models.AutoField(primary_key=True)
+    vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
+    vcRuleDescription = models.CharField(max_length=100)
+    vcRuleAmount = models.IntegerField()
+    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    def __str__(self):
+        return "VirtualCurrencyCustomRuleInfo"
 
 # Dates Table
 class Dates(models.Model):
