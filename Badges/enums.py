@@ -287,8 +287,13 @@ class Event():
                         'name':'buyExtraCreditPoints',
                         'displayName':'Buy Extra Credit Point',
                         'description':'Receive extra credit point for an assignment'
-                        }
-                            
+                        },
+              visitedDashboard: {
+                        'index': visitedDashboard,
+                        'name': 'visitedDashboard',
+                        'displayName': 'Visited Dashboard',
+                        'description': 'Loaded the dashboard page'
+                        },
               }
 
 class displayCircumstance():
