@@ -964,7 +964,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
             'functions':{
-                ObjectTypes.challenge:getTotalMinutesSpentOnWarmupChallenges
+                ObjectTypes.none:getTotalMinutesSpentOnWarmupChallenges
             },
         },
         percentageOfCorrectAnswersPerChallengePerStudent:{
