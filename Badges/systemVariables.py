@@ -57,7 +57,8 @@ def activityScore(course,student,activity):
     scores = StudentActivities.objects.filter(activityID = activity, courseID = course, studentID = student)
     if len(scores) == 0:
         return 0
-    return scores.latest('timestamp').activityScore
+    logger.debug("Student activity score: " + str(scores[0].activityScore))    
+    return scores[0].activityScore
 
 # Utility function used by other functions.
 def getActivityScore(course, activity):
@@ -426,14 +427,11 @@ def getScoreDifferenceFromLastActivity(course, student, activity):
 
 def getPercentageOfActivityScore(course, student , activity):
     '''Returns the percentage of the student's activity score out of the max possible score'''
-    from Instructors.models import Activities
-    totalScoreObject = Activities.objects.get(courseID=course, activityID=activity)
-    if totalScoreObject:
-        totalScore = totalScoreObject.points
-        #print("Activity score ", (float(activityScore(course, student, activity))/float(totalScore)) * 100)
-        return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
-    else:
-        return 0
+
+    totalScore = activity.points
+    #print("Activity score ", (float(activityScore(course, student, activity))/float(totalScore)) * 100)
+    return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
+
  
 def getScorePercentageDifferenceFromLastActivity(course, student, activity):
     '''Returns the difference between the percentages of the student's scores for the latest and the previous activities'''  
@@ -625,7 +623,8 @@ class SystemVariable():
     isWarmUp = 932 # is a warm-up challenge
     scoreDifferenceFromLastActivity = 933 # Difference between the student scores for the latest and the previous activities
     scorePercentageDifferenceFromLastActivity = 934 # Difference between the percentages of the student's scores for the latest and the previous activities'''      
-    percentageOfMaxActivityScore = 935 # Percentage of the highest score for the course out of the max possible score for this activity
+    percentageOfActivityScore = 935 # Percentage of the student's score out of the max possible score for this activity
+    percentageOfMaxActivityScore = 936 # Percentage of the highest score for the course out of the max possible score for this activity
     
     systemVariables = {
         numAttempts:{
@@ -736,7 +735,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
             'functions':{
-                ObjectTypes.none: getActivitiesCompleted
+                ObjectTypes.activity: getActivitiesCompleted
             }
         },
         minActivityScore:{
@@ -935,7 +934,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.endChallenge],
             'type':'int',
             'functions':{
-                ObjectTypes.none:getTotalMinutesSpentOnWarmupChallenges
+                ObjectTypes.challenge:getTotalMinutesSpentOnWarmupChallenges
             },
         },
         percentageOfCorrectAnswersPerChallengePerStudent:{
@@ -976,10 +975,10 @@ class SystemVariable():
             'name':'scoreDifferenceFromLastActivity',
             'displayName':'Score Difference from Last Completed Activity',
             'description':'Score difference of the last completed activity from the activity preceding it.',
-            'eventsWhichCanChangeThis':[Event.instructorAction],
+            'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
             'functions':{
-                ObjectTypes.none:getScoreDifferenceFromLastActivity
+                ObjectTypes.activity:getScoreDifferenceFromLastActivity
             },
         },
          scorePercentageDifferenceFromLastActivity:{
@@ -987,21 +986,32 @@ class SystemVariable():
             'name':'scorePercentageDifferenceFromLastActivity',
             'displayName':'Score Percentage Difference from Last Completed Activity',
             'description':'Difference of the score percentage of the last completed activity from the activity preceding it.',
-            'eventsWhichCanChangeThis':[Event.instructorAction],
+            'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
             'functions':{
-                ObjectTypes.none:getScorePercentageDifferenceFromLastActivity
+                ObjectTypes.activity:getScorePercentageDifferenceFromLastActivity
             },
         }, 
-        percentageOfMaxActivityScore:{
+        percentageOfActivityScore:{
+            'index': percentageOfActivityScore,
+            'name':'percentageOfActivityScore',
+            'displayName':'Percentage of Student Score for this Activity',
+            'description':'Percentage of the student score out of the max possible score for this activity.',
+            'eventsWhichCanChangeThis':[Event.participationNoted],
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity:getPercentageOfActivityScore
+            },
+        },   
+         percentageOfMaxActivityScore:{
             'index': percentageOfMaxActivityScore,
             'name':'percentageOfMaxActivityScore',
             'displayName':'Percentage of the Max Score for the Course for this Activity',
             'description':'Percentage of the highest score for the course out of the max possible score for this activity.',
-            'eventsWhichCanChangeThis':[Event.instructorAction],
+            'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
             'functions':{
-                ObjectTypes.none:getPercentageOfMaxActivityScore
+                ObjectTypes.activity:getPercentageOfMaxActivityScore
             },
-        },                                              
+        },                                                                  
     }
