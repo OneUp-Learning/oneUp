@@ -100,10 +100,9 @@ def getAverageActivityScore(course,student, activity):
     else:
         return 0
    
-# the function accept studentChallengeID, not studentID 
 def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challenge):
     '''return percentage of correctly answered questions out of all the questions'''
-    from Students.models import StudentChallengeQuestions
+    from Students.models import StudentChallengeQuestions, StudentChallenges
     from Instructors.models import ChallengesQuestions
     
     questionIds = []
@@ -111,20 +110,29 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
     for challenge_question in challenge_questions:
         questionIds.append(challenge_question.questionID)
     
+    try:    
+        studentChallenge = StudentChallenges.objects.filter(studentID=student, challengeID=challenge).latest('testScore')
+    except:
+        return 0.00
+    
     totalQuestions = len(questionIds)
     correctlyAnsweredQuestions = 0
     for question in questionIds:
-        studentQuestion = StudentChallengeQuestions.objects.filter(studentChallengeID=student,questionID=question)
+        studentQuestion = StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallenge,questionID=question)
         
         if studentQuestion[0].questionTotal == studentQuestion[0].questionScore:
             correctlyAnsweredQuestions +=1
     
-    if correctlyAnsweredQuestions != 0:
+    if correctlyAnsweredQuestions != 0 and totalQuestions != 0:
         percentage = ((float(correctlyAnsweredQuestions)/float(totalQuestions))*100)
         percentage = format(percentage,'.2f')
-        return ((float(totalQuestions)/float(correctlyAnsweredQuestions))*100)
+        
+        print("question score : ", percentage)
+        return percentage
     else:
-        return 0
+        print("question score : 0")
+        return 0.00
+    
 def getAveragePercentageScore(course, student, challenge):
     ''' Utility function that returns the percentage of the average score
         a student has scored in a challenge
@@ -424,14 +432,38 @@ def getScoreDifferenceFromLastActivity(course, student, activity):
         return currentActivityScore - activityObjects[1].activityScore                                          
     else:
         return currentActivityScore
+    
+def getScoreDifferenceFromPreviousActivity(course, student, activity):
+    '''Returns the the difference of score between this activity and the previous one'''
+    
+    from Students.models import StudentActivities
+    #filter database by timestamp
+    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+    
+    difference = 0
+    #if the fired activity is the very first one then return zero
+    if len(activityObjects)==1:
+        difference = 0
+    
+    previousActivityScore = 0
+    for activityObject in activityObjects:
+        if activityObject == activity:
+            print(activityObject.activityScore-previousActivityScore)
+            difference = activityObject.activityScore-previousActivityScore
+        else:
+            previousActivityScore = activityObject.activityScore
+    
+    return difference
 
 def getPercentageOfActivityScore(course, student , activity):
     '''Returns the percentage of the student's activity score out of the max possible score'''
 
     totalScore = activity.points
     #print("Activity score ", (float(activityScore(course, student, activity))/float(totalScore)) * 100)
-    return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
-
+    if totalScore != 0:
+        return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
+    else:
+        return 0
  
 def getScorePercentageDifferenceFromLastActivity(course, student, activity):
     '''Returns the difference between the percentages of the student's scores for the latest and the previous activities'''  
@@ -453,17 +485,14 @@ def getPercentageOfMaxActivityScore(course, student, activity):
     '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
     
     highestScore = getMaxActivityScore(course, student, activity)
-    totalScoreObject = Activities.objects.get(activityID=activity, courseID=course)
-    if totalScoreObject:
-        totalScore = totalScoreObject.points
-        #avoiding division by zer0
-        if totalScore != 0:
-            print("percentage of score out of max activity score ", (float(highestScore)/float(totalScore))*100.0)
-            return ((float(highestScore)/float(totalScore))*100.0)
-        else:
-            return 0.0
+    
+    totalScore = activity.points
+    #avoiding division by zer0
+    if totalScore != 0:
+        print("percentage of score out of max activity score ", (float(highestScore)/float(totalScore))*100.0)
+        return ((float(highestScore)/float(totalScore))*100.0)
     else:
-        return 0.0 
+        return 0.0
     
 
 def getDaysBetweenCurrentTimeAndDeadline(challenge):
@@ -644,6 +673,7 @@ class SystemVariable():
     percentageOfMaxActivityScore = 936 # Percentage of the highest score for the course out of the max possible score for this activity
     uniqueWarmupChallengesAttempted = 937 # The number of unique challenges completed by the student
     badgesEarned = 938 # Number of badges student as earned
+    scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
     
     systemVariables = {
         numAttempts:{
@@ -1054,5 +1084,16 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfBadgesEarned
             },
-        },                                                                  
+        },  
+        scoreDifferenceFromPreviousActivity:{
+            'index': scoreDifferenceFromPreviousActivity,
+            'name':'scoreDifferenceFromPreviousActivity',
+            'displayName':'Score Difference from previous Completed Activity',
+            'description':'Score difference of an activity from the activity preceding it.',
+            'eventsWhichCanChangeThis':[Event.participationNoted],
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity:getScoreDifferenceFromPreviousActivity
+            },
+        },                                                                   
     }
