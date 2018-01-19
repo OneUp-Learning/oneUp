@@ -90,6 +90,9 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.vcRuleAmount = vcRuleAmount
                 vcRuleInfo.save()
             else:
+                if 'edit' in request.POST:
+                    vcRuleInfo.ruleID.delete()
+                
                 ruleCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,currentCourse)
                     
                 # Save game rule to the Rules table
@@ -113,10 +116,11 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.vcRuleName = vcRuleName
                 vcRuleInfo.vcRuleDescription = vcRuleDescription
                 vcRuleInfo.vcRuleType = True # Earning type
+                vcRuleInfo.vcRuleAmount = -1                # Added on 01/18/18  by DD
                 vcRuleInfo.assignToChallenges = 0 # We should delete this from the model soon.
                 vcRuleInfo.awardFrequency = int(request.POST['awardFrequency'])
                 vcRuleInfo.save()
-                
+
                 ruleID = vcRuleInfo
                 print("rule id: "+str(ruleID.vcRuleID))
                 if not (ActionArguments.objects.filter(ruleID=gameRule).exists()):

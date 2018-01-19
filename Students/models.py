@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges, VirtualCurrencyRuleInfo
+from Badges.models import Badges, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -118,7 +118,7 @@ class StudentBadges(models.Model):
 class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
-    vcRuleID = models.ForeignKey(VirtualCurrencyRuleInfo, verbose_name="the virtual currency rule", db_index=True)
+    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, verbose_name="the virtual currency rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a v
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
