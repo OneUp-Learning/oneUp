@@ -74,6 +74,10 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.leaderboardUpdate):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
+    
+    if(eventID == Event.visitedDashboard):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId    
         
     # Virtual Currency Events
     if(eventID == Event.instructorHelp):
@@ -205,7 +209,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     
     def andor_helper(isAnd):
         for cond in operand1:
-            if check_condition_helper(cond, course, student, objectType, objectID, ht):
+            if check_condition_helper(cond, course, student, objectType, objectID, ht, vcAwardType):
                 if not isAnd:
                     return True
             else:
