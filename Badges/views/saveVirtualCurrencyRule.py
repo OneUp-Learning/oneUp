@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges, Activities
-from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
+from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list
 from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
@@ -95,6 +95,7 @@ def SaveVirtualCurrencyRule(request):
             vcRuleInfo.vcRuleName = vcRuleName
             vcRuleInfo.vcRuleDescription = vcRuleDescription
             vcRuleInfo.vcRuleType = True # Earning type
+            vcRuleInfo.vcRuleAmount = -1                # Added on 01/18/18  by DD
             vcRuleInfo.assignToChallenges = 0 # We should delete this from the model soon.
             vcRuleInfo.awardFrequency = int(request.POST['awardFrequency'])
             vcRuleInfo.save()
