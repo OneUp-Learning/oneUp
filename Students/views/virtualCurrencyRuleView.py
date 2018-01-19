@@ -6,7 +6,7 @@ Created on Nov 3, 2016
 
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo, ActionArguments
+from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments
 from Badges.enums import Action
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
@@ -28,24 +28,38 @@ def VirtualCurrencyDisplay(request):
     countSpendingRules = 0
             
     #Displaying the list of rules from database
-    vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse)
+    #vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse)
+    vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse)  # 01/18/18 DD
     for rule in vcRules:
-        if rule.ruleID.actionID == Action.increaseVirtualCurrency:
+        if rule.vcRuleType:
+        #if rule.ruleID.actionID == Action.increaseVirtualCurrency:
+        
+        # earning rule
             vcEarningRuleID.append(rule.vcRuleID)
             vcEarningRuleName.append(rule.vcRuleName)
             vcEarningRuleDescription.append(rule.vcRuleDescription)
-            value = -9000000000
-            if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
-                value = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+            if rule.vcRuleAmount == -1:   # an automatic rule, take the amount from action arguments
+                value = -9000000000
+                a_rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=rule.vcRuleID)
+                if (ActionArguments.objects.filter(ruleID=a_rule.ruleID).exists()):
+                    value = ActionArguments.objects.get(ruleID=a_rule.ruleID).argumentValue
+            else:
+                value = rule.vcRuleAmount   # manually handled rule
             vcEarningRuleAmount.append(value)
-            countEarningRules = countEarningRules+1        
+            countEarningRules = countEarningRules+1  
+                  
         else:
+            # spending rule
             vcSpendingRuleID.append(rule.vcRuleID)
             vcSpendingRuleName.append(rule.vcRuleName)
             vcSpendingRuleDescription.append(rule.vcRuleDescription)
-            value = -9000000000
-            if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
-                value = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+            if rule.vcRuleAmount == -1:   # an automatic rule, take the amount from action arguments          
+                value = -9000000000
+                a_rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=rule.vcRuleID)
+                if (ActionArguments.objects.filter(ruleID=a_rule.ruleID).exists()):
+                    value = ActionArguments.objects.get(ruleID=a_rule.ruleID).argumentValue
+            else:
+                value = rule.vcRuleAmount   # manually handled rule
             vcSpendingRuleAmount.append(value)
             countSpendingRules = countSpendingRules+1
              
