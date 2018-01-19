@@ -124,6 +124,7 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo.courseID = currentCourse
                     vcRuleInfo.vcRuleName = eventN
                     vcRuleInfo.vcRuleDescription = eventD
+                    vcRuleInfo.vcRuleAmount = int(request.POST[eventN+"_Value"])
                     vcRuleInfo.vcRuleType = False # Spending type
                     vcRuleInfo.assignToChallenges = 1
                     vcRuleInfo.save()
@@ -136,5 +137,5 @@ def SaveVirtualCurrencySpendRule(request):
                     
                 
                 
-    return redirect("/oneUp/badges/InstructorVirtualCurrencyList")
+    return redirect("/oneUp/badges/VirtualCurrencySpendRuleList")
     
