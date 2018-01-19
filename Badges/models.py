@@ -176,7 +176,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleAmount = models.IntegerField()
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     def __str__(self):
-        return "VirtualCurrencyCustomRuleInfo"
+        return "VirtualCurrencyCustomRuleInfo#"+str(self.vcRuleID)+":"+str(self.vcRuleName)+":"+str(self.vcRuleAmount)
 
 # Virtual Currency Table for the automatically handled VC rules
 class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):

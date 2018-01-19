@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+
+        {% include 'scripts.html' %}
+
+	</head>
+   <body>
+   
+        {% include 'heading.html' %}  
+          
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Add Virtual Currency</h1>
+		</div>
+		</div>
+        <div class="row">
+        <div class="12u"> 
+            <form id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
+                  {% csrf_token %}
+                  <table class="bg">
+                  	<tr>
+      				<th>Student</th>
+     				<th>Current Virtual Currency</th>
+      				<th>Virtual Currency</th>
+      				<th>Manual Earning Rule</th>
+      				<th></th>
+        	</tr>
+        	{% for studentID, studentName, studentCurrencyVC in students %}
+                     <tr> 
+       			<td style="width: 20%;">{{studentName}}</td>
+       			<td style="width: 20%;">{{studentCurrencyVC}}</td>
+       			<td style="width: 5%;"><input style="border: solid 1px rgba(128, 128, 128, 0.5);  height: 40px;" type="number" name="{{studentID}}_Value" id="{{studentID}}_Value" min="0" /></td>
+       			<td><div class="select-wrapper">
+                                 <select name="{{studentID}}_Rule" >
+                                    <option value=""selected>Select Earn Rule</option>
+                                    {% for ruleID, ruleName in rules %}
+                                    <option id="{{ruleID}}" value="{{ruleID}}">{{ruleName}}</option>
+                                    {% endfor %}
+                                 </select>
+                              </div></td>
+       			<td></td>
+       		</tr>
+                     {% endfor %}
+                  </table>
+                  <ul class="actions">
+                     <li style="margin:0"><input type="submit" id="create" name="create" value="Add" class="button"></li>
+                  </ul>
+               </form>
+		</div>
+        </div>
+        </div>
+      	</div>
+      <!-- Footer -->
+      
+        {% include 'footer.html' %}
+           
+   </body>
+</html>

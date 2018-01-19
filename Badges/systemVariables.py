@@ -498,8 +498,8 @@ def getConsecutiveWeeksOnLeaderboard(course,student):
     return math.trunc(delta.days/7)
 
 def getNumberOfUniqueChallengesAttempted(course, student):
-    ''' Get the number of unique warmup challenges the student has taken.'''    
-    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    ''' Get the number of unique serious challenges the student has taken.'''    
+    challenges = Challenges.objects.filter(courseID=course, isGraded=True)
     attempted = 0
     for challenge in challenges:
         studentChallenges = getNumAttempts(course, student, challenge)
@@ -507,6 +507,17 @@ def getNumberOfUniqueChallengesAttempted(course, student):
             attempted += 1
     
     logger.debug("Serious Challenges Attempted: " + str(attempted))
+    return attempted
+def getNumberOfUniqueWarmupChallengesAttempted(course, student):
+    ''' Get the number of warmup challenges the student has taken.'''    
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    attempted = 0
+    for challenge in challenges:
+        studentChallenges = getNumAttempts(course, student, challenge)
+        if studentChallenges > 0:
+            attempted += 1
+    
+    logger.debug("Warmup Challenges Attempted: " + str(attempted))
     return attempted
     
 def getTotalMinutesSpentOnWarmupChallenges(course, student):
@@ -588,6 +599,12 @@ def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):
 def isWarmUpChallenge(course,student,challenge):
     return not challenge.isGraded
 
+def getNumberOfBadgesEarned(course, student):
+    from Students.models import StudentBadges
+    count = StudentBadges.objects.filter(studentID = student).count()
+    logger.debug("Number of Earned Badges by student: " + str(count))
+    return count
+
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -625,6 +642,8 @@ class SystemVariable():
     scorePercentageDifferenceFromLastActivity = 934 # Difference between the percentages of the student's scores for the latest and the previous activities'''      
     percentageOfActivityScore = 935 # Percentage of the student's score out of the max possible score for this activity
     percentageOfMaxActivityScore = 936 # Percentage of the highest score for the course out of the max possible score for this activity
+    uniqueWarmupChallengesAttempted = 937 # The number of unique challenges completed by the student
+    badgesEarned = 938 # Number of badges student as earned
     
     systemVariables = {
         numAttempts:{
@@ -892,7 +911,18 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueChallengesAttempted
             },
-        },   
+        },
+        uniqueWarmupChallengesAttempted:{
+            'index': uniqueWarmupChallengesAttempted,
+            'name':'uniqueWarmupChallengesAttempted',
+            'displayName':'Unique Warmup Challenges Attempted',
+            'description':'The number of unique warmup challenges attempted by the student.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueWarmupChallengesAttempted
+            },
+        },    
         uniqueWarmupChallengesGreaterThan30Percent:{
             'index': uniqueWarmupChallengesGreaterThan30Percent,
             'name':'uniqueWarmupChallengesGreaterThan30Percent',
@@ -1012,6 +1042,17 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activity:getPercentageOfMaxActivityScore
+            },
+        },
+        badgesEarned:{
+            'index': badgesEarned,
+            'name':'badgesEarned',
+            'displayName':'Badges Earned',
+            'description':'The number of badges the student has earned.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfBadgesEarned
             },
         },                                                                  
     }

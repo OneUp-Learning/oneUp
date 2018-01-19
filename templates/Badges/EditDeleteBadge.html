@@ -48,7 +48,7 @@
                               
                               {% for i, image in imagePaths %}
                                 <input type="radio" id="Badge{{i}}" name="badgeImage" value="{{image}}" {% if badge.badgeImage == image %}checked{% endif %}/> 
-                              	<label class="badge" for="Badge{{i}}"><img src="/{{image}}" alt="Choose an image for badge"></label>
+                              	<label class="badge" for="Badge{{i}}"><img src="/{{image}}" width="107" height="107" alt="Choose an image for badge"></label>
                               	&nbsp;&nbsp;&nbsp;
 
 		 					  {% endfor %}
