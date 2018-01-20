@@ -33,6 +33,7 @@ from Students.views.transactionsView import transactionsView
 from Students.views.transactionNotesView import transactionNotesView
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
+from Students.views.studentEarnedTransactions import earnedTransactionsView
 
 
 admin.autodiscover()
@@ -61,6 +62,7 @@ urlpatterns = [
     url(r'^TransactionNotes',transactionNotesView, name='Transaction Notes'),
     url(r'^VirtualCurrencyRules',VirtualCurrencyDisplay, name='Virtual Currency Rule List'),
     url(r'^VirtualCurrencyShop',virtualCurrencyShopView, name='Virtual Current Shop'),
+    url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions')
 
 
     
