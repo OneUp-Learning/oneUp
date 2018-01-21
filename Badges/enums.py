@@ -114,22 +114,26 @@ class Event():
     
     spendingVirtualCurrency = 814  #When a student has spent VC
     
-    instructorHelp = 850  # Get instructor help for an assignment
-    buyAttempt = 851 # Buy another attempt for re-submission of an assignment
-    extendDeadline = 852 # Extend the deadline of an assignment
-    dropLowestAssignGrade = 853 # Drop the lowest assignment grade
-    getDifferentProblem = 854 # Get a different dynamic problem on a test
-    seeClassAverage = 855 # See aggregated class information
-    chooseLabPartner = 856 # Choose a lab partner
-    chooseProjectPartner = 857 # Choose a project partner
-    uploadOwnAvatar = 858 # Upload own avatar
-    chooseDashboardBackground = 859 # Choose a background for the student dashboard
-    getSurpriseAward = 860 # Get a small surprise award from the instructor
-    chooseBackgroundForYourName = 861 # ?
-    buyExtraCreditPoints = 862 # Buy extra credit points for an assignment 
-        
-    visitedDashboard = 870 # Loaded the dashboard page.
+    visitedDashboard = 815   # Loaded the dashboard page.
 
+    extendDeadlineHW = 851 # Extend the deadline of an assignment
+    extendDeadlineLab = 852 # Extend the deadline of an assignment       
+    instructorHelp = 853  # Get instructor help for an assignment
+    buyAttempt = 854 # Buy another attempt for re-submission of an assignment
+    buyExtraCreditPoints = 855 # Buy extra credit points for an assignment 
+    replaceLowestAssignGrade = 856 # 
+    buyTestTime = 857
+    getDifferentProblem = 858 # Get a different dynamic problem on a test
+    getCreditForOneTestProblem = 859 #
+    getSurpriseAward = 860 # Get a small surprise award from the instructor   
+    
+#    seeClassAverage = 861 # See aggregated class information
+#    chooseLabPartner = 862 # Choose a lab partner
+#    chooseProjectPartner = 863 # Choose a project partner
+#    uploadOwnAvatar = 864 # Upload own avatar
+#    chooseDashboardBackground = 865 # Choose a background for the student dashboard
+#    chooseBackgroundForYourName = 866 # ?
+    
     
     events = {
               startChallenge: {
@@ -209,84 +213,6 @@ class Event():
                         'name':'challengeExpiration',
                         'displayName':'Challenge Expiration',
                         'description':'The time allowed for students to take a challenge expires.'
-                          },
-              instructorHelp: {
-                        'index': instructorHelp,
-                        'name':'instructorHelp',
-                        'displayName':'Buy Instructor Help',
-                        'description':'Receive Help from the Instructor on an assignment'
-                        },
-              buyAttempt: {
-                        'index': buyAttempt,
-                        'name':'buyAttempt',
-                        'displayName':'Buy Attempt',
-                        'description':'Buy another attempt for re-submission of an assignment'
-                        },
-              extendDeadline: {
-                        'index': extendDeadline,
-                        'name':'extendDeadline',
-                        'displayName':'Extend Deadline',
-                        'description':'Extend the due date for an assignment'
-                        },              
-              dropLowestAssignGrade: {
-                        'index': dropLowestAssignGrade,
-                        'name':'dropLowestAssignGrade',
-                        'displayName':'Drop Lowest Assignment Grade',
-                        'description':'Drop your lowest assignment grade'
-                        },              
-              getDifferentProblem: {
-                        'index': getDifferentProblem,
-                        'name':'getDifferentProblem',
-                        'displayName':'Get Different Problem',
-                        'description':'Get a different dynamic problem on a test'
-                        },              
-              seeClassAverage: {
-                        'index': seeClassAverage,
-                        'name':'seeClassAverage',
-                        'displayName':'See Class Average',
-                        'description':'See aggregated class information'
-                        },  
-              chooseLabPartner: {
-                        'index': chooseLabPartner,
-                        'name':'chooseLabPartner',
-                        'displayName':'Choose Lab Partner',
-                        'description':'Choose a lab partner'
-                        },                            
-              chooseProjectPartner: {
-                        'index': chooseProjectPartner,
-                        'name':'chooseProjectPartner',
-                        'displayName':'Choose Project Partner',
-                        'description':'Choose a project partner'
-                        },                            
-              uploadOwnAvatar: {
-                        'index': uploadOwnAvatar,
-                        'name':'uploadOwnAvatar',
-                        'displayName':'Upload Own Avatar',
-                        'description':'Upload your own avatar.'
-                        },
-              chooseDashboardBackground: {
-                        'index': chooseDashboardBackground,
-                        'name':'chooseDashboardBackground',
-                        'displayName':'Choose Dashboard Background',
-                        'description':'Choose a background for the your dashboard'
-                        },
-              chooseBackgroundForYourName: {
-                        'index': chooseBackgroundForYourName,
-                        'name':'chooseBackgroundForYourName',
-                        'displayName':'Choose Background for Your Name',
-                        'description':'Choose background or border for your name'
-                        },              
-              getSurpriseAward: {
-                        'index': getSurpriseAward,
-                        'name':'getSurpriseAward',
-                        'displayName':'Get Surprise Award',
-                        'description':'Get a small surprise award from the instructor'
-                        },
-              buyExtraCreditPoints: {
-                        'index': buyExtraCreditPoints,
-                        'name':'buyExtraCreditPoints',
-                        'displayName':'Buy Extra Credit Point',
-                        'description':'Receive extra credit point for an assignment'
                         },
               visitedDashboard: {
                         'index': visitedDashboard,
@@ -294,6 +220,104 @@ class Event():
                         'displayName': 'Visited Dashboard',
                         'description': 'Loaded the dashboard page'
                         },
+             
+              instructorHelp: {
+                        'index': instructorHelp,
+                        'name':'instructorHelp',
+                        'displayName':'Get Feedback on Assignment Problem',
+                        'description':'Get help/feedback from the instructor on 1 problem before submitting an assignment.'
+                        },
+              buyAttempt: {
+                        'index': buyAttempt,
+                        'name':'buyAttempt',
+                        'displayName':'Buy Attempt',
+                        'description':'Buy another attempt (re-submission) for an assignment (restrictions may apply).'
+                        },
+              extendDeadlineHW: {
+                        'index': extendDeadlineHW,
+                        'name':'extendDeadlineHW',
+                        'displayName':'Extend Deadline of Assignment',
+                        'description':'Extend the due date for an assignment with 12 hours.'
+                        },              
+              extendDeadlineLab: {
+                        'index': extendDeadlineLab,
+                        'name':'extendDeadlineLab',
+                        'displayName':'Extend Deadline of Lab',
+                        'description':'Extend the due date for a lab with 24 hours.'
+                        },              
+              buyExtraCreditPoints: {
+                        'index': buyExtraCreditPoints,
+                        'name':'buyExtraCreditPoints',
+                        'displayName':'Buy Extra Credit Points',
+                        'description':'Buy 5 extra credit points for an assignment.'
+                        },
+              replaceLowestAssignGrade: {
+                        'index': replaceLowestAssignGrade,
+                        'name':'replaceLowestAssignGrade',
+                        'displayName':'Replace Lowest Assignment Grade',
+                        'description':'Replace your lowest assignment grade with your average assignment grade.'
+                        },              
+              buyTestTime: {
+                        'index': buyTestTime,
+                        'name':'buyTestTime',
+                        'displayName':'Buy Test Time',
+                        'description':'Buy a 15-min extension of the time for one test.'
+                        },              
+              getDifferentProblem: {
+                        'index': getDifferentProblem,
+                        'name':'getDifferentProblem',
+                        'displayName':'Get Different Problem',
+                        'description':'Get 1 different problem on a test (for designated problems).'
+                        },              
+              getCreditForOneTestProblem: {
+                        'index': getCreditForOneTestProblem,
+                        'name':'getCreditForOneTestProblem',
+                        'displayName':'Get Credit for One Test Problem',
+                        'description':'Get full credit for 1 problem (from designated problems) in 1 test.'
+                        },              
+              getSurpriseAward: {
+                        'index': getSurpriseAward,
+                        'name':'getSurpriseAward',
+                        'displayName':'Get Surprise Award',
+                        'description':'Get a small surprise award from the instructor.'
+                        },
+#               seeClassAverage: {
+#                         'index': seeClassAverage,
+#                         'name':'seeClassAverage',
+#                         'displayName':'See Class Average',
+#                         'description':'See aggregated class information'
+#                         },  
+#               chooseLabPartner: {
+#                         'index': chooseLabPartner,
+#                         'name':'chooseLabPartner',
+#                         'displayName':'Choose Lab Partner',
+#                         'description':'Choose a lab partner'
+#                         },                            
+#               chooseProjectPartner: {
+#                         'index': chooseProjectPartner,
+#                         'name':'chooseProjectPartner',
+#                         'displayName':'Choose Project Partner',
+#                         'description':'Choose a project partner'
+#                         },                            
+#               uploadOwnAvatar: {
+#                         'index': uploadOwnAvatar,
+#                         'name':'uploadOwnAvatar',
+#                         'displayName':'Upload Own Avatar',
+#                         'description':'Upload your own avatar.'
+#                         },
+#               chooseDashboardBackground: {
+#                         'index': chooseDashboardBackground,
+#                         'name':'chooseDashboardBackground',
+#                         'displayName':'Choose Dashboard Background',
+#                         'description':'Choose a background for the your dashboard'
+#                         },
+#               chooseBackgroundForYourName: {
+#                         'index': chooseBackgroundForYourName,
+#                         'name':'chooseBackgroundForYourName',
+#                         'displayName':'Choose Background for Your Name',
+#                         'description':'Choose background or border for your name'
+#                         },              
+
               }
 
 class displayCircumstance():

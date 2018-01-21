@@ -62,7 +62,7 @@ def virtualCurrencyShopView(request):
             
             challenges_id = []
             challenges_name = []
-            if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.buyExtraCreditPoints]:
+            if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.replaceLowestAssignGrade, Event.buyExtraCreditPoints]:
                 defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
                 currentTime = utcDate()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
@@ -89,8 +89,8 @@ def virtualCurrencyShopView(request):
             # For an event, find all the rules in the current course which
             # trigger from that event
             
-            buyOptionList = [Event.buyAttempt,Event.instructorHelp, Event.extendDeadline,Event.dropLowestAssignGrade, Event.chooseBackgroundForYourName, Event.chooseDashboardBackground, Event.chooseLabPartner,
-                             Event.chooseProjectPartner, Event.getDifferentProblem, Event.getSurpriseAward, Event.seeClassAverage, Event.uploadOwnAvatar, Event.buyExtraCreditPoints]
+            buyOptionList = [Event.buyAttempt,Event.instructorHelp, Event.extendDeadlineHW,Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.buyTestTime, Event.buyExtraCreditPoints,
+                             Event.getDifferentProblem, Event.getSurpriseAward, Event.getCreditForOneTestProblem]
             buyOptionEnabled = {}
             buyOptionCost = {}
             for buyOpt in buyOptionList:
@@ -136,7 +136,7 @@ def virtualCurrencyShopView(request):
                     studentVCTransaction.student = student
                     studentVCTransaction.course = currentCourse
                     
-                    if buyOption in [Event.instructorHelp, Event.buyAttempt,Event.extendDeadline, Event.dropLowestAssignGrade, Event.buyExtraCreditPoints]:
+                    if buyOption in [Event.instructorHelp, Event.buyAttempt,Event.extendDeadlineHW, Event.extendDeadlineLab, Event.replaceLowestAssignGrade, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
                         event = Event.events[buyOption]
                         studentVCTransaction.studentEvent = register_event(buyOption, request, student, int(request.POST['challengeFor'+event['name']]))
                         studentVCTransaction.objectType = ObjectTypes.challenge
