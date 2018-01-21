@@ -55,6 +55,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 studentVC = StudentVirtualCurrency()
                 studentVC.studentID = studentobj.studentID
                 studentVC.vcRuleID = ruleCustom
+                studentVC.value = vcAmount
                 studentVC.save()
                 logger.debug(studentobj.studentID)
             

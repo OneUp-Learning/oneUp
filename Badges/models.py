@@ -3,7 +3,6 @@ from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics
 from Badges.enums import Event, OperandTypes, Action, VirtualCurrencyAwardFrequency
 from Badges.systemVariables import SystemVariable
-
 # Create your models here.
  
 # Actions Table
@@ -153,7 +152,7 @@ class ActionArguments(models.Model):
     argumentValue = models.CharField(max_length=100) #e.g. badgeID
     def __str__(self):              
         return str(self.ruleID) + str(self.sequenceNumber) +","+str(self.argumentValue) 
- 
+
 # Badges Table
 class Badges(models.Model):
     badgeID = models.AutoField(primary_key=True)
@@ -185,6 +184,7 @@ class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
     awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):              
         return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
+
 
 # Dates Table
 class Dates(models.Model):

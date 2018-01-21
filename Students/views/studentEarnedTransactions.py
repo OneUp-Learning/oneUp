@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentEventLog, StudentVirtualCurrency
 from Students.views.utils import studentInitialContextDict
 
-from Badges.models import Rules, ActionArguments, RuleEvents, VirtualCurrencyCustomRuleInfo
+from Badges.models import Rules, ActionArguments, RuleEvents, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, Event
 from datetime import datetime
 from symbol import except_clause
@@ -25,6 +25,8 @@ def earnedTransactionsView(request):
     ruleDescription = []
     ruleAmmount = []
     timeStamp = []
+    checkedCustomes = []
+    
     
     vcCustomRules = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=True) #Get the rules that a teacher has made
     
@@ -34,10 +36,32 @@ def earnedTransactionsView(request):
                 for g in gains: #for every gain add an the info need to the proper list
                     ruleName.append(r.vcRuleName)
                     ruleDescription.append(r.vcRuleDescription)
-                    ruleAmmount.append(r.vcRuleAmount)
+                    print('RuleID' + str(r.vcRuleID))
+                    
+                    #Note the try can change when we just hold the values in the actual StudentVC model
+                    
+                    try: #Gets the proper amount form the action arguments
+                        rule2 = VirtualCurrencyRuleInfo.objects.get(vcRuleID=r.vcRuleID, courseID=course)
+                        if (ActionArguments.objects.filter(ruleID=rule2.ruleID).exists()):
+                            ruleAmmount.append(ActionArguments.objects.get(ruleID=rule2.ruleID).argumentValue)            
+                    
+                    #if that fails then it must be a custom rule so find out which below
+                    except:
+                        print('Failed')
+                        studentVC = StudentVirtualCurrency.objects.filter(studentID=student, vcRuleID=r.vcRuleID)
+                        for vc in studentVC:
+                            if vc in checkedCustomes:
+                                continue
+                            else:
+                                checkedCustomes.append(vc)
+                                ruleAmmount.append(vc.value) 
+                                break;
+                            
+                    
                     timeStamp.append(g.timestamp)
             else:
                 print('No virtual currency gains match that query')
+                
                 
             
     print(len(ruleName))
