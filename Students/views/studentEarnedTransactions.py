@@ -4,12 +4,16 @@ from django.contrib.auth.decorators import login_required
 from Students.models import StudentVirtualCurrency
 from Students.views.utils import studentInitialContextDict
 from Badges.models import ActionArguments, VirtualCurrencyRuleInfo
+from Badges.events import register_event
+from Badges.enums import Event
 
 @login_required
 def earnedTransactionsView(request):
  
     context_dict,course = studentInitialContextDict(request)  
     student = context_dict['student']
+
+    register_event(Event.visitedEarnedVCpage, request, student, None)
     
     ruleName = []
     ruleDescription = []

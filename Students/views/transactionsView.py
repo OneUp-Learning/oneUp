@@ -5,7 +5,10 @@ from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTran
 from Students.views.utils import studentInitialContextDict
 
 from Badges.models import Rules, ActionArguments
-from Badges.enums import Action, Event
+from Badges.enums import Action
+from Badges.events import register_event
+from Badges.enums import Event
+
 from datetime import datetime
 #import logging
 
@@ -16,6 +19,9 @@ def transactionsView(request):
     #logger = logging.getLogger(__name__)
     
     student = context_dict['student']
+    
+    register_event(Event.visitedSpendedVCpage, request, student, None)
+
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=course)  
                 
     currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount         
