@@ -92,8 +92,8 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.save()
             else:
                 if 'edit' in request.POST:
-                    vcRuleInfo.ruleID.delete()
-                
+                    oldRuleToDelete = vcRuleInfo.ruleID
+
                 ruleCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,currentCourse)
                     
                 # Save game rule to the Rules table
@@ -132,7 +132,9 @@ def SaveVirtualCurrencyRule(request):
                     actionArgument.sequenceNumber = 1
                     actionArgument.argumentValue =  vcRuleAmount
                     actionArgument.save()
-                
+
+                if 'edit' in request.POST:
+                    oldRuleToDelete.delete()
                 
     return redirect("/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom="+str(isRuleCustom))
     

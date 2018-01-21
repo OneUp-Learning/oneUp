@@ -179,7 +179,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
 
 # Virtual Currency Table for the automatically handled VC rules
 class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
-    ruleID = models.ForeignKey(Rules, verbose_name="the related rule", db_index=True)
+    ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True)
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):              
