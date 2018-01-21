@@ -14,7 +14,7 @@ def earnedTransactionsView(request):
     student = context_dict['student']
 
     register_event(Event.visitedEarnedVCpage, request, student, None)
-    
+     
     ruleName = []
     ruleDescription = []
     ruleAmmount = []
