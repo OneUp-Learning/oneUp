@@ -31,7 +31,7 @@ def earnedTransactionsView(request):
     vcCustomRules = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=True) #Get the rules that a teacher has made
     
     for r in vcCustomRules: #loop through all the custom rules
-            gains = StudentVirtualCurrency.objects.filter(studentID=student, vcRuleID = r) #see if the student has a gain matching that rule
+            gains = StudentVirtualCurrency.objects.filter(studentID=student, vcRuleID = r).order_by('-timestamp') #see if the student has a gain matching that rule
             if(gains): 
                 for g in gains: #for every gain add an the info need to the proper list
                     ruleName.append(r.vcRuleName)
