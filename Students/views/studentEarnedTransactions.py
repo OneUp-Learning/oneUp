@@ -48,7 +48,7 @@ def earnedTransactionsView(request):
                     #if that fails then it must be a custom rule so find out which below
                     except:
                         print('Failed')
-                        studentVC = StudentVirtualCurrency.objects.filter(studentID=student, vcRuleID=r.vcRuleID)
+                        studentVC = StudentVirtualCurrency.objects.filter(studentID=student, vcRuleID=r.vcRuleID).order_by('-timestamp')
                         for vc in studentVC:
                             if vc in checkedCustomes:
                                 continue
