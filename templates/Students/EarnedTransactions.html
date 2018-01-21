@@ -5,9 +5,9 @@
         {% include 'scripts.html' %}
 	<script src="/static/assets/js/jquery.min.js"></script>
       <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
-      <script src="/static/ThirdParty/pdfmake/pdfmake.min.js"></script>
+<!--       <script src="/static/ThirdParty/pdfmake/pdfmake.min.js"></script>
       <script src="/static/ThirdParty/pdfmake/vfs_fonts.js"></script>
-      <script>
+ -->      <script>
          $( document ).ready(function(){
           $('.create').on('click', function(e){
         	  e.preventDefault();
@@ -52,7 +52,7 @@
         		   }
         		};
         	  // download the PDF
-        	  pdfMake.createPdf(docDefinition).download('certificate.pdf');
+        	  //pdfMake.createPdf(docDefinition).download('certificate.pdf');
           });
          });
       </script>
@@ -73,11 +73,12 @@
             <table class="bg">
         		<tr>
         			<th>Rule Name</th>
-        			<th>Rule Description</th>
-        			<th>Rule Amount</th>
+        			<th>Description</th>
+        			<th>Amount</th>
  					<th>Date/Time Earned</th>
  					<!--  <th>Download Receipt</th>-->
         		</tr>
+        		
         		{% for transactionID, name, description, amount, time in transactions %}
         		<tr> 
         			<td style="vertical-align:middle">{{name}}</td>
