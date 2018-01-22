@@ -64,7 +64,7 @@
                         </div>
                         <div class="row">
                            <div class="col s12">
-                              <input name="fileUpload" type="checkbox" id="file_upload"/>
+                              <input name="fileUpload" type="checkbox" id="file_upload" {% if isFileUpload %} checked {% endif %}/>
                               <label for="file_upload">Allow Students to Upload Files</label>
                            </div>
                         </div>

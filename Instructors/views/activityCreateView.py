@@ -3,7 +3,7 @@
 # DD
 #
 from django.template import RequestContext
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Activities, Courses
 from Instructors.views.activityListView import createContextForActivityList
@@ -46,19 +46,19 @@ def activityCreateView(request):
             
         #Set the start date and end data to show the activity
         if(request.POST['startTime'] == ""):
-            activity.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+            activity.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
             activity.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+            activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
             if datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
                 activity.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
             else:
-                activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+                activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
             
                   
        # get the author                            
@@ -69,7 +69,7 @@ def activityCreateView(request):
 
         activity.save();  #Writes to database.
          
-        return render(request,'Instructors/ActivitiesList.html', context_dict)
+        return redirect('/oneUp/instructors/activitiesList')
 
     ######################################
     # request.GET 
@@ -87,6 +87,7 @@ def activityCreateView(request):
                     context_dict[attr]=getattr(activity,attr)
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
+                context_dict['isFileUpload'] = activity.isFileAllowed
 #                 context_dict['startTimestamp']= activity.startTimestamp
 #                 context_dict['endTimestamp']= activity.endTimestamp
                 

@@ -6,7 +6,9 @@
         $(document).ready(function(){
           $('.add_more').click(function(e){
             e.preventDefault();
-            $(fileupload1).after('<input id="fileupload1" name="actFile" type="file" multiple required/>');
+            $(fileupload1).after('<div id="fileupload1" class="file-field input-field">\n'+
+            '<div class="btn">\n'+'<span>File</span>\n'+'<input name="actFile" type="file" multiple required/>\n'+'</div>\n'+
+            '<div class="file-path-wrapper">\n'+'<input class="file-path validate" type="text" placeholder="Upload one or mote files"/>\n'+'</div>\n'+'</div>')
             document.getElementById('fileupload1').id = 'fileupload'
           });
         });
@@ -53,10 +55,10 @@
                            {% csrf_token %}   		
                            <input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">	
                            {%if isFile == False %}
-                           <div class="file-field input-field">
+                           <div id="fileupload1" class="file-field input-field">
                               <div class="btn">
                                  <span>File</span>
-                                 <input name="actFile" type="file" multiple>
+                                 <input name="actFile" type="file" multiple required>
                               </div>
                               <div class="file-path-wrapper">
                                  <input class="file-path validate" type="text" placeholder="Upload one or more files">
@@ -74,14 +76,16 @@
                         {% endif %}
                      </div>
                      <div class="card-action">
-                        {% if canUpload == True and isFile == False %}
-                        <a class="btn waves-effect waves-light add_more">Add More Files</a>   
-                        <button class="btn waves-effect waves-light" type="submit" name="Upload">Upload
-                        <i class="material-icons right">send</i>
-                        </button>
-                        {% endif %}
-                        <a class="waves-effect waves-light btn secondary-content" href="/oneUp/students/ActivityList"><i class="material-icons left">navigate_before</i>Back</a> 										  						
-                     </div>
+                        <div class="row right-align">
+                            {% if canUpload == True and isFile == False %}
+                            <a class="btn waves-effect waves-light add_more">Add More Files</a>   
+                            <button class="btn waves-effect waves-light" type="submit" name="Upload">Upload
+                            <i class="material-icons right">send</i>
+                            </button>
+                            {% endif %}
+                            <a class="btn waves-effect waves-light" href="/oneUp/students/ActivityList"><i class="material-icons left">navigate_before</i>Back</a> 										  						
+                        </div>
+                    </div>
                   </form>
                </div>
             </div>

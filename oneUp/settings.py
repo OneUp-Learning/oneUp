@@ -51,29 +51,6 @@ LOGGING = {
     },   
 }
 
-# Logging Levels: DEBUG(Everything) : INFO(Except DEBUG) : WARNING(Except INFO & DEBUG) : ERROR(CRITICAL & ERROR) : CRITICAL(ONLY)
-LOGGING_LEVEL = 'DEBUG'
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'simple': {
-            'format': '[%(levelname)s] %(message)s'
-        },
-    },
-    'handlers': {
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
-            'formatter': 'simple'
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': LOGGING_LEVEL
-    },   
-}
 ALLOWED_HOSTS = []
 
 # Including the static folder to access it in the urls.py

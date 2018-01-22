@@ -25,7 +25,7 @@
             <div class="col s12 m8 offset-m2">
                <form id="uploadbanner" name ="uploader" action="/oneUp/instructors/importStudentsView" enctype="multipart/form-data" onsubmit="return validateFileSelection()" method="POST">
                   {% csrf_token %}
-                  <div class="col s12 m10">
+                  <div class="row">
                      <div class="file-field input-field">
                         <div class="btn">
                            <span>Import Students</span>
@@ -35,19 +35,12 @@
                            <input class="file-path validate" type="text" placeholder="Import Students">
                         </div>
                      </div>
-                  </div>
-                  <div class="col s12 m2">
                      <button class="btn waves-effect waves-light" type="submit" id="Upload" name="upload" value="Upload">Upload
                      <i class="material-icons right">file_upload</i>
                      </button>
                   </div>
                </form>
             </div>
-         </div>
-         <div class="row">
-               <div class="col s12 m8 offset-m2">
-                  <a class="btn waves-effect waves-light" href="/oneUp/instructors/createStudentView">Add New Student</a>
-               </div>
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
