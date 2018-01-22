@@ -49,7 +49,7 @@ def challengeEditQuestionsView(request):
     context_dict, currentCourse = initialContextDict(request)
     context_dict['lupa_available'] = lupa_available
         
-    if 'challengeID' in request.GET:   
+    if 'challengeID' in request.POST or 'challengeID' in request.GET:   
         challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))    
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
             context_dict["unassign"]= 1
@@ -63,23 +63,24 @@ def challengeEditQuestionsView(request):
         context_dict['challenge'] = True
         context_dict['challengeID'] = request.GET['challengeID']
         context_dict['challengeName'] = challenge.challengeName
-
-        context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
-    
                                  
-    if 'problems' in request.GET:
-        context_dict["unassign"]= 1
-        chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
-        for challID in chall:
-            challengeID = (str(challID.challengeID))   
-        
-        context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)
+    if 'problems' in request.GET or 'problems' in request.POST:
+        context_dict["unassign"]= 1   
 
     context_dict = makeContextDictForSearch(context_dict, currentCourse)
 
     if request.method == 'POST':
         context_dict = searchResults(request, context_dict)
-    logger.debug(context_dict)
+    else:
+        if 'problems' in request.GET:
+            context_dict["unassign"]= 1
+            chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
+            for challID in chall:
+                challengeID = (str(challID.challengeID)) 
+            context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)          
+        else:
+            context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
+
     return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
 
   

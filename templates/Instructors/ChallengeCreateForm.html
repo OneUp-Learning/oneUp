@@ -43,8 +43,16 @@
             }
           });
           $('.chips-topics-autocomplete').on('chip.add', function(e, chip){
-            var topics = JSON.parse('{{createdTopics | escapejs }}')
-            for(var i = 0; i < topics.length; i++) {
+            var topics = JSON.parse('{{createdTopics | escapejs }}');
+            $.each(topics, function(index, topic) {
+              topic.tag = topic.tag.replace(/\s+/g, '').toLowerCase()
+              chip.tag = chip.tag.replace(/\s+/g, '').toLowerCase()
+              if(chip.tag==topic.tag)
+              {
+                chip.id = topic.id;
+              }
+            });
+            /*for(var i = 0; i < topics.length; i++) {
               var topic = topics[i];
               topic.tag = topic.tag.replace(/\s+/g, '').toLowerCase()
               chip['tag'] = chip['tag'].replace(/\s+/g, '').toLowerCase()
@@ -55,7 +63,22 @@
               else {
                 chip['id'] = -1
               }
+            }*/
+            var data1 = $('.chips-topics-autocomplete').material_chip('data');
+            if(chip.id==undefined)
+            {
+              data1.splice(data1.length-1,1);
+              console.log("need to remove");
             }
+            $('.chips-topics-autocomplete').material_chip({
+            data: data1,
+            autocompleteOptions: {
+              data: JSON.parse('{{ topicsAuto | escapejs }}'),
+              limit: Infinity,
+              minLength: 0
+            }
+            });
+            console.log(data1);
           });
           $('#form').submit(function(){
             var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
