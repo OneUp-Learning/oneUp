@@ -29,7 +29,7 @@ def earnedTransactionsView(request):
             ruleDescription.append(vcrule.vcRuleDescription)
             timeStamp.append(stud_VCrule.timestamp)
             if vcrule.vcRuleAmount != -1:
-                ruleAmmount.append(vcrule.vcRuleAmount)
+                ruleAmmount.append(stud_VCrule.value)
             else:
                 avcr = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcrule.vcRuleID)
                 if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
