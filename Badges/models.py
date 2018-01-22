@@ -169,8 +169,8 @@ class Badges(models.Model):
 # Virtual Currency Table for both automatically and manually handled VC rules
 class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
-    vcRuleName = models.CharField(max_length=30) # e.g. test score, number of attempts 
-    vcRuleDescription = models.CharField(max_length=100)
+    vcRuleName = models.CharField(max_length=300) # e.g. test score, number of attempts 
+    vcRuleDescription = models.CharField(max_length=4000)
     vcRuleType = models.BooleanField(default=True) # True: earning , False: spending    
     vcRuleAmount = models.IntegerField()
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
