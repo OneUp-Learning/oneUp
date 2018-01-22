@@ -151,7 +151,7 @@ def virtualCurrencyShopView(request):
                         studentVCTransaction.save()
                 i += 1
                 
-            return redirect("/oneUp/students/VirtualCurrencyShop.html")
+            return redirect("/oneUp/students/Transactions.html")
 
             
                 

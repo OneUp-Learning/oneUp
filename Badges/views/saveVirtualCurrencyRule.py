@@ -66,7 +66,7 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(pk=int(request.POST['vcRuleID']))
             if 'delete' in request.POST:
                 DeleteVirtualCurrencyRule(request.POST['vcRuleID'], isRuleCustom)
-                return redirect("/oneUp/Badges/VirtualCurrencyEarnRuleList?isRuleCustom="+str(isRuleCustom))
+                return redirect("/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom="+str(isRuleCustom))
         else:
             if isRuleCustom == True:
                 vcRuleInfo = VirtualCurrencyCustomRuleInfo()  # create new VC Custom RuleInfo
