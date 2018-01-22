@@ -24,7 +24,7 @@ def earnedTransactionsView(request):
     
     for stud_VCrule in stud_VCrules:
         vcrule = stud_VCrule.vcRuleID
-        if vcrule.courseID == course:
+        if vcrule.courseID == course and vcrule.vcRuleType:
             ruleName.append(vcrule.vcRuleName)
             ruleDescription.append(vcrule.vcRuleDescription)
             timeStamp.append(stud_VCrule.timestamp)
