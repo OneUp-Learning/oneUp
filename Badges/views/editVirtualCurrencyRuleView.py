@@ -5,11 +5,12 @@ Last modified 09/02/2016
 '''
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo, ActionArguments
+from Badges.models import VirtualCurrencyRuleInfo,VirtualCurrencyCustomRuleInfo, ActionArguments
 
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import setUpContextDictForConditions, databaseConditionToJSONString
 from Instructors.views.utils import initialContextDict
+from Badges.systemVariables import logger
 
 from Badges.enums import VirtualCurrencyAwardFrequency
 
@@ -25,21 +26,33 @@ def EditVirtualCurrencyRule(request):
         # Getting the Rule information which has been selected
         if request.GET['vcRuleID']:
             vcRuleID = request.GET['vcRuleID']
-            rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID, courseID=currentCourse)
-            
-            if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
-                context_dict["vcAmount"] = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+            isRuleCustom = request.GET['isRuleCustom'] in ['true', 'True']
+            logger.debug("[GET] isRuleCustom " + str(isRuleCustom))
+            if isRuleCustom == True:
+                rule = VirtualCurrencyCustomRuleInfo.objects.get(vcRuleID=vcRuleID, courseID=currentCourse)
+                context_dict["vcAmount"] = rule.vcRuleAmount
             else:
-                context_dict["vcAmount"] = 0
+                rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID, courseID=currentCourse)
                 
-            condition = rule.ruleID.conditionID
-            print("Condition: "+str(condition))
-                 
-            context_dict['initialCond'] = databaseConditionToJSONString(condition)
-            
-            context_dict['awardFrequency']=rule.awardFrequency
+                condition = rule.ruleID.conditionID
+                print("Condition: "+str(condition))
+                     
+                context_dict['initialCond'] = databaseConditionToJSONString(condition)
+                
+                context_dict['awardFrequency']=rule.awardFrequency
+    
+                context_dict['awardFrequencyOptions']=VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency
 
-    context_dict['awardFrequencyOptions']=VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency
+                if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
+                    context_dict["vcAmount"] = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+                else:
+                    context_dict["vcAmount"] = 0
+                    
+                condition = rule.ruleID.conditionID
+                print("Condition: "+str(condition))
+                     
+                context_dict['initialCond'] = databaseConditionToJSONString(condition)
+            context_dict['isRuleCustom'] = isRuleCustom
 
     # The range part is the index numbers.
     context_dict['vcRule'] = rule

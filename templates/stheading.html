@@ -56,6 +56,12 @@
 			<li><a href="/oneUp/administrators/courses">Change Course</a></li>
 			<li><a href="/oneUp/students/Logout">Logout</a></li>
 		</ul>
+		<ul id="virtualcurrency" class="dropdown-content">                               
+			<li><a href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
+			<li><a href="/oneUp/students/EarnedVCTransactions">Your Earning Transactions</a></li>
+			<li><a href="/oneUp/students/Transactions">Your Spending Transactions</a></li>
+			<li><a href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a></li>  
+		</ul>
 		<nav>
 			<div class="nav-wrapper">
 			<a href="#" class="brand-logo"><i class="material-icons">lightbulb_outline</i>OneUp</a>
@@ -64,6 +70,7 @@
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course Infomation</a>
 					<ul id="courseinfo" class="dropdown-content">
+						<li><a class="waves-effect" href="/oneUp/students/StudentHome">Student's Home</a></li>
 						<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>							
 						<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
 						<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>						
@@ -88,7 +95,7 @@
 						<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
 						{% endif %}
 						{% if ccparams.virtualCurrencyUsed %}
-						<li><a class="waves-effect" href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
+						<li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
 						{% endif %}
 						<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
 					</ul>
@@ -129,6 +136,7 @@
 							<a class="collapsible-header"><i class="material-icons">info</i>Course Infomation</a>
 							<div class="collapsible-body">
 								<ul>
+									<li><a class="waves-effect" href="/oneUp/students/StudentHome">Student's Home</a></li>
 									<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>							
 									<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
 									<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>						
@@ -155,7 +163,9 @@
 									<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
 									{% endif %}
 									{% if ccparams.virtualCurrencyUsed %}
-									<li><a class="waves-effect" href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
+									<li>
+										<li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
+									</li>
 									{% endif %}
 									<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
 								</ul>

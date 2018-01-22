@@ -23,25 +23,6 @@
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
-               <form id="uploadbanner" name = "uploader" action="/oneUp/students/avatarUploadView" enctype="multipart/form-data" onsubmit="return validateFileSelection()" method="POST" >
-                  {% csrf_token %}
-                  <div class="file-field input-field">
-                     <div class="btn">
-                        <span>File</span>
-                        <input id="fileupload" name="myfile" type="file">
-                     </div>
-                     <div class="file-path-wrapper">
-                        <input class="file-path validate" type="text" placeholder="Choose Image">
-                     </div>
-                  </div>
-                  <button class="btn waves-effect waves-light" type="submit" id="Upload" name="upload" value="Upload">Upload
-                  <i class="material-icons right">file_upload</i>
-                  </button> 
-               </form>
-            </div>
-         </div>
-         <div class="row">
-            <div class="col s12 m8 offset-m2">
                <div class="card">
                   <form action="/oneUp/students/avatarView " method="POST">
                      {% csrf_token %}

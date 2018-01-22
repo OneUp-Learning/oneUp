@@ -2,6 +2,15 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <script>
+        $(document).ready(function(){
+          $('.add_more').click(function(e){
+            e.preventDefault();
+            $(fileupload1).after('<input id="fileupload1" name="actFile" type="file" multiple required/>');
+            document.getElementById('fileupload1').id = 'fileupload'
+          });
+        });
+      </script>
    </head>
    <body>
       {% if is_teacher %}    
@@ -66,6 +75,7 @@
                      </div>
                      <div class="card-action">
                         {% if canUpload == True and isFile == False %}
+                        <a class="btn waves-effect waves-light add_more">Add More Files</a>   
                         <button class="btn waves-effect waves-light" type="submit" name="Upload">Upload
                         <i class="material-icons right">send</i>
                         </button>

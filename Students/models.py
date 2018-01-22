@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges, VirtualCurrencyRuleInfo
+from Badges.models import Badges, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -118,9 +118,11 @@ class StudentBadges(models.Model):
 class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
-    vcRuleID = models.ForeignKey(VirtualCurrencyRuleInfo, verbose_name="the virtual currency rule", db_index=True)
+    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, verbose_name="the virtual currency rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a v
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
+    value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
+
     def __str__(self):              
         return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
 
@@ -185,11 +187,15 @@ class StudentVirtualCurrencyTransactions(models.Model):
     
     def __str__(self):
         return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote)
+    
+
+
 # '''
 # Student Configuration parameters (goes into studetns.models.py)
 # -    Selecting to activate specific game mechanics rules (categories of rules)
 # -    Should the system display "How far are they from a particular award"
 # '''
+    
 class StudentConfigParams(models.Model):
     scpID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)

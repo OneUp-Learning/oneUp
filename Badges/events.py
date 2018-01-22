@@ -75,6 +75,17 @@ def register_event(eventID, request, student=None, objectId=None):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
         
+    # Visited Pages Events    
+    if(eventID == Event.visitedDashboard):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
+    if(eventID == Event.visitedEarnedVCpage):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
+    if(eventID == Event.visitedSpendedVCpage):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
+                
     # Virtual Currency Events
     if(eventID == Event.instructorHelp):
         eventEntry.objectType = ObjectTypes.form
@@ -82,43 +93,49 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.buyAttempt):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-    if(eventID == Event.extendDeadline):
+    if(eventID == Event.extendDeadlineHW):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-    if(eventID == Event.dropLowestAssignGrade):
+    if(eventID == Event.extendDeadlineLab):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.replaceLowestAssignGrade):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
+    if(eventID == Event.buyTestTime):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
     if(eventID == Event.getDifferentProblem):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-    if(eventID == Event.seeClassAverage):
+    if(eventID == Event.buyExtraCreditPoints):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-    if(eventID == Event.chooseLabPartner):
-        eventEntry.objectType = ObjectTypes.form
-        eventEntry.objectID = objectId
-    if(eventID == Event.chooseProjectPartner):
-        eventEntry.objectType = ObjectTypes.form
-        eventEntry.objectID = objectId
-    if(eventID == Event.uploadOwnAvatar):
-        eventEntry.objectType = ObjectTypes.form
-        eventEntry.objectID = objectId
-    if(eventID == Event.chooseDashboardBackground):
+    if(eventID == Event.getCreditForOneTestProblem):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
     if(eventID == Event.getSurpriseAward):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-    if(eventID == Event.chooseBackgroundForYourName):
-        eventEntry.objectType = ObjectTypes.form
-        eventEntry.objectID = objectId
-    if(eventID == Event.buyExtraCreditPoints):
-        eventEntry.objectType = ObjectTypes.form
-        eventEntry.objectID = objectId
-    if(eventID == Event.visitedDashboard):
-        eventEntry.objectType = ObjectTypes.none
-        eventEntry.objectID = 0
-   
+        
+#     if(eventID == Event.seeClassAverage):
+#         eventEntry.objectType = ObjectTypes.form
+#         eventEntry.objectID = objectId
+#     if(eventID == Event.chooseLabPartner):
+#         eventEntry.objectType = ObjectTypes.form
+#         eventEntry.objectID = objectId
+#     if(eventID == Event.chooseProjectPartner):
+#         eventEntry.objectType = ObjectTypes.form
+#         eventEntry.objectID = objectId
+#     if(eventID == Event.uploadOwnAvatar):
+#         eventEntry.objectType = ObjectTypes.form
+#         eventEntry.objectID = objectId
+#     if(eventID == Event.chooseDashboardBackground):
+#         eventEntry.objectType = ObjectTypes.form
+#         eventEntry.objectID = objectId
+#     if(eventID == Event.chooseBackgroundForYourName):
+#         eventEntry.objectType = ObjectTypes.form
+#         eventEntry.objectID = objectId  
     
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
