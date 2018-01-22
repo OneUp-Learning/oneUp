@@ -3,6 +3,16 @@
 <head>
 
    {% include 'scripts.html' %}
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+   <script>
+      $(document).ready(function(){
+        $('.add_more').click(function(e){
+          e.preventDefault();
+          $(fileupload1).after('<input id="fileupload1" name="actFile" type="file" multiple required/>');
+          document.getElementById('fileupload1').id = 'fileupload'
+        });
+      });
+    </script>
  
 </head>
 <body>
@@ -71,10 +81,13 @@
 	               {%if isFile == False %}
 	               <tr>
 	                  <td>
-	                     <input id="fileupload" name="actFile" type="file" multiple required/>   
+	                     <input id="fileupload1" name="actFile" type="file" multiple required/>   
 	                  </td>
 	               </tr>
 	               </table>
+	            
+	            
+	            <button type='button' class="add_more">Add More Files</button>   
 	   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
 	   			<input align="center" type="submit" value="Upload" id="Upload"/> 
 	   			 <a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
