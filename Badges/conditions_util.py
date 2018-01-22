@@ -232,6 +232,7 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             print("string="+string)
             subCondIndexList = string[3:-2].split(",")
             cond = Conditions()
+            cond.courseID = courseID
             cond.operation = letter_to_operation[string[0]]
             cond.operand1Type = OperandTypes.conditionSet
             cond.operand1Value = 0
@@ -251,6 +252,7 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
         elif string[0] == "F":
             print("for starting")
             cond = Conditions()
+            cond.courseID = courseID
             if string[2] == "*":
                 cond.operation = "FOR_ALL"
             elif string[2] == "1":
