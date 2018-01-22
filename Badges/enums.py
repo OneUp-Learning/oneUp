@@ -115,6 +115,8 @@ class Event():
     spendingVirtualCurrency = 814  #When a student has spent VC
     
     visitedDashboard = 815   # Loaded the dashboard page.
+    visitedEarnedVCpage = 816 # Student visited the Earning Virtual Currency Transaction page
+    visitedSpendedVCpage = 817 # Student visited the Spended Virtual Currency Transaction page
 
     extendDeadlineHW = 851 # Extend the deadline of an assignment
     extendDeadlineLab = 852 # Extend the deadline of an assignment       
@@ -219,6 +221,18 @@ class Event():
                         'name': 'visitedDashboard',
                         'displayName': 'Visited Dashboard',
                         'description': 'Loaded the dashboard page'
+                        },
+              visitedEarnedVCpage: {
+                        'index': visitedEarnedVCpage,
+                        'name': 'visitedEarnedVCpage',
+                        'displayName': 'Visited Earning Transactions page',
+                        'description': 'Student visited the earning virtual currency transactions page'
+                        },
+              visitedSpendedVCpage: {
+                        'index': visitedSpendedVCpage,
+                        'name': 'visitedSpendedVCpage',
+                        'displayName': 'Visited Spending Transactions page',
+                        'description': 'Student visited the spending virtual currency transactions page'
                         },
              
               instructorHelp: {
