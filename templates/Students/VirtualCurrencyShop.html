@@ -51,18 +51,21 @@
         		</tr>
         		{% endfor %}
         		<tr style="border-top: 1px solid #000;">
-        			<td>Your current balance: {{studentVirtualCurrency}}</td><td></td><td></td>
-        			<td>Total</td>
-        			<td><div id="total">0</div></td>
         			<td></td>
+        			<td><b>Your current balance: &nbsp;&nbsp; {{studentVirtualCurrency}}</b></td><td></td>
+        			<td><b>Total:</b></td>
+        			<td><b><div id="total">0</div></b></td>
+        			
        			</tr>
        			
         	</table>
         	
-        	<input type="submit" value="Buy" >
+        	<input type="submit" value="Buy" > &nbsp;&nbsp;
+<!--         	<a href="/oneUp/students/EarnedVCTransactions"><button class="button" type="button">View Earned Currency</button></a>
         	<a href="/oneUp/students/Transactions"><button class="button" type="button">View Transactions</button></a>
-        	<a href="/oneUp/students/StudentCourseHome"><button class="button special" type="button">Cancel</button></a>
-        	
+ -->        	
+ 			<a href="/oneUp/students/StudentCourseHome"><button class="button special" type="button">Cancel</button></a>
+        	<p></p>
         	</form>
         	
         	{% if not sufficientStudentCurrency %}

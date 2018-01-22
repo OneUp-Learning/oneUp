@@ -221,11 +221,18 @@ def templateToCodeSegments(setupCode,templateArray):
             return function(b,pts)
                 a = tonumber(a)
                 b = tonumber(b)
-                local diff = math.abs(a-b)
-                if diff/a<fudgefraction then
-                    return {success=true,value=pts}
+                if a == 0 then
+                    if b <= fudgefraction and b >= -fudgefraction then
+                        return {success=true,value=pts}
+                    else
+                        return {success=false,value=0}
+                    end
                 else
-                    return {success=false,value=0}
+                    if math.abs((a-b)/a)<=fudgefraction then
+                        return {success=true,value=pts}
+                    else
+                        return {success=false,value=0}
+                    end
                 end
             end
         end

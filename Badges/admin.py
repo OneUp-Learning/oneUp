@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from Badges.models import ActionArguments, Conditions, Rules, Badges, CourseConfigParams,VirtualCurrencyRuleInfo
+from Badges.models import ActionArguments, Conditions, Rules, Badges, CourseConfigParams,VirtualCurrencyCustomRuleInfo,VirtualCurrencyRuleInfo
 from Badges.models import Dates, FloatConstants, StringConstants, GameMechanics, CourseMechanics, RuleEvents
 
 
@@ -16,4 +16,6 @@ admin.site.register(GameMechanics)
 admin.site.register(CourseConfigParams)
 admin.site.register(CourseMechanics)
 admin.site.register(RuleEvents)
+admin.site.register(VirtualCurrencyCustomRuleInfo)
 admin.site.register(VirtualCurrencyRuleInfo)
+

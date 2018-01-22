@@ -109,7 +109,7 @@
                             {% for i,avatarImage,xpoints in user_range %}
                             <tr>
                                 <div id="student{{i}}">
-                                    <td class="left"><img alt="Avatar Image" width="30px" height="30px" src="{{avatar}}"></td>
+                                    <td class="left"><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
                                     <td class="left">{{xpoints}}</td>
                                 </div>
                             </tr>
@@ -157,7 +157,7 @@
                         <tr>
                             <td class="left">
                                 {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}                                                       
-                                <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
+                                <img src="/{{badgeImage}}" alt="Badge Image" width="60px" height="60px"/>
                                 <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                 &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;
                                 {% endfor %}

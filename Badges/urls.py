@@ -7,6 +7,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
+from Badges.views.addVirtualCurrencyForStudentWithRuleView import addVirtualCurrencyForStudentWithRuleView
 from Badges.views.badgesDisplayView import BadgesDisplay
 from Badges.views.badgesView import BadgesMain
 
@@ -29,6 +30,7 @@ from Badges.views.conditionTestView import conditionTestView
 admin.autodiscover()
 
 urlpatterns = [    
+    url(r'^AddVirtualCurrency', addVirtualCurrencyForStudentWithRuleView, name='Add Virtual Currency to Students'),
     url(r'^Badges',BadgesMain, name='BadgesMain'),
     url(r'^CreateBadge',CreateBadge, name='CreateBadge'),
     url(r'^CreateVirtualCurrencySpendRule',CreateVcSpendRule, name='Create Virtual Currency Spend Rule'),

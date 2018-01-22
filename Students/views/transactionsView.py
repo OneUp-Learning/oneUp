@@ -5,7 +5,10 @@ from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTran
 from Students.views.utils import studentInitialContextDict
 
 from Badges.models import Rules, ActionArguments
-from Badges.enums import Action, Event
+from Badges.enums import Action
+from Badges.events import register_event
+from Badges.enums import Event
+
 from datetime import datetime
 #import logging
 
@@ -16,14 +19,20 @@ def transactionsView(request):
     #logger = logging.getLogger(__name__)
     
     student = context_dict['student']
+    
+    register_event(Event.visitedSpendedVCpage, request, student, None)
+
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=course)  
                 
     currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount         
      
     # Get all transactions for the student and send it to the webpage
-    transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.getDifferentProblem,
-                                                                                                        Event.seeClassAverage, Event.chooseLabPartner, Event.chooseProjectPartner, Event.uploadOwnAvatar, Event.chooseDashboardBackground,
-                                                                                                        Event.getSurpriseAward, Event.chooseBackgroundForYourName, Event.buyExtraCreditPoints]).order_by('-studentEvent__timestamp')
+#     transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.getDifferentProblem,
+#                                                                                                         Event.seeClassAverage, Event.chooseLabPartner, Event.chooseProjectPartner, Event.uploadOwnAvatar, Event.chooseDashboardBackground,
+#                                                                                                         Event.getSurpriseAward, Event.chooseBackgroundForYourName, Event.buyExtraCreditPoints]).order_by('-studentEvent__timestamp')
+    transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.getDifferentProblem,
+                                                                                                                                        Event.getSurpriseAward, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getCreditForOneTestProblem]).order_by('-studentEvent__timestamp')
+
     # Code from virtual currency shop view
     def getRulesForEvent(event):
         return Rules.objects.filter(ruleevents__event=event, courseID=course)
