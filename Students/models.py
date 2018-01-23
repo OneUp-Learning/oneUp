@@ -164,8 +164,8 @@ class StudentFile(models.Model):
         self.file.delete()
 
 class StudentEventLog(models.Model):
-    student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
-    course = models.ForeignKey(Courses, verbose_name="Course in Which event occurred", db_index=True)
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the student", db_index=True)
+    course = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Course in Which event occurred", db_index=True)
     event = models.IntegerField(default=-1,verbose_name="the event which occurred.  Should be a reference to the Event enum", db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name="timestamp", db_index=True)
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
