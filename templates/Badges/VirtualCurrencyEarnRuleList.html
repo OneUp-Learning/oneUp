@@ -33,6 +33,9 @@
                               {% csrf_token %} 
                               <a href="/oneUp/badges/EditVirtualCurrencyRule?vcRuleID={{vcRuleID}}&isRuleCustom={{isRuleCustom}}"><button type="button">Edit</button></a>
                               <input type="hidden" name="vcRuleID" value="{{vcRuleID}}">
+                              <input type="hidden" name="isRuleCustom" value="{{isRuleCustom}}">
+                              <input type="hidden" name="edit" value="edit">
+                              <input type="hidden" name="delete" value="delete">
                               <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
                            </form>
                         </td>
