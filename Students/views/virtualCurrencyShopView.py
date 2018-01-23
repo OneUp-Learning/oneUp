@@ -32,7 +32,10 @@ def virtualCurrencyShopView(request):
             return rule.actionID == Action.decreaseVirtualCurrency
         
         def getAmountFromBuyRule(rule):
-            return int(ActionArguments.objects.get(ruleID=rule, sequenceNumber=1).argumentValue)
+            if ActionArguments.objects.filter(ruleID=rule,sequenceNumber=1).exists:
+                return int(ActionArguments.objects.get(ruleID=rule, sequenceNumber=1).argumentValue)
+            else:
+                return 0
         
         # We just find the first one.  This should generally be fine
         # since there should be at most one.

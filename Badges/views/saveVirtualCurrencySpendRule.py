@@ -65,12 +65,12 @@ def SaveVirtualCurrencySpendRule(request):
                     eventDescription.append(eDescription)
                     
             
-            vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False)
+            vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False,courseID=currentCourse)
             for rule in vcRules:
                 found = False
                 for  eventI, eventN, eventD in zip(eventIndex, eventName, eventDescription):
                     if rule.vcRuleName == eventN:
-                        vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(vcRuleName = eventN)
+                        vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(vcRuleName = eventN, courseID=currentCourse)
                         found = True
                 if found == False:
                     # Delete the rule
@@ -82,7 +82,7 @@ def SaveVirtualCurrencySpendRule(request):
                 conditions = []
                 for rule in vcRules:
                     if rule.vcRuleName == eventN:
-                        vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(vcRuleName = eventN)
+                        vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(vcRuleName = eventN, courseID=currentCourse)
                         print("found: " + str(vcRuleInfo.vcRuleName))
                         found = True
                         break
@@ -90,6 +90,7 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo = VirtualCurrencyRuleInfo()  # create new VC RuleInfo
                     # Create New Condition (Template condition(1 == 1) because no condition is required for this rule)
                     newCondition = Conditions()
+                    newCondition.courseID = currentCourse
                     newCondition.operation = '='
                     newCondition.operand1Type = OperandTypes.immediateInteger
                     newCondition.operand1Value = 1
@@ -129,11 +130,16 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo.assignToChallenges = 1
                     vcRuleInfo.save()
                 else:
+                    if ActionArguments.objects.filter(ruleID=vcRuleInfo.ruleID).exists():
+                        actionArg = ActionArguments.objects.get(ruleID=vcRuleInfo.ruleID)
+                    else:
+                        actionArg = ActionArguments()
+                        actionArg.ruleID = vcRuleInfo.ruleID
+                        actionArg.sequenceNumber = 1
                     
-                    actionArgs = ActionArguments.objects.get(ruleID=vcRuleInfo.ruleID)
-                    actionArgs.argumentValue = request.POST[eventN+"_Value"]
+                    actionArg.argumentValue = request.POST[eventN+"_Value"]
                     print("eventName: " + str(eventN) + " eventD: " + str(eventD) + " eventValue: " + request.POST[eventN+"_Value"])  
-                    actionArgs.save()
+                    actionArg.save()
                     
                 
                 

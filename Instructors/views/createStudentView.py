@@ -101,7 +101,7 @@ def createStudentViewUnchecked(request):
                 student = Student.objects.get(user = user)  
                 
                 # check if the student is already enrolled in this class
-                if StudentRegisteredCourses.objects.get(studentID=student).courseID == currentCourse:
+                if StudentRegisteredCourses.objects.filter(studentID=student,courseID =currentCourse).exists():
                     context_dict['user_taken'] = '*This student is already registered in this course.' 
                     return render(request,"Administrators/CreateUser.html", context_dict)
 
