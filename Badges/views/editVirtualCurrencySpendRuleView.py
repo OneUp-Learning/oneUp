@@ -39,7 +39,11 @@ def EditVirtualCurrencySpendRule(request):
                     eventIndex.append(i)
                     eventName.append(eName)
                     eventDescription.append(eDescription)
-                    eventAmount.append((ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue))
+                    if ActionArguments.objects.filter(ruleID=rule.ruleID).exists():
+                        amount = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
+                    else:
+                        amount = 0
+                    eventAmount.append(amount)
                     eventEnabled.append(True)
                     found = True
                     break   
