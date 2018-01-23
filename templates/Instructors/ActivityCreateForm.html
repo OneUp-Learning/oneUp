@@ -13,6 +13,20 @@
              }).on('change', function(e, date) {
                $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
              });
+             {% if isFileUpload %}
+             $('#num_attempts').attr("disabled", true);
+             {% else %}
+             $('#num_attempts').attr("disabled", false);
+             {% endif %}
+             $('#file_upload').change(function(){
+                if(this.checked){
+                  $('#num_attempts').attr("disabled", true);
+                }
+                else
+                {
+                  $('#num_attempts').attr("disabled", false);
+                }
+             });
          });
       </script>
    </head>
