@@ -159,9 +159,9 @@ class Badges(models.Model):
     ruleID = models.ForeignKey(Rules, verbose_name="the related rule", db_index=True)
     #instructorID = models.ForeignKey(InstructorInfo, verbose_name="the related instructor Id", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
-    badgeName = models.CharField(max_length=30) # e.g. test score, number of attempts 
-    badgeDescription = models.CharField(max_length=100)
-    badgeImage = models.CharField(max_length=30)
+    badgeName = models.CharField(max_length=300) # e.g. test score, number of attempts 
+    badgeDescription = models.CharField(max_length=10000)
+    badgeImage = models.CharField(max_length=300)
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
