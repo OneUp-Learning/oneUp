@@ -8,7 +8,7 @@ from django.core.files import File
 from oneUp.settings import MEDIA_ROOT
 from zipfile import ZipFile
 from django.shortcuts import render, redirect
-from Instructors.models import Activities, UploadedFiles
+from Instructors.models import Activities, UploadedFiles, UploadedActivityFiles
 from Students.models import StudentActivities, Student, StudentFile
 from Students.views.utils import studentInitialContextDict
 from datetime import datetime, date
@@ -39,6 +39,28 @@ def ActivityDetail(request):
             currentTime = datetime.strptime(datetime.utcnow().time().strftime("%H:%M:%S"), "%H:%M:%S")
             print(currentTime.strftime("%I:%M %p"))
             
+
+
+            #If the act has files add them to the webpage
+            act = studentActivities.activityID
+            instructorActFiles = UploadedActivityFiles.objects.filter(activity=act, latest=True )
+            instructFiles = []
+            
+            if(instructorActFiles):
+                for f in instructorActFiles:
+                    instructFiles.append(f.activityFileName)
+                
+                context_dict['instructorActFiles'] = instructFiles
+                context_dict['instructorHasFiles'] = True
+            else:
+                context_dict['instructorHasFiles'] = False
+            
+
+   
+                
+                    
+                
+
 
             
             #we are allowed to uplad files 
