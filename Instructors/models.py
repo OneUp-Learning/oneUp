@@ -301,6 +301,10 @@ class UploadedFiles(models.Model):
         uploadedFileName = models.CharField(max_length=200, default='')
         uploaded_at = models.DateTimeField(auto_now_add=True)
         uploadedFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+        
+        def delete(self):
+            self.uploadedFile.delete()
+            super(UploadedFiles, self).delete()
    
 #Dynamic Questions Stuff
 class DynamicQuestions(Questions):
