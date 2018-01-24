@@ -8,13 +8,12 @@
       $(document).ready(function(){
         $('.add_more').click(function(e){
           e.preventDefault();
-          $(fileupload1).after('<input id="fileupload1" name="actFile" type="file" multiple required/>');
+          $(fileupload1).after('<span style="padding-left: 10px;"> <input id="fileupload1" name="actFile" type="file" multiple required/>');
           document.getElementById('fileupload1').id = 'fileupload'
         });
       });
     </script>
  
-</head>
 <body>
 	<div id="page-wrapper">
 
