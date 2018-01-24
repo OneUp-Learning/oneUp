@@ -248,7 +248,8 @@ def challengeCreateView(request):
             
                           
             #if challenge.endTimestamp.strftime("%Y") < ("2900"): 
-            etime = datetime.strptime(str(challenge.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+            #etime = datetime.strptime(str(challenge.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+            etime = challenge.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
             print('etime ', etime)
             if etime != default_time_str: 
                 print('etime2 ', etime)   
@@ -258,7 +259,7 @@ def challengeCreateView(request):
             
             print(challenge.startTimestamp.strftime("%Y")) 
             if challenge.startTimestamp.strftime("%Y") < ("2900"):
-                context_dict['startTimestamp']= datetime.strptime(str(getattr(challenge, 'startTimestamp')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                context_dict['startTimestamp']= challenge.startTimestamp.strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['startTimestamp']=""
             

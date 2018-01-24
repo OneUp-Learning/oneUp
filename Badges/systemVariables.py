@@ -773,7 +773,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
             'functions':{
-                ObjectTypes.activity: getActivitiesCompleted
+                ObjectTypes.none: getActivitiesCompleted
             }
         },
         minActivityScore:{

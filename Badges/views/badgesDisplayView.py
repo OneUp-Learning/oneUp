@@ -6,20 +6,23 @@ Created on Nov 3, 2016
 
 from django.shortcuts import render
 
-from Badges.models import Badges, Courses
-from Students.models import Student, StudentRegisteredCourses
+from Badges.models import Badges
 from Students.views.utils import studentInitialContextDict
+from Badges.events import register_event
+from Badges.enums import Event
 
 from django.contrib.auth.decorators import login_required
 from notify.models import NotificationQueryset, Notification
-import this
+
 
 @login_required
 def BadgesDisplay(request):
  
     context_dict, currentCourse = studentInitialContextDict(request)
-    
-        
+ 
+    studentId = context_dict['student']
+    register_event(Event.visitedBadgesInfoPage, request, studentId, None)
+           
     badgeId = [] 
     badgeName = []
     badgeImage = []
