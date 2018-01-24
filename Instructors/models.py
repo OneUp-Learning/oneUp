@@ -305,6 +305,22 @@ class UploadedFiles(models.Model):
         def delete(self):
             self.uploadedFile.delete()
             super(UploadedFiles, self).delete()
+ 
+
+def activityUploadPath(instance,filename):
+        return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'Instructors/instructorActivityFiles'),filename)
+            
+class UploadedActivityFiles(models.Model):
+        activity = models.ForeignKey(Activities, verbose_name= 'the related activity')
+        activityFile = models.FileField(max_length=500,upload_to= activityUploadPath)
+        activityFileName = models.CharField(max_length=200, default='')
+        uploaded_at = models.DateTimeField(auto_now_add=True)
+        activityFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+        latest = models.BooleanField(default = True)
+        
+        def delete(self):
+            self.uploadedFile.delete()
+            super(UploadedFiles, self).delete()
    
 #Dynamic Questions Stuff
 class DynamicQuestions(Questions):
