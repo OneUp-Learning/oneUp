@@ -230,6 +230,9 @@ def ChallengeResults(request):
                                 question['user_points'] = sum([eval['value'] for eval in question['evaluations']])
                             else:
                                 question['user_points'] = 0
+                        else:
+                            studentAnswerList = []
+                            question['user_points'] = 0
                                         
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
