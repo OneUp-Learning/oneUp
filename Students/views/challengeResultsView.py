@@ -231,6 +231,7 @@ def ChallengeResults(request):
                             else:
                                 question['user_points'] = 0
                         else:
+                            studentAnswerList = []
                             question['user_points'] = 0
                                         
                     totalStudentScore += question['user_points']
