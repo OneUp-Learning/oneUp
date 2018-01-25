@@ -85,6 +85,12 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.visitedSpendedVCpage):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = 0
+    if(eventID == Event.visitedBadgesInfoPage):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
+    if(eventID == Event.visitedVCRulesInfoPage):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
                 
     # Virtual Currency Events
     if(eventID == Event.instructorHelp):

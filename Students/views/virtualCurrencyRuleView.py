@@ -7,7 +7,9 @@ Created on Nov 3, 2016
 from django.shortcuts import render
 
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments
-from Badges.enums import Action
+from Badges.events import register_event
+from Badges.enums import Event
+
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
 
@@ -15,7 +17,10 @@ from django.contrib.auth.decorators import login_required
 def VirtualCurrencyDisplay(request):
 
     context_dict,currentCourse = studentInitialContextDict(request)
-         
+    
+    studentId = context_dict['student']
+    register_event(Event.visitedVCRulesInfoPage, request, studentId, None)
+             
     vcEarningRuleID = [] 
     vcEarningRuleName = []
     vcEarningRuleDescription = []
