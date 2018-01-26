@@ -64,6 +64,20 @@
   		  }
   			console.log(e.date);
   		});
+   		{% if isFileUpload %}
+        $('.num_attempts').attr("disabled", false);
+        {% else %}
+        $('.num_attempts').attr("disabled", true);
+        {% endif %}
+        $('#file_upload').change(function(){
+           if(this.checked){
+             $('.num_attempts').attr("disabled", false);
+           }
+           else
+           {
+             $('.num_attempts').attr("disabled", true);
+           }
+        });
         
       });
     </script> 
@@ -155,19 +169,13 @@
                     	</td>
             		</tr>
             		<tr>
-                           <td>Allow Students to Upload Files <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td><input type= radio name='fileUpload' value='True' required checked="checked"> Yes</td>
-                        </tr>
-                        <tr>
-                           <td><input type= radio name='fileUpload' value='False' required > No</td>
+                           <td>Allow Students to Upload Files <span class = "red">*</span>        <input type='checkbox' name='fileUpload' id="file_upload" {% if isFileUpload %} checked {% endif %} /></td>
                         </tr>
                         <tr>
                            <td>Upload attempts<span class = "red">*</span></td>
                         </tr>
                         <td>
-                              <input id="extraSmallFormBox" type="number" name="attempts" maxlength="4" value="{{uploadAttempts}}" min="0" required >     
+                              <input id="extraSmallFormBox" type="number" name="attempts" class="num_attempts" maxlength="4" value="{{uploadAttempts}}" min="0" required >     
                          </td>
                         <tr>
                            <td>Instructor Notes </td>
