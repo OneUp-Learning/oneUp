@@ -52,17 +52,13 @@ def activityCreateView(request):
         activity.courseID = currentCourse; 
         if request.POST['fileUpload'] == 'True':
             activity.isFileAllowed = True
-            
-            #Set the number of attempts
-            if request.POST['attempts']:
-                print(request.POST['attempts'])
-                activity.uploadAttempts = request.POST['attempts']
         else:
             activity.isFileAllowed = False
-            activity.uploadAttempts = 0
             
-            
-        
+        #Set the number of attempts
+        if request.POST['attempts']:
+            print(request.POST['attempts'])
+            activity.uploadAttempts = request.POST['attempts']
             
         #Set the start date and end data to show the activity
         if(request.POST['startTime'] == ""):
@@ -127,9 +123,6 @@ def activityCreateView(request):
                 context_dict['activityID'] = request.GET['activityID']
                 for attr in string_attributes:
                     context_dict[attr]=getattr(activity,attr)
-                
-                context_dict['isFileAllowed']= activity.isFileAllowed
-
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
 #                 context_dict['startTimestamp']= activity.startTimestamp
