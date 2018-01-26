@@ -103,6 +103,7 @@
                                         <textarea style="border:solid 1px rgba(128, 128, 128, 0.5)" name="{{i}}-ans" rows="10" cols="90">
                                         </textarea>
                                         <script type="text/javascript">
+	                                        CKEDITOR.config.autoParagraph = false;
                                             // Replace the <textarea id="questionText"> with a CKEditor instance, using default configuration.
                                             CKEDITOR.replace("{{question.questionID}}");
                                         </script>
