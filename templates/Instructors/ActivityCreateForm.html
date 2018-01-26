@@ -14,17 +14,17 @@
                $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
              });
              {% if isFileUpload %}
-             $('#num_attempts').attr("disabled", true);
-             {% else %}
              $('#num_attempts').attr("disabled", false);
+             {% else %}
+             $('#num_attempts').attr("disabled", true);
              {% endif %}
              $('#file_upload').change(function(){
                 if(this.checked){
-                  $('#num_attempts').attr("disabled", true);
+                  $('#num_attempts').attr("disabled", false);
                 }
                 else
                 {
-                  $('#num_attempts').attr("disabled", false);
+                  $('#num_attempts').attr("disabled", true);
                 }
              });
          });

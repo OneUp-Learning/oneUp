@@ -40,7 +40,7 @@ def activityCreateView(request):
             activity.isFileAllowed = False
             
         #Set the number of attempts
-        if request.POST['attempts']:
+        if 'attempts' in request.POST:
             print(request.POST['attempts'])
             activity.uploadAttempts = request.POST['attempts']
             
