@@ -95,6 +95,27 @@
         });
       });
     </script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('.oldFiles').click(function(e){
+        	confirm("Are you sure you want to remove this file from the activity?");
+            e.currentTarget.style.display = "none";
+            var fileID = e.currentTarget.id;
+            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+            console.log(fileID);
+            
+            
+            $.post("activityRemoveFile",
+            	    {
+            	        fileID: fileID,
+            	        csrfmiddlewaretoken: csrftoken,
+            	    },
+            	    function(data, status){
+            	        console.log("Data: " + data + "\nStatus: " + status);
+            	    });
+            	});
+            });
+    </script>
    </head>
    
    <body>
@@ -186,9 +207,19 @@
                               <textarea id="mediumFormBox" name="instructorNotes" rows="3">{{instructorNotes}}</textarea>
                            </td>
                         </tr>
+                        
                         <tr>
                         	<td>Files</td>
                         </tr>
+                        
+                        	{% for file in activityFiles %}
+                        	<tr>
+                        		<td style="padding-left: 30px;" class="oldFiles" id="{{ file.ID }}">
+                        		{{file.activityFileName}} 
+                        		<span style="color:red;"><a href="#"> &#10008</a></span>
+                        		</td>
+                        	</tr>
+                        	{% endfor %}                        
                         <tr>
 	                  		<td>
 	                    		 <input id="fileupload1" name="actFile" type="file" multiple/>   

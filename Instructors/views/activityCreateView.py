@@ -5,6 +5,7 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from Instructors.models import Activities, Courses, UploadedActivityFiles
 from Instructors.views.activityListView import createContextForActivityList
 from Instructors.views.utils import utcDate
@@ -13,6 +14,7 @@ from time import time
 from datetime import datetime
 import filecmp
 from lib2to3.fixer_util import String
+from ckeditor_uploader.views import upload
 
 @login_required
 def activityCreateView(request):
@@ -139,7 +141,13 @@ def activityCreateView(request):
                     context_dict['startTimestamp']= datetime.strptime(str(getattr(activity, 'startTimestamp')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
                 else:
                     context_dict['startTimestamp']=""
-
+                    
+                
+                activityFiles =UploadedActivityFiles.objects.filter(activity=activity, latest=True)
+                if(activityFiles):
+                    context_dict['activityFiles'] = activityFiles
+                else:
+                    print('No activity files found')
 
     return render(request,'Instructors/ActivityCreateForm.html', context_dict)
 
@@ -165,3 +173,26 @@ def makeFilesObjects(instructorID, files, activity):
         actFile.activityFileName = files[i].name
         actFile.activityFileCreator = instructorID
         actFile.save()
+        
+def removeFileFromActivty(request):
+    if request.user.is_authenticated():
+        print('IS A USER')
+    else:
+        return HttpResponse(403)
+    
+    if request.POST:
+        if 'fileID' in request.POST:
+            fID = request.POST['fileID']
+            currentFile = UploadedActivityFiles.objects.get(ID=fID)
+            currentFile.activityFile.delete()
+            currentFile.delete()
+            print('File deleted')
+            return HttpResponse(200)
+        
+    return HttpResponse(403, 'something went wrong')        
+        
+        
+        
+        
+        
+        
