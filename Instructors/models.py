@@ -213,7 +213,7 @@ class Activities(models.Model):
     points =  models.IntegerField(default=0)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)
-    uploadAttempts = models.IntegerField(default=1)
+    uploadAttempts = models.IntegerField(default=0)
     instructorNotes = models.CharField(max_length=300, default="")
     author = models.CharField(max_length=100) 
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
@@ -301,6 +301,26 @@ class UploadedFiles(models.Model):
         uploadedFileName = models.CharField(max_length=200, default='')
         uploaded_at = models.DateTimeField(auto_now_add=True)
         uploadedFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+        
+        def delete(self):
+            self.uploadedFile.delete()
+            super(UploadedFiles, self).delete()
+ 
+
+def activityUploadPath(instance,filename):
+        return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'Instructors/instructorActivityFiles'),filename)
+            
+class UploadedActivityFiles(models.Model):
+        ID = models.AutoField(primary_key=True)
+        activity = models.ForeignKey(Activities, verbose_name= 'the related activity')
+        activityFile = models.FileField(max_length=500,upload_to= activityUploadPath)
+        activityFileName = models.CharField(max_length=200, default='')
+        uploaded_at = models.DateTimeField(auto_now_add=True)
+        activityFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+        latest = models.BooleanField(default = True)
+        
+        def delete(self):
+            super(UploadedActivityFiles, self).delete()
    
 #Dynamic Questions Stuff
 class DynamicQuestions(Questions):

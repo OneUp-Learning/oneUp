@@ -8,13 +8,12 @@
       $(document).ready(function(){
         $('.add_more').click(function(e){
           e.preventDefault();
-          $(fileupload1).after('<input id="fileupload1" name="actFile" type="file" multiple required/>');
+          $(fileupload1).after('<span style="padding-left: 10px;"> <input id="fileupload1" name="actFile" type="file" multiple required/>');
           document.getElementById('fileupload1').id = 'fileupload'
         });
       });
     </script>
  
-</head>
 <body>
 	<div id="page-wrapper">
 
@@ -69,12 +68,32 @@
                   <td><b>Instructors Notes: </b></td> 			
    			   </tr>
    			   <tr>
-                  <td> {{activity.instructorFeedback}} </td> 			
+                  <td><span style="padding-left: 10px;">  {{activity.instructorFeedback}} </td> 			
    			   </tr>
-                <tr>
-                
-                
-                
+   			   
+   			   
+   			   {% if instructorHasFiles == True%}
+   			   <tr>
+   			   		<td><b>Activity Files</b></td>
+   			   </tr>
+   			   
+   			   	  
+   			   
+	   			   <tr>
+	   			     <td>
+	   			     {% for instructorFile in instructorActFiles %}
+	   			     	<span style="padding-left: 10px;">
+	   			     	<a href='../../media/Instructors/instructorActivityFiles/{{instructorFile}}' download>{{instructorFile}}</a>
+	   			     {% endfor %}
+	   			     </td>
+	   			   
+	   			   </tr>
+	   			   
+   			   
+   			   {% endif %}
+   			   
+   			   
+                <tr>    
                 {% if canUpload == True%}
 	                  <td><b>Upload {{activity.activityID.activityName}}:</b></td> 			
 	   			   </tr>
