@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 
 from Instructors.views.activityAssignPointsView import assignedPointsList, activityAssignPointsView
-from Instructors.views.activityCreateView import activityCreateView
+from Instructors.views.activityCreateView import activityCreateView, removeFileFromActivty
 from Instructors.views.activityListView import activityList
 from Instructors.views.announcementCreateView import announcementCreateView
 from Instructors.views.announcementListView import announcementList
@@ -74,6 +74,7 @@ admin.autodiscover()
 
 urlpatterns = [
     
+    url(r'^activityRemoveFile', removeFileFromActivty, name='removeFileFromActivty'),
     url(r'^activityAssignPointsForm', assignedPointsList, name='activityAssignPointsForm'),
     url(r'^activityAssignPoints', activityAssignPointsView, name='activityAssignPoints'),
     url(r'^activitiesList',activityList, name='activityList'),

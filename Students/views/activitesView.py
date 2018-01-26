@@ -38,7 +38,8 @@ def ActivityList(request):
         studentId = context_dict['student'] #get student
         
         #Displaying the list of challenges from database        
-        activities = Activities.objects.filter(courseID=currentCourse)        
+        activities = Activities.objects.filter(courseID=currentCourse)  
+        print(len(activities))      
         
         #make the student activities
         for act in activities:
@@ -54,8 +55,10 @@ def ActivityList(request):
             # get the activity record for this student
             try:
                 currentActivity =  StudentActivities.objects.get(studentID = studentId, activityID=act)
+                print('Made an ACT')
             except ObjectDoesNotExist:
-                currentActivity = None 
+                currentActivity = None
+                print('Not ACT') 
                  
             if(currentActivity): #if we got the student activity add it to the list
                 studentActivities.append(currentActivity)
