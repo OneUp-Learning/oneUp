@@ -213,7 +213,7 @@ class Activities(models.Model):
     points =  models.IntegerField(default=0)
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)
-    uploadAttempts = models.IntegerField(default=1)
+    uploadAttempts = models.IntegerField(default=0)
     instructorNotes = models.CharField(max_length=300, default="")
     author = models.CharField(max_length=100) 
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)

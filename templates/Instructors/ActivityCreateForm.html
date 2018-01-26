@@ -115,6 +115,11 @@
             	    });
             	});
             });
+    
+    function changeUploadAttempts(){
+        document.getElementsByClassName("upAttempts")[0].value = 0;
+
+    }
     </script>
    </head>
    
@@ -187,17 +192,27 @@
             		<tr>
                            <td>Allow Students to Upload Files <span class = "red">*</span></td>
                         </tr>
-                        <tr>
-                           <td><input type= radio name='fileUpload' value='True' required checked="checked"> Yes</td>
-                        </tr>
-                        <tr>
-                           <td><input type= radio name='fileUpload' value='False' required > No</td>
-                        </tr>
+                        {% if isFileAllowed %}
+	                        <tr>
+	                           <td><input type= radio name='fileUpload' value='True' required checked="checked"> Yes</td>
+	                        </tr>
+	                        <tr>
+	                           <td><input type= radio name='fileUpload' value='False' required  onclick="changeUploadAttempts()"> No</td>
+	                        </tr>
+                        {% else %}
+	                        <tr>
+	                           <td><input type= radio name='fileUpload' value='True' required> Yes</td>
+	                        </tr>
+	                        <tr>
+	                           <td><input type= radio name='fileUpload' value='False' checked="checked" required  onclick="changeUploadAttempts()"> No</td>
+	                        </tr>
+                        
+                        {% endif %}
                         <tr>
                            <td>Upload attempts<span class = "red">*</span></td>
                         </tr>
                         <td>
-                              <input id="extraSmallFormBox" type="number" name="attempts" maxlength="4" value="{{uploadAttempts}}" min="0" required >     
+                              <input id="extraSmallFormBox" class="upAttempts" type="number" name="attempts" maxlength="4" value="{{uploadAttempts}}" min="0" >     
                          </td>
                         <tr>
                            <td>Instructor Notes </td>
