@@ -27,7 +27,7 @@ with open('/var/www/wsgi-projects/oneUp/oneUp/secret.key') as f:
     SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 CACHES = {
     'default': {
