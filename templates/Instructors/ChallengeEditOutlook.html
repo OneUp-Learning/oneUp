@@ -260,7 +260,7 @@
 		<tr> 
 			<div id="question{{i}}">
 				<th> {{i}}. {{question.questionText|safe}}</th><th></th></tr>									
-				<th> point: {{question.point|safe}}</th>	
+				<th> Total points: {{question.point|safe}}</th>	
 							{% if question.typeID == '1' %}
 							<!-- multiple choice question -->
 							{% for count,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in radio buttons -->						
