@@ -86,6 +86,36 @@
              
          }
       </script>
+   <script>
+      $(document).ready(function(){
+        $('.add_more').click(function(e){
+          e.preventDefault();
+          $(fileupload1).after('<span style="padding-left: 10px;"> <input id="fileupload1" name="actFile" type="file" multiple required/>');
+          document.getElementById('fileupload1').id = 'fileupload'
+        });
+      });
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('.oldFiles').click(function(e){
+        	confirm("Are you sure you want to remove this file from the activity?");
+            e.currentTarget.style.display = "none";
+            var fileID = e.currentTarget.id;
+            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+            console.log(fileID);
+            
+            
+            $.post("activityRemoveFile",
+            	    {
+            	        fileID: fileID,
+            	        csrfmiddlewaretoken: csrftoken,
+            	    },
+            	    function(data, status){
+            	        console.log("Data: " + data + "\nStatus: " + status);
+            	    });
+            	});
+            });
+    </script>
    </head>
    
    <body>
@@ -101,7 +131,7 @@
                <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
                <div>
 <!-- INSERTED PAGE CONTENT -->
-			<form name="question" action="/oneUp/instructors/createActivity" method="POST">
+			<form name="question" action="/oneUp/instructors/createActivity" enctype="multipart/form-data" method="POST">
                {% csrf_token %}
                {% if activityID %}
               		<input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
@@ -137,9 +167,9 @@
         			</tr>
         			<tr>
                     	<td>
-                    		Display From:<div id="datetimepicker2" class="input-append">
+                    		Display From:<span class = "red">*</span> <div id="datetimepicker2" class="input-append">
 
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
+                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}" required></input>
 
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
@@ -157,17 +187,17 @@
             		<tr>
                            <td>Allow Students to Upload Files <span class = "red">*</span></td>
                         </tr>
-                        <tr>
-                           <td><input type= radio name='fileUpload' value='True' required checked="checked"> Yes</td>
-                        </tr>
-                        <tr>
-                           <td><input type= radio name='fileUpload' value='False' required > No</td>
-                        </tr>
+	                        <tr>
+	                           <td><input type= radio name='fileUpload' value='True' required checked="checked"> Yes</td>
+	                        </tr>
+	                        <tr>
+	                           <td><input type= radio name='fileUpload' value='False' required  onclick="changeUploadAttempts()"> No</td>
+	                        </tr>
                         <tr>
                            <td>Upload attempts<span class = "red">*</span></td>
                         </tr>
                         <td>
-                              <input id="extraSmallFormBox" type="number" name="attempts" maxlength="4" value="{{uploadAttempts}}" min="0" required >     
+                              <input id="extraSmallFormBox" class="upAttempts" type="number" name="attempts" maxlength="4" value="{{uploadAttempts}}" min="0" >     
                          </td>
                         <tr>
                            <td>Instructor Notes </td>
@@ -177,7 +207,27 @@
                               <textarea id="mediumFormBox" name="instructorNotes" rows="3">{{instructorNotes}}</textarea>
                            </td>
                         </tr>
+                        
+                        <tr>
+                        	<td>Files</td>
+                        </tr>
+                        
+                        	{% for file in activityFiles %}
+                        	<tr>
+                        		<td style="padding-left: 30px;" class="oldFiles" id="{{ file.ID }}">
+                        		{{file.activityFileName}} 
+                        		<span style="color:red;"><a href="#"> &#10008</a></span>
+                        		</td>
+                        	</tr>
+                        	{% endfor %}                        
+                        <tr>
+	                  		<td>
+	                    		 <input id="fileupload1" name="actFile" type="file" multiple/>   
+	                  		</td>
+	               		</tr>
+                        
                      </table>
+                     <button type='button' class="add_more">Add More Files</button>
                      <input type="submit" name="submit" value="Submit" class="button">
                      <a href="/oneUp/instructors/activitiesList"><button type="button" class="button special" value="Reset">Cancel</button></a>
                   </form>

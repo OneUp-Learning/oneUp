@@ -5,12 +5,17 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Activities, Courses
+from django.http import HttpResponse
+from Instructors.models import Activities, Courses, UploadedActivityFiles
 from Instructors.views.activityListView import createContextForActivityList
 from Instructors.views.utils import utcDate
 from Instructors.constants import unspecified_topic_name, default_time_str
 from time import time
 from datetime import datetime
+import filecmp
+from lib2to3.fixer_util import String
+from ckeditor_uploader.views import upload
+
 @login_required
 def activityCreateView(request):
     # Request the context of the request.
@@ -79,6 +84,21 @@ def activityCreateView(request):
             activity.author = ""
 
         activity.save();  #Writes to database.
+        
+        
+        
+        print('Starting Files' + str(len(request.FILES)))
+        #Check to see if there are any files that need to be handled and linked to activity
+        if len(request.FILES) != 0:
+            print('In the file section')
+            files =  request.FILES.getlist('actFile')
+            makeFilesObjects(request.user, files, activity)
+            
+        print('End Files')
+
+                
+        
+        
          
         # prepare context for Activity List      
         context_dict = createContextForActivityList(request) 
@@ -121,6 +141,58 @@ def activityCreateView(request):
                     context_dict['startTimestamp']= datetime.strptime(str(getattr(activity, 'startTimestamp')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
                 else:
                     context_dict['startTimestamp']=""
-
+                    
+                
+                activityFiles =UploadedActivityFiles.objects.filter(activity=activity, latest=True)
+                if(activityFiles):
+                    context_dict['activityFiles'] = activityFiles
+                else:
+                    print('No activity files found')
 
     return render(request,'Instructors/ActivityCreateForm.html', context_dict)
+
+def makeFilesObjects(instructorID, files, activity):
+    
+    #Get the old files and see if any of the new files match it
+    oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
+#     for oldFile in oldActFile:
+#         for newFile in files:
+#             if filecmp(oldFile, newFile):
+#                 files.remove(newFile)
+#             else
+#             
+#         
+#         f.latest = False
+#         f.save()
+
+    for i in range(0, len(files)): #make student files so we can save files to hardrive
+        print('Makeing file object' + str(files[i].name))
+        actFile = UploadedActivityFiles()
+        actFile.activity = activity
+        actFile.activityFile = files[i]
+        actFile.activityFileName = files[i].name
+        actFile.activityFileCreator = instructorID
+        actFile.save()
+        
+def removeFileFromActivty(request):
+    if request.user.is_authenticated():
+        print('IS A USER')
+    else:
+        return HttpResponse(403)
+    
+    if request.POST:
+        if 'fileID' in request.POST:
+            fID = request.POST['fileID']
+            currentFile = UploadedActivityFiles.objects.get(ID=fID)
+            currentFile.activityFile.delete()
+            currentFile.delete()
+            print('File deleted')
+            return HttpResponse(200)
+        
+    return HttpResponse(403, 'something went wrong')        
+        
+        
+        
+        
+        
+        

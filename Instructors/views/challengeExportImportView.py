@@ -15,6 +15,7 @@ from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
 import os
 from django.contrib.auth.decorators import login_required
+from oneUp.settings import MEDIA_ROOT
 
 
 
@@ -277,7 +278,7 @@ def uploadChallenges(request):
         print(uploadedFileName)
         
         upfile = UploadedFiles() 
-        upfile.uploadedFile = challengesFile        
+        upfile.uploadedFile = challengesFile     
         upfile.uploadedFileName = uploadedFileName
         upfile.uploadedFileCreator = request.user
         upfile.save()
@@ -288,6 +289,8 @@ def uploadChallenges(request):
         importChallenges(upfile.uploadedFile.name, currentCourse)
         
         # TO DO:  After importing the challenges in the database, perhaps we need to delete the user's file
+        upfile.delete()
+        print('File gone')
 
         return redirect('/oneUp/instructors/instructorCourseHome') 
     
