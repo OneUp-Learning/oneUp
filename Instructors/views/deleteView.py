@@ -125,7 +125,7 @@ def deleteChallenge(request):
                     #If the count is equal to one (meaning that is only associate with the challenge that we want to delete)
                     #Then we want to save the question at Unassign Question challenge
                     if num_challenges == 1:
-                        ChallengesQuestions.addQuestionToChallenge(qId, cID,qPoint)
+                        ChallengesQuestions.addQuestionToChallenge(qId, cID,qPoint,0)
 
                 #Now that we check the question associate with this challenge, we can delete it
                 challenge.delete()
