@@ -185,13 +185,13 @@ def challengeCreateView(request):
                 context_dict['unlimitedTime']=False 
             
 
-            startTime = datetime.strptime(str(challenge.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+            startTime = challenge.startTimestamp.strftime("%m/%d/%Y %I:%M %p")
             if startTime != default_time_str:
                 context_dict['startTimestamp']= startTime
             else:
                 context_dict['startTimestamp']= ""
 
-            endTime = datetime.strptime(str(challenge.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+            endTime = challenge.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
             if endTime != default_time_str: 
                 context_dict['endTimestamp']= endTime
             else:
