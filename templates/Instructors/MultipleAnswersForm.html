@@ -42,6 +42,7 @@
 		 var previous = document.getElementById("ans"+(numAnswers-1));
 		 previous.insertAdjacentHTML('afterEnd',newElement);
 		 
+		 CKEDITOR.config.autoParagraph = false;
 	     CKEDITOR.replace(name);
           
       }
@@ -112,6 +113,7 @@
                            </td>
                            <script type="text/javascript" >
                 				// Replace the <textarea id="questionText"> with a CKEditor instance, using default configuration.
+                				CKEDITOR.config.autoParagraph = false;
                 				CKEDITOR.replace( 'questionText' );
             				</script>                        	
                            
@@ -128,6 +130,7 @@
 			     				<textarea style="border: solid 1px rgba(128, 128, 128, 0.5); resize:none" name="answer{{i}}" rows="2" cols="70">{{ansValue}}</textarea>
 	                           		<script type="text/javascript" >
 	                					// Replace the <textarea id="answer{{i}}"> with a CKEditor instance, using default configuration.
+	                					CKEDITOR.config.autoParagraph = false;
 	                					CKEDITOR.replace( 'answer{{i}}' );
 	            					</script>                        	
 			    			    
