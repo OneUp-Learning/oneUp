@@ -33,7 +33,9 @@
       $(document).ready(function(){
         $('.add_more').click(function(e){
           e.preventDefault();
-          $(fileupload1).after('<span style="padding-left: 10px;"> <input id="fileupload1" name="actFile" type="file" multiple required/>');
+          $(fileupload1).after('<div id="fileupload1" class="file-field input-field">\n'+
+          '<div class="btn">\n'+'<span>File</span>\n'+'<input name="actFile" type="file" multiple required/>\n'+'</div>\n'+
+          '<div class="file-path-wrapper">\n'+'<input class="file-path validate" type="text" placeholder="Upload one or mote files"/>\n'+'</div>\n'+'</div>')
           document.getElementById('fileupload1').id = 'fileupload'
         });
       });
@@ -41,23 +43,24 @@
     <script type="text/javascript">
     $(document).ready(function(){
         $('.oldFiles').click(function(e){
-        	confirm("Are you sure you want to remove this file from the activity?");
-            e.currentTarget.style.display = "none";
-            var fileID = e.currentTarget.id;
-            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-            console.log(fileID);
-            
-            
-            $.post("activityRemoveFile",
-            	    {
-            	        fileID: fileID,
-            	        csrfmiddlewaretoken: csrftoken,
-            	    },
-            	    function(data, status){
-            	        console.log("Data: " + data + "\nStatus: " + status);
-            	    });
-            	});
-            });
+        	if(confirm("Are you sure you want to remove this file from the activity?")){
+              e.currentTarget.style.display = "none";
+              var fileID = e.currentTarget.id;
+              var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+              console.log(fileID);
+              
+              
+              $.post("activityRemoveFile",
+                    {
+                        fileID: fileID,
+                        csrfmiddlewaretoken: csrftoken,
+                    },
+                    function(data, status){
+                        console.log("Data: " + data + "\nStatus: " + status);
+                    });
+          }
+        });
+    });
     </script>
    </head>
    <body>
@@ -71,7 +74,7 @@
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
-               <form name="question" action="/oneUp/instructors/createActivity" method="POST">
+               <form name="question" enctype="multipart/form-data" action="/oneUp/instructors/createActivity" method="POST">
                   {% csrf_token %}
                   {% if activityID %}
                   <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
@@ -124,8 +127,36 @@
                               <label for="instructor_notes">Instructor Notes</label>
                            </div>
                         </div>
+                        <div class="row">
+                          <div class="col s12">
+                            <p>Files</p>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col s12">
+                            <blockquote>
+                            {% for file in activityFiles %}
+                            <a class="oldFiles" id="{{file.ID}}" href="#!" >{{file.activityFileName}}<i class="left material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Remove">close</i></a>
+                            {% endfor %}
+                            </blockquote>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col s12">
+                            <div id="fileupload1" class="file-field input-field">
+                              <div class="btn">
+                                 <span>File</span>
+                                 <input name="actFile" type="file" multiple required>
+                              </div>
+                              <div class="file-path-wrapper">
+                                 <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                              </div>
+                           </div>
+                          </div>
+                        </div>
                      </div>
                      <div class="card-action right-align">
+                        <a class="btn waves-effect waves-light add_more">Add More Files</a> 
                         <button class="btn waves-effect waves-light" type="submit" name="submit">Submit
                         <i class="material-icons right">send</i>
                         </button>
