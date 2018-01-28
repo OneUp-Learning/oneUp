@@ -15,6 +15,7 @@ from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
 import os
 from django.contrib.auth.decorators import login_required
+from oneUp.settings import MEDIA_ROOT
 
 
 
@@ -277,7 +278,7 @@ def uploadChallenges(request):
         print(uploadedFileName)
         
         upfile = UploadedFiles() 
-        upfile.uploadedFile = challengesFile        
+        upfile.uploadedFile = challengesFile     
         upfile.uploadedFileName = uploadedFileName
         upfile.uploadedFileCreator = request.user
         upfile.save()
@@ -288,6 +289,8 @@ def uploadChallenges(request):
         importChallenges(upfile.uploadedFile.name, currentCourse)
         
         # TO DO:  After importing the challenges in the database, perhaps we need to delete the user's file
+        upfile.delete()
+        print('File gone')
 
         return redirect('/oneUp/instructors/instructorCourseHome') 
     
@@ -312,52 +315,58 @@ def importChallenges(uploadedFileName, currentCourse):
     # get all Challenge Nodes; root[0] is the element Challenges
     for el_challenge in root[0]:
         
-        # Handle the challenge element information
-        # Create new challenge
-        challenge = Challenges()  
-                       
-        # Set the attributes to database object
-        challenge.challengeName = el_challenge.find('challengeName').text
-        challenge.courseID = currentCourse
-        challenge.isGraded = str2bool(el_challenge.find('isGraded').text)
-        challenge.numberAttempts = int(el_challenge.find('numberAttempts').text)
-        challenge.timeLimit = int(el_challenge.find('timeLimit').text)
-        challenge.displayCorrectAnswer = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswer', 'feedbackOption1').text)
-        challenge.displayCorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswerFeedback', 'feedbackOption2').text)
-        challenge.displayIncorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
-        challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
-        challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
-        if not challenge.challengeDifficulty:
-            challenge.challengeDifficulty = 'Easy'
+        # We need to process differently the challenge "Unassigned Problems", since we don't want to create a new one for the course in which we are importing
+       
+        if el_challenge.find('challengeName').text == 'Unassigned Problems':
+            # get this course's unassigned problems topic           
+            challenge = Challenges.objects.get(courseID=currentCourse, challengeName='Unassigned Problems')
+            
+        else:    
+            # Handle the challenge element information
+            # Create new challenge
+            challenge = Challenges()  
+                           
+            # Set the attributes to database object
+            challenge.challengeName = el_challenge.find('challengeName').text
+            challenge.courseID = currentCourse
+            challenge.isGraded = str2bool(el_challenge.find('isGraded').text)
+            challenge.numberAttempts = int(el_challenge.find('numberAttempts').text)
+            challenge.timeLimit = int(el_challenge.find('timeLimit').text)
+            challenge.displayCorrectAnswer = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswer', 'feedbackOption1').text)
+            challenge.displayCorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswerFeedback', 'feedbackOption2').text)
+            challenge.displayIncorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
+            challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
+            challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
+            if not challenge.challengeDifficulty:
+                challenge.challengeDifficulty = 'Easy'
+            
+            pssd = el_challenge.find('challengePassword') # Empty string represents no password required.
+            if pssd:
+                challenge.challengePassword = pssd.text
+            else:
+                challenge.challengePassword = ''
+    
+            challenge.save()
         
-        pssd = el_challenge.find('challengePassword') # Empty string represents no password required.
-        if pssd:
-            challenge.challengePassword = pssd.text
-        else:
-            challenge.challengePassword = ''
-
-        challenge.save()
-        
-        # Get Challenge Topics
-        # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB             
-
-        el_challengeTopics = el_challenge.find('ChallengeTopics') 
-        if not el_challengeTopics is None: 
-            for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'):
-                challengeTopic = ChallengesTopics()
-                
-                # We have to search for the topic name in CourseTopics 
-                topicName=el_challengeTopic.find('topicName').text
-                courseTopics = CoursesTopics.objects.filter(courseID=currentCourse, topicID__topicName=topicName)
-                if courseTopics:
-                    challengeTopic.topicID = courseTopics[0].topicID
-                else:
-                    # there is no topic with this name for this course, add the challenge to the course Unspecified topic
-                    unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
-                    challengeTopic.topicID = unspecified_topic
+            # Get Challenge Topics
+            # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB                
+            el_challengeTopics = el_challenge.find('ChallengeTopics') 
+            if not el_challengeTopics is None: 
+                for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'):
+                    challengeTopic = ChallengesTopics()
                     
-                challengeTopic.challengeID = challenge
-                challengeTopic.save()                
+                    # We have to search for the topic name in CourseTopics 
+                    topicName=el_challengeTopic.find('topicName').text
+                    courseTopics = CoursesTopics.objects.filter(courseID=currentCourse, topicID__topicName=topicName)
+                    if courseTopics:
+                        challengeTopic.topicID = courseTopics[0].topicID
+                    else:
+                        # there is no topic with this name for this course, add the challenge to the course Unspecified topic
+                        unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
+                        challengeTopic.topicID = unspecified_topic
+                        
+                    challengeTopic.challengeID = challenge
+                    challengeTopic.save()                
                 
         # Get all ChallengeQuestions
         el_challengeQuestions = el_challenge.find('ChallengeQuestions')        

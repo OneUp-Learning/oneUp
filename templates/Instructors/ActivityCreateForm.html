@@ -29,6 +29,36 @@
              });
          });
       </script>
+   <script>
+      $(document).ready(function(){
+        $('.add_more').click(function(e){
+          e.preventDefault();
+          $(fileupload1).after('<span style="padding-left: 10px;"> <input id="fileupload1" name="actFile" type="file" multiple required/>');
+          document.getElementById('fileupload1').id = 'fileupload'
+        });
+      });
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('.oldFiles').click(function(e){
+        	confirm("Are you sure you want to remove this file from the activity?");
+            e.currentTarget.style.display = "none";
+            var fileID = e.currentTarget.id;
+            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+            console.log(fileID);
+            
+            
+            $.post("activityRemoveFile",
+            	    {
+            	        fileID: fileID,
+            	        csrfmiddlewaretoken: csrftoken,
+            	    },
+            	    function(data, status){
+            	        console.log("Data: " + data + "\nStatus: " + status);
+            	    });
+            	});
+            });
+    </script>
    </head>
    <body>
       {% include 'heading.html' %}

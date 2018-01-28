@@ -1,13 +1,14 @@
 '''
 Created on Apr 11, 2014
 Modified on 08/15/2017
+Modified on 26/01/2018
 
 '''
 
 from django.shortcuts import render
 
 from Instructors.models import Questions, ResourceTags, QuestionsSkills
-from Instructors.models import ChallengesQuestions, Challenges
+from Instructors.models import ChallengesQuestions, ChallengesTopics, Challenges
 from Instructors.views.utils import initialContextDict
 from Badges.enums import QuestionTypes
 
@@ -17,11 +18,13 @@ import json
 
 logger = logging.getLogger(__name__)
 
+
 @login_required
 def searchResults(request, context_dict):
         
     qTags = [] 
-    selectedTags = []   
+    selectedTags = []  
+    selectedTopics = [] 
     selectedTypes = []
     selectedDifficulties = []
     selectedChallenges = []
@@ -29,7 +32,9 @@ def searchResults(request, context_dict):
     num_found_questions = 0   
     logger.debug(request.POST)
     print(request.POST.getlist('type'))
-    if request.method == 'POST':        
+    if request.method == 'POST':   
+        if 'topic' in request.POST:
+            selectedTopics = [ctopic for ctopic in request.POST.getlist('topic')]  
         if 'type' in request.POST:
             # get the list of all checked problem types
             selectedTypes = [qtype for qtype in request.POST.getlist('type')]
@@ -52,28 +57,43 @@ def searchResults(request, context_dict):
         q_object_skills = []
         q_object_tags = []
         q_object_difficulty = []
-        q_object_challenge = []
+        q_object_challenge = []           
         
-        questions = Questions.objects.all()
+        #Checking for topics
+        if selectedTopics:
+            #get all challenges for these topics and all their questions
+            for topic in selectedTopics: 
+                topicChallenges = []              
+                t_challs = ChallengesTopics.objects.filter(topicID=int(topic)) # get all challenges for this topic
 
-        #Checking for challenges
-        if selectedChallenges:
-            
-            for question in questions:
-                q_challenge_db = ChallengesQuestions.objects.filter(questionID = question, challengeID=int(selectedChallenges))
-                #q_challegenames_db = [qc.challengeID.challengeName for qc in q_challenge_db]  
-                              
-                # Check if the intersection of the two sets of challenge names for this question is not empty
-                # We want to return the question if it appears in any of the selected challenges
- 
-                #if set(selectedChallenges).intersection(set(q_challegenames_db)):
-                #if not set(selectedChallenges).isdisjoint(q_challegenames_db):                
-                if q_challenge_db.exists():
-                    q_object_challenge.append(question)
-                      
-        else:
-            q_object_challenge = questions
-                        
+                for chall in t_challs:
+                    if chall.challengeID.courseID == currentCourse:
+                        topicChallenges.append(chall.challengeID.challengeID)
+
+                # get the questions for this challenge
+                for challenge in topicChallenges:
+                    #get all problems for challenge
+                    chall_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
+
+                    for chall_question in chall_questions:
+                        if chall_question.questionID not in q_object_challenge:
+                            q_object_challenge.append(chall_question.questionID)
+
+
+        # If neither challenges or topics are selected, take all challenges
+        if not selectedChallenges and not selectedTopics:
+            courseChallenges = Challenges.objects. filter(courseID=currentCourse) # get all challenges for this course
+            for chall in courseChallenges:
+                selectedChallenges.append(chall.challengeID)
+   
+        for challenge in selectedChallenges:
+            #get all problems
+            chall_questions = ChallengesQuestions.objects.filter(challengeID=int(challenge))
+            for chall_question in chall_questions:
+                if chall_question.questionID not in q_object_challenge:
+                    q_object_challenge.append(chall_question.questionID)
+        
+        print(q_object_challenge)                    
         #Checking for skills
         if selectedSkills:
             # Find the skills to which this question is related
@@ -86,7 +106,6 @@ def searchResults(request, context_dict):
                     q_object_skills.append(question)                   
         else:
             q_object_skills = q_object_challenge
-
         
         # Filtering on question type
         if selectedTypes:
@@ -133,6 +152,7 @@ def searchResults(request, context_dict):
             q_type_displayName.append(QuestionTypes.questionTypes[qtype]['displayName'])
 
             q_difficulty.append(question.difficulty)
+
             q_challengeId.append((ChallengesQuestions.objects.filter(questionID = question.questionID)[:1].get()).challengeID.challengeID)            
             num_found_questions = num_found_questions + 1 
 

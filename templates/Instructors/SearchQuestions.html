@@ -30,6 +30,23 @@
 					<input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
 		  		{% endif %}
   				<table class="bg">
+
+        			<tr>
+            			<th>Course Topics</th>
+        			</tr>
+        			<tr>
+                	<td> 				
+ 	    			{% for i,ctopicID,ctopicName in topic_range %}
+	    				<div id="ctopic{{i}}">      
+	     					<input type="checkbox" name="selectedTopic" value="{{ctopicID}}">
+		     				{{ctopicName}}<br>
+	      					<input type="hidden" name="ctopicID{{i}}" value="{{ctopicID}}">
+						</div>
+	    			{% endfor %}
+ 
+ 					</td>
+					</tr> 
+
         			<tr>
             			<th>Problem Types</th>
         			</tr>
@@ -84,11 +101,11 @@
         			</tr>
         			<tr>
                 		<td> 				
-	    			{% for i,qchallenge in challenge_range %}
-	    				<div id="qchallenge{{i}}">	      
-	     					<input type="checkbox" name="selectedChallenge" value="{{qchallenge}}" >
-		     				{{qchallenge}} <br>
-	      					<input type="hidden" name="qchallenge{{i}}" value="{{qchallenge}}">
+	    			{% for i,qchallengeName,qchallengeID in challenge_range %}
+	    				<div id="qchallengeID{{i}}">	      
+	     					<input type="checkbox" name="selectedChallenges" value="{{qchallengeID}}" >
+		     				{{qchallengeName}} <br>
+	      					<input type="hidden" name="qchallengeID{{i}}" value="{qchallengeID}">
 	    				</div>
 	    			{% endfor %}
 	    			<tr>

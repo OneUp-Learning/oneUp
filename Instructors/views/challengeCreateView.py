@@ -262,6 +262,8 @@ def challengeCreateView(request):
                     canswer_range = range(1,len(correct_answers)+1)
                     questdict['correct_answers'] = list(zip(canswer_range,correct_answers))
                     
+                    question_point = ChallengesQuestions.objects.get(challengeID=challengeId, questionID=q)
+                    questdict['point'] = question_point.points
                     
                     #getting the matching questions of the challenge from database
                     matchlist = []

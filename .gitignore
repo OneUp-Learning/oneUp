@@ -32,6 +32,7 @@ media/images/uploadedInstructorImages/*
 media/images/uploadedAvatarImages/*
 media/lua/uploadedLuaLibs/*
 media/textfiles/xmlfiles/*
+media/Instructors/instructorActivityFiles/*
 
 # Deployment stuff which shouldn't be checked in
 oneUp/secret.key

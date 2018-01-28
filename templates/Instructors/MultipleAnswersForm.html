@@ -61,7 +61,7 @@
            var node = document.createTextNode(newElement);
            var previous = document.getElementById("ans"+(numAnswers-1));
            previous.insertAdjacentHTML('afterEnd',newElement);
-           
+           CKEDITOR.config.autoParagraph = false;
            CKEDITOR.replace(name);
          }
          
@@ -130,8 +130,9 @@
                            <div class="col s12">
                               <label for="question_text"><span class= "red-text">*</span> Problem Text</label>
                               <textarea name="questionText" id="question_text" rows="2" cols="70" required>{{questionText}}</textarea>
-                              <script type="text/javascript" >
-                                 CKEDITOR.replace('questionText');
+                              <script type="text/javascript">
+                                CKEDITOR.config.autoParagraph = false;
+                                CKEDITOR.replace('questionText');
                               </script>              
                            </div>
                         </div>
@@ -153,8 +154,9 @@
                               <div class="row">
                                  <div class="col s12">
                                     <textarea  name="answer{{i}}" rows="2" cols="70">{{ansValue}}</textarea>
-                                    <script type="text/javascript" >
-                                       CKEDITOR.replace('answer{{i}}');
+                                    <script type="text/javascript">
+                                      CKEDITOR.config.autoParagraph = false;
+                                      CKEDITOR.replace('answer{{i}}');
                                     </script>        
                                  </div>
                               </div>
