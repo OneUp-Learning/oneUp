@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	{% include 'scripts.html' %}
+	<!-- Used for the notifications -->
+		{% load staticfiles %}       
+		{% load notification_tags %}
+		{% include_notify_js_variables %} 
+		<script src="{% static "notify/notifyX.js" %}"></script>
+</head>
+ 
+<body>
+
+
+
+	<div id="page-wrapper">
+
+       {% if is_teacher %}    
+              {% include 'heading.html' %}
+       {% else %}
+              {% include 'stheading.html' %}
+       {% endif %}
+ 
+		<div class="frame" id="grad" align="center">
+        <div class="container">
+        <div class="row">
+        <div class="12u">
+        	<h1>Notifications</h1>
+		</div>
+		</div>
+		<br />
+		
+		<div align="center">
+		
+
+		
+	<!--	<div id="element2"><td align="left">
+    		<form name="menuform">
+                     <select name="menu1" style="background:rgba(255,255,255,.75)">
+                        <option value="/oneUp/students/ChallengesList?ID=1">Latest Score</option>
+                        
+                        <option value="/oneUp/students/NotificationPage?ID=2">Most recent</option>
+                        <option value="/oneUp/students/NotificationPage?ID=3">Highest Score</option>
+                        <option value="/oneUp/students/NotificationPage?ID=4">Lowest Score</option>
+                        
+                     </select>
+             </div>
+                     <div id="element2"><a><input type="button" name="Submit" value="Display" 
+                        onClick="top.location.href = this.form.menu1.options[this.form.menu1.selectedIndex].value;
+                        return false;"></a></td>
+                  	</form>
+                 	</div>
+                  
+                  <br /><br /> -->
+			
+   			<div id="noteparent" class="notification-box-list">
+   			<table id='T1' class="bg" style="margin-bottom: .750em; width: 80%; align: center;">
+   			<tr>
+   				<th>Notification Description</th>
+   				<th>Notification Timestamp</th>
+   				<th style="padding-left: 100px;">Options</th>
+   			</tr>
+   				{% user_notifications%}		
+   			</table>
+   			</div>
+   			
+   			
+   		<!-- 	<table id='T2' class="bg" style="margin-bottom: .750em; width: 80%; align: center;">
+   			<tr>
+   				<th>Notification Description</th>
+   				<th>Notification Timestamp</th>
+   				<th style="padding-left: 100px;">Options</th>
+   			</tr>
+   				{% render_notifications using request.user.notifications.deleted %}
+   				
+   				
+   			</table> -->
+   			                              
+  
+		<br/><br><br>
+        <!-- END DYNAMIC TABLE -->
+		</div>
+        </div>
+	<!-- Footer -->
+
+     {% include 'footer.html' %}
+
+	</div>`
+	
+</body>
+</html>
