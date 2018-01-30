@@ -273,7 +273,7 @@ def autoCompleteTopicsToJson(currentCourse):
     course_topics = CoursesTopics.objects.filter(courseID=currentCourse)   
     for ct in course_topics:
         if ct.topicID.topicName != unspecified_topic_name:
-            topics[ct.topicID.topicName] = ''
+            topics[ct.topicID.topicName] = None
             createdTopics.append({'tag': ct.topicID.topicName, 'id': ct.topicID.topicID})
 
     logger.debug("Auto Topics To JSON: " + json.dumps(topics))
@@ -311,16 +311,17 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
     
     logger.debug("[POST] t: " + str(topics))
     tops = json.loads(topics)
+    tops = [dict(t) for t in set([tuple(d.items()) for d in tops])]
     logger.debug("[POST] topics: " + str(tops))
-    if len(tops) > 0:
-        newTopicsIDs = [topic["id"] for topic in tops]
+    challTopics = ChallengesTopics.objects.filter(challengeID = challenge)    
 
-        challTopics = ChallengesTopics.objects.filter(challengeID = challenge.challengeID)
+    if len(tops) > 0 and challTopics.exists():
+        newTopicsIDs = [topic["id"] for topic in tops]
         existingIDs = [cTp.topicID.topicID for cTp in challTopics]
         deletionIDs = [id for id in existingIDs if id not in newTopicsIDs]
         newIDs = [id for id in newTopicsIDs if id not in existingIDs]
-
-        ChallengesTopics.objects.filter(topicID__in=deletionIDs).delete()
+        logger.debug("[POST] " + str(newTopicsIDs) + " " + str(existingIDs) + " " + str(deletionIDs) + " " + str(newIDs))
+        ChallengesTopics.objects.filter(topicID__in=deletionIDs, challengeID = challenge).delete()
 
         for topic in tops:
             if topic['id'] in newIDs and topic['id'] != -1:
@@ -344,9 +345,10 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
                 newChallTopics.challengeID = challenge
                 newChallTopics.topicID = newTopic
                 newChallTopics.save()
-                
-
     else:
+        if challTopics.exists():
+            for topic in challTopics:
+                topic.delete()
         challTopic = ChallengesTopics()
         challTopic.challengeID = challenge
         challTopic.topicID = unspecified_topic

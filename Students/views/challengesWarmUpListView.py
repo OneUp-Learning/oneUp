@@ -81,7 +81,6 @@ def ChallengesWarmUpList(request):
                 topic_Pos.append(str(ct.topicPos))   
                 topic_challenges = challengesForTopic(ct.topicID, student, currentCourse) 
                 challenges_count.append(len(list(topic_challenges)))
-                topic_challenges = challengesForTopic(ct.topicID, student, currentCourse) 
                 all_challenges_for_topic.append(topic_challenges)
             else:
                 unspecified_topic = ct.topicID  
@@ -92,10 +91,12 @@ def ChallengesWarmUpList(request):
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous") 
             topic_Pos.append(str(course_topics.count()))  
-            challenges_count.append(0)
-            all_challenges_for_topic.append(challengesForTopic(unspecified_topic, student, currentCourse))
-            
-     
+            topic_challenges = challengesForTopic(unspecified_topic, student, currentCourse)
+            challenges_count.append(len(list(topic_challenges)))
+            all_challenges_for_topic.append(topic_challenges)
+        
+        print(challenges_count)
+        print(all_challenges_for_topic)
         context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
-
+        
     return render(request,'Students/ChallengesWarmUpList.html', context_dict)

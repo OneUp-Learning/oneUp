@@ -33,7 +33,7 @@
                      <input type="hidden" name="topicID" value="{{topic_ID}}">
                      <li>
                         <div class="collapsible-header"><i class="material-icons">filter_drama</i>{{topic_Name}}
-                           {% if not all_challenges == '0' and challenges_count > '0' %}
+                           {% if all_challenges != '0' and challenges_count > 0 %}
                            <span class="badge">{{challenges_count}}</span>
                         </div>
                         <div class="collapsible-body">

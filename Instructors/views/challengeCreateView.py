@@ -137,7 +137,7 @@ def challengeCreateView(request):
                 timeLimit = int(request.POST.get("timeLimit", 45))
                 challenge.timeLimit = timeLimit
                               
-        challenge.save();  #Save challenge to database
+        challenge.save()  #Save challenge to database
         # check if course was selected
         addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic, currentCourse)                 
         # Processing and saving tags in DB
