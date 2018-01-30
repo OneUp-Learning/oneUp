@@ -156,15 +156,27 @@ def ChallengeResults(request):
                         question['correct_answer_texts'] = [x.answerText for x in correctAnswers]
                         
                         userAnswerIndexes = request.POST.getlist(answerInputName)
-                        # convert all to ints.
-                        userAnswerIndexes = [int(x) for x in userAnswerIndexes]
+                        
+                        if not userAnswerIndexes:
+                            #user has not selected any answer
+                            question['user_points'] = 0
+                            question['user_answers'] = ""
+                            userAnswerIds = []
 
-                        userAnswerIds = [question['answers'][x-1]['answerID'] for x in userAnswerIndexes]
-                        valuePerAnswer = question['total_points']/len(question['answers'])
-                        numAnswersIncorrect = len([x for x in userAnswerIds if x not in correctAnswerIds])
-                        numAnswersMissing = len([x for x in correctAnswerIds if x not in userAnswerIds])
-                        question['user_points'] = question['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
-                        question['user_answers'] = [{'answerNumber':x,'answerText':question['answers'][x-1]['answerText']} for x in userAnswerIndexes]
+                        else:                       
+                            # convert all to ints.
+                            userAnswerIndexes = [int(x) for x in userAnswerIndexes]   
+                            userAnswerIds = [question['answers'][x-1]['answerID'] for x in userAnswerIndexes]
+                            
+                            valuePerAnswer = question['total_points']/len(question['answers'])
+                            numAnswersIncorrect = len([x for x in userAnswerIds if x not in correctAnswerIds])                            
+                            numAnswersMissing = len([x for x in correctAnswerIds if x not in userAnswerIds])
+                        
+                            question['user_points'] = question['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
+                            question['user_answers'] = [{'answerNumber':x,'answerText':question['answers'][x-1]['answerText']} for x in userAnswerIndexes]
+                        
+                        print('question[user_points] = ', question['user_points'])
+                        
                         studentAnswerList = userAnswerIds
                     elif questionType == QuestionTypes.matching:
                         # Find the index for each correct matching answer

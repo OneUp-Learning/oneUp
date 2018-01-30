@@ -105,6 +105,7 @@
             var previous = document.getElementById("questionPart"+(numParts-1));
             previous.insertAdjacentHTML('afterEnd',newElement);
             
+            CKEDITOR.config.autoParagraph = false;
             CKEDITOR.replace( name );
 
   			
@@ -335,6 +336,7 @@
 			<textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="10" cols="70" name="templateTextVisible1" id="templateTextVisible1" >{{templateText1}}</textarea>
 			<script type="text/javascript" >
                 // Replace the <textarea id="templateTextVisible"> with a CKEditor instance, using default configuration.
+                CKEDITOR.config.autoParagraph = false;
                 CKEDITOR.replace( 'templateTextVisible1' );
              </script> 
              <input type="hidden" name="templateText1" style="display: none;" />
