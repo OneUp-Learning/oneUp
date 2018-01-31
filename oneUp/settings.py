@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import oneUp
-from django.conf.global_settings import LOGIN_URL, STATIC_ROOT
+from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 #This is used for uploading AvatarImages
@@ -51,7 +51,7 @@ LOGGING = {
         'level': LOGGING_LEVEL
     },   
 }
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['oneup.wssu.edu']
 
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'Badges',
     'Administrators',
     'notify',
+    'easy_timezones',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -80,6 +81,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'easy_timezones.middleware.EasyTimezoneMiddleware',
 )
 
 ROOT_URLCONF = 'oneUp.urls'
@@ -129,13 +131,16 @@ STATICFILES_DIRS = (
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
+
+GEOIP_DATABASE = os.path.join(BASE_DIR,'GeoLiteCity.dat')
+GEOIPV6_DATABASE = os.path.join(BASE_DIR,'GeoLiteCityv6.dat')
 
 
 # Static files (CSS, JavaScript, Images)
