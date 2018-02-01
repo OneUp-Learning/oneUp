@@ -10,7 +10,9 @@ from oneUp.auth import createStudents, checkPermBeforeView
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Courses
-from Students.models import Student, StudentRegisteredCourses
+from Students.models import Student, StudentRegisteredCourses, StudentEventLog
+from Badges.enums import Event
+from Badges.systemVariables import logger
 
 @login_required
 def createStudentListView(request):
@@ -38,11 +40,16 @@ def createStudentListView(request):
     courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
     for cs in courseStudents:
         s = cs.studentID
+        last_login = StudentEventLog.objects.filter(course=currentCourse, student = s, event = Event.userLogin).order_by('-timestamp').first()
+        
         userID.append(s.user)
         first_Name.append(s.user.first_name)
         last_Name.append(s.user.last_name)
         user_Email.append(s.user.email)
-        user_Login.append(s.user.last_login)
+        if last_login:
+            user_Login.append(last_login.timestamp.strftime("%m/%d/%Y %I:%M %p"))
+        else:
+            user_Login.append("None")
         user_Avatar.append(cs.avatarImage)
                
     # The range part is the index numbers.

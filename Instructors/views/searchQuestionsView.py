@@ -5,13 +5,8 @@ Created on Apr 10, 2014
 '''
 from django.shortcuts import render
 
-from django.template import RequestContext
-from django.shortcuts import render
-
-from django.http import HttpResponse
-
-from Instructors.models import Questions, Tags, Courses, Challenges, CoursesSkills
-#from Instructors.models import QuestionTypes
+from Instructors.models import Challenges, CoursesSkills, CoursesTopics
+from Instructors.views.utils import initialContextDict
 from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
 
 from django.contrib.auth.decorators import login_required
@@ -19,24 +14,29 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def searchQuestions(request):
  
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+#     context_dict = { }
+#     context_dict["logged_in"]=request.user.is_authenticated()
+#     if request.user.is_authenticated():
+#         context_dict["username"]=request.user.username
+#         
+#     # check if course was selected
+#     if 'currentCourseID' in request.session:
+#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+#         context_dict['course_Name'] = currentCourse.courseName
+#     else:
+#         context_dict['course_Name'] = 'Not Selected'
 
+    context_dict, currentCourse = initialContextDict(request);  
+    
     typename = []      
     tags = []    
     leveldiffs = []
-    qchallenge = []
+    qchallengeName = []
+    qchallengeID = []
     qdifficulty = []
     qskill = []
+    ctopicID = []
+    ctopicName = []
     qdifficulties = ['Easy', 'Medium', 'Hard']
 
 
@@ -48,6 +48,13 @@ def searchQuestions(request):
     for i in range(0, num_qdifficulties):
         qdifficulty.append(qdifficulties[i])
         
+    # Get course topics 
+    c_topics = CoursesTopics.objects.filter(courseID = currentCourse)
+    for ct in c_topics:
+        ctopicName.append(ct.topicID.topicName)
+        ctopicID.append(ct.topicID.topicID)  
+    
+    context_dict['topic_range'] = zip(range(1, c_topics.count() + 1), ctopicID, ctopicName)
 
     # Get skills from the DB
     c_skills = CoursesSkills.objects.filter(courseID = currentCourse)
@@ -60,12 +67,15 @@ def searchQuestions(request):
     challenges = Challenges.objects.filter(courseID=currentCourse)
     num_challenges = challenges.count()
     for i in range(0, num_challenges):
-        qchallenge.append(challenges[i].challengeName)
+        qchallengeName.append(challenges[i].challengeName)
+        qchallengeID.append(challenges[i].challengeID)
         
     context_dict['qtypes_range'] = questionTypesObjects
-    #context_dict['qtypes_range'] = zip(range(1, num_qtypes + 1), typename)
     context_dict['qdifficulty_range'] = zip(range(1, num_qdifficulties + 1), qdifficulty)
-    context_dict['challenge_range'] = zip(range(1, num_challenges + 1), qchallenge)
+    context_dict['challenge_range'] = zip(range(1, num_challenges + 1), qchallengeName, qchallengeID)
+    print('context_dict')
+    print(qchallengeName)
+    print(qchallengeID)
     
     if 'challengeID' in request.GET:         
         context_dict['challenge'] = True

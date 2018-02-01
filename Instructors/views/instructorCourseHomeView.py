@@ -168,9 +168,10 @@ def courseLeaderboard(currentCourse, context_dict):
                         uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
                         usersInfo.append(uSkillInfo)
                          
-                skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentsDisplayed]}
-                context_dict['skills'].append(skillInfo)
-          
+                if len(usersInfo) != 0:
+                    skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentsDisplayed]} 
+                    context_dict['skills'].append(skillInfo)
+              
 #             # XP Points       
 #             # get the challenges for this course
 #             courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
