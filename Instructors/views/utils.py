@@ -448,7 +448,7 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic):
         deletionIDs = [id for id in existingIDs if id not in topics]
         newIDs = [id for id in topics if id not in existingIDs]
         
-        ChallengesTopics.objects.filter(topicID__in=deletionIDs, challengedID = challenge.challengeID).delete()
+        ChallengesTopics.objects.filter(topicID__in=deletionIDs, challengeID = challenge.challengeID).delete()
         
         for id in newIDs:
             newChallTopics = ChallengesTopics()
