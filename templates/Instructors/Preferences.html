@@ -1,350 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <title>OneUp | Instructors</title>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-      <link rel="stylesheet" href="/static/assets/css/main.css" type="text/css">
-      <link rel="icon" type="image/x-icon" href="../../static/images/lightbulb-o.ico">
-      <!--[if lte IE 8]>
-      <link rel="stylesheet" href="assets/css/ie8.css" />
-      <![endif]-->
-      <!-- Scripts -->
-      <script type="text/javascript">
-         function Check(chk)
-         {
-         if(document.myform.Check_ctr.checked==true){
-         for (i = 0; i < chk.length; i++)
-         chk[i].checked = true ;
-         }else{
-         
-         for (i = 0; i < chk.length; i++)
-         chk[i].checked = false ;
-         }
-         }
-         
-      </script>
-      <script src="/static/assets/js/jquery.min.js" type="text/javascript"></script>
-      <script src="/static/assets/js/jquery.dropotron.min.js" type="text/javascript"></script>
-      <script src="/static/assets/js/jquery.scrolly.min.js" type="text/javascript"></script>
-      <script src="/static/assets/js/jquery.onvisible.min.js" type="text/javascript"></script>
-      <script src="/static/assets/js/skel.min.js" type="text/javascript"></script>
-      <script src="/static/assets/js/util.js" type="text/javascript"></script><!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
-      <script src="/static/assets/js/main.js" type="text/javascript"></script>
-      <script type="text/javascript">
-         function goToNewPage()
-             {
-                 var url1 = document.getElementById('qtype').value;
-                 var url2 = document.getElementById('list').value;
-                 if(url1 != 'none') 
-                 {
-                     window.location = url1;
-                     url1='none'
-                 }
-                 else
-                 {
-                     window.location = url2;
-                     url2='none'
-                 }
-                 
-             }
-      </script>
-      <script type="text/javascript" language="javascript">
-         function redirect()
-           {
-               window.location.href="/oneUp/instructors/instructorCourseHome";
-               return false;
-           }
-      </script>
+    {% include 'scripts.html' %}
+    <script>
+        $( document ).ready(function(){
+            var endDate = $('#endTime').bootstrapMaterialDatePicker({
+                weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+            });
+            
+            var startDate = $('#startTime').bootstrapMaterialDatePicker({
+                weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
+            }).on('change', function(e, date) {
+                $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
+            });
+        });
+    </script>
    </head>
    <body>
-      <!-- START PAGE SOURCE -->
-      <div id="page-wrapper">
-      {% include 'heading.html' %}
-      <div class="frame" id="grad" align="center">
-         <!-- Body -->
-         <div class="container">
+        {% include 'stheading.html' %}
+        <main>
+            <div class="row center-align">
+                <div class="col s12">
+                    <h3>Course Gamification Configuration</h3>
+                </div>
+            </div>
+            <form name="CourseConfigParam" action="/oneUp/instructors/preferences" method="POST">
+            {% csrf_token %} 
+            <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
             <div class="row">
-               <div class="12u">
-                  <br>
-                  <h1>
-                     Course Gamification Configuration
-                  </h1>
-                  <br>        
-               </div>
-            </div>
-            <!-- INSERTED DYNAMIC TABLE -->
-            <form name="configParam" action="/oneUp/instructors/preferences" method="POST">
-               {% csrf_token %} 
-               <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
-               <div class="frame" align="center">
-                  <div class="7u 12u(mobile)">
-                     <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                        <th>Gamification Configuration </th>
-                        <th></th>
-                        <!-- gamificationUsed Checkbox-->
-                        <tr>
-                           <td class="left"> Enable gamification</td>
-                           <td style="position:relative; right:-2.8em;" !important><input type="checkbox" align="right" name="gamificationUsed" value="true" checked="true"></td>
-                        </tr>
-                     </table>
-                  </div>
-                  <div class="7u 12u(mobile)">
-                     <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                        <th>Course Leaderboard Configuration </th>
-                        <th></th>
-                        <!-- leaderboardUsed Checkbox-->
-                        {% if leaderboardUsed %}
-                        <tr>
-                           <td class="left"> Enable leaderboard</td>
-                           <td style="position:relative; right:-3.2em;" !important><input type="checkbox" align="right" name="leaderboardUsed" value="true" checked="true"></td>
-                        </tr>
-                        <tr>
-                           <td class="left"> Number of top students to be displayed on the leaderboard </td>
-                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}" required></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                           <td class="left"> Enable leaderboard</td>
-                           <td style="position:relative; right:-3.2em;" !important><input type="checkbox" align="left" name="leaderboardUsed"></td>
-                        </tr>
-                        <tr>
-                           <td class="left"> Number of top students to be displayed on the leaderboard </td>
-                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px;" type="text" name="numStudentsDisplayed" value="{{numStudentsDisplayed}}"></td>
-                        </tr>
-                        {% endif %}           
-                        {% if classSkillsDisplayed %}
-                        <tr>
-                           <td class="left"> Display skill points on the leaderboard</td>
-                           <td style="position:relative; right:-3.2em;" !important>  <input type="checkbox" align="right;" !important name="classSkillsDisplayed" value="true" checked="true" ></td>
-                        </tr>
-                        <tr>
-                           <td class="left"> Number of top students to be displayed for each skill</td>
-                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                           <td class="left"> Display skill points on the leaderboard</td>
-                           <td style="position:relative; right:-3.2em;" !important> <input type="checkbox" align="left" name="classSkillsDisplayed" value="true" ></td>
-                        </tr>
-                        <tr>
-                           <td class="left"> Number of top students to be displayed for each skill</td>
-                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numStudentBestSkillsDisplayed" value="{{numStudentBestSkillsDisplayed}}" required></td>
-                        </tr>
-                        {% endif %}                                       
-                        {% if badgesUsed %}
-                        <tr>
-                           <td class="left"> Enable the use of badges</td>
-                           <td style="position:relative; right:-3.2em;" !important><input type="checkbox" id="ck1" align="right" name="badgesUsed" value="true" checked="true"></td>
-                        </tr>
-                        <tr>
-                           <td class="left"> Number of recent badges to be displayed on the leaderboard </td>
-                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                           <td class="left"> Enable the use of badges</td>
-                           <td style="position:relative; right:-3.2em;" !important> <input type="checkbox" align="left" name="badgesUsed" ></td>
-                        </tr>
-                        <tr>
-                           <td class="left"> Number of recent badges to be displayed on the leaderboard </td>
-                           <td style="position:relative; right:-0.5em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="numBadgesDisplayed" value="{{numBadgesDisplayed}}" required></td>
-                        </tr>
-                        {% endif %}
-                     </table>
-                  </div>
-                  <div class="7u 12u(mobile)">
-                     <table class="bg" id="bglinks" style="margin-bottom: 15px;">
-                        <th> Allow Students to Change Their Leaderboard Configuration </th>
-                        <th></th>
-                        {% if leaderboardUsed and studCanChangeLeaderboardVis %}
-                        <tr>
-                           <td class="left"> Students can change leaderboard visibility</td>
-                           <td style="position:relative; right: 0.3em;" !important ><input type="checkbox" align="left" name="studCanChangeLeaderboardVis" value="true" checked="true"></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                           <td class="left"> Students can change leaderboard visibility</td>
-                           <td style="position:relative; right: 0.3em;" !important ><input type="checkbox" align="left" name="studCanChangeLeaderboardVis"></td>
-                        </tr>
-                        {% endif %}
-                        {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
-                        <tr>
-                           <td class="left">Students can change skill points visibility </td>
-                           
-                           <td style="position:relative; right: 0.3em;" !important ><input type="checkbox" align="left" name="studCanChangeClassSkillsVis" value="true" checked="true"></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                           <td class="left">Students can change skill points visibility  </td>
-                          
-                           <td style="position:relative; right: 0.3em;" !important ><input type="checkbox" align="left" name="studCanChangeClassSkillsVis"></td>
-                        </tr>
-                        {% endif %}
-                        {% if badgesUsed and studCanChangeBadgeVis %}
-                        <tr>
-                           <td class="left"> Students can change recent badge visibility</td>
-                           <td style="position:relative; right: 0.3em;" !important ><input type="checkbox" align="left" name="studCanChangeBadgeVis" value="true" checked="true"></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                           <td class="left"> Students can change recent badge visibility</td>
-                           <td style="position:relative; right: 0.3em;" !important><input type="checkbox" align="left" name="studCanChangeBadgeVis"></td>
-                        </tr>
-                        {% endif %}
-                        {% if classAverageUsed and studCanChangeclassAverageVis %}
-                        <tr>
-                           <td class="left"> Students can change class average visibility on achievement page</td>
-                           <td style="position:relative; right: 0.3em;" !important><input type="checkbox" align="left" name="studCanChangeclassAverageVis" value="true" checked="true"></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                           <td class="left"> Enable students to change class average visibility on their achievement page</td>
-                           <td style="position:relative; right: 0.3em;" !important><input type="checkbox" align="left" name="studCanChangeclassAverageVis"></td>
-                        </tr>
-                        {% endif %}
-                     </table>
-                  </div>
-                     <div class="7u 12u(mobile)">
-                     <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                        <th>Course Attributes</th>
-                        <th></th>
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                          <!-- levelingUsed Checkbox-->
-                           {% if levelingUsed %}
-                        <tr>
-                           <td class="left"> Enable leaderboard</td>
-                           <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="right" name="levelingUsed" value="true" checked="true"></td>
-                        </tr>
-                          {% else %}
-                         <tr>
-                              <td class="left"> Enable leveling</td>
-                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="levelingUsed"></td>
-                          </tr>
-                           {% endif %}
-						   {% if virtualCurrencyUsed %}
-                           <tr>
-                              <td class="left"> Enable virtual currency</td>
-                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="right" name="virtualCurrencyUsed" value="true" checked="true"></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Increase the virtual currency of all students by ($$)</td>
-                              <td style="position:relative; right:-2.3em;" !important> <input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="virtualCurrencyAdded" value="{{virtualCurrencyAdded}}" required></td></td>
-                           </tr>
-                           {% else %}
-                           <tr>
-                              <td class="left"> Enable virtual currency</td>
-                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="virtualCurrencyUsed"></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Increase the virtual currency of all students by ($$)</td>
-                              <td style="position:relative; right:-2.3em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="virtualCurrencyAdded" value="0"></td>
-                           </tr>
-                           {% endif %}
-                            <!-- avatarUsed Checkbox-->
-                           {% if avatarUsed %}
-                           <tr>
-                              <td class="left"> Enable the use of avatars</td>
-                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="avatarUsed" value="true" checked="true"></td>
-                           </tr>
-                           {% else %}
-                           <tr>
-                              <td class="left"> Enable the use of avatars</td>
-                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="avatarUsed"></td>
-                           </tr>
-                           {% endif %}
-                           <!-- classAverageUsed Checkbox-->
-                           {% if classAverageUsed %}
-                           <tr>
-                              <td class="left"> Display class average on student achievement page</td>
-                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="classAverageUsed" value="true" checked="true"></td>
-                           </tr>
-                           {% else %}
-                           <tr>
-                              <td class="left"> Display class average on student achievement page</td>
-                              <td style="position:relative; right:-3.8em;" !important><input type="checkbox" align="left" name="classAverageUsed"></td>
-                           </tr>
-                           {% endif %}
-                              <!-- courseStartDate courseEndDate Checkbox-->
-                           <tr>
-                              <td class="left"> Set course start date</td>
-                              <td style="position:relative; right:-0.2em;" !important><input type="date" style="width:165px;" align="left" name="courseStartDate"></td>
-                           </tr>
-                            <tr>
-                              <td class="left"> Set course end date</td>
-                              <td style="position:relative; right:-0.2em;" !important><input type="date" style="width:165px;" align="left" name="courseEndDate"></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Set leaderboard update frequency (in days)</td>
-                              <td style="position:relative; right:-2.3em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="leaderboardUpdateFreq" value="{{leaderboardUpdateFreq}}" required></td>
-                           </tr>
-                          
-                        </table>
-                        
-                           
-
-
-
-
-                        <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                           <th>Calculating Total XP Points</th>
-                           <th></th>
-                           <tr>
-                              <td class="left"> Weight of <i>serious challenge points (in % )</i>  </td>
-                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSChallenge" value="{{xpWeightSChallenge}}" required></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Weight of <i>warmup challenge points (in % )</i>  </td>
-                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightWChallenge" value="{{xpWeightWChallenge}}" required></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Weight of <i>skill points (in % )</i></td>
-                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightSP" value="{{xpWeightSP}}" required></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> Weight of <i>activity points (in % )</i>  </td>
-                              <td style="position:relative; right:-2.4em;" !important><input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="xpWeightAPoints" value="{{xpWeightAPoints}}" required></td>
-                           </tr>
-                        </table>
+                <div class="col s12 m4 offset-m2">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Gamification Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable gamification
+                                        {% if gamificationUsed %}
+                                        <input name="gamificationUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="gamificationUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
                             </div>
-                     <div class="7u 12u(mobile)">
-                        <table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                           <th>Thresholds for Challenge Difficulty</th>
-                           <th></th>
-                           <tr>
-                              <td class="left"> From <i>easy</i> to <i>medium</i></td>
-                              <td style="position:relative; right:-4.9em;" !important> <input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelMedium" value="{{thresholdToLevelMedium}}" required></td>
-                           </tr>
-                           <tr>
-                              <td class="left"> From <i>medium</i> to <i>high</i></td>
-                              <td style="position:relative; right:-4.9em;" !important> <input style="max-width: 7em; max-height: 2em; border: solid 1px " type="text" name="thresholdToLevelDifficulty" value="{{thresholdToLevelDifficulty}}" required></td>
-                           </tr>
-                        </table>
                         </div>
-                        <div class="6u 12u(mobile)">
-                           <input type="submit" align="center" id="save" name="save" value="Save" class="button">
-                           <a href="/oneUp/instructors/instructorCourseHome">
-                           <input type="button" align="center" id="cancel" name="cancel" value="Cancel"></a>
-                           <a href="/oneUp/instructors/instructorCourseHome">
-                           <input type="button" align="center" id="back" name="back" value="Back"></a>
-                           <p>
-                           </p>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Course Attributes</span>
+                            <div class="row">
+                                <div class="col s12 m6">
+                                    <label for="startTime">Course Start Date:</label> 
+                                    <input type="text" class="datepicker-from" name="courseStartDate" value="{{courseStartDate}}" id="startTime">
+                                </div>
+                                <div class="col s12 m6">
+                                    <label for="endTime">Course End Date:</label> 
+                                    <input type="text" class="datepicker-until" name="courseEndDate" value="{{courseEndDate}}" id="endTime">
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m4 offset-m2">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Calculating Total XP Points</span>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge" id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
+                                    <label for="s_challenge_weight">Weight of <i>serious challenge points (in % )</i></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge" id="w_challenge_weight" maxlength="3" type="number"  min="0" max="100">
+                                    <label for="w_challenge_weight">Weight of <i>warmup challenge points (in % )</i></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight" maxlength="3" type="number" class="validate" min="0" max="100">
+                                    <label for="s_points_weight">Weight of <i>skill points (in % )</i></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight" maxlength="3" type="number" min="0" max="100">
+                                    <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Thresholds for Challenge Difficulty</span>
+                            <div class="row">
+                                <div class="row">
+                                    <div class="col s12">
+                                        <p>From <i>easy</i> to <i>medium</i></p>
+                                    </div>
+                                </div>
+                                <div class="input-field col s12 inline">
+                                    <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium" id="threshold_1" maxlength="3" type="number" min="0" max="100">
+                                    <label for="threshold_1">Threshold</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                From <i>medium</i> to <i>high</i>
+                                <div class="input-field inline col s12 m6">
+                                    <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty" id="threshold_2" maxlength="3" type="number" min="0" max="100">
+                                    <label for="threshold_2"> From <i>medium</i> to <i>high</i></label>
+                                </div>
+                            </div>
                         </div>
-                    
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                    <div class="col s12 m4 offset-m2">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Student Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Students can change leaderboard visibility
+                                            {% if leaderboardUsed and studCanChangeLeaderboardVis %}
+                                            <input name="studCanChangeLeaderboardVis" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="studCanChangeLeaderboardVis" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Students can change skill points visibility
+                                            {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
+                                            <input name="studCanChangeClassSkillsVis" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="studCanChangeClassSkillsVis" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Students can change recent badge visibility
+                                            {% if badgesUsed and studCanChangeBadgeVis %}
+                                            <input name="studCanChangeBadgeVis" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="studCanChangeBadgeVis" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Students can change class average visibility on achievement page
+                                            {% if classAverageUsed and studCanChangeclassAverageVis %}
+                                            <input name="studCanChangeclassAverageVis" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="studCanChangeclassAverageVis" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Display class average on student achievement page
+                                            {% if classAverageUsed %}
+                                            <input name="classAverageUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="classAverageUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Course Leaderboard Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Leaderboard
+                                            {% if leaderboardUsed %}
+                                            <input name="leaderboardUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="leaderboardUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{numStudentsDisplayed}}" name="numStudentsDisplayed" id="lb_top_students" maxlength="3" type="number" min="0" max="100">
+                                        <label for="lb_top_students">Number of top students to be displayed on the leaderboard</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{leaderboardUpdateFreq}}" name="leaderboardUpdateFreq" id="lb_update_freq" maxlength="3" type="number" min="0" max="100">
+                                        <label for="lb_update_freq">Leaderboard update frequency (in days)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 offset-m2">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Skills Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Display skill points on the leaderboard
+                                            {% if classSkillsDisplayed %}
+                                            <input name="classSkillsDisplayed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="classSkillsDisplayed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{numStudentBestSkillsDisplayed}}" name="numStudentBestSkillsDisplayed" id="skills_top_students" maxlength="3" type="number" min="0" max="100">
+                                        <label for="skills_top_students">Number of top students to be displayed for each skill</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Badges Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable the use of badges
+                                            {% if badgesUsed %}
+                                            <input name="badgesUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="badgesUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed" id="badges_recent" maxlength="3" type="number" min="0" max="100">
+                                        <label for="badges_recent">Number of recent badges to be displayed on the leaderboard</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 offset-m2">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Virtual Currency Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Virtual Currency
+                                            {% if virtualCurrencyUsed %}
+                                            <input name="virtualCurrencyUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="virtualCurrencyUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3" type="number" min="0" max="100">
+                                        <label for="vc_added">Increase the virtual currency of all students by ($$)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Leveling Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Leveling
+                                            {% if levelingUsed %}
+                                            <input name="levelingUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="levelingUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 offset-m2">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Avatars Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable the use of Avatars
+                                            {% if avatarUsed %}
+                                            <input name="avatarUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="avatarUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 offset-m8">
+                        <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i class="material-icons right">done</i></button> 
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i class="material-icons right">close</i>Cancel</a>
+                    </div>
+                </div>
             </form>
-            <!-- END DYNAMIC TABLE -->
-            </div>
-            </div>
-            </div>
-      {% include 'footer.html' %}
-   </body>
+        </main>
+        {% include 'footer.html' %}
+    </body>
 </html>

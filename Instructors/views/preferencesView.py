@@ -9,22 +9,12 @@ from django.contrib.auth.decorators import login_required
 from Instructors.models import Courses
 from Badges.models import CourseConfigParams
 from Students.models import StudentConfigParams, StudentRegisteredCourses
-
+from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.constants import default_time_str
 @login_required
 def preferencesView(request):
 
-   
-    context_dict = { }  
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected' 
+    context_dict, currentCourse = initialContextDict(request)
     
     if request.POST:
         
@@ -80,8 +70,19 @@ def preferencesView(request):
         ccparams.avatarUsed = "avatarUsed" in request.POST
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
-#         ccparams.courseStartDate = request.POST.get('courseStartDate')
-#         ccparams.courseEndDate= request.POST.get('courseEndDate') 
+
+        if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
+            ccparams.courseStartDate = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        else:
+            ccparams.courseStartDate = utcDate(request.POST['courseStartDate'], "%m/%d/%Y %I:%M %p")
+
+        if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
+            ccparams.courseEndDate = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        else:
+             ccparams.courseEndDate = utcDate(request.POST['courseEndDate'], "%m/%d/%Y %I:%M %p")
+
+        # ccparams.courseStartDate = request.POST.get('courseStartDate')
+        # ccparams.courseEndDate= request.POST.get('courseEndDate') 
         ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
         ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
         ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
@@ -90,19 +91,16 @@ def preferencesView(request):
         ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
         ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
         ccparams.save()
-#         print("After Save in POST :" ,ccparams.numStudentsDisplayed)
-#         return render(request,'Instructors/InstructorCourseHome.html', context_dict)
+
         return redirect('/oneUp/instructors/instructorCourseHome',"","")
                 
-    #################################
-    #  get request
-    else:
+    elif request.method == 'GET':
         
-        ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
+        ccparams = context_dict['ccparams']
             
-        if len(ccparamsList) > 0:
-            ccparams = ccparamsList[0]   
+        if ccparams:
             context_dict['ccpID'] = ccparams.ccpID
+            context_dict['gamificationUsed'] = ccparams.gamificationUsed
             context_dict["badgesUsed"]=ccparams.badgesUsed
             context_dict["numBadgesDisplayed"]=ccparams.numBadgesDisplayed
             context_dict["studCanChangeBadgeVis"]=ccparams.studCanChangeBadgeVis
@@ -110,7 +108,6 @@ def preferencesView(request):
             context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
             context_dict["studCanChangeLeaderboardVis"]=ccparams.studCanChangeLeaderboardVis
             context_dict["numStudentsDisplayed"]=ccparams.numStudentsDisplayed
-#             print(context_dict["numStudentsDisplayed"])
             context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
             context_dict["studCanChangeClassSkillsVis"]=ccparams.studCanChangeClassSkillsVis
             context_dict["numStudentBestSkillsDisplayed"]=ccparams.numStudentBestSkillsDisplayed
@@ -120,7 +117,12 @@ def preferencesView(request):
             context_dict["classAverageUsed"]=ccparams.classAverageUsed
             context_dict["studCanChangeclassAverageVis"]=ccparams.studCanChangeclassAverageVis
             context_dict["courseStartDate"]=ccparams.courseStartDate
-            context_dict["courseEndDate"]=ccparams.courseEndDate
+            defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            if(ccparams.courseEndDate.year < defaultTime.year):
+                context_dict["courseEndDate"]=ccparams.courseEndDate
+            else:
+                context_dict["courseEndDate"]=""
+
             context_dict["leaderboardUpdateFreq"]=ccparams.leaderboardUpdateFreq
             context_dict["xpWeightSChallenge"]=ccparams.xpWeightSChallenge
             context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
@@ -128,23 +130,8 @@ def preferencesView(request):
             context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
             context_dict["thresholdToLevelMedium"]=ccparams.thresholdToLevelMedium
             context_dict["thresholdToLevelDifficulty"]=ccparams.thresholdToLevelDifficulty
-#             context_dict["latestBadgesUsed"]=ccparams.latestBadgesUsed
-#             context_dict["levellingUsed"]=ccparams.levellingUsed
-#             context_dict["leaderBoardUsed"]=ccparams.leaderBoardUsed
-#             context_dict["virtualCurrencyUsed"]=ccparams.virtualCurrencyUsed
-#             context_dict["avatarUsed"]=ccparams.avatarUsed
-#             context_dict["classAverageUsed"]=ccparams.classAverageUsed
-#             context_dict["numStudentToppersUsed"]=int(ccparams.numStudentToppersUsed)
-#             context_dict["numStudentBestSkillsUsed"]=int(ccparams.numStudentBestSkillsUsed)
-#             print (ccparams.numStudentToppersUsed)
-#             print (ccparams.numStudentBestSkillsUsed)
-    #    else:
-#             print(context_dict)    
+ 
         return render(request,'Instructors/Preferences.html', context_dict)
-#     print (context_dict)
-#     context_dict['ccpID'] = ccparams.ccpID
-#     context_dict["badgesUsed"]=ccparams.badgesUsed
-#     print (context_dict)
     
 
 
