@@ -321,7 +321,7 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
         deletionIDs = [id for id in existingIDs if id not in newTopicsIDs]
         newIDs = [id for id in newTopicsIDs if id not in existingIDs]
         logger.debug("[POST] " + str(newTopicsIDs) + " " + str(existingIDs) + " " + str(deletionIDs) + " " + str(newIDs))
-        ChallengesTopics.objects.filter(topicID__in=deletionIDs, challengeID = challenge).delete()
+        ChallengesTopics.objects.filter(topicID__in=deletionIDs, challengeID = challenge.challengeID).delete()
 
         for topic in tops:
             if topic['id'] in newIDs and topic['id'] != -1:

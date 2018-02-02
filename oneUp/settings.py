@@ -50,7 +50,6 @@ LOGGING = {
         'level': LOGGING_LEVEL
     },   
 }
-
 ALLOWED_HOSTS = []
 
 # Including the static folder to access it in the urls.py
