@@ -50,13 +50,13 @@ def activityCreateView(request):
             setattr(activity,attr,request.POST[attr])
         
         activity.courseID = currentCourse; 
-        if request.POST['fileUpload'] == 'True':
+        if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
         else:
             activity.isFileAllowed = False
             
         #Set the number of attempts
-        if request.POST['attempts']:
+        if 'attempts' in request.POST:
             print(request.POST['attempts'])
             activity.uploadAttempts = request.POST['attempts']
             
@@ -125,10 +125,11 @@ def activityCreateView(request):
                     context_dict[attr]=getattr(activity,attr)
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
+                context_dict['isFileUpload'] = activity.isFileAllowed
 #                 context_dict['startTimestamp']= activity.startTimestamp
 #                 context_dict['endTimestamp']= activity.endTimestamp
                 
-                etime = datetime.strptime(str(activity.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                etime = activity.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
                 print('etime ', etime)
                 if etime != default_time_str: 
                     print('etime2 ', etime)   
@@ -138,7 +139,7 @@ def activityCreateView(request):
             
                 print(activity.startTimestamp.strftime("%Y")) 
                 if activity.startTimestamp.strftime("%Y") < ("2900"):
-                    context_dict['startTimestamp']= datetime.strptime(str(getattr(activity, 'startTimestamp')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                    context_dict['startTimestamp']= activity.startTimestamp.strftime("%m/%d/%Y %I:%M %p")
                 else:
                     context_dict['startTimestamp']=""
                     

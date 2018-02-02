@@ -94,7 +94,6 @@ def getMinActivityScore(course, student, activity):
 def getAverageActivityScore(course,student, activity):
     '''Return the average score of an activity per course'''
     scores = getActivityScore(course, activity)
-    
     if scores:
         return (float(sum(scores))/float(len(scores)))
     else:
@@ -104,14 +103,13 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
     '''return percentage of correctly answered questions out of all the questions'''
     from Students.models import StudentChallengeQuestions, StudentChallenges
     from Instructors.models import ChallengesQuestions
-    
     questionIds = []
     challenge_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
     for challenge_question in challenge_questions:
         questionIds.append(challenge_question.questionID)
     
     try:    
-        studentChallenge = StudentChallenges.objects.filter(studentID=student, challengeID=challenge).latest('testScore')
+        studentChallenge = StudentChallenges.objects.filter(studentID=student, challengeID=challenge, courseID=course).latest('testScore')
     except:
         return 0.00
     
@@ -124,14 +122,9 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
             correctlyAnsweredQuestions +=1
     
     if correctlyAnsweredQuestions != 0 and totalQuestions != 0:
-        percentage = ((float(correctlyAnsweredQuestions)/float(totalQuestions))*100)
-        percentage = format(percentage,'.2f')
-        
-        print("question score : ", percentage)
-        return percentage
+        return round((float(correctlyAnsweredQuestions)/float(totalQuestions))*100)
     else:
-        print("question score : 0")
-        return 0.00
+        return 0
     
 def getAveragePercentageScore(course, student, challenge):
     ''' Utility function that returns the percentage of the average score
@@ -299,7 +292,7 @@ def getScorePercentage(course,student, challenge):
     else:
         return 0
 
-def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student): 
+def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge): 
     from Students.models import StudentEventLog
     warmUpChallDates = []
     # filter all the ended challenge events
@@ -309,8 +302,8 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student):
             # get a specific challenge by its ID
             chall = 0
             challenges = Challenges.objects.filter(courseID=course, challengeID=event.objectID)
-            for challenge in challenges:
-                chall = challenge  
+            for chal in challenges:
+                chall = chal  
             scorePecentage = getScorePercentage(course,student,event.objectID)
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 30.0:
@@ -344,7 +337,7 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student):
             consecutiveDays = 0
         return consecutiveDays
     True
-def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student): 
+def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge): 
     from Students.models import StudentEventLog
     warmUpChallDates = []
     # filter all the ended challenge events
@@ -354,8 +347,8 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student):
             # get a specific challenge by its ID
             chall = 0
             challenges = Challenges.objects.filter(courseID=course, challengeID=event.objectID)
-            for challenge in challenges:
-                chall = challenge  
+            for chal in challenges:
+                chall = chal 
             scorePecentage = getScorePercentage(course,student, event.objectID)
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 75.0:
@@ -472,7 +465,8 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
 
 def getPercentageOfMaxActivityScore(course, student, activity):
     '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
-    
+    print("percentage of max activity score")
+    print(activity)
     highestScore = getMaxActivityScore(course, student, activity)
     
     totalScore = activity.points
