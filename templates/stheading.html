@@ -2,8 +2,18 @@
 {% load staticfiles %}       
 {% load notification_tags %}
 {% include_notify_js_variables %} 
+
 <script src="{% static "notify/notifyX.js" %}"></script>
 <script>
+	var updateSuccess = function (response) {
+	    var notification_box = $('#nMenu');
+	    var notifications = response.notifications;
+	    $.each(notifications, function (i, notification) {
+	        notification_box.prepend(notification.html);
+	    });
+	};
+
+
 	function countNotifications(){
 		numItems = $('.navNotifications').length;
 		if(numItems == 0){
@@ -143,7 +153,7 @@
 						<li class="nav_login_items">
 						<a href="/oneUp/students/NotificationPage" ><img src="/static/images/horn.png"><span class="button__badge" id='notificationCount'></span> </a>
 							<ul class="nav_login_second_level" style="width: 195px;">  <!-- Width can be between 200 and 300 still playing with it -->
-								<div id="noteparent" class="notification-box-list">
+								<div id="nMenu" class="notification-box-list">
 								{% user_notifications for box %}
 								</div>
 							</ul>
