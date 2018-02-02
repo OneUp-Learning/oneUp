@@ -34,12 +34,13 @@ from Students.views.transactionNotesView import transactionNotesView
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
 from Students.views.studentEarnedTransactions import earnedTransactionsView
-from Students.views.studentNotifications import studentNotifications
+from Students.views.studentNotifications import studentNotifications, updateNotificationTable
 
 
 admin.autodiscover()
 
-urlpatterns = [    
+urlpatterns = [   
+    url(r'^NotificationPageUpdate',updateNotificationTable,name='studentNotificationsUpdate'), 
     url(r'^NotificationPage',studentNotifications,name='studentNotifications'),
     url(r'^achievements',achievements,name='achievements'),
     url(r'^ActivityDescription', ActivityDetail, name = 'ActivityDescription'),

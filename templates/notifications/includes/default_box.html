@@ -1,6 +1,6 @@
 <li data-nf-id="{{ notification.id }}"
 class="nav_login_second_level_items notification list-group-item {{ notification.read|yesno:'read,unread' }} navNotifications">
-    <a href="/oneUp/students/NotificationPage">{{ notification.verb }}
+    <a href="#">{{ notification.verb }}
     <span class="timesince">{{ notification.created|timesince }} ago</span>    
        &nbsp; <span class="delete-notification" data-id="{{ notification.id }}"> &#10060</span>
      </a>
