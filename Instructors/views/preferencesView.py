@@ -72,7 +72,7 @@ def preferencesView(request):
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
 
         if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-            ccparams.courseStartDate = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            ccparams.courseStartDate = utcDate()
         else:
             ccparams.courseStartDate = utcDate(request.POST['courseStartDate'], "%m/%d/%Y %I:%M %p")
 
@@ -116,8 +116,11 @@ def preferencesView(request):
             context_dict["avatarUsed"]=ccparams.avatarUsed
             context_dict["classAverageUsed"]=ccparams.classAverageUsed
             context_dict["studCanChangeclassAverageVis"]=ccparams.studCanChangeclassAverageVis
-            context_dict["courseStartDate"]=ccparams.courseStartDate
             defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            if(ccparams.courseStartDate.year < defaultTime.year):
+                context_dict["courseStartDate"]=ccparams.courseStartDate
+            else:
+                context_dict["courseStartDate"]=""
             if(ccparams.courseEndDate.year < defaultTime.year):
                 context_dict["courseEndDate"]=ccparams.courseEndDate
             else:
