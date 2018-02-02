@@ -20,14 +20,17 @@ def activityAssignPointsView(request):
     
     if request.method == 'POST':
         # Get all students assigned to the current course (AH)
-        currentCourse = request.session['currentCourseID']
-        studentList = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
-        for student in studentList:
+        currentCourse = Courses.objects.get(courseID=request.session['currentCourseID'])
+        studentRCList = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
+        
+        activity = Activities.objects.get(activityID = request.POST['activityID'])
+        
+        for studentRC in studentRCList:
             # See if a student is graded for this activity (AH)
             # Should only be one match (AH)
-            assignment = StudentActivities.objects.filter(activityID = request.POST['activityID'], studentID = student.studentID.id).first()
-            studentPoints = request.POST['student_Points' + str(student.studentID.id)] 
-            isGraded = request.POST.get(str(student.studentID.id)+'_points_graded')
+            assignment = StudentActivities.objects.filter(activityID = request.POST['activityID'], studentID = studentRC.studentID.id).first()
+            studentPoints = request.POST['student_Points' + str(studentRC.studentID.id)] 
+            isGraded = request.POST.get(str(studentRC.studentID.id)+'_points_graded')
 
             # If student has been previously graded...
             if assignment:
@@ -39,32 +42,29 @@ def activityAssignPointsView(request):
                 if not studentPoints == "-1":
                     # Override the activity with the student points (AH)
                     assignment.activityScore = studentPoints
-                    assignment.instructorFeedback =  request.POST['student_Feedback' + str(student.studentID.id)]
+                    assignment.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     assignment.timestamp = utcDate()
                     assignment.graded = True
                     assignment.save()
 
-                    #Register event for participationNoted
-                    register_event(Event.participationNoted, request, assignment.studentID, assignment.activityID.activityID)
-                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.studentID) + ", Activity Assignment: " + str(assignment.studentActivityID))    
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
                 if not studentPoints == "-1":
                     # Create new activity (AH)
                     assignment = StudentActivities()
-                    assignment.activityID = Activities.objects.get(activityID = request.POST['activityID'])
-                    assignment.studentID = Student.objects.get(pk = student.studentID.id)
+                    assignment.activityID = activity
+                    assignment.studentID = studentRC.studentID
                     assignment.activityScore = studentPoints
                     assignment.timestamp = utcDate()
-                    assignment.instructorFeedback =  request.POST['student_Feedback' + str(student.studentID.id)]
-                    assignment.courseID = Courses.objects.get(courseID=currentCourse)
+                    assignment.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
+                    assignment.courseID = currentCourse
                     assignment.graded = True
                     assignment.save()
-
-                    #Register event for participationNoted
-                    register_event(Event.participationNoted, request, assignment.studentID, assignment.activityID.activityID)
        
-                    print("Registered Event: Participation Noted Event, Student: " + str(assignment.studentID) + ", Activity Assignment: " + str(assignment.studentActivityID))                           
+        #Register event for participationNoted
+        for studentRC in studentRCList:
+            register_event(Event.participationNoted, request, studentRC.studentID, activity.activityID)
+            print("Registered Event: Participation Noted Event, Student: " + str(assignment.studentID) + ", Activity Assignment: " + str(assignment.studentActivityID))                          
     
     # prepare context for Activity List      
     context_dict = createContextForActivityList(request) 
