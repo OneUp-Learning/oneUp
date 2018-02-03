@@ -42,13 +42,21 @@
             <div class="12u">
                   <!-- INSERTED DYNAMIC TABLE --> 
 
-			  <a href="/oneUp/instructors/challengeCreate?warmUp"><input type="button" value="Add New Warm Up Challenge"></a>    
-			  <br /> <br />
+			<a href="/oneUp/instructors/challengeCreate?warmUp"><input type="button" value="Add New Warm Up Challenge"></a>    
+			<br /> <br />
+
+        	<form name="challengeOrder" action="/oneUp/instructors/reorderChallenges" method="POST">
+        	{% csrf_token %}
+
+        	<input style="float:right" type="submit" name="submit" value="Reorder Challenges" class="button">
+        	<input type="hidden" name="courseID" value="{{courseID}}" id="courseID">	
+			<input type="hidden" name="challengeType" value="Warmup" id="challengeType{{courseID}}">
+			<br /><br />
 			  
-		      <table class="bg">		      
-		
+		      <table class="bg">
+
 				{% for i,topic_ID,topic_Name,topic_Pos,all_challenges in topic_range %}
-		
+
 				<tr> 
 					<input type="hidden" name="topicID" value="{{topic_ID}}">
 					<td><b>{{topic_Name}}</b></td>
@@ -58,11 +66,15 @@
 				  <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
 				  <td>
 					<table>
-                     {% for j,chall_ID,chall_Name, chall_visible in all_challenges %}
+                     {% for j,chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
                      <tr style="background-color: {% cycle '#EDF0F2' '#ffffff' %}; line-height: 20px;">
                         <div id="challenges{{j}}">
                            <td>{{chall_Name}}</td>
-                           <td>{{chall_visible}}</td>
+                           <td>{{chall_visible}}</td>                          
+     					   <td>
+    					   <input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="{{chall_ID}}" value="{{chall_position}}" id="chall_position" pattern=".*\S+.*" required>
+    					   </td>
+                           
                            <td align="right">
 
 	                            <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
@@ -82,6 +94,7 @@
 				</tr>
 				{% endfor %}
 			</table>
+			</form>
 
            <!-- END DYNAMIC TABLE -->
          </div></div></div></div>
