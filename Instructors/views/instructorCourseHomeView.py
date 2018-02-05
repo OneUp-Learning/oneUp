@@ -176,12 +176,14 @@ def courseLeaderboard(currentCourse, context_dict):
 #             # get the challenges for this course
 #             courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
     
-            # dictionary studentAvatar - XP
+            # dictionary studentAvatar - XP - this doesn't work when not all students have selected avatars 
+            # dictionary student - XP
             studentXP_dict = {}
             for s in students:
                 sXP = studentXP(s, currentCourse)
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
-                studentXP_dict[st_crs.avatarImage] = sXP 
+                #studentXP_dict[st_crs.avatarImage] = sXP 
+                studentXP_dict[st_crs] = sXP
                 
             # sort the dictionary by its values; the result is a list of pairs (key, value)
             xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)
@@ -191,7 +193,8 @@ def courseLeaderboard(currentCourse, context_dict):
             xpoints = []
             for item in xp_pairs:
                 if item[1] > 0:         # don't append if 0 XP points
-                    avatarImage.append(item[0])
+                    #avatarImage.append(item[0])
+                    avatarImage.append(item[0].avatarImage)
                     xpoints.append(item[1])
             
             context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints)                 
