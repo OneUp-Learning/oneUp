@@ -53,7 +53,7 @@
 		<tr> 
 		<input type="hidden" name="topicID" value="{{topic_ID}}">
 		<td><b>{{topic_Name}}</b>
-		{% for challenge_Name,challenge_ID,score in all_challenges %}
+		{% for i,challenge_Name,challenge_ID,score,chall_position in all_challenges %}
 		<input type="hidden" name="score" value="{{score}}">
 		<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		
