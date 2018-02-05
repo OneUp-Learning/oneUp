@@ -135,7 +135,7 @@ STATIC_PATH = os.path.join(BASE_DIR,'static')
 
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
-STATIC_URL = '/OneUp/' # You may find this is already defined as such.
+STATIC_URL = '/static/' # You may find this is already defined as such.
 
 STATICFILES_DIRS = (
 )
