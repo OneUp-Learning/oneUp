@@ -67,18 +67,24 @@ def studentXP(studentId, courseId):
             totalScorePointsWC = ((totalScorePointsWC + max(gradeID)) * xpWeightWChallenge / 100)      # max grade for this challenge
             
     # get the activity points for this course
-    totalScorePointsAP = 0
+
+    earnedActivityPoints = 0
+    totalActivityPoints = 0
+
     courseActivities = Activities.objects.filter(courseID=courseId)
     for activity in courseActivities:
+
         sa = StudentActivities.objects.filter(studentID=studentId, courseID=courseId,activityID=activity)
-        #print("SA",sa)
-        gradeID  = []
-                            
+
+        gradeID  = []                            
         for a in sa:
             gradeID.append(int(a.activityScore)) 
-            #print(a.activityScore)                                
+                               
         if(gradeID):
-            totalScorePointsAP = ((totalScorePointsAP + max(gradeID)) * xpWeightAPoints / 100)      # max grade for this challenge
+            earnedActivityPoints += max(gradeID)
+            totalActivityPoints += a.activityID.points
+            
+    totalScorePointsAP = earnedActivityPoints * xpWeightAPoints / 100
             
     # get the skill points for this course
     totalScorePointsSP = 0
