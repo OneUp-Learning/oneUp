@@ -423,11 +423,16 @@ def getScoreDifferenceFromPreviousActivity(course, student, activity):
     if len(activityObjects)==1 or len(activityObjects)==0:
         return 0
     
-    previousActivityScore = 0
+    previousActivityScore = 9999999999999  #Should never be used if code is correct
+    numActivitiesVisited = 0
     for activityObject in activityObjects:
         if activityObject.activityID == activity:
-            print(str(activityObject.activityScore-previousActivityScore))
-            return activityObject.activityScore-previousActivityScore
+            numActivitiesVisited += 1
+            if numActivitiesVisited == 1:
+                #This is the very first activity, we cannot compare it to previous
+                return 0
+            else:
+                return activityObject.activityScore-previousActivityScore
         else:
             previousActivityScore = activityObject.activityScore
             
@@ -454,10 +459,16 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
     if len(activityObjects)==1 or len(activityObjects)==0:
         return 0
     
-    previousActivityScorePercentage = 0
+    previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+    numActivitiesVisited = 0
     for activityObject in activityObjects:
+        numActivitiesVisited += 1
         if activityObject.activityID == activity:
-            return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
+            if numActivitiesVisited == 1:
+                #This is the very first activity, we cannot compare it to previous
+                return 0
+            else:
+                return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
         else:
             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
             
