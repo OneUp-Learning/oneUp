@@ -447,32 +447,39 @@ def getPercentageOfActivityScore(course, student , activity):
     else:
         return 0
 
+
+# def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
+#     '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
+#     
+#     from Students.models import StudentActivities 
+#     
+#     #filter database by timestamp
+#     activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+#     
+#     #if the activity is the very first one then return zero
+#     if len(activityObjects)==1 or len(activityObjects)==0:
+#         return 0
+#     
+#     previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+#     numActivitiesVisited = 0
+#     for activityObject in activityObjects:
+#         numActivitiesVisited += 1
+#         if activityObject.activityID == activity:
+#             if numActivitiesVisited == 1:
+#                 #This is the very first activity, we cannot compare it to previous
+#                 return 0
+#             else:
+#                 return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
+#         else:
+#             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
+#             
+#     return 0
+
 def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
-    
-    from Students.models import StudentActivities 
-    
-    #filter database by timestamp
-    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    
-    #if the activity is the very first one then return zero
-    if len(activityObjects)==1 or len(activityObjects)==0:
-        return 0
-    
-    previousActivityScorePercentage = 9999999 #Should never be used if code is correct
-    numActivitiesVisited = 0
-    for activityObject in activityObjects:
-        numActivitiesVisited += 1
-        if activityObject.activityID == activity:
-            if numActivitiesVisited == 1:
-                #This is the very first activity, we cannot compare it to previous
-                return 0
-            else:
-                return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
-        else:
-            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
-            
-    return 0
+    # This is a temporary solution for not satisfying the rules for the badges "Game Changers"
+    # Instead DD will manually assign those badges; we need to re-think our design of game rules and perhaps introduce categories for activities
+
+    return 0  
 
 def getPercentageOfMaxActivityScore(course, student, activity):
     '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
