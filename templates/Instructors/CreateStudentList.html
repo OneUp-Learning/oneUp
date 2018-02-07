@@ -68,17 +68,17 @@
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Email</th>
-                        <th>Last Log in</th>
+                        <th>Last Action</th>
                         <th> </th>
                      </tr>
-                     {% for i,userID,first_Name,last_Name,user_Email,user_Login,user_Avatar in user_range %}
+                     {% for i,userID,first_Name,last_Name,user_Email,user_Action,user_Avatar in user_range %}
                      <tr>
                         <div id="student{{i}}">
                            <td><img alt="Avatar Image" width="35" height="35" src="{{user_Avatar}}"></td> 
                            <td>{{first_Name}}</td>
                            <td>{{last_Name}}</td>
                            <td>{{user_Email}}</td>
-                           <td>{{user_Login}}</td>
+                           <td>{{user_Action}}</td>
                            <td align="right">
                               <form action="/oneUp/instructors/deleteStudent " method="POST">
                                  {% csrf_token %} 
