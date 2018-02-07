@@ -70,6 +70,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
     chall_visible = []
     start_Timestamp = []
     end_Timestamp = []
+    chall_Position = []
     UnassignID = 0
     
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=courseId)
@@ -85,6 +86,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
         if item.challengeID != UnassignID:
             chall_ID.append(item.challengeID) #pk
             chall_Name.append(item.challengeName)
+            chall_Position.append(item.challengePosition)
             #chall_Category.append(item.challengeCategory)
             #chall_Difficulty.append(item.challengeDifficulty)
             if item.isVisible:
@@ -103,7 +105,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                 end_Timestamp.append("")
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp)  ##,chall_Category
+    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_Position)), key=lambda tup: tup[6])  ##,chall_Category
     return context_dict
 
 
@@ -145,6 +147,7 @@ def challengesForTopic(topic, currentCourse):
     chall_Name = [] 
     #chall_Difficulty = []
     chall_visible = []
+    chall_position = []
     
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
     if challenge_topics:           
@@ -153,6 +156,7 @@ def challengesForTopic(topic, currentCourse):
                 chall_ID.append(challt.challengeID.challengeID)
                 chall_Name.append(challt.challengeID.challengeName)
                 #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
+                chall_position.append(challt.challengeID.challengePosition)
                 if challt.challengeID.isVisible:
                     chall_visible.append('Visible')
                 else:
@@ -160,7 +164,7 @@ def challengesForTopic(topic, currentCourse):
                     
     print()
     #return zip(challenge_Name,challenge_ID, challenge_Difficulty, isVisible)
-    return zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible)
+    return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,chall_position)), key=lambda tup: tup[4])
 
 @login_required
 def warmUpChallengeList(request):
