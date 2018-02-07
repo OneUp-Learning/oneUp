@@ -50,7 +50,7 @@ def createStudentListView(request):
         last_Name.append(s.user.last_name)
         user_Email.append(s.user.email)
         if last_action:
-            user_Action.append(Event.events[last_action.event]['displayName'] + " at " + last_action.timestamp.strftime("%m/%d/%Y %I:%M %p"))
+            user_Action.append(last_action.timestamp.strftime("%m/%d/%Y %I:%M %p"))
             print()
         else:
             user_Action.append("None")
