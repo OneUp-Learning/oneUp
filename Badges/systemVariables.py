@@ -413,28 +413,39 @@ def getDaysDifferenceActity(activity, studentActivity):
     return deadline - submission
     
 def getScoreDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference of score between this activity and the previous one'''
-    
+    '''Returns the the difference of score between this activity and the previous one.'''
+    '''NOTE: temporary it is made to work only for Assignments'''
+        
     from Students.models import StudentActivities 
     #filter database by timestamp
-    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    
-    #if the fired activity is the very first one then return zero
-    if len(activityObjects)==1 or len(activityObjects)==0:
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+
+    stud_assignments = []
+    # filter only the activities started with "Assignment"
+    for sa in stud_activities:
+        if sa.activityID.activityName.startswith('Assign'):
+            stud_assignments.append(sa)
+            
+    print('Stud_asssignments',stud_assignments)
+
+    # now work only with the assignments    
+    # if no activities or just one activity return zero
+    if len(stud_assignments)==1 or len(stud_assignments)==0:
         return 0
     
     previousActivityScore = 9999999999999  #Should never be used if code is correct
     numActivitiesVisited = 0
-    for activityObject in activityObjects:
-        if activityObject.activityID == activity:
-            numActivitiesVisited += 1
+    
+    for sa in stud_assignments:
+        numActivitiesVisited += 1
+        if sa.activityID == activity:            
             if numActivitiesVisited == 1:
                 #This is the very first activity, we cannot compare it to previous
                 return 0
             else:
-                return activityObject.activityScore-previousActivityScore
+                return sa.activityScore-previousActivityScore
         else:
-            previousActivityScore = activityObject.activityScore
+            previousActivityScore = sa.activityScore
             
     return 0
 
@@ -447,32 +458,72 @@ def getPercentageOfActivityScore(course, student , activity):
     else:
         return 0
 
+
 def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
+    '''Returns the the difference between the percentages of the student's scores for this activity and its previous one. '''
+    '''NOTE: temporary it is made to work only for Assignments'''
     
     from Students.models import StudentActivities 
-    
-    #filter database by timestamp
-    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    
-    #if the activity is the very first one then return zero
-    if len(activityObjects)==1 or len(activityObjects)==0:
+     
+    # get all activities for this student from the database; order by timestamp
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+    #print (stud_activities)
+    assignments = []
+    # filter only the activities started with "Assignment"
+    for sa in stud_activities:
+        if sa.activityID.activityName.startswith('Assign'):
+            assignments.append(sa.activityID)
+    #print('assignments',assignments)
+
+    # now work only with the assignments
+    # if no activities or just one activity return zero
+    if len(assignments)==1 or len(assignments)==0:
         return 0
-    
+     
     previousActivityScorePercentage = 9999999 #Should never be used if code is correct
     numActivitiesVisited = 0
-    for activityObject in activityObjects:
+    
+    for assign in assignments:
         numActivitiesVisited += 1
-        if activityObject.activityID == activity:
+        if assign == activity:
             if numActivitiesVisited == 1:
                 #This is the very first activity, we cannot compare it to previous
                 return 0
             else:
-                return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
+                return getPercentageOfActivityScore(course,student,assign)-previousActivityScorePercentage
         else:
-            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
-            
+            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, assign)
+             
     return 0
+
+
+# def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
+#     '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
+#     
+#     from Students.models import StudentActivities 
+#     
+#     #filter database by timestamp
+#     activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+#     
+#     #if the activity is the very first one then return zero
+#     if len(activityObjects)==1 or len(activityObjects)==0:
+#         return 0
+#     
+#     previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+#     numActivitiesVisited = 0
+#     for activityObject in activityObjects:
+#         numActivitiesVisited += 1
+#         if activityObject.activityID == activity:
+#             if numActivitiesVisited == 1:
+#                 #This is the very first activity, we cannot compare it to previous
+#                 return 0
+#             else:
+#                 return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
+#         else:
+#             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
+#             
+#     return 0
+ 
 
 def getPercentageOfMaxActivityScore(course, student, activity):
     '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
@@ -1071,7 +1122,7 @@ class SystemVariable():
         scoreDifferenceFromPreviousActivity:{
             'index': scoreDifferenceFromPreviousActivity,
             'name':'scoreDifferenceFromPreviousActivity',
-            'displayName':'Score Difference from previous Completed Activity',
+            'displayName':'Score Difference from Previous Completed Activity',
             'description':'Score difference of an activity from the activity preceding it.',
             'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
