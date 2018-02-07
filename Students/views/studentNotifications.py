@@ -51,14 +51,17 @@ def updateNotificationTable(request):
                 id__gt=last_notification).active().prefetch()
         
         notification_list = []
+        timeStamps = []
         for nf in new_notifications:
             notification = nf.as_json()
             notification_list.append(notification)
+            timeStamps.append(nf.created.timestamp())
             
         ctx = {
             "retrieved": len(new_notifications),
             "unread_count": request.user.notifications.unread().count(),
             "notifications": notification_list,
+            "timeStamps": timeStamps,
             "success": True,
         }
 
