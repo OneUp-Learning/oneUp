@@ -19,6 +19,7 @@ from Instructors.views.challengeQuestionSelectView import challengeQuestionSelec
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
 from Instructors.views.challengeSaveView import challengeSaveView
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
+from Instructors.views.reorderChallengesView import reorderChallenges
 
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
@@ -128,6 +129,8 @@ urlpatterns = [
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
     url(r'^preferences',preferencesView, name='preferencesView'),
+    url(r'^reorderChallenges', reorderChallenges, name='reorderChallenges'),       
+    url(r'^reorderChallengeSaveQuestions', reorderChallengeSaveQuestions, name='reorderChallengeSaveQuestions'),    
     url(r'^saveExportedChallenges',saveExportedChallenges, name='saveExportedChallenges'),    
     url(r'^search',searchQuestions, name='searchQuestions'),
     url(r'^skillsCreate',skillsCreateView, name='skillsCreateView'),
@@ -150,7 +153,5 @@ urlpatterns = [
     url(r'^luaLibEdit',libEdit,name="Lua Library Edit"),        
     url(r'^luaLibUploadView',luaLibUpload,name="Lua Library Upload"),
     url(r'^luaLibConfirmDelete',libDeleteConfirmView,name="Lua Library Deletion Confirmation"),
-    url(r'^reorderChallengeSaveQuestions', reorderChallengeSaveQuestions, name='reorderChallengeSaveQuestions'),
-   
 
 ]

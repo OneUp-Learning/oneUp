@@ -67,18 +67,24 @@ def studentXP(studentId, courseId):
             totalScorePointsWC = ((totalScorePointsWC + max(gradeID)) * xpWeightWChallenge / 100)      # max grade for this challenge
             
     # get the activity points for this course
-    totalScorePointsAP = 0
+
+    earnedActivityPoints = 0
+    totalActivityPoints = 0
+
     courseActivities = Activities.objects.filter(courseID=courseId)
     for activity in courseActivities:
+
         sa = StudentActivities.objects.filter(studentID=studentId, courseID=courseId,activityID=activity)
-        #print("SA",sa)
-        gradeID  = []
-                            
+
+        gradeID  = []                            
         for a in sa:
             gradeID.append(int(a.activityScore)) 
-            #print(a.activityScore)                                
+                               
         if(gradeID):
-            totalScorePointsAP = ((totalScorePointsAP + max(gradeID)) * xpWeightAPoints / 100)      # max grade for this challenge
+            earnedActivityPoints += max(gradeID)
+            totalActivityPoints += a.activityID.points
+            
+    totalScorePointsAP = earnedActivityPoints * xpWeightAPoints / 100
             
     # get the skill points for this course
     totalScorePointsSP = 0
@@ -176,12 +182,14 @@ def courseLeaderboard(currentCourse, context_dict):
 #             # get the challenges for this course
 #             courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
     
-            # dictionary studentAvatar - XP
+            # dictionary studentAvatar - XP - this doesn't work when not all students have selected avatars 
+            # dictionary student - XP
             studentXP_dict = {}
             for s in students:
                 sXP = studentXP(s, currentCourse)
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
-                studentXP_dict[st_crs.avatarImage] = sXP 
+                #studentXP_dict[st_crs.avatarImage] = sXP 
+                studentXP_dict[st_crs] = sXP
                 
             # sort the dictionary by its values; the result is a list of pairs (key, value)
             xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)
@@ -191,7 +199,8 @@ def courseLeaderboard(currentCourse, context_dict):
             xpoints = []
             for item in xp_pairs:
                 if item[1] > 0:         # don't append if 0 XP points
-                    avatarImage.append(item[0])
+                    #avatarImage.append(item[0])
+                    avatarImage.append(item[0].avatarImage)
                     xpoints.append(item[1])
             
             context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints)                 
