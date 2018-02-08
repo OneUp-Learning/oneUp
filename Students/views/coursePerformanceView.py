@@ -3,8 +3,8 @@ Created on Feb 22, 2017
 
 '''
 from django.shortcuts import render
-from Students.models import StudentChallenges, Student, StudentActivities, StudentRegisteredCourses
-from Instructors.models import Challenges, Courses, Activities
+from Students.models import StudentChallenges, StudentActivities
+from Instructors.models import Challenges, Activities
 from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
@@ -48,7 +48,7 @@ def CoursePerformance(request):
             assignmentType.append("Activity")
             assignmentTime.append(sa.timestamp)
             assignmentGrade.append(sa.activityScore)
-            assignmentGradeTotal.append(sa.activityScore)
+            assignmentGradeTotal.append(a.points)
             assignmentFeedback.append(sa.instructorFeedback)
                 
       
