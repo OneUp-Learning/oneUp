@@ -6,6 +6,8 @@
 	<!-- Used for the notifications -->
 		{% load staticfiles %}       
 		{% load notification_tags %}
+		
+		{% if ID != 2 %}
 		<script>
 		function timeDifference(earlierdate) {
 			
@@ -46,7 +48,7 @@
 
             if (!flag || $notification_box.length == 0) {
             	console.log('Something went wrong');
-                return;
+                return;0
             }
 
             $.ajax({
@@ -137,6 +139,7 @@
             });
         });
 		</script>
+		{% endif %}
 </head>
  
 <body>
@@ -157,12 +160,14 @@
         <div class="row">
         <div class="12u">
         	<h1>Notifications</h1>
+        	<a href="/oneUp/students/NotificationPage?ID=1">All Notifications</a> <br/>
+        	<a href="/oneUp/students/NotificationPage?ID=2">Deleted Notifications</a><br/> 
+        	<a href="/oneUp/students/NotificationPage?ID=0">Active Notifications</a>
 		</div>
 		</div>
 		<br />
 		
 		<div align="center">
-		
 			
    			<div id="nTable" class="notification-box-list ">
    			<table id='T1' class="bg" style="margin-bottom: .750em; width: 80%; align: center;">
@@ -171,7 +176,19 @@
    				<th>Notification Timestamp</th>
    				<th style="padding-left: 100px;">Options</th>
    			</tr>
-   				{% user_notifications%}		
+   			
+   			
+   			
+   			{% if ID == 0 %}
+   				{% user_notifications%}
+   				
+   			{% elif ID == 1 %}
+   				{% render_notifications using request.user.notifications.all %}
+   				
+   			{% elif ID == 2 %}
+   				{% render_notifications using request.user.notifications.deleted %}
+   				
+            {% endif %}	
    			</table>
    			</div>
    			                              

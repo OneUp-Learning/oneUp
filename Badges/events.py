@@ -14,6 +14,8 @@ from Badges.systemVariables import calculate_system_variable
 from Instructors.views.utils import utcDate
 from notify.signals import notify
 from django.contrib.auth.models import User
+from Instructors.models import InstructorRegisteredCourses, Instructors
+
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -331,8 +333,8 @@ def fire_action(rule,courseID,studentID,eventEntry):
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         
         #Test to make notifications 
-        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You Won a Badge', nf_type='gained_Badge')
-
+        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You Won a '+badge.badgeName+'Badge', nf_type='Badge')
+        
         return
     
     if (actionID == Action.createNotification):
@@ -376,12 +378,17 @@ def fire_action(rule,courseID,studentID,eventEntry):
             # Increase the student virtual currency amount
             student.virtualCurrencyAmount += vcRuleAmount
             student.save()
+            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You Won '+str(vcRuleAmount)+' virtual currency', nf_type='Increase VirtualCurrency')
             return
     
         if actionID == Action.decreaseVirtualCurrency:
             # Decrease the student virtual currency amount
             if student.virtualCurrencyAmount >= vcRuleAmount:
                 student.virtualCurrencyAmount -= vcRuleAmount
+                
+                instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
+                instructor = instructorCourse.instructorID
+                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual currency', nf_type='Decrease VirtualCurrency')
             else:
                 #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
                 print('this purchase did not go through')
