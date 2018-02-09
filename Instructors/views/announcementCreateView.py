@@ -73,16 +73,7 @@ def announcementCreateView(request):
         
             
         announcement.save();  #Writes to database.
-        #Send Notifications to the students
-        studentQuery = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
-        students = []
-        for s in studentQuery:
-            students.append(s.studentID.user)
-        
-        students = list(students)
-                        
-        notify.send(None, recipient_list=students, actor=request.user,
-                verb='A new announcement has been posted', nf_type='New Announcement')
+    
                 
         return redirect('announcementListView')
 

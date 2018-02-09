@@ -6,8 +6,7 @@ from Instructors.views import utils, challengeListView
 from Instructors.views.utils import utcDate
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
-from notify.signals import notify
-from Students.models import StudentRegisteredCourses
+
 
 from time import time
 from datetime import datetime
@@ -205,22 +204,11 @@ def challengeCreateView(request):
         tagString = request.POST.get('tags', "default")
         utils.saveChallengeTags(tagString, challenge)
         
-        #Send Notifications to the students
-        studentQuery = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
-        students = []
-        for s in studentQuery:
-            students.append(s.studentID.user)
-        
-        students = list(students)
-        challengeName = request.POST.get('challengeName')
+
         
         if isGraded == "":
-            notify.send(None, recipient_list=students, actor=request.user,
-                verb='A new warmup challenge '+challengeName+' has been posted', nf_type='New WarmUp')
             return redirect('/oneUp/instructors/warmUpChallengeList')
         else:
-            notify.send(None, recipient_list=students, actor=request.user,
-                verb='A new serious challenge '+challengeName+' has been posted', nf_type='New Serious')
             return redirect('/oneUp/instructors/challengesList')
     
     # GET        

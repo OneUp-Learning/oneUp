@@ -8,31 +8,7 @@
 		{% load notification_tags %}
 		
 		{% if ID != 2 %}
-		<script>
-		function timeDifference(earlierdate) {
-			
-            var difference = (Math.floor(Date.now()/1000) - earlierdate) /1000;
-         
-            var daysDifference = difference;            
-            daysDifference /= (60 * 60 * 24);
-            daysDifference = Math.abs(Math.round(daysDifference));
-         
-            var hoursDifference = difference;          
-            hoursDifference /= (60 * 60);
-            hoursDifference =  Math.abs(Math.round(hoursDifference));
-         
-            var minutesDifference = difference;            
-            minutesDifference /= 60;
-            minutesDifference = Math.abs(Math.round(minutesDifference));
-         
-         
-         	console.log('difference = ' + daysDifference + ' day/s ' + hoursDifference + ' hour/s ' + minutesDifference + ' minute/s');
-         	return [daysDifference, hoursDifference, minutesDifference ];
-         
-         
-        }
-		
-		
+		<script>	
 		 // Ajax-Notification related callback urls.
         var updateNotificationUrl = "NotificationPageUpdate";        
 
@@ -74,51 +50,7 @@
                     	row.setAttribute("data-nf-id", newN.id);
                     	
                     	cell1.innerHTML =  newN.verb;
-
-                    	
-                    	  
-                    	var TimeArray = timeDifference(timeStamp);
-                    	var days = TimeArray[0];
-                    	var hours = TimeArray[1];
-                    	var mins = TimeArray[2];
-                    	
-                    	var timeString = "";
-
-                    	if(hours == 0 && days ==0 && mins == 0){
-                			timeString = "0 minutes";
-                		}
-                    	
-                    	if(days != 0){
-							console.log("In the Days")
-                    		if(days == 1){ //1 day
-                    			timeString = timeString + days + "day";
-                    		} else { // X days
-                    			timeString = timeString + days + "days";	
-                    		}	
-                    	} 
-                    	
-                    	if(hours != 0){
-							console.log("In the hours")
-                    		if(hours == 1){
-                    			timeString = timeString + hour + "hour";
-                    		} else {
-                    			timeString = timeString + hour + "hours";
-                    		}
-                    	} 
-                    	
-                    	if(mins != 0) { //The day and hours are z
-							console.log("In the mins")
-                    		 if (mins == 1){
-                    			timeString = timeString + mins + "minute";
-
-                    		} else {
-                    			timeString = timeString + mins + "minutes";
-                    		}		
-                    	}
-                    	
-                    	cell2.innerHTML = '<span class="timesince">'+timeString+' ago</span>'; 	
-
-
+                    	cell2.innerHTML = '<span class="timesince">0 minutes ago</span>'; 	
                     	
                     	
                     	if(!newN.read){
@@ -160,8 +92,8 @@
         <div class="row">
         <div class="12u">
         	<h1>Notifications</h1>
-        	<a href="/oneUp/students/NotificationPage?ID=1">All Notifications</a> <br/>
-        	<a href="/oneUp/students/NotificationPage?ID=0">Active Notifications</a><br/>
+        	<a href="/oneUp/students/NotificationPage?ID=0">All Notifications</a> <br/>
+        	<a href="/oneUp/students/NotificationPage?ID=1">Active Notifications</a><br/>
         	<a href="/oneUp/students/NotificationPage?ID=2">Deleted Notifications</a>
 		</div>
 		</div>
@@ -180,11 +112,10 @@
    			
    			
    			{% if ID == 0 %}
-   				{% user_notifications%}
-   				
-   			{% elif ID == 1 %}
    				{% render_notifications using request.user.notifications.all %}
    				
+   			{% elif ID == 1 %}
+				{% user_notifications %}   				
    			{% elif ID == 2 %}
    				{% render_notifications using request.user.notifications.deleted %}
    				

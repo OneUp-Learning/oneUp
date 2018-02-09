@@ -15,8 +15,6 @@ from datetime import datetime
 import filecmp
 from lib2to3.fixer_util import String
 from ckeditor_uploader.views import upload
-from notify.signals import notify
-from Students.models import StudentRegisteredCourses
 
 @login_required
 def activityCreateView(request):
@@ -86,20 +84,6 @@ def activityCreateView(request):
             activity.author = ""
             
         activity.save();  #Writes to database.
-        
-        
-        #Send Notifications to the students
-        studentQuery = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
-        students = []
-        for s in studentQuery:
-            students.append(s.studentID.user)
-        
-        students = list(students)
-        actName = request.POST.get('activityName')
-                        
-        notify.send(None, recipient_list=students, actor=request.user,
-                verb='A new activity '+actName+' has been posted', nf_type='New Activity')
-        
         
         
         print('Starting Files' + str(len(request.FILES)))

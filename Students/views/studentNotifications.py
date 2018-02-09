@@ -88,64 +88,49 @@ def updateNotificationTable(request):
     ctx = {"success": False, "msg": msg}
     return JsonResponse(ctx)    
 
-def convertTime(Time):
-    diff = (datetime.utcnow() - Time) / 1000
-    timeString = ""
-    
-    monthDifference = diff
-    monthDifference = (60 * 60 * 24 * 7 * 4)
-    monthDifference = abs(round(monthDifference));
-
-    weekDifference = diff
-    weekDifference /= (60 * 60 * 24 * 7)
-    weekDifference = abs(round(weekDifference))
-    
-    dayDifference = diff
-    dayDifference /= (60 * 60 * 24)
-    dayDifference = abs(round(dayDifference))
-    
-    hoursDifference = diff;          
-    hoursDifference /= (60 * 60);
-    hoursDifference =  abs(round(hoursDifference))
- 
-    minutesDifference = diff;            
-    minutesDifference /= 60;
-    minutesDifference = abs(round(minutesDifference))
-    
-    if(monthDifference == 0 and weekDifference == 0 and dayDifference == 0 and hoursDifference == 0
-       and minutesDifference == 0):
-        return "0 minutes"
-    else:
-        if(monthDifference != 0):
-            if(monthDifference == 1):
-                return "1 month"
-            else:
-                return str(monthDifference) + " months"
-        
-        if(weekDifference != 0):
-            if(weekDifference == 1):
-                timeString = "1 week, "
-            else:
-                timeString = str(weekDifference) + " weeks, "
-                
-        if(dayDifference !=0):
-            if(dayDifference != 1):
-                pass
- 
- 
-#      return [daysDifference, hoursDifference, minutesDifference ];
-
-    
-
-        
-        
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+# def convertTime(Time):
+#     diff = (datetime.utcnow() - Time) / 1000
+#     timeString = ""
+#     
+#     monthDifference = diff
+#     monthDifference = (60 * 60 * 24 * 7 * 4)
+#     monthDifference = abs(round(monthDifference));
+# 
+#     weekDifference = diff
+#     weekDifference /= (60 * 60 * 24 * 7)
+#     weekDifference = abs(round(weekDifference))
+#     
+#     dayDifference = diff
+#     dayDifference /= (60 * 60 * 24)
+#     dayDifference = abs(round(dayDifference))
+#     
+#     hoursDifference = diff;          
+#     hoursDifference /= (60 * 60);
+#     hoursDifference =  abs(round(hoursDifference))
+#  
+#     minutesDifference = diff;            
+#     minutesDifference /= 60;
+#     minutesDifference = abs(round(minutesDifference))
+#     
+#     if(monthDifference == 0 and weekDifference == 0 and dayDifference == 0 and hoursDifference == 0
+#        and minutesDifference == 0):
+#         return "0 minutes"
+#     else:
+#         if(monthDifference != 0):
+#             if(monthDifference == 1):
+#                 return "1 month"
+#             else:
+#                 return str(monthDifference) + " months"
+#         
+#         if(weekDifference != 0):
+#             if(weekDifference == 1):
+#                 timeString = "1 week, "
+#             else:
+#                 timeString = str(weekDifference) + " weeks, "
+#                 
+#         if(dayDifference !=0):
+#             if(dayDifference != 1):
+#                 pass
+#  
+#  
+# #      return [daysDifference, hoursDifference, minutesDifference ];

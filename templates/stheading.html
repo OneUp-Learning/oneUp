@@ -1,9 +1,9 @@
 <!-- Used for the notifications -->
 {% load staticfiles %}       
 {% load notification_tags %}
-{% include_notify_js_variables %} 
-
+{% include_notify_js_variables %}
 <script src="{% static "notify/notifyX.js" %}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <script>
 	var updateSuccess = function (response) {
 	    var notification_box = $('#nMenu');
@@ -29,6 +29,11 @@
 			x.parentNode.replaceChild(y, x);
 		} else {
 			document.getElementById("notificationCount").textContent=numItems;
+		}
+		
+		noteBoxHeight = $('#nMenu').height();
+		if(noteBoxHeight > 325){
+			$('#nMenu').css('height', 325);
 		}
 		
 	}
@@ -154,8 +159,8 @@
 						
 						<li class="nav_login_items">
 						<a href="/oneUp/students/NotificationPage" ><img src="/static/images/horn.png"><span class="button__badge" id='notificationCount'></span> </a>
-							<ul class="nav_login_second_level" style="width: 195px;">  <!-- Width can be between 200 and 300 still playing with it -->
-								<div id="nMenu" class="notification-box-list">
+							<ul class="nav_login_second_level" style="width: 205px;">  <!-- Width can be between 200 and 300 still playing with it -->
+								<div id="nMenu" class="notification-box-list" style="overflow:auto;">
 								{% user_notifications for box %}
 								</div>
 							</ul>
