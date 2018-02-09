@@ -271,7 +271,7 @@ def ChallengeResults(request):
                 studentChallenge.testScore = totalStudentScore
                 studentChallenge.save()
                 
-                if challenge.totalScore == 0:
+                if challenge.totalScore != totalStudentScore:  # In case things have been changed since the last time it was taken or this is first time anyone has taken
                     challenge.totalScore = totalPossibleScore
                     challenge.save()
                 
