@@ -413,28 +413,39 @@ def getDaysDifferenceActity(activity, studentActivity):
     return deadline - submission
     
 def getScoreDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference of score between this activity and the previous one'''
-    
+    '''Returns the the difference of score between this activity and the previous one.'''
+    '''NOTE: temporary it is made to work only for Assignments'''
+        
     from Students.models import StudentActivities 
     #filter database by timestamp
-    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    
-    #if the fired activity is the very first one then return zero
-    if len(activityObjects)==1 or len(activityObjects)==0:
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+
+    stud_assignments = []
+    # filter only the activities started with "Assignment"
+    for sa in stud_activities:
+        if sa.activityID.activityName.startswith('Assign'):
+            stud_assignments.append(sa)
+            
+    print('Stud_asssignments',stud_assignments)
+
+    # now work only with the assignments    
+    # if no activities or just one activity return zero
+    if len(stud_assignments)==1 or len(stud_assignments)==0:
         return 0
     
     previousActivityScore = 9999999999999  #Should never be used if code is correct
     numActivitiesVisited = 0
-    for activityObject in activityObjects:
-        if activityObject.activityID == activity:
-            numActivitiesVisited += 1
+    
+    for sa in stud_assignments:
+        numActivitiesVisited += 1
+        if sa.activityID == activity:            
             if numActivitiesVisited == 1:
                 #This is the very first activity, we cannot compare it to previous
                 return 0
             else:
-                return activityObject.activityScore-previousActivityScore
+                return sa.activityScore-previousActivityScore
         else:
-            previousActivityScore = activityObject.activityScore
+            previousActivityScore = sa.activityScore
             
     return 0
 
@@ -446,6 +457,44 @@ def getPercentageOfActivityScore(course, student , activity):
         return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
     else:
         return 0
+
+
+def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
+    '''Returns the the difference between the percentages of the student's scores for this activity and its previous one. '''
+    '''NOTE: temporary it is made to work only for Assignments'''
+    
+    from Students.models import StudentActivities 
+     
+    # get all activities for this student from the database; order by timestamp
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+    #print (stud_activities)
+    assignments = []
+    # filter only the activities started with "Assignment"
+    for sa in stud_activities:
+        if sa.activityID.activityName.startswith('Assign'):
+            assignments.append(sa.activityID)
+    #print('assignments',assignments)
+
+    # now work only with the assignments
+    # if no activities or just one activity return zero
+    if len(assignments)==1 or len(assignments)==0:
+        return 0
+     
+    previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+    numActivitiesVisited = 0
+    
+    for assign in assignments:
+        numActivitiesVisited += 1
+        if assign == activity:
+            if numActivitiesVisited == 1:
+                #This is the very first activity, we cannot compare it to previous
+                return 0
+            else:
+                return getPercentageOfActivityScore(course,student,assign)-previousActivityScorePercentage
+        else:
+            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, assign)
+             
+    return 0
 
 
 # def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
@@ -474,12 +523,7 @@ def getPercentageOfActivityScore(course, student , activity):
 #             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
 #             
 #     return 0
-
-def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
-    # This is a temporary solution for not satisfying the rules for the badges "Game Changers"
-    # Instead DD will manually assign those badges; we need to re-think our design of game rules and perhaps introduce categories for activities
-
-    return 0  
+ 
 
 def getPercentageOfMaxActivityScore(course, student, activity):
     '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
@@ -626,6 +670,18 @@ def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):
     logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, student, challenge):    
+    numberOfChall = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in challenges:
+        allScores = getTestScores(course,student,challenge)
+        if len(allScores)==1:
+            percentage = getScorePercentage(course, student, challenge.challengeID)
+            if percentage > 75:
+                numberOfChall += 1
+    print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
+    return numberOfChall
+
 def isWarmUpChallenge(course,student,challenge):
     return not challenge.isGraded
 
@@ -675,6 +731,7 @@ class SystemVariable():
     uniqueWarmupChallengesAttempted = 937 # The number of unique challenges completed by the student
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
+    uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
     
     systemVariables = {
         numAttempts:{
@@ -1078,12 +1135,23 @@ class SystemVariable():
         scoreDifferenceFromPreviousActivity:{
             'index': scoreDifferenceFromPreviousActivity,
             'name':'scoreDifferenceFromPreviousActivity',
-            'displayName':'Score Difference from previous Completed Activity',
+            'displayName':'Score Difference from Previous Completed Activity',
             'description':'Score difference of an activity from the activity preceding it.',
             'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
             'functions':{
                 ObjectTypes.activity:getScoreDifferenceFromPreviousActivity
             },
-        },                                                                   
+        },      
+        uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
+            'index': uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt,
+            'name':'uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt',
+            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
+            'description':'The number of warmup challenges with a score greater than 75% with only one attempt.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
+            },
+        },                                                               
     }

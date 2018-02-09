@@ -27,10 +27,10 @@
        		<div class="row">
          	<div  align="left">
          	
-        <font color="#0000FF ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Above Average</font>&nbsp;&nbsp;
-        <font color="#00ace6 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Average</font>&nbsp;&nbsp;
-        <font color="#80dfff ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Below Average</font>&nbsp;&nbsp;
-        <font color="#FFFF00 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Not attempted</font>
+        <i class="fa fa-square" style="color:green;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Above Average</font>&nbsp;&nbsp;
+        <i class="fa fa-square" style="color:blue;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Average</font>&nbsp;&nbsp;
+        <i class="fa fa-square" style="color:red;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Below Average</font>&nbsp;&nbsp;
+        <i class="fa fa-square-o" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Not attempted</font>
         	</div></div>
     		<div class="row">
          	<div class="12u">
@@ -42,8 +42,7 @@
      
         <table class="bg">
            <tr>
-        		<th> <span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <font color="#0000FF ">&#9724;
-        		</font> to view your attempt (if any) or click the actual link to take the warm up
+        		<th> <span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <i class="fa fa-square" aria-hidden="true"></i> to view your attempt (if any) or click the actual link to take the warm up
         		<span style="color: red; font-weight: bolder;">*</span></th>
         		
         	</tr>
@@ -61,19 +60,20 @@
 				 
 				
 				{% elif score == 2 %}  <!-- If score have not been taken -->
-				<font color="#FFFF00 ">&#9724;</font>
+				<i class="fa fa-square-o" aria-hidden="true"></i>
 				
 				{% elif score == 3 %} <!-- If score equals Above Average -->
 				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
-				<font color="#0000FF "> &#9724;</font></a>
+				<i class="fa fa-square" style="color:green;" aria-hidden="true"></i>
+				</a>
 				
 				{% elif score == 4 %} <!-- If score equals Average -->
 				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
-				<font color="#00ace6 "> &#9724;</font></a>
+				<i class="fa fa-square" style="color:blue;" aria-hidden="true"></i></a>
 				
 				{% else %} <!-- If score equals Below Average -->
 				<a href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" style="text-decoration:none;">
-				<font color="#80dfff "> &#9724;</font></a>
+				<i class="fa fa-square" style="color:red;" aria-hidden="true"></i></a>
 				{% endif %}
 				 
 				 <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">

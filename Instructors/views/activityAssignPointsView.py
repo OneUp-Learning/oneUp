@@ -148,7 +148,7 @@ def createContextForPointsAssignment(request):
         
     context_dict['activityID'] = request.GET['activityID']
     context_dict['activityName'] = Activities.objects.get(activityID = request.GET['activityID']).activityName
-    context_dict['assignedActivityPoints_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Feedback, File_Name)
+    context_dict['assignedActivityPoints_range'] = sorted(list(zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Feedback, File_Name)), key=lambda tup: tup[2])
     return context_dict
     
 @login_required
