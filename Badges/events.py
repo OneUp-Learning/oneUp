@@ -384,8 +384,7 @@ def fire_action(rule,courseID,studentID,eventEntry):
         if actionID == Action.decreaseVirtualCurrency:
             # Decrease the student virtual currency amount
             if student.virtualCurrencyAmount >= vcRuleAmount:
-                student.virtualCurrencyAmount -= vcRuleAmount
-                
+                student.virtualCurrencyAmount -= vcRuleAmount 
                 instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
                 instructor = instructorCourse.instructorID
                 notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual currency', nf_type='Decrease VirtualCurrency')

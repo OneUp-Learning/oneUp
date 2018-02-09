@@ -15,6 +15,8 @@ from datetime import datetime
 import filecmp
 from lib2to3.fixer_util import String
 from ckeditor_uploader.views import upload
+from notify.signals import notify
+from Students.models import StudentRegisteredCourses
 
 @login_required
 def activityCreateView(request):
@@ -82,8 +84,21 @@ def activityCreateView(request):
             activity.author = request.user.username
         else:
             activity.author = ""
-
+            
         activity.save();  #Writes to database.
+        
+        
+        #Send Notifications to the students
+        studentQuery = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
+        students = []
+        for s in studentQuery:
+            students.append(s.studentID.user)
+        
+        students = list(students)
+        actName = request.POST.get('activityName')
+                        
+        notify.send(None, recipient_list=students, actor=request.user,
+                verb='A new activity '+actName+' has been posted', nf_type='New Activity')
         
         
         
@@ -94,11 +109,7 @@ def activityCreateView(request):
             files =  request.FILES.getlist('actFile')
             makeFilesObjects(request.user, files, activity)
             
-        print('End Files')
-
-                
-        
-        
+        print('End Files')    
          
         # prepare context for Activity List      
         context_dict = createContextForActivityList(request) 
@@ -156,15 +167,6 @@ def makeFilesObjects(instructorID, files, activity):
     
     #Get the old files and see if any of the new files match it
     oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
-#     for oldFile in oldActFile:
-#         for newFile in files:
-#             if filecmp(oldFile, newFile):
-#                 files.remove(newFile)
-#             else
-#             
-#         
-#         f.latest = False
-#         f.save()
 
     for i in range(0, len(files)): #make student files so we can save files to hardrive
         print('Makeing file object' + str(files[i].name))

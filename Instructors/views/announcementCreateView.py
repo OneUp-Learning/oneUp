@@ -10,7 +10,8 @@ from Instructors.views.announcementListView import createContextForAnnouncementL
 from Instructors.views.utils import utcDate
 from Instructors.constants import default_time_str
 from datetime import datetime
-
+from notify.signals import notify
+from Students.models import StudentRegisteredCourses
 
 @login_required
 def announcementCreateView(request):
@@ -70,7 +71,18 @@ def announcementCreateView(request):
         else:
             announcement.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
         
+            
         announcement.save();  #Writes to database.
+        #Send Notifications to the students
+        studentQuery = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
+        students = []
+        for s in studentQuery:
+            students.append(s.studentID.user)
+        
+        students = list(students)
+                        
+        notify.send(None, recipient_list=students, actor=request.user,
+                verb='A new announcement has been posted', nf_type='New Announcement')
                 
         return redirect('announcementListView')
 
