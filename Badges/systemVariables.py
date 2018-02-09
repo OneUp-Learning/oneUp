@@ -670,6 +670,18 @@ def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):
     logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, student, challenge):    
+    numberOfChall = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in challenges:
+        allScores = getTestScores(course,student,challenge)
+        if len(allScores)==1:
+            percentage = getScorePercentage(course, student, challenge.challengeID)
+            if percentage > 75:
+                numberOfChall += 1
+    print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
+    return numberOfChall
+
 def isWarmUpChallenge(course,student,challenge):
     return not challenge.isGraded
 
@@ -719,6 +731,7 @@ class SystemVariable():
     uniqueWarmupChallengesAttempted = 937 # The number of unique challenges completed by the student
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
+    uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
     
     systemVariables = {
         numAttempts:{
@@ -1129,5 +1142,16 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activity:getScoreDifferenceFromPreviousActivity
             },
-        },                                                                   
+        },      
+        uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
+            'index': uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt,
+            'name':'uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt',
+            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
+            'description':'The number of warmup challenges with a score greater than 75% with only one attempt.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
+            },
+        },                                                               
     }
