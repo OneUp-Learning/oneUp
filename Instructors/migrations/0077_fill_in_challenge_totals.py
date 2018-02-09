@@ -9,6 +9,7 @@ def fill_in_challenge_totals(apps,schema_editor):
         for cq in challQuests:
             total += cq.points
         chall.totalScore = total
+        chall.save()
 
 class Migration(migrations.Migration):
     
