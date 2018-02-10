@@ -350,12 +350,19 @@ def importChallenges(uploadedFileName, currentCourse):
             challenge.save()
         
             # Get Challenge Topics
-            # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB                
+            # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB                            
             el_challengeTopics = el_challenge.find('ChallengeTopics') 
-            if not el_challengeTopics is None: 
-                for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'):
-                    challengeTopic = ChallengesTopics()
-                    
+            if el_challengeTopics is None: 
+                # this challenge does not have a topic, add the challenge to the course Unspecified topic
+                challengeTopic = ChallengesTopics()
+                unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
+                challengeTopic.topicID = unspecified_topic
+                challengeTopic.challengeID = challenge
+                challengeTopic.save()                
+
+            else:
+                for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'): 
+                    challengeTopic = ChallengesTopics()                   
                     # We have to search for the topic name in CourseTopics 
                     topicName=el_challengeTopic.find('topicName').text
                     courseTopics = CoursesTopics.objects.filter(courseID=currentCourse, topicID__topicName=topicName)
