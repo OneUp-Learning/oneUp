@@ -77,7 +77,7 @@ def studentChallengesCompleted(request):
                     strTime = datetime.strptime(str(item.startTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
                     dateTaken.append(strTime)
                     score.append(item.testScore)
-                    total.append(item.testTotal)
+                    total.append(item.challengeID.totalScore)
                                 
                 context_dict['challenge_range'] = zip(range(1,studentChallenges.count()+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)
                 context_dict['user_name'] = zip(first_Name,last_Name)
