@@ -12,7 +12,7 @@ from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
 from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
-
+from Instructors.constants import unassigned_problems_challenge_name
 from Badges.enums import QuestionTypes
 
 from django.views.decorators.csrf import csrf_exempt
@@ -108,7 +108,7 @@ def dynamicQuestionForm(request):
         
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
         
-        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1
                 
         if 'challengeID' in request.GET:

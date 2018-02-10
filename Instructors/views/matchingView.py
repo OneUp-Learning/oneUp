@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 
 from Instructors.models import StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, Courses, CoursesSkills
 from Instructors.models import Challenges, ChallengesQuestions
+from Instructors.constants import unassigned_problems_challenge_name
 
 from Instructors.views import utils
 from Badges.enums import QuestionTypes
@@ -160,7 +161,7 @@ def matchingForm(request):
         num_answers = 4 #default number of blanks for new questions
         if request.GET:
             
-            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
                 context_dict["unassign"]= 1
                 
             if 'challengeID' in request.GET:
