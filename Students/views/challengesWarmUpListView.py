@@ -35,7 +35,7 @@ def challengesForTopic(topic, student, currentCourse):
                         gradeID.append(sc.testScore)
                     
                     #Calculation for ranking score by 3 levels (Above average, Average, Below Average)
-                    tTotal=(sc.testTotal/3)
+                    tTotal=(sc.challengeID.totalScore/3)
                     
                     #Above Average Score
                     if (max(gradeID) >= (2*tTotal)) or (max(gradeID) == (3*tTotal)):

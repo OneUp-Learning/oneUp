@@ -137,6 +137,6 @@ def classAchievements(request):
             chall_Name.append(c.challengeName)
 
         context_dict['challenge_range'] = zip(range(1,challenges.count()+1),chall_Name)
-        context_dict['user_range'] = zip(range(1,len(users)+1),first_Name,last_Name,allgrades, gradeTotal)
+        context_dict['user_range'] = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades, gradeTotal)), key=lambda tup: tup[2])
 
     return render(request,'Instructors/ClassAchievements.html', context_dict)

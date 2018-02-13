@@ -56,7 +56,7 @@ def createStudentListView(request):
         user_Avatar.append(cs.avatarImage)
                
     # The range part is the index numbers.
-    context_dict['user_range'] = zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Action, user_Avatar)
+    context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Action, user_Avatar)), key=lambda tup: tup[3])
                
     return render(request,'Instructors/CreateStudentList.html', context_dict)
 

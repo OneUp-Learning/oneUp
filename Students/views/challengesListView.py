@@ -78,8 +78,8 @@ def ChallengesList(request):
                         latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
                         earliestSC =StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).earliest('startTimestamp')
                         
-                        gradeLast.append(str(latestSC.testScore) + " / " + str(latestSC.testTotal))
-                        gradeFirst.append(str(earliestSC.testScore) + " / " + str(earliestSC.testTotal))
+                        gradeLast.append(str(latestSC.testScore) + " / " + str(latestSC.challengeID.totalScore))
+                        gradeFirst.append(str(earliestSC.testScore) + " / " + str(earliestSC.challengeID.totalScore))
         
                         gradeID  = []
                         
@@ -91,8 +91,8 @@ def ChallengesList(request):
                         gMax = (max(gradeID))
                         gMin = (min(gradeID))
                         
-                        gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.testTotal))
-                        gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.testTotal))
+                        gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.challengeID.totalScore))
+                        gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.challengeID.totalScore))
                         
                     else:
                         gradeLast.append('Not Completed')

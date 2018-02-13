@@ -6,9 +6,9 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Questions, StaticQuestions, Courses, CoursesSkills
-from Instructors.models import Skills, QuestionsSkills, Challenges, ChallengesQuestions
-
+from Instructors.models import StaticQuestions, Courses, CoursesSkills
+from Instructors.models import Challenges, ChallengesQuestions
+from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.views import utils
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Badges.enums import QuestionTypes
@@ -124,7 +124,7 @@ def essayForm(request):
     else:
         
         if request.GET:     
-            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
                 context_dict["unassign"]= 1
                 
             if 'challengeID' in request.GET:

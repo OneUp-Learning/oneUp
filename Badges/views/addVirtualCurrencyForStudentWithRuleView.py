@@ -30,7 +30,8 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 allRulesName.append(rule.vcRuleName)
             
             
-            context_dict['students'] = list(zip(studentID, studentName, studentCurrencyVC))
+            context_dict['students'] = sorted(list(zip(studentID, studentName, studentCurrencyVC)), key=lambda tup: tup[1])
+                                              
             context_dict['rules'] = list(zip(allRulesID, allRulesName))
             return render(request, 'Badges/AddVirtualCurrency.html', context_dict)
         elif request.method == 'POST':

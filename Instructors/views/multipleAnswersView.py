@@ -7,8 +7,9 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 
 from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses, CoursesSkills, Challenges, ChallengesQuestions
-
 from Instructors.views import utils
+from Instructors.constants import unassigned_problems_challenge_name
+
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
@@ -156,7 +157,7 @@ def multipleAnswersForm(request):
     else:
         num_answers = 4 #default number of blanks for new questions
         if request.GET:
-            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
                 context_dict["unassign"]= 1
                 
             if 'challengeID' in request.GET:

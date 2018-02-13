@@ -84,7 +84,7 @@ def achievements(request):
             for s in sc:
                 gradeID.append(int(s.testScore)) 
                 print(s.testScore) 
-                s_testTotal = s.testTotal
+                s_testTotal = s.challengeID.totalScore
             maxC = max(gradeID)                  
             earnedPointsSeriousChallenges += maxC
             
@@ -122,7 +122,7 @@ def achievements(request):
             for w in wc:        # for each attempt of this challenge
                 gradeID.append(int(w.testScore)) 
                 print(w.testScore) 
-                s_testTotal = w.testTotal
+                s_testTotal = w.challengeID.totalScore
             maxWC = max(gradeID)                
             totalScorePointsWC += maxWC
             

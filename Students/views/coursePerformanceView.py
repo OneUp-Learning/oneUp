@@ -73,7 +73,7 @@ def CoursePerformance(request):
                 assignmentType.append("Challenge")
                 assignmentTime.append(latestSC.endTimestamp)
                 assignmentGrade.append(gMax)
-                assignmentGradeTotal.append(latestSC.testTotal)
+                assignmentGradeTotal.append(latestSC.challengeID.totalScore)
                 assignmentFeedback.append("")
         
              
