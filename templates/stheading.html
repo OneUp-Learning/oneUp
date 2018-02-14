@@ -21,14 +21,19 @@
 		if(numItems == 0){
 			numItems = null;
 			document.getElementById("notificationCount").style.display = "none";
-			x  = document.getElementById("noteparent").children;
+			x  = document.getElementById("nMenu").children;
 			x = x[0];
 			y = document.createElement('li');
 			y.setAttribute("class", "nav_login_second_level_items" );
 			y.innerHTML = "<a href='#'>No new notifications yet</a>"
 			x.parentNode.replaceChild(y, x);
+			
+			document.getElementById("clearAll").style.display = "none";
+
 		} else {
 			document.getElementById("notificationCount").textContent=numItems;
+			document.getElementById("clearAll").style.display = "inline";
+
 		}
 		
 		noteBoxHeight = $('#nMenu').height();
@@ -43,7 +48,15 @@
 		setInterval(function(){
 			countNotifications();
 		}, 5000);
-	});	
+	});
+	
+		$(document).on('click', '#clearAll', function() {
+			console.log("Clear all clicked")
+	        $(".delete-box").click();
+			countNotifications();
+			document.getElementById("clearAll").style.display = "none";
+
+	    });
 </script>
 
 <style>
@@ -163,6 +176,10 @@
 								<div id="nMenu" class="notification-box-list" style="overflow:auto;">
 								{% user_notifications for box %}
 								</div>
+       							<li class="nav_login_second_level_items"><a id="clearAll" href="#">
+       								<span size="100">Clear All </span>
+       								<i class="material-icons" style="font-size:18px;vertical-align:middle;position: relative;left: 110px;">&#xe0b8;</i>
+								</a></li>
 							</ul>
 						</li>
 						
