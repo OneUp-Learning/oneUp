@@ -120,7 +120,7 @@ def subTopicsCreateView(request):
             context_dict['subTopicPos']=subtopic.subTopicPos
             context_dict['thresholdXP']=subtopic.thresholdXP
             context_dict['thresholdSP']=subtopic.thresholdSP
-            context_dict['displayDate']= datetime.strptime(str(getattr(subtopic, 'displayDate')), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+            context_dict['displayDate']= getattr(subtopic, 'displayDate')
 
         return render(request,'Instructors/subTopicsCreate.html', context_dict)     #edit  
 
