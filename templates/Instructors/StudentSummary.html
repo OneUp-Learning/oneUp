@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      
+        {% include 'scripts.html' %}
+      
+      
+   </head>
+   <body>
+     
+         {% include 'heading.html' %}
+ 
+         <div class="frame" id="grad" align="center">
+            <div class="container">
+            <div class="row">
+         	<div class="12u">
+               <h1>Students Summary</h1>
+               <br />
+                  <table class="bg">
+                     <tr>
+                     	<th> </th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Serious Challenge Points</th>
+                        <th>Activity Points</th>
+                        <th>Warmups Taken/Attempted</th>
+                        <th>XP</th>
+                        <th>VC</th>
+                     </tr>
+                     {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC in user_range %}
+                     <tr>
+                           <td><img alt="Avatar Image" width="35" height="35" src="{{user_Avatar}}"></td> 
+                           <td>{{first_Name}}</td>
+                           <td>{{last_Name}}</td>
+                           <td>{{sc_totalStudentScore}} / {{sc_totalStudentPossibleScore}}</td>
+                           <td>{{act_totalStudentScore}} / {{act_totalStudentPossibleScore}}</td>
+                           <td>{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
+                           <td>{{user_XP}}</td>
+                           <td>{{user_VC}}</td>
+                     </tr>
+                     {% endfor %}
+                  </table>
+         </div></div></div></div>
+       {% include 'footer.html' %}    
+   </body>
+</html>
