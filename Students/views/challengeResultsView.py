@@ -106,7 +106,6 @@ def ChallengeResults(request):
                 studentChallenge.startTimestamp = startTime
                 studentChallenge.endTimestamp = endTime
                 studentChallenge.testScore = 0 #initially its zero and updated after calculation at the end
-                studentChallenge.testTotal = 0 #initially its zero and updated after calculation at the end
               #  studentChallenge.instructorFeedback = instructorFeedback 
                 studentChallenge.save()
                 
@@ -270,8 +269,11 @@ def ChallengeResults(request):
                 context_dict['total_possible_points'] = totalPossibleScore
 
                 studentChallenge.testScore = totalStudentScore
-                studentChallenge.testTotal = totalPossibleScore
                 studentChallenge.save()
+                
+                if challenge.totalScore != totalStudentScore:  # In case things have been changed since the last time it was taken or this is first time anyone has taken
+                    challenge.totalScore = totalPossibleScore
+                    challenge.save()
                 
                 register_event(Event.endChallenge,request,studentId,challengeId)
                 register_event(Event.leaderboardUpdate,request,studentId, challengeId)

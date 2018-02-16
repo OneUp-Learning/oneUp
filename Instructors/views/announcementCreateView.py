@@ -98,7 +98,7 @@ def announcementCreateView(request):
                 announceEndTime = getattr(announcement, 'endTimestamp') 
  
                 if (announceEndTime.year < defaultTime.year):
-                    displayEndTime = datetime.strptime(str(announceEndTime), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                    displayEndTime = announceEndTime
                 else:
                     displayEndTime = ""
                     

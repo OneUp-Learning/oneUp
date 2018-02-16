@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from Instructors.models import Challenges, Courses
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Instructors.lupaQuestion import lupa_available
+from Instructors.constants import unassigned_problems_challenge_name
 
 @login_required
 def challengeEditQuestionsView(request):
@@ -13,7 +14,7 @@ def challengeEditQuestionsView(request):
         
     if 'challengeID' in request.GET:   
         challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))    
-        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1
             context_dict['serious'] = False
             context_dict['warmUp'] = False
@@ -29,7 +30,7 @@ def challengeEditQuestionsView(request):
     if 'problems' in request.GET:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict["unassign"]= 1
-        chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
+        chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
         for challID in chall:
             challengeID = (str(challID.challengeID))   
         

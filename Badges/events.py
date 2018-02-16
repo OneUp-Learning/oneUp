@@ -12,6 +12,7 @@ import decimal
 from Instructors.models import Challenges, CoursesTopics
 from Badges.systemVariables import calculate_system_variable
 from Instructors.views.utils import utcDate
+from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from django.contrib.auth.models import User
 from Instructors.models import InstructorRegisteredCourses, Instructors
@@ -284,7 +285,7 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     elif (operandType == OperandTypes.challengeSet):
         if operandValue == 0:
             # All challenges in this course
-            return [ch.challengeID for ch in Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")]
+            return [ch.challengeID for ch in Challenges.objects.filter(courseID = course).exclude(challengeName=unassigned_problems_challenge_name)]
         else:
             return [challset.challenge.challengeID for challset in ChallengeSet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.activitySet):

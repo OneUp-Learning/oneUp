@@ -12,6 +12,7 @@ from Instructors.models import LuaLibrary, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
+from Instructors.constants import unassigned_problems_challenge_name
 
 from Badges.enums import QuestionTypes
 
@@ -137,7 +138,7 @@ def templateDynamicQuestionForm(request):
         context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True
         
-        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
                 context_dict["unassign"]= 1
                 
         if 'challengeID' in request.GET:

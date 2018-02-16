@@ -8,7 +8,8 @@ from django.shortcuts import redirect, render, HttpResponse
 from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, Questions, StaticQuestions 
 from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles, Topics 
 from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
-from Instructors.constants import unspecified_topic_name
+from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
+
 from Badges.enums import QuestionTypes
 
 from xml.etree.ElementTree import Element, SubElement, parse
@@ -317,9 +318,9 @@ def importChallenges(uploadedFileName, currentCourse):
         
         # We need to process differently the challenge "Unassigned Problems", since we don't want to create a new one for the course in which we are importing
        
-        if el_challenge.find('challengeName').text == 'Unassigned Problems':
+        if el_challenge.find('challengeName').text == unassigned_problems_challenge_name:
             # get this course's unassigned problems topic           
-            challenge = Challenges.objects.get(courseID=currentCourse, challengeName='Unassigned Problems')
+            challenge = Challenges.objects.get(courseID=currentCourse, challengeName=unassigned_problems_challenge_name)
             
         else:    
             # Handle the challenge element information
@@ -349,12 +350,19 @@ def importChallenges(uploadedFileName, currentCourse):
             challenge.save()
         
             # Get Challenge Topics
-            # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB                
+            # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB                            
             el_challengeTopics = el_challenge.find('ChallengeTopics') 
-            if not el_challengeTopics is None: 
-                for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'):
-                    challengeTopic = ChallengesTopics()
-                    
+            if el_challengeTopics is None: 
+                # this challenge does not have a topic, add the challenge to the course Unspecified topic
+                challengeTopic = ChallengesTopics()
+                unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
+                challengeTopic.topicID = unspecified_topic
+                challengeTopic.challengeID = challenge
+                challengeTopic.save()                
+
+            else:
+                for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'): 
+                    challengeTopic = ChallengesTopics()                   
                     # We have to search for the topic name in CourseTopics 
                     topicName=el_challengeTopic.find('topicName').text
                     courseTopics = CoursesTopics.objects.filter(courseID=currentCourse, topicID__topicName=topicName)

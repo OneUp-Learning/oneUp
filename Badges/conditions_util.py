@@ -8,6 +8,7 @@ from Badges.enums import Event, OperandTypes, ObjectTypes, system_variable_type_
 from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet,\
     TopicSet
 from Instructors.models import Activities, Challenges, CoursesTopics
+from Instructors.constants import unassigned_problems_challenge_name
 from json import dumps
 from Badges.systemVariables import SystemVariable
 
@@ -401,7 +402,7 @@ def setUpContextDictForConditions(context_dict,course):
         var_list.append(sysVar)
     context_dict['variables'] = var_list
 
-    chall_list = [{"id":ch.challengeID,"name":ch.challengeName} for ch in Challenges.objects.filter(courseID = course).exclude(challengeName="Unassigned Problems")]
+    chall_list = [{"id":ch.challengeID,"name":ch.challengeName} for ch in Challenges.objects.filter(courseID = course).exclude(challengeName=unassigned_problems_challenge_name)]
     act_list = [{"id":act.activityID,"name":act.activityName} for act in Activities.objects.filter(courseID = course)]
     topic_list = [{"id":ct.topicID.topicID,"name":ct.topicID.topicName} for ct in CoursesTopics.objects.filter(courseID = course)]
     
