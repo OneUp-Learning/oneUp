@@ -66,6 +66,7 @@ class StudentChallenges(models.Model):
     endTimestamp = models.DateTimeField()
     testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
     scoreAdjustment = models.DecimalField(decimal_places=2, max_digits=6, default=0) # Individual adjustment to the score 
+    adjustmentReason = models.CharField(max_length=1000,default="")
     instructorFeedback = models.CharField(max_length=200)
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
