@@ -27,8 +27,9 @@
                         <th>Warmups Taken/Attempted</th>
                         <th>XP</th>
                         <th>VC</th>
+                        <th>Last Action</th>
                      </tr>
-                     {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC in user_range %}
+                     {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_Action in user_range %}
                      <tr>
                            <td><img alt="Avatar Image" width="35" height="35" src="{{user_Avatar}}"></td> 
                            <td>{{first_Name}}</td>
@@ -38,6 +39,7 @@
                            <td>{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
                            <td>{{user_XP}}</td>
                            <td>{{user_VC}}</td>
+                           <td>{{user_Action}}</td>
                      </tr>
                      {% endfor %}
                   </table>
