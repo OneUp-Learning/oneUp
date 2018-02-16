@@ -130,6 +130,7 @@ class Rules(models.Model):
     # Deletes all related objects.  Should be called before deleting a Rule.
     def delete_related(self):
         RuleEvents.objects.filter(rule=self).delete()
+        ActionArguments.objects.filter(ruleID = self).delete()
         self.conditionID.delete_children()
         self.conditionID.delete()
         
