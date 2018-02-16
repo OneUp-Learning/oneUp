@@ -14,6 +14,7 @@ from Badges.events import register_event
 from Badges.enums import Event
 from Instructors.views.activityListView import createContextForActivityList
 from django.template.context_processors import request
+from notify.signals import notify
 
 
 def activityAssignPointsView(request):   
@@ -51,6 +52,11 @@ def activityAssignPointsView(request):
                     stud_activity.graded = True
                     stud_activity.save()
                     activityGradedNow[studentRC.studentID] = True
+        
+                    actName = activity.activityName
+                        
+                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb='A your activity '+actName+' has been graded', nf_type='Activity Graded')
 
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
@@ -65,6 +71,12 @@ def activityAssignPointsView(request):
                     stud_activity.courseID = currentCourse
                     stud_activity.graded = True
                     stud_activity.save()
+                    
+                    actName = activity.activityName
+                        
+                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb='A your activity '+actName+' has been graded', nf_type='Activity Graded')
+
                     activityGradedNow[studentRC.studentID] = False
        
         #Register event for participationNoted

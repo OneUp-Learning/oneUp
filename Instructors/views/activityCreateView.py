@@ -82,9 +82,8 @@ def activityCreateView(request):
             activity.author = request.user.username
         else:
             activity.author = ""
-
+            
         activity.save();  #Writes to database.
-        
         
         
         print('Starting Files' + str(len(request.FILES)))
@@ -94,11 +93,7 @@ def activityCreateView(request):
             files =  request.FILES.getlist('actFile')
             makeFilesObjects(request.user, files, activity)
             
-        print('End Files')
-
-                
-        
-        
+        print('End Files')    
          
         # prepare context for Activity List      
         context_dict = createContextForActivityList(request) 
@@ -156,15 +151,6 @@ def makeFilesObjects(instructorID, files, activity):
     
     #Get the old files and see if any of the new files match it
     oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
-#     for oldFile in oldActFile:
-#         for newFile in files:
-#             if filecmp(oldFile, newFile):
-#                 files.remove(newFile)
-#             else
-#             
-#         
-#         f.latest = False
-#         f.save()
 
     for i in range(0, len(files)): #make student files so we can save files to hardrive
         print('Makeing file object' + str(files[i].name))
