@@ -10,7 +10,8 @@ from Instructors.views.announcementListView import createContextForAnnouncementL
 from Instructors.views.utils import utcDate
 from Instructors.constants import default_time_str
 from datetime import datetime
-
+from notify.signals import notify
+from Students.models import StudentRegisteredCourses
 
 @login_required
 def announcementCreateView(request):
@@ -70,7 +71,9 @@ def announcementCreateView(request):
         else:
             announcement.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
         
+            
         announcement.save();  #Writes to database.
+    
                 
         return redirect('announcementListView')
 
@@ -95,7 +98,7 @@ def announcementCreateView(request):
                 announceEndTime = getattr(announcement, 'endTimestamp') 
  
                 if (announceEndTime.year < defaultTime.year):
-                    displayEndTime = datetime.strptime(str(announceEndTime), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")
+                    displayEndTime = announceEndTime
                 else:
                     displayEndTime = ""
                     

@@ -51,7 +51,7 @@ def updateVirtualCurrencyTransaction(request):
                 event = Event.events[transaction.studentEvent.event]
                 context_dict['name'] = event['displayName']
                 context_dict['description'] = event['description']
-                context_dict['purchaseDate'] = datetime.strptime(str(transaction.studentEvent.timestamp), "%Y-%m-%d %H:%M:%S.%f+00:00").strftime("%m/%d/%Y %I:%M %p")
+                context_dict['purchaseDate'] = transaction.studentEvent.timestamp
                 context_dict['total'] = getBuyAmountForEvent(transaction.studentEvent.event)[1]
                 context_dict['student'] = transaction.student
                 context_dict['status'] = transaction.status

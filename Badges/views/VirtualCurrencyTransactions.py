@@ -59,7 +59,7 @@ def virtualCurrencyTransactions(request):
             event = Event.events[transaction.studentEvent.event]
             name.append(event['displayName'])
             description.append(event['description'])
-            purchaseDate.append(datetime.strptime(str(transaction.studentEvent.timestamp), "%Y-%m-%d %H:%M:%S.%f+00:00").strftime("%m/%d/%Y %I:%M %p"))
+            purchaseDate.append(transaction.studentEvent.timestamp)
             total.append(getBuyAmountForEvent(transaction.studentEvent.event)[1])
             student.append(transaction.student)
             status.append(transaction.status)

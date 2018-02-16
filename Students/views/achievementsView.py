@@ -27,7 +27,8 @@ def achievements(request):
 
     studentId = context_dict['student']
     
-    register_event(Event.visitedDashboard, request, studentId, None)
+    if context_dict['is_teacher'] == False:
+        register_event(Event.visitedDashboard, request, studentId, None)
    
     st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
     context_dict['avatar'] = st_crs.avatarImage  
