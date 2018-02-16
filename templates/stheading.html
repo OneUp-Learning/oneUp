@@ -1,22 +1,44 @@
 <!-- Used for the notifications -->
 {% load staticfiles %}       
 {% load notification_tags %}
-{% include_notify_js_variables %} 
+{% include_notify_js_variables %}
 <script src="{% static "notify/notifyX.js" %}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <script>
+	var updateSuccess = function (response) {
+	    var notification_box = $('#nMenu');
+	    var notifications = response.notifications;
+	    $.each(notifications, function (i, notification) {
+	        notification_box.prepend(notification.html);
+	    });
+	    
+	    //IF table on page then update
+	};
+
+
 	function countNotifications(){
 		numItems = $('.navNotifications').length;
 		if(numItems == 0){
 			numItems = null;
 			document.getElementById("notificationCount").style.display = "none";
-			x  = document.getElementById("noteparent").children;
+			x  = document.getElementById("nMenu").children;
 			x = x[0];
 			y = document.createElement('li');
 			y.setAttribute("class", "nav_login_second_level_items" );
 			y.innerHTML = "<a href='#'>No new notifications yet</a>"
 			x.parentNode.replaceChild(y, x);
+			
+			document.getElementById("clearAll").style.display = "none";
+
 		} else {
 			document.getElementById("notificationCount").textContent=numItems;
+			document.getElementById("clearAll").style.display = "inline";
+
+		}
+		
+		noteBoxHeight = $('#nMenu').height();
+		if(noteBoxHeight > 325){
+			$('#nMenu').css('height', 325);
 		}
 		
 	}
@@ -26,7 +48,15 @@
 		setInterval(function(){
 			countNotifications();
 		}, 5000);
-	});	
+	});
+	
+		$(document).on('click', '#clearAll', function() {
+			console.log("Clear all clicked")
+	        $(".delete-box").click();
+			countNotifications();
+			document.getElementById("clearAll").style.display = "none";
+
+	    });
 </script>
 
 <style>
@@ -141,11 +171,15 @@
 						&nbsp;&nbsp;&nbsp;
 						
 						<li class="nav_login_items">
-						<img src="/static/images/horn.png"><span class="button__badge" id='notificationCount'></span> <!-- This needs to be linked to an actual notification page -->
-							<ul class="nav_login_second_level" style="width: 195px;">  <!-- Width can be between 200 and 300 still playing with it -->
-								<div id="noteparent" class="notification-box-list">
+						<a href="/oneUp/students/NotificationPage" ><img src="/static/images/horn.png"><span class="button__badge" id='notificationCount'></span> </a>
+							<ul class="nav_login_second_level" style="width: 205px;">  <!-- Width can be between 200 and 300 still playing with it -->
+								<div id="nMenu" class="notification-box-list" style="overflow:auto;">
 								{% user_notifications for box %}
 								</div>
+       							<li class="nav_login_second_level_items"><a id="clearAll" href="#">
+       								<span size="100">Clear All </span>
+       								<i class="material-icons" style="font-size:18px;vertical-align:middle;position: relative;left: 110px;">&#xe0b8;</i>
+								</a></li>
 							</ul>
 						</li>
 						

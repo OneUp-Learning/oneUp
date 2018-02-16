@@ -61,6 +61,7 @@ LOGGING = {
         'level': LOGGING_LEVEL
     },   
 }
+
 ALLOWED_HOSTS = ['oneup.wssu.edu']
 
 # Including the static folder to access it in the urls.py

@@ -7,6 +7,7 @@ from Instructors.views.utils import utcDate
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
 
+
 from time import time
 from datetime import datetime
 
@@ -178,6 +179,8 @@ def challengeCreateView(request):
         challenge.save();  #Save challenge to database
         
         
+        
+        
         # Old Processing and saving topics for the challenge in DB and it's commented and the alternative one is used
         #topicsString = ''
         #topicsList = request.POST.getlist('topics[]')
@@ -200,6 +203,8 @@ def challengeCreateView(request):
         # Processing and saving tags in DB
         tagString = request.POST.get('tags', "default")
         utils.saveChallengeTags(tagString, challenge)
+        
+
         
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
