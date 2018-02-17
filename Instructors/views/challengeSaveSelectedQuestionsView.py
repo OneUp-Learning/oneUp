@@ -11,6 +11,7 @@ from Instructors.models import Questions, Courses
 from Instructors.models import Challenges, ChallengesQuestions 
 from Instructors.views import challengeListView
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
+from Instructors.constants import unassigned_problems_challenge_name
 
 from django.contrib.auth.decorators import login_required
 
@@ -45,8 +46,6 @@ def challengeSaveSelectedQuestions(request):
         if not selectedQuestions:
             context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)                                                 
             return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
-         
-            #return redirect('/oneUp/instructors/challengeEditQuestions')
         
         print("selected list"+str(selectedQuestions))
         print ("max value"+str(max(selectedQuestions)))
@@ -66,7 +65,7 @@ def challengeSaveSelectedQuestions(request):
                 chq.save();  #Save challenge-question to database                       
             
                 #Getting the challenge ID for Unassigned Problems challenge
-                chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
+                chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
                 for challID in chall:
                     uChallengeID = challID.challengeID
                 

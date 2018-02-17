@@ -10,6 +10,7 @@ from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses
 
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags
 from Badges.enums import QuestionTypes, ObjectTypes
+from Instructors.constants import unassigned_problems_challenge_name
 
 from django.contrib.auth.decorators import login_required
 import logging
@@ -143,7 +144,7 @@ def multipleAnswersForm(request):
     # request.GET     
     elif request.method == 'GET':
         num_answers = 4 #default number of blanks for new questions
-        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1
             
         if 'challengeID' in request.GET:

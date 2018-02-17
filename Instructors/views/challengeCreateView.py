@@ -143,6 +143,8 @@ def challengeCreateView(request):
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)
         
+
+        
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
         else:

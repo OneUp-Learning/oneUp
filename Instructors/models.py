@@ -132,6 +132,8 @@ class Challenges(models.Model):
     challengeName = models.CharField(max_length=100)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) 
     isGraded = models.BooleanField(default=False)
+    totalScore = models.DecimalField(decimal_places=2, max_digits=6, default=0)  #Total possible score     
+    curve = models.DecimalField(decimal_places=2, max_digits=6, default=0) 
     numberAttempts = models.IntegerField()
     timeLimit = models.IntegerField(verbose_name="time limit for the challenge in minutes")
     #feedbackOption = models.IntegerField()
@@ -144,6 +146,7 @@ class Challenges(models.Model):
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     challengePassword = models.CharField(default='',max_length=30) # Empty string represents no password required.
+    challengePosition = models.IntegerField(default = 0)
     def __str__(self):              
         return str(self.challengeID)+","+self.challengeName       
       

@@ -71,9 +71,8 @@ def activityCreateView(request):
             activity.author = request.user.username
         else:
             activity.author = ""
-
+            
         activity.save();  #Writes to database.
-        
         
         
         print('Starting Files' + str(len(request.FILES)))
@@ -83,11 +82,7 @@ def activityCreateView(request):
             files =  request.FILES.getlist('actFile')
             makeFilesObjects(request.user, files, activity)
             
-        print('End Files')
-
-                
-        
-        
+        print('End Files')    
          
         return redirect('/oneUp/instructors/activitiesList')
 
@@ -111,8 +106,9 @@ def activityCreateView(request):
 #                 context_dict['startTimestamp']= activity.startTimestamp
 #                 context_dict['endTimestamp']= activity.endTimestamp
                 
-                etime = activity.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
+                etime = activity.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")
                 print('etime ', etime)
+                
                 if etime != default_time_str: 
                     print('etime2 ', etime)   
                     context_dict['endTimestamp']=etime
@@ -138,15 +134,6 @@ def makeFilesObjects(instructorID, files, activity):
     
     #Get the old files and see if any of the new files match it
     oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
-#     for oldFile in oldActFile:
-#         for newFile in files:
-#             if filecmp(oldFile, newFile):
-#                 files.remove(newFile)
-#             else
-#             
-#         
-#         f.latest = False
-#         f.save()
 
     for i in range(0, len(files)): #make student files so we can save files to hardrive
         print('Makeing file object' + str(files[i].name))

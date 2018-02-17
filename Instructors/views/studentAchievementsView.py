@@ -44,6 +44,7 @@ def studentAchievements(request):
             user_Email.append(student.user.email)
             
         # The range part is the index numbers.
-        context_dict['user_range'] = zip(range(1,user.count()+1),first_Name,last_Name,user_Email,userID) 
+        context_dict['user_range'] = sorted(list(zip(range(1,user.count()+1),first_Name,last_Name,user_Email,userID) ), key=lambda tup: tup[2])
+        
 
     return render(request,'Instructors/StudentAchievements.html', context_dict)

@@ -19,13 +19,13 @@
             <div class="col s12 m8 offset-m2">
                <div class="card-panel">
                   <div class="center-align">
-                     <font color="#0000FF ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Above Average</font>&nbsp;&nbsp;
-                     <font color="#00ace6 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Average</font>&nbsp;&nbsp;
-                     <font color="#80dfff ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Below Average</font>&nbsp;&nbsp;
-                     <font color="#FFFF00 ">&#9724; </font><font style="font-size:.8em;font-weight:600;">Not attempted</font>
+                    <i class="fa fa-square" style="color:green;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> You've got it!</font>&nbsp;&nbsp;
+                    <i class="fa fa-square" style="color:blue;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Getting there</font>&nbsp;&nbsp;
+                    <i class="fa fa-square" style="color:red;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Needs improvement</font>&nbsp;&nbsp;
+                    <i class="fa fa-square-o" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Not attempted</font>
                   </div>
-                  <p><span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <font color="#0000FF ">&#9724;
-                     </font> to view your attempt (if any) or click the actual link to take the warm up
+                  <p><span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <i class="fa fa-square" aria-hidden="true"></i>
+                     to view your attempt (if any) or click the actual link to take the warm up
                      <span style="color: red; font-weight: bolder;">*</span>
                   </p>
                   <ul class="collapsible popout" data-collapsible="accordion">
@@ -38,7 +38,7 @@
                         </div>
                         <div class="collapsible-body">
                            <ul class="collection">
-                              {% for challenge_Name,challenge_ID,score in all_challenges %}
+                              {% for challenge_Name,challenge_ID,score, chall_position in all_challenges %}
                               <input type="hidden" name="score" value="{{score}}">
                               <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
                               <li class="collection-item">
@@ -52,16 +52,16 @@
                                     {% endif %}
                                     {% if score == 2 %}  <!-- If score have not been taken -->
                                     <a href="#!" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Take Challenge">
-                                    <font color="#FFFF00"> &#9724;</font></a>
+                                    <i class="fa fa-square-o" aria-hidden="true"></i></a>
                                     {% elif score == 3 %} <!-- If score equals Above Average -->
                                     <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Above Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
-                                    <font color="#0000FF "> &#9724;</font></a>
+                                    <i class="fa fa-square" style="color:green;" aria-hidden="true"></i></a>
                                     {% elif score == 4 %} <!-- If score equals Average -->
                                     <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
-                                    <font color="#00ace6 "> &#9724;</font></a>
+                                    <i class="fa fa-square" style="color:blue;" aria-hidden="true"></a>
                                     {% else %} <!-- If score equals Below Average -->
                                     <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Below Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
-                                    <font color="#80dfff "> &#9724;</font></a>
+                                    <i class="fa fa-square" style="color:red;" aria-hidden="true"></a>
                                     {% endif %}
                                  </div>
                               </li>

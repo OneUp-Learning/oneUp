@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 
 from Students.models import Student, StudentRegisteredCourses
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
+from Instructors.constants import unassigned_problems_challenge_name
 
 @login_required
 def deleteQuestion(request):
@@ -63,7 +64,7 @@ def deleteQuestionFromChallenge(request):
             # Check if this question does not appears in another challenge - then add it to Unassigned Problem list
             if not ChallengesQuestions.objects.filter(questionID = question.questionID):
                 currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-                chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
+                chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
                 for challID in chall:
                     challengeID = challID.challengeID
                 challenge = Challenges.objects.get(pk=int(challengeID))
@@ -105,7 +106,7 @@ def deleteChallenge(request):
                 
                 #Get the ID for Unassigned Problems challenge
                 currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-                uChallenge=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
+                uChallenge=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
                 for challID in uChallenge:
                     uChallengeID = challID.challengeID
                 cID = Challenges.objects.get(pk=int(uChallengeID))

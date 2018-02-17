@@ -2,9 +2,21 @@
 <!-- Used for the notifications -->
 {% load staticfiles %}       
 {% load notification_tags %}
-{% include_notify_js_variables %} 
+{% include_notify_js_variables %}
 <script src="{% static "notify/notifyX.js" %}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <script>
+	var updateSuccess = function (response) {
+	    var notification_box = $('#nMenu');
+	    var notifications = response.notifications;
+	    $.each(notifications, function (i, notification) {
+	        notification_box.prepend(notification.html);
+	    });
+	    
+	    //IF table on page then update
+	};
+
+
 	function countNotifications(){
 		numItems = Math.trunc($('.navNotifications').length/2.0);
 		$('.tooltipped').tooltip({delay: 50});
@@ -14,7 +26,7 @@
 			document.getElementById("notification-count1").setAttribute('data-tooltip', "No Notifications");
 			document.getElementById('notification-count1').children[0].innerHTML = 'notifications';
 
-			x = document.getElementById("noteparent1").children;
+			x = document.getElementById("nMenu").children;
 			x = x[0];
 			y = document.createElement('li');
 			y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
@@ -27,6 +39,9 @@
 			y = document.createElement('li');
 			y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
 			x.parentNode.replaceChild(y, x);
+			
+			document.getElementById("clearAll").style.display = "none";
+
 		} else {
 			document.getElementById("notification-count1").setAttribute('data-tooltip', numItems + " New");
 			document.getElementById('notification-count1').children[0].innerHTML = 'notifications_active';
@@ -34,6 +49,7 @@
 			document.getElementById("notification-count2").style.display = "visible";
 			document.getElementById("notification-count2").textContent= numItems;
 
+			document.getElementById("clearAll").style.display = "inline";
 		}
 		
 	}
@@ -45,6 +61,14 @@
 		}, 5000);
 		$('.tooltipped').tooltip({delay: 50});
 	});	
+	
+		$(document).on('click', '#clearAll', function() {
+			console.log("Clear all clicked")
+	        $(".delete-box").click();
+			countNotifications();
+			document.getElementById("clearAll").style.display = "none";
+
+	    });
 </script>
 		<ul id="account" class="dropdown-content">
 			{% if ccparams.gamificationUsed and ccparams.avatarUsed %}
@@ -109,9 +133,10 @@
 						<i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
 					</a>
 					<ul id="notifications" class="dropdown-content">
-						<div id="noteparent1" class="notification-box-list">
+						<div id="nMenu" class="notification-box-list">
 						{% user_notifications for box %}
 						</div>
+						<li><a class="waves-effect" id="clearAll" href="#!"><i class="material-icons">close</i>Clear All</a></li>
 					</ul>
 				</li>
 				{% if logged_in %}            
@@ -167,7 +192,7 @@
 									{% endif %}
 									{% if ccparams.virtualCurrencyUsed %}
 									<li>
-										<li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
+										<li><a class="dropdown-button" id="clearAll" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
 									</li>
 									{% endif %}
 									<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
@@ -179,9 +204,10 @@
 							<a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
 							<div class='collapsible-body'>
 								<ul>
-									<div id="noteparent2" class="notification-box-list">
+									<div id="nMenu" class="notification-box-list">
 									{% user_notifications for box %}
-									</div>								
+									</div>			
+									<li><a class="waves-effect" id="clearAll" href="#!"><i class="material-icons">close</i>Clear All</a></li>					
 								</ul>
 							</div>
 						</li>

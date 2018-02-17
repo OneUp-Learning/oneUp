@@ -15,8 +15,15 @@
                {% endif %}
             </div>
          </div>
+         <form name="challengeOrder" action="/oneUp/instructors/reorderChallenges" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="courseID" value="{{courseID}}" id="courseID">	
+            <input type="hidden" name="challengeType" value="Serious" id="challengeType{{courseID}}">
          <div class="row right-align">
             <div class="col s12 m8 offset-m2">
+                  <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Challenges
+                  <i class="material-icons right">send</i>
+                  </button>
                {% if warmUp %}      
                <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?warmUp"><i class="material-icons left">add_circle</i>Create Warmup Challenge</a>
                {% else %}
@@ -34,6 +41,7 @@
                            <th>Status</th>
                            <th>Display From</th>
                            <th>Display Until</th>
+                           <th>Position</th>
                            <th class="secondary-content">
                               {% if warmUp %}
                               <a class="tooltipped" href="/oneUp/instructors/challengeCreate?warmUp" data-position="top" data-delay="50" data-tooltip="Create WarmUp Challenge"><i class="material-icons" >add_circle</i></a>
@@ -44,12 +52,18 @@
                         </tr>
                      </thead>
                      <tbody>
-                        {% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp in challenge_range %}
+                        {% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp, chall_position in challenge_range %}
                         <tr>
                            <td>{{chall_Name}}</td>
                            <td>{{chall_visible}}</td>
                            <td>{{start_Timestamp}}</td>
                            <td>{{end_Timestamp}}</td>
+                           <td>
+                              <div class="input-field col s12">
+                                    <input placeholder="Points" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4" type="number" class="validate" min="0" required>
+                                    <label for="chall_position">Position</label>
+                              </div>
+                           </td>
                            <td>
                               {% if warmUp %}
                               <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
@@ -95,6 +109,7 @@
                </div>
             </div>
          </div>
+         </form>
       </main>
       {% include 'footer.html' %}
    </body>

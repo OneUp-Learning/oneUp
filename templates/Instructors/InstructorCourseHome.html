@@ -82,7 +82,7 @@
                             <td>{{xpoints}}</td>
                         </tr>
                         {% empty %}
-                        <tr>
+                        <tr>user_Action
                           <td>No Leaderboard</td>
                         </tr>
                         {% endfor %}
@@ -137,7 +137,7 @@
                                {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}                                                       
                                <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
                                <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
-                               &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;
+                               &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                                {% empty %}
                                No Badges Earned
                                {% endfor %}

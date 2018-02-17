@@ -50,7 +50,7 @@ def challengeScore(course,student,challenge):
     scores = getTestScores(course,student,challenge)
     if len(scores) == 0:
         return 0 
-    return scores.latest('testScore').testScore #Ensure that only the most recent test score is returned
+    return scores.latest('testScore').getScore() 
 
 def activityScore(course,student,activity):
     from Students.models import StudentActivities
@@ -134,7 +134,7 @@ def getAveragePercentageScore(course, student, challenge):
     allScores = getTestScores(course, student, challenge)
     percentage = 0
     if allScores.exists():
-        testTotal = allScores[0]['testTotal']
+        testTotal = allScores[0].challengeID.totalScore
         if testTotal == 0:
             return percentage
         scoreList = allScores.values_list('testScore', flat=True)
@@ -147,24 +147,26 @@ def getAveragePercentageScore(course, student, challenge):
 def getHighestPercentageCorrect(course,student,challenge):
     #Return the actual correct percentage using the highest score from the fired event
     #Get the student score
-    allScores = getTestScores(course,student,challenge)
-    if allScores.exists():
-        testScore = allScores.latest('testScore')
+    student_challenges = getTestScores(course,student,challenge)
+    if student_challenges:
+        student_challege = student_challenges.latest('testScore')
     else:
         return 0
 
     #Check if denominator is zero to avoid getting a DivideByZero error
-    if float(testScore.testTotal) != 0:
-        percentCorrect = (float(testScore.testScore)/float(testScore.testTotal)) * 100
-    return percentCorrect
+    if float(student_challege.getScore()) != 0:
+        return (float(student_challege.getScore())/float(student_challege.challengeID.totalScore)) * 100
+    else:
+        return 0
 
 def getMaxTestScore(course,student,challenge):   
     #return the highest test score achieved out of the entire class for a challenge
+    #Note that highest test score includes testScore + curve and not the scoreAdjustment
     allTestScores = getAllTestScores(course,challenge)
     if len(allTestScores) == 0:
         return 0          
     highestTestScore = allTestScores.latest('testScore') #.latest() also gets the max for an integer value
-    return highestTestScore
+    return highestTestScore.getScore()
 
 def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     #return the percentage of the higest text score
@@ -173,9 +175,9 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     allScores = getTestScores(course,student,challenge)
     if allScores.exists():
         maxObject = allScores.latest('testScore')
-        max = maxObject.testScore
-        if float(maxObject.testTotal) != 0:
-            return ((float(max)/float(maxObject.testTotal)) * 100)
+        
+        if float(maxObject.challengeID.totalScore) != 0:
+            return ((float(maxObject.getScore())/float(maxObject.challengeID.totalScore) * 100))
         else:
             return 0
     else:
@@ -183,13 +185,14 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     
 def getAverageTestScore(course, students, challenge):
     #return the average score of the a challenge
+    #Note that average test score includes testScore + curve and the scoreAdjustment
     
     maxScores = 0.0
     
     for student in students:
         allScores = getTestScores(course,student,challenge)
         if allScores.exists():
-            maxScore = allScores.latest('testScore').testScore
+            maxScore = allScores.latest('testScore').getScore()
         
             maxScores += maxScore
         
@@ -200,11 +203,13 @@ def getAverageTestScore(course, students, challenge):
     
 def getMinTestScore(course,student,challenge):
     #return the min test score achieved out of the entire class for a challenge
+    #Note that min test score includes testScore + curve and not the scoreAdjustment
+ 
     allTestScores = getAllTestScores(course,challenge)
     if len(allTestScores) == 0:
         return 0    
     lowestTestScore = allTestScores.earliest('testScore') #.earliest() also gets the min for an integer value
-    return lowestTestScore
+    return lowestTestScore.getScore()
     
 def getDateOfFirstAttempt(course,student,challenge):
     from Students.models import StudentEventLog
@@ -284,7 +289,7 @@ def getScorePercentage(course,student, challenge):
     entirePoints = 0.0
     earnedPoints = 0.0
     for studentChallenge in studentChallenges:
-        entirePoints = studentChallenge.testTotal
+        entirePoints = studentChallenge.challengeID.totalScore
         earnedPoints = studentChallenge.testScore
                 
     if entirePoints != 0.0:
@@ -300,10 +305,11 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge):
     for event in eventObjects:
         if event.objectType == ObjectTypes.challenge: 
             # get a specific challenge by its ID
-            chall = 0
-            challenges = Challenges.objects.filter(courseID=course, challengeID=event.objectID)
-            for chal in challenges:
-                chall = chal  
+            try:
+                chall = Challenges.objects.get(courseID=course, challengeID=event.objectID)
+            except:
+                continue
+              
             scorePecentage = getScorePercentage(course,student,event.objectID)
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 30.0:
@@ -345,10 +351,12 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
     for event in eventObjects:
         if event.objectType == ObjectTypes.challenge: 
             # get a specific challenge by its ID
-            chall = 0
-            challenges = Challenges.objects.filter(courseID=course, challengeID=event.objectID)
-            for chal in challenges:
-                chall = chal 
+            
+            try:
+                chall = Challenges.objects.get(courseID=course, challengeID=event.objectID)
+            except:
+                continue
+            
             scorePecentage = getScorePercentage(course,student, event.objectID)
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 75.0:
@@ -413,23 +421,39 @@ def getDaysDifferenceActity(activity, studentActivity):
     return deadline - submission
     
 def getScoreDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference of score between this activity and the previous one'''
-    
+    '''Returns the the difference of score between this activity and the previous one.'''
+    '''NOTE: temporary it is made to work only for Assignments'''
+        
     from Students.models import StudentActivities 
     #filter database by timestamp
-    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    
-    #if the fired activity is the very first one then return zero
-    if len(activityObjects)==1 or len(activityObjects)==0:
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+
+    stud_assignments = []
+    # filter only the activities started with "Assignment"
+    for sa in stud_activities:
+        if sa.activityID.activityName.startswith('Assign'):
+            stud_assignments.append(sa)
+            
+    print('Stud_asssignments',stud_assignments)
+
+    # now work only with the assignments    
+    # if no activities or just one activity return zero
+    if len(stud_assignments)==1 or len(stud_assignments)==0:
         return 0
     
-    previousActivityScore = 0
-    for activityObject in activityObjects:
-        if activityObject.activityID == activity:
-            print(str(activityObject.activityScore-previousActivityScore))
-            return activityObject.activityScore-previousActivityScore
+    previousActivityScore = 9999999999999  #Should never be used if code is correct
+    numActivitiesVisited = 0
+    
+    for sa in stud_assignments:
+        numActivitiesVisited += 1
+        if sa.activityID == activity:            
+            if numActivitiesVisited == 1:
+                #This is the very first activity, we cannot compare it to previous
+                return 0
+            else:
+                return sa.activityScore-previousActivityScore
         else:
-            previousActivityScore = activityObject.activityScore
+            previousActivityScore = sa.activityScore
             
     return 0
 
@@ -442,26 +466,72 @@ def getPercentageOfActivityScore(course, student , activity):
     else:
         return 0
 
+
 def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
+    '''Returns the the difference between the percentages of the student's scores for this activity and its previous one. '''
+    '''NOTE: temporary it is made to work only for Assignments'''
     
     from Students.models import StudentActivities 
-    
-    #filter database by timestamp
-    activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    
-    #if the activity is the very first one then return zero
-    if len(activityObjects)==1 or len(activityObjects)==0:
+     
+    # get all activities for this student from the database; order by timestamp
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+    #print (stud_activities)
+    assignments = []
+    # filter only the activities started with "Assignment"
+    for sa in stud_activities:
+        if sa.activityID.activityName.startswith('Assign'):
+            assignments.append(sa.activityID)
+    #print('assignments',assignments)
+
+    # now work only with the assignments
+    # if no activities or just one activity return zero
+    if len(assignments)==1 or len(assignments)==0:
         return 0
+     
+    previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+    numActivitiesVisited = 0
     
-    previousActivityScorePercentage = 0
-    for activityObject in activityObjects:
-        if activityObject.activityID == activity:
-            return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
+    for assign in assignments:
+        numActivitiesVisited += 1
+        if assign == activity:
+            if numActivitiesVisited == 1:
+                #This is the very first activity, we cannot compare it to previous
+                return 0
+            else:
+                return getPercentageOfActivityScore(course,student,assign)-previousActivityScorePercentage
         else:
-            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
-            
+            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, assign)
+             
     return 0
+
+
+# def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
+#     '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
+#     
+#     from Students.models import StudentActivities 
+#     
+#     #filter database by timestamp
+#     activityObjects = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+#     
+#     #if the activity is the very first one then return zero
+#     if len(activityObjects)==1 or len(activityObjects)==0:
+#         return 0
+#     
+#     previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+#     numActivitiesVisited = 0
+#     for activityObject in activityObjects:
+#         numActivitiesVisited += 1
+#         if activityObject.activityID == activity:
+#             if numActivitiesVisited == 1:
+#                 #This is the very first activity, we cannot compare it to previous
+#                 return 0
+#             else:
+#                 return getPercentageOfActivityScore(course,student,activityObject.activityID)-previousActivityScorePercentage
+#         else:
+#             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
+#             
+#     return 0
+ 
 
 def getPercentageOfMaxActivityScore(course, student, activity):
     '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
@@ -554,6 +624,7 @@ def getTotalMinutesSpentOnWarmupChallenges(course, student):
 
 def getConsecutiveScoresDifference(course, student, challenge):
     from Students.models import StudentChallenges, StudentEventLog
+    
     difference = 0
     logger.debug(challenge)
     # Get the last challenge the student has taken whether it's a warmpup or serious challenge
@@ -608,6 +679,18 @@ def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):
     logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, student, challenge):    
+    numberOfChall = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in challenges:
+        allScores = getTestScores(course,student,challenge)
+        if len(allScores)==1:
+            percentage = getScorePercentage(course, student, challenge.challengeID)
+            if percentage > 75:
+                numberOfChall += 1
+    print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
+    return numberOfChall
+
 def isWarmUpChallenge(course,student,challenge):
     return not challenge.isGraded
 
@@ -657,6 +740,7 @@ class SystemVariable():
     uniqueWarmupChallengesAttempted = 937 # The number of unique challenges completed by the student
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
+    uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
     
     systemVariables = {
         numAttempts:{
@@ -1060,12 +1144,23 @@ class SystemVariable():
         scoreDifferenceFromPreviousActivity:{
             'index': scoreDifferenceFromPreviousActivity,
             'name':'scoreDifferenceFromPreviousActivity',
-            'displayName':'Score Difference from previous Completed Activity',
+            'displayName':'Score Difference from Previous Completed Activity',
             'description':'Score difference of an activity from the activity preceding it.',
             'eventsWhichCanChangeThis':[Event.participationNoted],
             'type':'int',
             'functions':{
                 ObjectTypes.activity:getScoreDifferenceFromPreviousActivity
             },
-        },                                                                   
+        },      
+        uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
+            'index': uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt,
+            'name':'uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt',
+            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
+            'description':'The number of warmup challenges with a score greater than 75% with only one attempt.',
+            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
+            },
+        },                                                               
     }

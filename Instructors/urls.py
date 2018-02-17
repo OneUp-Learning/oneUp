@@ -18,6 +18,7 @@ from Instructors.views.challengeListView import challengesList, warmUpChallengeL
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
+from Instructors.views.reorderChallengesView import reorderChallenges
 
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
@@ -52,7 +53,7 @@ from Instructors.views.studentAchievementsView import studentAchievements
 from Instructors.views.studentChallengesCompletedView import studentChallengesCompleted
 from Instructors.views.studentGradedChallengeView import studentGradedChallenge
 from Instructors.views.studentSkillsEarnedView import studentSkillsEarned
-from Instructors.views.studentTopicsView import studentTopics
+from Instructors.views.studentSummaryView import studentSummary
 from Instructors.views.subTopicsCreateView import subTopicsCreateView
 from Instructors.views.subTopicsListView import subTopicsListView
 
@@ -126,6 +127,8 @@ urlpatterns = [
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
     url(r'^preferences',preferencesView, name='preferencesView'),
+    url(r'^reorderChallenges', reorderChallenges, name='reorderChallenges'),       
+    url(r'^reorderChallengeSaveQuestions', reorderChallengeSaveQuestions, name='reorderChallengeSaveQuestions'),    
     url(r'^saveExportedChallenges',saveExportedChallenges, name='saveExportedChallenges'),    
     url(r'^search',searchQuestions, name='searchQuestions'),
     url(r'^skillsCreate',skillsCreateView, name='skillsCreateView'),
@@ -135,7 +138,7 @@ urlpatterns = [
     url(r'^studentChallengesCompleted',studentChallengesCompleted, name='studentChallengesCompleted'),
     url(r'^studentGradedChallenge',studentGradedChallenge, name='studentGradedChallenge'),
     url(r'^studentSkillsEarned',studentSkillsEarned, name='studentSkillsEarned'),
-    url(r'^studentTopics',studentTopics, name='studentTopics'),
+    url(r'^studentSummary',studentSummary, name='studentSummary'),
     url(r'^subTopicsCreate',subTopicsCreateView, name='subTopicsCreateView'),
     url(r'^subTopicsListView',subTopicsListView, name='subTopicsListView'),
     url(r'^topicsCreate',topicsCreateView, name='topicsCreateView'),
@@ -148,7 +151,5 @@ urlpatterns = [
     url(r'^luaLibEdit',libEdit,name="Lua Library Edit"),        
     url(r'^luaLibUploadView',luaLibUpload,name="Lua Library Upload"),
     url(r'^luaLibConfirmDelete',libDeleteConfirmView,name="Lua Library Deletion Confirmation"),
-    url(r'^reorderChallengeSaveQuestions', reorderChallengeSaveQuestions, name='reorderChallengeSaveQuestions'),
-   
 
 ]

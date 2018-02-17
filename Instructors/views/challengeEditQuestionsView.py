@@ -6,6 +6,7 @@ from Instructors.views.challengeListView import makeContextDictForQuestionsInCha
 from Instructors.views.searchResultsView import searchResults
 from Instructors.views.utils import initialContextDict
 from Instructors.lupaQuestion import lupa_available
+from Instructors.constants import unassigned_problems_challenge_name
 
 from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
 
@@ -51,7 +52,7 @@ def challengeEditQuestionsView(request):
         
     if 'challengeID' in request.POST or 'challengeID' in request.GET:   
         challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))    
-        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName="Unassigned Problems"):
+        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1
             context_dict['serious'] = False
             context_dict['warmUp'] = False
@@ -74,7 +75,7 @@ def challengeEditQuestionsView(request):
     else:
         if 'problems' in request.GET:
             context_dict["unassign"]= 1
-            chall=Challenges.objects.filter(challengeName="Unassigned Problems",courseID=currentCourse)
+            chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
             for challID in chall:
                 challengeID = (str(challID.challengeID)) 
             context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)          

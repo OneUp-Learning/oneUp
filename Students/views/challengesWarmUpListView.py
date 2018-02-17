@@ -16,24 +16,26 @@ def challengesForTopic(topic, student, currentCourse):
     challenge_ID = []  
     challenge_Name = [] 
     score = []
+    chall_position = []
 
-    challenge_topic = ChallengesTopics.objects.filter(topicID=topic)
-    if challenge_topic:           
-        for ct in challenge_topic:
+    challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
+    if challenge_topics:           
+        for ct in challenge_topics:
             if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
-                chall = ct.challengeID.challengeID
-                challenge_ID.append(chall)
+                challID = ct.challengeID.challengeID
+                challenge_ID.append(challID)
                 challenge_Name.append(ct.challengeID.challengeName)
+                chall_position.append(ct.challengeID.challengePosition)
 
-                if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=chall):
-                    item = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=chall)
+                if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challID):
+                    item = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challID)
                     gradeID  = []
                     
                     for sc in item:
                         gradeID.append(sc.testScore)
                     
                     #Calculation for ranking score by 3 levels (Above average, Average, Below Average)
-                    tTotal=(sc.testTotal/3)
+                    tTotal=(sc.challengeID.totalScore/3)
                     
                     #Above Average Score
                     if (max(gradeID) >= (2*tTotal)) or (max(gradeID) == (3*tTotal)):
@@ -47,9 +49,13 @@ def challengesForTopic(topic, student, currentCourse):
                 else:
                     score.append(2)
     else:
-        return '0'
+        challenge_ID.append('')
+        challenge_Name.append('')
+        score.append(1)
+        chall_position.append(0)
 
-    return list(zip(challenge_Name,challenge_ID,score))
+    #return sorted(list(zip(challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
+    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
     
     
 @login_required

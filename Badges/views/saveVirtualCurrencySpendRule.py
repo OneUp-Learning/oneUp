@@ -26,10 +26,6 @@ def DeleteVirtualCurrencySpendRule(vcRuleID):
     deleteVc.ruleID.delete()
     # And then we delete the badge.
     deleteVc.delete()
-    
-    actionArgs = ActionArguments.objects.filter(ruleID=deleteVc.ruleID)
-    for actionArg in actionArgs:
-        actionArg.delete()  
             
 def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.
