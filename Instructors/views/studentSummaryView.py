@@ -42,7 +42,7 @@ def studentSummary(request):
 
     courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
     courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
-    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     # default time
     courseActivities = Activities.objects.filter(courseID=currentCourse, endTimestamp__lt=defaultTime)
     courseWarmupChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)

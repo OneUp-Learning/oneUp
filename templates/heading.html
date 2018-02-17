@@ -129,6 +129,7 @@
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursereports">Course Reports</a>
                 <ul id="coursereports" class="dropdown-content">
                     <li><a class="waves-effect" href="/oneUp/instructors/studentAchievements">Students Scores</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/studentSummary">Student Summary</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?serious">Serious Challenges Visualization</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges visualization</a></li>
@@ -155,7 +156,7 @@
                     <div id="nMenu1" class="notification-box-list">
                     {% user_notifications for box %}
                     </div>
-                    <li><a class="waves-effect" id="clearAll" href="#!"><i class="material-icons">close</i>Clear All</a></li>
+                    <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
                 </ul>
             </li>
             {% if logged_in %}            
@@ -247,7 +248,7 @@
                                 <div id="nMenu2" class="notification-box-list">
                                 {% user_notifications for box %}
                                 </div>			
-                                <li><a class="waves-effect" id="clearAll" href="#!"><i class="material-icons">close</i>Clear All</a></li>					
+                                <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
                             </ul>
                         </div>
                     </li>

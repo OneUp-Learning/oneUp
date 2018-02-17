@@ -137,7 +137,7 @@
 						<div id="nMenu1" class="notification-box-list">
 						{% user_notifications for box %}
 						</div>
-						<li><a class="waves-effect" id="clearAll" href="#!"><i class="material-icons">close</i>Clear All</a></li>
+						<li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
 					</ul>
 				</li>
 				{% if logged_in %}            
@@ -208,7 +208,7 @@
 									<div id="nMenu2" class="notification-box-list">
 									{% user_notifications for box %}
 									</div>			
-									<li><a class="waves-effect" id="clearAll" href="#!"><i class="material-icons">close</i>Clear All</a></li>					
+									<li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
 								</ul>
 							</div>
 						</li>

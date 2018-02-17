@@ -22,13 +22,8 @@
          <div class="row right-align">
             <div class="col s12 m8 offset-m2">
                   <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Challenges
-                  <i class="material-icons right">send</i>
+                  <i class="material-icons right">reorder</i>
                   </button>
-               {% if warmUp %}      
-               <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?warmUp"><i class="material-icons left">add_circle</i>Create Warmup Challenge</a>
-               {% else %}
-               <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate"><i class="material-icons left">add_circle</i>Create Serious Challenge</a>
-               {% endif %}
             </div>
          </div>
          <div class="row">
@@ -61,7 +56,6 @@
                            <td>
                               <div class="input-field col s12">
                                     <input placeholder="Points" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4" type="number" class="validate" min="0" required>
-                                    <label for="chall_position">Position</label>
                               </div>
                            </td>
                            <td>

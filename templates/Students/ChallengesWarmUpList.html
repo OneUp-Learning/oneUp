@@ -38,7 +38,7 @@
                         </div>
                         <div class="collapsible-body">
                            <ul class="collection">
-                              {% for challenge_Name,challenge_ID,score, chall_position in all_challenges %}
+                              {% for i, challenge_Name,challenge_ID,score, chall_position in all_challenges %}
                               <input type="hidden" name="score" value="{{score}}">
                               <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
                               <li class="collection-item">
@@ -51,7 +51,7 @@
                                     {{challenge_Name}}
                                     {% endif %}
                                     {% if score == 2 %}  <!-- If score have not been taken -->
-                                    <a href="#!" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Take Challenge">
+                                    <a href="#!" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="{% if not is_teacher %}Take Challenge{% else %}Not Attempted{% endif %}">
                                     <i class="fa fa-square-o" aria-hidden="true"></i></a>
                                     {% elif score == 3 %} <!-- If score equals Above Average -->
                                     <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Above Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">

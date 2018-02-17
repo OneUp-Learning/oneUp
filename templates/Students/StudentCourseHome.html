@@ -1,160 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-
-   {% include 'scripts.html' %}
-
-</head>
-<body>
-
-       {% include 'stheading.html' %}
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% include 'stheading.html' %}
       <main>
-            <div class="row">
-				<div class="col s12 m12 l8 offset-l2">
-				<div class="row">
-						<div class="col s12 m6">
-							<div class="card-panel center-align">
-							<table>
-								<thead>
-								<th>Latest Announcements</th>
-								<th></th>
-								</thead>
-								<tbody>
-								   {% for i,announcement_ID,author_ID,start_Timestamp, end_Timestamp, subject, message in announcement_range %}
-									<tr>
-										<td>{{subject}}</td>
-										<td>{{start_Timestamp}}</td>
-									</tr>
-									{% empty %}
-									<tr>
-										<td>No Announcements</td>
-									</tr>
-									{% endfor %}
-								</tbody>
-                            </table>
-                            <a class="waves-effect waves-light btn" href="/oneUp/students/Announcements"><i class="material-icons right">navigate_next</i>View All Annoucnements</a>
-							</div>
-						</div>
-						<div class="col s12 m6">
-							<div class="card-panel center-align">
-							<table>
-								<thead>
-									<th>Upcomming Challenges</th>
-								</thead>
-								<tbody>
-                                        {% for i,chall_ID,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
-                                        <tr>
-                                                <td class="left">{{chall_Name}}</td>
-                                                <td>{{end_Timestamp}}</td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td>No Upcomming Challenges</td>
-                                        </tr>
-                                        {% endfor %}
-								</tbody>
-                            </table>
-                            <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList"><i class="material-icons right">navigate_next</i>View All Challenges</a>
-                            
-							</div>
-						</div>
-				</div>
-				<div class="row">
-                    {% if leaderboardUsed and displayLeaderBoard %}                        
-                    <div class="col s12 m6">
-                        <div class="card-panel">
-                            <table>
-                                <caption><h5>Leaderboard</h5></caption>
-                                <thead>
-                                    <th>Student</th>
-                                    <th>XP</th>
-                                </thead>
-                                <tbody>
-                                    {% for i,avatarImage,xpoints in user_range %}
-                                    <tr>
-                                        <td>
-                                            <div class="chip">
-                                                <img src="{{avatar}}">
-                                                {{xpoints}}
-                                                </div>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td>No Students with XP</td>
-                                    </tr>
+         <div class="row">
+            <div class="col s12 m12 l8 offset-l2">
+               <div class="row">
+                  <div class="col s12 m6">
+                     <div class="card-panel center-align">
+                        <table>
+                           <thead>
+                              <th>Latest Announcements</th>
+                              <th></th>
+                           </thead>
+                           <tbody>
+                              {% for i,announcement_ID,author_ID,start_Timestamp, end_Timestamp, subject, message in announcement_range %}
+                              <tr>
+                                 <td>{{subject}}</td>
+                                 <td>{{start_Timestamp}}</td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td>No Announcements</td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/Announcements"><i class="material-icons right">navigate_next</i>View All Annoucnements</a>
+                     </div>
+                  </div>
+                  <div class="col s12 m6">
+                     <div class="card-panel center-align">
+                        <table>
+                           <thead>
+                              <th>Upcomming Challenges</th>
+                           </thead>
+                           <tbody>
+                              {% for i,chall_ID,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
+                              <tr>
+                                 <td class="left">{{chall_Name}}</td>
+                                 <td>{{end_Timestamp}}</td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td>No Upcomming Challenges</td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList"><i class="material-icons right">navigate_next</i>View All Challenges</a>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  {% if leaderboardUsed and displayLeaderBoard %}                        
+                  <div class="col s12 m6">
+                     <div class="card-panel">
+                        <table>
+                           <caption>
+                              <h5>Leaderboard</h5>
+                           </caption>
+                           <thead>
+                              <th>Student</th>
+                              <th>XP</th>
+                           </thead>
+                           <tbody>
+                              {% for i,avatarImage,xpoints in user_range %}
+                              <tr>
+                                 <td>
+                                    <div class="chip">
+                                       <img src="{{avatar}}">
+                                       {{xpoints}}
+                                    </div>
+                                 </td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td>No Students with XP</td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+                  {% endif %}
+                  {% if classSkillsDisplayed and displayClassSkills %}                    
+                  <div class="col s12 m6">
+                     <div class="card-panel">
+                        <table>
+                           <thead>
+                              <th>Skill</th>
+                              <th>Skill Points</th>
+                           </thead>
+                           <tbody>
+                              {% for skill in skills %}
+                              <tr>
+                                 <td>{{skill.skillName}}</td>
+                                 <td>
+                                    {% for usi in skill.usersInfo %} 
+                                    <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                       <img src="{{usi.avatarImage}}">
+                                       {{usi.skillPoints}}
+                                    </div>
                                     {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if classSkillsDisplayed and displayClassSkills %}                    
-                    <div class="col s12 m6">
-                            <div class="card-panel">
-                                <table>
-                                    <thead>
-                                        <th>Skill</th>
-                                        <th>Skill Points</th>
-                                    </thead>
-                                    <tbody>
-                                        {% for skill in skills %}
-                                        <tr>
-                                            <td>{{skill.skillName}}</td>
-                                            <td>
-                                                    {% for usi in skill.usersInfo %} 
-                                                <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
-                                                    <img src="{{usi.avatarImage}}">
-                                                    {{usi.skillPoints}}
-                                                    </div>
-                                                    {% endfor %}
-                                                    
-                                            </td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td>No Students with XP</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        {% endif %}
-                </div>
-                {% if badgesUsed and displayBadges %}                
-                <div class="row">
-                    <div class="col s12">
-                        <div class="card-panel">
-                                <table>
-                                        <thead>
-                                            <th>Latest Badges</th>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                        {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}    
-                                                        <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
-                                                        <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
-                                                        {% empty %}
-                                                        No badges earned
-                                                        {% endfor %}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-				</div>
-                </div>
-       
-                  
-  </main>
-
-    {% include 'footer.html' %}
-
-  
-</body>
+                                 </td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td>No Students with XP</td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+                  {% endif %}
+               </div>
+               {% if badgesUsed and displayBadges %}                
+               <div class="row">
+                  <div class="col s12">
+                     <div class="card-panel">
+                        <table>
+                           <thead>
+                              <th>Latest Badges</th>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td>
+                                    {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}    
+                                    <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
+                                    <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+                                    {% empty %}
+                                    No badges earned
+                                    {% endfor %}
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               {% endif %}
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
 </html>
