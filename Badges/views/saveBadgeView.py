@@ -28,16 +28,7 @@ def DeleteBadge(badgeId):
         # Then we delete the rule itself
         deleteBadge.ruleID.delete()
         # And then we delete the badge.
-        deleteBadge.delete()
-
-    actionArgs = ActionArguments.objects.filter(argumentValue=badgeId)
-    for actionArg in actionArgs:
-        actionArg.delete()
-
-    # Delete  badge-challenges relationships from the BadgeChallenges table
-#     badgeChalls = BadgeChallenges.objects.filter(badgeID=badgeId)
-#     for chall in badgeChalls:
-#         chall.delete()                     
+        deleteBadge.delete()                   
             
 def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.
@@ -102,7 +93,7 @@ def SaveBadge(request):
             
             badgeId = badgeInformation
             print("badge id: "+str(badgeId.badgeID))
-            if not (ActionArguments.objects.filter(argumentValue=str(badgeId.badgeID)).exists()):
+            if not (ActionArguments.objects.filter(ruleID = gameRule, sequenceNumber = 1, argumentValue=str(badgeId.badgeID)).exists()):
                 # Save the action 'Giving a Badge' to the ActionArguments Table
                 actionArgument = ActionArguments()
                 actionArgument.ruleID = gameRule
