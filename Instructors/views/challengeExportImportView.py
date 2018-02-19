@@ -521,7 +521,7 @@ def importChallenges(uploadedFileName, currentCourse):
                     if skill:
                         questionSkill.skillID = skill[0]
                         questionSkill.questionID = question
-                        questionSkill.challengeID = challenge
+                        questionSkill.courseID = currentCourse
                         questionSkill.questionSkillPoints = int(el_skill.find('questionSkillPoints').text)
                         questionSkill.save()    
                  
