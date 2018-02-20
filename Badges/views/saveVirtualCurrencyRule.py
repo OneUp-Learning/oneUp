@@ -28,18 +28,13 @@ def DeleteVirtualCurrencyRule(vcRuleID, isRuleCustom):
         # Delete the Virtual Currency Rule 
         deleteVC = VirtualCurrencyRuleInfo.objects.filter(vcRuleID=vcRuleID)
         for deleteVc in deleteVC:
-            
+                        
             # The next line deletes the conditions and everything else related to the rule
             deleteVc.ruleID.delete_related()
             # Then we delete the rule itself
             deleteVc.ruleID.delete()
             # And then we delete the badge.
             deleteVc.delete()
-    
-        actionArgs = ActionArguments.objects.filter(argumentValue=vcRuleID)
-        for actionArg in actionArgs:
-            actionArg.delete()
-                    
             
 def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.

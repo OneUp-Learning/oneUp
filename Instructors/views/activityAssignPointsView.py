@@ -56,7 +56,7 @@ def activityAssignPointsView(request):
                     actName = activity.activityName
                         
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb='A your activity '+actName+' has been graded', nf_type='Activity Graded')
+                                verb= actName+' has been graded', nf_type='Activity Graded')
 
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
@@ -75,7 +75,7 @@ def activityAssignPointsView(request):
                     actName = activity.activityName
                         
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb='A your activity '+actName+' has been graded', nf_type='Activity Graded')
+                                verb= actName+' has been graded', nf_type='Activity Graded')
 
                     activityGradedNow[studentRC.studentID] = False
        
@@ -104,7 +104,7 @@ def createContextForPointsAssignment(request):
     student_Feedback = []
     File_Name = []
     
-    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
+    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name')
     
     for stud_course in studentCourse:
         student = stud_course.studentID
@@ -148,7 +148,7 @@ def createContextForPointsAssignment(request):
         
     context_dict['activityID'] = request.GET['activityID']
     context_dict['activityName'] = Activities.objects.get(activityID = request.GET['activityID']).activityName
-    context_dict['assignedActivityPoints_range'] = sorted(list(zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Feedback, File_Name)), key=lambda tup: tup[2])
+    context_dict['assignedActivityPoints_range'] = list(zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Feedback, File_Name))
     return context_dict
     
 @login_required

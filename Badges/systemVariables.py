@@ -776,7 +776,7 @@ class SystemVariable():
             'name':'score',
             'displayName':'Score',
             'description':'The score for the challenge or activity',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.participationNoted],
             'type':'int',
             'functions':{
                 ObjectTypes.activity: activityScore,
