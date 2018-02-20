@@ -69,7 +69,9 @@
                               {% csrf_token %} 
                                  <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view"><input type="button" class="table" value="View"></a> 
                                  <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a>
-                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                                             
+                                 <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a>                                              
+                           		 <a href="/oneUp/instructors/adjustmentList?challengeID={{chall_ID}}"><input type="button" class="table" value="Adjustment"></a> &nbsp;&nbsp;
+                                 
                            {% endif %}                                 
                                  <input type="hidden" name="challengeID" value="{{chall_ID}}">
                                  <input type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?')">
