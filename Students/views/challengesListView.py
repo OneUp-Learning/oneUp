@@ -52,6 +52,7 @@ def ChallengesList(request):
         gradeFirst = []
         gradeMax = []
         gradeMin = []
+        adjusmentReason = []
         
         numberOfAttempts = []
         
@@ -78,9 +79,10 @@ def ChallengesList(request):
                         latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
                         earliestSC =StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).earliest('startTimestamp')
                         
-                        gradeLast.append(str(latestSC.testScore) + " / " + str(latestSC.challengeID.totalScore))
-                        gradeFirst.append(str(earliestSC.testScore) + " / " + str(earliestSC.challengeID.totalScore))
-        
+                        gradeLast.append(str(latestSC.getScore()) + " / " + str(latestSC.challengeID.totalScore))
+                        gradeFirst.append(str(earliestSC.getScore()) + " / " + str(earliestSC.challengeID.totalScore))
+                        
+                        adjusmentReason.append(latestSC.adjustmentReason)
                         gradeID  = []
                         
                         numberOfAttempts.append(len(sChallenges))
@@ -100,6 +102,7 @@ def ChallengesList(request):
                         gradeMax.append('Not Completed')
                         gradeMin.append('Not Completed')
                         numberOfAttempts.append("0")
+                        adjusmentReason.append("")
 
         if optionSelected == '1':
             grade = gradeLast
@@ -113,6 +116,6 @@ def ChallengesList(request):
             grade = gradeLast
 
         # The range part is the index numbers.
-        context_dict['challenge_range'] = sorted(list(zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts,chall_position)), key=lambda tup: tup[5])
+        context_dict['challenge_range'] = sorted(list(zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts,adjusmentReason, chall_position)), key=lambda tup: tup[6])
 
     return render(request,'Students/ChallengesList.html', context_dict)

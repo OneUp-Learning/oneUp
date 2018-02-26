@@ -309,6 +309,7 @@ def challengeCreateView(request):
             # If not challenge.isGraded:
             # Extract the topics                                       
             #context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
+            
             context_dict['all_Topics'] = utils.getTopicsForChallenge(challenge)
             # The following information is needed for the challenge 'view' option            
             for q in questionObjects:
