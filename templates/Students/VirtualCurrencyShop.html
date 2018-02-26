@@ -37,7 +37,7 @@
         			<td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0" {% if buyOpt.challenges == None %}readonly{% endif %}></td>		
         			<td><div id="priceFor{{buyOpt.id}}">0</div></td>
         			<td>
-        				{% if buyOpt.challenges != None %}
+        				{% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
         				<select name="challengeFor{{buyOpt.name}}">
         				{% for id, name in buyOpt.challenges %}
         					<option value="{{id}}">{{name}}</option>
