@@ -8,16 +8,21 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Challenges, Courses
 from Students.models import StudentRegisteredCourses, StudentChallenges
-from Instructors.views.challengeListView import challengesList
 from Instructors.views.utils import utcDate
+from Badges.events import register_event
+from Badges.enums import Event
 from notify.signals import notify
+from Badges.event_utils import updateLeaderboard
 
 @login_required
 def challengeAdjustmentView(request):
     
     if request.method == 'POST':
-        studentRCs = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
-        challenge = Challenges.objects.get(challengeID=request.POST['challengeID'])
+        courseId = request.session['currentCourseID']
+        course = Courses.objects.get(pk=courseId)
+        studentRCs = StudentRegisteredCourses.objects.filter(courseID = courseId)
+        challengeId = request.POST['challengeID']
+        challenge = Challenges.objects.get(challengeID=challengeId)
         
         for studentRC in studentRCs:
             studentID = studentRC.studentID.id
@@ -32,7 +37,10 @@ def challengeAdjustmentView(request):
                     studentChallenge.save()
                     
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="You have received an adjustment on the serious challenge '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                                verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                register_event(Event.endChallenge,request,studentRC.studentID,challengeId)
+                register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
+                updateLeaderboard(course)
 
             else:
                 if not adjustmentScore == "0":
@@ -48,8 +56,12 @@ def challengeAdjustmentView(request):
                     studentChallenge.save()
                     
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="You have received an adjustment on the serious challenge '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                                verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                register_event(Event.endChallenge,request,studentRC.studentID,challengeId)
+                register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
+                updateLeaderboard(course)
 
+        
     return redirect('/oneUp/instructors/challengesList')
     
                 
