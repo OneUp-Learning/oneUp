@@ -85,7 +85,8 @@ def achievements(request):
             for s in sc:
                 gradeID.append(int(s.getScore()))   # for serious challenges include also score adjustment and curve 
                 print(s.getScore()) 
-                s_testTotal = s.challengeID.totalScore
+                #s_testTotal = s.challengeID.totalScore
+                s_testTotal = s.challengeID.getCombinedScore()
             maxC = max(gradeID)                  
             earnedPointsSeriousChallenges += maxC
             

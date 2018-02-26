@@ -71,7 +71,8 @@ class StudentChallenges(models.Model):
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
     def getScore(self):
-        return self.testScore + self.scoreAdjustment + self.challengeID.curve
+        return self.testScore + self.scoreAdjustment + self.challengeID.curve    
+        
 
 # This table has each question's score and other information for a student's challenge for all the above table's challenges   
 class StudentChallengeQuestions(models.Model):

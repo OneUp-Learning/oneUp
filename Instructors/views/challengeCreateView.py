@@ -39,7 +39,7 @@ def challengeCreateView(request):
     context_dict['displayCorrectAnswer']= True
     
     string_attributes = ['challengeName', 'challengeDifficulty',               ##'isGraded','challengeCategory', 'challengeDifficulty'
-                  'numberAttempts','timeLimit','challengePassword'
+                  'numberAttempts','timeLimit','challengePassword','manuallyGradedScore'
                   ];   
     
     # Fetch the topics for this course from the database.

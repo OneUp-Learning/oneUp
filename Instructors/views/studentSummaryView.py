@@ -67,7 +67,7 @@ def studentSummary(request):
         
         for seriousChallenge in courseChallenges:
             studentChallenges = StudentChallenges.objects.filter(courseID=currentCourse, studentID = s, challengeID = seriousChallenge)
-            sc_totalPointsPossible += seriousChallenge.totalScore
+            sc_totalPointsPossible += seriousChallenge.getCombinedScore()
             if studentChallenges.exists():
                 scores = [sc.getScore() for sc in studentChallenges]
                 sc_totalPointsReceived += max(scores)
