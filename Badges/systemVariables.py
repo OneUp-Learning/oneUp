@@ -164,10 +164,9 @@ def getMaxTestScore(course,student,challenge):
     #Note that highest test score includes testScore + curve and not the scoreAdjustment
     allTestScores = getAllTestScores(course,challenge)
     if len(allTestScores) == 0:
-        return 0          
-    highestTestScore = allTestScores.latest('testScore') #.latest() also gets the max for an integer value
-    return highestTestScore.getScore()
-
+        return 0 
+    return max([sc.getScore() for sc in allTestScores])
+    
 def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     #return the percentage of the higest text score
     # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
@@ -183,23 +182,21 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     else:
         return 0
     
-def getAverageTestScore(course, students, challenge):
+def getAverageTestScore(course, student, challenge):    
     #return the average score of the a challenge
     #Note that average test score includes testScore + curve and the scoreAdjustment
     
+    from Students.models import StudentRegisteredCourses
+    
     maxScores = 0.0
     
-    for student in students:
-        allScores = getTestScores(course,student,challenge)
-        if allScores.exists():
-            maxScore = allScores.latest('testScore').getScore()
+    allScores = getTestScores(course,student,challenge)
+    if allScores.exists():
+        maxScore = allScores.latest('testScore').getScore()
         
-            maxScores += maxScore
+        maxScores += float(maxScore)
         
-    if len(students) != 0:
-        return maxScores/float(len(students))
-    else:
-        return 0  
+    return maxScores/StudentRegisteredCourses.objects.filter(courseID=course).count()
     
 def getMinTestScore(course,student,challenge):
     #return the min test score achieved out of the entire class for a challenge

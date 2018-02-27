@@ -23,7 +23,7 @@ def challengeAdjustmentView(request):
         studentRCs = StudentRegisteredCourses.objects.filter(courseID = courseId)
         challengeId = request.POST['challengeID']
         challenge = Challenges.objects.get(challengeID=challengeId)
-        
+                
         for studentRC in studentRCs:
             studentID = studentRC.studentID.id
             adjustmentScore = request.POST['student_AdjustmentScore' + str(studentID)]
@@ -38,9 +38,6 @@ def challengeAdjustmentView(request):
                     
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
-                register_event(Event.endChallenge,request,studentRC.studentID,challengeId)
-                register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
-                updateLeaderboard(course)
 
             else:
                 if not adjustmentScore == "0":
@@ -57,10 +54,12 @@ def challengeAdjustmentView(request):
                     
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
-                register_event(Event.endChallenge,request,studentRC.studentID,challengeId)
-                register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
-                updateLeaderboard(course)
 
+        for studentRC in studentRCs:
+            register_event(Event.endChallenge,request,studentRC.studentID,challengeId)
+            register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
+
+        updateLeaderboard(course)
         
     return redirect('/oneUp/instructors/challengesList')
     
