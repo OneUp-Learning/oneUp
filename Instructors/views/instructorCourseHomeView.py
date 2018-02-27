@@ -49,7 +49,7 @@ def studentXP(studentId, courseId):
 
         gradeID  = []                            
         for s in sc:
-            gradeID.append(int(s.getScore()))   # get the scrore + adjustment
+            gradeID.append(int(s.getScore()))   # get the score + adjustment
                                 
         if(gradeID):
             earnedScorePoints += max(gradeID)
@@ -164,7 +164,7 @@ def courseLeaderboard(currentCourse, context_dict):
                               
             context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
     
-                      
+            # Skill Ranking          
             context_dict['skills'] = []
             cskills = CoursesSkills.objects.filter(courseID=currentCourse)
             for sk in cskills:
@@ -183,17 +183,15 @@ def courseLeaderboard(currentCourse, context_dict):
                         st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
                         uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
                         usersInfo.append(uSkillInfo)
+                        
+                usersInfo = sorted(usersInfo, key=lambda k: k['skillPoints'], reverse=True)
                          
                 if len(usersInfo) != 0:
-                    skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentsDisplayed]} 
+                    skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentBestSkillsDisplayed]} 
                     context_dict['skills'].append(skillInfo)
               
-#             # XP Points       
-#             # get the challenges for this course
-#             courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
-    
-            # dictionary studentAvatar - XP - this doesn't work when not all students have selected avatars 
-            # dictionary student - XP
+            # XP Points       
+            # Dictionary student - XP
             studentXP_dict = {}
             for s in students:
                 sXP = studentXP(s, currentCourse)

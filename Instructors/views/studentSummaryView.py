@@ -4,17 +4,14 @@ Created on Feb 12, 2018
 @author: hodgeaustin
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render
-
-from oneUp.auth import createStudents, checkPermBeforeView
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Courses, Challenges, Activities, CoursesSkills, Skills
+
+from Instructors.models import Challenges, Activities
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import default_time_str
 from Instructors.views.instructorCourseHomeView import studentXP
-from Students.models import Student, StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentCourseSkills, StudentEventLog
+from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog
 from Badges.enums import Event
     
 @login_required
@@ -70,9 +67,9 @@ def studentSummary(request):
         
         for seriousChallenge in courseChallenges:
             studentChallenges = StudentChallenges.objects.filter(courseID=currentCourse, studentID = s, challengeID = seriousChallenge)
-            sc_totalPointsPossible += seriousChallenge.totalScore
+            sc_totalPointsPossible += seriousChallenge.getCombinedScore()
             if studentChallenges.exists():
-                scores = [sc.testScore for sc in studentChallenges]
+                scores = [sc.getScore() for sc in studentChallenges]
                 sc_totalPointsReceived += max(scores)
                             
         sc_totalStudentScore.append(sc_totalPointsReceived)

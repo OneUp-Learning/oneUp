@@ -79,22 +79,23 @@ def ChallengesList(request):
                         latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
                         earliestSC =StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).earliest('startTimestamp')
                         
-                        gradeLast.append(str(latestSC.getScore()) + " / " + str(latestSC.challengeID.totalScore))
-                        gradeFirst.append(str(earliestSC.getScore()) + " / " + str(earliestSC.challengeID.totalScore))
-                        
                         adjusmentReason.append(latestSC.adjustmentReason)
+                        
+                        gradeLast.append(str(latestSC.getScore()) + " / " + str(latestSC.challengeID.getCombinedScore()))
+                        gradeFirst.append(str(earliestSC.getScore()) + " / " + str(earliestSC.challengeID.getCombinedScore()))
+        
                         gradeID  = []
                         
                         numberOfAttempts.append(len(sChallenges))
                         
                         for sc in sChallenges:
-                            gradeID.append(int(sc.testScore))
+                            gradeID.append(int(sc.getScore()))
         
                         gMax = (max(gradeID))
                         gMin = (min(gradeID))
                         
-                        gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.challengeID.totalScore))
-                        gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.challengeID.totalScore))
+                        gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.challengeID.getCombinedScore()))
+                        gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.challengeID.getCombinedScore()))
                         
                     else:
                         gradeLast.append('Not Completed')
