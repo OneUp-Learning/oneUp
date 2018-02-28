@@ -82,7 +82,7 @@ def adjustmentList(request):
     student_AdjustmentScore=[]
     student_AdjustmentReason=[]
     
-    studentRCs = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
+    studentRCs = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name')
     
     for studentRC in studentRCs:
         student = studentRC.studentID
@@ -103,7 +103,7 @@ def adjustmentList(request):
     
     context_dict['challengeID'] = request.GET['challengeID']
     context_dict['challengeName']= Challenges.objects.get(challengeID=request.GET['challengeID']).challengeName
-    context_dict['challengeAdjustment_range'] = sorted(list(zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_AdjustmentScore, student_AdjustmentReason) ), key=lambda tup: tup[2])
+    context_dict['challengeAdjustment_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_AdjustmentScore, student_AdjustmentReason) 
             
     return render(request,'Instructors/ChallengeAdjustmentForm.html', context_dict)
 
