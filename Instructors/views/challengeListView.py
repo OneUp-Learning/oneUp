@@ -136,7 +136,7 @@ def challengesList(request):
         context_dict['course_Name'] = 'Not Selected'
         context_dict['course_notselected'] = 'Please select a course'
         
-    disableExpiredChallenges(request)
+#    disableExpiredChallenges(request)
 
     return render(request,'Instructors/ChallengesList.html', context_dict)
     
