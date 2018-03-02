@@ -1,146 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-      <meta charset="UTF-8">
-      <title>OneUp | Create Course</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-      <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" media="screen" href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">  
-      <link rel="stylesheet" href="/static/assets/css/main.css" />
-      <link rel="icon" type="image/x-icon" href="../../static/images/lightbulb-o.ico"/>
-      
-      <!--[if lte IE 8]>
-      <link rel="stylesheet" href="assets/css/ie8.css" />
-      <![endif]-->
-      <!-- Scripts -->
-      <script src="/static/assets/js/jquery.min.js"></script>
-      <script src="/static/assets/js/jquery.dropotron.min.js"></script>
-      <script src="/static/assets/js/jquery.scrolly.min.js"></script>
-      <script src="/static/assets/js/jquery.onvisible.min.js"></script>
-      <script src="/static/assets/js/skel.min.js"></script>
-      <script src="/static/assets/js/util.js"></script>
-      <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
-      <script src="/static/assets/js/main.js"></script>
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
-      <script type="text/javascript">
-      $(function() {
-        $('#datetimepicker2').datetimepicker({
-          language: 'en',
-          pick12HourFormat: true,
-          startDate:new Date()
-        });
-      });
-    </script>
-    <script type="text/javascript">
-      $(function() {
-        $('#datetimepicker3').datetimepicker({
-          language: 'en',
-          pick12HourFormat: true,
-          startDate: new Date()
-        });
-      });
-    </script> 
-    
-    <script type="text/javascript"
-     src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js">
-    </script> 
-    <script type="text/javascript"
-     src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js">
-    </script>
-    <script type="text/javascript"
-     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">
-    </script>
-    <script type="text/javascript"
-     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
-    </script>
-    <script type="text/javascript">
-      $('#datetimepicker').datetimepicker({
-        format: 'dd/MM/yyyy hh:mm:ss',
-        language: 'pt-BR'
-      });
-    </script>  
-   </head>
-<body>
-<div id="page-wrapper">
-            <header>
-            <nav class="Navigation">
-           <div class="Nav_Top">
-              <ul class="nav_top_level">
-                 <a class ="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
-                 <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
-                 <li class="nav_top_level_items"> 
-                     <a href="/oneUp/administrators/adminHome">Home</a>
-                 </li>
-                 <li class="nav_top_level_items"> 
-                 	<a href="#">Course</a>
-                 	 <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-							  <a href="/oneUp/administrators/createCourse">Create Course</a>                           
-						   </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/deleteCourse">Delete Course</a>
-                           </li>
-                        </ul>
-                 </li>
-				 <li class="nav_top_level_items"> 
-                     <a href="#">Instructor</a>
-                      <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/createTeacher">Create Instructor</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/deleteTeacher">Delete Instructor</a>
-                           </li>
-                        </ul>
-                 </li>
-                 <li class="nav_top_level_items"> 
-                     <a href="#">Administrator</a>
-                      <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-							  <a href="/oneUp/administrators/createAdmin">Create Administrator</a>                          
-						   </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/deleteAdmin">Delete Administrator</a>
-                           </li>
-                        </ul>
-                 </li>
-               </ul>
-           </div>
-               <div class="Nav_Bottom">
-                  {% if logged_in %}
-                  <ul class="nav_login">
-                     <li class="nav_login_items">
-                        <a href="#">Welcome, {{username}}<i class="fa fa-chevron-down"></i></a>
-                        <ul class="nav_login_second_level">
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/students/Logout">Logout</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-                  {% endif %}
-               </div>
-            </nav> 
-          </header> 
+    <html lang="en">
+        <head>
+                <title>OneUp | Create Course</title>
+                {% include 'scripts.html' %}
+             </head>
+             <body >
+                  {% include 'adminHeading.html' %}
          <div class="frame" id="grad" align="center">
             <div class="container">
             <div class="row">
@@ -199,10 +65,11 @@
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
                             </span>
-                        </div>
-                        End:<div id="datetimepicker3" class="input-append">
+						</div>
+						
+					End:<div id="datetimepicker3" class="input-append">
 							<!-- <input type=date name="course_end_date" id="course_end_date"> -->
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="course_end_date"></input>
+                                 <input type="text" class="datepicker" id="smallFormBox" name="course_end_date"></input>
                             <span class="add-on" style="height:2.75em; line-height:2em">
                             	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
                             </span>
@@ -210,41 +77,14 @@
                         </td>
             		</tr>
 					</table>	
-						<input type="submit" name="Create" value="Create" class="button">								
-						<a href="/oneUp/administrators/adminHome" ><input type="button" class="special" value="Cancel"></a>
+						<input class="waves-effect waves-light btn" type="submit" name="Create" value="Create" class="button">								
+						<a href="/oneUp/administrators/adminHome" ><input class="waves-effect waves-light btn" type="button" class="special" value="Cancel"></a>
 						</form>
 						<br><br>
                   <!-- END INSERTED PAGE CONTENT -->
          </div></div></div></div>
          </div>
          <!-- Footer -->
-         <div id="footer">
-            <div class="container">
-               <div class="row">
-                  <div class="12u">
-                     <!-- Contact -->
-                     <section class="contact">
-                        <ul class="icons">
-                           <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-                           <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
-                           <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-                           <li><a href="#" class="icon fa-pinterest"><span class="label">Pinterest</span></a></li>
-                           <li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
-                           <li><a href="#" class="icon fa-linkedin"><span class="label">Linkedin</span></a></li>
-                        </ul>
-                     </section>
-                     
-                     <!-- Copyright -->
-                     <div class="copyright">
-                        <ul class="menu">
-                        <li>Copyright &copy; 2014 OneUp. All rights reserved.</li>
-                           <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-                        </ul>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
+         {% include 'footer.html' %}
 </body>
 </html>

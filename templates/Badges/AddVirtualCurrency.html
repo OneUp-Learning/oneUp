@@ -15,9 +15,9 @@
         <div class="12u">
         	<h1>Add Virtual Currency</h1>
 		</div>
-		</div>
-        <div class="row">
-        <div class="12u"> 
+        </div>
+        <div class="col s12 m6">
+            <div class="card white">
             <form id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
                   {% csrf_token %}
                   <table class="bg">
@@ -45,9 +45,8 @@
        		</tr>
                      {% endfor %}
                   </table>
-                  <ul class="actions">
-                     <li style="margin:0"><input type="submit" id="create" name="create" value="Add" class="button"></li>
-                  </ul>
+                      <a class="waves-effect waves-light btn"><input type="submit" id="create" name="create" class="button"></a>
+
                </form>
 		</div>
         </div>

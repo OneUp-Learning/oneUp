@@ -19,10 +19,11 @@
                   <!-- INSERTED DYNAMIC TABLE --> 
         <div class="row">
         <div class="12u"> 
-            <a href="/oneUp/badges/CreateBadge"><input type="button" value="Create New Badge"></a>
-            <br /><br />
-             <!-- New: List of badges added; DD 02/04/2015 -->
-            <table class="bg">
+            <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateBadge"><input type="button" value="Create New Badge"></a>
+			 <!-- New: List of badges added; DD 02/04/2015 -->
+		<div class="col s12 m6">
+			<div class="card white">
+            <table>
         		<tr>
         			<th>Badge Image</th>
         			<th>Badge Name</th>
@@ -36,11 +37,13 @@
         			<td style="vertical-align:middle">{{badgeDescription}}</td>				
         			<td style="vertical-align:middle; text-align:right">					
         				{% csrf_token %}
-        				<a href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"><input type="button" value="Edit / Delete"></a>
+        				<a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"><input type="button" value="Modify"></a>
         			</td>
         		</tr>
         		{% endfor %}
-        	</table>
+			</table>
+			</div>
+			</div>
         <!-- END DYNAMIC TABLE -->
 		</div>
         </div>

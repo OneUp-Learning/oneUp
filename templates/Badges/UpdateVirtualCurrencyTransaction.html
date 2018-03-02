@@ -12,8 +12,8 @@
                   <h1>Transaction </h1>
                </div>
             </div>
-            <div class="row">
-               <div class="12u">
+            <div class="col s12 m6">
+                    <div class="card white">
                   <table class="bg">
                      <thead>
                         <tr>
@@ -59,21 +59,17 @@
                            </td>
                         </tr>
                         <tr>
-                           <th>Note for Student</th>
+                                <input placeholder="Student Note" id="studentNotes" name="studentNotes"type="text" class="validate">{{noteForStudent}}
+                                <label for="studentNotes">Student Notes</label>
                         </tr>
                         <tr>
-                           <td><textarea style="margin-bottom:0" id="mediumFormBox" name="studentNotes">{{noteForStudent}}</textarea>
-                        </tr>
-                        <tr>
-                           <th>Instructor Notes</th>
-                        </tr>
-                        <tr>
-                           <td><textarea style="margin-bottom:0" id="mediumFormBox" name="instructorNotes">{{instructorNote}}</textarea>
+                                <input placeholder="Instructor Note" id="instructorNotes" name="instructorNotes"type="text" class="validate">{{instructorNote}}
+                                <label for="instructorNotes">instructorNote</label>
                         </tr>
                      </table>
-                     <input type="submit" name="submit" value="Update" class="button">								
+                     <input class="waves-effect waves-light btn" type="submit" name="submit" value="Update" class="button">								
                      <a href="/oneUp/badges/VirtualCurrencyTransactions">
-                     <input type="button" class="special" value="Cancel"></a>
+                     <input class="waves-effect waves-light btn" type="button" class="special" value="Cancel"></a>
                   </form>
                </div>
             </div>

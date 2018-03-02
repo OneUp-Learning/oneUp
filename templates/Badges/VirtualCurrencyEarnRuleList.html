@@ -15,9 +15,11 @@
             <!-- INSERTED DYNAMIC TABLE --> 
             <div class="row">
                <div class="12u">
-                  <a href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><input type="button" {% if isRuleCustom == True %} value="Create New Manual Earning Rule" {% else %} value="Create New Automatic Earning Rule"{% endif %}></a>
+                  <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><input type="button" {% if isRuleCustom == True %} value="Create New Manual Earning Rule" {% else %} value="Create New Automatic Earning Rule"{% endif %}></a>
                   <br /><br />
                   <!-- New: List of badges added; DD 02/04/2015 -->
+            <div class="col s12 m6">
+                <div class="card white">
                   <table class="bg">
                      <tr>
                         <th>Name</th>
@@ -42,6 +44,8 @@
                      </tr>
                      {% endfor %}
                   </table>
+               </div>
+               </div>   
                </div>
             </div>
          </div>

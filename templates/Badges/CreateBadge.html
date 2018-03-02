@@ -14,22 +14,17 @@
 		            <div class="row">
 		               <div class="12u">
                	<h1>Create/Edit <span>Badge</span></h1>
-               	<p><span>*</span> Denotes Required Fields.</p>
                	<form id="createBadge" name="createBadge" action="/oneUp/badges/SaveBadge" onsubmit="return condOnSubmit();" method="POST">
                	    {% csrf_token %}
                		<input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
                		<table class="bg">
                         <tr>
-                           <td colspan="5">Badge Name <span style="color: red; font-weight: bolder;">*</span></td>
+                            <input placeholder="First Place" name="badgeName" id="badgeName" type="text" class="validate" pattern=".*\S+.*" required>
+                            <label for="badgeName">Badge Name</label>
                         </tr>
                         <tr>
-                           <td colspan="5"><input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" size="91" name="badgeName" id="badgeName" pattern=".*\S+.*" required></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">Badge Description <span style="color: red; font-weight: bolder;">*</span></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5"><textarea style="border: solid 1px rgba(128, 128, 128, 0.5)" rows="4" cols="92" name="badgeDescription" id="badgeDescription" required></textarea></td>
+                            <input placeholder="Perfect Score" name="badgeDescription" id="badgeDescription" type="text" class="validate" required>
+                            <label for="badgeDescription">Badge Description</label>
                         </tr>
 						<tr>
                            <td colspan="5">Badge Image <span style="color: red; font-weight: bolder;">*</span></td>
@@ -64,8 +59,8 @@
 	                           
                     </table>
                     <ul class="actions">
-                        <li style="margin:0"><input type="submit" id="create" name="create" value="Create Badge" class="button"></li>
-                        <a href="/oneUp/badges/Badges"><button type="button" class="button special" value="Cancel">Cancel</button></a>
+                        <li class="waves-effect waves-light btn" style="margin:0"><input type="submit" id="create" name="create" value="Create Badge" class="button"></li>
+                        <a href="/oneUp/badges/Badges" class="waves-effect waves-light btn" button type="button" class="button special" value="Cancel">Cancel</button></a>
                     </ul>
                	</form>
                 <br />

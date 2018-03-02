@@ -30,10 +30,12 @@
 			<div class="row">
          	<div class="12u">
 			{% csrf_token %}
-
+			<div class="col s12 m6">
+			<div class="card white">
 	<table class="bg">
 	
 	<thead align="left">Total Score: {{entireScore}}</thead>
+	
 		<form>
 		
 		{% for i,question,user,match_shuffled,score,total in question_range %}
@@ -125,14 +127,15 @@
 		
 	{% endfor %}
 	</form>
-	
 
 	</table>
+</div>
+</div>
 	<br />
 	<!--<input type="submit" name="submit" value="OK" class="button">-->
 	
 	<a href="/oneUp/students/ChallengesTaken?challengeID={{challengeID}}{% if is_teacher %}&userID={{student}}{% endif %}{% if warmUp %}&warmUp{% endif %}">				
-	<button type="button" value="Reset">Back</button></a>
+	<button class="waves-effect waves-light btn" type="button" value="Reset">Back</button></a>
 
  	<br><br>
 	

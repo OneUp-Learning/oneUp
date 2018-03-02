@@ -16,11 +16,13 @@
         	<h1>Students Transactions</h1>
 		</div>
 		</div>
-        <div class="row">
-        <div class="12u"> 
-            <a href="/oneUp/badges/VirtualCurrencyCompletedTransactions"><input type="button" value="View Completed Transactions"></a>
-            <br /><br />
-            <table class="bg">
+			<div align="right">
+            <a class="waves-effect waves-light btn" href="/oneUp/badges/VirtualCurrencyCompletedTransactions"><input type="button" value="View Completed Transactions"></a>
+			</div>
+			<br /><br />
+		<div class="col s12 m6">
+		<div class="card white">
+            <table>
         		<tr>
         			<th>Student</th>
         			<th>Item Name</th>
@@ -38,7 +40,7 @@
         			<td>{{purchaseDate}}</td>
         			<td>{{total}}</td>
         			<td><b>{{status}}</b></td>
-        			<td><a href="/oneUp/badges/UpdateVirtualCurrencyTransaction?transactionID={{transactionID}}"><input type="button" class="table" value="Update"></a></td>
+        			<td><a class="waves-effect waves-light btn" href="/oneUp/badges/UpdateVirtualCurrencyTransaction?transactionID={{transactionID}}"><input type="button" class="table" value="Update"></a></td>
         		</tr>
         		{% empty %}
         		<tr>
@@ -46,11 +48,13 @@
         		</tr>
         		{% endfor %}
        			
-        	</table>
+			</table>
+			</div>
+			</div>
 		</div>
-        </div>
-        </div>
-      	</div>
+		</div>
+		</div>
+		</div>
       <!-- Footer -->
       
         {% include 'footer.html' %}

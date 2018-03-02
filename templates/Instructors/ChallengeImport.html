@@ -25,17 +25,25 @@
 				<form id="uploadbanner" action="/oneUp/instructors/uploadChallenges"
 					enctype="multipart/form-data" method="POST">
 					{% csrf_token %}
-
-					<table class="bg">
+					<h6>Upload Your Challenges File</h6>
+					<table>
+									
 						<tr>
-							<th>Upload Your Challenges File</th>
+							<form action="#">
+									<div class="file-field input-field">
+									  <div class="btn">
+										<span>File</span>
+										<input id="fileupload" name="challenges" type="file">
+									  </div>
+									  <div class="file-path-wrapper">
+										<input class="file-path validate" type="text">
+									  </div>
+									</div>
+								  </form>
 						</tr>
 						<tr>
-							<td><input id="fileupload" name="challenges" type="file" /></td>
-						</tr>
 						<tr>
-						<tr>
-							<td><input type="submit" value="Upload" id="Upload" /></td>
+							<td><input class="waves-effect waves-light btn" type="submit" value="Upload" id="Upload" /></td>
 						</tr>
 
 					</table>
