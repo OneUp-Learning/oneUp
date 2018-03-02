@@ -24,6 +24,7 @@
                            <th>Name</th>
                            <th>Score</th>
                            <th>Number of Attempts</th>
+                           <th>Adjustment Reason</th>
                            <th class="secondary-content">
                               <a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="top" data-delay="50" data-tooltip="Display"><i class="material-icons" >filter_list</i></a>
                               <ul id='dropdown1' class='dropdown-content'>
@@ -35,11 +36,12 @@
                            </th>
                         </thead>
                         <tbody>
-                           {% for i,chall_ID,chall_Name,grade, numberOfAttempts, chall_position in challenge_range %}
+                           {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position in challenge_range %}
                            <tr>
                               <td>{{chall_Name}}</td>
                               <td>{{grade}}</td>
                               <td>{{numberOfAttempts}}</td>
+                              <td>{{adjusmentReason}}</td>
                               <td class="right-align">
                                  {% if is_teacher %} 
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>   

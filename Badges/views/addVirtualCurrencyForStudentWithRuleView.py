@@ -11,7 +11,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
     context_dict, course = initialContextDict(request)
     if 'currentCourseID' in request.session:
         if request.method == 'GET':
-            students = StudentRegisteredCourses.objects.filter(courseID = course)
+            students = StudentRegisteredCourses.objects.filter(courseID = course).order_by("studentID__user__last_name")
             studentID = []
             studentName= []
             studentCurrencyVC = []
@@ -30,7 +30,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 allRulesName.append(rule.vcRuleName)
             
             
-            context_dict['students'] = sorted(list(zip(studentID, studentName, studentCurrencyVC)), key=lambda tup: tup[1])
+            context_dict['students'] = (zip(studentID, studentName, studentCurrencyVC))#, key=lambda tup: tup[1])
                                               
             context_dict['rules'] = list(zip(allRulesID, allRulesName))
             return render(request, 'Badges/AddVirtualCurrency.html', context_dict)

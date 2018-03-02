@@ -14,6 +14,7 @@ from Instructors.views.challengeCreateView import challengeCreateView
 from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
 from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
 from Instructors.views.challengeListView import challengesList, warmUpChallengeList
+from Instructors.views.challengeAdjusmentView import challengeAdjustmentView, adjustmentList
 
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
@@ -151,5 +152,6 @@ urlpatterns = [
     url(r'^luaLibEdit',libEdit,name="Lua Library Edit"),        
     url(r'^luaLibUploadView',luaLibUpload,name="Lua Library Upload"),
     url(r'^luaLibConfirmDelete',libDeleteConfirmView,name="Lua Library Deletion Confirmation"),
-
+    url(r'^adjustmentList', adjustmentList, name='adjustmentList'),
+    url(r'^challengeAdjustment', challengeAdjustmentView, name='challengeAdjustmentView'),
 ]

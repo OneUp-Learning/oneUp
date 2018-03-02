@@ -35,17 +35,17 @@ def activityAssignPointsView(request):
             # Should only be one match (AH)
             stud_activity = StudentActivities.objects.filter(activityID = request.POST['activityID'], studentID = studentRC.studentID.id).first()
             studentPoints = request.POST['student_Points' + str(studentRC.studentID.id)] 
-            isGraded = request.POST.get(str(studentRC.studentID.id)+'_points_graded')
 
             # If student has been previously graded...
             if stud_activity:
+                
+                # Only update the student grades that has changed to keep the existing grade timestamp (AH)
+                if stud_activity.activityScore == int(studentPoints):
+                    continue
+                
                 # Check if the student has points wanting to be assigned (AH)
-                
-                print("Points: " + str(studentPoints))
-                print("Graded: " + str(isGraded))
-                
                 if not studentPoints == "-1":
-                    # Override the activity with the student points (AH)
+                    # Override the activity with the student points (AH)  
                     stud_activity.activityScore = studentPoints
                     stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     stud_activity.timestamp = utcDate()
@@ -56,12 +56,11 @@ def activityAssignPointsView(request):
                     actName = activity.activityName
                         
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb='A your activity '+actName+' has been graded', nf_type='Activity Graded')
+                                verb= actName+' has been graded', nf_type='Activity Graded')
 
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
                 if not studentPoints == "-1":
-                    # Create new activity (AH)
                     stud_activity = StudentActivities()
                     stud_activity.activityID = activity
                     stud_activity.studentID = studentRC.studentID
@@ -75,7 +74,7 @@ def activityAssignPointsView(request):
                     actName = activity.activityName
                         
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb='A your activity '+actName+' has been graded', nf_type='Activity Graded')
+                                verb= actName+' has been graded', nf_type='Activity Graded')
 
                     activityGradedNow[studentRC.studentID] = False
        

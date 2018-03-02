@@ -4,16 +4,15 @@ Updated 06/09/2017
 
 '''
 from django.shortcuts import render
-from datetime import datetime
+from django.contrib.auth.decorators import login_required
 
-from Instructors.models import Skills, Challenges, Courses, CoursesSkills, ChallengesQuestions,Activities, Milestones
-from Students.models import Student, StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses,StudentActivities
+from Instructors.models import Skills, Challenges, CoursesSkills, Activities, Milestones
+from Students.models import StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses,StudentActivities
 from Badges.models import CourseConfigParams
 from Students.views import classResults
 from Students.views.utils import studentInitialContextDict
 from Students.models import StudentConfigParams
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+
 from Badges.events import register_event
 from Badges.enums import Event
 
@@ -27,8 +26,9 @@ def achievements(request):
 
     studentId = context_dict['student']
     
-    if context_dict['is_teacher'] == False:
-        register_event(Event.visitedDashboard, request, studentId, None)
+    if "is_student" in context_dict:
+        if context_dict["is_student"] == True:
+            register_event(Event.visitedDashboard, request, studentId, None)
    
     st_crs = StudentRegisteredCourses.objects.get(studentID=studentId,courseID=currentCourse)
     context_dict['avatar'] = st_crs.avatarImage  
@@ -66,9 +66,9 @@ def achievements(request):
     total = []
     challavg = []
 
- # SERIOUS CHALLENGES  
-     # We display information about all serious challenges for this course that should have been taken by the student,
-     # not only for those taken by the student
+    # SERIOUS CHALLENGES  
+    # We display information about all serious challenges for this course that should have been taken by the student,
+    # not only for those taken by the student
     courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
     for challenge in courseChallenges:
         sc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge)
@@ -83,9 +83,10 @@ def achievements(request):
             gradeID  = []
                                 
             for s in sc:
-                gradeID.append(int(s.testScore)) 
-                print(s.testScore) 
-                s_testTotal = s.challengeID.totalScore
+                gradeID.append(int(s.getScore()))   # for serious challenges include also score adjustment and curve 
+                print(s.getScore()) 
+                #s_testTotal = s.challengeID.totalScore
+                s_testTotal = s.challengeID.getCombinedScore()
             maxC = max(gradeID)                  
             earnedPointsSeriousChallenges += maxC
             

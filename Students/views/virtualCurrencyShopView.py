@@ -65,8 +65,9 @@ def virtualCurrencyShopView(request):
             
             challenges_id = []
             challenges_name = []
-            if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.replaceLowestAssignGrade, Event.buyExtraCreditPoints]:
-                defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+
+            if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
+                defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
                 currentTime = utcDate()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
                 activites = Activities.objects.filter(courseID=currentCourse)
@@ -85,7 +86,7 @@ def virtualCurrencyShopView(request):
                     return None
                 return zip(challenges_id, challenges_name) 
             else:
-                return None
+                return 0
                    
         
         if request.method == "GET":
@@ -139,7 +140,7 @@ def virtualCurrencyShopView(request):
                     studentVCTransaction.student = student
                     studentVCTransaction.course = currentCourse
                     
-                    if buyOption in [Event.instructorHelp, Event.buyAttempt,Event.extendDeadlineHW, Event.extendDeadlineLab, Event.replaceLowestAssignGrade, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
+                    if buyOption in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
                         event = Event.events[buyOption]
                         studentVCTransaction.studentEvent = register_event(buyOption, request, student, int(request.POST['challengeFor'+event['name']]))
                         studentVCTransaction.objectType = ObjectTypes.challenge

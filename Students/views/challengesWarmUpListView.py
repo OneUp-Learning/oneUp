@@ -38,16 +38,16 @@ def challengesForTopic(topic, student, currentCourse):
                     tTotal=(sc.challengeID.totalScore/3)
                     
                     #Above Average Score
-                    if (max(gradeID) >= (2*tTotal)) or (max(gradeID) == (3*tTotal)):
+                    if (max(gradeID) >= (2*tTotal)):
                         score.append(3)
                     #Average Score
-                    elif (max(gradeID) > tTotal) or (max(gradeID) <= (2*tTotal)):
+                    elif (max(gradeID) > tTotal) and (max(gradeID) < (2*tTotal)):
                         score.append(4)
                     #Below Average Score
                     else:
                         score.append(5)
                 else:
-                    score.append(2)
+                    score.append(2)  # no attempt
     else:
         challenge_ID.append('')
         challenge_Name.append('')

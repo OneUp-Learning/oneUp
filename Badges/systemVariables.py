@@ -164,10 +164,9 @@ def getMaxTestScore(course,student,challenge):
     #Note that highest test score includes testScore + curve and not the scoreAdjustment
     allTestScores = getAllTestScores(course,challenge)
     if len(allTestScores) == 0:
-        return 0          
-    highestTestScore = allTestScores.latest('testScore') #.latest() also gets the max for an integer value
-    return highestTestScore.getScore()
-
+        return 0 
+    return max([sc.getScore() for sc in allTestScores])
+    
 def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     #return the percentage of the higest text score
     # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
@@ -183,23 +182,21 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     else:
         return 0
     
-def getAverageTestScore(course, students, challenge):
+def getAverageTestScore(course, student, challenge):    
     #return the average score of the a challenge
     #Note that average test score includes testScore + curve and the scoreAdjustment
     
+    from Students.models import StudentRegisteredCourses
+    
     maxScores = 0.0
     
-    for student in students:
-        allScores = getTestScores(course,student,challenge)
-        if allScores.exists():
-            maxScore = allScores.latest('testScore').getScore()
+    allScores = getTestScores(course,student,challenge)
+    if allScores.exists():
+        maxScore = allScores.latest('testScore').getScore()
         
-            maxScores += maxScore
+        maxScores += float(maxScore)
         
-    if len(students) != 0:
-        return maxScores/float(len(students))
-    else:
-        return 0  
+    return maxScores/StudentRegisteredCourses.objects.filter(courseID=course).count()
     
 def getMinTestScore(course,student,challenge):
     #return the min test score achieved out of the entire class for a challenge
@@ -300,6 +297,8 @@ def getScorePercentage(course,student, challenge):
 def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge): 
     from Students.models import StudentEventLog
     warmUpChallDates = []
+    print()
+    print(student)
     # filter all the ended challenge events
     eventObjects = StudentEventLog.objects.filter(student=student, course=course,event = Event.endChallenge)
     for event in eventObjects:
@@ -307,13 +306,15 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge):
             # get a specific challenge by its ID
             try:
                 chall = Challenges.objects.get(courseID=course, challengeID=event.objectID)
+                print("Challenge Name : " + chall.challengeName)
             except:
                 continue
               
             scorePecentage = getScorePercentage(course,student,event.objectID)
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 30.0:
-                # eventDate = str(event.timestamp)
+                # eventDate = str(event.timestamp
+                print("Time : ", event.timestamp.date())
                 warmUpChallDates.append(event.timestamp.date())  
     # get today's date in utc            
     today = datetime.now(tz=timezone.utc).date()
@@ -337,16 +338,23 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge):
                 continue
             else:
                 consecutiveDays = 1
-                previousDate = date   
+                previousDate = date 
+                
+        print("consecutive days :", consecutiveDays)  
         # if the last day the challenge taken is not today then return 0
         if warmUpChallDates[len(warmUpChallDates)-1] != today:
             consecutiveDays = 0
+        print("consecutive days 1:", consecutiveDays)
+        print()
+        print()
         return consecutiveDays
     True
 def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge): 
     from Students.models import StudentEventLog
     warmUpChallDates = []
     # filter all the ended challenge events
+    print()
+    print(student)
     eventObjects = StudentEventLog.objects.filter(student=student, course=course,event = Event.endChallenge)
     for event in eventObjects:
         if event.objectType == ObjectTypes.challenge: 
@@ -354,6 +362,7 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
             
             try:
                 chall = Challenges.objects.get(courseID=course, challengeID=event.objectID)
+                print("Challenge Name : " + chall.challengeName)
             except:
                 continue
             
@@ -361,6 +370,7 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 75.0:
                 # eventDate = str(event.timestamp)
+                print("Time : ", event.timestamp.date())
                 warmUpChallDates.append(event.timestamp.date())  
     # get today's date in utc            
     today = datetime.now(tz=timezone.utc).date()
@@ -385,9 +395,13 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
             else:
                 consecutiveDays = 1
                 previousDate = date   
+        print("consecutive days :", consecutiveDays)
         # if the last day the challenge taken is not today then return 0
         if warmUpChallDates[len(warmUpChallDates)-1] != today:
             consecutiveDays = 0
+        print("consecutive days 1:", consecutiveDays)
+        print()
+        print()
         return consecutiveDays    
     
 def getActivitiesCompleted(course,student):
@@ -759,7 +773,7 @@ class SystemVariable():
             'name':'score',
             'displayName':'Score',
             'description':'The score for the challenge or activity',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.participationNoted],
             'type':'int',
             'functions':{
                 ObjectTypes.activity: activityScore,

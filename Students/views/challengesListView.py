@@ -20,8 +20,13 @@ from django.contrib.auth.decorators import login_required
 def ChallengesList(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
- 
+    
+    
     context_dict,currentCourse = studentInitialContextDict(request)
+    
+    user = -1
+    if request.user.is_authenticated():
+        user = request.user.username
     
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
@@ -45,13 +50,17 @@ def ChallengesList(request):
         # Select if startTime is greater than(__gt) currentTime and 
         # if endTime is less than(__lt) currentTime (AH)
         
-        challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+        if not str(user) == str(studentId):
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
+        else:
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
         
         grade = []
         gradeLast = []
         gradeFirst = []
         gradeMax = []
         gradeMin = []
+        adjusmentReason = []
         
         numberOfAttempts = []
         
@@ -78,21 +87,23 @@ def ChallengesList(request):
                         latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
                         earliestSC =StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).earliest('startTimestamp')
                         
-                        gradeLast.append(str(latestSC.testScore) + " / " + str(latestSC.challengeID.totalScore))
-                        gradeFirst.append(str(earliestSC.testScore) + " / " + str(earliestSC.challengeID.totalScore))
+                        adjusmentReason.append(latestSC.adjustmentReason)
+                        
+                        gradeLast.append(str(latestSC.getScore()) + " / " + str(latestSC.challengeID.getCombinedScore()))
+                        gradeFirst.append(str(earliestSC.getScore()) + " / " + str(earliestSC.challengeID.getCombinedScore()))
         
                         gradeID  = []
                         
                         numberOfAttempts.append(len(sChallenges))
                         
                         for sc in sChallenges:
-                            gradeID.append(int(sc.testScore))
+                            gradeID.append(int(sc.getScore()))
         
                         gMax = (max(gradeID))
                         gMin = (min(gradeID))
                         
-                        gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.challengeID.totalScore))
-                        gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.challengeID.totalScore))
+                        gradeMax.append(str("%0.2f" % gMax) + " / " + str(latestSC.challengeID.getCombinedScore()))
+                        gradeMin.append(str("%0.2f" % gMin) + " / " + str(latestSC.challengeID.getCombinedScore()))
                         
                     else:
                         gradeLast.append('Not Completed')
@@ -100,6 +111,7 @@ def ChallengesList(request):
                         gradeMax.append('Not Completed')
                         gradeMin.append('Not Completed')
                         numberOfAttempts.append("0")
+                        adjusmentReason.append("")
 
         if optionSelected == '1':
             grade = gradeLast
@@ -113,6 +125,6 @@ def ChallengesList(request):
             grade = gradeLast
 
         # The range part is the index numbers.
-        context_dict['challenge_range'] = sorted(list(zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts,chall_position)), key=lambda tup: tup[5])
+        context_dict['challenge_range'] = sorted(list(zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts,adjusmentReason, chall_position)), key=lambda tup: tup[6])
 
     return render(request,'Students/ChallengesList.html', context_dict)

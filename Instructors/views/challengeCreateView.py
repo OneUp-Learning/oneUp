@@ -26,8 +26,20 @@ def challengeCreateView(request):
     topic_ID = []
     topic_Name = []
     
-    string_attributes = ['challengeName', 'challengeDifficulty', 'numberAttempts','timeLimit','challengePassword']
 
+    context_dict['isVisible']=True
+    context_dict['displayCorrectAnswer']= True
+    
+    string_attributes = ['challengeName', 'challengeDifficulty',               ##'isGraded','challengeCategory', 'challengeDifficulty'
+                  'numberAttempts','timeLimit','challengePassword','manuallyGradedScore'
+                  ];   
+    
+    # Fetch the topics for this course from the database.
+    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)   
+    for ct in course_topics:
+        topic_ID.append(ct.topicID.topicID)
+        topic_Name.append(ct.topicID.topicName)
+        
     unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
       
     context_dict['topicsAuto'], context_dict['createdTopics'] = autoCompleteTopicsToJson(currentCourse)
@@ -239,6 +251,16 @@ def challengeCreateView(request):
             context_dict['topics'] = getTopicsForChallenge(challenge)
             # Extract the tags from DB            
             context_dict['tags'] = extractTags(challenge, "challenge")
+
+            #context_dict['all_Topics'] = utils.extractTopics(challenge, "challenge")
+#             allTopics = utils.getTopicsForChallenge(challenge)
+#             topicNames = ""
+#             
+#             for t in allTopics:
+#                 topicNames += t['name'] +"\t\t"
+#                 
+#             context_dict['topics_str'] = topicNames
+#             context_dict['all_Topics'] = utils.getTopicsForChallenge(challenge)
 
             # The following information is needed for the challenge 'view' option            
             for q in questionObjects:

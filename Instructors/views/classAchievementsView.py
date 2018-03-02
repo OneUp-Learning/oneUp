@@ -81,17 +81,17 @@ def classAchievements(request):
                     latestSC = StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]).latest('startTimestamp')
                     earliestSC =StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]).earliest('startTimestamp')
                     
-                    gradeLast.append(latestSC.testScore)
-                    gradeFirst.append(earliestSC.testScore)
-                    numberLast.append(latestSC.testScore)
-                    numberFirst.append(earliestSC.testScore)
+                    gradeLast.append(latestSC.getScore())
+                    gradeFirst.append(earliestSC.getScore())
+                    numberLast.append(latestSC.getScore())
+                    numberFirst.append(earliestSC.getScore())
                     
                     sc_user.append(user)
                     sc_chall.append(challenges[j].challengeID)
                     gradeID  = []
                     
                     for sc in sChallenges:
-                        gradeID.append(int(sc.testScore))
+                        gradeID.append(int(sc.getScore()))
                         
                     gradeMax.append(("%0.2f" %max(gradeID)))
                     gradeMin.append(("%0.2f" %min(gradeID)))
