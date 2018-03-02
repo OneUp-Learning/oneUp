@@ -19,36 +19,40 @@
 			<div align="right">
             <a class="waves-effect waves-light btn" href="/oneUp/badges/VirtualCurrencyCompletedTransactions"><input type="button" value="View Completed Transactions"></a>
 			</div>
-			<br /><br />
 		<div class="col s12 m6">
-		<div class="card white">
-            <table>
-        		<tr>
-        			<th>Student</th>
-        			<th>Item Name</th>
-        			<th>Item Description</th>
-        			<th>Date Purchased</th>
- 					<th>Item Cost</th>
- 					<th>Status</th>
- 					<th></th>
-        		</tr>
-        		{% for transactionID, student, name, description, purchaseDate, total, status in transactions %}
-        		<tr> 
-        			<td>{{student}}</td>
-        			<td>{{name}}</td>
-        			<td>{{description}}</td>
-        			<td>{{purchaseDate}}</td>
-        			<td>{{total}}</td>
-        			<td><b>{{status}}</b></td>
-        			<td><a class="waves-effect waves-light btn" href="/oneUp/badges/UpdateVirtualCurrencyTransaction?transactionID={{transactionID}}"><input type="button" class="table" value="Update"></a></td>
-        		</tr>
-        		{% empty %}
-        		<tr>
-        			<td>No transactions</td>
-        		</tr>
-        		{% endfor %}
-       			
-			</table>
+		<div class="card">
+			<div class="card-content">
+				<table>
+					<tr>
+						<th>Student</th>
+						<th>Item Name</th>
+						<th>Item Description</th>
+						<th>Date Purchased</th>
+						<th>Item Cost</th>
+						<th>Status</th>
+						<th></th>
+					</tr>
+					{% for transactionID, student, name, description, purchaseDate, total, status in transactions %}
+					<tr> 
+						<td>{{student}}</td>
+						<td>{{name}}</td>
+						<td>{{description}}</td>
+						<td>{{purchaseDate}}</td>
+						<td>{{total}}</td>
+						<td><b>{{status}}</b></td>
+						<td><a class="waves-effect waves-light btn" href="/oneUp/badges/UpdateVirtualCurrencyTransaction?transactionID={{transactionID}}"><input type="button" class="table" value="Update"></a></td>
+					</tr>
+					{% empty %}
+					<tr>
+						<td>No transactions</td>
+					</tr>
+					{% endfor %}
+					
+				</table>
+			</div>
+			<div class="card-actions">
+
+			</div>
 			</div>
 			</div>
 		</div>
