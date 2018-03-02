@@ -17,18 +17,12 @@ from Badges.conditions_util import get_events_for_system_variable, get_events_fo
 
 from django.contrib.auth.decorators import login_required
 
-def DeleteBadge(badgeId):
-
-    # Delete the badge
-    deleteBadges = Badges.objects.filter(badgeID=badgeId)
-    for deleteBadge in deleteBadges:
+def DeleteBadgeRule(badge):
         
-        # The next line deletes the conditions and everything else related to the rule
-        deleteBadge.ruleID.delete_related()
-        # Then we delete the rule itself
-        deleteBadge.ruleID.delete()
-        # And then we delete the badge.
-        deleteBadge.delete()                   
+    # The next line deletes the conditions and everything else related to the rule
+    badge.ruleID.delete_related()
+    # Then we delete the rule itself
+    badge.ruleID.delete()                 
             
 def DetermineEvent(conditionOperandValue):
     # Note: This should be effectively removed soon and also can break for certain inputs.
@@ -51,7 +45,7 @@ def SaveBadge(request):
         if 'badgeId' in request.POST:   #edit or delete badge 
             print("Badge to Edit/Delete Id: "+str(request.POST['badgeId']))
             badgeInformation = Badges.objects.get(pk=int(request.POST['badgeId']))
-            DeleteBadge(request.POST['badgeId'])
+            DeleteBadgeRule(badgeInformation)
         else:
             badgeInformation = Badges()  # create new badge
                         
@@ -100,8 +94,9 @@ def SaveBadge(request):
                 actionArgument.sequenceNumber = 1
                 actionArgument.argumentValue =  badgeId.badgeID
                 actionArgument.save()
-                
 
+        else:
+            badgeInformation.delete()
                 
     return redirect("/oneUp/badges/Badges")
     

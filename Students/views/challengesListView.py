@@ -20,8 +20,13 @@ from django.contrib.auth.decorators import login_required
 def ChallengesList(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
- 
+    
+    
     context_dict,currentCourse = studentInitialContextDict(request)
+    
+    user = -1
+    if request.user.is_authenticated():
+        user = request.user.username
     
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
@@ -45,7 +50,10 @@ def ChallengesList(request):
         # Select if startTime is greater than(__gt) currentTime and 
         # if endTime is less than(__lt) currentTime (AH)
         
-        challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+        if not str(user) == str(studentId):
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
+        else:
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
         
         grade = []
         gradeLast = []
