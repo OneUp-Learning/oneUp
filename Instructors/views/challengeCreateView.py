@@ -211,7 +211,7 @@ def challengeCreateView(request):
         else:
             return redirect('/oneUp/instructors/challengesList')
     
-    # GET        
+    # GET with some parameters passed
     if request.GET:
         # In case we specify a different number of blanks
         if 'num_answers' in request.GET:
@@ -219,8 +219,8 @@ def challengeCreateView(request):
             
         if 'warmUp' in request.GET:
             context_dict['warmUp']= 1
-            
-        # If questionId is specified then we load for editing.
+           
+        # If challengeID is specified then we load for editing.
         if 'challengeID' in request.GET:
             challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
             
@@ -359,7 +359,8 @@ def challengeCreateView(request):
                     qlist = []
     
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
-
+    else: # GET with no parameters passed.
+        context_dict['manuallyGradedScore'] = '0'    
     
     if 'view' in request.GET:
         view = 1

@@ -70,7 +70,7 @@ def CoursePerformance(request):
                 gradeID  = []
                        
                 for sc in sChallenges:
-                    gradeID.append(sc.testScore)
+                    gradeID.append(sc.getScore())
 
                 gMax = (max(gradeID))
                 
@@ -79,7 +79,7 @@ def CoursePerformance(request):
                 assignmentType.append("Challenge")
                 assignmentTime.append(latestSC.endTimestamp)
                 assignmentGrade.append(gMax)
-                assignmentGradeTotal.append(latestSC.challengeID.totalScore)
+                assignmentGradeTotal.append(latestSC.challengeID.getCombinedScore())
                 assignmentFeedback.append("")
                 if currentTime > challenge.endTimestamp:
                     isExpired.append(True)
