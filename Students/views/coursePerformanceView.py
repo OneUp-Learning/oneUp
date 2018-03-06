@@ -35,6 +35,7 @@ def CoursePerformance(request):
         assignmentGrade = []
         assignmentGradeTotal = []
         assignmentFeedback = []
+        isExpired = []
     
         # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
         defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
@@ -50,6 +51,11 @@ def CoursePerformance(request):
             assignmentGrade.append(sa.activityScore)
             assignmentGradeTotal.append(a.points)
             assignmentFeedback.append(sa.instructorFeedback)
+            if currentTime > sa.activityID.endTimestamp:
+                isExpired.append(True)
+            else:
+                isExpired.append(False)
+                
                 
       
         # Select if startTime is less than(__lt) currentTime (AH)
@@ -75,10 +81,19 @@ def CoursePerformance(request):
                 assignmentGrade.append(gMax)
                 assignmentGradeTotal.append(latestSC.challengeID.totalScore)
                 assignmentFeedback.append("")
+                if currentTime > challenge.endTimestamp:
+                    isExpired.append(True)
+                    isE = True
+                else:
+                    isExpired.append(False)
+                    isE = False
+                    
+                print("challenge Name ", challenge.challengeName)
+                print("isExpired ", isE)
         
              
         # The range part is the index numbers.
-        context_dict['challenge_range'] = zip(range(1,len(assignmentID)+1),assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback)
+        context_dict['challenge_range'] = zip(range(1,len(assignmentID)+1),assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback,isExpired)
         context_dict['challenge_range'] = reversed(sorted(context_dict['challenge_range'], key = lambda t: t[4]))
     
     return render(request,'Students/CoursePerformance.html', context_dict)
