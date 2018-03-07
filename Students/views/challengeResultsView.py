@@ -95,8 +95,8 @@ def ChallengeResults(request):
                 print("attemptID = "+attemptId)               
                 
                 # Do not grade the same challenge twice
-                #if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
-                    #return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+                if StudentChallenges.objects.filter(challengeID=challengeId,studentID=studentId,startTimestamp=startTime).count() > 0:
+                    return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
                     
                 #save initial student-challenge information pair (no score)to db
                 studentChallenge = StudentChallenges()
@@ -271,7 +271,7 @@ def ChallengeResults(request):
                 studentChallenge.testScore = totalStudentScore
                 studentChallenge.save()
                 
-                if challenge.totalScore != totalStudentScore:  # In case things have been changed since the last time it was taken or this is first time anyone has taken
+                if challenge.totalScore != totalPossibleScore:  # In case things have been changed since the last time it was taken or this is first time anyone has taken
                     challenge.totalScore = totalPossibleScore
                     challenge.save()
                 
