@@ -9,9 +9,7 @@ from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges , ChallengesQuestions
 from Instructors.views.utils import utcDate
 from Instructors.constants import default_time_str
-from datetime import datetime
 from django.db.models import Q
-
 
 
 from django.contrib.auth.decorators import login_required
@@ -61,19 +59,24 @@ def ChallengesList(request):
         gradeMax = []
         gradeMin = []
         adjusmentReason = []
+        challDueDate = []
         
         numberOfAttempts = []
         
         if not challenges:
-            print('No challenge')
             context_dict['no_challenge'] = 'Sorry!! there are no challenges associated with the course chosen..'
         else:
 
             for challenge in challenges:
-                
+                    
                 challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                 
                 if challQuestions:
+                    
+                    if challenge.endTimestamp.strftime("%Y") < ("2900"):
+                        challDueDate.append(challenge.endTimestamp)
+                    else:
+                        challDueDate.append("")
                   
                     chall_ID.append(challenge.challengeID) #pk
                     chall_Name.append(challenge.challengeName)
@@ -125,6 +128,6 @@ def ChallengesList(request):
             grade = gradeLast
 
         # The range part is the index numbers.
-        context_dict['challenge_range'] = sorted(list(zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts,adjusmentReason, chall_position)), key=lambda tup: tup[6])
+        context_dict['challenge_range'] = sorted(list(zip(range(1,len(challenges)+1),chall_ID,chall_Name,grade, numberOfAttempts,adjusmentReason, chall_position, challDueDate)), key=lambda tup: tup[6])
 
     return render(request,'Students/ChallengesList.html', context_dict)
