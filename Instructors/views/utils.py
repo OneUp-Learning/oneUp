@@ -2,11 +2,10 @@
 from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
 from Instructors.constants import unspecified_topic_name
 from Badges.models import CourseConfigParams
-import re
-import string
-from django.contrib.auth.decorators import login_required
+import pytz
+from datetime import datetime, timezone
 
-@login_required
+
 def saveTags(tagString, resource, resourceIndicator):
 
         #if tagString is not null or empty
@@ -484,7 +483,6 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     ''' Converts date str to datetime.datetime object with utc timezone.
         Method should be used before storing dates in DateTimeField.
     '''
-    from datetime import datetime, timezone
     
     if date == "None":
         dt = datetime.now(tz=timezone.utc).replace(microsecond=0)
@@ -495,3 +493,9 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     
     print("Converted Time to UTC: " , dt.replace(tzinfo=timezone.utc))
     return dt.replace(tzinfo=timezone.utc)  
+
+def localizedDate(request, date_str, date_format):
+    tz = pytz.timezone(request.session['django_timezone'])
+    
+    return tz.localize(datetime.strptime(date_str, date_format))
+

@@ -318,6 +318,7 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge):
                 warmUpChallDates.append(event.timestamp.date())  
     # get today's date in utc            
     today = datetime.now(tz=timezone.utc).date()
+    
     # if the student did not take any challenge return 0 as consecutiveDays
     if warmUpChallDates == []:
         return 0
@@ -330,11 +331,11 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge):
     else:
         consecutiveDays = 1
         previousDate = warmUpChallDates[0]
-        for date in warmUpChallDates[1:len(warmUpChallDates)-1]: 
-            if(date - previousDate) == 1:
+        for date in warmUpChallDates[1:len(warmUpChallDates)]: 
+            if str(date - previousDate) == "1 day, 0:00:00":
                 consecutiveDays +=1
                 previousDate = date
-            elif (date - previousDate) == 0:
+            elif str(date - previousDate) == "0:00:00":
                 continue
             else:
                 consecutiveDays = 1
@@ -386,15 +387,15 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
     else:
         consecutiveDays = 1
         previousDate = warmUpChallDates[0]
-        for date in warmUpChallDates[1:len(warmUpChallDates)-1]: 
-            if(date - previousDate) == 1:
+        for date in warmUpChallDates[1:len(warmUpChallDates)]: 
+            if str(date - previousDate) == "1 day, 0:00:00":
                 consecutiveDays +=1
                 previousDate = date
-            elif (date - previousDate) == 0:
+            elif str(date - previousDate) == "0:00:00":
                 continue
             else:
                 consecutiveDays = 1
-                previousDate = date   
+                previousDate = date 
         print("consecutive days :", consecutiveDays)
         # if the last day the challenge taken is not today then return 0
         if warmUpChallDates[len(warmUpChallDates)-1] != today:

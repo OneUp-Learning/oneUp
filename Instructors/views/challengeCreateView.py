@@ -3,14 +3,13 @@ from Instructors.models import Answers, CorrectAnswers, Courses
 from Instructors.models import Challenges, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import utils, challengeListView
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import utcDate, localizedDate
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
 
 
 from time import time
 from datetime import datetime
-
 
 @login_required
 def challengeCreateView(request):
@@ -125,7 +124,7 @@ def challengeCreateView(request):
         if(request.POST['startTime'] == ""):
             challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
-            challenge.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
+            challenge.startTimestamp = localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
@@ -133,7 +132,7 @@ def challengeCreateView(request):
             challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         else:
             if datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
-                challenge.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+                challenge.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")                
             else:
                 challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
         
@@ -258,13 +257,13 @@ def challengeCreateView(request):
             print('etime ', etime)
             if etime != default_time_str: 
                 print('etime2 ', etime)   
-                context_dict['endTimestamp']=etime
+                context_dict['endTimestamp']=challenge.endTimestamp
             else:
                 context_dict['endTimestamp']=""
             
             print(challenge.startTimestamp.strftime("%Y")) 
             if challenge.startTimestamp.strftime("%Y") < ("2900"):
-                context_dict['startTimestamp']= challenge.startTimestamp.strftime("%m/%d/%Y %I:%M %p")
+                context_dict['startTimestamp']= challenge.startTimestamp
             else:
                 context_dict['startTimestamp']=""
             

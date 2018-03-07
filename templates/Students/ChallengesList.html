@@ -55,15 +55,17 @@
             <table class="bg">
                 <tr>
                     <th>Name</th>
+                    <th>End Date</th>
                     <th>Score</th>
                     <th>Number of Attempts</th>
                     <th>Adjustment Reason</th>
                     <th> </th>
                 </tr>
                 
-                {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position in challenge_range %}
+                {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate in challenge_range %}
                 <tr> 
                     <td>{{chall_Name}}</td>	
+                    <td>{{challDueDate}}</td>
                     <td>{{grade}}</td>
                     <td>{{numberOfAttempts}}</td>		
                     <td>{{adjusmentReason}}</td>	

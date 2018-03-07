@@ -32,7 +32,7 @@
                  	<th></th>
                 </tr>
                 
-                {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback in challenge_range %}
+                {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback, isExpired in challenge_range %}
                 <tr> 
                     <td>{{assignmentName}}</td>
                     <td>{{assignmentType}}</td>
@@ -40,7 +40,8 @@
                     <td>{{assignmentGrade}} / {{assignmentGradeTotal}}</td>	
                     <td>{{assignmentFeedback}}</td>
                     <td align="right">
-                    {% ifequal assignmentType 'Challenge' %}
+                    {% ifequal assignmentType 'Challenge'%}
+                    {% if not isExpired %}
                         {% csrf_token %} 
                         <div>
                             <a href="/oneUp/students/ChallengesTaken?challengeID={{assignmentID}}">
@@ -48,6 +49,7 @@
                             </a>
                         </div>															
                         <input type="hidden" name="challengeID" value="{{assignmentID}}">
+                    {% endif %}
                     {% endifequal %}
 				    </td>
                 </tr>
