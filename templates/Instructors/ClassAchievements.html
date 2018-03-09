@@ -2,9 +2,7 @@
 <html lang="en">
    <head>
       <meta charset="utf-8" />
-      
-       {% include 'scripts.html' %}
-      
+      {% include 'scripts.html' %}
       <script type="text/javascript">
          function goToNewPage()
          {
@@ -23,81 +21,79 @@
              
          }
       </script>
-		
    </head>
    <body>
-     <div>
-
-        {% include 'heading.html' %}
- 
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
-               <h1>Class Scores</h1>
-			</div></div>
-			<div class="row">
-         	<div class="12u">
-                  <!-- INSERTED DYNAMIC TABLE -->  
-              	<div id="element2"><td align="left">
-                  <form name="menuform" style="background:rgba(255,255,255,.75)">
-                     <select name="menu1">
-                        <option value="/oneUp/instructors/classAchievements?ID={{1}}">Latest Score</option>
-                        {% if ID == '2' %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}" selected>Earliest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}">Highest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}">Lowest Score</option>
-                        {% elif ID == '3' %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}">Earliest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}" selected>Highest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}">Lowest Score</option>
-                        {% elif ID == '4' %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}">Earliest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}">Highest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}" selected>Lowest Score</option>
-                        {% else %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}">Earliest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}">Highest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}">Lowest Score</option>
-                        {% endif %}
-                     </select></div>
-                     <div id="element2"><a><input type="button" name="Submit" value="Display" 
-                        onClick="top.location.href = this.form.menu1.options[this.form.menu1.selectedIndex].value;
-                        return false;"></a></td>
-                  </form></div>
-                  <br /><br />
-                  <table class="bg">
-                     <tr>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Class Scores</h3>
+            </div>
+         </div>
+         <form name="menuform">                
+         <div class="row">
+               <div class="col s12 m2 offset-m6">
+                  <select name="menu1">
+                     <option value="/oneUp/instructors/classAchievements?ID={{1}}">Latest Score</option>
+                     {% if ID == '2' %}
+                     <option value="/oneUp/instructors/classAchievements?ID={{2}}" selected>Earliest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{3}}">Highest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{4}}">Lowest Score</option>
+                     {% elif ID == '3' %}
+                     <option value="/oneUp/instructors/classAchievements?ID={{2}}">Earliest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{3}}" selected>Highest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{4}}">Lowest Score</option>
+                     {% elif ID == '4' %}
+                     <option value="/oneUp/instructors/classAchievements?ID={{2}}">Earliest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{3}}">Highest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{4}}" selected>Lowest Score</option>
+                     {% else %}
+                     <option value="/oneUp/instructors/classAchievements?ID={{2}}">Earliest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{3}}">Highest Score</option>
+                     <option value="/oneUp/instructors/classAchievements?ID={{4}}">Lowest Score</option>
+                     {% endif %}
+                  </select>
+               </div>
+               <div class="col s12 m1">
+                   <a class="waves-efect waves-light btn" href="#!"onClick="top.location.href = this.form.menu1.options[this.form.menu1.selectedIndex].value;
+                   return false;">Submit</a>
+                  
+               </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card-panel">
+                  <table>
+                     <thead>
                         <th> Name</th>
                         <th> Total</th>
                         {% for i,chall_Name in challenge_range %} 
                         <th>{{chall_Name}} </th>
                         {% endfor %} 
-                     </tr>
-                     {% for i,first_Name,last_Name,grade_range,gradeTotal in user_range %}
-                     <tr>
-                        <div id="student{{i}}">
-                           <td><b>{{first_Name}} {{last_Name}} </b></td>
-                           <td>{{gradeTotal}}</td>
-                           {% for grade,sc_user,sc_chall in grade_range %} 
-                           <input type="hidden" name="challID" value="{{sc_user}}">
-                           <input type="hidden" name="challID" value="{{sc_chall}}">
-                           <td><a href="/oneUp/instructors/studentChallengesCompleted?userID={{sc_user}}&challengeID={{sc_chall}}">   {{grade}}</a>
-                              {% endfor %}
-                           </td>
-                           </form>                         
-                        </div>
-                     </tr>
-                     {% endfor %}
-                  </table>
-                  <!-- END DYNAMIC TABLE -->
-         </div></div></div></div>
-      </div>
+                     </thead>
+                     <tbody>
+                        {% for i,first_Name,last_Name,grade_range,gradeTotal in user_range %}
+                        <tr>
+                           <div id="student{{i}}">
+                              <td><b>{{first_Name}} {{last_Name}} </b></td>
+                              <td>{{gradeTotal}}</td>
+                              {% for grade,sc_user,sc_chall in grade_range %} 
+                              <input type="hidden" name="challID" value="{{sc_user}}">
+                              <input type="hidden" name="challID" value="{{sc_chall}}">
+                              <td><a href="/oneUp/instructors/studentChallengesCompleted?userID={{sc_user}}&challengeID={{sc_chall}}">   {{grade}}</a>
+                                 {% endfor %}
+                              </td>
+                           </div>
+                        </tr>
+                        {% endfor %}
+               </div>
+               </table>
+            </div>
+         </div>
+         </div>
+        </form>
+      </main>
       <!-- Footer -->
-
-        {% include 'footer.html' %}
-
-      </div>
-  
+      {% include 'footer.html' %}
    </body>
 </html>

@@ -21,7 +21,8 @@
 		</div>
 		<br />
 		
-		<div align="left">		
+		<div align="left">
+						
 		<form id="uploadbanner" action="/oneUp/instructors/luaLibUploadView" enctype="multipart/form-data" method="POST" >
 			{% csrf_token %}   			
    			<table class="bg">
@@ -33,7 +34,17 @@
  		            {% endif %}      			
    			   </tr>
    			   <tr>
-   			      <td><input id="fileupload" name="libfile" type="file" /></td>
+   			      <td>
+					<div class="file-field input-field">
+					  <div class="btn">
+						<span>File</span>
+						<input id="fileupload" name="libfile" type="file" />
+					  </div>
+					  <div class="file-path-wrapper">
+						<input class="file-path validate" type="text" placeholder="Upload files">
+					  </div>
+					</div>
+				  </td>
    			   </tr>
    			    <tr>
                   <td>Library Name:</td>
@@ -74,14 +85,16 @@
    			</table>
    			
    			<input type="hidden" name="libID" id="libID" value="{{libID}}"> 
-   			<input type="submit" value="Upload" id="Upload" align="center"/>
-        	 <a href="/oneUp/instructors/instructorCourseHome"><input type="button" class="special" value="Back"></a> 
+   			<input class="waves-effect waves-light btn" type="submit" value="Upload" id="Upload" align="center"/>
+        	 <a href="/oneUp/instructors/instructorCourseHome"><input class="waves-effect waves-light btn" type="button" class="special" value="Back"></a> 
    		   			
    			</form>
 		<br/>
 		<br />
    			
-       <!-- INSERTED DYNAMIC TABLE --> 
+	   <!-- INSERTED DYNAMIC TABLE -->
+	   <div class="card white">
+            <div class="card-panel">
             <table class="bg" id="libsTable">
             	<tr>
             		<th>Dependencies</th><th></th><th></th><th></th><th></th>
@@ -94,7 +107,8 @@
             	{% for lib in lib_range %}
             	{% csrf_token %}
             	<tr>
-					<td><input type="checkbox" name="depend[]" value={{libIDs}}></td>
+					<td><input id="{{lib.ID}}" type="checkbox" name="depend[]" value={{libIDs}}>
+					<label for="{{lib.ID}}"></label></td>
 
 					<td> {{lib.name}}</td>
 					<td> {{lib.description}}</td>
@@ -107,19 +121,21 @@
 							method="POST">
 						    	{% csrf_token %}
 						    	<input type="hidden" name="libID" value="{{lib.ID}}">
-						    	<input type="submit" name="submit" value="Delete" class="button" {% if not lib.hasDependents %} onclick="return confirm('Are you sure you want to delete?')" {% endif %}>
+						    	<input class="waves-effect waves-light btn"type="submit" name="submit" value="Delete" class="button" {% if not lib.hasDependents %} onclick="return confirm('Are you sure you want to delete?')" {% endif %}>
 							</form>
 						</td>
 						<td>
 							<form action="/oneUp/instructors/luaLibEdit" method="POST">
 						    	{% csrf_token %}
 						    	<input type="hidden" name="libID" value="{{lib.ID}}">
-						    	<input type="submit" name="submit" value="Edit" class="button" onclick="return confirm('Are you sure you want to Edit?')">
+						    	<input class="waves-effect waves-light btn" type="submit" name="submit" value="Edit" class="button" onclick="return confirm('Are you sure you want to Edit?')">
 							</form>
 						</td>
 					{% endif %}
 		 		{% endfor %}	 		
-        	</table>
+			</table>
+			</div>
+			</div>
 		
         	 <!--  <input type="submit" name="submit" value="Save" class="button">  --> 	 
             <br><br> 
