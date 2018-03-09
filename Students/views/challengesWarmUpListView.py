@@ -96,6 +96,8 @@ def ChallengesWarmUpList(request):
             topic_Pos.append(str(course_topics.count()))  
 
             all_challenges_for_topic.append(challengesForTopic(unspecified_topic, student, currentCourse))
+            
+        context_dict['isWarmup'] = True
                  
         context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])
         #context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])

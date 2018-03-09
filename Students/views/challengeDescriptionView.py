@@ -35,6 +35,12 @@ def ChallengeDescription(request):
             # Getting the challenge information which the student has selected
             if request.GET['challengeID']:
                 #studentId = 1; # for now student id is 1 as there is no login table.. else studentd id will be the login ID that we get from the cookie or session
+                
+                if request.GET['isWarmup']:
+                    context_dict['isWarmup'] = request.GET['isWarmup']
+                else:
+                    context_dict['isWarmup'] = False
+                    
                 studentId = Student.objects.filter(user=request.user)
                 
                 challengeId = request.GET['challengeID']
