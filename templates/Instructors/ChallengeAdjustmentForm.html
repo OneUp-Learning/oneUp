@@ -51,6 +51,8 @@
                         {% if challengeID %} 
                             <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
                         {% endif %}
+                    <div class="card">
+                        <div class="card-panel">
                         <table class="bg">
                         <tr>
                         	Total Score: {{totalScore}}
@@ -85,9 +87,11 @@
                         </tr>
                         {% endfor %}
                         </table>
-                        <input type="submit" name="submit" value="Save" class="button">								
+                    </div>
+                </div>
+                        <input class="waves-effect waves-light btn" type="submit" name="submit" value="Save" class="button">								
 			            <a href="/oneUp/instructors/challengesList">
-						<input type="button" class="special" value="Cancel"></a>
+						<input class="waves-effect waves-light btn" type="button" class="special" value="Cancel"></a>
                     </form>
                     <!-- END ADJUSTMENT FORM -->
 				</div></div>

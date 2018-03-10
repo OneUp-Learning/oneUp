@@ -42,17 +42,18 @@
             <div class="12u">
                   <!-- INSERTED DYNAMIC TABLE --> 
 
-			<a href="/oneUp/instructors/challengeCreate?warmUp"><input type="button" value="Add New Warm Up Challenge"></a>    
+			<a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?warmUp"><input type="button" value="Add New Warm Up Challenge"></a>    
 			<br /> <br />
 
         	<form name="challengeOrder" action="/oneUp/instructors/reorderChallenges" method="POST">
         	{% csrf_token %}
 
-        	<input style="float:right" type="submit" name="submit" value="Reorder Challenges" class="button">
+        	<input class="waves-effect waves-light btn" style="float:right" type="submit" name="submit" value="Reorder Challenges" class="button">
         	<input type="hidden" name="courseID" value="{{courseID}}" id="courseID">	
 			<input type="hidden" name="challengeType" value="Warmup" id="challengeType{{courseID}}">
 			<br /><br />
-			  
+            <div class="card">
+            <div class="card-panel">              
 		      <table class="bg">
 
 				{% for i,topic_ID,topic_Name,topic_Pos,all_challenges in topic_range %}
@@ -82,8 +83,8 @@
 	                               <a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView"><input type="button" class="table" value="View"></a>                 
 	                               <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}"><input type="button" class="table" value="Edit"></a> 
 	                               <a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}"><input type="button" class="table" value="Problems"></a> &nbsp;&nbsp;                            
-                                 <input type="hidden" name="challengeID" value="{{chall_ID}}">
-                                 <input type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?')">
+                                 <input class="waves-effect waves-light btn" type="hidden" name="challengeID" value="{{chall_ID}}">
+                                 <input class="waves-effect waves-light btn" type="submit" name="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?')">
                               </form>
                              </td>
                           </div>
@@ -93,7 +94,9 @@
 				  </td>										
 				</tr>
 				{% endfor %}
-			</table>
+            </table>
+            </div>
+        </div>
 			</form>
 
            <!-- END DYNAMIC TABLE -->

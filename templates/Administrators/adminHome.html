@@ -7,86 +7,90 @@
    <body >
         {% include 'adminHeading.html' %}
         <main>
-                 <!-- This row below is used to give the space between this and the nav bar -->
-                    <div class="s12 m12 l8" style="display: inline-block">
-                            <div class="col s12 m6 " style="display: inline-block">
-                                    <div class="card-panel"style="display: inline-block">
-                                    <table>
-                                        <thead>
-                                            <th>Courses</th>
-                                            <th> </th>
-                                            <th> </th>
-                                        </thead>
-                                        <tbody>
-                                            {% for i, id, course in courses %}
-                                            <tr><td>
-                                           {{course}}
-                                        </td></tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                    <div style="padding-top: 0em">
-                                            <a href="/oneUp/administrators/createCourse">
-                                            <input class="waves-effect waves-light btn" type="button" value="Create"></a>
-                                            <a href="/oneUp/administrators/deleteCourse">
-                                            <input class="waves-effect waves-light btn" type="button" value="Delete"></a>
-                                    </div>
-                                </div>
-                        </div>
-                        <div class="s12 m6"style="display: inline-block">
-                            <div class="card-panel" style="display: inline-block" >
-                            <table>
-                                <thead>
-                                <th>Administrators</th>
-                                <th> </th>
-                                <th> </th>
-                                </thead>
-                                <tbody>
-                                        {% for admin in administrators %}
-                                    <td>
-                                        {{admin}}
-                                    </td>
-                                    {% empty %}
-                                    <td>
-                                        <td>
-                                            No Instructors
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            <a href="/oneUp/administrators/createAdmin">
-                                <input class="waves-effect waves-light btn" type="button" value="Create Administrator"></a>
-                            </div>
-                        </div>
+                <div class="row">
+                    <div class="col s0 m0 l0 offset-l2">
+                  <div class="row">
+                      <div class="col s0 m0">
+                        <div class="card-panel">
+                        <table>
+                          <thead>
+                          <th>Courses</th>
+                          <th> </th>
+                          </thead>
+                          <tbody>
+                                {% for i, id, course in courses %}
+                                <tr><td>
+                               {{course}}
+                            </td></tr>
+                                {% endfor %}
+                            </tbody>
+                          
+                        </table>
+                        <a href="/oneUp/administrators/createCourse">
+                            <input class="waves-effect waves-light btn" type="button" value="Create"></a>
+                            <a href="/oneUp/administrators/deleteCourse">
+                            <input class="waves-effect waves-light btn" type="button" value="Delete"></a>
                         
-                        <div class="s12 m6" style="display: inline-block">
-                            <div class="card-panel" style="display: inline-block" >
-                            <table>
-                                <thead>
-                                    <th>Instructors</th>
-                                </thead>
-                                <tbody>
-                                    {% for instructor in instructors %}
-                                    <td>
-                                        {{instructor}}
-                                    </td>
-                                    {% empty %}
-                                    <tr>
-                                        <td>No Instructors</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            <a href="/oneUp/administrators/createTeacher">
-                                <input class="waves-effect waves-light btn" type="button" value="Add"></a>
-                                <a href="/oneUp/administrators/deleteTeacher">
-                                <input class="waves-effect waves-light btn" type="button" value="Delete"></a>
-                            </div>
+                                    
                         </div>
-                </div>
-                </div>
-                </div>
+                      </div>
+                      <div class="col s0 m0">
+                        <div class="card-panel">
+                        <table>
+                          <thead>
+                            <th>Administrators</th>
+                            <th></th>
+                          </thead>
+                          <tbody>
+                                {% for admin in administrators %}
+                                
+                            <tr><td>
+                                {{admin}}
+                            </td></tr>
+                            {% empty %}
+                            <td>
+                                <td>
+                                    No Instructors
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                                    <a href="/oneUp/administrators/createAdmin">
+                                        <input class="waves-effect waves-light btn" type="button" value="Create Administrator"></a>
+                        </div>
+                      </div>
+                      <div class="col s0 m0">
+                            <div class="card-panel">
+                            <table>
+                              <thead>
+                                <th>Instructors</th>
+                                <th></th>
+                              </thead>
+                              
+                                <tbody>
+                                        {% for instructor in instructors %}
+                                        <tr><td>
+                                            {{instructor}}
+                                        </tr></td>
+                                        {% empty %}
+                                        <tr>
+                                            <td>No Instructors</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col s12">
+                                        <a href="/oneUp/administrators/createTeacher">
+                                            <input class="waves-effect waves-light btn" type="button" value="Add"></a>
+                                            <a href="/oneUp/administrators/deleteTeacher">
+                                            <input class="waves-effect waves-light btn" type="button" value="Delete"></a>
+                                </div>
+                            </div>
+                            </div>
+                          </div>
+                  </div>
              </main>
          <!-- Footer -->
          {% include 'footer.html' %}
