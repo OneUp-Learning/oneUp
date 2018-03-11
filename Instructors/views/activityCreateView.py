@@ -49,7 +49,15 @@ def activityCreateView(request):
         for attr in string_attributes:
             setattr(activity,attr,request.POST[attr])
         
-        activity.courseID = currentCourse; 
+        activity.courseID = currentCourse
+        
+        if 'isGraded' in request.POST:
+            activity.isGraded = True
+            print("truuuuuuuuuuuuuuuuuuuuue")
+        else:
+            activity.isGraded = False
+            print("fallllllllllllllllllllse")
+            
         if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
         else:

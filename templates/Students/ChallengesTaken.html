@@ -51,9 +51,13 @@
 	                          <button class="button">View</button>
 	                       </a>       
       					{% else  %}
-	                        <a href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}">
-	                           <button class="button">View</button>
-	                        </a>
+      					
+	      					{% if not isExpired %}
+		                        <a href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}">
+		                           <button class="button">View</button>
+		                        </a>
+		                    {% endif %}
+		                    
  	                    {% endif %}       				
         				
                         </div>															
@@ -61,6 +65,7 @@
         			</td> 
         		</tr>
         		{% endfor %}
+        		
         	</table>
         	{% if warmUp %}
 			<a href="/oneUp/students/ChallengesWarmUpList{% if is_teacher %}?userID={{student}}{% endif %}"><button type="button" value="Reset">Back</button></a>

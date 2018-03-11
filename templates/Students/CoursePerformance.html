@@ -41,15 +41,13 @@
                     <td>{{assignmentFeedback}}</td>
                     <td align="right">
                     {% ifequal assignmentType 'Challenge'%}
-                    {% if not isExpired %}
                         {% csrf_token %} 
                         <div>
-                            <a href="/oneUp/students/ChallengesTaken?challengeID={{assignmentID}}">
+                            <a href="/oneUp/students/ChallengesTaken?challengeID={{assignmentID}}&isExpired={{isExpired}}">
                                 <button class="button">View</button>
                             </a>
                         </div>															
                         <input type="hidden" name="challengeID" value="{{assignmentID}}">
-                    {% endif %}
                     {% endifequal %}
 				    </td>
                 </tr>

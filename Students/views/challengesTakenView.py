@@ -24,6 +24,7 @@ def ChallengesTaken(request):
         dateTaken = []
         score = []
         total = []
+        isExpired = []
         warmUp=0
         
         #Displaying the list of challenges that the student has taken from database
@@ -41,7 +42,12 @@ def ChallengesTaken(request):
         else:
             studentChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse)
             
-
+        if 'isExpired' in request.GET:
+            if str(request.GET['isExpired']) == 'True':
+                context_dict['isExpired'] = True
+            else:
+                context_dict['isExpired'] = False
+        
         if not studentChallenges:
             print('No challenge')
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'

@@ -83,13 +83,8 @@ def CoursePerformance(request):
                 assignmentFeedback.append("")
                 if currentTime > challenge.endTimestamp:
                     isExpired.append(True)
-                    isE = True
                 else:
                     isExpired.append(False)
-                    isE = False
-                    
-                print("challenge Name ", challenge.challengeName)
-                print("isExpired ", isE)
         
              
         # The range part is the index numbers.
