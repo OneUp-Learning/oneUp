@@ -30,7 +30,7 @@
                     <th>Grade</th> <th></th>
 					<th></th>
                     <th></th> <th></th>
-                    <th></th> <th></th>                    
+                                       
                 </tr>
                 
                 {% for i,instructorActivites , studentActivities, points in activity_range%}
@@ -39,15 +39,19 @@
                     <td>{{instructorActivites.points}}</td>	
                     <td>{{points}}</td> <td></td>
                     <td></td> <td></td>
-                    <td></td> <td></td>
+                    
                     
                     <td align="left">
                         {% csrf_token %} 
                         <div>
         				{% if is_teacher %}    
-                         <a href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}">
+                         <!--  <a href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}">
                                 <button class="button">View</button>
                          </a> 
+                         
+                         <a href="/oneUp/students/ActivityDescription?activityID={{studentActivities.studentActivityID}}">
+                                <button class="button">View</button>
+                         </a>-->
         
       					{% else %}
                             <a href="/oneUp/students/ActivityDescription?activityID={{studentActivities.studentActivityID}}">
