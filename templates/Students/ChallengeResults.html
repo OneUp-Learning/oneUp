@@ -24,9 +24,7 @@
 		<form action="">
 		<div class="card">
 			<div class="card-content">
-				<div class="row">
-					<p>You scored <b>{{total_user_points}}</b> points out of <b>{{total_possible_points}}</b> points in this challenge.</p>
-				</div>
+				<span class="card-title">You scored <b>{{total_user_points}}</b> points out of <b>{{total_possible_points}}</b> points in this challenge.</span>
 				{% for q in questions %}
 				<div class="divider"></div>									
 				<div class="row">
@@ -43,7 +41,7 @@
 					  {% for j,answer in q.answers_with_count %}
 					  <p>
 						 <input name="{{q.question.questionID}}" type="radio" id="ans-{{q.question.questionID}}" disabled="disabled" {% if q.user_answer.answerNumber == j %}checked{% endif %}/>
-						 <label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
+						 <label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}} {% endautoescape %}</label>
 					  </p>
 					  {% endfor %}
 				   </div>
@@ -51,7 +49,9 @@
 				<div class="row">
 					<div class="col s12">
 						<h5>Correct Answer: </h5>
-						<p>{{q.correct_answer_text|safe}}</p>
+						<blockquote>
+						{{q.correct_answer_text|safe}}
+						</blockquote>
 						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 					</div>
 				</div>
@@ -61,7 +61,7 @@
 						{% for j,answer in q.answers_with_count %}
 						<p>
 							<input name="{{q.question.questionID}}" type="checkbox" id="ans-{{q.question.questionID}}" {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %} disabled/>
-							<label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
+							<label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}}{% endautoescape %}</label>
 						</p>
 						{% endfor %}
 					</div>
@@ -69,9 +69,11 @@
 				<div class="row">
 					<div class="col s12">
 						<h5>Correct Answer(s): </h5>
+						<blockquote>
 						{% for correct_answer_text in q.correct_answer_texts %}
-						<p>{{correct_answer_text|safe}}</p>
+							{{correct_answer_text|safe}}
 						{% endfor %}
+						</blockquote>
 						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 					</div>
 				</div>
@@ -95,12 +97,14 @@
 				<div class="row">
 					<div class="col s12">
 						<h5>Correct Answer(s): </h5>
+						<blockquote>
 						{% for match in q.matches %}
 						<p>{{match.current_pos}} . {{match.answerText}}</p>
 						{% endfor %}
 						{% for match in q.matches %}
 						<p>{{match.matchingAnswerText}}</p>	
 						{% endfor %}
+						</blockquote>
 						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 					</div>
 				</div>
@@ -120,7 +124,9 @@
 				<div class="row">
 					<div class="col s12">
 						<h5>Correct Answer: </h5>
-						<p>{{q.correctAnswerText}}</p>
+						<blockquote>
+						{{q.correctAnswerText}}
+						</blockquote>
 						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 					</div>
 				</div>
