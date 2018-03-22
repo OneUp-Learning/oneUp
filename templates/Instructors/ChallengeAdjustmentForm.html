@@ -49,7 +49,7 @@
                     <form name="question" action="/oneUp/instructors/challengeAdjustment" method="POST">
                         {% csrf_token %} 
                         {% if challengeID %} 
-                            <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+                            <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}" />
                         {% endif %}
                         <table class="bg">
                         <tr>
@@ -58,13 +58,12 @@
                         <tr>
                             <th>Student</th>
                             <th>Score</th>
+                            <th>Earned Points</th>
                             <th>Adjustment</th>
                             <th>Adjustment Reason</th>
                         </tr>
-                        {% for i, student_ID, student_Name, student_TestScore, student_AdjustmentScore, student_AdjustmentReason in challengeAdjustment_range %}
-      
-                        </input>
-                        
+                        {% for i, student_ID, student_Name, student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason in challengeAdjustment_range %}
+                              
                         <tr>
                          <div id="studentChallenge{{i}}">
                             <td>
@@ -75,6 +74,11 @@
                                {{student_TestScore}}
                             </td>
                             <td>
+                                <input type="hidden" name="student_BonusScore{{student_ID}}" value="{{student_BonusScore}}">
+                                <input style="max-width: 5em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" name="student_BonusScore{{student_ID}}" min="0" max="9999" value="{{student_BonusScore}}" id="{{student_ID}}_BonusScore" required>
+                             </td> 
+                             
+                            <td>
                                <input type="hidden" name="student_AdjustmentScore{{student_ID}}" value="{{student_AdjustmentScore}}">
                                <input style="max-width: 5em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" name="student_AdjustmentScore{{student_ID}}" min="0" max="9999" value="{{student_AdjustmentScore}}" id="{{student_ID}}_AdjustmentScore" required>
                             </td>  
@@ -84,6 +88,17 @@
                           </div>                        
                         </tr>
                         {% endfor %}
+                        <tr style="border-top: 1px solid #000;">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                    <b>Curve: &nbsp;&nbsp;</b>
+                                <input type="hidden" name="challenge_Curve" value="{{challenge_Curve}}">
+                                <input style="max-width: 5em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" name="challenge_Curve" min="0" max="9999" value="{{challenge_Curve}}" id="challenge_Curve" required>
+                             </td>  
+                        </tr>
                         </table>
                         <input type="submit" name="submit" value="Save" class="button">								
 			            <a href="/oneUp/instructors/challengesList">

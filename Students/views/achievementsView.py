@@ -81,14 +81,16 @@ def achievements(request):
         else:    
             # find the max score for this challenge if there are several attempts                
             gradeID  = []
-                                
+            gradeWithBonus = []   
             for s in sc:
-                gradeID.append(int(s.getScore()))   # for serious challenges include also score adjustment and curve 
-                print(s.getScore()) 
+                gradeID.append(int(s.getScore()))   # for serious challenges include also score adjustment and curve
+                gradeWithBonus.append(int(s.getScoreWithBonus()))
+                print(s.getScoreWithBonus()) 
                 #s_testTotal = s.challengeID.totalScore
                 s_testTotal = s.challengeID.getCombinedScore()
-            maxC = max(gradeID)                  
-            earnedPointsSeriousChallenges += maxC
+            maxC = max(gradeID)  
+            maxB = max(gradeWithBonus)                
+            earnedPointsSeriousChallenges += maxB
             
             score.append(maxC)
             chall_Name.append(challenge.challengeName)               
@@ -156,11 +158,12 @@ def achievements(request):
         
         if sa:          # if activity was graded for this student            
             gradeID  = []
-                                
+            gradeWithBonus = []                  
             for a in sa:    # for each attempt of this activity
-                gradeID.append(int(a.activityScore))                                 
+                gradeID.append(int(a.activityScore)) 
+                gradeWithBonus.append(int(a.getScoreWithBonus()))                                
 
-            earnedActivityPoints += max(gradeID)
+            earnedActivityPoints += max(gradeWithBonus)
             totalActivityPoints += a.activityID.points
             print("totalActivityPoints; ", totalActivityPoints)                      
 
