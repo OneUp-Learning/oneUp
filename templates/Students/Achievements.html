@@ -9,51 +9,16 @@
     <script>
         $(function() {
             var chalYourPoints = function() {
-                var dataArray1 = [{ %
-                    for i,
-                    chall_Name,
-                    score,
-                    total in challenge_range %
-                }['{{chall_Name}}', {
-                    {
-                        score
-                    }
-                }] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var dataArray1 = [{% for i, chall_Name, score, total in challenge_range %}['{{chall_Name}}', {{score}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray1;
 
             };
             var chalTotalPoints = function() {
-                var dataArray2 = [{ %
-                    for i,
-                    chall_Name,
-                    score,
-                    total in challenge_range %
-                }['{{chall_Name}}', {
-                    {
-                        total
-                    }
-                }] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var dataArray2 = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}', {{total}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray2;
             };
             var challengeName = function() {
-                var dataArray3 = [{ %
-                    for i,
-                    chall_Name,
-                    score,
-                    total in challenge_range %
-                }['{{chall_Name}}'] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var dataArray3 = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}'] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray3;
             };
             //container1 - Student point chart in Challenges
@@ -133,72 +98,20 @@
     <script>
         $(function() {
             var chalYourPoints1 = function() {
-                var dataArray4 = [{ %
-                    for i,
-                    chall_Name,
-                    score,
-                    total,
-                    challavg in challengeWithAverage_range %
-                }['{{chall_Name}}', {
-                    {
-                        score
-                    }
-                }] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var dataArray4 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}', {{score}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
 
                 return dataArray4;
             };
             var chalTotalPoints1 = function() {
-                var dataArray5 = [{ %
-                    for i,
-                    chall_Name,
-                    score,
-                    total,
-                    challavg in challengeWithAverage_range %
-                }['{{chall_Name}}', {
-                    {
-                        total
-                    }
-                }] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var dataArray5 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}', {{total}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray5;
             };
             var chalTotalAvgPoints1 = function() {
-                var dataArray6 = [{ %
-                    for i,
-                    chall_Name,
-                    score,
-                    total,
-                    challavg in challengeWithAverage_range %
-                }['{{chall_Name}}', {
-                    {
-                        challavg
-                    }
-                }] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var dataArray6 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}', {{challavg}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray6;
             };
             var challengeName1 = function() {
-                var dataArray7 = [{ %
-                    for i,
-                    chall_Name,
-                    score,
-                    total,
-                    challavg in challengeWithAverage_range %
-                }['{{chall_Name}}'] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var dataArray7 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}'] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray7;
             };
 
@@ -292,21 +205,7 @@
                 var skillNamesArray = [];
                 var skillPointsArray = [];
 
-                var skillArray = [{ %
-                        for i,
-                        skill_Name,
-                        skill_Points in skill_range %
-                    }
-                    ['{{skill_Name}}', {
-                        {
-                            skill_Points
-                        }
-                    }] { %
-                        if not forloop.last %
-                    }, { % endif %
-                    } { % endfor %
-                    }
-                ];
+                var skillArray = [{% for i,skill_Name,skill_Points in skill_range %}['{{skill_Name}}', {{skill_Points}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 var index = 0;
 
                 for (i = 0; i < skillArray.length; i++) {
@@ -329,17 +228,7 @@
                 return defSkillPointsArray;
             };
             var skillName = function() {
-                var dataArray = [{ %
-                        for i,
-                        skill_Name,
-                        skill_Points in skill_range %
-                    }
-                    '{{skill_Name}}' { %
-                        if not forloop.last %
-                    }, { % endif %
-                    } { % endfor %
-                    }
-                ];
+                var dataArray = [{% for i,skill_Name,skill_Points in skill_range %}'{{skill_Name}}' {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray;
             };
 
@@ -418,21 +307,7 @@
             var nondefskillsPointsArray2 = [];
             var nondefskillsAvgPointsArray = [];
             var nondefskillYourPoints = function() {
-                var skillArray2 = [{ %
-                        for i,
-                        skill_Name,
-                        skill_Points in nondefskill_range %
-                    }
-                    ['{{skill_Name}}', {
-                        {
-                            skill_Points
-                        }
-                    }] { %
-                        if not forloop.last %
-                    }, { % endif %
-                    } { % endfor %
-                    }
-                ];
+                var skillArray2 = [{% for i,skill_Name,skill_Points in nondefskill_range %}['{{skill_Name}}', {{skill_Points}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 var index = 0;
 
 
@@ -455,21 +330,7 @@
             };
 
             var nondefskillavgpoints = function() {
-                var skillArray3 = [{ %
-                        for i,
-                        skill_Name,
-                        skill_ClassAvg in skillWithAverage_range %
-                    }
-                    ['{{skill_Name}}', {
-                        {
-                            skill_ClassAvg
-                        }
-                    }] { %
-                        if not forloop.last %
-                    }, { % endif %
-                    } { % endfor %
-                    }
-                ];
+                var skillArray3 = [{% for i,skill_Name,skill_ClassAvg in skillWithAverage_range %}['{{skill_Name}}', {{skill_ClassAvg}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 var index3 = 0;
                 var nondefskillsNamesArray3 = [];
                 for (i = 0; i < skillArray3.length; i++) {
@@ -492,35 +353,12 @@
 
 
             var nondefskilltotalpoints = function() {
-                var skillArray5 = [{ %
-                    for i,
-                    skill_ID,
-                    skill_Name,
-                    skillTotal_Points in nondefskillTotalpoints_range %
-                }['{{skill_Name}}', {
-                    {
-                        skillTotal_Points
-                    }
-                }] { %
-                    if not forloop.last %
-                }, { % endif %
-                } { % endfor %
-                }];
+                var skillArray5 = [{% for i,skill_ID,skill_Name,skillTotal_Points in nondefskillTotalpoints_range %}['{{skill_Name}}', {{skillTotal_Points}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return skillArray5;
             };
 
             var nondefskillName = function() {
-                var dataArray4 = [{ %
-                        for i,
-                        skill_Name,
-                        skill_Points in nondefskill_range %
-                    }
-                    '{{skill_Name}}' { %
-                        if not forloop.last %
-                    }, { % endif %
-                    } { % endfor %
-                    }
-                ];
+                var dataArray4 = [{% for i,skill_Name,skill_Points in nondefskill_range %}'{{skill_Name}}' {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray4;
             };
 
@@ -614,36 +452,7 @@
             var warmUpCategoryArray = [];
 
             var warmUpChallengeName = function() {
-                var warmUpdataArray = [{ %
-                        for i,
-                        chall_Name,
-                        total,
-                        noOfAttempts,
-                        warmUpMaxScore,
-                        warmUpMinScore in studentWarmUpChallenges_range %
-                    }
-                    ['{{chall_Name}}', {
-                        {
-                            noOfAttempts
-                        }
-                    }, {
-                        {
-                            warmUpMaxScore
-                        }
-                    }, {
-                        {
-                            warmUpMinScore
-                        }
-                    }, {
-                        {
-                            total
-                        }
-                    }] { %
-                        if not forloop.last %
-                    }, { % endif %
-                    } { % endfor %
-                    }
-                ];
+                var warmUpdataArray = [{% for i,chall_Name,total,noOfAttempts,warmUpMaxScore,warmUpMinScore in studentWarmUpChallenges_range %}['{{chall_Name}}', {{noOfAttempts}}, {{warmUpMaxScore}}, {{warmUpMinScore}}, {{total}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
 
                 var warmUpIndex = 0;
                 for (i = 0; i < warmUpdataArray.length; i++) {
@@ -788,56 +597,32 @@
         $(function() {
             var PointsEarnedData = function() {
 
-                var PointsEarnedDataArray1 = {
-                    {
-                        currentEarnedPoints
-                    }
-                };
+                var PointsEarnedDataArray1 = {{currentEarnedPoints}};
                 return PointsEarnedDataArray1;
             };
             var RemainingChallengePoints = function() {
 
-                var RemainingChallengePointsDataArray1 = {
-                    {
-                        remainingPointsToEarn
-                    }
-                };
+                var RemainingChallengePointsDataArray1 = {{remainingPointsToEarn}};
                 return RemainingChallengePointsDataArray1;
             };
             var ChallengePointsmissed = function() {
 
-                var ChallengePointsmissedDataArray1 = {
-                    {
-                        missedPoints
-                    }
-                };
+                var ChallengePointsmissedDataArray1 = {{missedPoints}};
                 return ChallengePointsmissedDataArray1;
             };
             var ChallengePointsProjected = function() {
 
-                var ChallengePointsProjectedDataArray1 = {
-                    {
-                        projectedEarnedPoints
-                    }
-                };
+                var ChallengePointsProjectedDataArray1 = {{projectedEarnedPoints}};
                 return ChallengePointsProjectedDataArray1;
             };
             var ChallengesMaxPoints = function() {
 
-                var ChallengesMaxPointsDataArray1 = {
-                    {
-                        totalMilestonePoints
-                    }
-                };
+                var ChallengesMaxPointsDataArray1 = {{totalMilestonePoints}};
                 return ChallengesMaxPointsDataArray1;
             };
             var ChallengesTickPoints = function() {
 
-                var ChallengesTickPointsDataArray1 = {
-                    {
-                        projectedEarnedPoints
-                    }
-                };
+                var ChallengesTickPointsDataArray1 = {{projectedEarnedPoints}};
                 return ChallengesTickPointsDataArray1;
             };
             //Your Progress
@@ -1045,11 +830,7 @@
                     </div>
                     <div class="card-action right-align">
                         <script>
-                            var isClassAvgAvailable = {
-                                {
-                                    is_ClassAverage_Displayed | lower
-                                }
-                            };
+                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
                             if (isClassAvgAvailable) {
                                 var selectScript = "<a id='points' class='waves-effect btn-flat'>Points</a>";
                                 selectScript += "<a id='classAvg' class='waves-effect btn-flat'>Class Average</a>";
@@ -1082,11 +863,7 @@
                     </div>
                     <div class="card-action right-align">
                         <script>
-                            var isClassAvgAvailable = {
-                                {
-                                    is_ClassAverage_Displayed | lower
-                                }
-                            };
+                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
                             if (isClassAvgAvailable) {
                                 var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
                                 selectScript += "<a id='classAvg2' class='waves-effect btn-flat'>Class Average</a>";
