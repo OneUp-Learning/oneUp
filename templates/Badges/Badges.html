@@ -12,7 +12,7 @@
 		<div class="frame"  align="center">
         <div class="container">
         <div class="row">
-        <div class="12u">
+        <div class="16m">
         	<h1>Badges</h1>
 		</div>
 		</div>
@@ -21,9 +21,8 @@
         <div class="12u"> 
             <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateBadge"><input type="button" value="Create New Badge"></a>
 			 <!-- New: List of badges added; DD 02/04/2015 -->
-		<div class="col s160 m160 l60">
-			<div class="card white">
-					<div class="card-panel">
+		<div>
+				<div class="card-panel">
             <table>
         		<tr>
         			<th>Badge Image</th>
@@ -33,10 +32,10 @@
         		</tr>
         		{% for i,badgeId,badgeName,badgeImage, badgeDescription in badgesInfo %}
         		<tr> 
-        			<td><img src="/{{badgeImage}}" alt="Badge Image" width="76px" height="76px"/></td>
-        			<td style="vertical-align:middle">{{badgeName}}</td>
-        			<td style="vertical-align:middle">{{badgeDescription}}</td>				
-        			<td style="vertical-align:middle; text-align:right">					
+        			<td><img src="/{{badgeImage}}" alt="Badge Image" width="76px" height="76px"></td>
+        			<td>{{badgeName}}</td>
+        			<td>{{badgeDescription}}</td>				
+        			<td>					
         				{% csrf_token %}
         				<a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"><input type="button" value="Modify"></a>
         			</td>

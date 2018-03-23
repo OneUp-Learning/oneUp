@@ -38,6 +38,36 @@
                         <div class="card-panel">
                         <table>
                           <thead>
+                            <th>Instructors</th>
+                            <th></th>
+                          </thead>
+                          
+                            <tbody>
+                                    {% for instructor in instructors %}
+                                    <tr><td>
+                                        {{instructor}}
+                                    </tr></td>
+                                    {% empty %}
+                                    <tr>
+                                        <td>No Instructors</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col s12">
+                                    <a href="/oneUp/administrators/createTeacher">
+                                        <input class="waves-effect waves-light btn" type="button" value="Add"></a>
+                                        <a href="/oneUp/administrators/deleteTeacher">
+                                        <input class="waves-effect waves-light btn" type="button" value="Delete"></a>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                      <div class="col s0 m0">
+                        <div class="card-panel">
+                        <table>
+                          <thead>
                             <th>Administrators</th>
                             <th></th>
                           </thead>
@@ -50,7 +80,7 @@
                             {% empty %}
                             <td>
                                 <td>
-                                    No Instructors
+                                    No Administrators
                                 </td>
                             </tr>
                             {% endfor %}
@@ -60,36 +90,6 @@
                                         <input class="waves-effect waves-light btn" type="button" value="Create Administrator"></a>
                         </div>
                       </div>
-                      <div class="col s0 m0">
-                            <div class="card-panel">
-                            <table>
-                              <thead>
-                                <th>Instructors</th>
-                                <th></th>
-                              </thead>
-                              
-                                <tbody>
-                                        {% for instructor in instructors %}
-                                        <tr><td>
-                                            {{instructor}}
-                                        </tr></td>
-                                        {% empty %}
-                                        <tr>
-                                            <td>No Instructors</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                            </table>
-                            <div class="row">
-                                <div class="col s12">
-                                        <a href="/oneUp/administrators/createTeacher">
-                                            <input class="waves-effect waves-light btn" type="button" value="Add"></a>
-                                            <a href="/oneUp/administrators/deleteTeacher">
-                                            <input class="waves-effect waves-light btn" type="button" value="Delete"></a>
-                                </div>
-                            </div>
-                            </div>
-                          </div>
                   </div>
              </main>
          <!-- Footer -->
