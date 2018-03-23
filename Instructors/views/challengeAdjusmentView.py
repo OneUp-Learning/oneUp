@@ -23,11 +23,6 @@ def challengeAdjustmentView(request):
         studentRCs = StudentRegisteredCourses.objects.filter(courseID = courseId)
         challengeId = request.POST['challengeID']
         challenge = Challenges.objects.get(challengeID=challengeId)
-        curve = request.POST['challenge_Curve']
-
-        if not curve == "0" or challenge.curve != curve:
-            challenge.curve = curve
-            challenge.save()
 
         for studentRC in studentRCs:
             studentID = studentRC.studentID.id
@@ -91,7 +86,6 @@ def adjustmentList(request):
      
     challenge = Challenges.objects.get(challengeID=request.GET['challengeID'])
     context_dict['totalScore'] = challenge.totalScore
-    context_dict['challenge_Curve'] = challenge.curve
            
     student_ID=[]
     student_Name=[]

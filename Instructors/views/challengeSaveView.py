@@ -95,6 +95,7 @@ def challengeSaveView(request):
         timeLimit = int(request.POST.get("timeLimit", 45))
         challenge.numberAttempts = numberAttempts
         challenge.timeLimit = timeLimit
+        challenge.curve = int(request.POST.get("curve", 0))
                               
         # check if course was selected
         if 'currentCourseID' in request.session:                       
