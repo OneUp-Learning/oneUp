@@ -100,6 +100,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                 start_Timestamp.append("")
             
             if item.endTimestamp.strftime("%Y") < ("2900"):
+               
                 end_Timestamp.append(item.endTimestamp)
             else:
                 end_Timestamp.append("")

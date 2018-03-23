@@ -8,8 +8,8 @@ from django.shortcuts import render
 import math
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Courses, Challenges
-from Students.models import Student, StudentChallenges, StudentRegisteredCourses
+from Instructors.models import Courses, Challenges, Activities
+from Students.models import Student, StudentChallenges, StudentRegisteredCourses, StudentActivities
 #from numpy import maximum
 
     
@@ -38,6 +38,7 @@ def classAchievements(request):
         latest_log = []
         allgrades = []
         gradeTotal = []
+        allActivityGrade = []
         #gradeMax  = []
         
         if 'ID' in request.GET:
@@ -49,6 +50,8 @@ def classAchievements(request):
         #Displaying the list of challenges from database
         challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True,  isVisible=True)
         num_challs = challenges.count()
+        
+        activities = Activities.objects.filter(courseID=currentCourse, isGraded=True)
         
         users = [] 
         #Displaying the list of students from the current class
@@ -73,6 +76,7 @@ def classAchievements(request):
             numberMin  = []
             sc_user = []
             sc_chall = []
+            activityGradeStr = []
             
             for j in range(0, num_challs):  
                 if StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]) :
@@ -91,8 +95,7 @@ def classAchievements(request):
                     gradeID  = []
                     
                     for sc in sChallenges:
-                        gradeID.append(int(sc.getScore()))
-                        
+                        gradeID.append(sc.getScore())
                     gradeMax.append(("%0.2f" %max(gradeID)))
                     gradeMin.append(("%0.2f" %min(gradeID)))
                     numberMax.append(max(gradeID))
@@ -110,33 +113,53 @@ def classAchievements(request):
                     numberMax.append(0)
                     numberMin.append(0)
             
+            totalActivityGrade = 0        
+            for activity in activities:
+                
+                if StudentActivities.objects.filter(courseID=currentCourse, studentID=user, activityID=activity):
+                    activityGrade = StudentActivities.objects.get(courseID=currentCourse, studentID=user, activityID=activity).activityScore
+                    activityGradeStr.append(str(activityGrade))
+                    print(user, activityGrade)
+                else:
+                    activityGrade = 0
+                    activityGradeStr.append("-")
+                
+                totalActivityGrade += activityGrade
+            
             if optionSelected == '1':
-                grade = gradeLast
-                number = numberLast
-            elif optionSelected == '2':
-                grade = gradeFirst
-                number = numberFirst
-            elif optionSelected == '3':
                 grade = gradeMax
                 number = numberMax
-            elif optionSelected == '4':
+            elif optionSelected == '2':
                 grade = gradeMin
                 number = numberMin
-            else:
+            elif optionSelected == '3':
                 grade = gradeLast
                 number = numberLast
+            elif optionSelected == '4':
+                grade = gradeFirst
+                number = numberFirst
+            else:
+                grade = gradeMax
+                number = numberMax
             
+            total = sum(number) + totalActivityGrade
             allgrades.append(zip(grade,sc_user,sc_chall))
-            gradeTotal.append(("%0.2f" %sum(number)))
-             
+            gradeTotal.append(("%0.2f" %total))
+            allActivityGrade.append(activityGradeStr)
+            #gradeTotal.append(("%0.2f" %sum(activityGrade)))
+            
         for u in users:
             first_Name.append(u.user.first_name)
             last_Name.append(u.user.last_name)
         
         for c in challenges:
             chall_Name.append(c.challengeName)
+            
+        for activity in activities:
+            chall_Name.append(activity.activityName)
 
-        context_dict['challenge_range'] = zip(range(1,challenges.count()+1),chall_Name)
-        context_dict['user_range'] = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades, gradeTotal)), key=lambda tup: tup[2])
+        context_dict['challenge_range'] = zip(range(1,challenges.count()+activities.count()+1),chall_Name)
+        #context_dict['activityGrade_range'] = zip(range(0,len(allActivityGrade)),allActivityGrade)
+        context_dict['user_range'] = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)), key=lambda tup: tup[2])
 
     return render(request,'Instructors/ClassAchievements.html', context_dict)

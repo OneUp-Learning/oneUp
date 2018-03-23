@@ -8,7 +8,7 @@
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Course Performance</h3>
+               <h3>Course Grades</h3>
             </div>
          </div>
          <div class="row">
@@ -25,7 +25,7 @@
                            <th></th>
                         </thead>
                         <tbody>
-                           {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback in challenge_range %}
+                           {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback, isExpired in challenge_range %}
                            <tr>
                               <td>{{assignmentName}}</td>
                               <td>{{assignmentType}}</td>

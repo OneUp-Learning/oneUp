@@ -27,7 +27,7 @@
                         {% else %}
                         <p class="flow-text">Difficulty: <b>{{challengeDifficulty}}</b></p>
                         <p class="flow-text">Time Limit (Minutes): <b>{{timeLimit}}</b></p>
-                        <p class="flow-text">Number of Attempts: <b>{{more_attempts}}</b></p>
+                        <p class="flow-text">Remaining Attempts: <b>{{more_attempts}}</b></p>
                         {% if last_attempt %}<!--if student has only 1 attempt left, then this message is displayed-->
                         <p>{{last_attempt}}</p>
                         {% endif %}
@@ -49,7 +49,11 @@
                      </div>
                      <div class="card-action">
                         {% if unAvailable or no_attempt %}
-                        <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList"><i class="material-icons left">navigate_before</i>Back</a>
+                            {% if isWarmup %}
+                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList"><i class="material-icons left">done</i>Ok</a>
+                            {% else %}
+                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList"><i class="material-icons left">done</i>Ok</a>
+                            {% endif %}
                         {% endif %}
                         <button class="btn waves-effect waves-light" type="submit" name="submit">Go!
                         <i class="material-icons right">send</i>

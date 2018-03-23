@@ -3,7 +3,7 @@ from Instructors.models import Answers, CorrectAnswers, Courses
 from Instructors.models import Challenges, CoursesTopics, ChallengesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
-from Instructors.views.utils import utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
+from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
 
@@ -115,7 +115,7 @@ def challengeCreateView(request):
         if(request.POST['startTime'] == ""):
             challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
-            challenge.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
+            challenge.startTimestamp = localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
@@ -123,7 +123,7 @@ def challengeCreateView(request):
             challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
             if datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
-                challenge.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+                challenge.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")                
             else:
                 challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         
@@ -169,8 +169,8 @@ def challengeCreateView(request):
             
         if 'warmUp' in request.GET:
             context_dict['warmUp']= 1
-        
-        # If questionId is specified then we load for editing.
+           
+        # If challengeID is specified then we load for editing.
         if 'challengeID' in request.GET:
             challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
                 
@@ -306,7 +306,8 @@ def challengeCreateView(request):
             context_dict['topics'] = []
             context_dict['tags'] = []
             context_dict['isVisible']= True
-            context_dict['displayCorrectAnswer']= True
+            context_dict['displayCorrectAnswer']= True        
+            context_dict['manuallyGradedScore'] = '0'    
 
         context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
         logger.debug("[GET] " + str(context_dict))

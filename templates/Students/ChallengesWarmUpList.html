@@ -32,7 +32,7 @@
                      {% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
                      <input type="hidden" name="topicID" value="{{topic_ID}}">
                      <li>
-                        <div class="collapsible-header"><i class="material-icons">filter_drama</i>{{topic_Name}}
+                        <div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}
                            {% if all_challenges != '0' and challenges_count > 0 %}
                            <span class="badge">{{challenges_count}}</span>
                         </div>
@@ -54,13 +54,13 @@
                                     <a href="#!" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="{% if not is_teacher %}Take Challenge{% else %}Not Attempted{% endif %}">
                                     <i class="fa fa-square-o" aria-hidden="true"></i></a>
                                     {% elif score == 3 %} <!-- If score equals Above Average -->
-                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Above Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="You've got it!" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
                                     <i class="fa fa-square" style="color:green;" aria-hidden="true"></i></a>
                                     {% elif score == 4 %} <!-- If score equals Average -->
-                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Getting there" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
                                     <i class="fa fa-square" style="color:blue;" aria-hidden="true"></a>
                                     {% else %} <!-- If score equals Below Average -->
-                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Below Average" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Needs improvement" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
                                     <i class="fa fa-square" style="color:red;" aria-hidden="true"></a>
                                     {% endif %}
                                  </div>

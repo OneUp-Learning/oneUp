@@ -67,11 +67,14 @@ class StudentChallenges(models.Model):
     testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
     scoreAdjustment = models.DecimalField(decimal_places=2, max_digits=6, default=0) # Individual adjustment to the score 
     adjustmentReason = models.CharField(max_length=1000,default="")
+    bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
     instructorFeedback = models.CharField(max_length=200)
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
     def getScore(self):
         return self.testScore + self.scoreAdjustment + self.challengeID.curve    
+    def getScoreWithBonus(self):
+        return self.testScore + self.scoreAdjustment + self.challengeID.curve + self.bonusPointsAwarded   
         
 
 # This table has each question's score and other information for a student's challenge for all the above table's challenges   
@@ -138,11 +141,14 @@ class StudentActivities(models.Model):
     timestamp = models.DateTimeField(default= datetime.now)
     activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
+    bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
-#     +","+str(self.challengeID)    
+    def getScoreWithBonus(self):
+        return self.activityScore + self.bonusPointsAwarded
+   
     
 def fileUploadPath(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),filename)

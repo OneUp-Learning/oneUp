@@ -110,6 +110,12 @@
                            </div>
                         </div>
                         <div class="row">
+                          <div class="col s12">
+                              <input name="isGraded" type="checkbox" id="is_Graded" {% if isGraded %} checked {% endif %}/>
+                              <label for="is_Graded"><span class= "red-text">*</span> Activity is Graded</label>
+                          </div>
+                        </div>
+                        <div class="row">
                            <div class="col s12">
                               <input name="fileUpload" type="checkbox" id="file_upload" {% if isFileUpload %} checked {% endif %}/>
                               <label for="file_upload">Allow Students to Upload Files</label>
@@ -129,7 +135,7 @@
                         </div>
                         <div class="row">
                           <div class="col s12">
-                            <p>Files</p>
+                            <h5>Files</h5>
                           </div>
                         </div>
                         <div class="row">
@@ -137,6 +143,8 @@
                             <blockquote>
                             {% for file in activityFiles %}
                             <a class="oldFiles" id="{{file.ID}}" href="#!" >{{file.activityFileName}}<i class="left material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Remove">close</i></a>
+                            {% empty %}
+                            <p>No files uploaded</p>
                             {% endfor %}
                             </blockquote>
                           </div>

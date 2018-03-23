@@ -39,7 +39,9 @@
                               <td>{% if is_teacher %}    	         			
                               <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{student}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
                               {% else  %}
+                              {% if not isExpired %}
                               <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
+                              {% endif %}
                               {% endif %}       				
                               </td> 
                            </tr>

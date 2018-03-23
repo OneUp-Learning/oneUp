@@ -22,6 +22,7 @@
                      <table>
                         <thead>
                            <th>Name</th>
+                           <th>End Date</th>
                            <th>Score</th>
                            <th>Number of Attempts</th>
                            <th>Adjustment Reason</th>
@@ -36,12 +37,13 @@
                            </th>
                         </thead>
                         <tbody>
-                           {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position in challenge_range %}
+                           {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate in challenge_range %}
                            <tr>
-                              <td>{{chall_Name}}</td>
-                              <td>{{grade}}</td>
-                              <td>{{numberOfAttempts}}</td>
-                              <td>{{adjusmentReason}}</td>
+                                <td>{{chall_Name}}</td>	
+                                <td>{{challDueDate}}</td>
+                                <td>{{grade}}</td>
+                                <td>{{numberOfAttempts}}</td>		
+                                <td>{{adjusmentReason}}</td>
                               <td class="right-align">
                                  {% if is_teacher %} 
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>   

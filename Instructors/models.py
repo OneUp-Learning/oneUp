@@ -217,6 +217,7 @@ class Activities(models.Model):
     activityName = models.CharField(max_length=75)
     description = models.CharField(max_length=200, default="")
     points =  models.IntegerField(default=0)
+    isGraded = models.BooleanField(default=False,verbose_name = "Activity points will be added to the course grade")
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)
     uploadAttempts = models.IntegerField(default=0)
@@ -292,7 +293,7 @@ class UploadedImages(models.Model):
     imageDescription = models.CharField(max_length=200, default='')
     imageCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
     def __str__(self):              
-        return str(self.imageID)+","+self.imageFile+","+self.imageDescription
+        return str(self.imageID)+","+str(self.imageFile)+","+self.imageDescription
     
     def delete(self):
         self.imageFile.delete()
