@@ -129,6 +129,7 @@ def activityCreateView(request):
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
                 context_dict['isFileUpload'] = activity.isFileAllowed
+                context_dict['isGraded'] = activity.isGraded
 #                 context_dict['startTimestamp']= activity.startTimestamp
 #                 context_dict['endTimestamp']= activity.endTimestamp
                 
