@@ -76,7 +76,7 @@ def activityAssignPointsView(request):
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb= actName+' has been graded', nf_type='Activity Graded')
 
-                    activityGradedNow[studentRC.studentID] = False
+                    activityGradedNow[studentRC.studentID] = True
        
         #Register event for participationNoted
         for studentRC in studentRCList:
