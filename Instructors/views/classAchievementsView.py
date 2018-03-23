@@ -85,17 +85,17 @@ def classAchievements(request):
                     latestSC = StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]).latest('startTimestamp')
                     earliestSC =StudentChallenges.objects.filter(studentID=user, courseID=currentCourse, challengeID = challenges[j]).earliest('startTimestamp')
                     
-                    gradeLast.append(latestSC.getScore())
-                    gradeFirst.append(earliestSC.getScore())
-                    numberLast.append(latestSC.getScore())
-                    numberFirst.append(earliestSC.getScore())
+                    gradeLast.append(latestSC.getScoreWithBonus())
+                    gradeFirst.append(earliestSC.getScoreWithBonus())
+                    numberLast.append(latestSC.getScoreWithBonus())
+                    numberFirst.append(earliestSC.getScoreWithBonus())
                     
                     sc_user.append(user)
                     sc_chall.append(challenges[j].challengeID)
                     gradeID  = []
                     
                     for sc in sChallenges:
-                        gradeID.append(sc.getScore())
+                        gradeID.append(sc.getScoreWithBonus())
                     gradeMax.append(("%0.2f" %max(gradeID)))
                     gradeMin.append(("%0.2f" %min(gradeID)))
                     numberMax.append(max(gradeID))
@@ -117,7 +117,7 @@ def classAchievements(request):
             for activity in activities:
                 
                 if StudentActivities.objects.filter(courseID=currentCourse, studentID=user, activityID=activity):
-                    activityGrade = StudentActivities.objects.get(courseID=currentCourse, studentID=user, activityID=activity).activityScore
+                    activityGrade = StudentActivities.objects.get(courseID=currentCourse, studentID=user, activityID=activity).getScoreWithBonus()
                     activityGradeStr.append(str(activityGrade))
                     print(user, activityGrade)
                 else:
