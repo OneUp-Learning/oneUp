@@ -1,89 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      {% include 'scripts.html' %}
-      <script>
-        function pointsChanged(){
-            var gradedHidden = document.getElementById(this.id + "_graded");
-            gradedHidden.value = true; 
-        }
-        
-        var points = document.getElementsByClassName("points");
-        
-        [].forEach.call(points, function(p){
-            p.addEventListener("change",pointsChanged);
-        });
 
-    </script> 
-   </head>
-   <body>
-      <div>
-      {% include 'heading.html' %}
-      <main>
-         <div class="row center-align">
+<head>
+    {% include 'scripts.html' %}
+    <script>
+        function pointsChanged() {
+            var gradedHidden = document.getElementById(this.id + "_graded");
+            gradedHidden.value = true;
+        }
+
+        var points = document.getElementsByClassName("points");
+
+        [].forEach.call(points, function(p) {
+            p.addEventListener("change", pointsChanged);
+        });
+    </script>
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
             <div class="col s12">
-               <h3>{{activityName}}</h3>
+                <h3>{{activityName}}</h3>
             </div>
-         </div>
-         <div class="row">
+        </div>
+        <div class="row">
             <div class="col s12 m8 offset-m2">
-               <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
-                  {% csrf_token %} 
-                  {% if activityID %} 
-                  <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
-                  {% endif %}
-                  <div class="card">
-                     <div class="card-content">
-                        <table>
-                           <thead>
-                              <tr>
-                                 <th>Student</th>
-                                 <th>Points</th>
-                                 <th>Instructor Feedback</th>
-                              </tr>
-                           </thead>
-                           <tbody>
-                              {% for i, student_ID, student_Name, student_Points, student_Feedback, File_Name in assignedActivityPoints_range %}
-                              <tr>
-                                 <td>
-                                    <p>{{student_Name}} 
-                                       {% if File_Name%}
-                                       <a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">get_app</i>Download File</a>
-                                    </p>
-                                    {% else %}
-                                    (No file available)</p> 
-                                    {% endif %}    
-                                 </td>
-                                 <td>
-                                    <div class="input-field col s12">
-                                       <input placeholder="Points" value="{{student_Points}}" name="student_Points{{student_ID}}" id="student_points"  type="number" class="validate" min="0" required>
-                                    </div>
-                                 </td>
-                                 <td>
-                                    <div class="input-field col s12">
-                                       <textarea id="student_feedback" name="student_Feedback{{student_ID}}" class="materialize-textarea">{{student_Feedback}}</textarea>
-                                    </div>
-                                 </td>
-                              </tr>
-                              {% empty %}
-                              <tr>
-                                 <td>No Students in the course!</td>
-                              </tr>
-                              {% endfor %}
-                           </tbody>
-                        </table>
-                     </div>
-                     <div class="card-action right-align">
-                        <button class="btn waves-effect waves-light" type="submit" name="submit">Save
+                <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
+                    {% csrf_token %} {% if activityID %}
+                    <input type="hidden" name="activityID" id="activityID" value="{{activityID}}"> {% endif %}
+                    <div class="card">
+                        <div class="card-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Points</th>
+                                        <th>Earned Points</th>
+                                        <th>Instructor Feedback</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i, student_ID, student_Name, student_Points, student_Bonus, student_Feedback, File_Name in assignedActivityPoints_range %}
+                                    <input type="hidden" id="{{student_ID}}_points_graded" class="isGraded" value="False">
+                                    <tr>
+                                        <td>
+                                            <p>{{student_Name}} {% if File_Name%}
+                                                <a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">get_app</i>Download File</a>
+                                            </p>
+                                            {% else %} (No file available)</p>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="input-field col s12">
+                                                <input value="{{student_Points}}" name="student_Points{{student_ID}}" id="{{student_ID}}_points" type="number" class="validate" min="0" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-field col s12">
+                                                <input value="{{student_Bonus}}" name="student_Bonus{{student_ID}}" id="{{student_ID}}_bonus" type="number" class="validate" min="0" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="input-field col s12">
+                                                    <textarea id="student_feedback" name="student_Feedback{{student_ID}}" class="materialize-textarea">{{student_Feedback}}</textarea>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td>No Students in the course!</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-action right-align">
+                            <button class="btn waves-effect waves-light" type="submit" name="submit">Save
                         <i class="material-icons right">send</i>
                         </button>
-                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/activitiesList"><i class="material-icons left">close</i>Cancel</a>
-                     </div>
-                  </div>
-               </form>
+                            <a class="waves-effect waves-light btn" href="/oneUp/instructors/activitiesList"><i class="material-icons left">close</i>Cancel</a>
+                        </div>
+                    </div>
+                </form>
             </div>
-         </div>
-      </main>
-      {% include 'footer.html' %}
-   </body>
+        </div>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
 </html>

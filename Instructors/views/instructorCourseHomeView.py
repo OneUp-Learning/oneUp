@@ -51,7 +51,7 @@ def studentXP(studentId, courseId):
 
         gradeID  = []                            
         for s in sc:
-            gradeID.append(int(s.getScore()))   # get the score + adjustment
+            gradeID.append(int(s.getScoreWithBonus()))   # get the score + adjustment
                                 
         if(gradeID):
             earnedScorePoints += max(gradeID)
@@ -90,7 +90,7 @@ def studentXP(studentId, courseId):
 
         gradeID  = []                            
         for a in sa:
-            gradeID.append(int(a.activityScore)) 
+            gradeID.append(int(a.getScoreWithBonus())) 
                                
         if(gradeID):
             earnedActivityPoints += max(gradeID)

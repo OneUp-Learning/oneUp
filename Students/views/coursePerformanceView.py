@@ -49,7 +49,7 @@ def CoursePerformance(request):
         assignmentName.append(a.activityName)
         assignmentType.append("Activity")
         assignmentTime.append(sa.timestamp)
-        assignmentGrade.append(sa.activityScore)
+        assignmentGrade.append(sa.getScoreWithBonus())
         assignmentGradeTotal.append(a.points)
         assignmentFeedback.append(sa.instructorFeedback)
         if currentTime > sa.activityID.endTimestamp:
@@ -71,7 +71,7 @@ def CoursePerformance(request):
             gradeID  = []
                     
             for sc in sChallenges:
-                gradeID.append(sc.getScore())
+                gradeID.append(sc.getScoreWithBonus())
 
             gMax = (max(gradeID))
             

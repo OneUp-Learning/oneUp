@@ -1,112 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8">
-      
-          {% include 'scripts.html' %}
-          
-        <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }            
-         }
-      </script>
-   </head>
-   <body>
-      <div>
-       
-       {% include 'heading.html' %}
-       
-         <!-- START PAGE SOURCE -->
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-            <div class="12u">
-               <h1>{{challengeName}}</h1>
-			</div></div>
-			<div class="row">
-            <div class="12u">
-            <br/>
-		
-                    <!-- INSERTED ADJUSTMENT FORM -->
-                    <form name="question" action="/oneUp/instructors/challengeAdjustment" method="POST">
-                        {% csrf_token %} 
-                        {% if challengeID %} 
-                            <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
-                        {% endif %}
+
+<head>
+    {% include 'scripts.html' %}
+    <script>
+        var AdjustmentScore = document.getElementsByClassName("AdjustmentScore");
+
+        [].forEach.call(AdjustmentScore, function(p) {
+            p.addEventListener("change", AdjustmentScoreChanged);
+        });
+    </script>
+</head>
+
+<body>
+
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>{{challengeName}}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <form name="question" action="/oneUp/instructors/challengeAdjustment" method="POST">
+                    {% csrf_token %} {% if challengeID %}
+                    <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}" /> {% endif %}
                     <div class="card">
-                        <div class="card-panel">
-                        <table class="bg">
-
-                        <tr>
-                            <th>Student</th>
-                            <th>Score</th>
-                            <th>Adjustment</th>
-                            <th>Adjustment Reason</th>
-                        </tr>
-                        {% for i, student_ID, student_Name, student_TestScore, student_AdjustmentScore, student_AdjustmentReason in challengeAdjustment_range %}
-      
-                        </input>
-                        
-                        <tr>
-                         <div id="studentChallenge{{i}}">
-                            <td>
-                            	{{student_Name}}
-                            	
-                            </td> 
-                            <td>
-                               {{student_TestScore}}
-                            </td>
-                            <td>
-                               <input type="hidden" name="student_AdjustmentScore{{student_ID}}" value="{{student_AdjustmentScore}}">
-                               <input style="max-width: 5em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" name="student_AdjustmentScore{{student_ID}}" min="0" max="9999" value="{{student_AdjustmentScore}}" id="{{student_ID}}_AdjustmentScore" required>
-                            </td>  
-                            <td>
-                              <textarea id="{{student_ID}}_AdjustmentReason" name="adjustmentReason{{student_ID}}" rows="2">{{student_AdjustmentReason}}</textarea>
-                            </td>  
-                          </div>                        
-                        </tr>
-                        {% endfor %}
-                        </table>
+                        <div class="card-content">
+                            <table>
+                                <thead>
+                                    <th>Student</th>
+                                    <th>Score</th>
+                                    <th>Earned Points</th>
+                                    <th>Adjustment</th>
+                                    <th>Adjustment Reason</th>
+                                </thead>
+                                <tbody>
+                                    {% for i, student_ID, student_Name, student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason in challengeAdjustment_range %}
+                                    <tr>
+                                        <td>{{student_Name}}</td>
+                                        <td>{{student_TestScore}}</td>
+                                        <td>
+                                            <div class="input-field col s12">
+                                                <input value="{{student_BonusScore}}" name="student_BonusScore{{student_ID}}" id="{{student_ID}}_BonusScore" type="number" class="validate" min="0" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-field col s12">
+                                                <input value="{{student_AdjustmentScore}}" name="student_AdjustmentScore{{student_ID}}" id="{{student_ID}}_AdjustmentScore" type="number" class="validate" min="0" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="row">
+                                            <div class="input-field col s12">
+                                                <textarea id="{{student_ID}}_AdjustmentReason" name="adjustmentReason{{student_ID}}" class="materialize-textarea">{{student_AdjustmentReason}}</textarea>
+                                            </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td>No Students in the course!</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-action right-align">
+                            <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i>
+                                </button>
+                            <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengesList">											
+                                <i class="material-icons left">close</i>Cancel</a>
+                        </div>
                     </div>
-                </div>
-                        <input class="waves-effect waves-light btn" type="submit" name="submit" value="Save" class="button">								
-			            <a href="/oneUp/instructors/challengesList">
-						<input class="waves-effect waves-light btn" type="button" class="special" value="Cancel"></a>
-                    </form>
-                    <!-- END ADJUSTMENT FORM -->
-				</div></div>
-				
-         </div></div>
-         <!-- Footer -->
-   
-       {% include 'footer.html' %}
-      </div>
-      <script>
-      	
-      	var AdjustmentScore = document.getElementsByClassName("AdjustmentScore");
-      	
-      	[].forEach.call(AdjustmentScore, function(p){
-      		p.addEventListener("change",AdjustmentScoreChanged);
-      	});
-
-      </script> 
-   </body>
+                </form>
+            </div>
+        </div>
+    </main>
+    {% include 'footer.html' %}
+</body>
 </html>
