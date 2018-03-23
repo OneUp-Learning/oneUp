@@ -648,18 +648,14 @@
              title:{text:''},
              legend:{enabled:false},
              xAxis:{
-                 tickLength:100,
-                 tickColor:'#eee',
-                 gridLineWidth:1,
-                 gridLineColor:'#eee',
-                 labels: {
-                     style: {
-                         fontWeight:'bold'
-                     }
-                 },
-                 lineColor:'#eee',
-                 lineWidth:0,
-                 categories:['']
+                lineWidth:0,
+                minorGridLineWidth: 0,
+                lineColor: 'transparent',
+                labels: {
+                    enabled: false
+                },
+                minorTickLength: 0,
+                tickLength: 0
              },
              yAxis:{
                  tickInterval:5,
@@ -752,11 +748,6 @@
                  zIndex:1,
                  data:[ChallengePointsProjected()]
              },{
-                 name:'Target',
-                 type:'scatter',
-                 zIndex:20,
-                 data:[750]
-             },{
                  name:'Warnings',
                  type:'scatter',
                  marker: { 
@@ -830,7 +821,7 @@
          </div>
            
          <div class="row">
-             <div class="col s12 m8 offset-m2">
+             <div class="col s12 m4 offset-m2">
                  <div class="card">
                      <div class="card-content">
                             <span class="card-title">Skills</span>
@@ -866,56 +857,43 @@
                     </div>
                  </div>
              </div>
-         </div>
-
-         <div class="row">
-                <div class="col s12 m8 offset-m2">
-                    <div class="card">
-                        <div class="card-content">
-                               <span class="card-title">Challenges</span>
-                               <div id='container1' class="js-box"></div>
-                               <div id='container2' class="js-box"></div>
-                       </div>
-                       <div class="card-action right-align">
-                           <script>
-                                   var isClassAvgAvailable = {{is_ClassAverage_Displayed|lower}};
-                                   if (isClassAvgAvailable)
-                                   {
-                                       var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
-                                       selectScript+="<a id='classAvg2' class='waves-effect btn-flat'>Class Average</a>";
-                                       document.write(selectScript);
-                                   }
-                                   else
-                                   {
-                                       var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
-                                       selectScript+="<a id='classAvg2' class='waves-effect btn-flat disabled'>Class Average</a>";
-                                       document.write(selectScript);
-                                   }
-                   
-                                   $('#points2').click(function(){
-                                       $('.js-box').hide();
-                                       $('#container1').show();
-                                   });
-                                   $('#classAvg2').click(function(){
-                                       $('.js-box').hide();
-                                       $('#container2').show();
-                                   });
-                                   $('#points2').click();
-                           </script>
-                       </div>
-                    </div>
+             <div class="col s12 m4">
+                <div class="card">
+                    <div class="card-content">
+                           <span class="card-title">Challenges</span>
+                           <div id='container1' class="js-box"></div>
+                           <div id='container2' class="js-box"></div>
+                   </div>
+                   <div class="card-action right-align">
+                       <script>
+                               var isClassAvgAvailable = {{is_ClassAverage_Displayed|lower}};
+                               if (isClassAvgAvailable)
+                               {
+                                   var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
+                                   selectScript+="<a id='classAvg2' class='waves-effect btn-flat'>Class Average</a>";
+                                   document.write(selectScript);
+                               }
+                               else
+                               {
+                                   var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
+                                   selectScript+="<a id='classAvg2' class='waves-effect btn-flat disabled'>Class Average</a>";
+                                   document.write(selectScript);
+                               }
+               
+                               $('#points2').click(function(){
+                                   $('.js-box').hide();
+                                   $('#container1').show();
+                               });
+                               $('#classAvg2').click(function(){
+                                   $('.js-box').hide();
+                                   $('#container2').show();
+                               });
+                               $('#points2').click();
+                       </script>
+                   </div>
                 </div>
             </div>
-            <div class="row">
-                    <div class="col s12 m8 offset-m2">
-                        <div class="card">
-                            <div class="card-content">
-                                   <span class="card-title">Warmup Challenges</span>
-                                   <div id='container5' class="js-box5"></div>
-                           </div>
-                        </div>
-                    </div>
-                </div>
+         </div>
             {% if are_Badges_Displayed|lower %}
             <div class="row">
                     <div class="col s12 m8 offset-m2">
@@ -941,6 +919,17 @@
                     </div>
                 </div>     
             {% endif %}
+            <div class="row">
+                    <div class="col s12 m8 offset-m2">
+                        <div class="card">
+                            <div class="card-content">
+                                   <span class="card-title">Warmup Challenges</span>
+                                   <div id='container5' class="js-box5"></div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            
             
                     
                         <!-- <script> 
