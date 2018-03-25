@@ -1,7 +1,7 @@
-<li data-nf-id="{{ notification.id }}" class="notification list-group-item {{ notification.read|yesno:'read,unread' }} navNotifications">
-    <a class='waves-effect truncate' href="#!">{{ notification.verb }}
+<li data-nf-id="{{ notification.id }}" class="collection-item avatar notification list-group-item {{ notification.read|yesno:'read,unread' }} navNotifications">
+    <a class='waves-effect truncate grey-text' href="#!">{{ notification.verb }}
         <i class="material-icons right delete-notification delete-box" data-id="{{ notification.id }}">clear</i>
         &nbsp; 
-        <span class="timesince right">{{ notification.created|timesince }} ago</span>    
+        <p style="margin-top: 0px;"><span class="timesince left">{{ notification.created|timesince }} ago</span> </p>  
      </a>
 </li>
