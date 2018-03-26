@@ -49,7 +49,15 @@ def activityCreateView(request):
         for attr in string_attributes:
             setattr(activity,attr,request.POST[attr])
         
-        activity.courseID = currentCourse; 
+        activity.courseID = currentCourse
+        
+        if 'isGraded' in request.POST:
+            activity.isGraded = True
+            print("truuuuuuuuuuuuuuuuuuuuue")
+        else:
+            activity.isGraded = False
+            print("fallllllllllllllllllllse")
+            
         if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
         else:
@@ -121,10 +129,11 @@ def activityCreateView(request):
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
                 context_dict['isFileUpload'] = activity.isFileAllowed
+                context_dict['isGraded'] = activity.isGraded
 #                 context_dict['startTimestamp']= activity.startTimestamp
 #                 context_dict['endTimestamp']= activity.endTimestamp
                 
-                etime = activity.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")
+                etime = activity.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
                 print('etime ', etime)
                 
                 if etime != default_time_str: 

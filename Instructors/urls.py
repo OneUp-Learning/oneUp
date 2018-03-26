@@ -5,6 +5,7 @@ from django.views.generic import RedirectView
 from Instructors.views.activityAssignPointsView import assignedPointsList, activityAssignPointsView
 from Instructors.views.activityCreateView import activityCreateView, removeFileFromActivty
 from Instructors.views.activityListView import activityList
+from Instructors.views.activityScoreView import activityScore
 from Instructors.views.announcementCreateView import announcementCreateView
 from Instructors.views.announcementListView import announcementList
 from Instructors.views.allAnnouncementsView import allAnnouncements
@@ -156,4 +157,5 @@ urlpatterns = [
     url(r'^luaLibConfirmDelete',libDeleteConfirmView,name="Lua Library Deletion Confirmation"),
     url(r'^adjustmentList', adjustmentList, name='adjustmentList'),
     url(r'^challengeAdjustment', challengeAdjustmentView, name='challengeAdjustmentView'),
+    url(r'^activityScore', activityScore, name='activityScore'),
 ]

@@ -79,7 +79,7 @@ def challengeCreateView(request):
         displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))  
         #displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))
         displayIncorrectAnswerFeedback = str(request.POST.get('displayIncorrectAnswerFeedback','false'))         
-       
+        challenge.curve = int(request.POST.get("curve", 0))
         # Copy all strings from POST to database object.
         for attr in string_attributes:
             if(attr in request.POST):
@@ -232,6 +232,7 @@ def challengeCreateView(request):
             context_dict['challengeID']=request.GET['challengeID']
             
             context_dict['challengeDifficulty'] = challenge.challengeDifficulty  
+            context_dict['curve'] = challenge.curve
             
             for attr in string_attributes:
                 data = getattr(challenge,attr)

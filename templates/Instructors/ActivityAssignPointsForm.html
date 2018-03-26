@@ -54,9 +54,10 @@
                         <tr>
                             <th>Student</th>
                             <th>Points</th>
+                            <th>Earned Points</th>
                             <th>Instructor Feedback</th>
                         </tr>
-                        {% for i, student_ID, student_Name, student_Points, student_Feedback, File_Name in assignedActivityPoints_range %}
+                        {% for i, student_ID, student_Name, student_Points, student_Bonus, student_Feedback, File_Name in assignedActivityPoints_range %}
                         <input type="hidden" id="{{student_ID}}_points_graded" class="isGraded" value="False"> 
                         
                         
@@ -76,7 +77,10 @@
                     
                             </td> 
                             <td>
-                               <input id="{{student_ID}}_points" class="points" type="number" name="student_Points{{student_ID}}" value="{{student_Points}}" min="-1" required>
+                               <input id="{{student_ID}}_points" class="points" type="number" name="student_Points{{student_ID}}" value="{{student_Points}}" min="0" required>
+                            </td>
+                            <td>
+                                <input id="{{student_ID}}_bonus" class="points" type="number" name="student_Bonus{{student_ID}}" value="{{student_Bonus}}" min="0" required>
                             </td> 
                             <td>
                               <textarea id="{{student_ID}}_feedBack" name="student_Feedback{{student_ID}}" rows="2">{{student_Feedback}}</textarea>

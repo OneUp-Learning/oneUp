@@ -1,0 +1,62 @@
+!DOCTYPE html>
+<html lang="en">
+      <head>
+         
+         {% include 'scripts.html' %}
+         
+      </head>
+      <body>
+      <div id="page-wrapper">
+
+           
+         {% include 'heading.html' %}
+
+            <div class="frame" id="grad" align="center">
+         	<div class="container">
+         	<div class="row">
+         	<div class="12u">
+         		 <h1>{{student}}'s Activities </h1>
+			</div></div>
+					
+<!-- INSERTED DYNAMIC TABLE --> 
+			<div class="row">
+         	<div class="12u" style="top-padding: 0em;">
+            <table class="bg">
+                <tr>
+                    <th height="40">Name</th>
+                    <th>Total Points</th>
+                    <th>Grade</th>
+                    <th></th>
+                    <th></th>
+                    <th>Feedback</th> 
+                    
+                                       
+                </tr>
+                
+                {% for activityNames,maxPoints,points, feedbacks in activity_range%}
+                <tr> 
+                    <td height="40" >{{activityNames}}</td>
+                    <td>{{maxPoints}}</td>	
+                    <td>{{points}}</td> 
+                    <td></td>
+                    <td></td>
+                    <td>{{feedbacks}}</td> 
+                    
+                </tr>
+                {% endfor %}
+            </table>
+            
+              <a href="/oneUp/instructors/studentAchievements"> <button class="button">Back</button></a> 
+            
+            <br><br>
+       <!-- END DYNAMIC TABLE --> 
+         </div></div></div>
+            </div>
+         </div>
+         <!-- Footer -->
+
+       {% include 'footer.html' %}
+
+
+      </body>
+   </html>

@@ -27,11 +27,12 @@ def challengeAdjustmentView(request):
         for studentRC in studentRCs:
             studentID = studentRC.studentID.id
             adjustmentScore = request.POST['student_AdjustmentScore' + str(studentID)]
-                
+            bonusScore = request.POST['student_BonusScore' + str(studentID)]
+
             if (StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID)).exists():
                 studentChallenge = StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID).latest('testScore')
                 
-                if not adjustmentScore == "0":
+                if not adjustmentScore == "0" or studentChallenge.scoreAdjustment != adjustmentScore:
                     studentChallenge.scoreAdjustment = adjustmentScore
                     studentChallenge.adjustmentReason = request.POST['adjustmentReason'+str(studentID)]
                     studentChallenge.save()
@@ -39,13 +40,27 @@ def challengeAdjustmentView(request):
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
 
+                if not bonusScore == "0" or studentChallenge.bonusPointsAwarded != bonusScore:
+                    studentChallenge.bonusPointsAwarded = bonusScore
+                    studentChallenge.save()
+
             else:
-                if not adjustmentScore == "0":
+                if not adjustmentScore == "0" or not bonusScore == "0":
                     studentChallenge = StudentChallenges()
                     studentChallenge.challengeID = challenge
                     studentChallenge.studentID = studentRC.studentID
-                    studentChallenge.scoreAdjustment = adjustmentScore
-                    studentChallenge.AdjustmentReason = request.POST['adjustmentReason'+str(studentID)]
+
+                    if not adjustmentScore == "0":
+                        studentChallenge.scoreAdjustment = adjustmentScore
+                        studentChallenge.AdjustmentReason = request.POST['adjustmentReason'+str(studentID)]
+                    else:
+                        studentChallenge.scoreAdjustment = "0"
+                        studentChallenge.adjustmentReason = ""
+                    if not bonusScore == "0":
+                        studentChallenge.bonusPointsAwarded = bonusScore
+                    else:
+                        studentChallenge.bonusPointsAwarded = "0"
+
                     studentChallenge.courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
                     studentChallenge.startTimestamp = utcDate()
                     studentChallenge.endTimestamp = utcDate()
@@ -79,6 +94,7 @@ def adjustmentList(request):
     student_ID=[]
     student_Name=[]
     student_TestScore=[]
+    student_BonusScore=[]
     student_AdjustmentScore=[]
     student_AdjustmentReason=[]
     
@@ -93,17 +109,19 @@ def adjustmentList(request):
             studentChallenge = StudentChallenges.objects.filter(challengeID = request.GET['challengeID'], studentID = student).latest('testScore')
             
             student_TestScore.append(studentChallenge.testScore)
+            student_BonusScore.append(studentChallenge.bonusPointsAwarded)
             student_AdjustmentScore.append(studentChallenge.scoreAdjustment)
             student_AdjustmentReason.append(studentChallenge.adjustmentReason)
             
         else:
             student_TestScore.append("-1")
+            student_BonusScore.append("0")
             student_AdjustmentScore.append("0")
             student_AdjustmentReason.append("")
     
     context_dict['challengeID'] = request.GET['challengeID']
     context_dict['challengeName']= Challenges.objects.get(challengeID=request.GET['challengeID']).challengeName
-    context_dict['challengeAdjustment_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_AdjustmentScore, student_AdjustmentReason) 
+    context_dict['challengeAdjustment_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason) 
             
     return render(request,'Instructors/ChallengeAdjustmentForm.html', context_dict)
 
