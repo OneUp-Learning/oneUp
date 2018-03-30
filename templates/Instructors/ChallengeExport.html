@@ -1,64 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
 
 {% include 'scripts.html' %}
 
 </head>
 <body>
-	<div>
 
 		{% include 'heading.html' %}
-
-		<div class="frame" id="grad" align="center">
-			<div class="container">
-				<div class="row">
-					<div class="12u">
-						<h1>Export Challenges</h1>
+		<main>
+				<div class="row center-align">
+					<div class="col s12">
+						<h3>Export Challenges</h3>
+						<em><strong> Select Challenges to Export</strong></em>
 					</div>
 				</div>
-						<!-- INSERTED DYNAMIC TABLE -->
-							<em><strong> Select Challenges to Export</strong></em>
-							<div class="col s12 m6">
-									<div class="card-panel">
-						<form name="question" action="/oneUp/instructors/exportChallenges"
-							method="POST">
+				<div class="row">
+					<div class="col s12 m8 offset-m2">
+							<form name="question" action="/oneUp/instructors/exportChallenges" method="POST">
 							{% csrf_token %}
-					
-							<table>
+							<div class="card">
+								<div class="card-content">
 								{% if empty %}
-								<tr>
-									<td>**No Results Where Found**</td>
-								</tr>
-								{% else %} {% for i, chall_ID, chall_name in challenge_range %}
-								<form action="#">
+									<blockquote>No Results Where Found</blockquote>
+								{% else %} 
+									{% for i, chall_ID, chall_name in challenge_range %}
 										<p>
-										  <input type="checkbox" name="selected" value="{{i}}" id="{{chall_ID}}">
-										  <label for="{{chall_ID}}" value="{{chall_name}}"></label>
-										  {{chall_name}}
+										  <input type="checkbox" class="filled-in" name="selected" value="{{i}}" id="{{chall_ID}}" />
+										  <label for="{{chall_ID}}" value="{{chall_name}}">{{chall_name}}</label>
 										</p>
-										</form>
-								{% endfor %} {% endif %}
-							</table>
-
-							<input class="waves-effect waves-light btn" type="submit" name="submit" value="Submit" class="button" />
-							<button class="waves-effect waves-light btn" type="reset" value="Reset">Reset</button>
-							<a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><input
-								type="button" value="Back"></a>
-
+								{% endfor %} 
+								{% endif %}
+								</div>
+								<div class="card-action right-align">
+										<button class="btn waves-effect waves-light" type="submit" name="submit">Export<i class="material-icons right">send</i></button>
+										<button class="btn waves-effect waves-light" type="reset" name="Reset">Clear<i class="material-icons right">clear_all</i></button>
+										<a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i class="material-icons left">navigate_before</i>Back</a>
+								</div>
+							</div>
 						</form>
 						</div>
 						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- Footer -->
+		</main>
 
 		{% include 'footer.html' %}
 
-	</div>
 
 </body>
 </html>
