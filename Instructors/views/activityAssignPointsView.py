@@ -40,6 +40,8 @@ def activityAssignPointsView(request):
             # If student has been previously graded...
             if stud_activity:
                 
+                print("herrrrrrrrrrrrrrrrrrrrrrre")
+                print(stud_activity,studentPoints)
                 # Check if the student has points wanting to be assigned (AH)
                 if not studentPoints == "0" or not studentBonus == "0":
                     # Override the activity with the student points (AH)  
@@ -48,22 +50,27 @@ def activityAssignPointsView(request):
                         stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     else:
                         stud_activity.activityScore = "0"
-                        stud_activity.instructorFeedback =  ""
+                        stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     
                     if not studentBonus == "0" or stud_activity.bonusPointsAwarded != studentBonus:
                         stud_activity.bonusPointsAwarded = studentBonus
                     else:
                         stud_activity.bonusPointsAwarded = "0"
-
-                    stud_activity.timestamp = utcDate()
-                    stud_activity.graded = True
-                    stud_activity.save()
-                    activityGradedNow[studentRC.studentID] = True
-        
-                    actName = activity.activityName
                         
-                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb= actName+' has been graded', nf_type='Activity Graded')
+                else:
+                    stud_activity.activityScore = studentPoints
+                    stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
+                    stud_activity.bonusPointsAwarded = studentBonus
+
+                stud_activity.timestamp = utcDate()
+                stud_activity.graded = True
+                stud_activity.save()
+                activityGradedNow[studentRC.studentID] = True
+    
+                actName = activity.activityName
+                    
+                notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                            verb= actName+' has been graded', nf_type='Activity Graded')
             
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
@@ -77,24 +84,32 @@ def activityAssignPointsView(request):
                         stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     else:
                         stud_activity.activityScore = "0"
-                        stud_activity.instructorFeedback =  ""
+                        stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     
                     if not studentBonus == "0":
                         stud_activity.bonusPointsAwarded = studentBonus
                     else:
                         stud_activity.bonusPointsAwarded = "0"
-
-                    stud_activity.timestamp = utcDate()
-                    stud_activity.courseID = currentCourse
-                    stud_activity.graded = True
-                    stud_activity.save()
-                    
-                    actName = activity.activityName
                         
-                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb= actName+' has been graded', nf_type='Activity Graded')
+                else:
+                    stud_activity = StudentActivities()
+                    stud_activity.activityID = activity
+                    stud_activity.studentID = studentRC.studentID
+                    stud_activity.activityScore = studentPoints
+                    stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
+                    stud_activity.bonusPointsAwarded = studentBonus
+                    
+                stud_activity.timestamp = utcDate()
+                stud_activity.courseID = currentCourse
+                stud_activity.graded = True
+                stud_activity.save()
+                
+                actName = activity.activityName
+                    
+                notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                            verb= actName+' has been graded', nf_type='Activity Graded')
 
-                    activityGradedNow[studentRC.studentID] = True
+                activityGradedNow[studentRC.studentID] = True
        
         #Register event for participationNoted
         for studentRC in studentRCList:
