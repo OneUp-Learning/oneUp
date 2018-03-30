@@ -1,4 +1,9 @@
 <header>
+<style>
+    i.icon-yellow:hover {
+        color: yellow;
+    }
+</style>
 {% load staticfiles %}       
 {% load notification_tags %}
 {% include_notify_js_variables %}
@@ -70,6 +75,7 @@
     
             });
     </script>
+
     <ul id="account" class="dropdown-content">
         <li><p class="center-align">Welcome, {{username}}</p></li>            
         <li><p class="center-align">Course: {{course_Name}}</p></li>
@@ -83,6 +89,7 @@
         <li><a href="/oneUp/instructors/classAchievementsViz?skills">Skills</a></li>  
     </ul>
     <ul id="virtualcurrency" class="dropdown-content"> 
+        <li><a href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
         <li><a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
         <li><a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
         <li><a href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
@@ -90,7 +97,7 @@
     </ul>
     <nav>
         <div class="nav-wrapper">
-        <a href="#" class="brand-logo"><i class="material-icons">lightbulb_outline</i>OneUp</a>
+        <a href="#" class="brand-logo"><i class="large material-icons icon-yellow">lightbulb_outline</i>OneUp</a>
         <a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i></a>
         <ul class="right hide-on-med-and-down">
             <li>
@@ -141,6 +148,7 @@
                 <ul id="gamefeats" class="dropdown-content">
                     <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
                     <li><a class="waves-effect" href="">Leveling</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
