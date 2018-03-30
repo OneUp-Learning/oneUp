@@ -115,7 +115,7 @@ def activityCreateView(request):
 #                 context_dict['startTimestamp']= activity.startTimestamp
 #                 context_dict['endTimestamp']= activity.endTimestamp
                 
-                etime = activity.endTimestamp.strftime("%m/%d/%Y %I:%M:%S %p")
+                etime = activity.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
                 print('etime ', etime)
                 
                 if etime != default_time_str: 

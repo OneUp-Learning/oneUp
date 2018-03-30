@@ -34,7 +34,7 @@
         $('.add_more').click(function(e){
           e.preventDefault();
           $(fileupload1).after('<div id="fileupload1" class="file-field input-field">\n'+
-          '<div class="btn">\n'+'<span>File</span>\n'+'<input name="actFile" type="file" multiple required/>\n'+'</div>\n'+
+          '<div class="btn">\n'+'<span>File</span>\n'+'<input name="actFile" type="file" multiple />\n'+'</div>\n'+
           '<div class="file-path-wrapper">\n'+'<input class="file-path validate" type="text" placeholder="Upload one or mote files"/>\n'+'</div>\n'+'</div>')
           document.getElementById('fileupload1').id = 'fileupload'
         });
@@ -124,7 +124,7 @@
                         <div class="row">
                            <div class="input-field col s12">
                               <input value="{{uploadAttempts}}" name="attempts" id="num_attempts" maxlength="4" type="number" class="validate" min="0" max="999" required>
-                              <label for="num_attempts"><span class= "red-text">*</span> Upload attempts</label>
+                              <label for="num_attempts">Upload attempts</label>
                            </div>
                         </div>
                         <div class="row">
@@ -142,7 +142,9 @@
                           <div class="col s12">
                             <blockquote>
                             {% for file in activityFiles %}
-                            <a class="oldFiles" id="{{file.ID}}" href="#!" >{{file.activityFileName}}<i class="left material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Remove">close</i></a>
+                            <div class="row">
+                                <a class="oldFiles" id="{{file.ID}}" href="#!" >{{file.activityFileName}}<i class="left material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Remove">close</i></a>
+                            </div>
                             {% empty %}
                             <p>No files uploaded</p>
                             {% endfor %}
@@ -154,7 +156,7 @@
                             <div id="fileupload1" class="file-field input-field">
                               <div class="btn">
                                  <span>File</span>
-                                 <input name="actFile" type="file" multiple required>
+                                 <input name="actFile" type="file" multiple>
                               </div>
                               <div class="file-path-wrapper">
                                  <input class="file-path validate" type="text" placeholder="Upload one or more files">
