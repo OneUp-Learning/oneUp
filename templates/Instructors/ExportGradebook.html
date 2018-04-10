@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+{% include 'scripts.html' %}
+
+<script>
+
+function isSelected():
+	{
+		
+			//var x = document.getElementById('serious').checked;
+		   //if(x= false)
+			if(exportGradebook.checkbox.checked == false)
+			{
+				alert('You must select one or all categories to Download/Export!');
+				return false;
+			}
+		return true;
+	}
+</script>
+
+</head>
+<body>
+
+		{% include 'heading.html' %}
+		<main>
+				<div class="row center-align">
+					<div class="col s12">
+						<h3>Export GradeBook</h3>
+						<em><strong> Select Categories to Export</strong></em>
+					</div>
+					
+				</div>
+				
+				<div class="row">
+					<div class="col s12 m8 offset-m2">
+							<form name="exportGradebook" action="/oneUp/instructors/exportGradebook" method="POST">
+							{% csrf_token %}
+							 
+							<select class="filled-in" name = "dropdown">
+							  <option value="1">Highest Score</option>
+							  <option value="2">Lowest Score</option>
+							  <option value="3">Latest Score</option>
+							  <option value="4">Earliest Score</option>
+							</select>
+				
+							<div class="card">
+							
+								<div class="card-content">
+								
+									<p style="padding-top: .5cm"></p>
+									
+									<p>
+									  <input type="checkbox" class="filled-in" name="selected" value="serious" id="serious" />
+									  <label for="serious" value="serious">Serious Challenges</label>
+									</p>
+									
+									<p style="padding-top: .5cm"></p>
+									
+									<p>
+									  <input type="checkbox" class="filled-in" name="selected" value="warmup" id="warmup" />
+									  <label for="warmup" value="warmup">Warm-Up Challenges</label>
+									</p>
+									
+									<p style="padding-top: .5cm"></p>
+									
+									<p>
+									  <input type="checkbox" class="filled-in" name="selected" value="graded" id="graded" />
+									  <label for="graded" value="graded">Graded Activities</label>
+									</p>
+									
+									<p style="padding-top: .5cm"></p>
+									
+									<p>
+									  <input type="checkbox" class="filled-in" name="selected" value="notGraded" id="notGraded" />
+									  <label for="notGraded" value="notGraded">NOT Graded Activities</label>
+									</p>
+									
+									<p style="padding-top: .5cm"></p>
+								
+								</div>
+								<div class="card-action right-align">
+							
+										<button class="btn waves-effect waves-light" type="submit" name="submit" onclick="isSelected()">Download/Export<i class="material-icons right">send</i></button>
+										<button class="btn waves-effect waves-light" type="reset" name="Reset">Clear<i class="material-icons right">clear_all</i></button>
+										<a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i class="material-icons left">navigate_before</i>Back</a>
+								</div>
+							</div>
+							
+							
+						</form>
+						</div>
+						</div>
+		</main>
+
+		{% include 'footer.html' %}
+
+
+</body>
+</html>
