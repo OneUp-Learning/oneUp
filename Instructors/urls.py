@@ -32,6 +32,7 @@ from Instructors.views.createStudentView import createStudentViewUnchecked
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 from Instructors.views.essayView import  essayForm
+from Instructors.views.exportGradeBookView import exportGradebook
 
 from Instructors.views.gameRulesView import gameRulesView
 
@@ -114,7 +115,8 @@ urlpatterns = [
     url(r'^deleteUser',deleteUser, name='deleteUser'),
     url(r'^gameRules',gameRulesView,name='gameRulesView'),
     url(r'^$', index, name='home'),    
-    url(r'^exportChallenges',exportChallenges,name='exportChallenges'),    
+    url(r'^exportChallenges',exportChallenges,name='exportChallenges'),  
+    url(r'^exportGradebook', exportGradebook, name='exportGradebook'),  
     url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
