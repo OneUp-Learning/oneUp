@@ -57,7 +57,7 @@ def activityScore(course,student,activity):
     scores = StudentActivities.objects.filter(activityID = activity, courseID = course, studentID = student)
     if len(scores) == 0:
         return 0
-    logger.debug("Student activity score: " + str(scores[0].activityScore))    
+    #logger.debug("Student activity score: " + str(scores[0].activityScore))    
     return scores[0].activityScore
 
 # Utility function used by other functions.
@@ -487,10 +487,13 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
     '''NOTE: temporary it is made to work only for Assignments'''
     
     from Students.models import StudentActivities 
+    
+    print(student)
+    print(activity.activityName)
      
     # get all activities for this student from the database; order by timestamp
     stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    #print (stud_activities)
+    print (stud_activities)
     assignments = []
     # filter only the activities started with "Assignment"
     for sa in stud_activities:
@@ -511,12 +514,13 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
         if assign == activity:
             if numActivitiesVisited == 1:
                 #This is the very first activity, we cannot compare it to previous
+                
                 return 0
             else:
                 return getPercentageOfActivityScore(course,student,assign)-previousActivityScorePercentage
         else:
             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, assign)
-             
+            
     return 0
 
 

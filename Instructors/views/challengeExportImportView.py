@@ -55,6 +55,7 @@ def exportChallenges(request):
         selectedChallenges = []
         # get the list of all checked challenges
         selected = request.POST.getlist('selected')
+        
         selectedChallenges_num = [ int(x) for x in selected ]
         
         if not selectedChallenges_num:
