@@ -60,10 +60,9 @@ def exportChallenges(request):
         if not selectedChallenges_num:
             selectedChallenges = Challenges.objects.filter(courseID=currentCourse)
         else:
-            for i in range(1,int(max(selectedChallenges_num))+1):
-                if i in selectedChallenges_num:
-                    chID =  request.POST.get('challengeID'+str(i))
-                    ch = Challenges.objects.get(pk=int(chID))
+            for challengeID in range(1,int(max(selectedChallenges_num))+1):
+                if challengeID in selectedChallenges_num:
+                    ch = Challenges.objects.get(pk=int(challengeID))
                     selectedChallenges.append(ch) 
         
         # Build the tree  

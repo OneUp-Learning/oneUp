@@ -1,411 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-  
-    <meta charset="utf-8" />
-    
-    {% include 'scripts.html' %}  
-    {% load staticfiles %}
-    
-    
+
+<head>
+    {% include 'scripts.html' %} {% load staticfiles %}
     <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
     <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <!--  <script src="/static/ThirdParty/aceEditor/src-noconflict/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
-	<script src="/static/ThirdParty/aceEditor/src-noconflict/mode-lua.js" type="text/javascript" charset="utf-8"></script> -->
-    
-    
-    
     <script src="/static/js/AJAXgetquerystring.js" type="text/javascript"></script>
-    
     <script type="text/javascript">
+        function testQuestion() {
+            var xmlhttp;
+            if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            } else { // code for IE6, IE5 
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
 
-    	function testQuestion() {
-    		var xmlhttp;
-			if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
-  				xmlhttp=new XMLHttpRequest();
-  			} else {// code for IE6, IE5 
-  				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  			}
-  			  			
-  			xmlhttp.open("POST","doDynamicQuestion",true);
-  			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-  			xmlhttp.onreadystatechange =
-  				function () {
-  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-  						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
-  					}
-  					makeNewEditors();
-  					makeNewReadOnlyEditors()
-  				}
-  			templateTextValues = "";
-  			for (var i=1; i<=numParts; i++) {
-  				templateTextValues += '&_templateText'+i+'='+encodeURIComponent(CKEDITOR.instances['templateTextVisible'+i].getData());
-  			}
-  			var formDataEncoded = '_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
-				 '&_numParts='+encodeURIComponent(numParts)+
-			         '&_setupCode='+encodeURIComponent(editor.getValue())+
-			         templateTextValues +
-			         '&csrfmiddlewaretoken={{ csrf_token }}';
-  			formDataEncoded = formDataEncoded + getLibsEncoded()
-  			xmlhttp.send(formDataEncoded);
-    	}
-    	
-    	function copyContentsToHidden() {
-    	    document.question.setupCode.value = editor.getValue();
-    	    document.question.numParts.value = numParts;
+            xmlhttp.open("POST", "doDynamicQuestion", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.onreadystatechange =
+                function() {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
+                    }
+                    makeNewEditors();
+                    makeNewReadOnlyEditors()
+                }
+            templateTextValues = "";
+            for (var i = 1; i <= numParts; i++) {
+                templateTextValues += '&_templateText' + i + '=' + encodeURIComponent(CKEDITOR.instances['templateTextVisible' + i].getData());
+            }
+            var formDataEncoded = '_test=true&_phase=1&_uniqid=edit&_seed=' + encodeURIComponent(document.trial.seed.value) +
+                '&_numParts=' + encodeURIComponent(numParts) +
+                '&_setupCode=' + encodeURIComponent(editor.getValue()) +
+                templateTextValues +
+                '&csrfmiddlewaretoken={{ csrf_token }}';
+            formDataEncoded = formDataEncoded + getLibsEncoded()
+            xmlhttp.send(formDataEncoded);
+        }
 
-    	    for(var i=1; i <= numParts; i++)
-    	   		 document.question["templateText"+i].value = CKEDITOR.instances["templateTextVisible"+i].getData(); //Note that x["foo"] is the same as x.foo;
-    	   		  
-    	}
-    	
-    	function disableDiv(name) {
-    		var darkLayer = document.getElementById(name+"-darkLayer");
-    		darkLayer.style.display="";
-    		var element = document.getElementById(name+"-exact");
-    		var descendents = element.getElementsByTagName("*");
-    		var i, e;
-			for (i = 0; i < descendents.length; i++) {
-    			e = descendents[i];
-    			if ((e.tagName == "INPUT") || (e.tagName == "TEXTAREA") || (e.tagName == "BUTTON") || (e.tagName == "SELECT") ||
-    				(e.tagName == "OPTION") || (e.tagName == "OPTGROUP") || (e.tagName == "FIELDSET")) {
-    				e.disabled = "disabled";
-    			}
-    			if ((e.tagName == "INPUT") && (e.type.toUpperCase() == "SUBMIT")) {
-    				e.value = "Submitted";
-    			}
-    			
-    		}
-    	}
-    	 
-    	var numParts = {{numParts}}
-    	
-  		function addPart(){
-    		
-    		/*If there is only one part then don't show the delete part button */
-    		if(numParts == 1){
-    	          document.getElementById('removePart').style.display ='initial';
-    		}
-    		
-    		/*Update number of JS variable */
-    		numParts++;
-    		
-    		/*Update the number of parts that is sent to the python for the question */
-			document.question.elements['numParts'].value=numParts; 
-    		
-			/* used to make the actaul html code block */    
-			var id = "questionPart"+numParts;
-			var name = "templateTextVisible"+numParts;
-    		var newElement = "<div id='"+id+"'><textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' rows='10' cols='70' name='"+name+"' id='"+name+"' >{{initalTemplateTextPart}}</textarea>" +
-  							"<input type='hidden' name='templateText"+numParts+"'  style='display: none;' /> <br /> </div>"
-  							;
-  			
-  			/* Put the new text part in place */ 				
+        function copyContentsToHidden() {
+            document.question.setupCode.value = editor.getValue();
+            document.question.numParts.value = numParts;
+
+            for (var i = 1; i <= numParts; i++)
+                document.question["templateText" + i].value = CKEDITOR.instances["templateTextVisible" + i].getData(); //Note that x["foo"] is the same as x.foo;
+
+        }
+
+        function disableDiv(name) {
+            var darkLayer = document.getElementById(name + "-darkLayer");
+			console.log(darkLayer);
+            darkLayer.style.display = "";
+            var element = document.getElementById(name + "-exact");
+            var descendents = element.getElementsByTagName("*");
+            var i, e;
+            for (i = 0; i < descendents.length; i++) {
+                e = descendents[i];
+                if ((e.tagName == "INPUT") || (e.tagName == "TEXTAREA") || (e.tagName == "BUTTON") || (e.tagName == "SELECT") ||
+                    (e.tagName == "OPTION") || (e.tagName == "OPTGROUP") || (e.tagName == "FIELDSET")) {
+                    e.disabled = "disabled";
+                }
+                if ((e.tagName == "INPUT") && (e.type.toUpperCase() == "SUBMIT")) {
+                    e.value = "Submitted";
+                }
+
+            }
+        }
+
+        var numParts = {{numParts}}
+
+        function addPart() {
+
+            /*If there is only one part then don't show the delete part button */
+            if (numParts == 1) {
+                document.getElementById('removePart').classList.remove('disabled');
+            }
+
+            /*Update number of JS variable */
+            numParts++;
+
+            /*Update the number of parts that is sent to the python for the question */
+            document.question.elements['numParts'].value = numParts;
+
+            /* used to make the actaul html code block */
+            var id = "questionPart" + numParts;
+            var name = "templateTextVisible" + numParts;
+            var newElement = "<div id='" + id + "' class='col s12' ><textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' rows='10' cols='70' name='" + name + "' id='" + name + "' >{{initalTemplateTextPart}}</textarea>" +
+                "<input type='hidden' name='templateText" + numParts + "'  style='display: none;' /> <br /> </div>";
+
+            /* Put the new text part in place */
             var node = document.createTextNode(newElement);
-            var previous = document.getElementById("questionPart"+(numParts-1));
-            previous.insertAdjacentHTML('afterEnd',newElement);
-            
-            CKEDITOR.config.autoParagraph = false;
-            CKEDITOR.replace( name );
+            var previous = document.getElementById("questionPart" + (numParts - 1));
+            previous.insertAdjacentHTML('afterEnd', newElement);
 
-  			
-    	}
-    	
-    	function removePart() {
-    		
-    		 /* Remove last answer blank. */
-            var lastAnswer = document.getElementById("questionPart"+numParts);
+            CKEDITOR.config.autoParagraph = false;
+            CKEDITOR.replace(name);
+
+
+        }
+
+        function removePart() {
+
+            /* Remove last answer blank. */
+            var lastAnswer = document.getElementById("questionPart" + numParts);
             lastAnswer.parentElement.removeChild(lastAnswer);
-            
+
             /*Decrease Js variable */
             numParts--;
 
-            /* Update the number which will be returned to python */ 
+            /* Update the number which will be returned to python */
             document.question.elements['numParts'].value = numParts;
-            
+
             /* If we're down to just two answers, hide the button which
             removes answers */
-         	if (numParts == 1) {
-           		document.getElementById('removePart').style.display = 'none';
-         }
-    	}
-    	
-    	function populateEditor() {
-    		/* Start local number parts at 1 os that when calling add it won't increase pass our given */
-    		numParts =1;
-    		
-    		/* var step = {{numParts}} //DEBUG
-    		window.alert(step); */
-    		
-    		/*Loop through and add the new ediotrs to the page */
-    		for(var i=1; i < {{numParts}}; i++)
-    			addPart();
-    		
-    		{%if checkInitalTemplateTextPart%}
-    			CKEDITOR.instances['templateTextVisible1'].setData( String.raw `{{initalTemplateTextPart |safe}}`); //gets the right ediotr and then
-    		{%endif%}
-    			
-    			/*Populate text for each new editor we added */
-    		{% for templatePart in templateTextParts %}
-    			CKEDITOR.instances['templateTextVisible'+{{templatePart.partNumber}}].setData( String.raw `{{templatePart.templateText |safe}}`); //gets the right ediotr and then
-    			//sets the data to be what is located in the text part of our tempatePart object NOTE: Safe means dont porcess html treat as regular code
-    		{%endfor%}
-    		
-			
-    	}
-    	
-    	
-		
-    </script> 
-    
+            if (numParts == 1) {
+                document.getElementById('removePart').classList.add('disabled');
+            }
+        }
+
+        function populateEditor() {
+            /* Start local number parts at 1 os that when calling add it won't increase pass our given */
+            numParts = 1;
+
+            /* var step = {{numParts}} //DEBUG
+            window.alert(step); */
+
+            /*Loop through and add the new ediotrs to the page */
+            for (var i = 1; i < {{numParts}}; i++)
+                addPart();
+
+            {% if checkInitalTemplateTextPart %}
+            CKEDITOR.instances['templateTextVisible1'].setData(String.raw `{{initalTemplateTextPart |safe}}`); //gets the right ediotr and then
+            {% endif %}
+
+            /*Populate text for each new editor we added */
+            {% for templatePart in templateTextParts %}
+            CKEDITOR.instances['templateTextVisible' + {{templatePart.partNumber}}].setData(String.raw `{{templatePart.templateText |safe}}`); //gets the right ediotr and then
+            //sets the data to be what is located in the text part of our tempatePart object NOTE: Safe means dont porcess html treat as regular code
+            {% endfor %}
+
+
+        }
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('.chips').material_chip();
+            $('.chips-tags').material_chip({
+                data: JSON.parse('{{ tags | escapejs }}'),
+                placeholder: 'Enter a tag',
+            });
+            $('#form').submit(function() {
+                var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+
+                $('#form').append($(tags));
+                console.log($('.chips-tags').material_chip('data'));
+            });
+			$('#tryOutResults').empty()
+        });
+    </script>
+    {% if view %}
+    <script>
+        $(':input').attr('readonly', 'readonly');
+        $(':input').attr('disabled', 'disabled');
+    </script>
+    {% endif %}
     <style>
-    	#editor {
-    		postion: absolute;
-    		width: 300;
-    		height: 300px;
-    	}
+        #editor {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
         .lineHighlight {
-  			position:absolute;
-  			background:rgba(100,200,100,0.5);
-  			z-index:20
-		}
-    
+            position: absolute;
+            background: rgba(100, 200, 100, 0.5);
+            z-index: 20
+        }
     </style>
-      
-  </head>
-  <body>
-  
-  <div>
-  
-     {% include 'heading.html' %}
-  
-          <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-            <div class="12u">
-            	<h1><span>{{challengeName}}</span></h1>
-            	<h3>Create/Edit <span>Dynamic Problems</span></h3>
-            <p><span>*</span> Denotes Required Fields.</p>
-  
-    <form name="question" action="" onsubmit="copyContentsToHidden();" method="POST">
-      {% csrf_token %}
-      {% if questionId %}
-           <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">
-      {% endif %}
-      {% if challengeID %}
-           <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
-      {% endif %}
-      <table class="bg">
-      	<tr>
-      	</tr>
-      	<tr>
-      		<td>
-      			<div hidden id="instructions">
-	      			<p>Templated dynamic problems allow instructors to write problems and evaluate answers programmatically using Lua code.
-	      			Lua code to set up any needed variables and perform any complex math should be included
-	      			in the SetupCode section.
-	      			The problem itself should be below.</p>
-	      			<p>Inside the problem area, if you wish to display a variable, simply enclose it in <b>[|</b> and <b>|]</b>.
-	      			For example, to display the variable x, you would type <b>[|x|]</b>.
-	      			To include Lua code, simply enclose it in <b>[{</b> and <b>}]</b>.
-	      			One bit of Lua code which you will need to include for any problem is a call to the
-	      			make_answer function which is used to create answer blanks.
-	      			Use of this function is required (although it is possible to make answer spaces appear
-	      			by adding HTML code directly, answer spaces added that way will not function properly in
-	      			the system).</p>
-	      			<p><b> make_answer</b> takes five arguments: 
-	      			<ul>
-	      			<li>- The first is the name of the answer blank. This name will be displayed to students when describing their results.</li>
-	      			<li>- The second is the type of the answer blank. </li>
-	      			<li>- The third is the size.</li>
-	      			<li>- The fourth is the answer checking function which will be used.
-	      			There are several standard answer checking functions provided.</li>
-	      			<li>- The fifth is the maximum number of points which the student can receive for
-	      			their answer in this blank.</li>
-	      			</ul></p>
-      			</div>
-      			<script>
-      				function showDocumentation() {
-      					var instDiv = document.getElementById("instructions");
-      					var showDiv = document.getElementById("showInstructions");
-      					instDiv.removeAttribute("hidden");
-      					showDiv.hidden = true;
-      				}
-      			</script>
-      			<div id="showInstructions">
-      				<a onclick="showDocumentation();return false;"> Show documentation </a>
-      			</div>
-      	</td>
-      </tr>
-	<tr>
-			<td> Preview</td>
-	</tr>
-	<tr>	
-		<td><input type="text" style="border: solid 1px rgba(128, 128, 128, 0.5)" name="preview" value="{{preview}}"></td>
-	</tr>
-	<tr>
-		<td>Difficulty</td>
-	</tr>
-	<tr>
-		<td>
-            <div class="select-wrapper">
-				<select name="difficulty" style="width: 190px">
-					<option value=""selected>Select Difficulty</option>
-					<option id="Easy" value="Easy">Easy</option>
-					<option id="Medium" value="Medium">Medium</option>
-					<option id="Hard" value="Hard">Hard</option>
-				</select>
-			</div>
-            <script  type="text/javascript"> 
-                 window.onload = function() {
-				document.getElementById("{{difficulty}}").selected = "true";
-				populateEditor();
-				}
-			</script> 
-		</td>
-	</tr>
-	<tr>
-		<td>Instructor Notes</td>
-	</tr>
-	<tr>
-		<td>
-			<textarea name="instructorNotes" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70" value="instructorNotes">{{instructorNotes}}</textarea>
-		</td>
-	</tr>
-	<tr>
-         <td>Author</td>
-    </tr>
-    <tr>
-         <td>
-              <textarea name="author" style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="2" cols="70">{{author}}</textarea>
-         </td>
-    </tr>
-	{% if unassign %}
-       	<tr>
-			<td><input type="hidden" name="points" value="0" id="Points"></td>
-		</tr>
-	{% else %}
-      	<tr>
-         	<td>Points <span class = "red">*</span></td>
-      	</tr>
-      	<tr>
-         	<td>
-            	<input type="hidden" name="challengeID" value="{{challengeID}}">
-            	<input style="max-width: 4em;	border: solid 1px rgba(128, 128, 128, 0.5);" type="number" name="points" min="1" max="9999" value="{{points}}" id="Points" required>
-   			</td>
-		</tr>
-		<tr>
-			<td></td>
-		</tr>
-	{% endif %}
- 	<tr>
-       	<td>
-          {% include "Instructors/ProblemSkillEmbed.html" %}                           
- 		</td>
-    </tr>
-	<tr>
-		<td>Tags</td>
-	</tr>
-	<tr>
-   		<td>
-      		<input style="border: solid 1px rgba(128, 128, 128, 0.5);" type="text" name="tags" value="{{tags}}">
-			<font style="font-size:.8em;">Enter tags separated by commas (,)</font>
-   		</td>
-	</tr>
-	{% include "Instructors/luaLibraryDependencies.html" %}
-	<tr>
-		<td>Set-Up Code</td>
-	</tr>
-	<tr>
-		<td>
-			<div id="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode" id="setupCode">{{setupCode}}</textarea></div>
-			<script>
-		    		var editor = ace.edit("editor");
-				    editor.setTheme("ace/theme/chrome");
-				    editor.session.setMode("ace/mode/lua");
-			</script>
-			<input type="hidden" name="setupCode" style="display: none;" />
-		</td>
-	</tr>
-	<tr>
-		<td>Template</td>
-	</tr>
-	<tr>
-		<td>
-		<div id="questionPart1"	>
-			<textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="10" cols="70" name="templateTextVisible1" id="templateTextVisible1" >{{templateText1}}</textarea>
-			<script type="text/javascript" >
-                // Replace the <textarea id="templateTextVisible"> with a CKEditor instance, using default configuration.
-                CKEDITOR.config.autoParagraph = false;
-                CKEDITOR.replace( 'templateTextVisible1' );
-             </script> 
-             <input type="hidden" name="templateText1" style="display: none;" />
-             <br />      
+
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>{{challengeName}}</h3>
+                <h4>Create/Edit Dynamic Problems</h4>
+                <p><span class="red-text">*</span> Denotes Required Fields.</p>
+            </div>
         </div>
-		</td>
-		
-	</tr>
-	<tr>
-		<td>
-			<a id="addPart" href="#" onclick="addPart();return false;">
-			<button type="button">&nbsp;&nbsp;Add Part&nbsp;&nbsp;</button></a>
-			<a id="removePart" href="#" onclick="removePart();return false;">
-			<button type="button">Remove Last Part</button></a>
-		</td>
-	</tr>	
- </table>
- 
-  <input type="hidden" name="numParts" style="display: none;" />
- 	{% if view %}
-		<script>
-		$(':input').attr('readonly','readonly');
-		$(':input').attr('disabled', 'disabled');
-		</script>
-		<button onclick="goBack()">Back</button>
-                     	
-		{% elif challenge %}
-			<ul class="actions">
-			<li style="margin:0"><input type="submit" name="submit" value="Submit" class="button"></li>
-			<a href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}"><button type="button" class="button special" value="Reset">Cancel</button></a>
-		{% else %}	
-			<ul class="actions">
-			<li><input type="submit" name="submit" value="Submit" class="button"></li>
-			<a href="/oneUp/instructors/questionList"><button type="button" class="button special" value="Reset">Cancel</button></a>
-		{% endif %}
-			<script>
-			function goBack() {
-			window.history.back();
-			}
-			</script>
-		</ul>
-		
-		  
-		
-</form>
-<br/>
- 
- <!-- <input type="hidden" name="whichform" value="questionedit">      
-  <input type="submit" name="submit" value="Submit" class="button">
- <br> -->
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <form id="form" name="question" action="" onsubmit="copyContentsToHidden();" method="POST">
+                    {% csrf_token %} {% if questionId %}
+                    <input type="hidden" name="questionId" id="questionId" value="{{questionId}}"> {% endif %} {% if challengeID %}
+                    <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}"> {% endif %}
+                    <input type="hidden" name="numParts" style="display: none;" />
+
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="row">
+								<a class="secondary-content modal-trigger tooltipped" href="#modal_doc" data-position="top" data-delay="50" data-tooltip="Show Documentation"><i class="small material-icons">help</i></a>
+                                <a class="waves-effect waves-light btn modal-trigger" href="#modal_doc">Show documentation</a>
+                                <div id="modal_doc" class="modal">
+                                    <div class="modal-content">
+                                        <p>Templated dynamic problems allow instructors to write problems and evaluate answers programmatically using Lua code. Lua code to set up any needed variables and perform any complex math should be included in the SetupCode section. The problem itself should be below.</p>
+                                        <p>Inside the problem area, if you wish to display a variable, simply enclose it in <b>[|</b> and <b>|]</b>. For example, to display the variable x, you would type <b>[|x|]</b>. To include Lua code, simply enclose it in <b>[{</b> and <b>}]</b>. One bit of Lua code which you will need to include for any problem is a call to the make_answer function which is used to create answer blanks. Use of this function is required (although it is possible to make answer spaces appear by adding HTML code directly, answer spaces added that way will not function properly in the system).</p>
+                                        <p><b> make_answer</b> takes five arguments:
+                                            <ul>
+                                                <li>- The first is the name of the answer blank. This name will be displayed to students when describing their results.</li>
+                                                <li>- The second is the type of the answer blank. </li>
+                                                <li>- The third is the size.</li>
+                                                <li>- The fourth is the answer checking function which will be used. There are several standard answer checking functions provided.</li>
+                                                <li>- The fifth is the maximum number of points which the student can receive for their answer in this blank.</li>
+                                            </ul>
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12">
+                                    <h5>Problem Info</h5>
+                                </div>
+                                <div class="input-field col s12">
+                                    <i class="material-icons prefix">mode_edit</i>
+                                    <input value="{{preview}}" name="preview" id="preview" type="text" class="validate" pattern=".*\S+.*" required>
+                                    <label for="preview"><span class= "red-text">*</span> Problem Preview</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <select name="difficulty" required>
+										  <option id="Easy" value="Easy" selected>Easy</option>
+										  <option id="Medium" value="Medium">Medium</option>
+										  <option id="Hard" value="Hard">Hard</option>
+									   </select>
+                                    <label>Difficulty</label>
+                                    <script type="text/javascript">
+                                        window.onload = function() {
+                                            if ("{{difficulty}}" != '') {
+                                                document.getElementById("{{difficulty}}").selected = "true";
+                                            }
+                                            populateEditor();
+                                        }
+                                    </script>
+                                </div>
+							</div>
+							{% if unassign %}
+                            <input type="hidden" name="points" value="0" id="Points"> {% else %}
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input value="{{points}}" name="points" id="points" maxlength="4" type="number" class="validate" min="1" max="999" required>
+                                    <label for="points"><span class= "red-text">*</span> Points</label>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="row">
+                                <div class="col s12">
+                                    <h5>Feedback</h5>
+                                </div>
+                                <div class="input-field col s12">
+                                    <i class="material-icons prefix">mode_edit</i>
+                                    <textarea name="instructorNotes" id="instructor_notes" class="materialize-textarea">{{instructorNotes}}</textarea>
+                                    <label for="instructor_notes">Instructor Notes</label>
+                                </div>
+                                <div class="input-field col s12">
+                                    <i class="material-icons prefix">mode_edit</i>
+                                    <textarea name="author" id="author" class="materialize-textarea">{{author}}</textarea>
+                                    <label for="author">Author</label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col s12">
+                                    <div class="col s12">
+                                        <h5>Skills</h5>
+                                    </div>
+                                    <div class="col s12">
+                                        {% include "Instructors/ProblemSkillEmbed.html" %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col s12">
+                                    <h5>Tags</h5>
+                                </div>
+                                <div class="col s12">
+                                    <label for="tags">Add Tags</label>
+                                    <div id="tags" class="chips chips-tags"></div>
+                                </div>
+                            </div>
+                            {% include "Instructors/luaLibraryDependencies.html" %}
+                            <div class="row">
+                                <div class="col s12">
+                                    <h5>Set-Up Code</h5>
+                                </div>
+                                <div class="col s12">
+                                    <div id="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode" id="setupCode">{{setupCode}}</textarea></div>
+                                    <script>
+                                        var editor = ace.edit("editor");
+                                        editor.setTheme("ace/theme/chrome");
+                                        editor.session.setMode("ace/mode/lua");
+                                    </script>
+                                    <input type="hidden" name="setupCode" style="display: none;" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s12">
+                                    <h5>Template</h5>
+                                </div>
+                                <div id="questionPart1" class="col s12">
+                                    <textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="10" cols="70" name="templateTextVisible1" id="templateTextVisible1">{{templateText1}}</textarea>
+                                    <script type="text/javascript">
+                                        // Replace the <textarea id="templateTextVisible"> with a CKEditor instance, using default configuration.
+                                        CKEDITOR.config.autoParagraph = false;
+                                        CKEDITOR.replace('templateTextVisible1');
+                                    </script>
+                                    <input type="hidden" name="templateText1" style="display: none;" />
+                                    <br />
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <a id="addPart" class="waves-effect waves-light btn" onclick="addPart();return false;"><i class="material-icons left">add</i>Add Part</a>
+                                <a id="removePart" class="waves-effect waves-light btn disabled" onclick="removePart();return false;"><i class="material-icons left">remove</i>Remove Last Part</a>
+                            </div>
+                        </div>
+                        <div class="card-action right-align">
+                            {% if view %}
+                            <a class="waves-effect waves-light btn" href="#!" onclick="window.history.back();"><i class="material-icons left">navigate_before</i>Back</a> {% else %}
+                            <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i></button> {% if challenge %}
+                            <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}">
+							{% else %}
+							<a class="waves-effect waves-light btn" href="/oneUp/instructors/questionList">											
+							{% endif %}
+							<i class="material-icons left">close</i>Cancel</a> {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <form name="trial" id="trial" action="doDynamicQuestion" method="POST" onSubmit="testQuestion();return false;">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-content">
+							<span class="card-title">Try Out Problem</span>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+									<p>Random Seed</p>
+                                    <input id="seed1" name="seed" min="0" max="1000000000" value="0">
+                                </div>
+							</div>
+							<div class="row">
+									<button class="btn waves-effect waves-light" type="submit" value="Try Out Question" name="test">Try Out Question<i class="material-icons right">send</i></button>
+							</div>
+						</div>
+					</div>
+				</form>
+				</div>
+				</div>
+				<div id="tryOutResults" class="row">
+					<div class="col s12 m8 offset-m2">
+							<div class="card">
+									<div class="card-content">
+										<div id="codeResults"></div>
+								</div>
+							</div>
+                        </div>
+                    </div>
   
-  <table class="bg">
-	<form name="trial" id="trial" action="doDynamicQuestion" method="POST" onSubmit="testQuestion();return false;">
-		{% csrf_token %}
-	<tr>
-		<td>
-			<input type="submit" name="test" value="Try Out Question" class="button"> &nbsp;
-			Random Seed: <input type="number" name="seed" min="0" max="1000000000" value="0">
-		</td>
-	</tr>
-	</form>
-	<tr>
-		<td><div id="codeResults" ></div> </td> <!-- Need to see the code for this so we can add border -->
-	</tr>
- </table>
- 
-	</div></div></div></div>
-</div>	
+    </main>
     {% include 'footer.html' %}
-  </body>
-  
+</body>
 </html>

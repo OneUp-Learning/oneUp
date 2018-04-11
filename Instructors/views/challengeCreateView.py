@@ -310,6 +310,7 @@ def challengeCreateView(request):
             context_dict['isVisible']= True
             context_dict['displayCorrectAnswer']= True        
             context_dict['manuallyGradedScore'] = '0'    
+            context_dict['curve'] = '0' 
 
         context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
         logger.debug("[GET] " + str(context_dict))

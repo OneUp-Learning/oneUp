@@ -129,6 +129,18 @@
                            </div>
                         </div>
                         <div class="row">
+                                <div class="input-field col s12">
+                                    <input value="{{manuallyGradedScore}}" name="manuallyGradedScore" id="manually_Graded_Score" maxlength="4" type="number" min="0" max="999" readonly>
+                                    <label for="manually_Graded_Score">Possible points for a manually graded section of the challenge</label>
+                                 </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input value="{{curve}}" name="curve" id="curve_id" maxlength="4" type="number" min="0" max="999" readonly>
+                                    <label for="curve_id">Curve</label>
+                                 </div>
+                            </div>
+                        <div class="row">
                            <div class="col s12">
                               <label for="topics">Topics</label>
                               <div id="topics">
@@ -251,207 +263,6 @@
                   </div>
                </form>
             </div>
-            <!-- 				{% if unlimittedAttempts %}
-            				<input type="checkbox" name="unlimittedAttempts" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;Unlimited Attempts						
-							{% else %}
-							<input type="checkbox" name="unlimittedAttempts" style="vertical-align: -2px"/>&nbsp;Unlimited Attempts					
-							{% endif %}
-	                    </td>
-            		</tr>
-       				<tr>
-            			<th>Time Limit (in minutes) <span class = "red">*</span></th> 
-        			</tr>
-            		<tr>
-                    	<td><input id="extraSmallFormBox" type="number" name="timeLimit" value="{{timeLimit}}" min="1" max="999" style="vertical-align: -1px" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            				{% if unlimittedTime %}
-            				<input type="checkbox" name="unlimittedTime" value="true" checked="true" style="vertical-align: -2px"/>&nbsp;Unlimited Time						
-							{% else %}
-							<input type="checkbox" name="unlimittedTime" style="vertical-align: -2px"/>&nbsp;Unlimited Time</td>					
-							{% endif %}
-	                    </td>	                    
-            		</tr>
-            		<tr>
-            			<th>Password </th> 
-        			</tr>
-            		<tr>
-                    	<td><input id="smallFormBox"  type="text" name="challengePassword" value="{{challengePassword}}"></td>
-					</tr>
-					<tr>
-						<th>Possible points for a manually graded section of the challenge </th> 
-					</tr>
-					<tr>
-						<td><input id="extraSmallFormBox" type="number" name="manuallyGradedScore" value="{{manuallyGradedScore}}" min="0" max="999" style="vertical-align: -1px" />
-					</tr>
-					<tr>
-						<th>Curve</th> 
-					</tr>
-					<tr>
-						<td><input id="extraSmallFormBox" type="number" name="curve" value="{{curve}}" min="0" max="999" style="vertical-align: -1px" />
-					</tr>
-		 			<tr>
-            			<th>Tags</th>
-        			</tr>
-            		<tr>
-                    	<td><textarea id="mediumFormBox" name="tags" value="{{tags}}">{{tags}}</textarea>Enter tags separated by commas (,)</td>
-            		</tr>
-					<tr>
-                    	<th>Topics </th>
-                	</tr> 
-                	<tr> 
-                		<td>Selected Topics for this Challenge <br>
-                		{% if isGraded %}
-                		<input id="mediumFormBox" type="text" name="topics_str" id="sendTopic"  value="{{topics_str}}" disabled></td>
-                	</tr>
-		 			<tr>
-		 				<td>Add New Topic<br> 
-						<select name="Topic" id="sendTopic2" accesskey="target" font-family= "Tahoma, Geneva, sans-serif">
-					  	{% else %}
-					  	<input id="mediumFormBox" type="text" name="topics_str" value="{{topics_str}}" disabled></td>
-					  	</td></tr>
-					<tr>
-						<td>Add New Topic<br>
-						<select name="Topic" id="{{i}}" accesskey="target" font-family= "Tahoma, Geneva, sans-serif">
-					  	{% endif %}
-					  	<option  value="" selected>Select Topic</option>
-					{% for i,topic_ID,topic_Name in topic_range %}
-						<div id="topic{{i}}">
-							<option value="{{topic_ID}}">{{topic_Name}}</option>							  	
-						</div>
-					{% endfor %}
-						</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-						{% if isGraded %}
-            				<input type="checkbox" name ="isGraded" value="true" checked="true" 
-							onchange="document.getElementById('sendTopic').disabled = this.checked; 
-							document.getElementById('sendTopic2').disabled = this.checked;"> Is this challenge going to be graded? 
-        				{% else %}
-        					<input type="checkbox" name ="isGraded">&nbsp;&nbsp;Is this challenge going to be graded?
-        				{% endif %}
-						</td>
-					</tr>
-					<tr>
-            			<th>Feedback Options</th>
-        			</tr>
-        			
-        			{% if displayCorrectAnswer %}
-            		<tr>
-						<td><input type="checkbox" name="displayCorrectAnswer" value="true" checked="true">&nbsp;&nbsp;Display Correct Answer</td>
-					</tr>
-					{% else %}
-					<tr>
-						<td><input type="checkbox" name="displayCorrectAnswer">&nbsp;&nbsp;Display Correct Answer</td>
-					</tr>
-					{% endif %}
-					
-					
-					{% if displayCorrectAnswerFeedback %}
-					<tr>			
-						<td><input type="checkbox" name="displayCorrectAnswerFeedback"value="true" checked="true"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
-					</tr>
-					{% else %}
-					<tr>			
-						<td><input type="checkbox" name="displayCorrectAnswerFeedback"/>&nbsp;&nbsp;Display Correct Answer Feedback</td>
-					</tr>
-					{% endif %}
-					
-					{% if displayIncorrectAnswerFeedback %}
-					<tr>			
-						<td><input type="checkbox" name="displayIncorrectAnswerFeedback" value="true" checked="true"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
-					</tr>
-					{% else %}
-					<tr>			
-						<td><input type="checkbox" name="displayIncorrectAnswerFeedback"/>&nbsp;&nbsp;Display Incorrect Answer Feedback</td>
-					</tr>
-					{% endif %}	
-				</table>	
-				<h1><span style="color:rgba(255,255,255,.75)"> {{challengeName}}: Questions</span></h1>		
-	<br>
-	</div></div>
-	<div class="row">
-    <div class="12u">
-	<table class="bg">
-		{% for i,question in question_range %}
-		<tr> 
-			<div id="question{{i}}">
-				<th> {{i}}. {{question.questionText|safe}}</th><th></th></tr>									
-				<th> Total points: {{question.point|safe}}</th>	
-							{% if question.typeID == '1' %}
-							multiple choice question
-							{% for count,correct_answer in question.correct_answers %}use a for loop and display the answers in radio buttons						
-								<tr><td colspan="2">{% for j,answer in question.answers_with_count %}	
-								
-									use a for loop and display the answers in radio buttons
-									<input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}"
-									 {% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
-									 {% else %}disabled="disabled"{% endifequal %}>{{answer.answerText|safe}}<br />
-								{% endfor %}
-								{% endfor %}
-								</td></tr>													
-							{% elif question.typeID == '2' %}
-							multiple answer question
-								<tr><td colspan="2">
-								use a for loop and display the answers in checkbox buttons
-								{% for j,answer in question.answers_with_count %}
-									
-									<input type="checkbox" name="{{question.questionID}}" value="{{answer.answerText}}"
-									{% for k,correct_answer in question.correct_answers %}	
-										{% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
-										{% else %}
-										{% endifequal %}
-									{% endfor %}
-									>{{answer.answerText|safe}}<br />
-								{% endfor %}
-								</td></tr>
-							{% elif question.typeID == '3' %}
-							matching question
-							<tr><td width="50%">{% for match_count,match_answer in question.match_with_count %}
-								use a for loop and display the answers in the matching form
-								{{match_count}} . &nbsp{{match_answer.answerText}}
-									<br />
-							{% endfor %}
-							</td>
-							<td>
-							{% for match in question.matches %}
-							{{match.matchingAnswerText}}
-							<br />	
-							{% endfor %}
-							</td></tr>	
-							{% elif question.typeID == '4' %}
-							true/false question
-							{% for count,correct_answer in question.correct_answers %}
-							<tr><td colspan="2"><input type="radio" name="{{question.questionID}}" value="True" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "true" %}checked{% else %}disabled="disabled"{% endifequal %}>True<br />
-							<input type="radio" name="{{question.questionID}}" value="False" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "false" %}checked{% else %}disabled="disabled"{% endifequal %}>False
-							{% endfor %}
-							</td></tr>
-							{% elif question.typeID == '5' %}
-							Essay question
-							<tr><td colspan="2"><textarea name="{{question.questionID}}" rows="5" width="auto" placeholder="<Enter Answer Here>" readonly></textarea>
-							</td></tr>{% endif %}
-			{% endfor %}
-	</table>
-	<script>
-	$(':input').attr('readonly','readonly');
-	$(':input').attr('disabled', 'disabled');
-	</script>
-	<td align="left">							
-		{% if warmUp %}
-           <a href="/oneUp/instructors/warmUpChallengeList">
-        {% else %}
-           <a href="/oneUp/instructors/challengesList">
-        {% endif %}
-		<input type="button" value="Back" class="button"></a>
-</form>	
-<br><br>
-    <script>
-    	{% for i,skill_ID,skill_Name in skill_range3 %}
-    		document.getElementById("skill"+{{skill_ID}}).style.display = "none";
-    	{% endfor %}
-    </script>
-  END INSERTED PAGE CONTENT
-         </div></div></div></div> -->
          </div>
       </main>
       {% include 'footer.html' %}

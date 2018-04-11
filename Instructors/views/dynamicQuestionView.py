@@ -177,8 +177,10 @@ def makePartHTMLwithForm(question,part):
     if (int(part) <= question.numParts):
         questionpart = question.getQuestionPart(part)
         if questionpart != False:
+            formBody += '<div class="input-field col s12">'
             formBody += questionpart
-    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form>'
+            formBody += '</div>'
+    formBody += '<button class="btn waves-effect waves-light" type="submit" value="Submit" name="submit">Submit<i class="material-icons right">send</i></button></form>'
     return (formHead,formBody)
 
 def makePartHTMLwithoutForm(question,part):
@@ -243,6 +245,7 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
+                
         else:
             lupaQuestionTable = request.session['lupaQuestions']
             lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
@@ -279,6 +282,6 @@ def dynamicQuestionPartAJAX(request):
         context_dict['part'] = part
         context_dict['partplusone'] = part+1
         context_dict['type'] = requesttype
-        
+        print(context_dict)
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
         
