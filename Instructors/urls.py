@@ -16,6 +16,7 @@ from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsV
 from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
 from Instructors.views.challengeListView import challengesList, warmUpChallengeList
 from Instructors.views.challengeAdjusmentView import challengeAdjustmentView, adjustmentList
+from Instructors.views.exportGradeBookView import exportGradebook
 
 from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
@@ -156,4 +157,5 @@ urlpatterns = [
     url(r'^adjustmentList', adjustmentList, name='adjustmentList'),
     url(r'^challengeAdjustment', challengeAdjustmentView, name='challengeAdjustmentView'),
     url(r'^activityScore', activityScore, name='activityScore'),
+    url(r'^exportGradebook', exportGradebook, name='exportGradebook'),
 ]
