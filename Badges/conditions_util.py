@@ -11,6 +11,7 @@ from Instructors.models import Activities, Challenges, CoursesTopics
 from Instructors.constants import unassigned_problems_challenge_name
 from json import dumps
 from Badges.systemVariables import SystemVariable
+from django.views.decorators.http import condition
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var):
@@ -352,7 +353,7 @@ def databaseConditionToJSONString(condition):
         output += ']}'
         return output
     def handleFor():
-        output = '{"type":"FOR","allOrAny":"'+condition.operation[4:]+'","objectType":"'
+        output = '{"type":"FOR","allOrAny":"'+condition.operation[4:]+'","allObjects":"'+str(condition.operand1Value == 0)+'","objectType":"'
         if condition.operand1Type == OperandTypes.activitySet:
             output += 'activity","objects":['
             activityIDs = [actSet.activity.activityID for actSet in ActivitySet.objects.filter(condition=condition)]
