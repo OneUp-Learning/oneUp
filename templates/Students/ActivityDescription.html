@@ -36,7 +36,7 @@
                            <blockquote>{{activity.activityID.description}}</blockquote>
                         </div>
                         <div class="section">
-                            <h4>Acitivty Due Date</h4>
+                            <h4>Activity Due Date</h4>
                             <blockquote>{{activity.activityID.endTimestamp}}</blockquote>
                         </div>
                         <div class="section">
@@ -57,6 +57,7 @@
                           <a class="collection-item tooltipped" href="../../media/Instructors/instructorActivityFiles/{{instructorFile}}" data-position="left" data-delay="50" data-tooltip="Download" download>
                           	<i class="material-icons secondary-content">file_download</i>{{instructorFile}}
                           </a>
+                          
                       
                           {% endfor %}
                           </div>
@@ -64,7 +65,7 @@
    			                {% endif %}
                         {% if canUpload == True %}
                         <div class="section">
-                           <h4>Upload <i>{{activity.activityID.activityName}}</i></h4>
+                           <h4>Upload File</h4>
                            {% csrf_token %}   		
                            <input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">	
                            {%if isFile == False %}

@@ -110,7 +110,7 @@ def adjustmentList(request):
             student_AdjustmentReason.append(studentChallenge.adjustmentReason)
             
         else:
-            student_TestScore.append("-1")
+            student_TestScore.append("-")
             student_BonusScore.append("0")
             student_AdjustmentScore.append("0")
             student_AdjustmentReason.append("")

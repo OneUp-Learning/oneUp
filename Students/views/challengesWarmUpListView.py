@@ -97,8 +97,9 @@ def ChallengesWarmUpList(request):
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous") 
             topic_Pos.append(str(course_topics.count()))  
+            topic_challenges = challengesForTopic(unspecified_topic, student, currentCourse)
             challenges_count.append(len(list(topic_challenges)))
-            all_challenges_for_topic.append(challengesForTopic(unspecified_topic, student, currentCourse))
+            all_challenges_for_topic.append(topic_challenges)
 
         context_dict['isWarmup'] = True
    

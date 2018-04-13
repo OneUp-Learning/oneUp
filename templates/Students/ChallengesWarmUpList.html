@@ -38,7 +38,7 @@
                         </div>
                         <div class="collapsible-body">
                            <ul class="collection">
-                              {% for i, challenge_Name,challenge_ID,score, chall_position in all_challenges %}
+                              {% for j, challenge_Name,challenge_ID,score, chall_position in all_challenges %}
                               <input type="hidden" name="score" value="{{score}}">
                               <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
                               <li class="collection-item">
