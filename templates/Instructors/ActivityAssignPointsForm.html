@@ -47,9 +47,9 @@
                                     <tr>
                                         <td>
                                             <p>{{student_Name}} {% if File_Name%}
-                                                <a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">get_app</i>Download File</a>
+                                                <blockquote><a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">file_download</i>Download File</a></blockquote>
                                             </p>
-                                            {% else %} (No file available)</p>
+                                            {% else %} <blockquote>No file available</blockquote></p>
                                             {% endif %}
                                         </td>
                                         <td>

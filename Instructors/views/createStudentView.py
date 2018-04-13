@@ -140,7 +140,7 @@ def createStudentViewUnchecked(request):
                 email.append(u.user.email)
             
             context_dict['user_range'] = zip(firstname,lastname,email,uname,pword) 
-        return render(request,"Administrators/CreateUser.html", context_dict)
+        return render(request,"Administrators/createUser.html", context_dict)
 
 
 
