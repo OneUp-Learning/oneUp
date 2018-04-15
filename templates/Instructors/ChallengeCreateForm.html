@@ -18,6 +18,20 @@
       </script>
       <script>
          $( document ).ready(function(){
+        	{% if view %}
+	        	var tags = JSON.parse('{{ tags | escapejs }}')
+				var topics = JSON.parse('{{ topics | escapejs }}')
+				for(var i = 0; i < tags.length; i++){
+					var tag = tags[i];
+					var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
+					$('#tags').append($(tagDOM));
+				}
+				for(var i = 0; i < topics.length; i++){
+					var topic = topics[i];
+					var topicDOM = $("<div>").attr("class", "chip").append(topic['tag']);
+					$('#topics').append($(topicDOM));
+				}
+        	{% else %}
           var endDate = $('#endTime').bootstrapMaterialDatePicker({
             weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
           });
@@ -90,6 +104,7 @@
             console.log($('.chips-tags').material_chip('data'));
             console.log($('.chips-topics-autocomplete').material_chip('data'));
           });
+          {% endif %}
          });
       </script>
    </head>
@@ -127,17 +142,17 @@
                      <div class="card-content">
                         <div class="row">
                            <div class="input-field col s12">
-                              <input placeholder="Name" value="{{challengeName}}" name="challengeName" id="challenge_name" type="text" class="validate" pattern=".*\S+.*" required>
+                              <input placeholder="Name" value="{{challengeName}}" name="challengeName" id="challenge_name" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
                               <label for="challenge_name"><span class= "red-text">*</span> Challenge Name</label>
                            </div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select name="challengeDifficulty">
+                              <select name="challengeDifficulty" {%if view%}readonly{%endif%}>
                                  <option value="" disabled selected>Choose Difficulty</option>
-                                 <option id= "Easy" value="Easy">Easy</option>
-                                 <option id="Medium" value="Medium">Medium</option>
-                                 <option id="Hard" value="Hard">Hard</option>
+                                 <option id= "Easy" value="Easy" {%if view%}disabled{%endif%}>Easy</option>
+                                 <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
+                                 <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
                               </select>
                               <label>Difficulty</label>
                               <script  type="text/javascript"> 
@@ -154,68 +169,68 @@
                               <h5>Availability</h5>
                            </div>
                            <div class="col s12">
-                              <input name="isVisible" type="checkbox" id="challenge_visible" {% if isVisible %} checked {% endif %}/>
+                              <input name="isVisible" type="checkbox" id="challenge_visible" {% if isVisible %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="challenge_visible">Make challenge available</label>
                            </div>
                         </div>
                         <div class="row">
                            <div class="col s12 m6">
                               <label for="startTime">Display From:</label> 
-                              <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">
+                              <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime" {%if view%}readonly{%endif%}>
                            </div>
                            <div class="col s12 m6">
                               <label for="endTime">Display Until:</label> 
-                              <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime">
+                              <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime" {%if view%}readonly{%endif%}>
                            </div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input value="{{numberAttempts}}" name="numberAttempts" id="num_attempts" maxlength="4" type="number" class="validate" min="0" max="999">
+                              <input value="{{numberAttempts}}" name="numberAttempts" id="num_attempts" maxlength="4" type="number" class="validate" min="0" max="999" {%if view%}readonly{%endif%}>
                               <label for="num_attempts">Number of Attempts</label>
                            </div>
                            <div class="col s12">
-                              <input name="unlimitedAttempts" onchange="CheckboxAttemptsChange(this)" type="checkbox" id="unl_attempts" {% if unlimitedAttempts %} checked {% endif %}/>
+                              <input name="unlimitedAttempts" onchange="CheckboxAttemptsChange(this)" type="checkbox" id="unl_attempts" {% if unlimitedAttempts %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="unl_attempts">Unlimited Attempts</label>
                            </div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input value="{{timeLimit}}" name="timeLimit" id="time_limit" maxlength="4" type="number" class="validate" min="0" max="999">
+                              <input value="{{timeLimit}}" name="timeLimit" id="time_limit" maxlength="4" type="number" class="validate" min="0" max="999" {%if view%}readonly{%endif%}>
                               <label for="time_limit">Time Limit</label>
                            </div>
                            <div class="col s12">
-                              <input name="unlimitedTime" onchange="CheckboxTimeChange(this)" type="checkbox" id="unl_time" {% if unlimitedTime %} checked {% endif %}/>
+                              <input name="unlimitedTime" onchange="CheckboxTimeChange(this)" type="checkbox" id="unl_time" {% if unlimitedTime %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="unl_time">Unlimited Time</label>
                            </div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input name="challengePassword" id="password" type="password" value="{{challengePassword}}" class="validate" autocomplete="new-password">
+                              <input name="challengePassword" id="password" type="password" value="{{challengePassword}}" class="validate" autocomplete="new-password" {%if view%}readonly{%endif%}>
                               <label for="password" data-error="incorrect">Password</label>
                            </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input value="{{manuallyGradedScore}}" name="manuallyGradedScore" id="manually_Graded_Score" maxlength="4" type="number" class="validate" min="0" max="999">
+                                <input value="{{manuallyGradedScore}}" name="manuallyGradedScore" id="manually_Graded_Score" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" {%if view%}readonly{%endif%}>
                                 <label for="manually_Graded_Score">Possible points for a manually graded section of the challenge</label>
                              </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input value="{{curve}}" name="curve" id="curve_id" maxlength="4" type="number" class="validate" min="0" max="999">
+                                <input value="{{curve}}" name="curve" id="curve_id" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" {%if view%}readonly{%endif%}>
                                 <label for="curve_id">Curve</label>
                              </div>
                         </div>
                         <div class="row">
                            <div class="col s12">
-                              <label for="topics">Add Topics</label>
-                              <div id="topics" class="chips chips-topics-autocomplete"></div>
+                              <label for="topics">Topics</label>
+                              <div id="topics" {%if view == False%}class="chips chips-topics-autocomplete"{%endif%}></div>
                            </div>
                         </div>
                         <div class="row">
                            <div class="col s12">
-                              <label for="tags">Add Tags</label>
-                              <div id="tags" class="chips chips-tags"></div>
+                              <label for="tags">Tags</label>
+                              <div id="tags" {%if view == False%}class="chips chips-tags"{%endif%}></div>
                            </div>
                         </div>
                         <div class="row">
@@ -223,22 +238,99 @@
                               <h5>Feedback Options</h5>
                            </div>
                            <div class="col s12">
-                              <input name="displayCorrectAnswer" type="checkbox" id="display_correct" {% if displayCorrectAnswer %} checked {% endif %}/>
+                              <input name="displayCorrectAnswer" type="checkbox" id="display_correct" {% if displayCorrectAnswer %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="display_correct">Display Correct Answers</label>
                            </div>
                            <div class="col s12">
-                              <input name="displayCorrectAnswerFeedback" type="checkbox" id="display_correct_feedback" {% if displayCorrectAnswerFeedback %} checked {% endif %}/>
+                              <input name="displayCorrectAnswerFeedback" type="checkbox" id="display_correct_feedback" {% if displayCorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="display_correct_feedback">Display Correct Answer Feedback</label>
                            </div>
                            <div class="col s12">
-                              <input name="displayIncorrectAnswerFeedback" type="checkbox" id="display_incorrect_feedback" {% if displayIncorrectAnswerFeedback %} checked {% endif %}/>
+                              <input name="displayIncorrectAnswerFeedback" type="checkbox" id="display_incorrect_feedback" {% if displayIncorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="display_incorrect_feedback">Display Incorrect Answer Feedback</label>
                            </div>
                         </div>
+                        {% if view %}
+                        <div class="divider"></div>
+                       
+                         {% for i,question in question_range %}
+                         <div class="row">
+                			<p>{% autoescape off %} {{i}}. {{question.questionText|safe}} {% endautoescape %}</p>
+             			</div>
+                                 {% if question.typeID == '1' %}
+                                 <!-- multiple choice question -->
+                                 {% for count,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in radio buttons -->						
+                             
+								<div class="row">
+		                           <div class="col s12">
+		                              {% for j,answer in question.answers_with_count %}
+		                              <div class="row">
+		                                 <input name="{{question.questionID}}" disabled type="radio" id="{{i}}ans-{{j}}" value="{{answer.answerText}}" {% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked{%endifequal%}/>
+		                                 <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
+		                              </div>
+		                              {% endfor %}
+		                           </div>
+		                        </div>
+								{% endfor %}									
+                                 {% elif question.typeID == '2' %}
+                                 <!-- multiple answer question -->
+                                 <div class="row">
+		                           <div class="col s12">
+		                              {% for j,answer in question.answers_with_count %}
+		                              <div class="row">
+		                                 <input name="{{question.questionID}}" disabled type="checkbox" id="{{i}}ans-{{j}}" value="{{answer.answerText}}"
+		                                 {% for k,correct_answer in question.correct_answers %}	
+                                       {% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
+                                       {% endifequal %}
+                                       {% endfor %}/>
+		                                 <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
+		                                 </div>
+		                              {% endfor %}
+		                           </div>
+		                        </div>
+                                 
+                                 {% elif question.typeID == '3' %}
+                                 <!-- matching question -->
+                                 <div class="row">
+		                           <div class="col s12 m6">
+		                              {% for match_count,match_answer in question.match_with_count %}
+		                              <p>{{match_count}} . {{match_answer.answerText}}</p>
+		                              {% endfor %}
+		                              </div>
+		                              <div class="col s12 m6">
+		                              {% for match in question.matches %}
+									<p>{{match.matchingAnswerText}}</p>	
+									{% endfor %}
+		                           </div>
+		                        </div>
+		                        <div class="row">
+		                           
+		                        </div>
+                                 {% elif question.typeID == '4' %}
+                                 <!-- true/false question -->
+                                 <div class="row">
+                        				<div class="col s12">
+                                 {% for count,correct_answer in question.correct_answers %}
+                                 <p>
+                              		<input name="{{question.questionID}}" disabled type="radio" id="True" value="True" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "true" %}checked{%endifequal%}/>
+                              		<label for="True">True</label>
+                           		</p>
+                           		<p>
+                              		<input name="{{question.questionID}}" disabled type="radio" id="False" value="False" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "true" %}checked{%endifequal%}/>
+                              		<label for="False">False</label>
+                           		</p>
+								{% endfor %}
+								</div>
+								</div>									
+                                 {% endif %}
+                                 {% endfor %}
+                                {% endif %}
                      </div>
                      <div class="card-action right-align">
+                     	{% if view == False %}
                         <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i>
                         </button>
+                        {% endif %}
                         {% if warmUp %}									
                         <a class="waves-effect waves-light btn" href="/oneUp/instructors/warmUpChallengeList">
                         {% else %}

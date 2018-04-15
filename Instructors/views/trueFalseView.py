@@ -128,12 +128,12 @@ def trueFalseNewForm(request):
             # Processing and saving skills for the question in DB
             addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
-            # Processing and saving tags in DB
-            saveTags(request.POST['tags'], question, ObjectTypes.question)
-            
-            redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
-            redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
-            return redirectVar
+        # Processing and saving tags in DB
+        saveTags(request.POST['tags'], question, ObjectTypes.question)
+        
+        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
+        redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
+        return redirectVar
 
     elif request.method == 'GET':
         
