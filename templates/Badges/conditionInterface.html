@@ -1165,6 +1165,10 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
         var forDiv = condCreateForAllNode(targetParent, targetEmpty);
         var allOrAny = forDiv.querySelector('select[name="cond-allOrAny"]');
         selectOptionByValue(allOrAny, cond.allOrAny.toLowerCase());
+        var allObjectsInput = forDiv.querySelector('input[name="cond-'+cond.objectType+'-all"]');
+        if(cond.allObjects == "True"){
+        	allObjectsInput.checked = cond.allObjects;
+        }
         var typeSelector = forDiv.querySelector('select[name="cond-thingie-type"]');
         selectOptionByValue(typeSelector, cond.objectType);
         var listDiv = forDiv.querySelector('div.cond-' + cond.objectType + '-selected-list');

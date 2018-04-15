@@ -1,63 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-
 
 {% include 'scripts.html' %}
 
 </head>
 <body>
-	<div>
-
 		{% include 'heading.html' %}
-
-		<div class="frame" id="grad" align="center">
-			<div class="container">
-				<div class="row">
-					<div class="12u">
-						<h1>Import Challenges</h1>
+	<main>
+		<div class="row center-align">
+					<div class="col s12">
+						<h3>Import Challenges</h3>
 					</div>
 				</div>
-				<br />
-				<!-- INSERTED DYNAMIC TABLE -->
-
-				<form id="uploadbanner" action="/oneUp/instructors/uploadChallenges"
-					enctype="multipart/form-data" method="POST">
+		<div class="row">
+			<div class="col s12 m8 offset-m2">
+				<form id="uploadbanner" action="/oneUp/instructors/uploadChallenges" enctype="multipart/form-data" method="POST">
 					{% csrf_token %}
-					<h6>Upload Your Challenges File</h6>
-					<table>
-									
-						<tr>
-							<form action="#">
-									<div class="file-field input-field">
-									  <div class="btn">
-										<span>File</span>
-										<input id="fileupload" name="challenges" type="file">
-									  </div>
-									  <div class="file-path-wrapper">
-										<input class="file-path validate" type="text">
-									  </div>
-									</div>
-								  </form>
-						</tr>
-						<tr>
-						<tr>
-							<td><input class="waves-effect waves-light btn" type="submit" value="Upload" id="Upload" /></td>
-						</tr>
-
-					</table>
-
+					<div class="card">
+						<div class="card-content">
+							<span class="card-title">Upload Your Challenges File</span>
+							<div class="file-field input-field">
+                              <div class="btn">
+                                 <span>Select File</span>
+                                 <input name="challenges" type="file" accept=".xml">
+                              </div>
+                              <div class="file-path-wrapper">
+                                 <input class="file-path validate" type="text" placeholder="Select File to Upload">
+                              </div>
+                           </div>
+						</div>
+						<div class="card-action right-align">
+							<button class="btn waves-effect waves-light" type="submit" name="submit">Upload<i class="material-icons right">file_upload</i></button>
+						</div>
+					</div>
 				</form>
-
 			</div>
 		</div>
-	</div>
-	<!-- Footer -->
-
+	</main>
 	{% include 'footer.html' %}
-
-	</div>
-
 </body>
 </html>

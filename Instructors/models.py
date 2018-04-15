@@ -199,7 +199,7 @@ class ChallengesQuestions(models.Model):
     challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenge")
     questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
     questionPosition = models.IntegerField(default = 0)
-    points =  models.IntegerField()
+    points = models.DecimalField(decimal_places=2, max_digits=6, default=0)
     def __str__(self):              
         return str(self.challengeID)+","+str(self.questionID)
     @staticmethod
@@ -216,7 +216,7 @@ class Activities(models.Model):
     activityID = models.AutoField(primary_key=True)
     activityName = models.CharField(max_length=75)
     description = models.CharField(max_length=200, default="")
-    points =  models.IntegerField(default=0)
+    points =  models.DecimalField(decimal_places=3, max_digits=6, default=0)
     isGraded = models.BooleanField(default=False,verbose_name = "Activity points will be added to the course grade")
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)

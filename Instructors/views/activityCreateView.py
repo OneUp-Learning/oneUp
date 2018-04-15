@@ -42,10 +42,8 @@ def activityCreateView(request):
         
         if 'isGraded' in request.POST:
             activity.isGraded = True
-            print("truuuuuuuuuuuuuuuuuuuuue")
         else:
             activity.isGraded = False
-            print("fallllllllllllllllllllse")
             
         if 'fileUpload' in request.POST:
             activity.isFileAllowed = True

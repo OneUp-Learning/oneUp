@@ -11,9 +11,10 @@ from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions,
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
+from Instructors.views.utils import saveTags, extractTags
 from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
 from Instructors.constants import unassigned_problems_challenge_name
-from Badges.enums import QuestionTypes
+from Badges.enums import QuestionTypes, ObjectTypes
 
 from django.views.decorators.csrf import csrf_exempt
 import sys
@@ -21,8 +22,6 @@ from xml.dom.expatbuilder import theDOMImplementation
 from django.contrib.auth.decorators import login_required
 
 @login_required
-
-
 def dynamicQuestionForm(request):
     context_dict = { }
     
@@ -95,8 +94,7 @@ def dynamicQuestionForm(request):
                 utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
-            tagString = request.POST.get('tags', "default")
-            utils.saveQuestionTags(tagString, question)
+            saveTags(request.POST['tags'], question, ObjectTypes.question)
             
             makeDependentLibraries(question,request.POST.getlist('dependentLuaLibraries[]'))
             
@@ -107,7 +105,6 @@ def dynamicQuestionForm(request):
     elif request.method == 'GET':
         
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
-        
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1
                 
@@ -130,7 +127,7 @@ def dynamicQuestionForm(request):
             context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
 
             # Extract the tags from DB
-            context_dict['tags'] = utils.extractTags(question, "question")
+            context_dict['tags'] = extractTags(question, "question")
 
             if 'challengeID' in request.GET:
                 # get the challenge points for this problem to display
@@ -161,6 +158,7 @@ end
             context_dict["code"] = code
             context_dict["numParts"] = 1
             context_dict['difficulty']="Easy"
+            context_dict['tags'] = []
     
     if 'questionId' in request.POST:         
             return redirect('challengesView')

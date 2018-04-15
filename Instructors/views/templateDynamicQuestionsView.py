@@ -14,7 +14,7 @@ from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 from Instructors.views import utils
 from Instructors.constants import unassigned_problems_challenge_name
 
-from Badges.enums import QuestionTypes
+from Badges.enums import QuestionTypes, ObjectTypes
 
 import re
 from django.contrib.auth.decorators import login_required
@@ -122,8 +122,7 @@ def templateDynamicQuestionForm(request):
             utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
-            tagString = request.POST.get('tags', "default")
-            utils.saveQuestionTags(tagString, question)
+            utils.saveTags(request.POST['tags'], question, ObjectTypes.question)
             
             makeDependentLibraries(question,request.POST.getlist('dependentLuaLibraries[]'))
             
@@ -134,7 +133,6 @@ def templateDynamicQuestionForm(request):
     elif request.method == 'GET':
         
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
-        
         context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True
         
@@ -186,7 +184,7 @@ def templateDynamicQuestionForm(request):
             context_dict['difficulty'] = 'Easy'
             context_dict["setupCode"] = "r1 = math.random(10) + 1 \nr2 = math.random(10) + 1"
             context_dict["numParts"] = 1
-            
+            context_dict['tags'] = []
         
     
     #question = LupaQuestion(code,[],5,"edit",1)

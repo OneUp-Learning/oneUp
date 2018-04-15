@@ -1,52 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-
 {% include 'scripts.html' %}
 
 </head>
 <body>
-	<div>
-
 		{% include 'heading.html' %}
-
-		<div class="frame" id="grad" align="center">
-			<div class="container">
-				<div class="row">
-					<div class="12u">
-						<h1>Export Challenges</h1>
-						<br />
-						<br />
+<main>
+		<div class="row center-align">
+					<div class="col s12">
+						<h3>Export Challenges</h3>
 					</div>
 				</div>
-				<!-- INSERTED DYNAMIC TABLE -->
-
-				<form name="challlengedownload"
-					action="/oneUp/instructors/saveExportedChallenges" method="POST">
+		<div class="row">
+			<div class="col s12 m8 offset-m2">
+				<form name="challlengedownload" action="/oneUp/instructors/saveExportedChallenges" method="POST">
 					{% csrf_token %}
-
-					<table class="bg">
-						<tr>
-							<th>The data has been saved to a file. To download the file
-								click the Download button below.</th>
-						</tr>
-						<tr>
-							<td>
-							<br /><input type="submit" name="download" value="Download" class="button" />
-							</td>
-
-						</tr>
-					</table>
-
-					<a href="/oneUp/instructors/instructorCourseHome"><input type="button" value="Back"></a>
-
+					<div class="card">
+						<div class="card-content">
+						<span class="card-title">Challenge Exported!</span>
+						<blockquote>The data has been saved to a file. To download the file
+								click the Download button below.</blockquote>
+						</div>
+						<div class="card-action right-align">
+							<button class="btn waves-effect waves-light" type="submit" name="submit">Download<i class="material-icons right">file_download</i></button>
+							<a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i class="material-icons left">navigate_before</i>Back</a>
+						</div>
+					</div>
 				</form>
-
 			</div>
 		</div>
-	</div>
-	<!-- Footer -->
+	</main>
 
 	{% include 'footer.html' %}
 

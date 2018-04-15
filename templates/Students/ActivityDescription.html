@@ -33,33 +33,39 @@
                      <div class="card-content">
                         <div class="section">
                            <h4>Activity Description</h4>
-                           <p>{{activity.activityID.description}}</p>
+                           <blockquote>{{activity.activityID.description}}</blockquote>
                         </div>
                         <div class="section">
-                            <h4>Acitivty Due Date</h4>
-                            <p>{{activity.activityID.endTimestamp}}</p>
+                            <h4>Activity Due Date</h4>
+                            <blockquote>{{activity.activityID.endTimestamp}}</blockquote>
                         </div>
                         <div class="section">
                            <h4>Activity Points</h4>
-                           <p>Total points: {{activity.activityID.points}}</p>
-                           <p>Your Score: {{activity.activityScore}}</p>
+                           <blockquote>Your Score: {{activity.activityScore}} <br />
+                           Total points: {{activity.activityID.points}}</blockquote>
                         </div>
-                        
                         <div class="section">
                            <h4>Instructor Note</h4>
-                           <p>{{activity.instructorFeedback}}</p>
+                           <blockquote>{{activity.instructorFeedback}}</blockquote>
                         </div>
                         {% if instructorHasFiles == True%}
                         <div class="section">
                           <h4>Activity Files</h4>
+                          <div class="collection">
                           {% for instructorFile in instructorActFiles %}
-                          <p><a class="tooltipped" href="../../media/Instructors/instructorActivityFiles/{{instructorFile}}" data-position="top" data-delay="50" data-tooltip="Download" download><i class="material-icons" >file_download</i>{{instructorFile}}</a></p>
+                         
+                          <a class="collection-item tooltipped" href="../../media/Instructors/instructorActivityFiles/{{instructorFile}}" data-position="left" data-delay="50" data-tooltip="Download" download>
+                          	<i class="material-icons secondary-content">file_download</i>{{instructorFile}}
+                          </a>
+                          
+                      
                           {% endfor %}
+                          </div>
                         </div>
    			                {% endif %}
                         {% if canUpload == True %}
                         <div class="section">
-                           <h4>Upload {{activity.activityID.activityName}}:</h4>
+                           <h4>Upload File</h4>
                            {% csrf_token %}   		
                            <input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">	
                            {%if isFile == False %}

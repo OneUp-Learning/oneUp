@@ -76,9 +76,13 @@ def challengeEditQuestionsView(request):
         if 'problems' in request.GET:
             context_dict["unassign"]= 1
             chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
+            challengeID = None
             for challID in chall:
                 challengeID = (str(challID.challengeID)) 
-            context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)          
+            if challengeID == None:
+                context_dict['question_range'] = None
+            else:
+                context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)      
         else:
             context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
 

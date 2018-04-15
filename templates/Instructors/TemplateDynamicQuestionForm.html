@@ -154,6 +154,7 @@
 
                 $('#form').append($(tags));
                 console.log($('.chips-tags').material_chip('data'));
+                copyContentsToHidden();
             });
         });
     </script>
@@ -192,7 +193,7 @@
         </div>
         <div class="row">
             <div class="col s12 m8 offset-m2">
-                <form id="form" name="question" action="" onsubmit="copyContentsToHidden();" method="POST">
+                <form id="form" name="question" action="" method="POST">
                     {% csrf_token %} {% if questionId %}
                     <input type="hidden" name="questionId" id="questionId" value="{{questionId}}"> {% endif %} {% if challengeID %}
                     <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}"> {% endif %}
