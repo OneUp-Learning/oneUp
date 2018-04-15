@@ -30,7 +30,7 @@
          <div class="row center-align">
             <div class="col s12">
                {% if unassign %}  
-               <h3>{{challengeName}}</h3>
+               <h3>Unassigned Problems</h3>
                {% else %}
                <h3>Problems for {{challengeName}}</h3>
                {% endif %}
@@ -67,7 +67,6 @@
                               <option value="/oneUp/instructors/forms/MultipleChoiceForm">Multiple Choice</option>
                               <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
                               <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
-                              <option value="/oneUp/instructors/forms/EssayForm">Essay</option>
                               {%if lupa_available%}
                               <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)</option>
                               <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
@@ -94,7 +93,7 @@
                            <tr>
                               <th>Problem Name</th>
                               <th>Problem Type</th>
-                              {% if unassign != 1%}                               
+                              {% if not unassign %}                               
                               <th>
                                  <a class="modal-trigger tooltipped secondary-content" href="#modal-filter" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Filter Problems"><i class="material-icons">filter_list</i></a>                                
                                  <div id="modal-filter" class="modal modal-fixed-footer">
@@ -235,7 +234,7 @@
                            </tr>
                            {% empty %}
                            <tr>
-                              <td class="center-align" colspan="3">No Questions</td>
+                              <td class="center-align" colspan="3"><i>No Problems Created</i>/td>
                            </tr>
                            {% endfor %}
                         </tbody>

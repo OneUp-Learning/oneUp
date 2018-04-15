@@ -45,7 +45,7 @@ def makeContextDictForSearch(context_dict, currentCourse):
     return context_dict
 
 @login_required
-def challengeEditQuestionsView(request):
+def challengeQuestionsListView(request):
  
     context_dict, currentCourse = initialContextDict(request)
     context_dict['lupa_available'] = lupa_available

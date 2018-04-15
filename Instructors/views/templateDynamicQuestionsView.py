@@ -12,7 +12,7 @@ from Instructors.models import LuaLibrary, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
-from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 
 from Badges.enums import QuestionTypes, ObjectTypes
 
@@ -43,7 +43,7 @@ def templateDynamicQuestionForm(request):
                          'instructorNotes','setupCode','numParts','author'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
-    
+    context_dict['tags'] = []
     if request.POST:
         
         # If there's an existing question, we wish to edit it.  If new question,
@@ -101,6 +101,8 @@ def templateDynamicQuestionForm(request):
             textPart.save()
             count+= 1
         
+        # Processing and saving tags in DB
+        utils.saveTags(request.POST['tags'], question, ObjectTypes.question)
         
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
@@ -120,15 +122,26 @@ def templateDynamicQuestionForm(request):
                             
             # Processing and saving skills for the question in DB
             utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
-    
-            # Processing and saving tags in DB
-            utils.saveTags(request.POST['tags'], question, ObjectTypes.question)
-            
+
             makeDependentLibraries(question,request.POST.getlist('dependentLuaLibraries[]'))
             
             redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
             redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
             return redirectVar
+        
+        # Question is unassigned so create unassigned challenge object
+        challenge = Challenges()
+        challenge.challengeName = unassigned_problems_challenge_name
+        challenge.courseID = currentCourse
+        challenge.startTimestamp = utils.utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.endTimestamp = utils.utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.numberAttempts = 99999
+        challenge.timeLimit = 99999
+        challenge.save()
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
+        
+        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict) 
+        return redirectVar
     
     elif request.method == 'GET':
         
