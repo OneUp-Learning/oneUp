@@ -41,7 +41,8 @@ def studentChallengesCompleted(request):
         if request.GET['userID'] == '-':
             context_dict['no_challenge'] = 'No challenge have being taken'
         else:
-            
+        
+           
             user = User.objects.filter(username=request.GET['userID'])
             studentId = Student.objects.filter(user=user)
             context_dict['userID'] = request.GET['userID']
@@ -74,8 +75,8 @@ def studentChallengesCompleted(request):
                     chall_ID.append(item.challengeID.challengeID) 
                     chall_Name.append(item.challengeID.challengeName)
                     chall_Difficulty.append(item.challengeID.challengeDifficulty)
-                    strTime = item.startTimestamp
-                    dateTaken.append(strTime)
+                    endTime = item.endTimestamp
+                    dateTaken.append(endTime)
                     score.append(item.testScore)
                     total.append(item.challengeID.totalScore)
                                 

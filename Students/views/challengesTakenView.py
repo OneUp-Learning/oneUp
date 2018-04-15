@@ -58,8 +58,8 @@ def ChallengesTaken(request):
                     chall_ID.append(item.challengeID.challengeID) 
                     chall_Name.append(item.challengeID.challengeName)
                     chall_Difficulty.append(item.challengeID.challengeDifficulty)
-                    strTime = item.startTimestamp
-                    dateTaken.append(strTime)
+                    endTime = item.endTimestamp
+                    dateTaken.append(endTime)
                     score.append(item.testScore)
                     total.append(item.challengeID.totalScore)
                             
