@@ -15,6 +15,7 @@ from Badges.enums import QuestionTypes, ObjectTypes
 
 from django.contrib.auth.decorators import login_required
 import logging
+from decimal import Decimal
 
 @login_required
 def matchingForm(request):
@@ -133,7 +134,7 @@ def matchingForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
                     
             # Processing and saving skills for the question in DB
             addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))

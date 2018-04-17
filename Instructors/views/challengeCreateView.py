@@ -6,6 +6,7 @@ from Instructors.views import challengeListView
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 from Badges.enums import ObjectTypes
 
@@ -70,7 +71,7 @@ def challengeCreateView(request):
         displayCorrectAnswer = str(request.POST.get('displayCorrectAnswer','false'))  
         displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))  
         displayIncorrectAnswerFeedback = str(request.POST.get('displayIncorrectAnswerFeedback','false'))         
-        challenge.curve = int(request.POST.get("curve", 0))
+        challenge.curve = Decimal(request.POST.get("curve", 0))
 
         # Copy all strings from POST to database object.
         for attr in string_attributes:

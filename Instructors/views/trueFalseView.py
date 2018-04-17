@@ -14,6 +14,7 @@ from Instructors.constants import unassigned_problems_challenge_name
 
 
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 import logging
 
@@ -123,14 +124,18 @@ def trueFalseNewForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
+        
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
             # Processing and saving skills for the question in DB
             addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
     
             # Processing and saving tags in DB
-            saveTags(request.POST['tags'], question, ObjectTypes.question)
-            
+            try:
+                saveTags(request.POST['tags'], question, ObjectTypes.question)
+            except:
+                print("no tags")
+                
             redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
             redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
             return redirectVar

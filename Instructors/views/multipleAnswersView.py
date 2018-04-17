@@ -11,6 +11,7 @@ from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags
 from Badges.enums import QuestionTypes, ObjectTypes
 from Instructors.constants import unassigned_problems_challenge_name
+from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
 import logging
@@ -127,7 +128,7 @@ def multipleAnswersForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
             # Processing and saving skills for the question in DB
             addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))

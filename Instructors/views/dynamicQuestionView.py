@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 import sys
 from xml.dom.expatbuilder import theDOMImplementation
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 @login_required
 def dynamicQuestionForm(request):
@@ -82,7 +83,7 @@ def dynamicQuestionForm(request):
                 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
             # save question-skill pair to db                    # 03/01/2015
             # first need to check whether a new skill is selected 

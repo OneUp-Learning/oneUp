@@ -18,6 +18,7 @@ from Badges.enums import QuestionTypes, ObjectTypes
 
 import re
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 @login_required
 def templateDynamicQuestionForm(request):
@@ -116,7 +117,7 @@ def templateDynamicQuestionForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']) , position)
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']) , position)
                             
             # Processing and saving skills for the question in DB
             utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
