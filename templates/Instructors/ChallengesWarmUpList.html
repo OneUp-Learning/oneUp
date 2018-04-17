@@ -61,15 +61,15 @@
 		                              <form action="/oneUp/instructors/deleteChallenge?warmUp" method="POST">
 		                              {% csrf_token %}
 		                              <input type="hidden" name="challengeID" value="{{chall_ID}}"> 
-		                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{j}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-		                              <ul id='dropdown{{j}}' class='dropdown-content'>
+		                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}-{{j}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+		                              <ul id='dropdown{{i}}-{{j}}' class='dropdown-content'>
 		                                    <li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a></li>
 		                                    <li><a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a></li>
 		                                    <li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
 		                                    <li class="divider"></li>                         
-		                                    <li><a class="modal-trigger" href="#modal_delete{{j}}">Delete</a></li>
+		                                    <li><a class="modal-trigger" href="#modal_delete{{i}}-{{j}}">Delete</a></li>
 		                              </ul>
-		                              <div id="modal_delete{{j}}" class="modal">
+		                              <div id="modal_delete{{i}}-{{j}}" class="modal">
 		                                    <div class="modal-content">
 		                                       <h5>Are you sure you want to delete?</h5>
 		                                    </div>
@@ -84,7 +84,7 @@
                                  </tr>
                                  {% empty %}
 		                        <tr>
-		                           <td class="center-align" colspan="4">No Warmup Challenges</td>
+		                           <td class="center-align" colspan="4"><i>No Warmup Challenges Created</i></td>
 		                        </tr>
                               {% endfor %}
                            </tbody>
