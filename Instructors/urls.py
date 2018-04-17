@@ -12,13 +12,12 @@ from Instructors.views.allAnnouncementsView import allAnnouncements
  
 from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
 from Instructors.views.challengeCreateView import challengeCreateView
-from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
+from Instructors.views.challengeQuestionsListView import challengeQuestionsListView
 from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
 from Instructors.views.challengeListView import challengesList, warmUpChallengeList
 from Instructors.views.challengeAdjusmentView import challengeAdjustmentView, adjustmentList
 from Instructors.views.exportGradeBookView import exportGradebook
 
-from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
@@ -31,7 +30,6 @@ from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
-from Instructors.views.essayView import  essayForm
 
 from Instructors.views.gameRulesView import gameRulesView
 
@@ -88,10 +86,9 @@ urlpatterns = [
     url(r'^announcementList', announcementList, name='announcementListView'),           
 
     url(r'^challengeCreate',challengeCreateView, name='challengeCreateView'),
-    url(r'^challengeQuestionsList',challengeEditQuestionsView, name='challengeEditQuestionsView'),
+    url(r'^challengeQuestionsList',challengeQuestionsListView, name='challengeQuestionsListView'),
     url(r'^challengesList',challengesList, name='ChallengesList'),
     url(r'^challengeSaveSelectedQuestions',challengeSaveSelectedQuestions, name='challengeSaveSelectedQuestions'),
-    url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='challengesList'),
     url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
     url(r'^classAchievements',classAchievements, name='classAchievements'),
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
@@ -114,7 +111,6 @@ urlpatterns = [
     url(r'^gameRules',gameRulesView,name='gameRulesView'),
     url(r'^$', index, name='home'),    
     url(r'^exportChallenges',exportChallenges,name='exportChallenges'),    
-    url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
     url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),

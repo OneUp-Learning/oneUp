@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from Instructors.models import Answers, CorrectAnswers, Courses
-from Instructors.models import Challenges, CoursesTopics, ChallengesTopics, StaticQuestions
+from Instructors.models import Answers, CorrectAnswers
+from Instructors.models import Challenges, CoursesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
@@ -14,7 +14,6 @@ from time import time
 from datetime import datetime
 
 from oneUp.logger import logger
-import json
 
 @login_required
 def challengeCreateView(request):
@@ -316,16 +315,12 @@ def challengeCreateView(request):
         context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
         logger.debug("[GET] " + str(context_dict))
     
-    if 'view' in request.GET:
-        view = 1
-    elif 'wView' in request.GET:
+    if 'wView' in request.GET or 'view' in request.GET:
         context_dict['warmUp']= 1
         view = 1
     else:
         view = 0
-    if view != 0:
-        return render(request,'Instructors/ChallengeEditOutlook.html', context_dict)    #view
-    else:   
-        return render(request,'Instructors/ChallengeCreateForm.html', context_dict)     #edit
+    context_dict['view'] = view == 1
+    return render(request,'Instructors/ChallengeCreateForm.html', context_dict)     #edit
    
 

@@ -8,9 +8,9 @@ from django.shortcuts import redirect
 
 from Instructors.models import StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, Courses, CoursesSkills
 from Instructors.models import Challenges, ChallengesQuestions
-from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 
-from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags
+from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
 from Badges.enums import QuestionTypes, ObjectTypes
 
 from django.contrib.auth.decorators import login_required
@@ -43,7 +43,7 @@ def matchingForm(request):
     matchText = []     #Text for existing matching answers
 
     context_dict['skills'] = getCourseSkills(currentCourse)
-   
+    context_dict['tags'] = []
     if request.method == 'POST':
         # If there's an existing question, we wish to edit it.  If new question,
         # create a new Question object.
@@ -119,6 +119,9 @@ def matchingForm(request):
             if existingMatchAnswer not in mAnswers:
                 existingMatchAnswer.delete()
                 
+        # Processing and saving tags in DB                        
+        saveTags(request.POST['tags'], question, ObjectTypes.question)
+        
         # Call made from the Challenge page: must include points  for the question for this challenge
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
@@ -138,12 +141,23 @@ def matchingForm(request):
                     
             # Processing and saving skills for the question in DB
             addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
-    
-        # Processing and saving tags in DB                        
-        saveTags(request.POST['tags'], question, ObjectTypes.question)
                                   
-        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
-        redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
+            redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
+            redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
+            return redirectVar
+        
+        # Question is unassigned so create unassigned challenge object
+        challenge = Challenges()
+        challenge.challengeName = unassigned_problems_challenge_name
+        challenge.courseID = currentCourse
+        challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.numberAttempts = 99999
+        challenge.timeLimit = 99999
+        challenge.save()
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
+        
+        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict) 
         return redirectVar
                 
     # request.GET                
