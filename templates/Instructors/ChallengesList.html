@@ -21,6 +21,11 @@
             <input type="hidden" name="challengeType" value="Serious" id="challengeType{{courseID}}">
          <div class="row right-align">
             <div class="col s12 m8 offset-m2">
+            {% if warmUp %}
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?warmUp"><i class="material-icons left">add_circle</i>Add New WarmUp Challenge</a>       
+            {% else %}
+                  <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate"><i class="material-icons left">add_circle</i>Add New Challenge</a>     
+                  {% endif %}  
                   <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Challenges
                   <i class="material-icons right">reorder</i>
                   </button>
@@ -37,13 +42,6 @@
                            <th>Display From</th>
                            <th>Display Until</th>
                            <th>Position</th>
-                           <th class="secondary-content">
-                              {% if warmUp %}
-                              <a class="tooltipped" href="/oneUp/instructors/challengeCreate?warmUp" data-position="top" data-delay="50" data-tooltip="Create WarmUp Challenge"><i class="material-icons" >add_circle</i></a>
-                              {% else %}
-                              <a class="tooltipped" href="/oneUp/instructors/challengeCreate" data-position="top" data-delay="50" data-tooltip="Create Serious Challenge"><i class="material-icons" >add_circle</i></a>
-                              {% endif %}
-                           </th>
                         </tr>
                      </thead>
                      <tbody>
