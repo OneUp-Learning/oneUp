@@ -11,6 +11,7 @@ from Badges.models import CourseConfigParams
 from Students.models import StudentConfigParams, StudentRegisteredCourses
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import default_time_str
+from Badges.systemVariables import logger
 @login_required
 def preferencesView(request):
 
@@ -70,16 +71,16 @@ def preferencesView(request):
         ccparams.avatarUsed = "avatarUsed" in request.POST
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
-
+        logger.debug(request.POST['courseStartDate'])
         if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
             ccparams.courseStartDate = utcDate()
         else:
-            ccparams.courseStartDate = utcDate(request.POST['courseStartDate'], "%m/%d/%Y %I:%M %p")
+            ccparams.courseStartDate = utcDate(request.POST['courseStartDate'], "%B %d, %Y")
 
         if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
             ccparams.courseEndDate = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
-             ccparams.courseEndDate = utcDate(request.POST['courseEndDate'], "%m/%d/%Y %I:%M %p")
+             ccparams.courseEndDate = utcDate(request.POST['courseEndDate'], "%B %d, %Y")
 
         # ccparams.courseStartDate = request.POST.get('courseStartDate')
         # ccparams.courseEndDate= request.POST.get('courseEndDate') 

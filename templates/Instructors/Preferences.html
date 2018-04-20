@@ -5,11 +5,11 @@
     <script>
         $( document ).ready(function(){
             var endDate = $('#endTime').bootstrapMaterialDatePicker({
-                weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+                weekStart: 0, time: false, format: 'MMMM D, Y'
             });
             
             var startDate = $('#startTime').bootstrapMaterialDatePicker({
-                weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
+                weekStart: 0, time: false, format: 'MMMM D, Y'
             }).on('change', function(e, date) {
                 $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
             });
