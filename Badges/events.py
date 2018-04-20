@@ -58,7 +58,9 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.timePassed):
         eventEntry.objectType = ObjectTypes.challenge #consider doing something similar for specific questions also
         eventEntry.objectID = objectId
-   
+    if(eventID == Event.adjustment):
+        eventEntry.objectType = ObjectTypes.challenge
+        eventEntry.objectID = objectId
     #if(eventID == Event.valueChanged):
         
     if(eventID == Event.startQuestion):

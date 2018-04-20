@@ -131,6 +131,7 @@ class Event():
     getCreditForOneTestProblem = 859 #
     getSurpriseAward = 860 # Get a small surprise award from the instructor   
     
+    adjustment = 861
 #    seeClassAverage = 861 # See aggregated class information
 #    chooseLabPartner = 862 # Choose a lab partner
 #    chooseProjectPartner = 863 # Choose a project partner
@@ -308,6 +309,12 @@ class Event():
                         'name':'getSurpriseAward',
                         'displayName':'Get Surprise Award',
                         'description':'Get a small surprise award from the instructor.'
+                        },
+              adjustment: {
+                        'index': adjustment,
+                        'name':'adjustment',
+                        'displayName':'adjustment',
+                        'description':'when teacher adjust a student challenge grade.'
                         },
 #               seeClassAverage: {
 #                         'index': seeClassAverage,

@@ -32,16 +32,21 @@ def challengeAdjustmentView(request):
             if (StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID)).exists():
                 studentChallenge = StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID).latest('testScore')
                 
-                if not adjustmentScore == "0" or studentChallenge.scoreAdjustment != adjustmentScore:
+                if studentChallenge.scoreAdjustment != adjustmentScore:
                     studentChallenge.scoreAdjustment = adjustmentScore
                     studentChallenge.adjustmentReason = request.POST['adjustmentReason'+str(studentID)]
                     studentChallenge.save()
-                    
+                    register_event(Event.adjustment,request,studentRC.studentID,challengeId)
+                    register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
+
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
-                if not bonusScore == "0" or studentChallenge.bonusPointsAwarded != bonusScore:
+                if studentChallenge.bonusPointsAwarded != bonusScore:
                     studentChallenge.bonusPointsAwarded = bonusScore
                     studentChallenge.save()
+                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                
             else:
                 if not adjustmentScore == "0" or not bonusScore == "0":
                     studentChallenge = StudentChallenges()
@@ -50,11 +55,19 @@ def challengeAdjustmentView(request):
                     if not adjustmentScore == "0":
                         studentChallenge.scoreAdjustment = adjustmentScore
                         studentChallenge.AdjustmentReason = request.POST['adjustmentReason'+str(studentID)]
+                        register_event(Event.adjustment,request,studentRC.studentID,challengeId)
+                        register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
+                        notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                
                     else:
                         studentChallenge.scoreAdjustment = "0"
                         studentChallenge.adjustmentReason = ""
                     if not bonusScore == "0":
                         studentChallenge.bonusPointsAwarded = bonusScore
+                        notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                
                     else:
                         studentChallenge.bonusPointsAwarded = "0"
                     studentChallenge.courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
@@ -65,10 +78,6 @@ def challengeAdjustmentView(request):
                     
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got adjusted score for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
-
-        for studentRC in studentRCs:
-            register_event(Event.endChallenge,request,studentRC.studentID,challengeId)
-            register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
 
         updateLeaderboard(course)
         
