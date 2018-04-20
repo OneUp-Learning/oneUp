@@ -1,34 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8" />
       
         {% include 'scripts.html' %}
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
 		
    </head>
    <body>
-      <!-- START PAGE SOURCE -->
-
-     <div>
 
          {% include 'heading.html' %}
  

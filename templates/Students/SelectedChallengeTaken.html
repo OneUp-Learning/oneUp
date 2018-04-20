@@ -1,155 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-
+   <head>
       {% include 'scripts.html' %}
-      
       <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
-         
-      </head>
-      <body>
-      <div id="page-wrapper">
-
-       {% if is_teacher %}    
-              {% include 'heading.html' %}
-       {% else %}
-              {% include 'stheading.html' %}
-       {% endif %}
-            
-
-            <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-         	<div class="12u">
-         		 <h1>Challenge <span>{{chall_Name}}</span></h1>
-			</div></div>
-			
-<!-- INSERTED DYNAMIC TABLE --> 
-        
-		<!--<form name= "ChallengeTaken" action="/oneUp/students/ChallengesTaken" method="GET">-->
-			<div class="row">
-         	<div class="12u">
-			{% csrf_token %}
-			<div class="col s12 m6">
-			<div class="card white">
-			<div class="card-panel">
-	<table class="bg">
-	
-	<thead align="left">Total Score: {{entireScore}}</thead>
-	
-		<form>
-		
-		{% for i,question,user,match_shuffled,score,total in question_range %}
-		
-		<tr id="question">  
-		
-			<div id="question{{i}}">
-				<td colspan="3"><font style="font-weight:600">
-				
-					{{i}}. {{question.questionText|safe}}
-				</font></td>
-		</tr>									
-		<tr><td colspan="3">Your Answer:</td></tr>		
-				{% if question.type == questionTypes.multipleChoice %}
-				<!-- multiple choice question -->
-					<tr><td colspan="3">{% for j,answer in question.answers_with_count %}	
-						<!-- use a for loop and display the answers in radio buttons -->
-						<input type="radio" name="{{question.questionID}}" value="{{answer.answerText}}" 
-						{% for studAns in user %} {% ifequal answer.answerID studAns|add:"0" %}checked{% else %}disabled="disabled"{% endifequal %}{% endfor %}>{{answer.answerText|safe}}<br>
-					{% endfor %}</td></tr>
-					<tr><td colspan="3">Correct Answer:<br>
-					{% for count,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in radio buttons -->
-						{{correct_answer.answerID.answerText|safe}}<br>
-					{% endfor %}</td></tr>
-					<tr><td colspan="3"><font style="font-weight:600"> You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td></tr>									
-				{% elif question.type == questionTypes.multipleAnswers %}
-				<!-- multiple answer question -->
-					<tr><td colspan="3">{% for j,answer in question.answers_with_count %}
-											
-						<!-- use a for loop and display the answers in the check box -->
-						<input type="checkbox" name="{{question.questionID}}" value="{{answer.answerText}}"
-						{% for user_answer in user %}
-							{{answer.answerID}} =? {{user_answer}}
-							{% ifequal answer.answerID|stringformat:"s" user_answer|stringformat:"s" %}checked{% endifequal %}{% endfor %}>{{answer.answerText|safe}}<br />
-						{% endfor %}</td></tr>
-					<tr><td colspan="3">Correct Answer(s):<br>
-					{% for count,correct_answer in question.correct_answers %}
-						{{correct_answer.answerID.answerText|safe}}<br>
-					{% endfor %}</td></tr>
-					<tr><td colspan="3"><font style="font-weight:600"> You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td></tr>
-				{% elif question.type == questionTypes.matching %}
-				<!-- matching question -->
-				<tr><td>{% for j,answer in question.answers_with_count %}
-						<!-- use a for loop and display the answers in the matching form -->
-						{{j}} .&nbsp;{{answer.answerText}}
-							<br />
-						{% endfor %}
-					</td>
-					<td>
-					{% for user_match_answer in user %}
-						<!--  input type="text" value={{user_match_answer}} style="height:initial; width:3em" disabled="disabled"><br / -->
-					    {{user_match_answer}}. <br /> 
-					{% endfor %}</td>
-					</tr>
-					<tr><td colspan="3">Correct Answer:</tr></td>
-					<tr><td>{% for match_count,match_answer in question.match_with_count %}
-									<!-- use a for loop and display the answers in the matching form-->
-									{{match_count}} . &nbsp{{match_answer.answerText}}
-										<br />
-							{% endfor %}</td>
-					<td colspan="2" style="text-align: left;">
-     						{% for match in question.matches %}
-     							{{match.matchingAnswerText}}
-						<br />	
-					{% endfor %}</td></tr>
-					<tr><td colspan="3"><font style="font-weight:600"> You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td></tr>
-				{% elif question.type == questionTypes.trueFalse %}
-				<!-- true/false question -->
-				<tr><td colspan="3"><input type="radio" name="{{question.questionID}}" value="True" {% for j in user %}{% ifequal j|stringformat:"s" "True" %}checked{% else %}disabled="disabled"{% endifequal %}{% endfor %}>True<br />
-				<input type="radio" name="{{question.questionID}}" value="False" {% for j in user %}{% ifequal j|stringformat:"s" "False" %}checked{% else %}disabled="disabled"{% endifequal %}{% endfor %}>False
-				</td></tr>
-				<tr><td colspan="3">Correct Answer:<br>
-				{% for count,correct_answer in question.correct_answers %}
-					{{correct_answer.answerID.answerText}}<br>
-				{% endfor %}</td></tr>
-				<tr><td colspan="3"><font style="font-weight:600"> You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td></tr>
-				{% elif question.type == questionTypes.essay %}
-				<!-- Essay question -->
-				<tr><td colspan="3"><textarea name="{{question.questionID}}" rows="10" cols="90" disabled="disabled">
-							{% for j in user %} 
-								{{j}} 
-							{% endfor %}</textarea>
-				</td></tr>
-				<tr><td colspan="3"><font style="font-weight:600"> You Scored:</font> <span>{{score}}</span> Point(s) out of <span>{{total}}</span> Point(s)</td></tr>
-				{% endif %}
-												
-			</div> 
-				
-		
-	{% endfor %}
-	</form>
-
-	</table>
-</div>
-</div>
-	<br />
-	<!--<input type="submit" name="submit" value="OK" class="button">-->
-	
-	<a href="/oneUp/students/ChallengesTaken?challengeID={{challengeID}}{% if is_teacher %}&userID={{student}}{% endif %}{% if warmUp %}&warmUp{% endif %}">				
-	<button class="waves-effect waves-light btn" type="button" value="Reset">Back</button></a>
-
- 	<br><br>
-	
-	<!-- END DYNAMIC TABLE --> 
-			</div>
-			</div>
-			</div>
+   </head>
+   <body>
+      {% if is_teacher %}    
+      {% include 'heading.html' %}
+      {% else %}
+      {% include 'stheading.html' %}
+      {% endif %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Challenge {{chall_Name}}</h3>
             </div>
          </div>
-         <!-- Footer -->
-
-        {% include 'footer.html' %}
-
-    
-      </body>
-   </html>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <div class="card-content">
+                     <span class="card-title">Total Score: {{entireScore}}</span>
+                     {% for i,question,user,match_shuffled,score,total in question_range %}
+                     <div class="divider"></div>
+                     <div class="row">
+                        <p>{% autoescape off %} {{i}}. {{question.questionText|safe}} {% endautoescape %}</p>
+                     </div>
+                     <div class="row">
+                        <div class="col s12">
+                           <h5>Your Answer:</h5>
+                        </div>
+                     </div>
+                     {% if question.type == questionTypes.multipleChoice %}
+                     <div class="row">
+                        <div class="col s12">
+                           {% for j,answer in question.answers_with_count %}
+                           <p>
+                              <input name="{{question.questionID}}" type="radio" id="ans-{{question.questionID}}" disabled="disabled" {% for studAns in user %} {% ifequal answer.answerID studAns|add:"0" %}checked{% endifequal %}{% endfor %}/>
+                              <label for="ans-{{question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}} {% endautoescape %}</label>
+                           </p>
+                           {% endfor %}
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col s12">
+                           <h5>Correct Answer: </h5>
+                           <blockquote>
+                              {% for count,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in radio buttons -->
+                              {{correct_answer.answerID.answerText|safe}}<br />
+                              {% endfor %}
+                           </blockquote>
+                           <p>You Scored: <b>{{score}}</b> Point(s) out of <b>{{total}}</b> Point(s)</p>
+                        </div>
+                     </div>
+                     {% elif question.type == questionTypes.multipleAnswers %}
+                     <div class="row">
+                        <div class="col s12">
+                           {% for j,answer in question.answers_with_count %}
+                           <p>
+                              <input name="{{question.questionID}}" type="checkbox" id="ans-{{question.questionID}}" {% for studAns in user %} {% ifequal answer.answerID|stringformat:"s" studAns|stringformat:"s" %}checked{% endifequal %}{% endfor %} disabled/>
+                              <label for="ans-{{question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}}{% endautoescape %}</label>
+                           </p>
+                           {% endfor %}
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col s12">
+                           <h5>Correct Answer(s): </h5>
+                           <blockquote>
+                              {% for count,correct_answer in question.correct_answers %}
+                              {{correct_answer.answerID.answerText|safe}}<br>
+                              {% endfor %}
+                           </blockquote>
+                           <p>You Scored: <b>{{score}}</b> Point(s) out of <b>{{total}}</b> Point(s)</p>
+                        </div>
+                     </div>
+                     {% elif question.type == questionTypes.matching %}
+                     <div class="row">
+                        <div class="col s6">
+                           {% for j,answer in question.answers_with_count %}
+                           <p>{{j}} . {{answer.answerText}}</p>
+                           {% endfor %}
+                        </div>
+                        <div class="col s6">
+                           {% for user_match_answer in user %}
+                           <p>{{user_match_answer}}</p>
+                           {% endfor %}
+                           <h6>Matches:</h6>
+                           {% for match in q.matches %}
+                           <p>{{match.matchingAnswerText}}</p>
+                           {% endfor %}
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col s12">
+                           <h5>Correct Answer(s): </h5>
+                           <blockquote>
+                              {% for match_count,match_answer in question.match_with_count %}
+                              <p>{{match_count}} . {{match_answer.answerText}}</p>
+                              {% endfor %}
+                              {% for match in question.matches %}
+                              <p>{{match.matchingAnswerText}}</p>
+                              {% endfor %}
+                           </blockquote>
+                           <p>You Scored: <b>{{score}}</b> Point(s) out of <b>{{total}}</b> Point(s)</p>
+                        </div>
+                     </div>
+                     {% elif question.type == questionTypes.trueFalse %}
+                     <div class="row">
+                        <div class="col s12">
+                           <p>
+                              <input name="{{question.questionID}}" type="radio" id="ans1-{{question.questionID}}" disabled {% for j in user %}{% ifequal j|stringformat:"s" "True" %}checked{% endifequal %}{% endfor %}/>
+                              <label for="ans1-{{question.questionID}}">True</label>
+                           </p>
+                           <p>
+                              <input name="{{question.questionID}}" type="radio" id="ans2-{{question.questionID}}" disabled {% for j in user %}{% ifequal j|stringformat:"s" "False" %}checked{% endifequal %}{% endfor %}/>
+                              <label for="ans2-{{question.questionID}}">False</label>
+                           </p>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col s12">
+                           <h5>Correct Answer: </h5>
+                           <blockquote>
+                              {% for count,correct_answer in question.correct_answers %}
+                              {{correct_answer.answerID.answerText}}<br/>
+                              {% endfor %}
+                           </blockquote>
+                           <p>You Scored: <b>{{score}}</b> Point(s) out of <b>{{total}}</b> Point(s)</p>
+                        </div>
+                     </div>
+                     {% elif question.type == questionTypes.dynamic or question.type == questionTypes.templatedynamic %}
+                     <div class="row">
+                        {% for answer_blank_name, user_answer_value in q.user_answers.items %}
+                        <p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+                        {% endfor %}
+                     </div>
+                     {% if q.evaluations %}
+                     {% for answer in q.evaluations %}
+                     <p>	
+                        {% if answer.success %}
+                        <span style='color: green;'>&#10004;</span> 
+                        {% else %}
+                        <span style='color: red;'>&#10006;</span>
+                        {% endif %}
+                        You got {{answer.value}} points on answer {{answer.name}}
+                        {% if answer.details %}
+                     <ul class="collection">
+                        {% for detail in answer.details %}
+                        <li class="collection-item">
+                           {%if detail.success%}
+                           <span style='color: green;'>&#10004;</span> 
+                           {%else%}
+                           <span style='color: red;'>&#10006;</span> 
+                           {% endif %}
+                           {{detail.value}}/{{detail.max_points}} points on criteria {{detail.name}}
+                        </li>
+                        {% endfor %}
+                     </ul>
+                     {% endif %}
+                     </p>
+                     {% endfor %}
+                     {% endif %}
+                     <div class="row">
+                        <div class="col s12">
+                           <p>Total for this question, You Scored: <b>{{score}}</b> Point(s) out of <b>{{total}}</b> Point(s)</p>
+                        </div>
+                     </div>
+                     {% endif %}
+                     {% endfor %}
+                  </div>
+                  <div class="card-action right-align">
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{challengeID}}{% if is_teacher %}&userID={{student}}{% endif %}{% if warmUp %}&warmUp{% endif %}">											
+                     <i class="material-icons left">navigate_before</i>Back</a> 
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>
