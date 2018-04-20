@@ -13,13 +13,13 @@
             </div>
             <div class="row right-align">
                <div class="col s12 m8 offset-m2">
-                  <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><input type="button" {% if isRuleCustom == True %} value="Create New Manual Earning Rule" {% else %} value="Create New Automatic Earning Rule"{% endif %}></a>
+                  <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><i class="material-icons left">add_circle</i> {% if isRuleCustom == True %}Create New Manual Earning Rule{% else %}Create New Automatic Earning Rule{% endif %}</a>
                 </div>
               </div>
               <div class="row">
-                  <!-- New: List of badges added; DD 02/04/2015 -->
-            <div class="col s12 m8 offset-m2">
-                  <div class="card-panel">
+            	<div class="col s12 m8 offset-m2">
+                  <div class="card">
+                  	<div class="card-content">
                   <table>
                      <thead>
                         <th>Name</th>
@@ -34,27 +34,40 @@
                         <td>
                            <form action="/oneUp/badges/SaveVirtualCurrencyRule" method="POST">
                               {% csrf_token %} 
-                              <a  href="/oneUp/badges/EditVirtualCurrencyRule?vcRuleID={{vcRuleID}}&isRuleCustom={{isRuleCustom}}"><button class="waves-effect waves-light btn" type="button">Edit</button></a>
                               <input type="hidden" name="vcRuleID" value="{{vcRuleID}}">
                               <input type="hidden" name="isRuleCustom" value="{{isRuleCustom}}">
                               <input type="hidden" name="edit">
                               <input type="hidden" name="delete" value="delete">
-                              <input class="waves-effect waves-light btn" type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <ul id='dropdown{{i}}' class='dropdown-content'>
+                                    <li><a href="/oneUp/badges/EditVirtualCurrencyRule?vcRuleID={{vcRuleID}}&isRuleCustom={{isRuleCustom}}">Edit</a></li>
+                                    <li class="divider"></li>                         
+                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                              </ul>
+                              <div id="modal_delete{{i}}" class="modal">
+                                    <div class="modal-content">
+                                       <h5>Are you sure you want to delete?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                       </button>                                        
+                                    </div>
+                                 </div>
                            </form>
                         </td>
                      </tr>
                      {% empty %}
                      <tr>
-                       <td class="center-align" colspan="3">No Rules</td>
+                       <td class="center-align" colspan="3"><i>No rules created</i></td>
                      </tr>
                      {% endfor %}
                      </tbody>
                   </table>
+                  </div>
                </div>
                </div>   
                </div>
-         </div>
-      <!-- Footer -->
       </main>
       {% include 'footer.html' %}
    </body>
