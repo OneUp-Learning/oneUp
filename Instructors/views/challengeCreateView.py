@@ -314,9 +314,11 @@ def challengeCreateView(request):
 
         context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
         logger.debug("[GET] " + str(context_dict))
-    
-    if 'wView' in request.GET or 'view' in request.GET:
+        
+    if 'wView' in request.GET:
         context_dict['warmUp']= 1
+        view = 1
+    elif 'view' in request.GET:
         view = 1
     else:
         view = 0

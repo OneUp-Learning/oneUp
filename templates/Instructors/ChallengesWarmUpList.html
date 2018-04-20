@@ -29,10 +29,6 @@
 		<div class="row">
             <div class="col s12 m8 offset-m2">
                <div class="card-panel">
-               <div class="row">
-               <a class="secondary-content tooltipped" href="/oneUp/instructors/challengeCreate?warmUp" data-position="top" data-delay="50" data-tooltip="Create WarmUp Challenge">
-               <i class="material-icons" >add_circle</i></a>
-               </div>
                      {% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
                      <input type="hidden" name="topicID" value="{{topic_ID}}">
                      <div class="section">

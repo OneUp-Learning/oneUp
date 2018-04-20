@@ -38,7 +38,7 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
             start_Timestamp.append(announcement.startTimestamp)
             end_Timestamp.append(announcement.endTimestamp)
             subject.append(announcement.subject[:25])
-            message.append(insert_newlines(announcement.message[:300]))
+            message.append(announcement.message[:300])
     else: # Only shows the first three
         for announcement in announcements:
             if index < 3:
@@ -47,7 +47,7 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
                 start_Timestamp.append(announcement.startTimestamp)
                 end_Timestamp.append(announcement.endTimestamp)
                 subject.append(announcement.subject[:25])
-                message.append(insert_newlines(announcement.message[:300]))
+                message.append(announcement.message[:300])
                 index += 1
     
       

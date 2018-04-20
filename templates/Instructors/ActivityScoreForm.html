@@ -1,62 +1,49 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-      <head>
-         
-         {% include 'scripts.html' %}
-         
-      </head>
-      <body>
-      <div id="page-wrapper">
-
-           
-         {% include 'heading.html' %}
-
-            <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-         	<div class="12u">
-         		 <h1>{{student}}'s Activities </h1>
-			</div></div>
-					
-<!-- INSERTED DYNAMIC TABLE --> 
-			<div class="row">
-         	<div class="12u" style="top-padding: 0em;">
-            <table class="bg">
-                <tr>
-                    <th height="40">Name</th>
-                    <th>Total Points</th>
-                    <th>Grade</th>
-                    <th></th>
-                    <th></th>
-                    <th>Feedback</th> 
-                    
-                                       
-                </tr>
-                
-                {% for activityNames,maxPoints,points, feedbacks in activity_range%}
-                <tr> 
-                    <td height="40" >{{activityNames}}</td>
-                    <td>{{maxPoints}}</td>	
-                    <td>{{points}}</td> 
-                    <td></td>
-                    <td></td>
-                    <td>{{feedbacks}}</td> 
-                    
-                </tr>
-                {% endfor %}
-            </table>
-            
-              <a href="/oneUp/instructors/studentAchievements"> <button class="button">Back</button></a> 
-            
-            <br><br>
-       <!-- END DYNAMIC TABLE --> 
-         </div></div></div>
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>{{student}}'s Activities </h3>
             </div>
          </div>
-         <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-
-      </body>
-   </html>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <div class="card-content">
+                     <table>
+                        <thead>
+                           <th>Activity Name</th>
+                           <th>Total Points</th>
+                           <th>Grade</th>
+                           <th>Feedback</th>
+                        </thead>
+                        <tbody>
+                           {% for activityNames,maxPoints,points, feedbacks in activity_range%}
+                           <tr>
+                              <td>{{activityNames}}</td>
+                              <td>{{maxPoints}}</td>
+                              <td>{{points}}</td>
+                              <td>{{feedbacks}}</td>
+                           </tr>
+                           {% empty %}
+                           <tr>
+                              <td class="center-align" colspan="4"><i>No Activities Completed</i></td>
+                           </tr>
+                           {% endfor %}
+                     </table>
+                  </div>
+                  <div class="card-action right-align">
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/studentAchievements"><i class="material-icons left">navigate_before</i>Back</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>
