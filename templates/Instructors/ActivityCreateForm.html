@@ -8,11 +8,18 @@
                weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
              });
              
+             var deadLine = $('#deadLine').bootstrapMaterialDatePicker({
+                 weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+               });
+           
              var startDate = $('#startTime').bootstrapMaterialDatePicker({
                weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
              }).on('change', function(e, date) {
                $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
+               $('#deadLine').bootstrapMaterialDatePicker('setMinDate', date);
              });
+             
+             
              {% if isFileUpload %}
              $('#num_attempts').attr("disabled", false);
              {% else %}
@@ -100,14 +107,18 @@
                            </div>
                         </div>
                         <div class="row">
-                           <div class="col s12 m6">
+                           <div class="col s12 m4">
                               <label for="startTime">Display From:</label> 
                               <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">
                            </div>
-                           <div class="col s12 m6">
+                           <div class="col s12 m4">
                               <label for="endTime">Display Until:</label> 
                               <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime">
                            </div>
+                           <div class="col s12 m4">
+                        		<label for="deadLine">Dead Line:</label>
+                        		<input type="text" class="datepicker-until" name="deadLine" id="deadLine" value="{{deadLineTimestamp}}">
+                        	</div>
                         </div>
                         <div class="row">
                           <div class="col s12">

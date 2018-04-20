@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.template.defaultfilters import default
 from datetime import datetime
+from Instructors.constants import uncategorized_activity
 
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
@@ -212,6 +213,13 @@ class ChallengesQuestions(models.Model):
         cq.save()
         return cq
 
+
+
+class ActivitiesCategory(models.Model):
+    categoryID = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=75)
+    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
+
 class Activities(models.Model):
     activityID = models.AutoField(primary_key=True)
     activityName = models.CharField(max_length=75)
@@ -225,8 +233,10 @@ class Activities(models.Model):
     author = models.CharField(max_length=100) 
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True )
+    deadLine = models.DateTimeField(default=datetime.now, blank=True)
+    category = models.ForeignKey(ActivitiesCategory,verbose_name = "Activities Category", db_index=True, default = 1)
     def __str__(self):              
-        return str(self.activityID)+","+self.activityName
+        return str(self.activityID)+","+self.activityName  
         
 class Announcements(models.Model):
     announcementID = models.AutoField(primary_key=True)

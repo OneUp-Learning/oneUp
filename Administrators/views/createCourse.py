@@ -1,7 +1,8 @@
 from django.template import RequestContext
 from django.shortcuts import render, redirect
 
-from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics
+from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics, ActivitiesCategory
+from Instructors.constants import uncategorized_activity
 from Badges.models import CourseConfigParams
 
 from django.contrib.auth.decorators import login_required
@@ -94,6 +95,14 @@ def courseCreateView(request):
             courseTopic.topicID = topic
             courseTopic.courseID = course
             courseTopic.save()
+            
+            #Add a default category
+            defaultActivityCategory = ActivitiesCategory()
+            defaultActivityCategory.name = uncategorized_activity
+            defaultActivityCategory.categoryID = course
+            defaultActivityCategory.save()
+            
+            
             
             return render(request,'Administrators/createCourse.html',context_dict)
             

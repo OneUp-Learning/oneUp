@@ -6,10 +6,11 @@ Created on March 11, 2015
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Activities, Courses
+from Instructors.models import Activities, Courses, ActivitiesCategory
 from Students.models import StudentRegisteredCourses, StudentActivities
 from Instructors.views.utils import initialContextDict
-
+from Instructors.constants import uncategorized_activity
+from django.template.defaultfilters import default
 @login_required
 def createContextForActivityList(request):
     
@@ -21,7 +22,13 @@ def createContextForActivityList(request):
     points = []
      
     student_ID = []    
-    student_Name = []    
+    student_Name = []   
+    
+    if(ActivitiesCategory.objects.filter(name=uncategorized_activity).first() == None):
+        defaultCat = ActivitiesCategory()
+        defaultCat.name = uncategorized_activity
+        defaultCat.courseID = currentCourse
+        defaultCat.save() 
    
         
     activities = Activities.objects.filter(courseID=currentCourse)
@@ -64,7 +71,7 @@ def createContextForActivityList(request):
     
 @login_required
 def activityList(request):
- 
+
     context_dict = createContextForActivityList(request)    
 
     return render(request,'Instructors/ActivitiesList.html', context_dict)

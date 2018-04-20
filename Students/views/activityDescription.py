@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import activityScore
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
+from Instructors.views.utils import utcDate
 #from requests.api import request
 
 @login_required
@@ -33,14 +34,6 @@ def ActivityDetail(request):
             context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
             
-            #Need to add the comparsion for time
-            dueTime = datetime.strptime(str(studentActivities.activityID.endTimestamp.time()).split(".")[0], "%H:%M:%S" )
-            print(dueTime.strftime("%I:%M %p"))
-            currentTime = datetime.strptime(datetime.utcnow().time().strftime("%H:%M:%S"), "%H:%M:%S")
-            print(currentTime.strftime("%I:%M %p"))
-            
-
-
             #If the act has files add them to the webpage
             act = studentActivities.activityID
             instructorActFiles = UploadedActivityFiles.objects.filter(activity=act, latest=True )
@@ -54,21 +47,13 @@ def ActivityDetail(request):
                 context_dict['instructorHasFiles'] = True
             else:
                 context_dict['instructorHasFiles'] = False
-            
-
-   
                 
-                    
-                
-
-
-            
+            timeCheck = checkTimes(studentActivities.activityID.endTimestamp, studentActivities.activityID.deadLine)
+       
             #we are allowed to uplad files 
-            if(studentActivities.activityID.isFileAllowed == True and studentActivities.activityID.endTimestamp.date() >= datetime.today().date()):
-               #and studentActivities.activityID.endTimestamp.time() > datetime.now().time()):
+            if(studentActivities.activityID.isFileAllowed == True and timeCheck):                
                 context_dict['canUpload'] = True
-                
-                
+                 
                 #Check and see if the activity file has already been uplaoded
                 studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True )
                 
@@ -101,8 +86,6 @@ def ActivityDetail(request):
                     #You haven't uploaded a file
                     else:
                         isFile = False
-                    
-                    print(isFile)
                 
                 context_dict['isFile'] = isFile
                 
@@ -112,7 +95,7 @@ def ActivityDetail(request):
                 
                   
         
-        if request.POST and len(request.FILES) > 0 : #means that we are tryng to upload some activty 
+        if request.POST and len(request.FILES) > 0 : #means that we are tryng to upload some files 
             #print(len(request.FILES.getlist('actFile')))
             
             files = []
@@ -199,7 +182,17 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         #delete oldFile objects
         for object in filesForZip:
             object.delete()
+
+def checkTimes(endTimestamp, deadLine):
+    print("End" + str(endTimestamp))
+    print("dead" + str(deadLine))
+    utcNow = utcDate(datetime.now().strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    print("Utc" + str(utcNow))
+    endMax = max((endTimestamp, utcNow))
+    deadMax = max((deadLine, utcNow))
     
-              
-            
-            
+    if(endMax == endMax and deadMax == deadLine):
+        return True
+    else:
+        return False  
+          

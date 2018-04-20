@@ -6,10 +6,10 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from Instructors.models import Activities, Courses, UploadedActivityFiles
+from Instructors.models import Activities, Courses, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.activityListView import createContextForActivityList
 from Instructors.views.utils import utcDate, initialContextDict
-from Instructors.constants import unspecified_topic_name, default_time_str
+from Instructors.constants import unspecified_topic_name, default_time_str, uncategorized_activity
 from time import time
 from datetime import datetime
 import filecmp
@@ -70,6 +70,15 @@ def activityCreateView(request):
                 activity.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
             else:
                 activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+                
+        if(request.POST['deadLine'] == ""):
+            activity.deadLine = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        else:
+            if datetime.strptime(request.POST['deadLine'], "%m/%d/%Y %I:%M %p"):
+                activity.deadLine = utcDate(request.POST['deadLine'], "%m/%d/%Y %I:%M %p")
+            else:
+                activity.deadLine = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+
             
                   
        # get the author                            
@@ -121,6 +130,15 @@ def activityCreateView(request):
                     context_dict['endTimestamp']=etime
                 else:
                     context_dict['endTimestamp']=""
+                    
+                deadTime = activity.deadLine.strftime("%m/%d/%Y %I:%M %p")
+                print('deadTime ', deadTime)
+                
+                if deadTime != default_time_str: 
+                    context_dict['deadLineTimestamp']= deadTime
+                else:
+                    context_dict['deadLineTimestamp']=""
+                
             
                 print(activity.startTimestamp.strftime("%Y")) 
                 if activity.startTimestamp.strftime("%Y") < ("2900"):
@@ -156,6 +174,7 @@ def removeFileFromActivty(request):
         print('IS A USER')
     else:
         return HttpResponse(403)
+    
     
     if request.POST:
         if 'fileID' in request.POST:
