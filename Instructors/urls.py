@@ -31,7 +31,6 @@ from Instructors.views.createStudentView import createStudentViewUnchecked
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 
-from Instructors.views.gameRulesView import gameRulesView
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents
@@ -108,7 +107,6 @@ urlpatterns = [
     url(r'^deleteSubTopic',deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent',deleteStudent, name='deleteStudent'),    
     url(r'^deleteUser',deleteUser, name='deleteUser'),
-    url(r'^gameRules',gameRulesView,name='gameRulesView'),
     url(r'^$', index, name='home'),    
     url(r'^exportChallenges',exportChallenges,name='exportChallenges'),    
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),

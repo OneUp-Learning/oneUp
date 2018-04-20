@@ -4,18 +4,16 @@ Last updated Dec 21, 2016
 
 @author: Swapna
 '''
-from django.template import RequestContext
-from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Courses, Challenges
-from Badges.models import ActionArguments, Conditions, Rules, Badges, RuleEvents
-from Badges.enums import Action, Event, OperandTypes
-from Badges.systemVariables import SystemVariable
+from Instructors.views.utils import initialContextDict
+from Badges.models import ActionArguments, Rules, Badges, RuleEvents
+from Badges.enums import Action
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
-    cond_from_mandatory_cond_list, stringAndPostDictToCondition
+    stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
+from Badges.systemVariables import logger
 
 def DeleteBadgeRule(badge):
         
@@ -33,39 +31,36 @@ def SaveBadge(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict,current_course = initialContextDict(request);
     
-    currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-    context_dict['course_Name'] = currentCourse.courseName
-    
-    if request.POST: 
+    if request.method == "POST": 
 
         # Check if creating a new badge or edit an existing one
         # If editing an existent one, we need to delete it first before saving the updated information in the database            
         if 'badgeId' in request.POST:   #edit or delete badge 
-            print("Badge to Edit/Delete Id: "+str(request.POST['badgeId']))
+            logger.debug("Badge to Edit/Delete Id: "+str(request.POST['badgeId']))
             badgeInformation = Badges.objects.get(pk=int(request.POST['badgeId']))
             DeleteBadgeRule(badgeInformation)
         else:
             badgeInformation = Badges()  # create new badge
                         
-        if 'create' in request.POST or 'edit' in request.POST:
+        if 'edit' in request.POST:
             # Get badge info and the first condition
             badgeName = request.POST['badgeName'] # The entered Badge Name
-            print("badge name: "+str(badgeName))
+            logger.debug("badge name: "+str(badgeName))
             badgeDescription = request.POST['badgeDescription'] # The entered Badge Description
-            print("badge description: "+str(badgeDescription))
+            logger.debug("badge description: "+str(badgeDescription))
             badgeImage = request.POST['badgeImage'] # The Chosen Badge Image Name
-            print("badge image: "+str(badgeImage))
+            logger.debug("badge image: "+str(badgeImage))
                 
-            badgeCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,currentCourse)
-            print(badgeCondition)
+            badgeCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,current_course)
+            logger.debug(badgeCondition)
                 
             # Save game rule to the Rules table
             gameRule = Rules()
             gameRule.conditionID = badgeCondition
             gameRule.actionID = Action.giveBadge 
-            gameRule.courseID = currentCourse
+            gameRule.courseID = current_course
             gameRule.save()
 
             # We get all of the related events.
@@ -78,7 +73,7 @@ def SaveBadge(request):
 
             # Save badge information to the Badges Table
             badgeInformation.ruleID = gameRule            
-            badgeInformation.courseID = currentCourse
+            badgeInformation.courseID = current_course
             badgeInformation.badgeName = badgeName
             badgeInformation.badgeDescription = badgeDescription
             badgeInformation.badgeImage = badgeImage
@@ -86,7 +81,7 @@ def SaveBadge(request):
             badgeInformation.save()
             
             badgeId = badgeInformation
-            print("badge id: "+str(badgeId.badgeID))
+            logger.debug("badge id: "+str(badgeId.badgeID))
             if not (ActionArguments.objects.filter(ruleID = gameRule, sequenceNumber = 1, argumentValue=str(badgeId.badgeID)).exists()):
                 # Save the action 'Giving a Badge' to the ActionArguments Table
                 actionArgument = ActionArguments()
