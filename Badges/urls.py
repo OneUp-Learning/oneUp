@@ -11,9 +11,7 @@ from Badges.views.addVirtualCurrencyForStudentWithRuleView import addVirtualCurr
 from Badges.views.badgesDisplayView import BadgesDisplay
 from Badges.views.badgesView import BadgesMain
 
-from Badges.views.createBadgeView import CreateBadge
 from Badges.views.createVirtualCurrencyRuleView import CreateVcRule
-from Badges.views.createVirtualCurrencySpendRuleView import CreateVcSpendRule
 from Badges.views.editDeleteBadgeView import EditDeleteBadge
 from Badges.views.editVirtualCurrencyRuleView import EditVirtualCurrencyRule
 from Badges.views.editVirtualCurrencySpendRuleView import EditVirtualCurrencySpendRule
@@ -32,8 +30,6 @@ admin.autodiscover()
 urlpatterns = [    
     url(r'^AddVirtualCurrency', addVirtualCurrencyForStudentWithRuleView, name='Add Virtual Currency to Students'),
     url(r'^Badges',BadgesMain, name='BadgesMain'),
-    url(r'^CreateBadge',CreateBadge, name='CreateBadge'),
-    url(r'^CreateVirtualCurrencySpendRule',CreateVcSpendRule, name='Create Virtual Currency Spend Rule'),
     url(r'^CreateVirtualCurrencyRule',CreateVcRule, name='Create Virtual Currency Rule'),
     url(r'^CourseBadges', BadgesDisplay, name='BadgeDisplay'),
     url(r'^EditDeleteBadge',EditDeleteBadge, name='EditDeleteBadge'),
