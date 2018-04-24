@@ -15,7 +15,8 @@ def CourseInformation(request):
     context_dict,currentCourse = studentInitialContextDict(request)
     
     if 'currentCourseID' in request.session:  
-        context_dict['course_Description'] = currentCourse.courseDescription
+        if currentCourse.courseDescription != "":
+            context_dict['course_Description'] = currentCourse.courseDescription
                         
         skill_ID = []      
         skill_Name = []         

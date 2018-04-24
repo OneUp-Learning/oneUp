@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
-from Students.models import StudentVirtualCurrencyTransactions
+from Students.models import StudentVirtualCurrencyTransactions, StudentRegisteredCourses
 from Badges.models import ActionArguments, Action, Rules
 from Badges.enums import Event
 from datetime import datetime
@@ -61,11 +61,18 @@ def updateVirtualCurrencyTransaction(request):
                 #logger.debug(context_dict)
                 
             return render(request, 'Badges/UpdateVirtualCurrencyTransaction.html', context_dict)
-        elif request.method == 'POST':
+        elif request.method == 'POST':                
             if 'transactionID' in request.POST:
-                # Save the transaction status and notes
                 transaction = StudentVirtualCurrencyTransactions.objects.get(pk=int(request.POST['transactionID']))
-                
+                if 'revert' in request.POST:
+                    student = StudentRegisteredCourses.objects.get(courseID = course, studentID = transaction.student)
+                    amount = getBuyAmountForEvent(transaction.studentEvent.event)[1]
+                    student.virtualCurrencyAmount += amount
+                    student.save()
+                    transaction.delete()
+                    return redirect('VirtualCurrencyTransactions.html')
+                    
+                # Save the transaction status and notes
                 transaction.status = request.POST['updateStatus']
                 transaction.instructorNote = request.POST['instructorNotes']
                 transaction.noteForStudent = request.POST['studentNotes']
