@@ -69,14 +69,21 @@ def challengeCreateView(request):
         
         displayCorrectAnswer = str(request.POST.get('displayCorrectAnswer','false'))  
         displayCorrectAnswerFeedback = str(request.POST.get('displayCorrectAnswerFeedback','false'))  
-        displayIncorrectAnswerFeedback = str(request.POST.get('displayIncorrectAnswerFeedback','false'))         
-        challenge.curve = Decimal(request.POST.get("curve", 0))
+        displayIncorrectAnswerFeedback = str(request.POST.get('displayIncorrectAnswerFeedback','false'))    
+        try:     
+            challenge.curve = Decimal(request.POST.get("curve", 0))
+        except:
+            challenge.curve = Decimal(0)
 
         # Copy all strings from POST to database object.
         for attr in string_attributes:
             if(attr in request.POST):
                 setattr(challenge,attr,request.POST[attr])
-
+        
+        try:     
+            challenge.manuallyGradedScore = Decimal(request.POST.get("manuallyGradedScore", 0))
+        except:
+            challenge.manuallyGradedScore = Decimal(0)
 
         # get the logged in user for an author                           
         if request.user.is_authenticated():
