@@ -63,7 +63,7 @@
                            <div class="col s12">
                               {% for j,answer in question.answers_with_count %}
                               <div class="row">
-                                 <input name="{{i}}-ans" type="radio" id="{{i}}ans-{{j}}" value="{{i}}" />
+                                 <input name="{{i}}-ans" type="radio" id="{{i}}ans-{{j}}" value="{{j}}" />
                                  <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
                               </div>
                               {% endfor %}
@@ -74,7 +74,7 @@
                            <div class="col s12">
                               {% for j,answer in question.answers_with_count %}
                               <div class="row">
-                                 <input name="{{i}}-ans[]" type="checkbox" id="{{i}}ans-{{j}}" value="{{j}}"/>
+                                 <input name="{{i}}-ans" type="checkbox" id="{{i}}ans-{{j}}" value="{{j}}"/>
                                  <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
                                  </div>
                               {% endfor %}
