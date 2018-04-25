@@ -89,7 +89,7 @@ def SelectedChallengeTaken(request):
                     for stuAns in studentAnswers:
                         matchAnswer = stuAns.studentAnswer
                         parts = matchAnswer.split(':')
-                        userAnswerDict[int(parts[1])] = MatchingAnswers.objects.get(pk=parts[0]).matchingAnswerText
+                        userAnswerDict[int(parts[1])] = MatchingAnswers.objects.get(pk=parts[0]).answerID.answerText
                     useranswerObjects.append([userAnswerDict[ans.answerID] for ans in answers])                  
                 else:
                     answer_list = []
