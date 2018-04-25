@@ -5,7 +5,7 @@ Created on Oct 1, 2015
 '''
 
 from django.shortcuts import render
-from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges
+from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges, ChallengesQuestions
 from Instructors.constants import  unspecified_topic_name
 from Students.models import StudentChallenges
 from Students.views.utils import studentInitialContextDict
@@ -22,32 +22,36 @@ def challengesForTopic(topic, student, currentCourse):
     if challenge_topics:           
         for ct in challenge_topics:
             if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
-                challID = ct.challengeID.challengeID
-                challenge_ID.append(challID)
-                challenge_Name.append(ct.challengeID.challengeName)
-                chall_position.append(ct.challengeID.challengePosition)
-
-                if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challID):
-                    item = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challID)
-                    gradeID  = []
-                    
-                    for sc in item:
-                        gradeID.append(sc.testScore)
-                    
-                    #Calculation for ranking score by 3 levels (Above average, Average, Below Average)
-                    tTotal=(sc.challengeID.totalScore/3)
-                    
-                    #Above Average Score
-                    if (max(gradeID) >= (2*tTotal)):
-                        score.append(3)
-                    #Average Score
-                    elif (max(gradeID) > tTotal) and (max(gradeID) < (2*tTotal)):
-                        score.append(4)
-                    #Below Average Score
+                
+                challQuestions = ChallengesQuestions.objects.filter(challengeID=ct.challengeID.challengeID)
+                
+                if challQuestions:
+                    challID = ct.challengeID.challengeID
+                    challenge_ID.append(challID)
+                    challenge_Name.append(ct.challengeID.challengeName)
+                    chall_position.append(ct.challengeID.challengePosition)
+    
+                    if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challID):
+                        item = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challID)
+                        gradeID  = []
+                        
+                        for sc in item:
+                            gradeID.append(sc.testScore)
+                        
+                        #Calculation for ranking score by 3 levels (Above average, Average, Below Average)
+                        tTotal=(sc.challengeID.totalScore/3)
+                        
+                        #Above Average Score
+                        if (max(gradeID) >= (2*tTotal)):
+                            score.append(3)
+                        #Average Score
+                        elif (max(gradeID) > tTotal) and (max(gradeID) < (2*tTotal)):
+                            score.append(4)
+                        #Below Average Score
+                        else:
+                            score.append(5)
                     else:
-                        score.append(5)
-                else:
-                    score.append(2)  # no attempt
+                        score.append(2)  # no attempt
     else:
         challenge_ID.append('')
         challenge_Name.append('')
