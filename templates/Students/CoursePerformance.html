@@ -15,14 +15,13 @@
             <div class="col s12 m8 offset-m2">
                <div class="card">
                   <div class="card-content">
-                     <table>
+                     <table class="responsive-table">
                         <thead>
                            <th>Name</th>
                            <th>Type</th>
                            <th>Time</th>
                            <th>Grade</th>
                            <th>Instructor's Feedback</th>
-                           <th></th>
                         </thead>
                         <tbody>
                            {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback, isExpired in challenge_range %}
@@ -32,7 +31,7 @@
                               <td>{{assignmentTime}}</td>
                               <td>{{assignmentGrade}} / {{assignmentGradeTotal}}</td>
                               <td>{{assignmentFeedback}}</td>
-                              <td class="secondary-content">
+                              <td class="right-align">
                                  {% ifequal assignmentType 'Challenge' %}
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{assignmentID}}"><i class="material-icons left">visibility</i>View</a>
                                  {% endifequal %}
