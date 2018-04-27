@@ -31,12 +31,12 @@ class OneUpExtendedJSONDecoder(json.JSONDecoder):
 # Really just wraps up native Python JSON library with extra hooks.
 class OneUpExtendedJSONSerializer():
     def dumps(self, obj):
-        print("Session Object dump:"+json.dumps(obj, cls=OneUpExtendedJSONEncoder))
+#        print("Session Object dump:"+json.dumps(obj, cls=OneUpExtendedJSONEncoder))
         return str.encode(json.dumps(obj, cls=OneUpExtendedJSONEncoder))
     def loads(self, data):
-        print("\n\nSession data dump:"+str(data))
+#        print("\n\nSession data dump:"+str(data))
         obj= json.loads(data.decode('utf-8'), cls=OneUpExtendedJSONDecoder)
-        print("Session data object dump:"+json.dumps(obj, cls=OneUpExtendedJSONEncoder))
-        print("\n\n")
+#        print("Session data object dump:"+json.dumps(obj, cls=OneUpExtendedJSONEncoder))
+#        print("\n\n")
         return obj
     

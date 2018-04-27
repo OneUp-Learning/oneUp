@@ -351,10 +351,18 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
         if challTopics.exists():
             for topic in challTopics:
                 topic.delete()
-        challTopic = ChallengesTopics()
-        challTopic.challengeID = challenge
-        challTopic.topicID = unspecified_topic
-        challTopic.save()
+        if len(tops) > 0:
+            for topic in tops:
+                if topic['id'] != -1:
+                    newChallTopics = ChallengesTopics()
+                    newChallTopics.challengeID = challenge
+                    newChallTopics.topicID = Topics.objects.get(pk=topic['id'])
+                    newChallTopics.save()
+        else:
+            challTopic = ChallengesTopics()
+            challTopic.challengeID = challenge
+            challTopic.topicID = unspecified_topic
+            challTopic.save()
 # Sets up the logged_in, username, and course_Name entries in the context_dict and then returns it along with the currentCourse if any.
 def initialContextDict(request):
     context_dict = {}
