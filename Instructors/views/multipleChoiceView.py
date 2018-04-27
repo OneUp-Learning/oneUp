@@ -96,15 +96,18 @@ def multipleChoiceForm(request):
                 answer.answerText = request.POST['answer'+str(x)]
                 answer.save()
                 answers.add(answer)
+                
             else:
                 # Otherwise, we create new.
                 answer = Answers()
                 answer.questionID = question                                    
                 answer.answerText = request.POST['answer'+str(x)]
-
+                
                 if (answer.answerText): # Save only if there is text.
                     answer.save()
                     answers.add(answer)
+                else:
+                    answer.save()
 
             # Note: in current version if the user selects a blank field as
             # the correct answer, errors may result.

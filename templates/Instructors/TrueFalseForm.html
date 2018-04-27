@@ -24,6 +24,8 @@
          $(':input').attr('disabled', 'disabled');
       </script>
       {% endif %}
+      
+      
    </head>
    <body>
       {% include 'heading.html' %}
@@ -63,10 +65,12 @@
                            <div class="col s12">
                                 <label for="question_text"><span class= "red-text">*</span> Problem Text</label>
                               <textarea name="questionText" id="question_text" rows="2" cols="70" required>{{questionText}}</textarea>
+                                
                               <script type="text/javascript">
                 				CKEDITOR.config.autoParagraph = false;
                 				CKEDITOR.replace( 'questionText' );
               				  </script>
+              				  
                            </div>
                         </div>
                         <div class="row">
@@ -163,7 +167,7 @@
                         {% if view %}
                         <a class="waves-effect waves-light btn" href="#!" onclick="window.history.back();"><i class="material-icons left">navigate_before</i>Back</a>
                         {% else %}
-                        <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i></button>
+                        <button class="btn waves-effect waves-light"  type="submit" name="submit">Save<i class="material-icons right">send</i></button>
                         {% if challenge %}									
                         <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}">
                         {% else %}
