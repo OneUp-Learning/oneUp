@@ -120,6 +120,8 @@ def ActivityDetail(request):
         return render(request,'Students/ActivityDescription.html', context_dict)
 
 def makeFileObjects(studentId, currentCourse,files, studentActivities):
+    fileNames = []
+    
     
     oldStudentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities)
     for f in oldStudentFile:
@@ -140,6 +142,7 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         studentFile.save()
         studentFile.fileName = os.path.basename(studentFile.file.name) 
         studentFile.save()
+        fileNames.append(files[0].name)
 
     
     else: #if there is more than one file save them and zip together
@@ -153,6 +156,7 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
             studentFile.activity = studentActivities
             studentFile.save()
             filesForZip.append(studentFile)
+            fileNames.append(files[i].name)
         
         
         #make zip file

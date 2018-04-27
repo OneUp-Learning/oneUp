@@ -6,6 +6,7 @@ from Instructors.views.activityAssignPointsView import assignedPointsList, activ
 from Instructors.views.activityCreateView import activityCreateView, removeFileFromActivty
 from Instructors.views.activityListView import activityList
 from Instructors.views.activityScoreView import activityScore
+from Instructors.views.activityCategories import activityCatList, activityCatCreate, activityCatDelete
 from Instructors.views.announcementCreateView import announcementCreateView
 from Instructors.views.announcementListView import announcementList
 from Instructors.views.allAnnouncementsView import allAnnouncements
@@ -77,6 +78,9 @@ urlpatterns = [
     url(r'^activityRemoveFile', removeFileFromActivty, name='removeFileFromActivty'),
     url(r'^activityAssignPointsForm', assignedPointsList, name='activityAssignPointsForm'),
     url(r'^activityAssignPoints', activityAssignPointsView, name='activityAssignPoints'),
+    url(r'^activityCatsCreate', activityCatCreate, name='activityCategoriesCreateForm'),
+    url(r'^activityCatsDelete', activityCatDelete, name='activityCategoriesDeleteForm'),
+    url(r'^activityCats', activityCatList, name='activityCategories'),
     url(r'^activitiesList',activityList, name='activityList'),
     url(r'^announcementCreate', announcementCreateView, name='announcementCreateView'),
     url(r'^announcementList', announcementList, name='announcementListView'),           

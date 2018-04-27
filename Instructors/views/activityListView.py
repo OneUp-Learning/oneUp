@@ -40,6 +40,7 @@ def createContextForActivityList(request):
                     
     # The range part is the index numbers.
     context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
+    context_dict['activitesForCats'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
     
     #Get StudentID and StudentName for every student in the current course
     #This context_dict is used to populate the scrollable check list for student names
