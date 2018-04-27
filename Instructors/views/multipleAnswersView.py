@@ -99,6 +99,8 @@ def multipleAnswersForm(request):
                 if (answer.answerText): # Save only if there is text.
                     answer.save()
                     answers.add(answer)
+                else:
+                    answer.save()
 
             # Note: in current version if the user selects a blank field as
             # the correct answer, errors may result.
