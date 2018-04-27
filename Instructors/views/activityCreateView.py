@@ -23,7 +23,8 @@ def activityCreateView(request):
  
     context_dict, currentCourse = initialContextDict(request)
     string_attributes = ['activityName','description','points','instructorNotes'];
-    
+    actCats = ActivitiesCategory.objects.filter(courseID=currentCourse)
+    context_dict['categories'] = actCats
     
     if request.POST:
 
@@ -39,6 +40,12 @@ def activityCreateView(request):
             setattr(activity,attr,request.POST[attr])
         
         activity.courseID = currentCourse
+        
+        if 'actCat' in request.POST:
+            
+            print("WE ARE HERE")
+            print(request.POST['actCat'])
+            activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
         
         if 'isGraded' in request.POST:
             activity.isGraded = True

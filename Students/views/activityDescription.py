@@ -77,11 +77,13 @@ def ActivityDetail(request):
                         
                     #uploaded a file but can still add more files    
                     elif studentFile and studentActivities.numOfUploads < studentActivities.activityID.uploadAttempts:
+                        print(studentFile)
                         isFile = False
                         fileName = []
                         for file in studentFile:
                             fileName.append(file.fileName)
-                            context_dict['fileName'] = fileName
+                        
+                        context_dict['fileName'] = fileName
                              
                     #You haven't uploaded a file
                     else:
@@ -105,7 +107,8 @@ def ActivityDetail(request):
                     files.append(currentFile)
                           
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.POST['studentActivity'])
-            makeFileObjects(studentId, currentCourse, files, studentActivities)
+            fileName = makeFileObjects(studentId, currentCourse, files, studentActivities)
+            
             
             print(studentActivities.numOfUploads)
             studentActivities.numOfUploads = studentActivities.numOfUploads + 1
@@ -186,6 +189,8 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         #delete oldFile objects
         for object in filesForZip:
             object.delete()
+            
+        return fileNames
 
 def checkTimes(endTimestamp, deadLine):
     print("End" + str(endTimestamp))

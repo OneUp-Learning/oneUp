@@ -81,7 +81,7 @@
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
-               <form name="question" enctype="multipart/form-data" action="/oneUp/instructors/createActivity" method="POST">
+               <form name="question"id="actForm" enctype="multipart/form-data" action="/oneUp/instructors/createActivity" method="POST">
                   {% csrf_token %}
                   {% if activityID %}
                   <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
@@ -119,6 +119,17 @@
                         		<label for="deadLine">Dead Line:</label>
                         		<input type="text" class="datepicker-until" name="deadLine" id="deadLine" value="{{deadLineTimestamp}}">
                         	</div>
+                        </div>
+                        <div class="row">
+                             <div class="input-field col s12" id="actCats">
+							    <select name="actCat" form="actForm">
+							      <option value="" disabled selected>Choose your option</option>
+							      {% for cat in categories %}
+							      <option value={{cat.categoryID}} name="actCat">{{cat.name}}</option>
+							      {% endfor %}
+							    </select>
+	                          	<label for="actCats">Categories</label>
+							</div>
                         </div>
                         <div class="row">
                           <div class="col s12">
