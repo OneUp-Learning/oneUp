@@ -40,7 +40,7 @@
 				   <div class="col s12">
 					  {% for j,answer in q.answers_with_count %}
 					  <p>
-						 <input name="{{q.question.questionID}}" type="radio" id="ans-{{q.question.questionID}}" disabled="disabled" {% if q.user_answer.answerNumber == j %}checked{% endif %}/>
+						 <input name="{{q.question.questionID}}" type="radio" id="ans-{{q.question.questionID}}" {% if q.user_answer.answerNumber == j %}checked{% else %} disabled {% endif %}/>
 						 <label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}} {% endautoescape %}</label>
 					  </p>
 					  {% endfor %}
@@ -60,7 +60,7 @@
 					<div class="col s12">
 						{% for j,answer in q.answers_with_count %}
 						<p>
-							<input name="{{q.question.questionID}}" type="checkbox" id="ans-{{q.question.questionID}}" {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %} disabled/>
+							<input name="{{q.question.questionID}}" class="filled-in" type="checkbox" id="ans-{{q.question.questionID}}" {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %} disabled/>
 							<label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}}{% endautoescape %}</label>
 						</p>
 						{% endfor %}
@@ -71,7 +71,7 @@
 						<h5>Correct Answer(s): </h5>
 						<blockquote>
 						{% for correct_answer_text in q.correct_answer_texts %}
-							{{correct_answer_text|safe}}
+							{{correct_answer_text|safe}} <br />
 						{% endfor %}
 						</blockquote>
 						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
@@ -84,29 +84,37 @@
 						<p>{{j}} . {{answer.answerText}}</p>
 						{% endfor %}
 					</div>
-					<div class="col s6">
-						{% for user_answer in q.user_answers %}
-						<p>{{user_answer.answerNumber}}</p>
-						{% endfor %}
-						<h6>Matches:</h6>
-						{% for match in q.matches %}
-						<p>{{match.matchingAnswerText}}</p>	
-						{% endfor %}
-					</div>
+				</div>
+				<div class="row">	
+				<div class="col s6">
+				{% for user_answer in q.user_answers %}
+				<p>{{user_answer.answerNumber}}</p>
+				{% endfor %}
+				</div>	
+				<div class="col s6">
+				{% for match in q.matches %}
+                        
+                <p>{{match.matchingAnswerText}}</p>
+               {% endfor %}
+				</div>
+				
+						
 				</div>
 				<div class="row">
-					<div class="col s12">
-						<h5>Correct Answer(s): </h5>
-						<blockquote>
+				<div class="col s12">
+				<h5>Correct Answer(s): </h5>
+				<blockquote>
+					<div style="column-count:2;">
 						{% for match in q.matches %}
 						<p>{{match.current_pos}} . {{match.answerText}}</p>
 						{% endfor %}
 						{% for match in q.matches %}
 						<p>{{match.matchingAnswerText}}</p>	
 						{% endfor %}
-						</blockquote>
-						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 					</div>
+				</blockquote>
+				<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+				</div>
 				</div>
 				{% elif q.question.type == questionTypes.trueFalse %}
 				<div class="row">
@@ -127,17 +135,6 @@
 						<blockquote>
 						{{q.correctAnswerText}}
 						</blockquote>
-						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
-					</div>
-				</div>
-				{% elif q.question.type == questionTypes.essay %}
-				<div class="row">
-					<div class="col s12">
-						<textarea class="materialize-textarea" name="{{q.question.questionID}}" rows="10" cols="90" disabled>{{q.user_answer}}</textarea>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col s12">
 						<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 					</div>
 				</div>

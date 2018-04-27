@@ -67,7 +67,7 @@
             <div class="col s12 m8 offset-m2">
                <div class="card">
                   <div class="card-content">
-                     <table>
+                     <table class="responsive-table">
                         <thead>
                            <tr>
                               <th>Item Name</th>
@@ -87,9 +87,9 @@
                               <td>{{purchaseDate}}</td>
                               <td>{{total}}</td>
                               <td><b>{{status}}</b></td>
-                              <td><a href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><input type="button" class="table" value="View Note From Instructor"></a></td>
+                              <td><a class="waves-effect waves-light btn" href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><i class="material-icons left">visibility</i>View Note From Instructor</a></td>
                               {% if status != 'Complete' %}
-                              <td><a class="create" href="#!" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{purchaseDate}}"><button class="button" type="button">Download</button></a></td>
+                              <td><a class="waves-effect waves-light btn create" href="#!" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{purchaseDate}}"><i class="material-icons left">file_download</i>Download</a></td>
                               {% else %}
                               <td></td>
                               {% endif %}

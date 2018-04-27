@@ -16,6 +16,7 @@ from Badges.events import register_event
 from Badges.event_utils import updateLeaderboard
 from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
 from Instructors.lupaQuestion import LupaQuestion
+from Badges.systemVariables import logger
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
@@ -149,7 +150,7 @@ def ChallengeResults(request):
                                 question['user_points'] = 0
                             studentAnswerList = [str(userAnswer['answerID'])]
                     elif questionType == QuestionTypes.multipleAnswers:
-                        answerInputName = str(question['index']) + '-ans[]'
+                        answerInputName = str(question['index']) + '-ans'
                         correctAnswers = [x.answerID for x in CorrectAnswers.objects.filter(questionID=question['question']['questionID'])]
                         correctAnswerIds = [x.answerID for x in correctAnswers]
                         question['correct_answer_texts'] = [x.answerText for x in correctAnswers]

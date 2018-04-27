@@ -42,6 +42,7 @@ def createContextForAnnouncementList(currentCourse, context_dict):
 def allAnnouncements(request):
 
     context_dict,currentCourse = studentInitialContextDict(request)
+    context_dict = createContextForAnnouncementList(currentCourse, context_dict)
 
     return render(request,'Students/Announcements.html', context_dict)
 

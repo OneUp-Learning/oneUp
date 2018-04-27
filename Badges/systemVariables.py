@@ -778,7 +778,7 @@ class SystemVariable():
             'name':'score',
             'displayName':'Score',
             'description':'The score for the challenge or activity',
-            'eventsWhichCanChangeThis':[Event.endChallenge, Event.participationNoted],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.participationNoted, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.activity: activityScore,
@@ -790,7 +790,7 @@ class SystemVariable():
             'name':'percentageCorrect',
             'displayName':'Percentage Correct',
             'description':'The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getHighestPercentageCorrect
@@ -801,7 +801,7 @@ class SystemVariable():
             'name':'maxTestScore',
             'displayName':'Maximum Challenge Score',
             'description':"The maximum of the test scores of all the student's attempts for a particular challenge",
-            'eventsWhichCanChangeThis':[Event.challengeExpiration],
+            'eventsWhichCanChangeThis':[Event.challengeExpiration, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getMaxTestScore
@@ -812,7 +812,7 @@ class SystemVariable():
             'name':'minTestScore',
             'displayName':'Minimum Challenge Score',
             'description':"The minimum of the test scores of all the student's attempts for a particular challenge",
-            'eventsWhichCanChangeThis':[Event.challengeExpiration],
+            'eventsWhichCanChangeThis':[Event.challengeExpiration,Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getMinTestScore
@@ -955,7 +955,7 @@ class SystemVariable():
             'name':'consecutiveDaysWarmUpChallengesTaken30Percent',
             'displayName':'Consecutive Days Warm Up Challenges (at least 30% correct) Taken ',
             'description':'The number of consecutive days a student has taken Warm-up challenges (at least 30% correct).',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge , Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken30Percent
@@ -966,7 +966,7 @@ class SystemVariable():
             'name':'consecutiveDaysWarmUpChallengesTaken75Percent',
             'displayName':'Consecutive Days Warm Up Challenges (at least 75% correct) Taken ',
             'description':'The number of consecutive days a student has taken Warm-up challenges (at least 75% correct).',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken75Percent
@@ -1000,7 +1000,7 @@ class SystemVariable():
             'name':'percentOfScoreOutOfMaxChallengeScore',
             'displayName':'Percent of student score out of max challenge score',
             'description':'Percentage of student score (for the max scored attempt) out of max challenge score.',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
@@ -1011,7 +1011,7 @@ class SystemVariable():
             'name':'averageTestScore',
             'displayName':'Average Test Score',
             'description':'Average Test Score.',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge,Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge:getAverageTestScore
@@ -1044,7 +1044,7 @@ class SystemVariable():
             'name':'uniqueWarmupChallengesGreaterThan30Percent',
             'displayName':'Warmup Challenges with Score > 30%',
             'description':'The number of warmup challenges with a score greater than 30%.',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan30Percent
@@ -1055,7 +1055,7 @@ class SystemVariable():
             'name':'uniqueWarmupChallengesGreaterThan75Percent',
             'displayName':'Warmup Challenges with Score > 75%',
             'description':'The number of warmup challenges with a score greater than 75%.',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75Percent
@@ -1066,7 +1066,7 @@ class SystemVariable():
             'name':'uniqueWarmupChallengesGreaterThan75PercentForTopic',
             'displayName':'Warmup Challenges with Score > 75% for Specific Topic',
             'description':'The number of warmup challenges with a score greater than 75% for a specific topic.',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic
@@ -1099,7 +1099,7 @@ class SystemVariable():
             'name':'differenceFromLastChallengeScore',
             'displayName':'Score Difference from Last Completed Challenge',
             'description':'Score difference from last completed challenge/warmup challenge and a specific challenge.',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge:getConsecutiveScoresDifference
@@ -1176,7 +1176,7 @@ class SystemVariable():
             'name':'uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt',
             'displayName':'Warmup Challenges with Score > 75% with only one attempt',
             'description':'The number of warmup challenges with a score greater than 75% with only one attempt.',
-            'eventsWhichCanChangeThis':[Event.endChallenge],
+            'eventsWhichCanChangeThis':[Event.endChallenge, Event.adjustment],
             'type':'int',
             'functions':{
                 ObjectTypes.challenge:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
