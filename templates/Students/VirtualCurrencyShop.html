@@ -15,7 +15,8 @@
             <div class="col s12 m8 offset-m2">
                <div class="card">
                   <div class="card-content">
-                     <form id="store" name="store" action="#" onsubmit="return updatePrices()" method="post">
+                     <!-- <form id="store" name="store" action="#" onsubmit="return updatePrices()" method="post"> -->
+                     <form id="store" name="store" action="#" onsubmit="return checkTotal()" method="post">
                         {% csrf_token %}					
                         <table class="responsive-table">
                            <thead>
@@ -57,8 +58,8 @@
                         <table>
                            <thead>
                               <tr>
-                                 <th>Your current balance: {{studentVirtualCurrency}}</th>
-                                 <th class="secondary-content"><span id="total" class="black-text">Total: 0</span></th>
+                              <th>Your current balance: {{studentVirtualCurrency}}</th>
+                              <th class="secondary-content"><span id="total" class="black-text">Total: 0</span></th>
                               </tr>
                            </thead>
                            <tbody>
@@ -101,16 +102,23 @@
          	
          		
          	}
-         	document.getElementById("total").innerHTML = "Total: " + total;
-         	checkTotal();
+         	document.getElementById("total").innerHTML =  "Total: " +  total;
+         	//GGM checkTotal();
          }
          function checkTotal(){
          	var total = document.getElementById("total").innerHTML;
-         	if ( {{studentVirtualCurrency}} - parseInt(total) < 0 ) {
+         	total = total.slice(7);	//GGM get number out of string
+         	if ( {{studentVirtualCurrency}} - parseInt(total) <= 0 ) {	
               alert("You do not have enough money ");
               return false;
-           }
+           	}
+         	if(parseInt(total) == 0){	//GGM added case to check if zero total
+         		alert("You have not bought anything.")
+         		return false;
+         	}
+         	return true;	//GGM
          }
+         
          for (var i = 0; i<{{numBuyOptions}}; i++) {
          	document.getElementById("buyOptionQuantity"+i).addEventListener('change',updatePrices);
          }
