@@ -29,14 +29,27 @@ def createContextForActivityList(request):
         defaultCat.name = uncategorized_activity
         defaultCat.courseID = currentCourse
         defaultCat.save() 
-   
-        
-    activities = Activities.objects.filter(courseID=currentCourse)
-    for activity in activities:
-        activity_ID.append(activity.activityID) #pk
-        activity_Name.append(activity.activityName)
-        description.append(activity.description[:100])
-        points.append(activity.points)
+      
+    if request.method == "GET" or request.POST.get('actCat') == "all":
+        activities = Activities.objects.filter(courseID=currentCourse)
+        for activity in activities:
+            activity_ID.append(activity.activityID) #pk
+            activity_Name.append(activity.activityName)
+            description.append(activity.description[:100])
+            points.append(activity.points)
+        context_dict['currentCat'] = "all"
+    elif request.method == "POST":
+        filterCategory = request.POST.get('actCat')
+        if filterCategory is not None:
+            category = ActivitiesCategory.objects.get(pk=filterCategory, courseID=currentCourse)
+            activities = Activities.objects.filter(category=category, courseID=currentCourse)
+            for activity in activities:
+                activity_ID.append(activity.activityID) #pk
+                activity_Name.append(activity.activityName)
+                description.append(activity.description[:100])
+                points.append(activity.points)
+            context_dict['currentCat'] = category
+
                     
     # The range part is the index numbers.
     context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
@@ -66,6 +79,9 @@ def createContextForActivityList(request):
         assignment_Recipient.append(assignment.studentID)
         assignment_Points.append(assignment.activityScore)
     context_dict['assignment_history_range'] = zip(range(1,assignments.count()+1),assignment_Name,assignment_Recipient,assignment_Points, assignment_ID)
+    
+    categories = ActivitiesCategory.objects.filter(courseID=currentCourse)
+    context_dict['categories'] =  categories
 
     return context_dict
 
@@ -73,6 +89,7 @@ def createContextForActivityList(request):
 @login_required
 def activityList(request):
 
-    context_dict = createContextForActivityList(request)    
-
+    context_dict = createContextForActivityList(request)
+        
+    
     return render(request,'Instructors/ActivitiesList.html', context_dict)

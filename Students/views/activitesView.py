@@ -6,7 +6,7 @@ Created on Aug 28, 2017
 from django.shortcuts import render
 from Students.models import StudentActivities
 from Students.views.utils import studentInitialContextDict
-from Instructors.models import Activities
+from Instructors.models import Activities, ActivitiesCategory
 from Instructors.views.utils import utcDate
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
@@ -38,8 +38,33 @@ def ActivityList(request):
                 
         studentId = context_dict['student'] #get student
         
-        #Displaying the list of challenges from database        
-        activities = Activities.objects.filter(courseID=currentCourse)  
+        categories = ActivitiesCategory.objects.filter(courseID=currentCourse)
+        context_dict['categories'] =  categories
+        
+        #Displaying the list of challenges from database   
+        if request.method == "GET" or request.POST.get('actCat') == "all":      
+            activities = Activities.objects.filter(courseID=currentCourse)
+            context_dict['currentCat'] = "all"
+        elif request.method == "POST":
+            filterCategory = request.POST.get('actCat')
+            if filterCategory is not None:
+                category = ActivitiesCategory.objects.get(pk=filterCategory, courseID=currentCourse)
+                activities = Activities.objects.filter(category=category, courseID=currentCourse)
+                context_dict['currentCat'] = category
+            else:
+                activities = Activities.objects.filter(courseID=currentCourse)
+                context_dict['currentCat'] = "all"
+
+            
+
+            
+
+
+            
+        
+        
+        if request.method == "POST":
+            print("HERE")  
         
         #make the student activities
         for act in activities:
