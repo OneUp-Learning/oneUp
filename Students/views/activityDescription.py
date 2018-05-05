@@ -7,6 +7,7 @@ import os
 from django.core.files import File
 from oneUp.settings import MEDIA_ROOT
 from zipfile import ZipFile
+import zipfile
 from django.shortcuts import render, redirect
 from Instructors.models import Activities, UploadedFiles, UploadedActivityFiles
 from Students.models import StudentActivities, Student, StudentFile
@@ -49,50 +50,28 @@ def ActivityDetail(request):
                 context_dict['instructorHasFiles'] = False
                 
             timeCheck = checkTimes(studentActivities.activityID.endTimestamp, studentActivities.activityID.deadLine)
+            studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True)
        
-            #we are allowed to uplad files 
-            if(studentActivities.activityID.isFileAllowed == True and timeCheck):                
-                context_dict['canUpload'] = True
-                 
-                #Check and see if the activity file has already been uplaoded
-                studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True )
-                
+            #we are allowed to upload files 
+            if(studentActivities.activityID.isFileAllowed == True and timeCheck):                                 
                 if(studentActivities.graded):
-                    isFile = True
-                    fileName = []
-                    for file in studentFile:
-                        name = os.path.basename(file.file.name)
-                        fileName.append(name)
-                    context_dict['fileName'] = fileName
-                else:
-                    
-                    #if you upload a file and you are out of uploads
-                    if studentFile and studentActivities.activityID.uploadAttempts == studentActivities.numOfUploads:
-                       isFile = True
-                       fileName = []
-                       for file in studentFile:
-                        name = os.path.basename(file.file.name)
-                        fileName.append(name)
-                        context_dict['fileName'] = fileName
-                        
+                    context_dict['canUpload'] = False                         
+                else:    
                     #uploaded a file but can still add more files    
-                    elif studentFile and studentActivities.numOfUploads < studentActivities.activityID.uploadAttempts:
-                        print(studentFile)
-                        isFile = False
-                        fileName = []
-                        for file in studentFile:
-                            fileName.append(file.fileName)
-                        
-                        context_dict['fileName'] = fileName
+                    if studentFile and studentActivities.numOfUploads >= studentActivities.activityID.uploadAttempts:
+                        context_dict['canUpload'] = False                         
                              
-                    #You haven't uploaded a file
+                    #You haven't uploaded enough attempts file
                     else:
-                        isFile = False
+                        context_dict['canUpload'] = True
                 
-                context_dict['isFile'] = isFile
+                fileName = getUploadedFileNames(studentFile)   
+                context_dict['fileName'] = fileName 
                 
             else: #not allowed to upload files 
                 context_dict['canUpload'] = False
+                fileName = getUploadedFileNames(studentFile)   
+                context_dict['fileName'] = fileName
 
                 
                   
@@ -189,6 +168,9 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         #delete oldFile objects
         for object in filesForZip:
             object.delete()
+        
+        for ob in oldStudentFile:
+            ob.delete()
             
         return fileNames
 
@@ -204,4 +186,19 @@ def checkTimes(endTimestamp, deadLine):
         return True
     else:
         return False  
-          
+
+def getUploadedFileNames(studentFile):
+    fileName = []
+    for file in studentFile:
+        path = file.file.name
+        name = os.path.basename(path)
+        #if zip file get all the files inside the zip
+        if(zipfile.is_zipfile(path)):
+            print('HERE')
+            with ZipFile(path, 'r') as zip:
+                zipNames = zip.namelist()
+                for z in zipNames:
+                    fileName.append(os.path.basename(z))
+        else:
+            fileName.append(name)
+    return fileName
