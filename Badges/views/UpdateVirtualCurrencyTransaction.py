@@ -64,13 +64,11 @@ def updateVirtualCurrencyTransaction(request):
         elif request.method == 'POST':                
             if 'transactionID' in request.POST:
                 transaction = StudentVirtualCurrencyTransactions.objects.get(pk=int(request.POST['transactionID']))
-                if 'revert' in request.POST:
+                if request.POST['updateStatus'] == 'Reverted':
                     student = StudentRegisteredCourses.objects.get(courseID = course, studentID = transaction.student)
                     amount = getBuyAmountForEvent(transaction.studentEvent.event)[1]
                     student.virtualCurrencyAmount += amount
                     student.save()
-                    transaction.delete()
-                    return redirect('VirtualCurrencyTransactions.html')
                     
                 # Save the transaction status and notes
                 transaction.status = request.POST['updateStatus']
