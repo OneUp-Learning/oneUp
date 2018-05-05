@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from Instructors.models import Announcements, Courses
 from Instructors.views.announcementListView import createContextForAnnouncementList
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import utcDate, localizedDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime
 from notify.signals import notify
@@ -18,27 +18,16 @@ def announcementCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['subject','message']
     
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
         
     # prepare context for Announcement List      
     context_dict = createContextForAnnouncementList(currentCourse, context_dict, False) 
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
 
     if request.POST:
 
@@ -69,7 +58,7 @@ def announcementCreateView(request):
         if(request.POST['endTime'] == ""):
             announcement.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
-            announcement.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+            announcement.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p") 
         
             
         announcement.save();  #Writes to database.
@@ -94,15 +83,13 @@ def announcementCreateView(request):
                     context_dict[attr]=getattr(announcement,attr)
 
                 # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-                defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-                announceEndTime = getattr(announcement, 'endTimestamp') 
- 
-                if (announceEndTime.year < defaultTime.year):
-                    displayEndTime = announceEndTime
+                endTime = announcement.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
+                if endTime != default_time_str: 
+                    context_dict['endTimestamp']= endTime
                 else:
-                    displayEndTime = ""
-                    
-                context_dict['endTimestamp']=displayEndTime
+                    context_dict['endTimestamp']= ""
+ 
+    
                 
 
     return render(request,'Instructors/AnnouncementCreateForm.html', context_dict)

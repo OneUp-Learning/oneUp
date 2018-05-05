@@ -9,14 +9,9 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Announcements, Instructors, Courses
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import utcDate, initialContextDict
+from Instructors.constants import default_time_str
 from datetime import datetime
-
-def insert_newlines(string, every=10):
-    lines = []
-    for i in range(0, len(string), every):
-        lines.append(string[i:i+every])
-    return '\n'.join(lines)
 
 # Added boolean to check if viewing from announcements page or course home page
 def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
@@ -36,7 +31,13 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
             announcement_ID.append(announcement.announcementID) #pk
             author_ID.append(announcement.authorID)
             start_Timestamp.append(announcement.startTimestamp)
-            end_Timestamp.append(announcement.endTimestamp)
+            # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
+            endTime = announcement.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
+            if endTime != default_time_str: 
+                end_Timestamp.append(announcement.endTimestamp)
+            else:
+                end_Timestamp.append("")
+            
             subject.append(announcement.subject[:25])
             message.append(announcement.message[:300])
     else: # Only shows the first three
@@ -59,19 +60,10 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
 @login_required
 def announcementList(request):
 
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+    context_dict, currentCourse = initialContextDict(request)
 
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict = createContextForAnnouncementList(currentCourse, context_dict, False)
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-
+    context_dict = createContextForAnnouncementList(currentCourse, context_dict, False)
+    
     return render(request,'Instructors/AnnouncementsList.html', context_dict)
 
 
