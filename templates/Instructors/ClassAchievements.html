@@ -3,6 +3,23 @@
 
 <head>
     {% include 'scripts.html' %}
+    <!-- added small CSS GGM to names and student names -->
+    <style type="text/css">
+        .fixed {
+            position: absolute;
+            padding-top: 0em;
+        }
+        
+        .background {
+            background: #f2f2f2;
+        }
+        
+        td {
+            height: .01em;
+            white-space: nowrap;
+            padding: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -15,20 +32,16 @@
         </div>
         <div class="row">
             <div class="col s12 m8 offset-m2">
-                <div class="card-panel">
-                {% if ID == '2' %}
-                <span class="title flow-text">Displaying Earliest Scores</span>
-                {% elif ID == '3' %}
-                <span class="title flow-text">Displaying Highest Scores</span>
-                {% elif ID == '4' %}
-                <span class="title flow-text">Displaying Lowest Scores</span>
-                {% else %}
-                <span class="title flow-text">Displaying Latest Scores</span>
-                {% endif %}
-                    <table>
+                <div class="card-panel" style="overflow-x:auto;">
+                    {% if ID == '2' %}
+                    <span class="title flow-text">Displaying Earliest Scores</span> {% elif ID == '3' %}
+                    <span class="title flow-text">Displaying Highest Scores</span> {% elif ID == '4' %}
+                    <span class="title flow-text">Displaying Lowest Scores</span> {% else %}
+                    <span class="title flow-text">Displaying Latest Scores</span> {% endif %}
+                    <table class="highlight">
                         <thead>
-                            <th> Name</th>
-                            <th> Total</th>
+                            <th style="padding-top:1.2em; margin-top:1.3em; left:15.6em;background:#f2f2f2; width:16.9em;" class="fixed"> Name</th>
+                            <th style="padding-left:16em;"> Total</th>
                             {% for i,chall_Name in challenge_range %}
                             <th>{{chall_Name}} </th>
                             {% endfor %}
@@ -44,20 +57,23 @@
                         </thead>
                         <tbody>
                             {% for i,first_Name,last_Name,grade_range,allActivityGrade_range, gradeTotal in user_range %}
+                            <!-- gave this classes and witdths GGM -->
                             <tr>
-                                    <td><b>{{first_Name}} {{last_Name}} </b></td>
-                                    <td>{{gradeTotal}}</td>
-                                    {% for grade,sc_user,sc_chall in grade_range %}
-                                    <input type="hidden" name="challID" value="{{sc_user}}">
-                                    <input type="hidden" name="challID" value="{{sc_chall}}">
-                                    <td><a href="/oneUp/instructors/studentChallengesCompleted?userID={{sc_user}}&challengeID={{sc_chall}}">{{grade}}</a> {% endfor %}
-                                    </td>
-                                    {% for activityGrades in allActivityGrade_range %}
-                                    <td> {{activityGrades}}</td>
-                                    {% endfor %}
+                                <td class="fixed" width="250em" style="left:15.8em;">
+                                    <div class="background">{{first_Name}} {{last_Name}}</div>
+                                </td>
+                                <td style="padding-left:16em;">{{gradeTotal}}</td>
+                                {% for grade,sc_user,sc_chall in grade_range %}
+                                <input type="hidden" name="challID" value="{{sc_user}}">
+                                <input type="hidden" name="challID" value="{{sc_chall}}">
+                                <td><a href="/oneUp/instructors/studentChallengesCompleted?userID={{sc_user}}&challengeID={{sc_chall}}">{{grade}}</a> {% endfor %}
+                                </td>
+                                {% for activityGrades in allActivityGrade_range %}
+                                <td> {{activityGrades}}</td>
+                                {% endfor %}
                             </tr>
                             {% endfor %}
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
