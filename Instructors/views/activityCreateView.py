@@ -124,6 +124,8 @@ def activityCreateView(request):
                     context_dict[attr]=getattr(activity,attr)
                     
                 context_dict['currentCat'] = activity.category
+                context_dict['categories'] = ActivitiesCategory.objects.filter(courseID=currentCourse)
+        
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
                 context_dict['isFileUpload'] = activity.isFileAllowed

@@ -123,13 +123,11 @@
                         <div class="row">
                              <div class="input-field col s12" id="actCats">
 							    <select name="actCat" form="actForm">
-							      <option value="" disabled selected>Choose your option</option>
+							      <option value="{{currentCat.categoryID}}" selected>{{currentCat.name}}</option>
 							      {% for cat in categories %}
-								      {% if cat == currentCat %}
-								      	<option value={{cat.categoryID}} name="actCat" selected>{{cat.name}}</option>
-								      { %else %}
+							      		{% if cat != currentCat %}
 								      	<option value={{cat.categoryID}} name="actCat">{{cat.name}}</option>
-								      {% endif %}
+								      	{% endif %}
 							      {% endfor %}
 							    </select>
 	                          	<label for="actCats">Category</label>
