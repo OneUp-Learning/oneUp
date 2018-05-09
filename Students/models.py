@@ -192,8 +192,8 @@ class StudentVirtualCurrencyTransactions(models.Model):
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
     objectID = models.IntegerField(verbose_name="index into the appropriate table")
     status = models.CharField(max_length=200, default='Requested')
-    noteForStudent = models.CharField(max_length=300)
-    instructorNote = models.CharField(max_length=300)
+    noteForStudent = models.CharField(max_length=600)
+    instructorNote = models.CharField(max_length=600)
     
     def __str__(self):
         return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote)
