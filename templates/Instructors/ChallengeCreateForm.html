@@ -320,7 +320,7 @@
                               		<label for="True">True</label>
                            		</p>
                            		<p>
-                              		<input name="{{question.questionID}}" disabled type="radio" id="False" value="False" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "true" %}checked{%endifequal%}/>
+                              		<input name="{{question.questionID}}" disabled type="radio" id="False" value="False" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "false" %}checked{%endifequal%}/>
                               		<label for="False">False</label>
                            		</p>
 								{% endfor %}
