@@ -186,8 +186,7 @@ def warmUpChallengeList(request):
 
         topic_ID = []      
         topic_Name = [] 
-        topic_Pos = []     
-        challenges_count = []   
+        topic_Pos = []        
         all_challenges_for_topic = []
         hasUnspecified_topic = False
 
@@ -200,9 +199,7 @@ def warmUpChallengeList(request):
                 topic_ID.append(tID)
                 topic_Name.append(tName)
                 topic_Pos.append(ct.topicPos)
-                topic_challenges = challengesForTopic(ct.topicID, currentCourse) 
-                challenges_count.append(len(list(topic_challenges)))
-                all_challenges_for_topic.append(topic_challenges)
+                all_challenges_for_topic.append(challengesForTopic(ct.topicID, currentCourse))
             else:
                 unspecified_topic = ct.topicID 
                 hasUnspecified_topic=True           
@@ -216,12 +213,10 @@ def warmUpChallengeList(request):
             else:
                 max_pos = 0
             topic_Pos.append(max_pos+1) 
-            topic_challenges = challengesForTopic(unspecified_topic, currentCourse)
-            challenges_count.append(len(list(topic_challenges)))
-            all_challenges_for_topic.append(topic_challenges)
+            all_challenges_for_topic.append(challengesForTopic(unspecified_topic, currentCourse))
                         
         #context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name,all_challenges_for_topic)
-        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
+        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,all_challenges_for_topic)),key=lambda tup: tup[3])
 
     return render(request,'Instructors/ChallengesWarmUpList.html', context_dict)
     

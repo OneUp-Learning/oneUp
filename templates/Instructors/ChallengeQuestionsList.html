@@ -81,8 +81,20 @@
                      <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
                      <a href="#!" class="modal-action modal-close waves-effect waves-light btn" id="create">Create Problem</a>
                   </div>
+                  
                </div>
             </div>
+         </div>
+         <form name="questionOrder" action="/oneUp/instructors/reorderChallengeSaveQuestions" method="POST">
+         <input type="hidden" name="courseID" value="{{courseID}}" id="courseID">
+                      <input type="hidden" name="challengeID" value="{{challengeID}}" id="challengeID">	
+         <div class="row right-align">
+        <div class="col s12 m8 offset-m2">
+        
+        <button  class="btn waves-effect waves-light" type="submit" name="submit">Reorder Question
+                 <i  class="material-icons right">reorder</i>
+           </button>
+         </div>
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
@@ -93,6 +105,8 @@
                            <tr>
                               <th>Problem Name</th>
                               <th>Problem Type</th>
+                              <th></th>
+                              <th>Position</th>
                               {% if not unassign %}                               
                               <th>
                                  <a class="modal-trigger tooltipped secondary-content" href="#modal-filter" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="right" data-delay="50" data-tooltip="Filter Problems"><i class="material-icons">filter_list</i></a>                                
@@ -180,11 +194,21 @@
                               {% endif %}
                            </tr>
                         </thead>
+                        
+                         {% csrf_token %}
+                         
                         <tbody>
-                           {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, t in question_range %}
+                         
+                           {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, q_position in question_range %}
                            <tr>
                               <td>{{q_preview}}</td>
                               <td>{{q_type_displayName}}</td>
+                              <td></td>
+                              <td> 
+                                    <!--  <input style="border: solid 1px rgba(128, 128, 128, 0.5)" size="1" type="number" value="{{q_position}}" name="{{q_ID}}" id="q_position"  required>  --> 
+                          	 		<input placeholder="Points" size="1" value="{{q_position}}" name="{{q_ID}}" id="q_position" maxlength="4" type="number" class="validate" min="0" required>
+                          	 </td>	
+                          	 
                               <td>
                                  <form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
                                     {% csrf_token %}
@@ -238,8 +262,10 @@
                            </tr>
                            {% endfor %}
                         </tbody>
+                        
                      </table>
                   </div>
+                  
                   <div class="card-action right-align">
                      {% if warmUp %}
                      <a class="waves-effect waves-light btn" href="/oneUp/instructors/warmUpChallengeList"><i class="material-icons left">navigate_before</i>Back</a>
@@ -250,6 +276,7 @@
                </div>
             </div>
          </div>
+         </form>
       </main>
       {% include 'footer.html' %}
    </body>

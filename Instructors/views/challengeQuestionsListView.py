@@ -71,8 +71,10 @@ def challengeQuestionsListView(request):
     context_dict = makeContextDictForSearch(context_dict, currentCourse)
 
     if request.method == 'POST':
-        context_dict = searchResults(request, context_dict)
+        context_dict = searchResults(request, context_dict, currentCourse)
+        
     else:
+        
         if 'problems' in request.GET:
             context_dict["unassign"]= 1
             chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)

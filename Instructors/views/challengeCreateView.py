@@ -248,7 +248,7 @@ def challengeCreateView(request):
                  
                            
             # Get the challenge question information and put it in the context
-            challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
+            challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId).order_by('questionPosition')
             
             for challenge_question in challenge_questions:
                 questionObjects.append(challenge_question.questionID)
