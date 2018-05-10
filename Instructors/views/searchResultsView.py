@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def searchResults(request, context_dict):
-        
+    
     qTags = [] 
     selectedTags = []  
     selectedTopics = [] 
@@ -32,6 +32,7 @@ def searchResults(request, context_dict):
     num_found_questions = 0   
     logger.debug(request.POST)
     print(request.POST.getlist('type'))
+ 
     if request.method == 'POST':   
         if 'topic' in request.POST:
             selectedTopics = [ctopic for ctopic in request.POST.getlist('topic')]  
@@ -46,7 +47,7 @@ def searchResults(request, context_dict):
             selectedSkills = [qskill for qskill in request.POST.getlist('skill')]
         if 'challengeID' in request.POST:
             # get the list of all checked challenges
-            selectedChallenges = request.POST['challengeID']
+            selectedChallenges.append(request.POST['challengeID'])
             logger.debug(selectedChallenges)
         if 'tags' in request.POST:
             # get the list of all checked problem tags
@@ -66,25 +67,26 @@ def searchResults(request, context_dict):
                 topicChallenges = []              
                 t_challs = ChallengesTopics.objects.filter(topicID=int(topic)) # get all challenges for this topic
 
-                for chall in t_challs:
-                    if chall.challengeID.courseID == currentCourse:
-                        topicChallenges.append(chall.challengeID.challengeID)
-
-                # get the questions for this challenge
-                for challenge in topicChallenges:
-                    #get all problems for challenge
-                    chall_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
-
-                    for chall_question in chall_questions:
-                        if chall_question.questionID not in q_object_challenge:
-                            q_object_challenge.append(chall_question.questionID)
-
-
-        # If neither challenges or topics are selected, take all challenges
-        if not selectedChallenges and not selectedTopics:
-            courseChallenges = Challenges.objects. filter(courseID=currentCourse) # get all challenges for this course
-            for chall in courseChallenges:
-                selectedChallenges.append(chall.challengeID)
+#                 for chall in t_challs:
+#                     if chall.challengeID.courseID == currentCourse:
+#                         topicChallenges.append(chall.challengeID.challengeID)
+# 
+#                 # get the questions for this challenge
+#                 for challenge in topicChallenges:
+#                     #get all problems for challenge
+#                     chall_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
+# 
+#                     for chall_question in chall_questions:
+#                         if chall_question.questionID not in q_object_challenge:
+#                             q_object_challenge.append(chall_question.questionID)
+# 
+# 
+#         # If neither challenges or topics are selected, take all challenges
+#         if not selectedChallenges and not selectedTopics:
+#             courseChallenges = Challenges.objects.filter(courseID=currentCourse) # get all challenges for this course
+#             for chall in courseChallenges:
+#                 selectedChallenges.append(chall.challengeID)
+#                 
    
         for challenge in selectedChallenges:
             #get all problems
@@ -96,6 +98,7 @@ def searchResults(request, context_dict):
         print(q_object_challenge)                    
         #Checking for skills
         if selectedSkills:
+            
             # Find the skills to which this question is related
             for question in q_object_challenge:
                 q_skill_db = QuestionsSkills.objects.filter(questionID = question)
@@ -109,7 +112,8 @@ def searchResults(request, context_dict):
         
         # Filtering on question type
         if selectedTypes:
-            q_object_type = [q for q in q_object_skills if str(q.type) in selectedTypes]                               
+            q_object_type = [q for q in q_object_skills if str(q.type) in selectedTypes]                              
+                
         else:
             q_object_type = q_object_skills
                     
