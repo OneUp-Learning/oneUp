@@ -71,7 +71,7 @@ def challengeQuestionsListView(request):
     context_dict = makeContextDictForSearch(context_dict, currentCourse)
 
     if request.method == 'POST':
-        context_dict = searchResults(request, context_dict, currentCourse)
+        context_dict = searchResults(request, context_dict)
         
     else:
         

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-def searchResults(request, context_dict,currentCourse):
+def searchResults(request, context_dict):
     
     qTags = [] 
     selectedTags = []  
@@ -67,26 +67,26 @@ def searchResults(request, context_dict,currentCourse):
                 topicChallenges = []              
                 t_challs = ChallengesTopics.objects.filter(topicID=int(topic)) # get all challenges for this topic
 
-                for chall in t_challs:
-                    if chall.challengeID.courseID == currentCourse:
-                        topicChallenges.append(chall.challengeID.challengeID)
-
-                # get the questions for this challenge
-                for challenge in topicChallenges:
-                    #get all problems for challenge
-                    chall_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
-
-                    for chall_question in chall_questions:
-                        if chall_question.questionID not in q_object_challenge:
-                            q_object_challenge.append(chall_question.questionID)
-
-
-        # If neither challenges or topics are selected, take all challenges
-        if not selectedChallenges and not selectedTopics:
-            courseChallenges = Challenges.objects.filter(courseID=currentCourse) # get all challenges for this course
-            for chall in courseChallenges:
-                selectedChallenges.append(chall.challengeID)
-                print("fddddddddd")
+#                 for chall in t_challs:
+#                     if chall.challengeID.courseID == currentCourse:
+#                         topicChallenges.append(chall.challengeID.challengeID)
+# 
+#                 # get the questions for this challenge
+#                 for challenge in topicChallenges:
+#                     #get all problems for challenge
+#                     chall_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
+# 
+#                     for chall_question in chall_questions:
+#                         if chall_question.questionID not in q_object_challenge:
+#                             q_object_challenge.append(chall_question.questionID)
+# 
+# 
+#         # If neither challenges or topics are selected, take all challenges
+#         if not selectedChallenges and not selectedTopics:
+#             courseChallenges = Challenges.objects.filter(courseID=currentCourse) # get all challenges for this course
+#             for chall in courseChallenges:
+#                 selectedChallenges.append(chall.challengeID)
+#                 
    
         for challenge in selectedChallenges:
             #get all problems
