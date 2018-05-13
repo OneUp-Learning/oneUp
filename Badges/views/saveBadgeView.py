@@ -89,7 +89,26 @@ def SaveBadge(request):
                 actionArgument.sequenceNumber = 1
                 actionArgument.argumentValue =  badgeId.badgeID
                 actionArgument.save()
-
+                
+        ##if we got custom from our page GGM
+        if 'custom' in request.POST:
+            ##wemust create the badge
+            
+            badgeName = request.POST['badgeName'] # The entered Badge Name
+            logger.debug("badge name: "+str(badgeName))
+            badgeDescription = request.POST['badgeDescription'] # The entered Badge Description
+            logger.debug("badge description: "+str(badgeDescription))
+            badgeImage = request.POST['badgeImage'] # The Chosen Badge Image Name
+            logger.debug("badge image: "+str(badgeImage))
+            
+            badgeInformation = Badges()          
+            badgeInformation.courseID = current_course
+            badgeInformation.badgeName = badgeName
+            badgeInformation.badgeDescription = badgeDescription
+            badgeInformation.badgeImage = badgeImage
+            badgeInformation.assignToChallenges = 1 #unused field, but required
+            badgeInformation.save()
+            
         else:
             badgeInformation.delete()
                 

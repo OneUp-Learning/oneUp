@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.views.utils import initialContextDict
 from Badges.models import Badges
+from django.views.decorators.http import condition
 
 @login_required
 def EditDeleteBadge(request):
@@ -22,25 +23,32 @@ def EditDeleteBadge(request):
     conditions = []
     
     extractPaths(context_dict)
-    
-    if request.GET:
-    
-        # Getting the Badge information which has been selected
+        
+    if 'badgeID' in request.GET:    
+    # Getting the Badge information which has been selected
         if request.GET['badgeID']:
             badgeId = request.GET['badgeID']
             badge = Badges.objects.get(badgeID=badgeId)
-            condition = badge.ruleID.conditionID
             
-            context_dict['initialCond'] = databaseConditionToJSONString(condition)     
             
+            if hasattr(badge, 'conditionID'):
+                condition = badge.ruleID.conditionID
+                context_dict['initialCond'] = databaseConditionToJSONString(condition)
+                context_dict['conditions'] = zip(range(1,len(conditions)+1),conditions) 
                 
+
             # The range part is the index numbers.  
-            context_dict['badge'] = badge
-            context_dict['conditions'] = zip(range(1,len(conditions)+1),conditions)
-            context_dict['edit'] = True
+            context_dict['badge'] = badge 
+            context_dict['edit'] = True 
         else:
             context_dict['initialCond'] = "'empty'"
-
+            
+        if 'custom' in request.GET:
+            if request.GET['custom']:
+                
+                ##dont display the conditional 
+                context_dict['conditions'] = False
+                
     
     return render(request,'Badges/EditDeleteBadge.html', context_dict)
 
