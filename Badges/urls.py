@@ -24,6 +24,7 @@ from Badges.views.virtualCurrencySpendRuleList import virtualCurrencySpendRuleLi
 from Badges.views.VirtualCurrencyTransactions import virtualCurrencyTransactions
 from Badges.views.VirtualCurrencyCompletedTransactions import virtualCurrencyCompletedTransactions
 from Badges.views.conditionTestView import conditionTestView
+from Badges.views.addBadgeManuallyView import addBadgeManuallyView
 
 admin.autodiscover()
 
@@ -44,5 +45,5 @@ urlpatterns = [
     url(r'^UpdateVirtualCurrencyTransaction',updateVirtualCurrencyTransaction, name="Update Virtual Currency Transaction"),
     url(r'^VirtualCurrencyTransactions',virtualCurrencyTransactions, name="Virtual Currency Transactions"),
     url(r'^VirtualCurrencyCompletedTransactions',virtualCurrencyCompletedTransactions, name="Virtual Currency Completed Transactions"),
-    
+    url(r'^AddBadgeManually',addBadgeManuallyView, name="Add Badge Manually"),
 ]
