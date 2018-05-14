@@ -89,7 +89,7 @@
                               <td><b>{{status}}</b></td>
                               <td><a class="waves-effect waves-light btn" href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><i class="material-icons left">visibility</i>View Note From Instructor</a></td>
                               {% if status != 'Complete' and status != 'Reverted' %}
-                              <td><a class="waves-effect waves-light btn create" href="#!" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{purchaseDate}}"><i class="material-icons left">file_download</i>Download</a></td>
+                              <td class="center-align"><a class="waves-effect waves-light tooltipped create" href="#!" data-tooltip="Download" data-position="right" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{purchaseDate}}"><i class="material-icons left">file_download</i></a></td>
                               {% else %}
                               <td></td>
                               {% endif %}
