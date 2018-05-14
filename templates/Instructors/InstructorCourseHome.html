@@ -76,9 +76,9 @@
                       <th>XP</th>
                     </thead>
                     <tbody>
-                        {% for i,avatarImage,xpoints in user_range %}
+                        {% for i,avatarImage,xpoints, usi in user_range %}
                         <tr>
-                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td><img class="tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi}}" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
                             <td>{{xpoints}}</td>
                         </tr>
                         {% empty %}

@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions
+from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentChallenges, StudentActivities
 from Students.views.utils import studentInitialContextDict
 
-from Badges.models import Rules, ActionArguments
+from Badges.models import VirtualCurrencyRuleInfo, ActionArguments
 from Badges.enums import Action, Event, ObjectTypes
 from Badges.events import register_event
 import logging
@@ -22,18 +22,18 @@ def virtualCurrencyShopView(request):
         currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount          
 
         def getRulesForEvent(event):
-            return Rules.objects.filter(ruleevents__event=event, courseID=currentCourse)
+            return VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, ruleID__ruleevents__event=event, courseID=currentCourse)
 
         # We assume that if a rule decreases virtual currency, it is a
         # buy rule.  This function assumes that virtual currency penalty
         # rules have already been screened out.  A more robust test
         # would be needed if used in a different context.        
         def checkIfRuleIsBuyRule(rule):
-            return rule.actionID == Action.decreaseVirtualCurrency
+            return rule.ruleID.actionID == Action.decreaseVirtualCurrency
         
         def getAmountFromBuyRule(rule):
-            if ActionArguments.objects.filter(ruleID=rule,sequenceNumber=1).exists:
-                return int(ActionArguments.objects.get(ruleID=rule, sequenceNumber=1).argumentValue)
+            if ActionArguments.objects.filter(ruleID=rule.ruleID,sequenceNumber=1).exists:
+                return int(ActionArguments.objects.get(ruleID=rule.ruleID, sequenceNumber=1).argumentValue)
             else:
                 return 0
         
@@ -73,14 +73,19 @@ def virtualCurrencyShopView(request):
                 activites = Activities.objects.filter(courseID=currentCourse)
                 
                 for challenge in challenges:
+                    studentChallenges = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challenge)
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
-                    # Only pick challenges that have questions assigned to them
-                    if challQuestions:
+                    # Only pick challenges that have questions assigned to them and is graded
+                    if challQuestions and studentChallenges:
                         challenges_id.append(challenge.challengeID)
                         challenges_name.append(challenge.challengeName)
                 for activity in activites:
-                    challenges_id.append(activity.activityID)
-                    challenges_name.append(activity.activityName)
+                    studentActivities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse,activityID=activity)
+                    # Only pick activities that are graded
+                    for sAct in studentActivities:
+                        if sAct.graded == True:
+                            challenges_id.append(activity.activityID)
+                            challenges_name.append(activity.activityName)
                     
                 if len(challenges_id) == 0:
                     return None
@@ -91,8 +96,7 @@ def virtualCurrencyShopView(request):
         
         if request.method == "GET":
             # For an event, find all the rules in the current course which
-            # trigger from that event
-            
+            # trigger from that event            
             buyOptionList = [Event.buyAttempt,Event.instructorHelp, Event.extendDeadlineHW,Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.buyTestTime, Event.buyExtraCreditPoints,
                              Event.getDifferentProblem, Event.getSurpriseAward, Event.getCreditForOneTestProblem]
             buyOptionEnabled = {}
