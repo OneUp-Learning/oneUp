@@ -154,18 +154,28 @@ class ActionArguments(models.Model):
     def __str__(self):              
         return str(self.ruleID) + str(self.sequenceNumber) +","+str(self.argumentValue) 
 
-# Badges Table
+# Table for the manually assigned badges
+class BadgesManual(models.Model):
+    badgeID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    badgeName = models.CharField(max_length=300) # e.g. test score, number of attempts 
+    badgeDescription = models.CharField(max_length=10000)
+    badgeImage = models.CharField(max_length=300)
+    #assignToChallenges = models.IntegerField() # 1. All, 2. Specific
+    def __str__(self):              
+        return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
+
+# Badges Table    
 class Badges(models.Model):
     badgeID = models.AutoField(primary_key=True)
     ruleID = models.ForeignKey(Rules,  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the related rule", db_index=True)
-    #instructorID = models.ForeignKey(InstructorInfo, verbose_name="the related instructor Id", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     badgeName = models.CharField(max_length=300) # e.g. test score, number of attempts 
     badgeDescription = models.CharField(max_length=10000)
     badgeImage = models.CharField(max_length=300)
     assignToChallenges = models.IntegerField() # 1. All, 2. Specific
     def __str__(self):              
-        return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
+        return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)    
 
 # Virtual Currency Table for both automatically and manually handled VC rules
 class VirtualCurrencyCustomRuleInfo(models.Model):

@@ -5,6 +5,15 @@
       <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
       <script>
          $( document ).ready(function(){
+        	 {% if view %}
+	        	var tags = JSON.parse('{{ tags | escapejs }}')
+				var topics = JSON.parse('{{ topics | escapejs }}')
+				for(var i = 0; i < tags.length; i++){
+					var tag = tags[i];
+					var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
+					$('#tags').append($(tagDOM));
+				}
+	        {% else %}
             $('.chips').material_chip();
              $('.chips-tags').material_chip({
                  data: JSON.parse('{{ tags | escapejs }}'),
@@ -16,6 +25,7 @@
                  $('#form').append($(tags));
                  console.log($('.chips-tags').material_chip('data'));
              });
+             {% endif %}
          });
       </script>
       <script>
@@ -85,12 +95,6 @@
          }
          
       </script>
-      {% if view %}
-      <script>
-         $(':input').attr('readonly','readonly');
-         $(':input').attr('disabled', 'disabled');
-      </script>
-      {% endif %}
    </head>
    <body>
            {% include 'heading.html' %}
@@ -122,14 +126,14 @@
                               </div>
                               <div class="input-field col s12">
                                  <i class="material-icons prefix">mode_edit</i>
-                                 <input value="{{preview}}" name="preview" id="preview" type="text" class="validate" pattern=".*\S+.*" required>
+                                 <input value="{{preview}}" name="preview" id="preview" type="text" {% if view == False %}class="validate"{%endif%}  pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
                                  <label for="preview"><span class= "red-text">*</span> Problem Preview</label>
                               </div>
                            </div>
                            <div class="row">
                               <div class="col s12">
                                  <label for="question_text"><span class= "red-text">*</span> Problem Text</label>
-                                 <textarea name="questionText" id="question_text" rows="2" cols="70" required>{{questionText}}</textarea>
+                                 <textarea name="questionText" id="question_text" rows="2" cols="70" {%if view%}readonly{%else%}required{%endif%}>{{questionText}}</textarea>
                                  <script type="text/javascript">
                                     CKEDITOR.config.autoParagraph = false;
                                     CKEDITOR.replace('questionText');
@@ -147,11 +151,11 @@
                               <div id="ans{{i}}">
                                  <div class="row">
                                     <div class="input-field col s12 m6">
-                                        <textarea class="materialize-textarea" name="answer{{i}}" id="answer_{{i}}" rows="1" required>{{ansValue}}</textarea>
+                                        <textarea class="materialize-textarea" name="answer{{i}}" id="answer_{{i}}" rows="1" {%if view%}readonly{%else%}required{%endif%}>{{ansValue}}</textarea>
                                        <label for="answer_{{i}}">Question {{i}}</label>
                                     </div>
                                     <div class="input-field col s12 m6">
-                                        <textarea class="materialize-textarea" name="matchingAnswer{{i}}" id="match_{{i}}" rows="1" required>{{matchText}}</textarea>
+                                        <textarea class="materialize-textarea" name="matchingAnswer{{i}}" id="match_{{i}}" rows="1" {%if view%}readonly{%else%}required{%endif%}>{{matchText}}</textarea>
                                         <label for="match_{{i}}">Matching Answer for Question {{i}}</label>   
                                     </div>
                                  </div>
@@ -160,16 +164,16 @@
                            </div>
                            <div class="row">
                               <div class="col s12 m6">
-                                 <a class="waves-effect waves-light btn" id="addAnswer" onclick="addAnswer();" ><i class="material-icons left">add</i>Add Answer</a>
-                                 <a class="waves-effect waves-light btn" id="removeAnswer" onclick="removeAnswer();" ><i class="material-icons left">remove</i>Remove Last Answer</a>                                      
+                                 <a class="waves-effect waves-light btn" id="addAnswer" onclick="addAnswer();" {%if view%}disabled{%endif%}><i class="material-icons left">add</i>Add Answer</a>
+                                 <a class="waves-effect waves-light btn" id="removeAnswer" onclick="removeAnswer();" {%if view%}disabled{%endif%}><i class="material-icons left">remove</i>Remove Last Answer</a>                                      
                               </div>
                            </div>
                            <div class="row">
                               <div class="input-field col s12">
-                                 <select name="difficulty" required>
-                                    <option id="Easy" value="Easy" selected>Easy</option>
-                                    <option id="Medium" value="Medium">Medium</option>
-                                    <option id="Hard" value="Hard">Hard</option>
+                                 <select name="difficulty" {%if view%}readonly{%endif%}>
+                                    <option id="Easy" value="Easy" {%if view%}disabled{%endif%}selected>Easy</option>
+                                    <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
+                                    <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
                                  </select>
                                  <label>Difficulty</label>
                                  <script  type="text/javascript"> 
@@ -187,7 +191,7 @@
                            {% else %}
                            <div class="row">
                               <div class="input-field col s12">
-                                 <input value="{{points}}" name="points" id="points" maxlength="4" type="number" class="validate" min="1" max="999" step="any" required>
+                                 <input value="{{points}}" name="points" id="points" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%}  min="1" max="999" step="any" {%if view%}disabled{%else%}required{%endif%}>
                                  <label for="points"><span class= "red-text">*</span> Points</label>
                               </div>
                            </div>

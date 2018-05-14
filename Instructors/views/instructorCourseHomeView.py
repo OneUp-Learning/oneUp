@@ -143,6 +143,7 @@ def courseLeaderboard(currentCourse, context_dict):
             badgeName=[]
             badgeImage = []
             avatarImage =[]
+            studentUser = []
             N = 7
             
             date_N_days_ago = datetime.now() - timedelta(days=N)
@@ -196,11 +197,13 @@ def courseLeaderboard(currentCourse, context_dict):
             # XP Points       
             # Dictionary student - XP
             studentXP_dict = {}
+            
             for s in students:
                 sXP = studentXP(s, currentCourse)
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
                 #studentXP_dict[st_crs.avatarImage] = sXP 
                 studentXP_dict[st_crs] = sXP
+                studentUser.append(s.user.first_name +" " + s.user.last_name)
                 
             # sort the dictionary by its values; the result is a list of pairs (key, value)
             xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)
@@ -214,7 +217,7 @@ def courseLeaderboard(currentCourse, context_dict):
                     avatarImage.append(item[0].avatarImage)
                     xpoints.append(item[1])
             
-            context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints)                 
+            context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints, studentUser)                 
                        
         else:
             context_dict['course_Name'] = 'Not Selected'
