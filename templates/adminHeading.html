@@ -80,26 +80,6 @@
                 <a class="dropdown-button" href="/oneUp/administrators/adminHome" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Admin Home</a>
             </li>
             <li>
-                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course</a>
-                <ul id="courseinfo" class="dropdown-content">
-                    <li><a class="waves-effect" href="/oneUp/administrators/createCourse">Create Course</a></li>
-                    <li><a class="waves-effect" href="/oneUp/administrators/deleteCourse">Delete Course</a></li>
-                </ul>
-            </li>
-            <li>
-                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursecontent">Instructor</a>
-                <ul id="coursecontent" class="dropdown-content">
-                    <li><a class="waves-effect" href="/oneUp/administrators/createTeacher">Create Instructor</a></li>
-                    <li><a class="waves-effect" href="/oneUp/administrators/deleteTeacher">Delete Instructor</a></li>
-                </ul>
-            </li>
-            <li>
-                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursereports">Administrator</a>
-                <ul id="coursereports" class="dropdown-content">
-                    <li><a class="waves-effect" href="/oneUp/administrators/createAdmin">Create Administrator</a></li>
-                </ul>
-            </li>
-            <li>
                 <a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
                     <i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
                 </a>
@@ -116,6 +96,39 @@
         {% endif %}
     </ul>
         </div>
+        <ul class="side-nav" id="slide-out">
+            {% if logged_in %}
+            <li>
+                <div class="user-view">
+                    <div class="background">
+                      <img src="/static/images/pic01.jpg">
+                    </div>
+                    <a href="#!user"><img class="circle" src="/static/images/avatars/25.png"></a>
+                    <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
+                  </div>
+            </li>   
+            {% endif %}             
+            <li class="no-padding">
+                <ul>
+                   <li><a class="waves-effect" href="/oneUp/administrators/adminHome">Admin Home</a></li>
+                    <li>
+                        <a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
+                        <div class='collapsible-body'>
+                            <ul>
+                                <div id="nMenu2" class="notification-box-list">
+                                {% user_notifications for box %}
+                                </div>			
+                                <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            {% if logged_in %}                        
+            <li class="divider"></li>
+            <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>
+            {% endif %}
+        </ul>
     </nav>
 </header>
                          
