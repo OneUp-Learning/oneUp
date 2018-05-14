@@ -22,7 +22,7 @@ def EditDeleteBadge(request):
     
     conditions = []
     
-    extractPaths(context_dict)
+    extractPaths(context_dict) 
         
     if 'badgeID' in request.GET:    
     # Getting the Badge information which has been selected
@@ -39,15 +39,22 @@ def EditDeleteBadge(request):
 
             # The range part is the index numbers.  
             context_dict['badge'] = badge 
-            context_dict['edit'] = True 
-        else:
-            context_dict['initialCond'] = "'empty'"
+            context_dict['edit'] = True
             
-        if 'custom' in request.GET:
-            if request.GET['custom']:
-                
-                ##dont display the conditional 
-                context_dict['conditions'] = False
+            print("badgeID")
+            
+    else:
+        ##this is the case of creating a new badge
+            context_dict['initialCond'] = "'empty'"
+            print("no badgeID") 
+            
+    ## check if the conditional box should be displayed or it is a manually assigned badge  
+    if 'isManualBadge' in request.GET:
+        if request.GET['isManualBadge'] == 'true':
+            
+            context_dict['isManualBadge'] = True
+        else:
+            context_dict['isManualBadge'] = False
                 
     
     return render(request,'Badges/EditDeleteBadge.html', context_dict)
