@@ -33,7 +33,7 @@ def deleteQuestion(request):
         context_dict['message']=message
 
         
-    return redirect('/oneUp/instructors/questionList', context_dict)
+    return redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict)
 @login_required
 def deleteQuestionFromChallenge(request):                 
  
