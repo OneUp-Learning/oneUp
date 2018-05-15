@@ -203,7 +203,10 @@ def courseLeaderboard(currentCourse, context_dict):
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
                 #studentXP_dict[st_crs.avatarImage] = sXP 
                 studentXP_dict[st_crs] = sXP
-                studentUser.append(s.user.first_name +" " + s.user.last_name)
+                if not (s.user.first_name and s.user.last_name):
+                    studentUser.append(s.user)
+                else:
+                    studentUser.append(s.user.first_name +" " + s.user.last_name)
                 
             # sort the dictionary by its values; the result is a list of pairs (key, value)
             xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)

@@ -70,13 +70,9 @@
                            <tbody>
                               {% for i,avatarImage,xpoints, user in user_range %}
                               <tr>
-                                 <td>
-                                    <div class="chip">
-                                       <img src="{{avatar}}">
-                                       {{xpoints}}
-                                    </div>
-                                 </td>
-                              </tr>
+                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td>{{xpoints}}</td>
+                        	</tr>
                               {% empty %}
                               <tr>
                                  <td>No Students with XP</td>

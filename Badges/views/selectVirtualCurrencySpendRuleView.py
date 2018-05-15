@@ -17,7 +17,7 @@ from Badges.conditions_util import get_mandatory_conditions_without_or_and_not, 
 from setuptools.command.build_ext import if_dl
 
 @login_required
-def EditVirtualCurrencySpendRule(request):
+def SelectVirtualCurrencySpendRule(request):
  
     context_dict, currentCourse = initialContextDict(request)
             
@@ -32,7 +32,8 @@ def EditVirtualCurrencySpendRule(request):
     
     # Select only the system variables that are for virtual currency
     for i, eName, eDescription in eventObjects:
-        if i >= 850:
+        # removed adjustment event(861) for now since teacher can adjust a student challenge grade and we don’t have a way to restrict number of purchases in course shop :( 
+        if i >= 850 and i != 861:
             found = False
             for rule in rules:
                 if rule.vcRuleName == eName:
@@ -56,4 +57,4 @@ def EditVirtualCurrencySpendRule(request):
                     
     context_dict['events'] = zip(range(1, len(eventIndex)+1), eventIndex, eventName, eventDescription, eventAmount, eventEnabled)
     
-    return render(request,'Badges/EditVirtualCurrencySpendRule.html', context_dict)
+    return render(request,'Badges/SelectVirtualCurrencySpendRule.html', context_dict)
