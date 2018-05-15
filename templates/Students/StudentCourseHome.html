@@ -14,7 +14,6 @@
                         <table>
                            <thead>
                               <th>Latest Announcements</th>
-                              <th></th>
                            </thead>
                            <tbody>
                               {% for i,announcement_ID,author_ID,start_Timestamp, end_Timestamp, subject, message in announcement_range %}
@@ -24,7 +23,7 @@
                               </tr>
                               {% empty %}
                               <tr>
-                                 <td>No Announcements</td>
+                                 <td class="center-align"><i>No announcements</i></td>
                               </tr>
                               {% endfor %}
                            </tbody>
@@ -46,7 +45,7 @@
                               </tr>
                               {% empty %}
                               <tr>
-                                 <td>No Upcomming Challenges</td>
+                                 <td class="center-align"><i>No upcomming challenges</i></td>
                               </tr>
                               {% endfor %}
                            </tbody>
@@ -75,7 +74,7 @@
                         	</tr>
                               {% empty %}
                               <tr>
-                                 <td>No Students with XP</td>
+                                 <td class="center-align" colspan="2"><i>No students with XP</i></td>
                               </tr>
                               {% endfor %}
                            </tbody>
@@ -106,7 +105,7 @@
                               </tr>
                               {% empty %}
                               <tr>
-                                 <td>No Students with XP</td>
+                                 <td class="center-align" colspan="2"><i>No students with skill points</i></td>
                               </tr>
                               {% endfor %}
                            </tbody>
@@ -130,7 +129,7 @@
                                     <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
                                     <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                     {% empty %}
-                                    No badges earned
+                                    <i>No badges earned</i>
                                     {% endfor %}
                                  </td>
                               </tr>

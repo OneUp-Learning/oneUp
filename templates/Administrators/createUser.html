@@ -2,6 +2,35 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <script>
+      $(document).ready(function(){
+    	  var form = $('#createStudentForm')
+    	  form.on('submit', function(ev){
+    		  ev.preventDefault();
+    		  $.ajax({
+    		  	url: "/oneUp/instructors/validateCreateStudent",
+    		  	dataType: 'json',
+    		  	type: 'POST',
+   		        data: form.serialize(),
+   		        success: function(msg){
+   		        	if(msg.errorMessages.length > 0){
+   		        		for(var i = 0; i < msg.errorMessages.length; i++){
+   		        			Materialize.toast(msg.errorMessages[i], 4000);
+   		        		}
+   		        		return false;
+   		        	}
+   		        	form.off('submit').submit();
+   		            
+   		        },
+   		        error: function() {
+   		            alert("Bad submit");
+   		            return false;
+   		        }
+    		  });
+    	  });
+      });
+   
+      </script>
    </head>
    <body>
       {% include 'heading.html' %}
@@ -15,15 +44,15 @@
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
-               <form name="question" action="/oneUp/instructors/createStudentView" method="POST">
+               <form id="createStudentForm" name="createStudentForm" action="/oneUp/instructors/createStudentView" method="POST">
                   {% csrf_token %} 
                   {% if userID %}
                   <input type="hidden" name="userID" id="userID" value="{{userID}}"> 
+                  <input type="hidden" name="sUsernamePrev" value="{{uname}}" />
+                  <input type="hidden" name="sEmailPrev" value="{{email}}" />
                   {% endif %}
                   <div class="card">
                      <div class="card-content">
-                        {% if userID %} 
-                        {% for firstname,lastname,email,uname,pword in user_range %}
                         <div class="row">
                            <div class="input-field col s6">
                               <i class="material-icons prefix">edit</i>
@@ -56,49 +85,10 @@
                               <label for="pword"><span class= "red-text">*</span> Password</label>
                            </div>
                            <div class="input-field col s6">
-                              <input value="{{pword2}}" name="pword2" id="pword2" type="password" class="validate" required>
+                              <input value="{{pword2}}" name="pword2" id="pword2" type="password" class="validate" {% if not userID %}required{% endif %}>
                               <label for="pword2"><span class= "red-text">*</span> Confirm Password</label>
                            </div>
                         </div>
-                        {% endfor %}
-                        {% else %}
-                        <div class="row">
-                           <div class="input-field col s6">
-                              <i class="material-icons prefix">edit</i>
-                              <input value="{{firstname}}" name="firstname" id="firstname" type="text" class="validate" pattern=".*\S+.*" required>
-                              <label for="firstname"><span class= "red-text">*</span> First Name</label>
-                           </div>
-                           <div class="input-field col s6">
-                              <input value="{{lastname}}" name="lastname" id="lastname" type="text" class="validate" pattern=".*\S+.*" required>
-                              <label for="lastname"><span class= "red-text">*</span> Last Name</label>
-                           </div>
-                        </div>
-                        <div class="row">
-                           <div class="input-field col s12">
-                              <i class="material-icons prefix">email</i>
-                              <input value="{{email}}" name="email" id="email" type="email" class="validate" required>
-                              <label for="email"><span class= "red-text">*</span> Email</label>
-                           </div>
-                        </div>
-                        <div class="row">
-                           <div class="input-field col s12">
-                                <i class="material-icons prefix">account_circle</i>
-                              <input value="{{uname}}" name="uname" id="uname" type="text" class="validate" pattern=".*\S+.*" required>
-                              <label for="uname"><span class= "red-text">*</span> User ID</label>
-                           </div>
-                        </div>
-                        <div class="row">
-                           <div class="input-field col s6">
-                              <i class="material-icons prefix">lock</i>
-                              <input value="{{pword}}" name="pword" id="pword" type="password" class="validate" required>
-                              <label for="pword"><span class= "red-text">*</span> Password</label>
-                           </div>
-                           <div class="input-field col s6">
-                              <input value="{{pword2}}" name="pword2" id="pword2" type="password" class="validate" required>
-                              <label for="pword2"><span class= "red-text">*</span> Confirm Password</label>
-                           </div>
-                        </div>
-                        {% endif %}
                      </div>
                      <div class="card-action right-align">
                         <button class="btn waves-effect waves-light" type="submit" name="submit">Submit
