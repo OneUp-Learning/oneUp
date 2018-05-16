@@ -6,7 +6,7 @@ Last modified 09/02/2016
 from django.template import RequestContext
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo, ActionArguments
+from Badges.models import VirtualCurrencyRuleInfo, ActionArguments, RuleEvents
 from Instructors.models import Challenges,Courses
 from Instructors.views.utils import initialContextDict
 from Badges.enums import dict_dict_to_zipped_list, Event
@@ -28,6 +28,7 @@ def SelectVirtualCurrencySpendRule(request):
     eventDescription = []
     eventEnabled = []
     eventAmount = []
+    ruleLimit = []
     eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description'])  
     
     # Select only the system variables that are for virtual currency
@@ -36,15 +37,18 @@ def SelectVirtualCurrencySpendRule(request):
         if i >= 850 and i != 861:
             found = False
             for rule in rules:
-                if rule.vcRuleName == eName:
+                ruleEvent = RuleEvents.objects.get(rule = rule.ruleID)
+                if ruleEvent.event == i:
                     eventIndex.append(i)
-                    eventName.append(eName)
-                    eventDescription.append(eDescription)
+                    eventName.append(rule.vcRuleName)
+                    eventDescription.append(rule.vcRuleDescription)
                     if ActionArguments.objects.filter(ruleID=rule.ruleID).exists():
                         amount = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
                     else:
                         amount = 0
+                    
                     eventAmount.append(amount)
+                    ruleLimit.append(rule.vcRuleLimit)
                     eventEnabled.append(True)
                     found = True
                     break   
@@ -54,7 +58,8 @@ def SelectVirtualCurrencySpendRule(request):
                 eventDescription.append(eDescription)
                 eventEnabled.append(False)
                 eventAmount.append(0) 
+                ruleLimit.append(0)
                     
-    context_dict['events'] = zip(range(1, len(eventIndex)+1), eventIndex, eventName, eventDescription, eventAmount, eventEnabled)
+    context_dict['events'] = zip(range(1, len(eventIndex)+1), eventIndex, eventName, eventDescription, eventAmount, ruleLimit, eventEnabled)
     
     return render(request,'Badges/SelectVirtualCurrencySpendRule.html', context_dict)

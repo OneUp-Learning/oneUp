@@ -25,9 +25,9 @@
                                  <th>Description</th>
                                  <th>Price</th>
                                  <th>Quantity</th>
-                                 <th>Cost</th>
                                  <th>For Assignment</th>
-                                 <th></th>
+                                 <th>Remaining</th>
+                                 <th>Cost</th>
                               </tr>
                            </thead>
                            <tbody>
@@ -37,7 +37,6 @@
                                  <td>{{buyOpt.description}}</td>
                                  <td>{{buyOpt.cost}}</td>
                                  <td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0" {% if buyOpt.challenges == None %}readonly{% endif %}></td>
-                                 <td><div id="priceFor{{buyOpt.id}}">0</div></td>
                                  <td>
                                     {% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
                                     <select name="challengeFor{{buyOpt.name}}">
@@ -47,7 +46,8 @@
                                     </select>
                                     {% endif %}
                                 </td>
-                                 <td></td>
+                                 <td class="center-align">{% if buyOpt.remaining != 0 %} {{buyOpt.remaining}} {% endif %}</td>
+                                 <td id="priceFor{{buyOpt.id}}">0</td>
                               </tr>
                               {% empty %}
                               <tr>
@@ -87,19 +87,19 @@
       </main>
       {% include 'footer.html' %}
       <script>
-         var prices=[{% for buyOpt in buyOptions2 %}{{buyOpt.cost}},{%endfor%}]
+         var prices=[{% for buyOpt in buyOptions %}{{buyOpt.cost}},{%endfor%}];
+         var indexes = [{% for buyOpt in buyOptions %} {{buyOpt.id}}, {% endfor %}];
          function updatePrices() {
          	var len = prices.length;
          	var total = 0;
-         	for (var i = 0; i<len; i++) {
-         		if (document.getElementById("buyOptionQuantity"+i).value.length > 3){
-         			document.getElementById("buyOptionQuantity"+i).value = document.getElementById("buyOptionQuantity"+i).value.slice(0, 3);
+         	for (var i = 0; i < len; i++) {
+         		if (document.getElementById("buyOptionQuantity"+indexes[i]).value.length > 3){
+         			document.getElementById("buyOptionQuantity"+indexes[i]).value = document.getElementById("buyOptionQuantity"+indexes[i]).value.slice(0, 3);
          		}
-         		var quantity = document.getElementById("buyOptionQuantity"+i).value;
+         		var quantity = document.getElementById("buyOptionQuantity"+indexes[i]).value;
          		var price = quantity*prices[i];
          		total += price;
-         		document.getElementById("priceFor"+i).innerHTML = price;
-         	
+         		document.getElementById("priceFor"+indexes[i]).innerHTML = price;
          		
          	}
          	document.getElementById("total").innerHTML =  "Total: " +  total;
@@ -119,8 +119,8 @@
          	return true;	//GGM
          }
          
-         for (var i = 0; i<{{numBuyOptions}}; i++) {
-         	document.getElementById("buyOptionQuantity"+i).addEventListener('change',updatePrices);
+         for (var i=0; i < {{numBuyOptions}}; i++) {
+         	document.getElementById("buyOptionQuantity"+indexes[i]).addEventListener('change',updatePrices);
          }
       </script>
    </body>
