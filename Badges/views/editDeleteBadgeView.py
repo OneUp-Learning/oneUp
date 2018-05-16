@@ -10,7 +10,7 @@ import glob, os
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.views.utils import initialContextDict
-from Badges.models import Badges
+from Badges.models import Badges, BadgesManual
 from django.views.decorators.http import condition
 
 @login_required
@@ -42,6 +42,20 @@ def EditDeleteBadge(request):
             context_dict['edit'] = True
             
             print("badgeID")
+            
+            
+    if 'manualBadgeID' in request.GET:
+        if request.GET['manualBadgeID']:
+            badgeId = request.GET['manualBadgeID']
+            badge = BadgesManual.objects.get(badgeID=badgeId)
+                
+            context_dict['isManualBadge'] = True
+            # The range part is the index numbers.  
+            context_dict['badge'] = badge 
+            context_dict['edit'] = True
+            
+            print("badgeID")
+        
             
     else:
         ##this is the case of creating a new badge

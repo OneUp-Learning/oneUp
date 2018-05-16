@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Badges.models import Badges,BadgesManual, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime

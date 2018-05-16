@@ -23,6 +23,9 @@
                   {% if edit %}
                   <input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
                   {% endif %}
+                  {% if isManualBadge %}
+                  <input type="hidden" name="isManualBadge" id="isManualBadge" value="true">
+                  {% endif %}
                   <input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
                   <div class="card">
                      <div class="card-content">
@@ -51,7 +54,7 @@
                            {% endfor %}
                         </div>
                         <!-- if we want a custom badge for manual, we need to remove the conditional box GMM -->
-                        {% if not isManualBadge %}>
+                        {% if not isManualBadge %}
                         <div class="row">
                            <div class="col s12">
                               <h5><span class= "red-text">*</span> Conditions Applied for the Badge</h5>
@@ -64,16 +67,11 @@
                      </div>
                      <div class="card-action right-align">
                      <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
-                     {% if edit %}
                      	<button id="button" class="btn waves-effect waves-light" type="submit" name="edit">Save<i class="material-icons right">send</i>
                         </button>
-                        {% else %}
-                        <button id="button" class="btn waves-effect waves-light" type="submit" name="manual">Save<i class="material-icons right">send</i>
-                        </button>
-                        
-                        {% endif %}
+                        {% if edit %}
                         <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i class="material-icons right">close</i></a>
-                        
+                        {% endif %}
                         <a class="waves-effect waves-light btn" href="/oneUp/badges/Badges">											
                         <i class="material-icons left">navigate_before</i>Back</a>                                                                  									
                      </div>

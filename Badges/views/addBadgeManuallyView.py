@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
-from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, Badges
+from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesManual
 from Students.models import StudentRegisteredCourses, Student, StudentBadges, StudentFile, User
 from Badges.systemVariables import logger
 from pytz import reference
@@ -20,8 +20,8 @@ def addBadgeManuallyView(request):
                 studentID.append(studentobj.studentID)
                 studentName.append(studentobj.studentID.user.get_full_name())
             
-            badges = Badges.objects.filter(courseID = course)
-            customRules = [r for r in badges if hasattr(r, 'ruleID')]
+            badges = BadgesManual.objects.filter(courseID = course)
+            customRules = [r for r in badges]
             
             ##get thecustom made badge
             allBadgeID = []
@@ -46,12 +46,12 @@ def addBadgeManuallyView(request):
             ##create the badge in the student section
             ##save it in
             studentBadge = StudentBadges()
-            referencedBadge = Badges.objects.filter(badgeID=request.POST['badgeID']).first()
+            referencedBadge = BadgesManual.objects.filter(badgeID=request.POST['badgeID']).first()
             print(student)
             print(request.POST['badgeID'])
             print(referencedBadge)
             studentBadge.studentID = student
-            studentBadge.badgeID = referencedBadge
+            studentBadge.badgeID = referencedBadge ##this causes an error due to needing badge instance
             studentBadge.save()
                 
                                 
