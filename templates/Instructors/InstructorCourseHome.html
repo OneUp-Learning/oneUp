@@ -15,7 +15,6 @@
                   <table>
                     <thead>
                     <th>Latest Announcements</th>
-                    <th> </th>
                     </thead>
                     <tbody>
                         {% for i,announcement_ID,author_ID,start_Timestamp, end_Timestamp, subject, message in announcement_range %}
@@ -25,7 +24,7 @@
                       </tr>
                       {% empty %}
                       <tr>
-                        <td>No Announcements</td>
+                        <td class="center-align"><i>No announcements</i></td>
                       </tr>
                       {% endfor %}
                     </tbody>
@@ -42,7 +41,6 @@
                   <table>
                     <thead>
                       <th>Upcomming Challenges</th>
-                      <th></th>
                     </thead>
                     <tbody>
                         {% for i,chall_ID,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
@@ -52,7 +50,7 @@
                          </tr>
                       {% empty %}
                       <tr>
-                        <td>No Upcomming Challenges</td>
+                        <td class="center-align"><i>No upcomming challenges</i></td>
                       </tr>
                       {% endfor %}
                     </tbody>
@@ -82,9 +80,7 @@
                             <td>{{xpoints}}</td>
                         </tr>
                         {% empty %}
-                        <tr>user_Action
-                          <td>No Leaderboard</td>
-                        </tr>
+                        <tr><td class="center-align" colspan="2"><i>No students with XP</i></td></tr>
                         {% endfor %}
                     </tbody>
                   </table>
@@ -114,7 +110,7 @@
                           </tr>
                           {% empty %}
                           <tr>
-                            <td>No Skills</td>
+                            <td class="center-align" colspan="2"><i>No students with skill points</i></td>
                           </tr>
                           {% endfor %}  
                       </tbody>
@@ -139,7 +135,7 @@
                                <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                                {% empty %}
-                               No Badges Earned
+                               <i>No badges earned</i>
                                {% endfor %}
                             </td>
                          </tr>

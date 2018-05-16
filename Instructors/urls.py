@@ -28,7 +28,7 @@ from Instructors.views.classAchievementsVizView import classAchievementsViz
 
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
-from Instructors.views.createStudentView import createStudentViewUnchecked
+from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 
@@ -156,4 +156,5 @@ urlpatterns = [
     url(r'^challengeAdjustment', challengeAdjustmentView, name='challengeAdjustmentView'),
     url(r'^activityScore', activityScore, name='activityScore'),
     url(r'^exportGradebook', exportGradebook, name='exportGradebook'),
+    url(r'^validateCreateStudent',validateCreateStudent,name='validateCreateStudentView'),
 ]

@@ -374,6 +374,7 @@ class ObjectTypes():
     none=1305 # Not an actual object, but used to indicate that a variable only makes sense in the global context
                 # rather than the context of any particular object in circumstances where that is needed.
     topic=1306
+    activtyCategory=1307
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
@@ -381,6 +382,7 @@ class ObjectTypes():
         form:"form",
         none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
         topic:"topic",
+        activtyCategory:"activityCategory",
     }
 
 class OperandTypes():
@@ -396,6 +398,7 @@ class OperandTypes():
     dateConstant=1010
     noOperand=1011
     topicSet=1012
+    activtiyCategorySet = 1013
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',
@@ -403,6 +406,7 @@ class OperandTypes():
         stringConstant:'stringConstant',
         systemVariable:'systemVariable',
         challengeSet:'challengeSet',
+        activtiyCategorySet:'activtiyCategorySet',
         activitySet:'activitySet',
         conditionSet:'conditionSet',
         boolean:'boolean',

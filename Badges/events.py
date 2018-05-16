@@ -1,6 +1,6 @@
 from Badges.models import Rules, ActionArguments, Conditions, Badges,\
     ActivitySet, VirtualCurrencyRuleInfo
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, TopicSet, Activities, ConditionSet, Dates
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     VirtualCurrencyAwardFrequency
 from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
@@ -9,7 +9,7 @@ from datetime import datetime
 from django.utils import timezone
 from builtins import getattr
 import decimal
-from Instructors.models import Challenges, CoursesTopics
+from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory
 from Badges.systemVariables import calculate_system_variable
 from Instructors.views.utils import utcDate
 from Instructors.constants import unassigned_problems_challenge_name
@@ -202,6 +202,8 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
             return ObjectTypes.activity
         if (operandType == OperandTypes.topicSet):
             return ObjectTypes.topic
+        if (operandType == OperandTypes.activtiyCategorySet):
+            return ObjectTypes.activtyCategory
         return 0 # Error
     def forallforany_helper(forall):
         for object in operand1:
@@ -302,6 +304,12 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
             return [ct.topicID.topicID for ct in CoursesTopics.objects.filter(courseID = course)]
         else:
             return [topicset.topic.topicID for topicset in TopicSet.objects.filter(condition=condition)]
+    elif (operandType == OperandTypes.activtiyCategorySet):
+        if operandValue == 0:
+            # All activetyCategory in this course
+            return [actCat.categoryID for actCat in ActivitiesCategory.objects.filter(courseID = course)]
+        else:
+            return [actCatSet.category.categoryID for actCatSet in ActivityCategorySet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.conditionSet):
         return [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
     else:

@@ -14,7 +14,7 @@ from Badges.views.badgesView import BadgesMain
 from Badges.views.createVirtualCurrencyRuleView import CreateVcRule
 from Badges.views.editDeleteBadgeView import EditDeleteBadge
 from Badges.views.editVirtualCurrencyRuleView import EditVirtualCurrencyRule
-from Badges.views.editVirtualCurrencySpendRuleView import EditVirtualCurrencySpendRule
+from Badges.views.selectVirtualCurrencySpendRuleView import SelectVirtualCurrencySpendRule
 from Badges.views.saveBadgeView import SaveBadge
 from Badges.views.saveVirtualCurrencyRule import SaveVirtualCurrencyRule
 from Badges.views.saveVirtualCurrencySpendRule import SaveVirtualCurrencySpendRule
@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^CourseBadges', BadgesDisplay, name='BadgeDisplay'),
     url(r'^EditDeleteBadge',EditDeleteBadge, name='EditDeleteBadge'),
     url(r'^EditVirtualCurrencyRule',EditVirtualCurrencyRule, name='Edit Virtual Currency Rule'),
-    url(r'^EditVirtualCurrencySpendRule',EditVirtualCurrencySpendRule, name='Edit Virtual Currency Spend Rule'),
+    url(r'^SelectVirtualCurrencySpendRule',SelectVirtualCurrencySpendRule, name='Edit Virtual Currency Spend Rule'),
     url(r'^SaveBadge',SaveBadge, name='SaveBadge'),
     url(r'^SaveVirtualCurrencyRule',SaveVirtualCurrencyRule, name='Save Virtual Currency Rule'),
     url(r'^SaveVirtualCurrencySpendRule',SaveVirtualCurrencySpendRule, name='Save Virtual Currency Spend Rule'),

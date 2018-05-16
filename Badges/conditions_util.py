@@ -5,9 +5,9 @@ Created on Jan 27, 2017
 '''
 
 from Badges.enums import Event, OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
-from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet,\
+from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet, ActivityCategorySet,\
     TopicSet
-from Instructors.models import Activities, Challenges, CoursesTopics
+from Instructors.models import Activities,ActivitiesCategory, Challenges, CoursesTopics
 from Instructors.constants import unassigned_problems_challenge_name
 from json import dumps
 from Badges.systemVariables import SystemVariable
@@ -269,8 +269,10 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                 cond.operand1Type = OperandTypes.challengeSet
             elif parts[1] == "topic":
                 cond.operand1Type = OperandTypes.topicSet
+            elif parts[1] == "category":
+                cond.operand1Type = OperandTypes.activtiyCategorySet   
             else:
-                print("not activities, challenges, or topics, instead: "+parts[1])
+                print("not activities, category, challenges, or topics, instead: "+parts[1])
                 return None
             subCond = condTable[int(parts[3])]
             if subCond is None:
@@ -304,6 +306,12 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                         topicSetItem.topic_id = int(topic)
                         topicSetItem.condition = cond
                         topicSetItem.save()
+                elif cond.operand1Type == OperandTypes.activtiyCategorySet:
+                    for activityCategory in subThingieIndexList:
+                        activityCategorySetItem = ActivityCategorySet()
+                        activityCategorySetItem.category_id= int(activityCategory)
+                        activityCategorySetItem.condition = cond
+                        activityCategorySetItem.save()
                 else:
                     print("for leaving at the return which should never happen")
                     return None
@@ -369,6 +377,11 @@ def databaseConditionToJSONString(condition):
             topicsIDs = [topicSet.topic.topicID for topicSet in TopicSet.objects.filter(condition=condition)]
             for topicID in topicsIDs:
                 output += '"'+str(topicID)+'",'
+        elif condition.operand1Type == OperandTypes.activtiyCategorySet:
+            output += 'category","objects":['
+            activityCategoryIDs = [activityCategorySet.category.categoryID for activityCategorySet in ActivityCategorySet.objects.filter(condition=condition)]
+            for activityCategoryID in activityCategoryIDs:
+                output += '"'+str(activityCategoryID)+'",'
         else: # Other types not supported in FOR_ALL or FOR_ANY conditions.
             return ""
         # In the next statement, we presuppose that the type of the second operand is a condition because it is supposed to be
@@ -405,10 +418,13 @@ def setUpContextDictForConditions(context_dict,course):
 
     chall_list = [{"id":ch.challengeID,"name":ch.challengeName} for ch in Challenges.objects.filter(courseID = course).exclude(challengeName=unassigned_problems_challenge_name)]
     act_list = [{"id":act.activityID,"name":act.activityName} for act in Activities.objects.filter(courseID = course)]
+    actCat_list = [{"id":actCat.categoryID,"name":actCat.name} for actCat in ActivitiesCategory.objects.filter(courseID = course)]
     topic_list = [{"id":ct.topicID.topicID,"name":ct.topicID.topicName} for ct in CoursesTopics.objects.filter(courseID = course)]
+    
     
     context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list },
                                    {"name":"activity","plural":"activities", "objects":act_list},
-                                   {"name":"topic","plural":"topics","objects":topic_list},]
+                                   {"name":"topic","plural":"topics","objects":topic_list},
+                                   {"name":"category","plural":"categories","objects":actCat_list},]
     context_dict['defaultObject'] = "challenge"
     return context_dict
