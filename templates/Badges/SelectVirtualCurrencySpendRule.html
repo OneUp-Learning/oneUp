@@ -19,19 +19,32 @@
                      <div class="card-content">
                         <table>
                            <thead>
+                           	<tr>
+                           	  <th></th>
                               <th>Name</th>
                               <th>Description</th>
                               <th>VC Amount</th>
-                              <th></th>
+                              <th>Limit</th>
+                              </tr>
                            </thead>
                            <tbody>
-                              {% for i, eventIndex, eventName, eventDescription, eventAmount, eventEnabled in events %}
+                              {% for i, eventIndex, eventName, eventDescription, eventAmount, ruleLimit, eventEnabled in events %}
                               <tr>
                                  <td><input type="checkbox" id="spend_rule_{{i}}" class="filled-in" name="spendRules" value="{{eventIndex}}" {% if eventEnabled is True%}checked{% endif %}/>
-                                    <label for="spend_rule_{{i}}">{{eventName}}</label>
+                                 	<label for="spend_rule_{{i}}">&nbsp;</label>
                                  </td>
-                                 <td>{{eventDescription}}</td>
-                                 <td><input value="{{eventAmount}}" name="{{eventIndex}}_amount" id="{{eventIndex}}_amount" maxlength="4" type="number" min="0" max="999" step="any" />
+                                 <td>
+                                 <div class="input-field col s12">
+                              		<input value="{{eventName}}" name="ruleName_{{eventIndex}}" type="text" pattern=".*\S+.*" required />
+                           		</div>
+                           		</td>
+                           		<td>
+                           		<div class="input-field col s12">
+                           			<textarea name="ruleDescription_{{eventIndex}}" class="materialize-textarea" data-length="4000" >{{eventDescription}}</textarea>
+		                        </div>
+		                        </td>
+                                 <td><input value="{{eventAmount}}" name="ruleAmount_{{eventIndex}}" maxlength="4" type="number" min="0" max="999" step="any" /></td>
+                                 <td><input value="{{ruleLimit}}" name="ruleLimit_{{eventIndex}}" maxlength="4" type="number" min="0" max="999" step="any" /></td>
                               </tr>
                               {% empty %}
                               <tr><td class="center-align" colspan="4"><i>No rules created</i></td></tr>

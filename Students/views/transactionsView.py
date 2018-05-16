@@ -3,9 +3,10 @@ from django.contrib.auth.decorators import login_required
 
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions
 from Students.views.utils import studentInitialContextDict
+from Instructors.models import Challenges
 
-from Badges.models import Rules, ActionArguments
-from Badges.enums import Action
+from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo
+from Badges.enums import Action, ObjectTypes
 from Badges.events import register_event
 from Badges.enums import Event
 
@@ -35,17 +36,20 @@ def transactionsView(request):
 
     # Code from virtual currency shop view
     def getRulesForEvent(event):
-        return Rules.objects.filter(ruleevents__event=event, courseID=course)
+        return VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, ruleID__ruleevents__event=event, courseID=course)
 
     # We assume that if a rule decreases virtual currency, it is a
     # buy rule.  This function assumes that virtual currency penalty
     # rules have already been screened out.  A more robust test
     # would be needed if used in a different context.        
     def checkIfRuleIsBuyRule(rule):
-        return rule.actionID == Action.decreaseVirtualCurrency
+        return rule.ruleID.actionID == Action.decreaseVirtualCurrency
     
     def getAmountFromBuyRule(rule):
-        return int(ActionArguments.objects.get(ruleID=rule, sequenceNumber=1).argumentValue)
+        if ActionArguments.objects.filter(ruleID=rule.ruleID,sequenceNumber=1).exists:
+            return int(ActionArguments.objects.get(ruleID=rule.ruleID, sequenceNumber=1).argumentValue)
+        else:
+            return 0
     
     # We just find the first one.  This should generally be fine
     # since there should be at most one.
@@ -61,9 +65,9 @@ def transactionsView(request):
         # print(rules)
         buyRule = getFirstBuyRule(rules)
         if buyRule is None:
-            return (False, 0)
+            return (False, 0, None)
         else:
-            return (True, getAmountFromBuyRule(buyRule))
+            return (True, getAmountFromBuyRule(buyRule), buyRule)
         
     #logger.debug(transactions)
     name = []
@@ -72,15 +76,30 @@ def transactionsView(request):
     status = []
     total = []
     transactionID = []
+    challenges = []
     
     for transaction in transactions:
         event = Event.events[transaction.studentEvent.event]
-        name.append(event['displayName'])
-        description.append(event['description'])
+        _, totals, rule = getBuyAmountForEvent(transaction.studentEvent.event)
+        if rule:
+            name.append(rule.vcRuleName)
+            description.append(rule.vcRuleDescription)
+        else:
+            name.append(event['displayName'])
+            description.append(event['description'])
         purchaseDate.append(transaction.studentEvent.timestamp)
-        total.append(getBuyAmountForEvent(transaction.studentEvent.event)[1])
+        total.append(totals)
         status.append(transaction.status)
         transactionID.append(transaction.transactionID)
+        # Show what challenge the transaction was for
+        if transaction.objectType == ObjectTypes.challenge:
+            challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID)
+            if challenge:
+                challenges.append(challenge[0].challengeName)
+            else:
+                challenges.append(None)
+        else:
+            challenges.append(None)
     
     #logger.debug(transactionID)
     #logger.debug(name)
@@ -89,7 +108,7 @@ def transactionsView(request):
     #logger.debug(total)
     
     # Sort by status (Request -> In Progress -> Complete)
-    context_dict['transactions'] = sorted(zip(transactionID, name,description,purchaseDate, total, status), key=lambda s : s[5][1])
+    context_dict['transactions'] = sorted(zip(transactionID, name,description,purchaseDate, total, status, challenges), key=lambda s : s[5][1])
     context_dict['studentName'] = student.user.first_name + " " + student.user.last_name
     context_dict['studentVirtualCurrency'] = currentStudentCurrencyAmmount
     return render(request,"Students/Transactions.html",context_dict)
