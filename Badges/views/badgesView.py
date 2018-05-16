@@ -6,7 +6,7 @@ Created on Oct 29, 2014
 
 from django.shortcuts import render
 
-from Badges.models import Badges, BadgesManual
+from Badges.models import Badges, BadgesInfo
 
 from django.contrib.auth.decorators import login_required
 from Instructors.views.utils import initialContextDict
@@ -34,12 +34,13 @@ def BadgesMain(request):
     manualBadgeImage = []
     manualBadgeDescription = []
     #Displaying the list of manual badges from database
-    manualBadges = BadgesManual.objects.filter(courseID=current_course)
+    manualBadges = BadgesInfo.objects.filter(courseID=current_course)
     for manualBadge in manualBadges:
-        manualBadgeId.append(manualBadge.badgeID)
-        manualBadgeName.append(manualBadge.badgeName)
-        manualBadgeImage.append(manualBadge.badgeImage)
-        manualBadgeDescription.append(manualBadge.badgeDescription)    
+        if(manualBadge.manual == True):
+            manualBadgeId.append(manualBadge.badgeID)
+            manualBadgeName.append(manualBadge.badgeName)
+            manualBadgeImage.append(manualBadge.badgeImage)
+            manualBadgeDescription.append(manualBadge.badgeDescription)    
                     
         # The range part is the index numbers.
     context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription)

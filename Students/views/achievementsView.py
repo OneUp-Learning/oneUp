@@ -276,31 +276,5 @@ def achievements(request):
          # The range part is the index numbers.
     #context_dict['badgesInfo'] = zip(range(1,studentBadges.count()+1),badgeId,badgeName,badgeImage)
     context_dict['badgesInfo'] = list(zip(range(1,len(studentCourseBadges)+1),badgeId,badgeName,badgeImage))
-    
-    
-    
-    # Extract Badges data for the current student
-    manualbadgeId = [] 
-    manualbadgeName = []
-    manualbadgeImage = []
-    
-     #Displaying the list of ManualBadges from database
-    studentManualBadges = StudentBadges.objects.filter(studentID=studentId)
-    for stud_badge in studentManualBadges:
-        #print('stud_badge.badgeID.courseID'+str(stud_badge.badgeID.courseID))
-        if stud_badge.badgeID.courseID == currentCourse:
-            studentManualBadges.append(stud_badge)
-
-    for stud_manual_badge in studentManualBadges:
-        #print('studentBadge: ') 
-        manualbadgeId.append(stud_manual_badge.badgeID.badgeID)
-        #print('studentBadge: '+str(stud_badge))
-        manualbadgeName.append(stud_manual_badge.badgeID.badgeName)
-        manualbadgeImage.append(stud_manual_badge.badgeID.badgeImage)
-                    
-         # The range part is the index numbers.
-    #context_dict['badgesInfo'] = zip(range(1,studentBadges.count()+1),badgeId,badgeName,badgeImage)
-    context_dict['badgesInfo'] = list(zip(range(1,len(studentCourseBadges)+1),manualbadgeId,manualbadgeName,manualbadgeImage))
-
      
     return render(request,'Students/Achievements.html', context_dict)

@@ -7,7 +7,7 @@ Last updated Dec 21, 2016
 from django.shortcuts import redirect
 
 from Instructors.views.utils import initialContextDict
-from Badges.models import ActionArguments, Rules, Badges, RuleEvents, BadgesManual
+from Badges.models import ActionArguments, Rules, Badges, RuleEvents, BadgesInfo
 from Badges.enums import Action
 from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
     stringAndPostDictToCondition
@@ -39,10 +39,10 @@ def SaveBadge(request):
             # Check if creating a new badge or edit an existing one
             # If editing an existent one, we need to delete it first before saving the updated information in the database            
                 if 'badgeId' in request.POST:   #edit or delete badge 
-                    badge = BadgesManual.objects.get(pk=int(request.POST['badgeId']))
+                    badge = BadgesInfo.objects.get(pk=int(request.POST['badgeId']))
                                             
                 else:
-                    badge = BadgesManual()  # create new badge             
+                    badge = BadgesInfo()  # create new badge             
                 if 'edit' in request.POST:
                 # Get badge info and the first condition
                     badgeName = request.POST['badgeName'] # The entered Badge Name
@@ -54,6 +54,7 @@ def SaveBadge(request):
                     badge.badgeName = badgeName
                     badge.badgeDescription = badgeDescription
                     badge.badgeImage = badgeImage
+                    badge.manual = True;
                     badge.save()
                 else:
                     print("manualBadge")
@@ -100,7 +101,7 @@ def SaveBadge(request):
                 badge.badgeName = badgeName
                 badge.badgeDescription = badgeDescription
                 badge.badgeImage = badgeImage
-                badge.assignToChallenges = 1  # TODO: delete this field from the model
+                badge.manual = False;
                 badge.save()
                 
                 badgeId = badge

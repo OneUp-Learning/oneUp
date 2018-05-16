@@ -114,7 +114,6 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.vcRuleAmount = -1                # Added on 01/18/18  by DD
                 vcRuleInfo.vcRuleType = True # Earning type
                 vcRuleInfo.vcRuleAmount = -1                # Added on 01/18/18  by DD
-                vcRuleInfo.assignToChallenges = 0 # We should delete this from the model soon.
                 vcRuleInfo.awardFrequency = int(request.POST['awardFrequency'])
                 vcRuleInfo.save()
 

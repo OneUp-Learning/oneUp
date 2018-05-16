@@ -117,7 +117,6 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo.vcRuleDescription = eventD
                     vcRuleInfo.vcRuleAmount = request.POST[str(eventI)+"_amount"]
                     vcRuleInfo.vcRuleType = False # Spending type
-                    vcRuleInfo.assignToChallenges = 1
                     vcRuleInfo.save()
                 
                 

@@ -904,13 +904,6 @@
                                         <!-- moved the endfor to the bottom for easier reading GGM -->
                                         {% endfor %}
                                     </td>
-                                    <td><!-- create second item to grab the manual badges for the student -->
-                                        {% for i,badgeId,badgeName,badgeImage in badgesInfo %}
-                                        <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" />
-                                        <b>{{badgeName}}</b> {% empty %} No badges earned 
-                                        <!-- moved the endfor to the bottom for easier reading GGM -->
-                                        {% endfor %}
-                                    </td>
                                 </tr>
                             </tbody>
                         </table>

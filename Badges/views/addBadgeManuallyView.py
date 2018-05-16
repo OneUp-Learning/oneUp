@@ -1,11 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
-from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesManual
+from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesInfo
 from Students.models import StudentRegisteredCourses, Student, StudentBadges, StudentFile, User
 from Badges.systemVariables import logger
 from pytz import reference
-from pip._vendor.requests.certs import where
 
 
 @login_required
@@ -20,7 +19,7 @@ def addBadgeManuallyView(request):
                 studentID.append(studentobj.studentID)
                 studentName.append(studentobj.studentID.user.get_full_name())
             
-            badges = BadgesManual.objects.filter(courseID = course)
+            badges = BadgesInfo.objects.filter(courseID = course)
             customRules = [r for r in badges]
             
             ##get thecustom made badge
@@ -46,7 +45,7 @@ def addBadgeManuallyView(request):
             ##create the badge in the student section
             ##save it in
             studentBadge = StudentBadges()
-            referencedBadge = BadgesManual.objects.filter(badgeID=request.POST['badgeID']).first()
+            referencedBadge = BadgesInfo.objects.filter(badgeID=request.POST['badgeID']).first()
             print(student)
             print(request.POST['badgeID'])
             print(referencedBadge)

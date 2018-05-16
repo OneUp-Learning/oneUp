@@ -3,6 +3,29 @@
    <head>
 
         {% include 'scripts.html' %}
+        
+        <script>
+        function validate()
+        {
+         var student = document.getElementById("badgeOption");
+         var badge = document.getElementById("studentOption");
+
+         var studentSelectedValue = student.options[badge.selectedIndex].value;
+            if (studentSelectedValue == "option")
+            {
+             alert("Please select the student");
+             return false;
+            }
+            
+            var badgeSelectedValue = badge.options[student.selectedIndex].value;
+            if (badgeSelectedValue == "option")
+           {
+            alert("Please select the badge");
+            return false;
+           }
+            
+        }
+        </script>
 
 	</head>
    <body>
@@ -17,7 +40,7 @@
         <div class="row">
         <div class="col s12 m8 offset-m2">
             <div class="card">
-                <form id="update" name="update" action="/oneUp/badges/AddBadgeManually" method="post">                        
+                <form id="update" name="update" onsubmit="return validate()" action="/oneUp/badges/AddBadgeManually" method="post">                        
                 <div class="card-content">
                   {% csrf_token %}
                   </div>
@@ -29,16 +52,16 @@
         	
                      <tr> 
        			<td><div class="select-wrapper">
-       						<select name="userID" >
-                                    <option value=""selected>Select Student</option>
+       						<select id="studentOption" name="userID" >
+                                    <option value="option" selected>Select Student</option>
                                     {% for userID, studentName in students %}
                                     <option id="userID"  value="{{userID}}">{{studentName}}</option>
                                     {% endfor %}
                                  </select>
                                  </td>
                                  <td>
-                                 <select name="badgeID" >
-                                    <option value=""selected>Select Badge</option>
+                                 <select id="badgeOption" name="badgeID" >
+                                    <option value="option"selected>Select Badge</option>
                                     {% for badgeID, badgeDescrip in badges %}
                                     <option id="badgeID"  value="{{badgeID}}">{{badgeDescrip}}</option>
                                     {% endfor %}

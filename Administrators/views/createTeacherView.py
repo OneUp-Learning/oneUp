@@ -12,7 +12,6 @@ from django.shortcuts import render, redirect
 from oneUp.auth import createTeachers, checkPermBeforeView, teachers
 from django.contrib.auth.models import User
 from Badges.systemVariables import logger
-from pip import req
 
 
 def createTeacherView(request):
