@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentVirtualCurrencyTransactions, StudentRegisteredCourses
-from Badges.models import ActionArguments, Action, Rules
+from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo
 from Badges.enums import Event
 from datetime import datetime
 #import logging
@@ -15,17 +15,20 @@ def updateVirtualCurrencyTransaction(request):
         
         # Code from virtual currency shop view
         def getRulesForEvent(event):
-            return Rules.objects.filter(ruleevents__event=event, courseID=course)
+            return VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, ruleID__ruleevents__event=event, courseID=course)
     
         # We assume that if a rule decreases virtual currency, it is a
         # buy rule.  This function assumes that virtual currency penalty
         # rules have already been screened out.  A more robust test
         # would be needed if used in a different context.        
         def checkIfRuleIsBuyRule(rule):
-            return rule.actionID == Action.decreaseVirtualCurrency
+            return rule.ruleID.actionID == Action.decreaseVirtualCurrency
         
         def getAmountFromBuyRule(rule):
-            return int(ActionArguments.objects.get(ruleID=rule, sequenceNumber=1).argumentValue)
+            if ActionArguments.objects.filter(ruleID=rule.ruleID,sequenceNumber=1).exists:
+                return int(ActionArguments.objects.get(ruleID=rule.ruleID, sequenceNumber=1).argumentValue)
+            else:
+                return 0
         
         # We just find the first one.  This should generally be fine
         # since there should be at most one.
@@ -39,9 +42,9 @@ def updateVirtualCurrencyTransaction(request):
             rules = getRulesForEvent(event)
             buyRule = getFirstBuyRule(rules)
             if buyRule is None:
-                return (False, 0)
+                return (False, 0, None)
             else:
-                return (True, getAmountFromBuyRule(buyRule))
+                return (True, getAmountFromBuyRule(buyRule), buyRule)
             
         if request.method == 'GET':
             if 'transactionID' in request.GET:
@@ -49,8 +52,13 @@ def updateVirtualCurrencyTransaction(request):
                 transaction = StudentVirtualCurrencyTransactions.objects.get(pk=int(request.GET['transactionID']))
 
                 event = Event.events[transaction.studentEvent.event]
-                context_dict['name'] = event['displayName']
-                context_dict['description'] = event['description']
+                _, total, rule = getBuyAmountForEvent(transaction.studentEvent.event)
+                if rule:
+                    context_dict['name'] = rule.vcRuleName
+                    context_dict['description'] = rule.vcRuleDescription
+                else:
+                    context_dict['name'] = event['displayName']
+                    context_dict['description'] = event['description']
                 context_dict['purchaseDate'] = transaction.studentEvent.timestamp
                 context_dict['total'] = getBuyAmountForEvent(transaction.studentEvent.event)[1]
                 context_dict['student'] = transaction.student
