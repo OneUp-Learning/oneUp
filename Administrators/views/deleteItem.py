@@ -20,10 +20,5 @@ def deleteItemView(request):
         print("Deleted:", instructor)            
         instructor.delete()
     
-    if request.POST['adminToDelete']:
-        administrator = User.objects.get(username=request.POST['adminToDelete'])
-        print("Deleted:", administrator)            
-        administrator.delete()
-    
     return redirect('/oneUp/administrators/adminHome.html')
             
