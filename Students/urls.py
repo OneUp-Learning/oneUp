@@ -26,7 +26,6 @@ from Students.views.coursePerformanceView import CoursePerformance
 
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
-from Students.views.selectedChallengeTakenView import SelectedChallengeTaken
 from Students.views.studentCourseHomeView import StudentCourseHome
 from Students.views.studentHomeView import StudentHome
 from Students.views.transactionsView import transactionsView
@@ -58,7 +57,6 @@ urlpatterns = [
     url(r'^CoursePerformance',CoursePerformance,name='CoursePerformance'),
     url(r'^Preferences',preferencesView, name='preferencesView'), 
     url(r'^Logout', LogoutView, name='Logout'),       
-    url(r'^SelectedChallengeTaken',SelectedChallengeTaken, name='SelectedChallengeTaken'),
     url(r'^StudentCourseHome',StudentCourseHome, name='StudentCourseHome'),
     url(r'^StudentHome',StudentHome, name='StudentHome'),
     url(r'^Transactions',transactionsView, name='Transactions'),

@@ -37,10 +37,10 @@
                               <td>{{score}}</td>
                               <td>{{total}}</td>
                               <td>{% if is_teacher %}    	         			
-                              <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{student}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeResults?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}&userID={{student}}{% if classAchievements %}&classAchievements{% endif %}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}&view"><i class="material-icons left">visibility</i>View</a>
                               {% else  %}
                               {% if not isExpired %}
-                              <a class="waves-effect waves-light btn" href="/oneUp/students/SelectedChallengeTaken?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}"><i class="material-icons left">visibility</i>View</a>
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeResults?studentChallengeID={{studentChall_ID}}&challengeID={{chall_ID}}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}&view"><i class="material-icons left">visibility</i>View</a>
                               {% endif %}
                               {% endif %}       				
                               </td> 
@@ -58,7 +58,9 @@
                      </table>
                   </div>
                   <div class="card-action right-align">
-                     {% if warmUp %}
+                  	 {% if classAchievements %}
+                  	 <a class="waves-effect waves-light btn" href="/oneUp/instructors/classAchievements"><i class="material-icons left">navigate_before</i>Back</a>
+                     {% elif warmUp %}
                      <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
                      {% else %}
                      <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>

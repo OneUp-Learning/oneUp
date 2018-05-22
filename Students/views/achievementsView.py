@@ -145,7 +145,7 @@ def achievements(request):
     totalWCPossiblePoints = sum(warmUpSumPossibleScore)
     
     containerHeight = 100
-    containerHeight += len(chall_Name) * 100
+    containerHeight += len(chall_Name) * 60
     
     context_dict['warmUpContainerHeight'] = containerHeight
     context_dict['studentWarmUpChallenges_range'] = list(zip(range(1,len(chall_Name)+1),chall_Name,total,noOfAttempts,warmUpMaxScore,warmUpMinScore))

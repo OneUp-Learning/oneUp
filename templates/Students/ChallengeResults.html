@@ -83,7 +83,7 @@
 				<div class="row">	
 				<div class="col s6">
 				{% for user_answer in q.user_answers %}
-				<p>{{user_answer.answerNumber}}</p>
+				<p>{{user_answer.answerNumber}} . {{user_answer.answerText}}</p>
 				{% endfor %}
 				</div>	
 				<div class="col s6">
@@ -174,7 +174,9 @@
 				{% endfor %}
 			</div>
 			<div class="card-action right-align">
-				{% if warmUp %}									
+				{% if view %}
+				<a class="waves-effect waves-ligh btn" href="/oneUp/students/ChallengesTaken?{% if not all %}challengeID={{challengeID}}{% endif %}{% if is_teacher %}&userID={{student}}{% endif %}{% if classAchievements %}&classAchievements{%endif%}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}">
+				{% elif warmUp %}									
 				<a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList">
 				{% else %}
 				<a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList">											

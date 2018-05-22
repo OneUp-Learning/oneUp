@@ -51,8 +51,7 @@ from Instructors.views.searchResultsView import searchResults
 from Instructors.views.skillsCreateView import skillsCreateView
 from Instructors.views.skillsListView import skillsListView
 from Instructors.views.studentAchievementsView import studentAchievements
-from Instructors.views.studentChallengesCompletedView import studentChallengesCompleted
-from Instructors.views.studentGradedChallengeView import studentGradedChallenge
+
 from Instructors.views.studentSkillsEarnedView import studentSkillsEarned
 from Instructors.views.studentSummaryView import studentSummary
 from Instructors.views.subTopicsCreateView import subTopicsCreateView
@@ -136,8 +135,6 @@ urlpatterns = [
     url(r'^skillsList',skillsListView, name='skillsListView'),
     url(r'^sresults',searchResults, name='searchResults'), 
     url(r'^studentAchievements',studentAchievements, name='studentAchievements'),
-    url(r'^studentChallengesCompleted',studentChallengesCompleted, name='studentChallengesCompleted'),
-    url(r'^studentGradedChallenge',studentGradedChallenge, name='studentGradedChallenge'),
     url(r'^studentSkillsEarned',studentSkillsEarned, name='studentSkillsEarned'),
     url(r'^studentSummary',studentSummary, name='studentSummary'),
     url(r'^subTopicsCreate',subTopicsCreateView, name='subTopicsCreateView'),

@@ -9,14 +9,16 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 
 from Instructors.views.utils import utcDate
-from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills
+from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.event_utils import updateLeaderboard
-from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
-from Instructors.lupaQuestion import LupaQuestion
+from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet, staticQuestionTypesSet
+from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
+from Instructors.views.dynamicQuestionView import makeLibs
 from Badges.systemVariables import logger
+from Students.views.challengeSetupView import makeSerializableCopyOfDjangoObjectDictionary
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
@@ -283,6 +285,222 @@ def ChallengeResults(request):
                 print("studentChallege ", studentChallenge)
                 print("studentId ", studentId)
                 
+        if request.GET:      
+            
+            if 'warmUp' in request.GET:
+                context_dict['warmUp'] = True
+            if 'all' in request.GET:
+                context_dict['all'] = True
+            if 'classAchievements' in request.GET:
+                context_dict['classAchievements'] = True
+            if 'view' in request.GET:
+                context_dict['view'] = True
+                
+            if 'studentChallengeID' in request.GET:
+                studentChallengeId = request.GET['studentChallengeID']
+                context_dict['studentChallengeID'] = request.GET['studentChallengeID']
+            else:
+                student = context_dict['student']
+                challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+                studentChallengeId = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challenge.challengeID)
+                
+                        
+            challengeId = request.GET['challengeID']
+            challenge = Challenges.objects.get(pk=int(challengeId))
+            context_dict['challengeName'] = challenge.challengeName
+            context_dict['challengeID'] = request.GET['challengeID']
+                        
+            # Get all the questions for this challenge (AH)
+            questionObjects= []
+            challengeQuestions = []
+            challenge_questions = StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallengeId)
+            for challenge_question in challenge_questions:
+                questionObjects.append(challenge_question.questionID)
+                challengeQuestions.append(challenge_question)
+            
+            # Find the total student score for this challenge attemmpt (AH)
+            studentChallenges = StudentChallenges.objects.filter( courseID=currentCourse,challengeID=challengeId, studentChallengeID = studentChallengeId )
+            for Schallenges in studentChallenges:
+                if int(Schallenges.challengeID.challengeID) == int(challengeId):
+                    totalStudentScore = Schallenges.testScore
+            context_dict['total_user_points'] = totalStudentScore
+                    
+            # Next few lines of code is very similar to POST (AH)
+            questions = []
+            for i, challenge_question in zip(range(0,len(questionObjects)), challengeQuestions):
+                q = questionObjects[i]
+
+                questSessionDict = {}
+                questSessionDict['id']=q.questionID
+                questSessionDict['index']=i+1
+                questSessionDict['total_points']=challenge_questions.get(questionID=q).questionTotal
+                
+                questdict = makeSerializableCopyOfDjangoObjectDictionary(q)
+                    
+                questdict.pop("_state",None)
+                
+                studentAnswers = StudentChallengeAnswers.objects.filter(studentChallengeQuestionID=challenge_question) 
+                
+                if q.type in staticQuestionTypesSet:
+                    answers = [makeSerializableCopyOfDjangoObjectDictionary(ans) for ans in Answers.objects.filter(questionID = q.questionID)]
+                    
+                    answer_range = range(1,len(answers)+1)
+                    questdict['answers_with_count'] = list(zip(answer_range,answers)) # answer_range is used for matching answers on the front-end (AH)
+                    questSessionDict['answers'] = answers
+                    questSessionDict['answers_with_count'] = questdict['answers_with_count']
+                    
+                    staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
+                    questdict['questionText']=staticQuestion.questionText
+                    
+                    #getting the matching questions of the challenge from database
+                    matchlist = []
+                    for match in MatchingAnswers.objects.filter(questionID=q.questionID):
+                        matchdict = makeSerializableCopyOfDjangoObjectDictionary(match)
+                        matchdict['answers_count'] = list(range(1,len(answers)+1))
+                        matchdict['answerText'] = match.answerID.answerText
+                        matchlist.append(matchdict)
+                        
+                    questSessionDict['matches']=[]
+                    j = 1
+                    for matchdict in matchlist:
+                        questSessionDict['matches'].append(matchdict)
+                        matchdict['current_pos'] = j
+                        j = j + 1
+
+                    questdict['matches']=matchlist
+                    
+                    if q.type == QuestionTypes.multipleChoice:
+                        correctAnswer = CorrectAnswers.objects.get(questionID=q.questionID).answerID
+                        correctAnswerText = correctAnswer.answerText
+                        questdict['correct_answer_text'] = correctAnswerText
+                        studentAnswerValue = studentAnswers[0].studentAnswer
+                        userSelection = 0
+                        userAnswer = {}
+                        # Loop through to find the student answer (AH)
+                        for index, answer in questdict['answers_with_count']:
+                            if answer['answerID'] == int(studentAnswerValue):
+                                userSelection = index
+                                userAnswer = answer
+                                break
+                        # answerNumber is used to match answer choices on the front-end (AH)
+                        questSessionDict['user_answer'] = {'answerNumber':userSelection,'answerText':userAnswer['answerText']}
+                        
+                        # Check to see if the student answer matches the correct answer (AH)
+                        if int(studentAnswerValue) == correctAnswer.answerID:
+                            questSessionDict['user_points'] = questSessionDict['total_points']
+                        else:
+                            questSessionDict['user_points'] = 0
+                    elif q.type == QuestionTypes.multipleAnswers:
+                        correctAnswers = [x.answerID for x in CorrectAnswers.objects.filter(questionID=q.questionID)]
+                        correctAnswerIds = [x.answerID for x in correctAnswers]
+                        questSessionDict['correct_answer_texts'] = [x.answerText for x in correctAnswers]
+                        
+                        # Finding the student answers (AH)
+                        userAnswerIndexes = []
+                        userAnswers = []
+                        for stuAns in studentAnswers:
+                            for index, answer in questdict['answers_with_count']:
+                                if answer['answerID'] == int(stuAns.studentAnswer):
+                                    userAnswerIndexes.append(index)
+                                    userAnswers.append((index, answer))
+                                    break
+                        
+                        userAnswerIndexes = [int(x) for x in userAnswerIndexes]   
+                        userAnswerIds = [x['answerID'] for i, x in userAnswers]
+                        
+                        numAnswersIncorrect = len([x for x in userAnswerIds if x not in correctAnswerIds])                            
+                        numAnswersMissing = len([x for x in correctAnswerIds if x not in userAnswerIds])
+                            
+                        valuePerAnswer = questSessionDict['total_points']/len(questSessionDict['answers'])
+                        
+                        questSessionDict['user_points'] = questSessionDict['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
+                        questSessionDict['user_answers'] = [{'answerNumber':i,'answerText':x['answerText']} for i, x in userAnswers]
+                    elif q.type == QuestionTypes.trueFalse:
+                        correctAnswerValue = CorrectAnswers.objects.get(questionID=q.questionID).answerID.answerText == "true"
+                        
+                        questSessionDict['correctAnswerText'] = str(correctAnswerValue)
+                        
+                        studentAnswerValue = studentAnswers[0].studentAnswer
+                        questSessionDict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':studentAnswerValue}
+                        if studentAnswerValue == str(correctAnswerValue):
+                            questSessionDict['user_points'] = questSessionDict['total_points']
+                        else:
+                            questSessionDict['user_points'] = 0
+                    elif q.type == QuestionTypes.matching:
+                        userAnswers = []
+                        userScore = []
+                        matches = questdict['matches']
+                        valuePerAnswer = questSessionDict['total_points']/len(questSessionDict['answers'])
+                        userScore = 0
+                        for match in matches:
+                            if match is not None:
+                                # Find correct answer
+                                correctAnswerIndex = 0
+                                for index,answer in questdict['answers_with_count']:
+                                    if answer['answerID'] == match['answerID_id']:
+                                        correctAnswerIndex = index
+                                        break
+                                    
+                                # Find student answer that matches with the current match object (AH)
+                                for stuAns in studentAnswers:
+                                    userAnswerIndex = 0
+                                    matchAnswer = stuAns.studentAnswer
+                                    parts = matchAnswer.split(':')
+                                
+                                    for index,answer in questdict['answers_with_count']:
+                                        if answer['answerID'] == int(parts[1]) and match['matchingAnswerID'] == int(parts[0]):
+                                            userAnswerIndex = index
+                                            break
+                                    if userAnswerIndex != 0:
+                                        break
+                                userAnswers.append({'answerNumber':userAnswerIndex,'answerText':MatchingAnswers.objects.get(pk=parts[0]).answerID.answerText})
+                                if correctAnswerIndex == userAnswerIndex:
+                                    userScore = userScore + valuePerAnswer
+
+                        questSessionDict['user_points'] = userScore
+                        questSessionDict['user_answers'] = userAnswers
+                        
+                    
+                elif q.type in dynamicQuestionTypesSet:
+                    dynamicQuestion = DynamicQuestions.objects.get(pk=q.questionID)
+                    if not lupa_available:
+                        questdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+                    else:
+                        if dynamicQuestion.numParts == 1:
+                            seed = challenge_question.seed
+                            questSessionDict['seed'] = seed
+                            
+                            code = [CodeSegment.new(CodeSegment.raw_lua,dynamicQuestion.code,"")]
+                            numParts = dynamicQuestion.numParts
+                            libs = makeLibs(dynamicQuestion)
+                            lupaQuest = LupaQuestion(code, libs, seed, "dummy_uniqid", numParts)
+    
+                            questdict['questionText'] = lupaQuest.getQuestionPart(1)
+                            answers = {}
+                            for ans in studentAnswers:
+                                answerParts = ans.studentAnswer.split(":") 
+                                answers[answerParts[0]] = answerParts[1]
+                            print(studentAnswers)
+                            questSessionDict['user_answers'] = answers
+                            questSessionDict['evaluations'] = lupaQuest.answerQuestionPart(1, answers)
+                            if questSessionDict['evaluations']:
+                                questSessionDict['user_points'] = sum([eval['value'] for eval in questSessionDict['evaluations']])
+                            else:
+                                questSessionDict['user_points'] = 0
+                        else:
+                            questSessionDict['user_points'] = 0
+                    
+                   
+                questSessionDict['question']=questdict
+                questions.append(questSessionDict)
+                
+                
+            
+            context_dict["questionCount"] = len(questions)
+            context_dict['total_possible_points'] = sum([question['total_points'] for question in questions])
+
+            # The sort on the next line should be unnecessary, but better safe than sorry
+            context_dict['questions'] = sorted(questions,key=lambda q:q['index'])
             
     return render(request,'Students/ChallengeResults.html', context_dict)
 
