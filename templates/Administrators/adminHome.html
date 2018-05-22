@@ -22,16 +22,16 @@
                                  <tr>
                                     <td>{{course}}</td>
                                     <td>
-                                       <form action="/oneUp/administrators/deleteCourse" method="POST">
+                                       <form action="/oneUp/administrators/deleteItem" method="POST">
                                           {% csrf_token %}
                                           <input type="hidden" name="courseToDelete" value="{{id}}"> 
                                           <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_course{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                           <ul id='dropdown_course{{i}}' class='dropdown-content'>
                                              <li><a href="/oneUp/administrators/createCourse?courseID={{id}}">Edit</a></li>
                                              <li class="divider"></li>
-                                             <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                             <li><a class="modal-trigger" href="#modal_delete_course{{i}}">Delete</a></li>
                                           </ul>
-                                          <div id="modal_delete{{i}}" class="modal">
+                                          <div id="modal_delete_course{{i}}" class="modal">
                                              <div class="modal-content">
                                                 <h5>Are you sure you want to delete?</h5>
                                              </div>
@@ -62,23 +62,24 @@
                         <div class="card-content">
                            <table>
                               <thead>
-                                 <th>Instructors</th>
+                                 <th>Instructors </th>
+                                 <th><i style="color:black;"class="tooltipped material-icons secondary-content" data-position="top" data-tooltip="instructor">person</i></th>
                               </thead>
                               <tbody>
-                                 {% for instructor in instructors %}
+                                 {% for instructor, isAdmin in instructors %}
                                  <tr>
-                                    <td>{{instructor}}</td>
+                                    <td>{{instructor}} &nbsp;<i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="instructor">person</i>{% if isAdmin %} <i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="administrator">vpn_key</i>{% endif %}</td>
                                     <td>
-                                       <form action="/oneUp/administrators/deleteCourse" method="POST">
+                                       <form action="/oneUp/administrators/deleteItem" method="POST">
                                           {% csrf_token %}
                                           <input type="hidden" name="instructorToDelete" value="{{instructor.username}}"> 
                                           <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_instructor{{instructor}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                           <ul id='dropdown_instructor{{instructor}}' class='dropdown-content'>
                                              <li><a href="/oneUp/administrators/createTeacher?instructorID={{instructor}}">Edit</a></li>
                                              <li class="divider"></li>
-                                             <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                             <li><a class="modal-trigger" href="#modal_delete_instructor{{instructor}}">Delete</a></li>
                                           </ul>
-                                          <div id="modal_delete{{i}}" class="modal">
+                                          <div id="modal_delete_instructor{{instructor}}" class="modal">
                                              <div class="modal-content">
                                                 <h5>Are you sure you want to delete?</h5>
                                              </div>
@@ -110,16 +111,35 @@
                            <table>
                               <thead>
                                  <th>Administrators</th>
+                                 <th><i style="color:black;"class="tooltipped material-icons secondary-content" data-position="top" data-tooltip="administrator">vpn_key</i></th>
                               </thead>
                               <tbody>
-                                 {% for admin in administrators %}
+                                 {% for admin, isTeacher in administrators %}
                                  <tr>
-                                    <td>{{admin}}</td>
+                                    <td>{{admin}} &nbsp;<i style="vertical-align:bottom;" class="tooltipped material-icons" data-position="top" data-tooltip="administrator">vpn_key</i>{% if isTeacher %} <i style="vertical-align:bottom;" class="tooltipped material-icons" data-position="top" data-tooltip="instructor">person</i>{% endif %}</td>
                                     <td>
+                                    <form action="/oneUp/administrators/deleteItem" method="POST">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="adminToDelete" value="{{admin.username}}"> 
                                           <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_admin{{admin}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                           <ul id='dropdown_admin{{admin}}' class='dropdown-content'>
                                              <li><a href="/oneUp/administrators/createAdmin?adminID={{admin}}">Edit</a></li>
+                                             {% if not isTeacher %}
+                                             <li class="divider"></li>
+                                             <li><a class="modal-trigger" href="#modal_delete_admin{{admin}}">Delete</a></li>
+                                             {% endif %}
                                           </ul>
+                                          <div id="modal_delete_admin{{admin}}" class="modal">
+                                             <div class="modal-content">
+                                                <h5>Are you sure you want to delete?</h5>
+                                             </div>
+                                             <div class="modal-footer">
+                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                                </button>                                        
+                                             </div>
+                                          </div>
+                                          </form>
                                     </td>
                                  </tr>
                                  {% empty %}
