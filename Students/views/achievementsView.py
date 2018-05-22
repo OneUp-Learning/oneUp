@@ -276,6 +276,5 @@ def achievements(request):
          # The range part is the index numbers.
     #context_dict['badgesInfo'] = zip(range(1,studentBadges.count()+1),badgeId,badgeName,badgeImage)
     context_dict['badgesInfo'] = list(zip(range(1,len(studentCourseBadges)+1),badgeId,badgeName,badgeImage))
-
      
     return render(request,'Students/Achievements.html', context_dict)

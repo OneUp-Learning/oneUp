@@ -156,6 +156,7 @@ def courseLeaderboard(currentCourse, context_dict):
             #Displaying the list of challenges from database
             badges = StudentBadges.objects.all().order_by('-timestamp')
            
+            print(badges)
             for badge in badges:
                 if badge.studentID in students:
                     studentBadgeID.append(badge.studentBadgeID)

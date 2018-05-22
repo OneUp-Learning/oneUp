@@ -1,9 +1,9 @@
-from Badges.models import Rules, ActionArguments, Conditions, Badges,\
+from Badges.models import Rules, ActionArguments, Conditions, BadgesInfo, Badges,\
     ActivitySet, VirtualCurrencyRuleInfo
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     VirtualCurrencyAwardFrequency
-from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
+from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
     StudentRegisteredCourses, StudentVirtualCurrency
 from datetime import datetime
 from django.utils import timezone
@@ -324,15 +324,21 @@ def fire_action(rule,courseID,studentID,eventEntry):
         badgeIdArg = args.get(sequenceNumber=1)
         badgeIdString = badgeIdArg.argumentValue
         badgeId = int(badgeIdString)
-        badge = Badges.objects.get(pk=badgeId)
+        ##badge = Badges.objects.get(pk=badgeId)
+        print("This is the badge we pick ", badgeId)
+        badge = BadgesInfo.objects.get(pk=badgeId)
         
         #Make sure the student hasn't already been awarded this badge
         #If the student has already received this badge, they will not be awarded again
         studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
         for existingBadge in studentBadges:
-            if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
-                print("Student " + str(studentID) + " has already earned badge " + str(badge))
-                return
+            badgeInfo = Badges.objects.get(badgeID = existingBadge.badgeID.badgeID)
+            if(not badgeInfo.manual):
+                autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
+                if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
+                #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
+                    print("Student " + str(studentID) + " has already earned badge " + str(badge))
+                    return
             
         #If the badge has not already been earned, then award it    
         studentBadge = StudentBadges()

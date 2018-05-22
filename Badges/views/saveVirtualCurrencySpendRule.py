@@ -114,7 +114,6 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo.vcRuleLimit = request.POST["ruleLimit_"+str(eventI)]
                     vcRuleInfo.vcRuleAmount = request.POST["ruleAmount_"+str(eventI)]
                     vcRuleInfo.vcRuleType = False # Spending type
-                    vcRuleInfo.assignToChallenges = 1
                     vcRuleInfo.save()
                 
     return redirect("/oneUp/badges/VirtualCurrencySpendRuleList")

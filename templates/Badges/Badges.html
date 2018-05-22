@@ -13,9 +13,22 @@
          </div>
          <div class="row right-align">
             <div class="col s12 m8 offset-m2"> 
-               <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge"><i class="material-icons left">add_circle</i>Add New Badge</a>
+               <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?isManualBadge=false"><i class="material-icons left">add_circle</i>Add New Badge</a>
+            </div>
+            <!-- Added a second button to the page so we can have buttons without conditions for manual usgage GGM -->
+            <br></br>
+            <div class="col s12 m8 offset-m2"> 
+               <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?isManualBadge=true"><i class="material-icons left">add_circle</i>Add New Manual Badge</a>
             </div>
          </div>
+         
+         <!--  added a title GGM -->
+         <div class="row center-align">
+            <div class="col s12">
+            <h5> Automatic Rule Badges</h5>
+            </div>
+           	</div>
+          
          <div class="row">
             <div class="col s12 m8 offset-m2">
                <div class="card">
@@ -35,6 +48,46 @@
                            <td>{{badgeDescription}}</td>
                            <td class="right-align">		
                               <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"><i class="material-icons left">edit</i>Modify</a>		
+                           </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                           <td class="center-align" colspan="4"><i>No badges created</i></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+         
+         <!-- created a second table to display the badge content GGM-->
+         <div class="row center-align">
+            <div class="col s12">
+            <h5> Manual Badges</h5>
+            </div>
+           	</div>
+          
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <div class="card-content">
+                     <table>
+                        <thead>
+                           <th>Badge Image</th>
+                           <th>Badge Name</th>
+                           <th>Badge Description</th>
+                           <th></th>
+                        </thead>
+                        <tbody>
+                        {% for i,badgeId,badgeName,badgeImage, badgeDescription in manualBadgesInfo %}
+                        <tr>
+                           <td><img src="/{{badgeImage}}" alt="Badge Image" width="76px" height="76px"></td>
+                           <td>{{badgeName}}</td>
+                           <td>{{badgeDescription}}</td>
+                           <td class="right-align">		
+                              <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?manualBadgeID={{badgeId}}"><i class="material-icons left">edit</i>Modify</a>		
                            </td>
                         </tr>
                         {% empty %}

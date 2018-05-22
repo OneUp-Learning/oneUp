@@ -4,7 +4,7 @@ Created on Sep 14, 2016
 '''
 from django.shortcuts import render
 from Instructors.models import Courses
-from Students.models import StudentConfigParams,Student,StudentRegisteredCourses
+from Students.models import StudentConfigParams,Student,StudentRegisteredCourses, StudentBadges
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.instructorCourseHomeView import courseLeaderboard
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
@@ -48,6 +48,7 @@ def StudentCourseHome(request):
             context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
             context_dict["displayClassAverage"]=scparams.displayClassAverage
             context_dict["displayClassSkills"]=scparams.displayClassSkills
+            
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
            
