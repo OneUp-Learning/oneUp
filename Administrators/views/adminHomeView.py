@@ -22,7 +22,7 @@ def adminHome(request):
     context_dict['administrators'] = administrators
     
     # Create Instructors List (AH)
-    instructors = User.objects.filter(groups__name='Teachers')
+    instructors = User.objects.filter(groups__name='Teachers').exclude(groups__name='Admins')
     print("Instructors:", instructors)
     context_dict['instructors'] = instructors
     
