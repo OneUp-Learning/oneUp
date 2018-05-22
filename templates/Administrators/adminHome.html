@@ -25,8 +25,8 @@
                                        <form action="/oneUp/administrators/deleteCourse" method="POST">
                                           {% csrf_token %}
                                           <input type="hidden" name="courseToDelete" value="{{id}}"> 
-                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                          <ul id='dropdown{{i}}' class='dropdown-content'>
+                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_course{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                          <ul id='dropdown_course{{i}}' class='dropdown-content'>
                                              <li><a href="/oneUp/administrators/createCourse?courseID={{id}}">Edit</a></li>
                                              <li class="divider"></li>
                                              <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
@@ -72,8 +72,8 @@
                                        <form action="/oneUp/administrators/deleteCourse" method="POST">
                                           {% csrf_token %}
                                           <input type="hidden" name="instructorToDelete" value="{{instructor.username}}"> 
-                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{instructor}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                          <ul id='dropdown{{instructor}}' class='dropdown-content'>
+                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_instructor{{instructor}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                          <ul id='dropdown_instructor{{instructor}}' class='dropdown-content'>
                                              <li><a href="/oneUp/administrators/createTeacher?instructorID={{instructor}}">Edit</a></li>
                                              <li class="divider"></li>
                                              <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
@@ -116,8 +116,8 @@
                                  <tr>
                                     <td>{{admin}}</td>
                                     <td>
-                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{admin}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                          <ul id='dropdown{{admin}}' class='dropdown-content'>
+                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_admin{{admin}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                          <ul id='dropdown_admin{{admin}}' class='dropdown-content'>
                                              <li><a href="/oneUp/administrators/createAdmin?adminID={{admin}}">Edit</a></li>
                                           </ul>
                                     </td>

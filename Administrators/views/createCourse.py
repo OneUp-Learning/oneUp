@@ -151,11 +151,11 @@ def courseCreateView(request):
         ccparams = CourseConfigParams.objects.get(courseID = request.GET['courseID'])
         defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         if(ccparams.courseStartDate.year < defaultTime.year):
-            context_dict["courseStartDate"]=ccparams.courseStartDate
+            context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")
         else:
             context_dict["courseStartDate"]=""
         if(ccparams.courseEndDate.year < defaultTime.year):
-            context_dict["courseEndDate"]=ccparams.courseEndDate
+            context_dict["courseEndDate"]=ccparams.courseEndDate.strftime("%B %d, %Y")
         else:
             context_dict["courseEndDate"]=""
         context_dict['editCourse'] = True
