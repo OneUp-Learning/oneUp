@@ -129,6 +129,7 @@ def courseLeaderboard(currentCourse, context_dict):
                 
             if len(ccparamsList) > 0:
                 ccparams = ccparamsList[0] 
+                context_dict["gamificationUsed"] = ccparams.gamificationUsed
                 context_dict["badgesUsed"]=ccparams.badgesUsed
                 context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
                 context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
