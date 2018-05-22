@@ -19,7 +19,7 @@ def addBadgeManuallyView(request):
                 studentID.append(studentobj.studentID)
                 studentName.append(studentobj.studentID.user.get_full_name())
             
-            badges = BadgesInfo.objects.filter(courseID = course)
+            badges = BadgesInfo.objects.filter(courseID = course , manual=True)
             customRules = [r for r in badges]
             
             ##get thecustom made badge
@@ -46,6 +46,7 @@ def addBadgeManuallyView(request):
                     ##studentID
                     studentBadges = StudentBadges.objects.filter(studentID = studentObjects.studentID)
                     
+                    
                     ##we must blank this out on each iteration so it will load in only what maches the studentID
                     studentBadgeID = []
                     studentBadgeName = []
@@ -54,9 +55,11 @@ def addBadgeManuallyView(request):
                         studentAwardedBadgesZipList.append(list(zip(studentBadgeID, studentBadgeName, studentBadgeImage)))
                     else:##otherwise for each student badgeobject, grab the id name and image    
                         for studentBadge in studentBadges:
-                            studentBadgeID.append(studentBadge.studentBadgeID)
-                            studentBadgeName.append(studentBadge.badgeID.badgeName)
-                            studentBadgeImage.append(studentBadge.badgeID.badgeImage)
+                            badgeInfo = BadgesInfo.objects.get(badgeID = studentBadge.badgeID.badgeID)
+                            if(badgeInfo.manual):
+                                studentBadgeID.append(studentBadge.studentBadgeID)
+                                studentBadgeName.append(studentBadge.badgeID.badgeName)
+                                studentBadgeImage.append(studentBadge.badgeID.badgeImage)
                         #print(studentBadgeImage)
                         
                         ##at the end of  the for, append the things into the list
@@ -84,7 +87,7 @@ def addBadgeManuallyView(request):
                 print(request.POST['badgeID'])
                 print(referencedBadge)
                 studentBadge.studentID = student
-                studentBadge.badgeID = referencedBadge ##this causes an error due to needing badge instance
+                studentBadge.badgeID = referencedBadge 
                 studentBadge.save()
                 
             ##we are sent checkboxes to remove from students    

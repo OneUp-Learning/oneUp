@@ -6,7 +6,7 @@ Created on Nov 3, 2016
 
 from django.shortcuts import render
 
-from Badges.models import Badges
+from Badges.models import Badges, BadgesInfo
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
@@ -29,7 +29,7 @@ def BadgesDisplay(request):
     badgeDescription = []
         
     #Displaying the list of challenges from database
-    badges = Badges.objects.filter(courseID=currentCourse)
+    badges = BadgesInfo.objects.filter(courseID=currentCourse)
     for badge in badges:
         badgeId.append(badge.badgeID)
         badgeName.append(badge.badgeName)
