@@ -45,7 +45,7 @@
 									{% for i,course_ID,course_Name in course_range %}
 									<tr>
 										<td>{{course_Name}}</td>
-										<td>
+										<td style="padding:0;">
 											<form action="/oneUp/setCourse" method="POST">
 											{% csrf_token %}                                                                        
 												<input type="hidden" name="courseID" value="{{course_ID}}">

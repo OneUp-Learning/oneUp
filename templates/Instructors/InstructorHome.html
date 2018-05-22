@@ -15,8 +15,7 @@
 						<table>
 							<thead>
 							<th>Latest Announcements</th>
-							<th> </th>
-							<th> </th>
+							
 							</thead>
 							<tbody>
 							   {% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
@@ -27,7 +26,7 @@
 								</tr>
 								{% empty %}
 								<tr>
-									<td>No Announcements</td>
+									<td class="center-align"><i>No announcements</i></td>
 								</tr>
 								{% endfor %}
 							</tbody>
@@ -44,7 +43,7 @@
 								{% for i,course_ID,course_Name in course_range %}
 								<tr>
 									<td>{{course_Name}}</td>
-									<td>
+									<td style="padding:0;">
 										<form action="/oneUp/setCourse" method="POST">
 										{% csrf_token %}                                                                        
 											<input type="hidden" name="courseID" value="{{course_ID}}">
@@ -55,7 +54,7 @@
 								</tr>
 								{% empty %}
 								<tr>
-									<td>No Courses</td>
+									<td class="center-align"><i>No courses</i></td>
 								</tr>
 								{% endfor %}
 							</tbody>
@@ -69,8 +68,7 @@
 						<table>
 							<thead>
 								<th>Upcoming Assignments</th>
-								<th> </th>
-								<th> </th>
+								
 							</thead>
 							<tbody>
 								{% for i,chall_ID,chall_course,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
@@ -81,7 +79,7 @@
 								</tr>
 								{% empty %}
 								<tr>
-									<td>No Upcomming Assignments</td>
+									<td class="center-align"><i>No upcomming assignments</i></td>
 								</tr>
 								{% endfor %}
 							</tbody>
