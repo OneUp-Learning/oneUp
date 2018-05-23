@@ -157,6 +157,7 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills Visualization</a></li>  
                 </ul>
             </li>
+            {% if ccparams.gamificationUsed %}
             <li>
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="gamefeats">Game Features</a>
                 <ul id="gamefeats" class="dropdown-content">
@@ -168,11 +169,10 @@
                     <li><a class="waves-effect" href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
         			<li><a class="waves-effect" href="/oneUp/badges/AddBadgeManually">Add Badge to Students</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a></li>  
-                    {% if ccparams.gamificationUsed %}
                     <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
-                    {% endif %}
                 </ul>
             </li>
+            {% endif %}
             <li>
                 <a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
                     <i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
@@ -255,6 +255,7 @@
                             </ul>
                         </div>
                     </li>
+                    {% if ccparams.gamificationUsed %}
                     <li>
                         <a class="collapsible-header"><i class="material-icons">extension</i>Game Features</a>
                         <div class="collapsible-body">
@@ -264,12 +265,10 @@
                                 <li>
                                     <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
                                 </li>
-                                {% if ccparams.gamificationUsed %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
-                                {% endif %}
-                            </ul>
                         </div>
                     </li>
+                    {% endif %}
                     <li>
                         <a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
                         <div class='collapsible-body'>
