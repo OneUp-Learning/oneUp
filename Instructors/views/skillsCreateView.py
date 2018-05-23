@@ -1,23 +1,11 @@
-from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Skills, Courses, CoursesSkills
+from Instructors.views.utils import initialContextDict
 
 @login_required
 def skillsCreateView(request):
-
- 
-    context_dict = { }  
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected' 
+    context_dict, currentCourse = initialContextDict(request)
 
     string_attributes = ['skillName'];
     
@@ -45,7 +33,7 @@ def skillsCreateView(request):
         if not request.POST['skillID']:
             # add the new skill to current course
             courseSkill = CoursesSkills()
-            courseSkill.courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
+            courseSkill.courseID = currentCourse
             courseSkill.skillID = skill
             courseSkill.save()
 

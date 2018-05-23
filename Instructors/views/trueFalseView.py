@@ -5,7 +5,7 @@
 
 from django.shortcuts import render, redirect
 
-from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses
+from Instructors.models import StaticQuestions, Answers, CorrectAnswers
 from Instructors.models import Challenges, ChallengesQuestions
 
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
@@ -16,11 +16,10 @@ from Instructors.constants import unassigned_problems_challenge_name, default_ti
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 
-import logging
+from oneUp.logger import logger
 
 @login_required
 def trueFalseNewForm(request):
-    logger = logging.getLogger(__name__)
     context_dict, currentCourse = initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.

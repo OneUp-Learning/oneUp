@@ -23,7 +23,8 @@ def courseCreateView(request):
     if request.method == 'POST':
         name = request.POST['courseName']
         description = request.POST['courseDescription']
-        instructor_username = request.POST['instructorName']
+        if 'instructorName' in request.POST:
+            instructor_username = request.POST['instructorName']
         
         if 'courseID' in request.GET: # Editing course
             courses = Courses.objects.filter(courseName = name)
@@ -31,11 +32,18 @@ def courseCreateView(request):
                 course = courses[0]
                 course.courseDescription = description
                 course.save()
-                
-                irc = InstructorRegisteredCourses.objects.get(courseID = course)
-                instructor = User.objects.get(username=instructor_username)
-                irc.instructorID = instructor
-                irc.save()
+                if 'instructorName' in request.POST:
+                    irc = InstructorRegisteredCourses.objects.filter(courseID = course)
+                    if irc.exists():
+                        irc = irc.first()
+                        instructor = User.objects.get(username=instructor_username)
+                        irc.instructorID = instructor
+                        irc.save()
+                    else:
+                        irc = InstructorRegisteredCourses()
+                        irc.instructorID = User.objects.get(username=instructor_username)
+                        irc.courseID = course
+                        irc.save()
                 
                 ccp = CourseConfigParams.objects.get(courseID = course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
@@ -57,10 +65,18 @@ def courseCreateView(request):
                 course.courseDescription = description
                 course.save()
                 
-                irc = InstructorRegisteredCourses.objects.get(courseID = course)
-                instructor = User.objects.get(username=instructor_username)
-                irc.instructorID = instructor
-                irc.save()
+                if 'instructorName' in request.POST:
+                    irc = InstructorRegisteredCourses.objects.filter(courseID = course)
+                    if irc.exists():
+                        irc = irc.first()
+                        instructor = User.objects.get(username=instructor_username)
+                        irc.instructorID = instructor
+                        irc.save()
+                    else:
+                        irc = InstructorRegisteredCourses()
+                        irc.instructorID = User.objects.get(username=instructor_username)
+                        irc.courseID = course
+                        irc.save()
                 
                 ccp = CourseConfigParams.objects.get(courseID = course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
@@ -85,12 +101,13 @@ def courseCreateView(request):
                 course.courseDescription = description
                 course.save()
                 
-                instructor = User.objects.get(username=instructor_username)
-                
-                irc = InstructorRegisteredCourses()
-                irc.instructorID = instructor
-                irc.courseID = course
-                irc.save()
+                if 'instructorName' in request.POST:
+                    instructor = User.objects.get(username=instructor_username)
+                    
+                    irc = InstructorRegisteredCourses()
+                    irc.instructorID = instructor
+                    irc.courseID = course
+                    irc.save()
                 
                 ccp = CourseConfigParams()
                 ccp.courseID = course
@@ -146,8 +163,9 @@ def courseCreateView(request):
         course = Courses.objects.get(courseID = request.GET['courseID'])
         context_dict['courseName'] = course.courseName
         context_dict['courseDescription'] = course.courseDescription
-        irc = InstructorRegisteredCourses.objects.get(courseID = request.GET['courseID'])
-        context_dict['instructorName'] = irc.instructorID.username
+        irc = InstructorRegisteredCourses.objects.filter(courseID = request.GET['courseID'])
+        if irc.exists():
+            context_dict['instructorName'] = irc.first().instructorID.username
         ccparams = CourseConfigParams.objects.get(courseID = request.GET['courseID'])
         defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         if(ccparams.courseStartDate.year < defaultTime.year):

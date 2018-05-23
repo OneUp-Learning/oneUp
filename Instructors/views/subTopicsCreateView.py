@@ -1,11 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Skills, Courses, CoursesSkills, Topics, CoursesTopics, CoursesSubTopics
-from Instructors.constants import unspecified_topic_name, default_time_str
-from Instructors.views.utils import utcDate
-# from Instructors.views import utils, TopicsListView, subTopicsListView
+from Instructors.models import Topics, CoursesSubTopics
+from Instructors.constants import default_time_str
+from Instructors.views.utils import utcDate, initialContextDict
 
-from time import time
 from datetime import datetime
 from inspect import currentframe
 
@@ -17,20 +15,7 @@ def get_linenumber():
 
 @login_required
 def subTopicsCreateView(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
-    context_dict = { }
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-  
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = initialContextDict(request)
                    
     topicID = []
     topicName = []
@@ -62,7 +47,7 @@ def subTopicsCreateView(request):
             print (get_linenumber(),"POST Request",topicID)
             subtopic = CoursesSubTopics()
             subtopic.topicID  = Topics.objects.get(topicID=int(request.POST['topicID']))
-            subtopic.courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
+            subtopic.courseID = currentCourse
             
         subtopic.subTopicName = str(request.POST['subTopicName'])
         subtopic.subTopicPos = int(request.POST['subTopicPos'])

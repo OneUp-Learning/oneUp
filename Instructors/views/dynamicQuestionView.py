@@ -5,38 +5,23 @@ Created on Apr 1, 2014
 '''
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 
 from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
-from Instructors.views.utils import saveTags, extractTags, utcDate
+from Instructors.views.utils import saveTags, extractTags, utcDate, initialContextDict
 from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 from Badges.enums import QuestionTypes, ObjectTypes
 
-from django.views.decorators.csrf import csrf_exempt
-import sys
-from xml.dom.expatbuilder import theDOMImplementation
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 
 @login_required
 def dynamicQuestionForm(request):
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict['username']=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
@@ -209,7 +194,7 @@ def makeLibs(dynamicQuestion):
 
 @login_required
 def dynamicQuestionPartAJAX(request):
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     if not lupa_available:
         context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)

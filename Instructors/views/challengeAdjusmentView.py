@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Challenges, Courses
 from Students.models import StudentRegisteredCourses, StudentChallenges
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import utcDate, initialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
 from notify.signals import notify
@@ -87,11 +87,7 @@ def challengeAdjustmentView(request):
 @login_required
 def adjustmentList(request):
     
-    context_dict = { }
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+    context_dict, currentCourse = initialContextDict(request)
      
     challenge = Challenges.objects.get(challengeID=request.GET['challengeID'])
     context_dict['totalScore'] = challenge.totalScore
@@ -103,7 +99,7 @@ def adjustmentList(request):
     student_AdjustmentScore=[]
     student_AdjustmentReason=[]
     
-    studentRCs = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name')
+    studentRCs = StudentRegisteredCourses.objects.filter(courseID = currentCourse).order_by('studentID__user__last_name')
     
     for studentRC in studentRCs:
         student = studentRC.studentID

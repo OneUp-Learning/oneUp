@@ -6,7 +6,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import StaticQuestions, Answers, MatchingAnswers, CorrectAnswers, Courses, CoursesSkills
+from Instructors.models import StaticQuestions, Answers, MatchingAnswers, CorrectAnswers
 from Instructors.models import Challenges, ChallengesQuestions
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 
@@ -14,12 +14,11 @@ from Instructors.views.utils import initialContextDict, getCourseSkills, addSkil
 from Badges.enums import QuestionTypes, ObjectTypes
 
 from django.contrib.auth.decorators import login_required
-import logging
+from oneUp.logger import logger
 from decimal import Decimal
 
 @login_required
 def matchingForm(request):
-    logger = logging.getLogger(__name__)
     context_dict, currentCourse = initialContextDict(request)
 
 

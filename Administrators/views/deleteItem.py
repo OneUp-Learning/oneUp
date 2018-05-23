@@ -11,11 +11,11 @@ def deleteItemView(request):
         user = request.user
     context_dict["username"]=user.username
     
-    if request.POST['courseToDelete']:
+    if 'courseToDelete' in request.POST:
         course = Courses.objects.get(pk=int(request.POST['courseToDelete']))            
         course.delete()
     
-    if request.POST['instructorToDelete']:
+    if 'instructorToDelete' in request.POST:
         instructor = User.objects.get(username=request.POST['instructorToDelete'])
         print("Deleted:", instructor)            
         instructor.delete()

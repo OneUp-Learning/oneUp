@@ -132,6 +132,7 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
                 </ul>
             </li>
             <li>
@@ -160,14 +161,16 @@
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="gamefeats">Game Features</a>
                 <ul id="gamefeats" class="dropdown-content">
                     <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
-                    <li><a class="waves-effect" href="">Leveling</a></li>
+<!--                     <li><a class="waves-effect" href="">Leveling</a></li> -->
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
         			<li><a class="waves-effect" href="/oneUp/badges/AddBadgeManually">Add Badge to Students</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a></li>  
+                    {% if ccparams.gamificationUsed %}
                     <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
+                    {% endif %}
                 </ul>
             </li>
             <li>
@@ -222,6 +225,7 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
                             </ul>
                         </div>
                     </li>
@@ -256,11 +260,13 @@
                         <div class="collapsible-body">
                             <ul>
                                 <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
-                                <li><a class="waves-effect" href="">Leveling</a></li>
+<!--                                 <li><a class="waves-effect" href="">Leveling</a></li> -->
                                 <li>
                                     <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
                                 </li>
+                                {% if ccparams.gamificationUsed %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
+                                {% endif %}
                             </ul>
                         </div>
                     </li>

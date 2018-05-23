@@ -6,13 +6,12 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses
+from Instructors.models import StaticQuestions, Answers, CorrectAnswers
 from Instructors.models import Challenges, ChallengesQuestions
 
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
 from Badges.enums import QuestionTypes, ObjectTypes
 
-from Instructors.constants import unassigned_problems_challenge_name
 from decimal import Decimal
 
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
@@ -20,11 +19,10 @@ from Instructors.constants import unassigned_problems_challenge_name, default_ti
 
 from django.contrib.auth.decorators import login_required
 
-import logging
+from oneUp.logger import logger
 
 @login_required
 def multipleChoiceForm(request):
-    logger = logging.getLogger(__name__)
     context_dict, currentCourse = initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.

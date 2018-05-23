@@ -12,13 +12,14 @@ from django.contrib.auth.models import User
 from Students.models import Student, StudentRegisteredCourses
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
 from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.views.utils import initialContextDict
 
 @login_required
 def deleteQuestion(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
 
     if request.POST:
 
@@ -37,7 +38,7 @@ def deleteQuestion(request):
 @login_required
 def deleteQuestionFromChallenge(request):                 
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
 
     if request.POST:
 
@@ -95,7 +96,7 @@ def deleteQuestionFromChallenge(request):
 @login_required
 def deleteChallenge(request):
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
 
     if request.POST:
 
@@ -143,10 +144,8 @@ def deleteChallenge(request):
 @login_required
 def deleteSkill(request):
  
-    context_dict = { }
-    print (str('got here'))
+    context_dict, currentCourse = initialContextDict(request)
     if request.POST:
-
         try:
             if request.POST['skillID']:
                 skill = Skills.objects.get(pk=int(request.POST['skillID']))  
@@ -163,7 +162,7 @@ def deleteSkill(request):
 @login_required
 def deleteStudent(request):
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     print(str('got here for delete student'))
     
     if request.POST:
@@ -204,7 +203,7 @@ def deleteUser(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     print(str('got here for delete user'))
     if request.POST:
 
@@ -230,8 +229,7 @@ def deleteUser(request):
 @login_required
 def deleteTopic(request):
  
-    context_dict = { }
-    print (str('got here'))
+    context_dict, currentCourse = initialContextDict(request)
     if request.POST:
 
         try:
@@ -250,8 +248,7 @@ def deleteTopic(request):
 @login_required
 def deleteSubTopic(request):
  
-    context_dict = { }
-    print (str('got here'))
+    context_dict, currentCourse = initialContextDict(request)
     if request.POST:
 
         try:
@@ -271,8 +268,7 @@ def deleteSubTopic(request):
 
 def deleteActivity(request):
  
-    context_dict = { }
-
+    context_dict, currentCourse = initialContextDict(request)
     if request.POST:
         print("Deleting Activity")
         try:
@@ -290,7 +286,7 @@ def deleteActivity(request):
 @login_required
 def deleteAnnouncement(request):
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
 
     if request.POST:
 
@@ -309,7 +305,7 @@ def deleteAnnouncement(request):
 @login_required
 def deleteMilestone(request):
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
 
     if request.POST:
         try:

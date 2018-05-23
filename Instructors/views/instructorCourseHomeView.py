@@ -4,12 +4,13 @@ Last Updated Sep 14, 2017
 
 '''
 from django.shortcuts import render
-from Instructors.models import Courses, Challenges
+from Instructors.models import Challenges
 from Instructors.models import Skills, CoursesSkills, Activities
 from Badges.models import CourseConfigParams
 from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses,StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
+from Instructors.views.utils import initialContextDict
 
 from datetime import datetime
 from datetime import timedelta
@@ -232,20 +233,12 @@ def courseLeaderboard(currentCourse, context_dict):
 @login_required
 def instructorCourseHome(request):
     
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    if request.GET:
-        request.session['currentCourseID'] = request.GET['courseID']
+    context_dict, currentCourse = initialContextDict(request)
             
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
-        context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
-        context_dict['course_Name'] = currentCourse.courseName
-    
+    context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
+    context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
+    context_dict['course_Name'] = currentCourse.courseName
+
     context_dict = courseLeaderboard(currentCourse, context_dict)
         
     return render(request,'Instructors/InstructorCourseHome.html', context_dict)

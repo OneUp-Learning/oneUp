@@ -4,12 +4,11 @@ Created on Apr 1, 2014
 @author: irwink
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 
-from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
+from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, TemplateTextParts
 from Instructors.models import LuaLibrary, QuestionLibrary
-from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
+from Instructors.lupaQuestion import CodeSegment
 
 from Instructors.views import utils
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
@@ -22,20 +21,7 @@ from decimal import Decimal
 
 @login_required
 def templateDynamicQuestionForm(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
-    context_dict = { }
-    
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict['username']=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = utils.initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to

@@ -27,6 +27,7 @@ from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 
 from Instructors.views.courseInfoView import courseInformation
+from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
@@ -86,7 +87,6 @@ urlpatterns = [
     url(r'^challengeAddQuestions',challengeAddQuestionsView, name='challengeAddQuestionsView'),
     url(r'^announcements', allAnnouncements, name='allAnnouncements'),           
     url(r'^announcementList', announcementList, name='announcementListView'),           
-
     url(r'^challengeCreate',challengeCreateView, name='challengeCreateView'),
     url(r'^challengeQuestionsList',challengeQuestionsListView, name='challengeQuestionsListView'),
     url(r'^challengesList',challengesList, name='ChallengesList'),
@@ -96,9 +96,9 @@ urlpatterns = [
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
     url(r'^courseInformation',courseInformation,name='courseInformation'),
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
-    url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     url(r'^createStudentList',createStudentListView,name='createStudentListView'),
     url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
+    url(r'^courseConfiguration', courseConfigurationView, name='courseConfigurationView'),
     url(r'^deleteActivity',deleteActivity, name='deleteActivity'),
     url(r'^deleteAnnouncement',deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge',deleteChallenge, name='deleteChallenge'),

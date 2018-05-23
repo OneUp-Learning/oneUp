@@ -12,10 +12,8 @@ from Instructors.views.utils import initialContextDict
 from Instructors.constants import uncategorized_activity
 from django.template.defaultfilters import default
 @login_required
-def createContextForActivityList(request):
-    
-    context_dict, currentCourse = initialContextDict(request)
-   
+def createContextForActivityList(request, context_dict, currentCourse):
+       
     activity_ID = []      
     activity_Name = []         
     description = []
@@ -89,7 +87,9 @@ def createContextForActivityList(request):
 @login_required
 def activityList(request):
 
-    context_dict = createContextForActivityList(request)
+    context_dict, currentCourse = initialContextDict(request)
+
+    context_dict = createContextForActivityList(request, context_dict, currentCourse)
         
     
     return render(request,'Instructors/ActivitiesList.html', context_dict)
