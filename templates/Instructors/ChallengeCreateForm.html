@@ -258,8 +258,10 @@
                         <div class="divider"></div>
                        
                          {% for i,question in question_range %}
+                         
                          <div class="row">
                 			<p>{% autoescape off %} {{i}}. {{question.questionText|safe}} {% endautoescape %}</p>
+                			<p> Total points: {{question.point|safe}}</p>
              			</div>
                                  {% if question.typeID == '1' %}
                                  <!-- multiple choice question -->
@@ -327,6 +329,7 @@
 								</div>
 								</div>									
                                  {% endif %}
+                                 	
                                  {% endfor %}
                                 {% endif %}
                      </div>
