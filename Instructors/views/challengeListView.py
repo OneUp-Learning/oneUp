@@ -4,19 +4,16 @@ Last updated 07/15/2017
 
 @author: dichevad
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 
 from Instructors.models import Courses, Challenges, ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
 from Instructors.constants import  unspecified_topic_name
+from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
 from Badges.events import register_event
 from Badges.enums import Event, QuestionTypes
 from Students.models import StudentRegisteredCourses
-#from _datetime import datetime, tzinfo
-from time import time, strptime, struct_time
 from time import strftime
-import datetime
 
 from Instructors.constants import unassigned_problems_challenge_name
 
@@ -113,10 +110,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
 @login_required
 def challengesList(request):
     
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+    context_dict, currentCourse = initialContextDict(request)
         
     if 'warmUp' in request.GET:
             warmUp = 1
@@ -124,19 +118,12 @@ def challengesList(request):
     else:
         warmUp = 0    
 
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-        # True -> the challenge is graded
-        if warmUp == 1:
-            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
-        else:
-            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
+    
+    if warmUp == 1:
+        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
     else:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-        
+        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
+            
 #    disableExpiredChallenges(request)
 
     return render(request,'Instructors/ChallengesList.html', context_dict)
@@ -172,56 +159,45 @@ def warmUpChallengeList(request):
     
     # Warm challenged will be grouped by course topics
     
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+    context_dict, currentCourse = initialContextDict(request)
+
+    topic_ID = []      
+    topic_Name = [] 
+    topic_Pos = []     
+    challenges_count = []   
+    all_challenges_for_topic = []
+    hasUnspecified_topic = False
+
+    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
+    for ct in course_topics:
         
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'      
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-
-        topic_ID = []      
-        topic_Name = [] 
-        topic_Pos = []     
-        challenges_count = []   
-        all_challenges_for_topic = []
-        hasUnspecified_topic = False
-
-        course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
-        for ct in course_topics:
-            
-            tID = ct.topicID.topicID
-            tName = Topics.objects.get(pk=tID).topicName
-            if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
-                topic_ID.append(tID)
-                topic_Name.append(tName)
-                topic_Pos.append(ct.topicPos)
-                topic_challenges = challengesForTopic(ct.topicID, currentCourse) 
-                challenges_count.append(len(list(topic_challenges)))
-                all_challenges_for_topic.append(topic_challenges)
-            else:
-                unspecified_topic = ct.topicID 
-                hasUnspecified_topic=True           
-                    
-        # Add the challenges with unspecified topic at the end
-        if hasUnspecified_topic:
-            topic_ID.append(unspecified_topic.topicID)
-            topic_Name.append("Miscellaneous")
-            if topic_Pos: 
-                max_pos = max(topic_Pos)
-            else:
-                max_pos = 0
-            topic_Pos.append(max_pos+1) 
-            topic_challenges = challengesForTopic(unspecified_topic, currentCourse)
+        tID = ct.topicID.topicID
+        tName = Topics.objects.get(pk=tID).topicName
+        if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
+            topic_ID.append(tID)
+            topic_Name.append(tName)
+            topic_Pos.append(ct.topicPos)
+            topic_challenges = challengesForTopic(ct.topicID, currentCourse) 
             challenges_count.append(len(list(topic_challenges)))
             all_challenges_for_topic.append(topic_challenges)
-                        
-        #context_dict['topic_range'] = zip(range(1,course_topics.count()+1),topic_ID,topic_Name,all_challenges_for_topic)
-        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
+        else:
+            unspecified_topic = ct.topicID 
+            hasUnspecified_topic=True           
+                
+    # Add the challenges with unspecified topic at the end
+    if hasUnspecified_topic:
+        topic_ID.append(unspecified_topic.topicID)
+        topic_Name.append("Miscellaneous")
+        if topic_Pos: 
+            max_pos = max(topic_Pos)
+        else:
+            max_pos = 0
+        topic_Pos.append(max_pos+1) 
+        topic_challenges = challengesForTopic(unspecified_topic, currentCourse)
+        challenges_count.append(len(list(topic_challenges)))
+        all_challenges_for_topic.append(topic_challenges)
+                    
+    context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
 
     return render(request,'Instructors/ChallengesWarmUpList.html', context_dict)
     

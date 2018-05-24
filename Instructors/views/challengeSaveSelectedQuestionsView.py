@@ -3,13 +3,12 @@ Created on Apr 12, 2014
 
 @author: dichevad
 '''
-from django.template import RequestContext
 from django.shortcuts import redirect
 from django.shortcuts import render
 
-from Instructors.models import Questions, Courses
-from Instructors.models import Challenges, ChallengesQuestions 
+from Instructors.models import Challenges, ChallengesQuestions, Questions
 from Instructors.views import challengeListView
+from Instructors.views.utils import initialContextDict
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Instructors.constants import unassigned_problems_challenge_name
 
@@ -18,20 +17,7 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def challengeSaveSelectedQuestions(request):
 
- 
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-
+    context_dict, currentCourse = initialContextDict(request)
     # need to store the information about selected questions in the database   
     if request.POST:
         

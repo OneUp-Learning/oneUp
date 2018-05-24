@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.utils import initialContextDict
-from Instructors.models import Courses
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 import logging

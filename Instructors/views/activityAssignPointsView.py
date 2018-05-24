@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import utcDate, initialContextDict
 from Students.models import StudentActivities
 from Badges.events import register_event
 from Badges.enums import Event
@@ -18,10 +18,10 @@ from notify.signals import notify
 
 
 def activityAssignPointsView(request):   
-    
+    context_dict, currentCourse = initialContextDict(request)
+
     if request.method == 'POST':
         # Get all students assigned to the current course (AH)
-        currentCourse = Courses.objects.get(courseID=request.session['currentCourseID'])
         studentRCList = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
         
         activity = Activities.objects.get(activityID = request.POST['activityID'])
@@ -119,17 +119,12 @@ def activityAssignPointsView(request):
                 print("Registered Event: Participation Noted Event, Student: " + str(studentRC.studentID) + ", Activity Assignment: " + str(activity))                          
     
     # prepare context for Activity List      
-    context_dict = createContextForActivityList(request) 
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+    context_dict = createContextForActivityList(request, context_dict, currentCourse) 
             
     return redirect('/oneUp/instructors/activitiesList', context_dict)    
         
         
-def createContextForPointsAssignment(request):
-    context_dict = { }
+def createContextForPointsAssignment(request, context_dict, currentCourse):
     student_ID = []
     student_Name = []
     student_Points = []   
@@ -137,7 +132,7 @@ def createContextForPointsAssignment(request):
     student_Feedback = []
     File_Name = []
     
-    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name')
+    studentCourse = StudentRegisteredCourses.objects.filter(courseID = currentCourse).order_by('studentID__user__last_name')
     
     for stud_course in studentCourse:
         student = stud_course.studentID
@@ -191,19 +186,9 @@ def createContextForPointsAssignment(request):
     
 @login_required
 def assignedPointsList(request):
+    context_dict, currentCourse = initialContextDict(request)
 
-    context_dict = createContextForPointsAssignment(request)
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'        
+    context_dict = createContextForPointsAssignment(request, context_dict, currentCourse)
 
     return render(request,'Instructors/ActivityAssignPointsForm.html', context_dict)
 

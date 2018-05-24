@@ -28,10 +28,6 @@ def reorderChallenges(request):
                 if challenge.challengeName != unassigned_problems_challenge_name:
                     challenge.challengePosition = request.POST[str(challenge.challengeID)]
                     challenge.save()
-                    
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
 
     if chall_type == 'Warmup':    
         return redirect('/oneUp/instructors/warmUpChallengeList')

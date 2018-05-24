@@ -132,6 +132,7 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
                 </ul>
             </li>
             <li>
@@ -156,11 +157,12 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills Visualization</a></li>  
                 </ul>
             </li>
+            {% if ccparams.gamificationUsed %}
             <li>
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="gamefeats">Game Features</a>
                 <ul id="gamefeats" class="dropdown-content">
                     <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
-                    <li><a class="waves-effect" href="">Leveling</a></li>
+<!--                     <li><a class="waves-effect" href="">Leveling</a></li> -->
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
@@ -170,6 +172,7 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
                 </ul>
             </li>
+            {% endif %}
             <li>
                 <a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
                     <i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
@@ -222,6 +225,7 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
                             </ul>
                         </div>
                     </li>
@@ -251,19 +255,20 @@
                             </ul>
                         </div>
                     </li>
+                    {% if ccparams.gamificationUsed %}
                     <li>
                         <a class="collapsible-header"><i class="material-icons">extension</i>Game Features</a>
                         <div class="collapsible-body">
                             <ul>
                                 <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
-                                <li><a class="waves-effect" href="">Leveling</a></li>
+<!--                                 <li><a class="waves-effect" href="">Leveling</a></li> -->
                                 <li>
                                     <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
                                 </li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
-                            </ul>
                         </div>
                     </li>
+                    {% endif %}
                     <li>
                         <a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
                         <div class='collapsible-body'>

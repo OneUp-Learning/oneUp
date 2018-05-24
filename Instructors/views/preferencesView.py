@@ -6,12 +6,9 @@ Created on Sep 15, 2016
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Courses
 from Badges.models import CourseConfigParams
-from Students.models import StudentConfigParams, StudentRegisteredCourses
-from Instructors.views.utils import initialContextDict, utcDate
-from Instructors.constants import default_time_str
-from Badges.systemVariables import logger
+from Students.models import StudentRegisteredCourses
+from Instructors.views.utils import initialContextDict
 @login_required
 def preferencesView(request):
 
@@ -19,7 +16,6 @@ def preferencesView(request):
     
     if request.POST:
         
-        # There is an existing topic, edit it
         if request.POST['ccpID']:
             print("--> POST Edit Mode")
             ccparams = CourseConfigParams.objects.get(pk=int(request.POST['ccpID']))
@@ -29,7 +25,6 @@ def preferencesView(request):
             ccparams = CourseConfigParams()
             ccparams.courseID = currentCourse
 
-        ccparams.gamificationUsed = "gamificationUsed" in request.POST   
         ccparams.badgesUsed = "badgesUsed" in request.POST
         if ccparams.badgesUsed == True:    
             ccparams.studCanChangeBadgeVis = "studCanChangeBadgeVis" in request.POST
@@ -71,19 +66,8 @@ def preferencesView(request):
         ccparams.avatarUsed = "avatarUsed" in request.POST
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
-        logger.debug(request.POST['courseStartDate'])
-        if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-            ccparams.courseStartDate = utcDate()
-        else:
-            ccparams.courseStartDate = utcDate(request.POST['courseStartDate'], "%B %d, %Y")
-
-        if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-            ccparams.courseEndDate = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        else:
-             ccparams.courseEndDate = utcDate(request.POST['courseEndDate'], "%B %d, %Y")
-
-        # ccparams.courseStartDate = request.POST.get('courseStartDate')
-        # ccparams.courseEndDate= request.POST.get('courseEndDate') 
+    
+        
         ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
         ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
         ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
@@ -101,7 +85,6 @@ def preferencesView(request):
             
         if ccparams:
             context_dict['ccpID'] = ccparams.ccpID
-            context_dict['gamificationUsed'] = ccparams.gamificationUsed
             context_dict["badgesUsed"]=ccparams.badgesUsed
             context_dict["numBadgesDisplayed"]=ccparams.numBadgesDisplayed
             context_dict["studCanChangeBadgeVis"]=ccparams.studCanChangeBadgeVis
@@ -117,16 +100,6 @@ def preferencesView(request):
             context_dict["avatarUsed"]=ccparams.avatarUsed
             context_dict["classAverageUsed"]=ccparams.classAverageUsed
             context_dict["studCanChangeclassAverageVis"]=ccparams.studCanChangeclassAverageVis
-            defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-            if(ccparams.courseStartDate.year < defaultTime.year):
-                context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")
-            else:
-                context_dict["courseStartDate"]=""
-            if(ccparams.courseEndDate.year < defaultTime.year):
-                context_dict["courseEndDate"]=ccparams.courseEndDate.strftime("%B %d, %Y")
-            else:
-                context_dict["courseEndDate"]=""
-
             context_dict["leaderboardUpdateFreq"]=ccparams.leaderboardUpdateFreq
             context_dict["xpWeightSChallenge"]=ccparams.xpWeightSChallenge
             context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
