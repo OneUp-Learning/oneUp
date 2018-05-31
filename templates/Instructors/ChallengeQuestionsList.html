@@ -103,9 +103,6 @@
                               <th>Position</th>
                            </tr>
                         </thead>
-                        
-                         
-                         
                         <tbody>
                            {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, q_position in question_range %}
                            <tr>
@@ -117,12 +114,6 @@
                               </div>
                            	  </td>
                               <td>
-                                 <form action="/oneUp/instructors/deleteQuestionFromChallenge" method="POST">
-                                    {% csrf_token %}
-                                    {% if challenge %}    						
-                                    <input type="hidden" name="challengeID" value="{{challengeID}}">
-                                    {%endif%}   
-                                    <input type="hidden" name="questionId" value="{{q_ID}}">
                                     <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                     <ul id='dropdown{{i}}' class='dropdown-content'>
                                        {% csrf_token %} 
@@ -156,11 +147,10 @@
                                        </div>
                                        <div class="modal-footer">
                                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
-                                          <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                          <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" {% if challenge %}onclick="deleteQuestion({{q_ID}},{{challengeID}})" {%else%}onclick="deleteQuestion({{q_ID}}, 0)" {%endif%}value="Delete">Delete
                                           </button>                                        
                                        </div>
                                     </div>
-                                 </form>
                               </td>
                            </tr>
                            {% empty %}
@@ -186,5 +176,19 @@
       	</form>
       </main>
       {% include 'footer.html' %}
+      <script>
+                              function deleteQuestion(questionID, challengeID) {
+                            	  var xhttp = new XMLHttpRequest();
+                            	  {% if not unassign %}
+                            	  xhttp.open("POST", "/oneUp/instructors/deleteQuestionFromChallenge", true);
+                            	  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                            	  xhttp.send("questionId="+questionID+"&challengeID="+challengeID+"&csrfmiddlewaretoken={{csrf_token}}");
+                            	  {% else %}
+                            	  xhttp.open("POST", "/oneUp/instructors/deleteQuestion", true);
+                            	  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                            	  xhttp.send("questionId="+questionID+"&csrfmiddlewaretoken={{csrf_token}}");
+                            	  {% endif %}
+                            	}
+                              </script>
    </body>
 </html>
