@@ -420,6 +420,7 @@ class QuestionTypes():
     essay=5
     dynamic=6
     templatedynamic=7
+    parsons=8
     questionTypes={
         multipleChoice:{
            'index': multipleChoice,
@@ -456,9 +457,14 @@ class QuestionTypes():
            'name':'templatedynamic',
            'displayName':'Dynamic Questions (Template)',
         },  
+        parsons:{
+           'index': parsons,
+           'name':'parsons',
+           'displayName':'Parsons Problems',
+        },                     
     }   
 
-staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.essay }
+staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.parsons, QuestionTypes.essay }
 dynamicQuestionTypesSet = { QuestionTypes.dynamic, QuestionTypes.templatedynamic }
 
 class VirtualCurrencyAwardFrequency:

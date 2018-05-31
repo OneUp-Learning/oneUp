@@ -2,6 +2,12 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      
+        <title>Simple js-parsons example assignment</title>
+        <link href="/static/ThirdParty/js-parsons-master/parsons.css" rel="stylesheet" />
+        <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
+        <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
+             
       <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
       <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
       <script type="text/javascript">
@@ -38,6 +44,7 @@
       </script>
    </head>
    <body>
+      {% include 'stheading.html' %}
       <main>
          <div class="row center-align">
             <div class="col s12">
@@ -52,12 +59,14 @@
                   <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
                   <input type="hidden" name="challengeId" value="{{challengeID}}"> 
                   <div class="card">
-                     <div class="card-content">
+                     <div class="card-content">                 
+                                    
                         {% for i,question in question_range %}
                         <div class="divider"></div>
                         <div class="row">
                            <p>{% autoescape off %} {{i}}. {{question.questionText|safe}} {% endautoescape %}</p>
                         </div>
+                        
                         {% if question.type == questionTypes.multipleChoice %}
                         <div class="row">
                            <div class="col s12">
@@ -123,7 +132,57 @@
                               </script>
                            </div>
                         </div>
+                        
+                       {% elif question.type == questionTypes.parsons %} 
+
+				        <div id="sortableTrash" class="sortable-code"></div>
+				        <div id="sortable" class="sortable-code"></div>
+				        <div style="clear:both;"></div>
+				        
+				        <p>
+				            <a href="#" id="newInstanceLink">New instance</a>
+				            <a href="#" id="feedbackLink">Get feedback</a>
+				        </p>
+				        
+				        <script src="/static/ThirdParty/js-parsons-master/lib/jquery.min.js"></script>
+				        <script src="/static/ThirdParty/js-parsons-master/lib/jquery-ui.min.js"></script>
+				        <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
+				        <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
+				        <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
+				        <script src="/static/ThirdParty/js-parsons-master/parsons.js"></script>        
+				
+				        <script>
+				        var initial = '{{question.model_solution}}' 
+				
+				        function displayErrors(fb) {
+				            if(fb.errors.length > 0) {
+				                alert(fb.errors[0]);
+				            }
+				        } 
+				
+				        $(document).ready(function(){
+				            var parson = new ParsonsWidget({
+				                'sortableId': 'sortable',
+				                'trashId': 'sortableTrash',
+				                'max_wrong_lines': 1,
+				                'feedback_cb' : displayErrors
+				            });
+				            parson.init(initial);
+				            parson.shuffleLines();
+				            $("#newInstanceLink").click(function(event){
+				                event.preventDefault();
+				                parson.shuffleLines();
+				            });
+				            $("#feedbackLink").click(function(event){
+				                event.preventDefault();
+				                parson.getFeedback();
+				            });
+				        });
+				        </script>
+                                   
+                        
                         {% endif %}
+                        
                         {% endfor %}
                      </div>
                      <div class="card-action right-align">

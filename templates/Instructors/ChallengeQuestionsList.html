@@ -52,6 +52,7 @@
                               <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
                               <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
                               <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
+                              <option value="/oneUp/instructors/forms/ParsonsForm?challengeID={{challengeID}}">Parsons Problems</option>
                               {%if lupa_available%}
                               <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Template)</option>
                               <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Raw Lua)</option>
@@ -64,6 +65,7 @@
                               <option value="/oneUp/instructors/forms/MultipleChoiceForm">Multiple Choice</option>
                               <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
                               <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
+                              <option value="/oneUp/instructors/forms/ParsonsForm">Parsons Problems</option>
                               {%if lupa_available%}
                               <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)</option>
                               <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
@@ -136,8 +138,8 @@
                                        {% if q_type_name == 'trueFalse' %}
                                        <li><a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
                                        {% endif %}
-                                       {% if q_type_name == 'essay' %}
-                                       <li><a href="/oneUp/instructors/forms/EssayForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
+                                       {% if q_type_name == 'parsons' %}
+                                       <li><a href="/oneUp/instructors/forms/ParsonsForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
                                        {% endif %}
                                        {% if q_type_name == 'dynamic' %}
                                        <li><a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>

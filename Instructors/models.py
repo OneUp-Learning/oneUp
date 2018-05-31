@@ -82,6 +82,12 @@ class StaticQuestions(Questions):
     questionText = models.CharField(max_length=10000)
     correctAnswerFeedback = models.CharField(max_length=1000, default="")
     incorrectAnswerFeedback = models.CharField(max_length=1000, default="")
+    
+# class ParsonsQuestions(Questions):
+#     questionText = models.CharField(max_length=10000)
+#     modelSolution = models.CharField(max_length=20000)  # contains the codeLines entered by the instructors
+    #codeLinePartialOrder = models.CharField(max_length=10000)  # contains a specification of partial order: for each codeLine - a list of lines that can possibly follow it directly
+    #numberDistractors = models.IntegerField(default=0)    
 
 class CodeLibrary(models.Model):
     name = models.CharField(max_length=200)

@@ -53,6 +53,11 @@ def ChallengeSetup(request):
                 if challenge.challengePassword != '':
                     if 'password' not in request.POST or request.POST['password'] != challenge.challengePassword:
                         return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+
+#                 if challenge.challengeName == "Parsons":
+#                     context_dict['questionType'] = 'parsons'
+#                     context_dict['questionText'] = "Construct a function by drag&amp;dropping and reordering lines from the left to the right.The constructed function should return True if the parameter is True and return False otherwise."
+#                     return render(request,'Students/ChallengeSetup.html', context_dict)
                 
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
                 for challenge_question in challenge_questions:
@@ -75,7 +80,7 @@ def ChallengeSetup(request):
                                         
                     if q.type in staticQuestionTypesSet:
                         answers = [makeSerializableCopyOfDjangoObjectDictionary(ans) for ans in Answers.objects.filter(questionID = q.questionID)]
-                        if q.type != QuestionTypes.trueFalse:
+                        if q.type != QuestionTypes.trueFalse and q.type != QuestionTypes.parsons:
                             random.shuffle(answers)
                         answer_range = range(1,len(answers)+1)
                         questdict['answers_with_count'] = list(zip(answer_range,answers))
@@ -85,7 +90,12 @@ def ChallengeSetup(request):
                         
                         staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
                         questdict['questionText']=staticQuestion.questionText
-                    
+
+                        # Parsons problems: getting the model solution from the database - it is saved in Answers.answerText
+                        if q.type == QuestionTypes.parsons:
+                            ms = Answers.objects.filter(questionID=q)
+                            questdict['model_solution']=ms[0].answerText
+                                            
                         #getting the matching questions of the challenge from database
                         matchlist = []
                         for match in MatchingAnswers.objects.filter(questionID=q.questionID):

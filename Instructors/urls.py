@@ -45,6 +45,7 @@ from Instructors.views.milestoneCreateView import milestoneCreateView
 from Instructors.views.milestoneListView import milestoneList
 from Instructors.views.multipleAnswersView import multipleAnswersForm
 from Instructors.views.multipleChoiceView import multipleChoiceForm
+from Instructors.views.parsonsView import parsonsForm
 from Instructors.views.preferencesView import preferencesView
 
 from Instructors.views.searchQuestionsView import searchQuestions
@@ -115,6 +116,7 @@ urlpatterns = [
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
     url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),
+    url(r'^forms/ParsonsForm', parsonsForm, name='parsonsForm'),    
     url(r'^forms/TrueFalseForm', trueFalseNewForm, name='newTrueFalseForm'),
     url(r'^forms/DynamicQuestionForm',dynamicQuestionForm, name='Dynamic QuestionForm'),
     url(r'^forms/TemplateDynamicQuestionForm',templateDynamicQuestionForm, name='Template Dynamic QuestionForm'),
