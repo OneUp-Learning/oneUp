@@ -1,35 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      {% include 'scripts.html' %}
+      {% include 'scripts.html' %} 
       <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
-      <script>
-         $( document ).ready(function(){
-        	 {% if view %}
-	        	var tags = JSON.parse('{{ tags | escapejs }}')
-				var topics = JSON.parse('{{ topics | escapejs }}')
-				for(var i = 0; i < tags.length; i++){
-					var tag = tags[i];
-					var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
-					$('#tags').append($(tagDOM));
-				}
-	        {% else %}
-            $('.chips').material_chip();
-             $('.chips-tags').material_chip({
-                 data: JSON.parse('{{ tags | escapejs }}'),
-                 placeholder: 'Enter a tag',
-             });
-             $('#form').submit(function(){
-                 var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
-                 
-                 $('#form').append($(tags));
-                 console.log($('.chips-tags').material_chip('data'));
-             });
-             {% endif %}
-         });
-      </script>      
-      
+      <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+	<script type="text/javascript">
+        function copyContentsToHidden() {
+            document.question.setupCode.value = editor.getValue();
+        }
+
+        $( document ).ready(function(){
+       	 {% if view %}
+        	var tags = JSON.parse('{{ tags | escapejs }}')
+			var topics = JSON.parse('{{ topics | escapejs }}')
+			for(var i = 0; i < tags.length; i++){
+				var tag = tags[i];
+				var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
+				$('#tags').append($(tagDOM));
+			}
+        {% else %}
+           $('.chips').material_chip();
+            $('.chips-tags').material_chip({
+                data: JSON.parse('{{ tags | escapejs }}'),
+                placeholder: 'Enter a tag',
+            });
+            $('#form').submit(function(){
+                var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+                
+                $('#form').append($(tags));
+                console.log($('.chips-tags').material_chip('data'));
+                copyContentsToHidden();
+            });
+            {% endif %}
+        });
+     </script> 
+           
+   <style>
+        #editor {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .lineHighlight {
+            position: absolute;
+            background: rgba(100, 200, 100, 0.5);
+            z-index: 20
+        }
+    </style>  
+        
    </head>
+   
    <body>
       {% include 'heading.html' %}
       <main>
@@ -76,16 +98,23 @@
               				  
                            </div>
                         </div>
+
                         <div class="row">
                             <div class="col s12">
-                                <h5>Model Solution</h5>
-							</div>
-                        	<div class="input-field col s12">
-                           		<textarea name="model_solution" id="model_solution" class="materialize-textarea" data-length="300" >{{model_solution}}</textarea>
-                           		<label for="model_solution">Enter a model solution</label>
-                        	</div>
+                                <h5><span class= "red-text">*</span>Model Solution</h5>
+                            </div>
+                            <div class="col s12">
+                                <div id="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode" id="setupCode">{{model_solution}}</textarea></div>
+                                <script>
+                                    var editor = ace.edit("editor");
+                                    editor.setTheme("ace/theme/chrome");
+                                    editor.session.setMode("ace/mode/java");
+                                </script>
+                                <input type="hidden" name="setupCode" style="display: none;" />
+                            </div>
                         </div>
- 
+
+
                          <div class="row">
                            <div class="input-field col s12">
                               <select name="difficulty" {%if view%}readonly{%endif%}>
@@ -109,9 +138,12 @@
                         <input type="hidden" name="points" value="0" id="Points">
                         {% else %}
                         <div class="row">
+                            <div class="col s12">
+                                <h5><span class= "red-text">*</span>Points</h5>
+                            </div>
+                        
                            <div class="input-field col s12">
-                              <input value="{{points}}" name="points" id="points" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%}  min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
-                              <label for="points"><span class= "red-text">*</span> Points</label>
+                              <input value="{{points}}" name="points" id="points" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%}  min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>                             
                            </div>
                         </div>
                         {% endif %}
