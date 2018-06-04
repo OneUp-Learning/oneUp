@@ -63,14 +63,22 @@ def parsonsForm(request):
         answers = Answers.objects.filter(questionID=question)
         if answers:
             answer = answers[0]
-            answer.answerText = request.POST['model_solution']
+            answer.answerText = request.POST['setupCode']
+            print("Answer:", answer.answerText)
             answer.save()
             # no need to change correct answer
             #correctAnswerObject = CorrectAnswers.objects.filter(questionID=question)
         else:
             answer = Answers()         
             answer.questionID = question
-            answer.answerText = request.POST['model_solution']
+           # answer.answerText = request.POST['setupCode']
+            
+            #GGM
+            aceInput = request.POST['setupCode']
+            print("Answer ", answer.answerText)
+            #proces the input
+            
+            answer.answerText = aceInput
             answer.save()
             # the answer is also the correct answer - model solution to be displayed to the student
             correctAnswerObject = CorrectAnswers()

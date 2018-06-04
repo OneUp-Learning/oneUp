@@ -53,7 +53,7 @@
             </div>
          </div>
          <div class="row">
-            <div class="col s12 m8 offset-m2">
+            <div class="col s12 l12 m8 offset-m2">
                <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
                   {% csrf_token %}
                   <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
@@ -135,8 +135,8 @@
                         
                        {% elif question.type == questionTypes.parsons %} 
 
-				        <div id="sortableTrash" class="sortable-code"></div>
-				        <div id="sortable" class="sortable-code"></div>
+				        <div id="{{question.questionID}}_sortableTrash" class="sortable-code"></div>
+				        <div id="{{question.questionID}}_sortable" class="sortable-code"></div>
 				        <div style="clear:both;"></div>
 				        
 				        <p>
@@ -152,7 +152,7 @@
 				        <script src="/static/ThirdParty/js-parsons-master/parsons.js"></script>        
 				
 				        <script>
-				        var initial = '{{question.model_solution}}' 
+				        var initial_{{question.questionID}} = '{{question.model_solution}}' 
 				
 				        function displayErrors(fb) {
 				            if(fb.errors.length > 0) {
@@ -162,12 +162,12 @@
 				
 				        $(document).ready(function(){
 				            var parson = new ParsonsWidget({
-				                'sortableId': 'sortable',
-				                'trashId': 'sortableTrash',
+				                'sortableId': '{{question.questionID}}_sortable',
+				                'trashId': '{{question.questionID}}_sortableTrash',
 				                'max_wrong_lines': 1,
 				                'feedback_cb' : displayErrors
 				            });
-				            parson.init(initial);
+				            parson.init(initial_{{question.questionID}});
 				            parson.shuffleLines();
 				            $("#newInstanceLink").click(function(event){
 				                event.preventDefault();

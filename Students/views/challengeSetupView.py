@@ -3,6 +3,9 @@ from django.contrib.auth.decorators import login_required
 import random 
 from datetime import datetime
 
+##GMM import Regular Expression, re
+import re
+
 from Instructors.models import Challenges, Answers, DynamicQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Instructors.views.utils import utcDate
@@ -93,8 +96,11 @@ def ChallengeSetup(request):
 
                         # Parsons problems: getting the model solution from the database - it is saved in Answers.answerText
                         if q.type == QuestionTypes.parsons:
-                            ms = Answers.objects.filter(questionID=q)
-                            questdict['model_solution']=ms[0].answerText
+                            modelSolution = Answers.objects.filter(questionID=q)
+                            solution_string = modelSolution[0].answerText
+                            
+                            #repr function will give us the raw representation of the string
+                            questdict['model_solution']=repr(solution_string).strip('"\'')
                                             
                         #getting the matching questions of the challenge from database
                         matchlist = []
