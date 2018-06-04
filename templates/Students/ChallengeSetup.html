@@ -2,7 +2,7 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
-      
+      	
         <title>Simple js-parsons example assignment</title>
         <link href="/static/ThirdParty/js-parsons-master/parsons.css" rel="stylesheet" />
         <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
@@ -22,6 +22,8 @@
          function formSubmit() {
              document.getElementById('submit_hidden').click()
          };
+         
+         
       </script>
       <script>
          var ace_editor_divs = document.getElementsByClassName('ace-editor');
@@ -41,7 +43,10 @@
                     hiddenfield.value = editor.getValue();
                 }
          }
+         
+       
       </script>
+      
    </head>
    <body>
       {% include 'stheading.html' %}
@@ -137,11 +142,13 @@
 
 				        <div id="{{question.questionID}}_sortableTrash" class="sortable-code"></div>
 				        <div id="{{question.questionID}}_sortable" class="sortable-code"></div>
+<!-- 				        <input type="hidden" name="log" id="{{question.questionID}}_log" value=""> -->
+<!--                   		<input type="hidden" name="solution_state" id="{{question.questionID}}_solution_state" value="">  -->
 				        <div style="clear:both;"></div>
 				        
 				        <p>
-				            <a href="#" id="newInstanceLink">New instance</a>
-				            <a href="#" id="feedbackLink">Get feedback</a>
+				            <a href="#" id="newInstanceLink_{{question.questionID}}">New instance</a>
+				            <a href="#" id="feedbackLink_{{question.questionID}}">Get feedback</a>
 				        </p>
 				        
 				        <script src="/static/ThirdParty/js-parsons-master/lib/jquery.min.js"></script>
@@ -153,10 +160,15 @@
 				
 				        <script>
 				        var initial_{{question.questionID}} = '{{question.model_solution}}' 
-				
+				        
+				        //variable to get the errors that have been generated
+				        var log_errors_{{question.questionID}} = [];
+				        var solution_state_{{question.questionID}} = [];
 				        function displayErrors(fb) {
 				            if(fb.errors.length > 0) {
 				                alert(fb.errors[0]);
+				                //push the error onto log errors
+				                log_errors_{{question.questionID}}.push(fb.errors[0]);
 				            }
 				        } 
 				
@@ -169,14 +181,22 @@
 				            });
 				            parson.init(initial_{{question.questionID}});
 				            parson.shuffleLines();
-				            $("#newInstanceLink").click(function(event){
+				            $("#newInstanceLink_{{question.questionID}}").click(function(event){
 				                event.preventDefault();
 				                parson.shuffleLines();
 				            });
-				            $("#feedbackLink").click(function(event){
+				            $("#feedbackLink_{{question.questionID}}").click(function(event){
 				                event.preventDefault();
 				                parson.getFeedback();
 				            });
+				            
+// 				            $("#submit").click(function(){
+// 								console.log("Data sent!");
+// 								console.log(log_errors_{{question.questionID}});
+// 								console.log(solution_state_{{question.questionID}});
+// 								$("#{{question.questionID}}_log").val(log_errors_{{question.questionID}});
+// 								$("{{question.questionID}}_solution_state").val(solution_state_{{question.questionID}});
+// 				      		});
 				        });
 				        </script>
                                    

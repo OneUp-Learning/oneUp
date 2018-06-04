@@ -247,7 +247,14 @@ def ChallengeResults(request):
                         else:
                             studentAnswerList = []
                             question['user_points'] = 0
-                                        
+                    elif questionType == QuestionTypes.parsons:
+                        ##if we get a log
+                        if request.POST['log']:
+                            log = request.post['log']
+                            print("Log: ", log)
+                        if request.POST['solution_state']:
+                            solution_state = request.post['solution_state']
+                            print("Solution_State: ", solution_state)              
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
                     if 'seed' in question:
