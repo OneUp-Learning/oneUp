@@ -74,6 +74,8 @@ INSTALLED_APPS = (
     'Administrators',
     'notify',
     'easy_timezones',
+    'ckeditor',
+    'ckeditor_upload',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -168,3 +170,6 @@ LOGIN_URL='/oneUp/permission_error'
 # Custom serializer which is mostly just JSON, but can handle decimal types
 # without making them floats along the way.
 SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
+
+# CKEditor
+CKEDITOR_UPLOAD_PATH = "images/uploadedInstructorImages/"
