@@ -10,9 +10,10 @@ from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges, Activities
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
-from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list
+from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list,\
+    VirtualCurrencyAwardFrequency
 from Badges.systemVariables import SystemVariable
-from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
+from Badges.conditions_util import get_events_for_condition,\
     cond_from_mandatory_cond_list, stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
@@ -35,10 +36,6 @@ def DeleteVirtualCurrencyRule(vcRuleID, isRuleCustom):
             deleteVc.ruleID.delete()
             # And then we delete the badge.
             deleteVc.delete()
-            
-def DetermineEvent(conditionOperandValue):
-    # Note: This should be effectively removed soon and also can break for certain inputs.
-    return get_events_for_system_variable(conditionOperandValue)[0]
 
 def SaveVirtualCurrencyRule(request):
     # Request the context of the request.
@@ -99,7 +96,9 @@ def SaveVirtualCurrencyRule(request):
                 gameRule.save()
     
                 # We get all of the related events.
-                events = get_events_for_condition(ruleCondition)
+                awardFrequency = int(request.POST['awardFrequency'])
+                context = VirtualCurrencyAwardFrequency[awardFrequency]['objectType']
+                events = get_events_for_condition(ruleCondition,context)
                 for event in events:
                     ruleEvent = RuleEvents()
                     ruleEvent.rule = gameRule

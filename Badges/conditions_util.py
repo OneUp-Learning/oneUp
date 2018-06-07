@@ -4,35 +4,33 @@ Created on Jan 27, 2017
 @author: kirwin
 '''
 
-from Badges.enums import Event, OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
+from Badges.enums import OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
 from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet, ActivityCategorySet,\
     TopicSet
 from Instructors.models import Activities,ActivitiesCategory, Challenges, CoursesTopics
 from Instructors.constants import unassigned_problems_challenge_name
-from json import dumps
 from Badges.systemVariables import SystemVariable
-from django.views.decorators.http import condition
+from Badges.events import operandSetTypeToObjectType
 
 #Determine the appropriate event type for each System Variable
-def get_events_for_system_variable(var):
+def get_events_for_system_variable(var,context):
     # It may come in as a string rather than a number
     # This way we're sure we've got a number.
     var = int(var)
     # Then we just use it to find the systemVariable enum and we've added a field to this which is a list of events.
-    return set(SystemVariable.systemVariables[var]['eventsWhichCanChangeThis'])
+    return set(SystemVariable.systemVariables[var]['eventsWhichCanChangeThis'][context])
 
 leaf_condition_operators = ['==','=','<','>','<=','>=','!=']
 binary_condition_operators = ['AND','OR','NOT']
 unary_condition_operators = ['NOT']
 for_list_condition_operators = ['FOR_ALL','FOR_ANY']
-def get_events_for_condition(cond):
-    print ("Getting events for: "+str(cond) )
+def get_events_for_condition(cond, context):
     
-    def getEventsFromConditionSet(condition):
+    def getEventsFromConditionSet(condition,context):
         subConds = [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
         eventSet = set()
         for subCond in subConds:
-            eventSet = eventSet.union(get_events_for_condition(subCond))
+            eventSet = eventSet.union(get_events_for_condition(subCond,context))
         return eventSet
     
     if cond.operation in leaf_condition_operators:
@@ -46,16 +44,16 @@ def get_events_for_condition(cond):
         if cond.operand1Type == OperandTypes.conditionSet:
             return getEventsFromConditionSet(cond)
         else:
-            cond1events = get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value))
-            cond2events = get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value))
+            cond1events = get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value),context)
+            cond2events = get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value),context)
             return cond1events.union(cond2events)
     elif cond.operation in unary_condition_operators:
-        return get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value))
+        return get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value), context)
     elif cond.operation in for_list_condition_operators:
-        return get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value))
+        return get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value), operandSetTypeToObjectType(cond.operand1Type))
     else:
         return "ERROR: Invalid operator in condition.  Should be one of '==','<','>','<=','>=','!=','AND','OR','NOT','FOR_ALL','FOR_ANY'."
-    
+        
 # Given a condition which begins with a set of ANDs at the top, this breaks down everything
 # joined by AND into a list.  If given a condition which does not start with ANDs at the top,
 # it simply returns it.  If it encounters OR or NOT, these are treated like leaf nodes and

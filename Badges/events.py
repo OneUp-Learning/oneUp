@@ -177,6 +177,17 @@ def check_condition(condition, course, student, objectType, objectID, vcAwardTyp
     return check_condition_helper(condition, course, student, 
                                   objectType,objectID, {}, vcAwardType)
 
+def operandSetTypeToObjectType(operandType):
+    operandSetTypeToOjectTypeMap = {
+        OperandTypes.challengeSet: ObjectTypes.challenge,
+        OperandTypes.activitySet: ObjectTypes.activity,
+        OperandTypes.topicSet: ObjectTypes.topic,
+        OperandTypes.activtiyCategorySet:ObjectTypes.activtyCategory,
+    }
+    if operandType in operandSetTypeToOjectTypeMap:
+        return operandSetTypeToOjectTypeMap[operandType]
+    return 0 # Error
+
 # Helper function for the above.  Includes a hash table so that
 # it can avoid loops. (Circular Conditions)
 def check_condition_helper(condition, course, student, objectType, objectID, ht, vcAwardType):
@@ -195,16 +206,6 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'NOT'):
         return not operand1
     
-    def operandSetTypeToObjectType(operandType):
-        if (operandType == OperandTypes.challengeSet):
-            return ObjectTypes.challenge
-        if (operandType == OperandTypes.activitySet):
-            return ObjectTypes.activity
-        if (operandType == OperandTypes.topicSet):
-            return ObjectTypes.topic
-        if (operandType == OperandTypes.activtiyCategorySet):
-            return ObjectTypes.activtyCategory
-        return 0 # Error
     def forallforany_helper(forall):
         for object in operand1:
             if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), object, ht, condition,vcAwardType):
