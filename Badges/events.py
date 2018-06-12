@@ -7,13 +7,12 @@ from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
     StudentRegisteredCourses, StudentVirtualCurrency
 from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
-from Badges.systemVariables import calculate_system_variable
+from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
 from Instructors.views.utils import utcDate
 from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses, Topics
 import json
-
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -153,19 +152,13 @@ def register_event(eventID, request, student=None, objectId=None):
     print(potentials)
     for potential in potentials:
         condition = potential.conditionID
-
-        ## KI: All of this vcAwardType stuff is hacky.  When there's enough time to make sure everything is done right
-        ## we should replace it with a more complete interface for having certain conditions specific to 
-        ## the object which the event creates.
-        vcRule = VirtualCurrencyRuleInfo.objects.filter(ruleID=potential.ruleID).first()
-        if vcRule:
-            vcAwardType = vcRule.awardFrequency
-        else:
-            vcAwardType = VirtualCurrencyAwardFrequency.justOnce
-        if check_condition(condition,courseId,student,eventEntry.objectType,objectId,vcAwardType):
-            print('after check_condition')
-            fire_action(potential,courseId,student,eventEntry)
-            
+        objType = VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency[potential.awardFrequency]['objectType']
+        objSpecifier = ChosenObjectSpecifier(potential.objectSpecifier,objType)
+        if objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectId):
+            if check_condition(condition,courseId,student,eventEntry.objectType,eventEntry.objectId):
+                print('after check_condition')
+                fire_action(potential,courseId,student,eventEntry)
+                
     return eventEntry
 
 # This method checks whether or not a given condition is true
@@ -187,14 +180,14 @@ def operandSetTypeToObjectType(operandType):
 
 # Helper function for the above.  Includes a hash table so that
 # it can avoid loops. (Circular Conditions)
-def check_condition_helper(condition, course, student, objectType, objectID, ht, vcAwardType):
+def check_condition_helper(condition, course, student, objectType, objectID, ht):
     if condition in ht:
         return False
     
     print("Evaluating condition:"+str(condition))
     
     # Fetch operands
-    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition,vcAwardType)
+    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition)
     
     print("Operand 1 = "+str(operand1))
 
@@ -205,7 +198,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     
     def forallforany_helper(forall):
         for obj in operand1:
-            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), obj, ht, condition,vcAwardType):
+            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), obj, ht, condition):
                 if not forall:
                     return True
             else:
@@ -217,23 +210,23 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'FOR_ANY'):
         # Here is where we special-case things.  If we're in a virtual currency rule, we treat "for any" as just referring to this particular object.
         # If this particular object is not on the list, we just return false.
-        print("Checking VC workaround in Events!! vcAwardType: "+str(vcAwardType)+"  operandType: "+str(condition.operand1Type))
-        if vcAwardType == VirtualCurrencyAwardFrequency.justOnce or VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency[vcAwardType]['objectType']!=operandSetTypeToObjectType(condition.operand1Type):
-            print("Workaround INACTIVE")
-            return forallforany_helper(False)
-        else:
-            print("Workaround ACTIVE")
-            if int(objectID) not in operand1:
-                print("Object: "+str(objectID)+" not in set "+str(operand1))
-                print(str(type(objectID))+" "+str(type(operand1)))
-                return False
-            else:
-                print("Object in set")
-                return get_operand_value(condition.operand2Type, condition.operand2Value, course, student, objectType, objectID, ht, condition,vcAwardType)
+#         print("Checking VC workaround in Events!! vcAwardType: "+str(vcAwardType)+"  operandType: "+str(condition.operand1Type))
+#         if vcAwardType == VirtualCurrencyAwardFrequency.justOnce or VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency[vcAwardType]['objectType']!=operandSetTypeToObjectType(condition.operand1Type):
+#             print("Workaround INACTIVE")
+        return forallforany_helper(False)
+#         else:
+#             print("Workaround ACTIVE")
+#             if int(objectID) not in operand1:
+#                 print("Object: "+str(objectID)+" not in set "+str(operand1))
+#                 print(str(type(objectID))+" "+str(type(operand1)))
+#                 return False
+#             else:
+#                 print("Object in set")
+#                 return get_operand_value(condition.operand2Type, condition.operand2Value, course, student, objectType, objectID, ht, condition,vcAwardType)
     
     def andor_helper(isAnd):
         for cond in operand1:
-            if check_condition_helper(cond, course, student, objectType, objectID, ht, vcAwardType):
+            if check_condition_helper(cond, course, student, objectType, objectID, ht):
                 if not isAnd:
                     return True
             else:
@@ -246,7 +239,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'OR') and (condition.operand1Type == OperandTypes.conditionSet):
         return andor_helper(True)
 
-    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition, vcAwardType)
+    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
     print("Operand 2 = "+str(operand2))
     
     if (condition.operation == '='):
@@ -268,14 +261,14 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
 
 # Takes and operand type and value and finds the appropriate
 # value for it.
-def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition, vcAwardType):
+def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition):
     if (operandType == OperandTypes.immediateInteger):
         return operandValue
     elif (operandType == OperandTypes.boolean):
         return operandValue == 1
     elif (operandType == OperandTypes.condition):
         inner_condition = Conditions.objects.get(pk=operandValue)
-        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht,vcAwardType)
+        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht)
     elif (operandType == OperandTypes.floatConstant):
         return FloatConstants.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.stringConstant):
@@ -497,10 +490,12 @@ class ChosenObjectSpecifier:
     def __str__(self):
         return json.dumps(self.rules)
     
-    def checkAgainst(self,obj):
+    def checkAgainst(self,objType,objID):    
         if self.objectType == ObjectTypes.none:
             return True
-        objType = objectTypeFromObject(obj)
+        if objType == ObjectTypes.none:
+            return False
+        obj = objectTypeToObjectClass[objType].objects.get(pk=objID)
         if self.objectType == objType:
             for rule in self.rules:
                 if rule['op'] == 'in':
