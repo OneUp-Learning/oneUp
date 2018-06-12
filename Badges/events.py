@@ -5,18 +5,13 @@ from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     VirtualCurrencyAwardFrequency
 from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
     StudentRegisteredCourses, StudentVirtualCurrency
-from datetime import datetime
-from django.utils import timezone
-from builtins import getattr, True
-import decimal
 from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
 from Badges.systemVariables import calculate_system_variable
 from Instructors.views.utils import utcDate
 from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
-from django.contrib.auth.models import User
-from Instructors.models import InstructorRegisteredCourses, Instructors, Topics, ActivitiesCategory
+from Instructors.models import InstructorRegisteredCourses, Topics
 import json
 
 
@@ -472,8 +467,8 @@ class ChosenObjectSpecifier:
     #                of those types
     #                For 'type' it should be either ['serious'] or ['warmup']  (both is allowed, but is normally
     #                expressed by omitting a rule altogether since no narrowing is needed).
-    def __init__(self,objectType = ObjectTypes.none, str = "[]"):
-        self.rules = json.loads(str)
+    def __init__(self,objectType = ObjectTypes.none, serialized_value = "[]"):
+        self.rules = json.loads(serialized_value)
         self.objectType = objectType
         valid = True
         for rule in self.rules:
@@ -511,10 +506,10 @@ class ChosenObjectSpecifier:
                 if rule['op'] == 'in':
                     objThingieList = chosenObjectSpecifierFields[self.objectType][rule['specifier']](obj)
                     found = False
-                    for objThingie in objThingieList: # We check all the thingies against the list.  For many cases
-                                                      # this is just one thing, actually, like id, but for topic
-                                                      # challenges can be in more than one topic.  If any of its
-                                                      # topics meet the specifier, that's sufficient.
+                    for objThingie in objThingieList:   # We check all the thingies against the list.  For many cases
+                                                        # this is just one thing, actually, like id, but for topic
+                                                        # challenges can be in more than one topic.  If any of its
+                                                        # topics meet the specifier, that's sufficient.
                         if objThingie in rule['value']:
                             found = True
                             break
