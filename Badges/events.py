@@ -7,15 +7,17 @@ from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
     StudentRegisteredCourses, StudentVirtualCurrency
 from datetime import datetime
 from django.utils import timezone
-from builtins import getattr
+from builtins import getattr, True
 import decimal
-from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory
+from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
+    ChallengesTopics
 from Badges.systemVariables import calculate_system_variable
 from Instructors.views.utils import utcDate
 from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from django.contrib.auth.models import User
-from Instructors.models import InstructorRegisteredCourses, Instructors
+from Instructors.models import InstructorRegisteredCourses, Instructors, Topics, ActivitiesCategory
+import json
 
 
 # Method to register events with the database and also to
@@ -207,8 +209,8 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
         return not operand1
     
     def forallforany_helper(forall):
-        for object in operand1:
-            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), object, ht, condition,vcAwardType):
+        for obj in operand1:
+            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), obj, ht, condition,vcAwardType):
                 if not forall:
                     return True
             else:
@@ -411,3 +413,120 @@ def fire_action(rule,courseID,studentID,eventEntry):
                 print('this purchase did not go through')
             student.save()
             return
+
+chosenObjectSpecifierFields = {
+    ObjectTypes.activity:{
+        'id':lambda act: [act.activityID],
+        'category': lambda act: [act.category],
+    },
+    ObjectTypes.challenge:{
+        'id':lambda chall: [chall.challengeID],
+        'topic':lambda chall: [ct.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
+        'type':lambda chall: ['serious' if chall.isGraded else 'warmup'],
+    },
+    ObjectTypes.topic:{
+        'id':lambda topic: [topic.topicID]
+    },
+    ObjectTypes.activtyCategory:{
+        'id':lambda ac: [ac.categoryID],
+    },
+    ObjectTypes.none:{},
+}
+
+objectTypesToObjects = {
+    ObjectTypes.challenge: Challenges,
+    ObjectTypes.activity: Activities,
+    ObjectTypes.topic: Topics,
+    ObjectTypes.activtyCategory: ActivitiesCategory,
+}
+
+def objectTypeFromObject(obj):
+    if type(obj) is Challenges:
+        return ObjectTypes.challenge
+    if type(obj) is Activities:
+        return ObjectTypes.activity
+    if type(obj) is Topics:
+        return ObjectTypes.topic
+    if type(obj) is ActivitiesCategory:
+        return ObjectTypes.activtyCategory
+
+relatedObjects = {
+    ObjectTypes.activtyCategory: {
+        ObjectTypes.activity: (lambda act: [act.category]),
+    },
+    ObjectTypes.topic: {
+        ObjectTypes.challenge: (lambda chall: [ct.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)])
+    }
+}                 
+
+class ChosenObjectSpecifier:
+    # str is expected to be a JSON serialized list of specifier rules.
+    # Each specifier rule is a dictionary with the following entries:
+    #     'specifier' -- should contain a specifier from the allowed list (the list can be found in the
+    #                    chosenObjectSpecifierFields above).  Note that which type of object is in use changes
+    #                    which specifiers are allowed.
+    #     'op' -- which operation is being used to specify.  Currently only 'in' is allowed in this field
+    #     'value' -- a value whose type depends on the specifier and the op.  For 'id' and 'in', it should be
+    #                a list of primary key values of the appropriate type
+    #                For ('topic' or 'category') and 'in', it should be a list of the primary key values
+    #                of those types
+    #                For 'type' it should be either ['serious'] or ['warmup']  (both is allowed, but is normally
+    #                expressed by omitting a rule altogether since no narrowing is needed).
+    def __init__(self,objectType = ObjectTypes.none, str = "[]"):
+        self.rules = json.loads(str)
+        self.objectType = objectType
+        valid = True
+        for rule in self.rules:
+            if 'specifier' not in rule:
+                valid = False
+                break
+            if rule['specifier'] not in chosenObjectSpecifierFields[objectType]:
+                valid = False
+                break
+            if 'op' not in rule:
+                valid = False
+                break
+            if rule['op'] != 'in': # More options will be allowed in the future
+                valid = False
+                break
+            if 'value' not in rule:
+                valid = False
+                break
+            if type(rule['value']) is not 'list': # Note that we don't validate the contents of the list so things could still go wrong there
+                valid = False
+                break
+        
+        if not valid:
+            self.rules = []
+    
+    def __str__(self):
+        return json.dumps(self.rules)
+    
+    def checkAgainst(self,obj):
+        if self.objectType == ObjectTypes.none:
+            return True
+        objType = objectTypeFromObject(obj)
+        if self.objectType == objType:
+            for rule in self.rules:
+                if rule['op'] == 'in':
+                    objThingieList = chosenObjectSpecifierFields[self.objectType][rule['specifier']](obj)
+                    found = False
+                    for objThingie in objThingieList: # We check all the thingies against the list.  For many cases
+                                                      # this is just one thing, actually, like id, but for topic
+                                                      # challenges can be in more than one topic.  If any of its
+                                                      # topics meet the specifier, that's sufficient.
+                        if objThingie in rule['value']:
+                            found = True
+                            break
+                    if found == False: # If any one specifier is not met, we're done, otherwise, we continue
+                        return False
+            return True
+        if self.objectType in relatedObjects:
+            if objType in relatedObjects[self.objectType]:
+                relatedObjs = relatedObjects[self.objectType][objType](obj)
+                for relObj in relatedObjs:
+                    if self.checkAgainst(relObj):
+                        return True
+                return False
+        return False
+            
