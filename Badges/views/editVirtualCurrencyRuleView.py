@@ -12,7 +12,7 @@ from Badges.conditions_util import setUpContextDictForConditions, databaseCondit
 from Instructors.views.utils import initialContextDict
 from Badges.systemVariables import logger
 
-from Badges.enums import VirtualCurrencyAwardFrequency
+from Badges.enums import AwardFrequency
 
 @login_required
 def EditVirtualCurrencyRule(request):
@@ -41,7 +41,7 @@ def EditVirtualCurrencyRule(request):
                 
                 context_dict['awardFrequency']=rule.awardFrequency
     
-                context_dict['awardFrequencyOptions']=VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency
+                context_dict['awardFrequencyOptions']=AwardFrequency.awardFrequency
 
                 if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
                     context_dict["vcAmount"] = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue

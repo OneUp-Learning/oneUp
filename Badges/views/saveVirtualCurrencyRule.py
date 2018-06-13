@@ -11,7 +11,7 @@ from django.shortcuts import redirect
 from Instructors.models import Courses, Challenges, Activities
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list,\
-    VirtualCurrencyAwardFrequency
+    AwardFrequency
 from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import get_events_for_condition,\
     cond_from_mandatory_cond_list, stringAndPostDictToCondition
@@ -96,8 +96,8 @@ def SaveVirtualCurrencyRule(request):
                 gameRule.save()
     
                 # We get all of the related events.
-                awardFrequency = int(request.POST['awardFrequency'])
-                context = VirtualCurrencyAwardFrequency[awardFrequency]['objectType']
+                awardFreq = int(request.POST['awardFrequency'])
+                context = AwardFrequency.awardFrequency[awardFreq]['objectType']
                 events = get_events_for_condition(ruleCondition,context)
                 for event in events:
                     ruleEvent = RuleEvents()

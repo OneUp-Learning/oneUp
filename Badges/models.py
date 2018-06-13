@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
-from Badges.enums import Event, OperandTypes, Action, VirtualCurrencyAwardFrequency
+from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
 # Create your models here.
  
@@ -123,7 +123,7 @@ class Rules(models.Model):
     actionID = models.IntegerField(verbose_name="the related action", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name="Course the rule belongs to", db_index=True)
     objectSpecifier = models.CharField(max_length=2000, default="[]",verbose_name="A json-serialized object of the type ChosenObjectSpecifier (see events.py)")
-    awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
+    awardFrequency = models.IntegerField(default=AwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):
         if self.actionID in Action.actions:
             return "[Rule#:"+str(int(self.ruleID))+" When:"+str(self.conditionID)+" Do:"+Action.actions[self.actionID]['name']+']'

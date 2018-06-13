@@ -117,7 +117,7 @@ class StudentBadges(models.Model):
     studentBadgeID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
     badgeID = models.ForeignKey(BadgesInfo, verbose_name="the badge", db_index=True)
-    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a badge
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a badge
     timestamp = models.DateTimeField(default=datetime.now, blank=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
         return str(self.studentBadgeID) +"," + str(self.studentID) +"," + str(self.badgeID) +"," + str(self.timestamp)
@@ -126,7 +126,7 @@ class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
     vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, verbose_name="the virtual currency rule", db_index=True)
-    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a v
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
 
