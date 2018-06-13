@@ -6,7 +6,7 @@ from datetime import datetime
 ##GMM import Regular Expression, re
 import re
 
-from Instructors.models import Challenges, Answers, DynamicQuestions
+from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
@@ -99,8 +99,32 @@ def ChallengeSetup(request):
                             modelSolution = Answers.objects.filter(questionID=q)
                             solution_string = modelSolution[0].answerText
                             
+                            #dynamically set dfficulty of parson distractor
+                            questionHardness = Questions.objects.filter(questionID=q.questionID)
+                            questionDifficulty = questionHardness[0].difficulty
+                            print("Difficulty", questionDifficulty)
+                            
+                            #get the length of the distractors
+                            print("Solution String:", solution_string)
+                            distractorCount = len(re.findall(r'(?=#dist)', repr(solution_string).strip('"\'')))
+                            questdict['distractorCount'] = distractorCount
+                            print("Distractor count:", distractorCount)
+                            
+                            #set the count of distractors off the question's hardness
+                            if(questionDifficulty == "Easy"):
+                                distractorCount = 0
+                            if(questionDifficulty == "Medium"):
+                                distractorCount = int(distractorCount/2)
+                                
+                            questdict['distractorCount'] = distractorCount    
+                            #if the question difficulty is hard, 
+                            ##then we just use the full distractor count
+
+                            
                             #repr function will give us the raw representation of the string
-                            questdict['model_solution']=repr(solution_string).strip('"\'')
+                            solution_string =  re.sub("\\r", "", solution_string)
+                            solution_string =  re.sub("\\t", "  ", solution_string)
+                            questdict['model_solution']=repr(solution_string)
                                             
                         #getting the matching questions of the challenge from database
                         matchlist = []

@@ -1,4 +1,11 @@
 
+<script>
+console.log("Caller: Starting the parson html");
+console.log({{question.questionID}});
+console.log(errors_{{question.questionID}})
+console.log(log_errors_{{question.questionID}});
+var errors_{{question.questionID}} = [], log_errors_{{question.questionID}} = [];
+(function($, _) { // wrap in anonymous function to not show some helper variables
 
 
    // regexp used for trimming
@@ -213,7 +220,7 @@
     var parson = this.parson,
         that = this,
         feedback = "",
-        log_errors = [],
+        log_errors_{{question.questionID}} = [],
         all_passed = true;
     $.each(parson.options.vartests, function(index, testdata) {
       var student_code = studentcode || that._codelinesAsString();
@@ -270,12 +277,12 @@
       }
       all_passed = all_passed && success;
       log_entry.success = success;
-      log_errors.push(log_entry);
+      log_errors_{{question.questionID}}.push(log_entry);
       feedback += "<div class='testcase " + (success?"pass":"fail") +
                   "'><span class='msg'>" + testdata.message + "</span><br>" +
                   testcaseFeedback + "</div>";
     });
-    return { html: feedback, tests: log_errors, success: all_passed };
+    return { html: feedback, tests: log_errors_{{question.questionID}}, success: all_passed };
   };
 
   // A grader to be used for exercises which draw turtle graphics.
@@ -603,26 +610,28 @@
   };
 
   // The "original" grader for giving line based feedback.
-  var errors = [], log_st;
   var LineBasedGrader = function(parson) {
     this.parson = parson;
   };
   graders.LineBasedGrader = LineBasedGrader;
-  
-  var studentCodeLineObjects = [];
-  var incorrectLines = [];
   LineBasedGrader.prototype.grade = function(elementId) {
     var parson = this.parson;
     var elemId = elementId || parson.options.sortableId;
     var student_code = parson.normalizeIndents(parson.getModifiedCode("#ul-" + elemId));
     var lines_to_check = Math.min(student_code.length, parson.model_solution.length);
+    //var errors_{{question.questionID}} = [], log_errors_{{question.questionID}} = [];
+    console.log("Errors: {{question.questionID}}");
+    console.log(errors_{{question.questionID}});
+    console.log("Log_Errors: {{question.questionID}}");
+    console.log(log_errors_{{question.questionID}});
     
+    var incorrectlines_{{question.questionID}} = [], studentCodeLineObjects_{{question.questionID}} = [];
     var i;
     var wrong_order = false;
 
     // Find the line objects for the student's code
     for (i = 0; i < student_code.length; i++) {
-      studentCodeLineObjects.push($.extend(true, 
+      studentCodeLineObjects_{{question.questionID}}.push($.extend(true, 
     	                                   {},
     	                                   parson.getLineById(student_code[i].id)));
     }
@@ -632,11 +641,7 @@
     // codeline in the student's code for the LIS computation and, for example,
     // assigns appropriate indices for duplicate lines.
     var lastFoundCodeIndex = {};
-    
-    console.log("StudentCodeLineObjects");
-    console.log(studentCodeLineObjects);
-    
-    $.each(studentCodeLineObjects, function(index, lineObject) {
+    $.each(studentCodeLineObjects_{{question.questionID}}, function(index, lineObject) {
     	// find the first matching line in the model solution
     	// starting from where we have searched previously
     	for (var i = (typeof(lastFoundCodeIndex[lineObject.code]) !== 'undefined') ? lastFoundCodeIndex[lineObject.code]+1 : 0; 
@@ -658,7 +663,7 @@
 	    	// => add to feedback, log, and ignore in LIS computation
 	        wrong_order = true;
 	        lineObject.markIncorrectPosition();
-	    	incorrectLines.push(lineObject.orig);
+	    	incorrectlines_{{question.questionID}}.push(lineObject.orig);
 	        lineObject.lisIgnore = true;
 	      } else {
 	        // The line is part of the solution but there are now
@@ -680,62 +685,58 @@
       });
     
     var lisStudentCodeLineObjects = 
-      studentCodeLineObjects.filter(function (lineObject) { return !lineObject.lisIgnore; });
-    
-    console.log("lisStudentCodeLineObjects: ");
-    console.log(lisStudentCodeLineObjects);
-    
+      studentCodeLineObjects_{{question.questionID}}.filter(function (lineObject) { return !lineObject.lisIgnore; });
     var inv = 
       LIS.best_lise_inverse_indices(lisStudentCodeLineObjects
     			 				    .map(function (lineObject) { return lineObject.position; }));
     $.each(inv, function(_index, lineObjectIndex) {
     	// Highlight the lines that could be moved to fix code as defined by the LIS computation
         lisStudentCodeLineObjects[lineObjectIndex].markIncorrectPosition();
-        incorrectLines.push(lisStudentCodeLineObjects[lineObjectIndex].orig);
+        incorrectlines_{{question.questionID}}.push(lisStudentCodeLineObjects[lineObjectIndex].orig);
       });
-    
-    console.log("incorrect lines:");
-    console.log(incorrectLines);
-    if (inv.length > 0 || incorrectLines.length > 0) {
+    if (inv.length > 0 || incorrectlines_{{question.questionID}}.length > 0) {
       wrong_order = true;
-      log_errors.push({type: "incorrectPosition", lines: incorrectLines});
+      log_errors_{{question.questionID}}.push({type: "incorrectPosition", lines: incorrectlines_{{question.questionID}}});
     }
 
     if (wrong_order) {
-      errors.push(parson.translations.order());
+      errors_{{question.questionID}}.push(parson.translations.order());
     }
 
     // Check the number of lines in student's code
     if (parson.model_solution.length < student_code.length) {
       $("#ul-" + elemId).addClass("incorrect");
-      errors.push(parson.translations.lines_too_many());
-      log_errors.push({type: "tooManyLines", lines: student_code.length});
+      errors_{{question.questionID}}.push(parson.translations.lines_too_many());
+      log_errors_{{question.questionID}}.push({type: "tooManyLines", lines: student_code.length});
     } else if (parson.model_solution.length > student_code.length){
       $("#ul-" + elemId).addClass("incorrect");
-      errors.push(parson.translations.lines_missing());
-      log_errors.push({type: "tooFewLines", lines: student_code.length});
+      errors_{{question.questionID}}.push(parson.translations.lines_missing());
+      log_errors_{{question.questionID}}.push({type: "tooFewLines", lines: student_code.length});
     }
 
     // Finally, check indent if no other errors
-    if (errors.length === 0) {
+    if (errors_{{question.questionID}}.length === 0) {
       for (i = 0; i < lines_to_check; i++) {
         var code_line = student_code[i];
         var model_line = parson.model_solution[i];
         if (code_line.indent !== model_line.indent &&
-             ((!parson.options.first_error_only) || errors.length === 0)) {
+             ((!parson.options.first_error_only) || errors_{{question.questionID}}.length === 0)) {
           code_line.markIncorrectIndent();
-          errors.push(parson.translations.block_structure(i+1));
-          log_errors.push({type: "incorrectIndent", line: (i+1)});
+          errors_{{question.questionID}}.push(parson.translations.block_structure(i+1));
+          log_errors_{{question.questionID}}.push({type: "incorrectIndent", line: (i+1)});
         }
         if (code_line.code == model_line.code &&
              code_line.indent == model_line.indent &&
-             errors.length === 0) {
+             errors_{{question.questionID}}.length === 0) {
           code_line.markCorrect();
         }
       }
     }
 
-    return {errors: errors, log_errors: log_errors, success: (errors.length === 0)};
+    return {errors: errors_{{question.questionID}}, 
+    	log_errors: log_errors_{{question.questionID}},
+    	success: (errors_{{question.questionID}}.length === 0)
+    	};
   };
 
 
@@ -771,8 +772,8 @@
       // toggleable elements are only enabled for unit tests
       if (!widget.options.unittests && !widget.options.vartests) { return; }
       var handlers = $.extend(defaultToggleTypeHandlers, widget.options.toggleTypeHandlers),
-          context = $("#" + widget.options.sortableId + ", #" + widget.options.trashId);
-      $(".jsparson-toggle", context).each(function(index, item) {
+          context_{{question.questionID}} = $("#" + widget.options.sortableId + ", #" + widget.options.trashId);
+      $(".jsparson-toggle", context_{{question.questionID}}).each(function(index, item) {
          var type = $(item).data("type");
          if (!type) { return; }
          var handler = handlers[type],
@@ -787,7 +788,7 @@
          }
       });
       // register a click handler for all the toggleable elements (and unregister existing)
-      context.off("click", ".jsparson-toggle").on("click", ".jsparson-toggle", function() {
+      context_{{question.questionID}}.off("click", ".jsparson-toggle").on("click", ".jsparson-toggle", function() {
          var $this = $(this),
              curVal = $this.text(),
              choices = $this.data("jsp-options"),
@@ -952,7 +953,7 @@
          indented = [],
          widgetData = [],
          lineObject,
-         errors = [],
+         errors_{{question.questionID}} = [],
          that = this;
      // Create line objects out of each codeline and separate
      // lines belonging to the solution and distractor lines
@@ -991,7 +992,7 @@
      $.each(normalized, function(index, item) {
               if (item.indent < 0) {
                 // Indentation error
-                errors.push(this.translations.no_matching(normalized.orig));
+                errors_{{question.questionID}}.push(this.translations.no_matching(normalized.orig));
               }
               widgetData.push(item);
             });
@@ -1014,7 +1015,7 @@
        // an array of line objects specifying the initial code arrangement 
        // given to the user to use in constructing the solution 
        widgetInitial: $.extend(true, [], widgetData),
-       errors: errors};
+       errors_{{question.questionID}}: errors_{{question.questionID}}};
    };
 
    ParsonsWidget.prototype.init = function(text) {
@@ -1079,8 +1080,8 @@
     * Returns states of the toggles for logging purposes
     */
   ParsonsWidget.prototype._getToggleStates = function() {
-    var context = $("#" + this.options.sortableId + ", #" + this.options.trashId),
-        toggles = $(".jsparson-toggle", context),
+    var context_{{question.questionID}} = $("#" + this.options.sortableId + ", #" + this.options.trashId),
+        toggles = $(".jsparson-toggle", context_{{question.questionID}}),
         toggleStates = {};
     $("#" + this.options.sortableId + " .jsparson-toggle").each(function() {
       if (!toggleStates.output) {
@@ -1273,7 +1274,7 @@
    /**
     * TODO(petri) refoctor to UI
     */
-   ParsonsWidget.prototype.displayError = function(message) {
+   ParsonsWidget.prototype.for = function(message) {
      if (this.options.incorrectSound && $.sound) {
        $.sound.play(this.options.incorrectSound);
      }
@@ -1291,23 +1292,31 @@
     * @return
     * TODO(petri): Separate UI from here
     */
-   ParsonsWidget.prototype.getFeedback = function() {
+
+   ParsonsWidget.prototype.getFeedback{{question.questionID}} = function() {
+    console.log("Get feedback! Caller: ");
+    console.log({{question.questionID}});
      this.feedback_exists = true;
-     var fb = this.grader.grade();
+     var fb_{{question.questionID}} = this.grader.grade();
+     console.log("vb_questionID: ");
+     console.log({{question.questionID}});
      if (this.options.feedback_cb) {
-       this.options.feedback_cb(fb); //TODO(petri): what is needed?
+       this.options.feedback_cb(fb_{{question.questionID}}); //TODO(petri): what is needed?
      }
      // if answer is correct, mark it in the UI
-     if (fb.success) {
+     if (fb_{{question.questionID}}.success) {
        $("#ul-" + this.options.sortableId).addClass("correct");
      }
      // log the feedback and return; based on the type of grader
-     if ('html' in fb) { // unittest/vartests type feedback
-       this.addLogEntry({type: "feedback", tests: fb.tests, success: fb.success});
-       return { feedback: fb.html, success: fb.success };
+     if ('html' in fb_{{question.questionID}}) { // unittest/vartests type feedback
+       this.addLogEntry({type: "feedback", tests: fb_{{question.questionID}}.tests, success: fb_{{question.questionID}}.success});
+       return { feedback: fb_{{question.questionID}}.html, success: fb_{{question.questionID}}.success };
      } else {
-       this.addLogEntry({type: "feedback", errors: fb.log_errors, success: fb.success});
-       return fb.errors;
+       this.addLogEntry({type: "feedback", errors: fb_{{question.questionID}}.log_errors_{{question.questionID}}, success: fb_{{question.questionID}}.success});
+       console.log("Errors in code: ");
+       console.log({{question.questionID}});
+       console.log(fb_{{question.questionID}}.errors);
+       return fb_{{question.questionID}}.errors;
      }
    };
 
@@ -1455,3 +1464,10 @@
 
 
    window['ParsonsWidget'] = ParsonsWidget;
+ }
+// allows _ and $ to be modified with noconflict without changing the globals
+// that parsons uses
+)($,_);
+</script>
+
+				        
