@@ -10,6 +10,7 @@ from Badges.models import Conditions, FloatConstants, StringConstants, Dates, Co
 from Instructors.models import Activities,ActivitiesCategory, Challenges, CoursesTopics
 from Instructors.constants import unassigned_problems_challenge_name
 from Badges.systemVariables import SystemVariable
+from Badges.enums import AwardFrequency
 from Badges.events import operandSetTypeToObjectType
 
 #Determine the appropriate event type for each System Variable
@@ -305,4 +306,7 @@ def setUpContextDictForConditions(context_dict,course):
                                    {"name":"topic","plural":"topics","objects":topic_list},
                                    {"name":"category","plural":"categories","objects":actCat_list},]
     context_dict['defaultObject'] = "challenge"
+    
+    context_dict['awardFrequencyOptions']=AwardFrequency.awardFrequency
+
     return context_dict
