@@ -8,7 +8,6 @@ from django.shortcuts import redirect
 
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
 from Badges.enums import Action, OperandTypes , Event, dict_dict_to_zipped_list
-from Badges.conditions_util import cond_from_mandatory_cond_list
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
 
@@ -81,12 +80,10 @@ def SaveVirtualCurrencySpendRule(request):
                     newCondition.operand2Type = OperandTypes.immediateInteger
                     newCondition.operand2Value = 1
                     newCondition.save()
-                                
-                    ruleCondition = cond_from_mandatory_cond_list([newCondition])
-                
+                                                
                     # Save game rule to the Rules table
                     gameRule = Rules()
-                    gameRule.conditionID = ruleCondition
+                    gameRule.conditionID = newCondition
                     gameRule.actionID = Action.decreaseVirtualCurrency
                     gameRule.courseID = currentCourse
                     gameRule.save()

@@ -13,8 +13,7 @@ from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, Virtua
 from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list,\
     AwardFrequency
 from Badges.systemVariables import SystemVariable
-from Badges.conditions_util import get_events_for_condition,\
-    cond_from_mandatory_cond_list, stringAndPostDictToCondition
+from Badges.conditions_util import get_events_for_condition, stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
 
