@@ -1,12 +1,16 @@
 <div class="row">
-	<div class="input-field col s12">
-    	<select name="awardFrequency">
+	<div class="col s12">
+    	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
         {% for dummy,awardFrequencyOption in awardFrequencyOptions.items %}
             <option value="{{awardFrequencyOption.index}}" {% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}>{{awardFrequencyOption.name}}</option>
         {% endfor %}
 		</select>
     	<label>Award Frequency</label>
     </div>
+</div>
+<div class="row" id="objectSpecifier">
+	Put object selection stuff here.
+	I'm not looking forward to writing the javascript for this, but it won't really be that bad.
 </div>
 <div class="row">
    <div class="col s12">
@@ -16,10 +20,10 @@
 <div class="row">
 
 <style>
-		.cond-prototype {
+	.cond-prototype {
 		display: none;
-		}
-		.cond-item {
+	}
+	.cond-item {
 		border-style: solid;
 		border-width: 1px;
 		border-radius: 6px;
@@ -30,12 +34,12 @@
 		min-height: auto;
 		flex: none;
 		display: flex;
-		}
-		.cond-atom-helper {
+	}
+	.cond-atom-helper {
 		display: flex;
 		flex-direction: row;
-		}
-		.cond-empty {
+	}
+	.cond-empty {
 		border-style: dashed;
 		border-width: 1px;
 		border-radius: 6px;
@@ -43,8 +47,8 @@
 		text-align: center;
 		min-width: 4em;
 		min-height: 1em;
-		}
-		.cond-container {
+	}
+	.cond-container {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: nowrap;
@@ -56,22 +60,22 @@
 		width: 100%;
 		overflow-x: auto;
 		overflow-y: scroll;
-		}
-		.cond-icon-list {
+	}
+	.cond-icon-list {
 		display: flex;
 		flex-direction: row;
 		align-items: stretch;
-		}
-		.cond-icon {
+	}
+	.cond-icon {
 		border-style: solid;
 		border-width: 1px;
 		border-radius: 6px;
 		padding: 6px;
-		}
-		.cond-trash {
+	}
+	.cond-trash {
 		margin-left: auto;
-		}
-		.cond-or {
+	}
+	.cond-or {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
@@ -79,61 +83,65 @@
 		overflow-x: auto;
 		overflow-y: hidden;
 		background-color: #DDFFFF;
-		}
-		.cond-or-sub {
+	}
+	.cond-or-sub {
 		flex-basis: 45%;
 		height: 100%;
-		}
-		.cond-or-label {
+	}
+	.cond-or-label {
 		color: silver;
 		flex-basis: 8%;
 		text-align: center;
-		}
-		.cond-and-label {
+	}
+	.cond-and-label {
 		font-size: 0.6em;
 		color: silver;
 		text-align: center;
-		}
-		.cond-atom-option-group {
-		}
-		.cond-for {
+	}
+	.cond-atom-option-group {
+	}
+	.cond-for {
 		background-color: yellow;
 		align-items: center;
 		display: flex;
 		flex-direction: column;
-		}
-		.cond-for-list {
+	}
+	.cond-for-list {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		}
-		.cond-for-list-item {
+	}
+	.cond-for-list-item {
 		/*padding: 2px;*/
 		/*background-color: orange;*/
-		}
-		.cond-for-sub {
+	}
+	.cond-for-sub {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: nowrap;
 		width: 90%;
-		}
-		.cond-atom {
+	}
+	.cond-atom {
 		background-color: #EEFFEE;
 		/*overflow: hidden;*/
 		flex-direction: column;
-		}
-		.cond-hidden-error {
+	}
+	.cond-hidden-error {
 		display: none;
-		}
-		.cond-visible-error {
+	}
+	.cond-visible-error {
 		background-color: white;
 		color: red;
-		}
-		.input-field label,
+	}
+	.label,
 		[type="checkbox"] + label {
 			pointer-events: auto;
 			color:black;
-		}
+	}
+	
+	select.cond-var, select.cond-rhs-var {
+		white-space: pre-wrap;
+	}
  </style>
  <!-- Hidden prototypes which will be copied to make the actual nodes in the boolean expression. -->
  <div id="condOrPrototype" class="cond-prototype">
@@ -158,8 +166,8 @@
  <div id="condAtomPrototype" class="cond-prototype">
 		<div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
 			 <div class="row">
-				 <div class="input-field col s12 m4">
-					<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
+				 <div class="col s12 m4">
+					<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var no-materialize">
 						<option value="0" data-cond-var-type="text" data-cond-context-global="true"
 						{% for objectType in objectTypes %}
 						data-cond-context-{{objectType.name}}="true" 
@@ -174,8 +182,8 @@
 						{% endfor %}
 					</select>
 					</div>
-					<div class="input-field col s12 m1">
-						<select name="cond-op" class="cond-op">
+					<div class="col s12 m1">
+						<select name="cond-op" class="cond-op no-materialize">
 							<option value="=">=</option>
 							<option value=">">&gt;</option>
 							<option value=">=">&gt;=</option>
@@ -183,11 +191,11 @@
 							<option value="<=">&lt;=</option>
 						</select>
 					</div>
-					<div class="input-field col s12 m3">
+					<div class="col s12 m3">
 						<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
 					</div>
-					<div hidden class="input-field col s12 m5">
-						<select name="cond-rhs-var"  class="cond-rhs-var" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
+					<div hidden class="col s12 m5">
+						<select name="cond-rhs-var"  class="cond-rhs-var no-materialize" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
 							<option value="0" data-cond-context-global="true"
 							{% for objectType in objectTypes %}
 							data-cond-context-{{objectType.name}}="true" 
@@ -224,16 +232,16 @@
 		<div class="cond-for cond-item" data-cond-type="for" 
 		   data-inside-qualifier="{{defaultObject}}" draggable="true">
 		   <div class="row">
-			  <div class="input-field col s12 m6">
+			  <div class="col s12 m4">
 				<p>For</p>
-				 <select id="cond-allOrAny" name="cond-allOrAny" class="cond-allOrAny">
+				 <select id="cond-allOrAny" name="cond-allOrAny" class="cond-allOrAny no-materialize">
 					<option value="all">each</option>
 					<option value="any">any</option>
 				 </select>
 			  </div>
-			  <div class="input-field col s12 m6">
+			  <div class="col s12 m8">
 				<p>of the following</p>
-				 <select id="cond-thingie-type" name="cond-thingie-type" class="cond-thingie-type" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
+				 <select id="cond-thingie-type" name="cond-thingie-type" class="cond-thingie-type no-materialize" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
 					data-cond-old-type="{{defaultObject}}">
 					{% for objectType in objectTypes %}
 					<option value="{{objectType.name}}">{{objectType.plural}}</option>
@@ -244,16 +252,18 @@
 		   {% for objectType in objectTypes %}
 		   
 		   <div class="row"{% if objectType.name != defaultObject %} hidden {%endif%}>
-					<div class="input-field col s12 cond-{{objectType.name}}-list" >
-						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select" 
+					<div class="col s12 m6 cond-{{objectType.name}}-list" >
+						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select no-materialize" 
 							onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;">
 							<option disabled selected value="0">select {{objectType.plural}} to add</option>
 							{% for object in objectType.objects %}
 							<option value="{{object.id}}">{{object.name}}</option>
 							{% endfor %}
 						</select>
+					</div>
+					<div class="col s12 m6">
 						or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
-					<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
+						<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
 					</div>
 			</div>
 			<div class="cond-for-list cond-{{objectType.name}}-selected-list">
@@ -278,7 +288,7 @@
  </div>
  </p>
  <!-- Container for initial condition -->
- <div class="cond-container cond-item">
+ <div class="cond-container cond-item" id="cond-container">
 		<input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
 		<input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count" id="cond-atom-count">
 		<div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
@@ -288,7 +298,57 @@
  
  </div>
  <script>
-		function condFindCondItemAncestor(node) {
+
+
+//All names prefixed with cond to decrease odds of any sort
+//of name-space conflict on import.
+
+/**************************************************
+ * Functions for handling award frequency changes *
+ **************************************************/
+
+function condIsInFor(element) {
+	while (element != null) {
+		if (element.dataset && element.dataset.condType === "for") {
+			return true;
+		}
+		element = element.parentNode;
+	}
+	return false;
+}	 
+
+var condAwardFrequencyToThingieType = {
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyOptions.items %}
+	{{awardFreqNum}}:'{{awardFreqStruct.objectTypeName}}',
+	{% endfor %}
+}
+
+var condOldAwardFreq = document.getElementById("awardFrequencySelect").value;
+
+function condChangeAwardFreq(select) {
+	var newAwardFreq = select.value;
+	var oldLabel = condAwardFrequencyToThingieType[condOldAwardFreq] + ":scope";
+	var newLabel = condAwardFrequencyToThingieType[newAwardFreq] + ":scope";
+
+	var conditionDiv = document.getElementById("cond-container");
+	var subDivs = conditionDiv.getElementsByTagName("DIV");
+	[].forEach.call(subDivs, function(subDiv) {
+		if (subDiv.dataset.condInsideQualifier == "none" || subDiv.dataset.condInsideQualifier == oldLabel) {
+			subDiv.dataset.condInsideQualifier = newLabel;
+	    }
+	});
+	condUpdateAtomSelectForContext(conditionDiv, condAwardFrequencyToThingieType[newAwardFreq],true);
+	
+	condOldAwardFreq = newAwardFreq;
+}
+
+condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
+
+/**********************************************
+ * Functions for handling Error display stuff *
+ **********************************************/
+
+function condFindCondItemAncestor(node) {
     while (!node.classList.contains("cond-item")) {
         node = node.parentNode;
     }
@@ -414,7 +474,6 @@ function condToggleAtomType(checkboxx) {
         variable.parentElement.removeAttribute("hidden");
         //console.log("Not Checked");
     }
-    $('select').material_select();
 }
 
 function condChangeAtomToMatchType(select) {
@@ -447,8 +506,8 @@ function condChangeAtomToMatchType(select) {
                 newValue.value = savedValue;
             }
         }
-        atom.insertBefore(newValue, value);
-        atom.removeChild(value);
+        value.parentNode.insertBefore(newValue, value);
+        value.parentNode.removeChild(value);
         value = newValue;
     }
 
@@ -462,12 +521,16 @@ function condChangeAtomToMatchType(select) {
     var justEqual = {
         "=": enable,
         ">": disable,
-        "<": disable
+        "<": disable,
+        ">=": disable,
+        "<=": disable
     };
     var allOps = {
         "=": enable,
         ">": enable,
-        "<": enable
+        "<": enable,
+        ">=": enable,
+        "<=": enable
     };
     var typeStatusChange = {
         text: justEqual,
@@ -476,14 +539,11 @@ function condChangeAtomToMatchType(select) {
         checkbox: justEqual
     };
 
-    var operator = atom.getElementsByClassName("cond-op")[0];
+    var operator = atom.getElementsByClassName("cond-op")[1];
     for (var i = 0; i < operator.options.length; i++) {
         typeStatusChange[type][operator.options[i].value](operator.options[i]);
     }
 }
-
-// All names prefixed with cond to decrease odds of any sort
-// of name-space conflict on import.
 
 /******************************************
  * Functions for handling ForAll UI stuff *
@@ -600,12 +660,21 @@ function condHandleDragEnd(e) {
 
 function condCanDropOn(source, target) {
     var canDrop = true;
+    var insideFor = false;
+    var insideQualifierParts = target.dataset.condInsideQualifier.split(":");
+    if (insideQualifierParts[0] != "none") {
+    	insideFor = true;
+    }
+    if ((insideQualifierParts.length > 1) && (insideQualifierParts[1] == "scope")) {
+    	insideFor = false;
+    }
+    
     if ((target.dataset.condType == "orBlank") &&
         (source.id == "condOrIcon")) {
         canDrop = false;
     }
 
-    if ((target.dataset.condInsideQualifier != "none") &&
+    if (insideFor &&
         (source.id == "condForAllIcon")) {
         canDrop = false;
     }
@@ -614,7 +683,7 @@ function condCanDropOn(source, target) {
         canDrop = false;
     }
 
-    if ((target.dataset.condInsideQualifier != "none") &&
+    if (insideFor &&
         (source.dataset.condType == "for")) {
         canDrop = false;
     }
@@ -655,29 +724,31 @@ function clonePrototype(name) {
         //console.log(prototypeDiv.children[0].children[4]);
     }
     if (name == "condForPrototype") {
-        //console.log(prototypeDiv.children[1].children[0]);
+        console.log(prototypeDiv.children[1].children[1].children[1]);
         //console.log(prototypeDiv.children[4].children[0]);
         //console.log(prototypeDiv.children[7].children[0]);
 		var id = (Date.now() + Math.random()).toString(36);
-        prototypeDiv.children[1].children[0].children[1].id = prototypeDiv.children[1].children[0].children[1].id + id;
-        prototypeDiv.children[1].children[0].children[2].setAttribute("for", prototypeDiv.children[1].children[0].children[1].id);
+        prototypeDiv.children[1].children[1].children[0].id = prototypeDiv.children[1].children[1].children[0].id + id;
+        prototypeDiv.children[1].children[1].children[1].setAttribute("for", prototypeDiv.children[1].children[1].children[0].id);
 
-        prototypeDiv.children[4].children[0].children[1].id = prototypeDiv.children[4].children[0].children[1].id + id;
-        prototypeDiv.children[4].children[0].children[2].setAttribute("for", prototypeDiv.children[4].children[0].children[1].id);
+        prototypeDiv.children[4].children[1].children[0].id = prototypeDiv.children[4].children[1].children[0].id + id;
+        prototypeDiv.children[4].children[1].children[1].setAttribute("for", prototypeDiv.children[4].children[1].children[0].id);
 
-        prototypeDiv.children[7].children[0].children[1].id = prototypeDiv.children[7].children[0].children[1].id + id;
-        prototypeDiv.children[7].children[0].children[2].setAttribute("for", prototypeDiv.children[7].children[0].children[1].id);
+        prototypeDiv.children[7].children[1].children[0].id = prototypeDiv.children[7].children[1].children[0].id + id;
+        prototypeDiv.children[7].children[1].children[1].setAttribute("for", prototypeDiv.children[7].children[1].children[0].id);
 
     }
     return prototypeDiv;
 }
 
-function condUpdateAtomSelectForContext(targetDiv, context) {
+function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) {
 
+    context = context.split(":")[0];
     if (context == "none") {
         context = "global";
     }
     context = context.charAt(0).toUpperCase() + context.slice(1);
+
     var contextAttributeName = "condContext" + context;
 
     function updateThisSelect(targetSelect, contextAttributeName, rhs) {
@@ -690,16 +761,26 @@ function condUpdateAtomSelectForContext(targetDiv, context) {
             }
         }
     }
-
+    
     var selects = targetDiv.getElementsByTagName("select");
     for (var i = 0; i < selects.length; i++) {
         var curSelect = selects[i];
         if (curSelect.name == "cond-var") {
+            if (excludeFor) {
+            	if (condIsInFor(curSelect)) {
+            		continue;
+            	}
+            }
             updateThisSelect(curSelect, contextAttributeName, false);
             if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
                 curSelect.selectedIndex = 0;
             }
         } else if (curSelect.name == "cond-rhs-var") {
+            if (excludeFor) {
+            	if (condIsInFor(curSelect)) {
+            		continue;
+            	}
+            }
             updateThisSelect(curSelect, contextAttributeName, true);
             if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
                 curSelect.selectedIndex = 0;
@@ -732,7 +813,6 @@ function condCreateAtomNode(targetParent, blank, insideQualifier) {
     value.name = "cond-rhs-value" + condCountNewAtom();
 
     condUpdateAtomSelectForContext(atomDiv, insideQualifier);
-    $('select').material_select();
 
     return atomDiv;
 }
@@ -774,7 +854,6 @@ function condCreateForAllNode(targetParent, blank) {
 
     forAllDiv.addEventListener("dragstart", condHandleDragStartMove, false);
     forAllDiv.addEventListener("dragend", condHandleDragEnd, false);
-    $('select').material_select();
     return forAllDiv;
 }
 
@@ -846,7 +925,7 @@ function condHandleDropOnBlank(e) {
 
     var targetParent = e.target.parentNode;
     var insideQualifier = e.target.dataset.condInsideQualifier;
-    if (insideQualifier != "none") {
+    if (condIsInFor(e)) {
         // We have just dragged something new inside a For.  We need to
         // turn off the error message for that for if the new thing we have dragged is
         // an atom.

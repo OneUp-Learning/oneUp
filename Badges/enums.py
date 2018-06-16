@@ -482,21 +482,26 @@ class AwardFrequency:
             'index': justOnce,
             'name': 'Just Once Ever',
             'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
         },
         perChallenge:{
             'index': perChallenge,
             'name': 'Once per Challenge',
             'objectType': ObjectTypes.challenge,
+            'objectTypeName': 'challenge',
 
         },
         perActivity:{
             'index': perActivity,
             'name': 'Once per Activity',
             'objectType': ObjectTypes.activity,
+            'objectTypeName': 'activity',
         },
         perTopic:{
             'index': perTopic,
             'name': 'Once per Topic',
+            'objectType': ObjectTypes.topic,
+            'objectTypeName': 'topic',
         },
         #daily:{
         #    'index': daily,
@@ -510,6 +515,7 @@ class AwardFrequency:
             'index':perActivityCategory,
             'name': 'Once per Topic',
             'objectType': ObjectTypes.activtyCategory,
+            'objectTypeName': 'category',
         },
     }
             
