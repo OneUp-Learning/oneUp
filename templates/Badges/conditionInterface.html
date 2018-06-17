@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col s12">
+	<div class="input-field col s12">
     	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
         {% for dummy,awardFrequencyOption in awardFrequencyOptions.items %}
             <option value="{{awardFrequencyOption.index}}" {% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}>{{awardFrequencyOption.name}}</option>
@@ -8,10 +8,38 @@
     	<label for="awardFrequencySelect">Award Frequency</label>
     </div>
 </div>
+<div class="row" id="objectSpecifierLabel">
+	<div class="input-field col s12">
+		<h5><span class= "red-text">*</span> Specify Which Objects </h5>
+	</div>
+</div>
 <div class="row" id="objectSpecifier">
-	<div class="col s12">
-	Put object selection stuff here.
-	I'm not looking forward to writing the javascript for this, but it won't really be that bad.
+	<div class="">
+		{% for objectType in objectTypes %}
+			<div class="row" 
+		   	{% for dummy, awardFreq in awardFrequencyOptions.items %} 
+		   		{% if awardFrequencyOption.index == awardFrequency %}
+		   			{% if awardFrequencyOption.objectTypeName != objectType %}hidden {% endif %}
+		   		{% endif %}
+		   	{% endfor %}>
+				<div class="col s12 m6 cond-{{objectType.name}}-list" >
+					<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select no-materialize" 
+							onchange="condAddThingieToList(this);this.selectedIndex=0;">
+						<option disabled selected value="0">select {{objectType.plural}} to add</option>
+					{% for object in objectType.objects %}
+						<option value="{{object.id}}">{{object.name}}</option>
+					{% endfor %}
+					</select>
+				</div>
+			<div class="col s12 m6">
+				or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" checked />
+				<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
+			</div>
+		</div>
+		<div class="cond-{{objectType.name}}-selected-list">
+		</div>
+	 	{% endfor %}	
+	 </div>
 </div>
 <div class="row">
    <div class="col s12">
@@ -304,6 +332,14 @@
 //All names prefixed with cond to decrease odds of any sort
 //of name-space conflict on import.
 
+var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
+
+var condAwardFrequencyToThingieType = {
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyOptions.items %}
+		{{awardFreqNum}}:'{{awardFreqStruct.objectTypeName}}',
+	{% endfor %}
+}
+
 /**************************************************
  * Functions for handling award frequency changes *
  **************************************************/
@@ -318,18 +354,14 @@ function condIsInFor(element) {
 	return false;
 }	 
 
-var condAwardFrequencyToThingieType = {
-	{% for awardFreqNum,awardFreqStruct in awardFrequencyOptions.items %}
-	{{awardFreqNum}}:'{{awardFreqStruct.objectTypeName}}',
-	{% endfor %}
-}
-
 var condOldAwardFreq = document.getElementById("awardFrequencySelect").value;
 
 function condChangeAwardFreq(select) {
 	var newAwardFreq = select.value;
-	var oldLabel = condAwardFrequencyToThingieType[condOldAwardFreq] + ":scope";
-	var newLabel = condAwardFrequencyToThingieType[newAwardFreq] + ":scope";
+	var oldType = condAwardFrequencyToThingieType[condOldAwardFreq];
+	var oldLabel = oldType + ":scope";
+	var newType = condAwardFrequencyToThingieType[newAwardFreq];
+	var newLabel = newType + ":scope";
 
 	var conditionDiv = document.getElementById("cond-container");
 	var subDivs = conditionDiv.getElementsByTagName("DIV");
@@ -341,6 +373,39 @@ function condChangeAwardFreq(select) {
 	condUpdateAtomSelectForContext(conditionDiv, condAwardFrequencyToThingieType[newAwardFreq],true);
 	
 	condOldAwardFreq = newAwardFreq;
+	
+	var objectSpecifierDiv = document.getElementById("objectSpecifier");
+	var objectSpecifierLabelDiv = document.getElementById("objectSpecifierLabel");
+	
+	if (newType == "none") {
+		objectSpecifierDiv.hidden = "true";
+		objectSpecifierDiv.style.display = "none";
+		objectSpecifierLabelDiv.hidden = "true";
+		objectSpecifierLabelDiv.style.display = "none";
+	} else {
+		objectSpecifierDiv.removeAttribute("hidden");
+		objectSpecifierDiv.style.display = "block";
+		objectSpecifierLabelDiv.removeAttribute("hidden");
+		objectSpecifierLabelDiv.style.display = "block";
+	}
+	
+    var listDivs = {};
+    var selectedDivs = {};
+    for (var i = 0; i < condForAllTypeList.length; i++) {
+        var typeI = condForAllTypeList[i];
+        listDivs[typeI] = objectSpecifierDiv.getElementsByClassName("cond-" + typeI + "-list")[0].parentNode;
+        selectedDivs[typeI] = objectSpecifierDiv.getElementsByClassName("cond-" + typeI + "-selected-list")[0];
+    }
+    if (oldType != "none") {
+	    listDivs[oldType].hidden = "true";
+	    selectedDivs[oldType].hidden = "true";
+	    selectedDivs[oldType].style.display = "none";
+    }
+    if (newType != "none") {
+	    listDivs[newType].removeAttribute("hidden");
+	    selectedDivs[newType].removeAttribute("hidden");
+	    selectedDivs[newType].style.display = "block";
+    }
 }
 
 condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
@@ -566,8 +631,9 @@ function condAddThingieToListByNameAndId(list, name, id) {
 
 function condAddThingieToList(select) {
     var choice = select.options[select.selectedIndex];
-    var list = select.parentNode.parentNode.parentNode.nextElementSibling;
-    //console.log(select.parentNode.parentNode.parentNode.nextElementSibling);
+    var list = select.parentNode.parentNode.nextElementSibling;
+    console.log(select.parentNode.parentNode);
+    console.log(select.parentNode.parentNode.nextElementSibling);
     var listOfIds = ['0'];
     for (var i = 0; i < list.children.length; i++) { //>
         listOfIds.push(list.children[i].dataset.id);
@@ -580,8 +646,6 @@ function condAddThingieToList(select) {
 //function condRemoveThingie(item) {
 //	item.parentNode.parentNode;
 //}
-
-var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
 
 function condChangeForAllType(select) {
     var currentType = select.options[select.selectedIndex].value;
