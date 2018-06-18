@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 
 from Instructors.views.utils import initialContextDict
 from Badges.models import ActionArguments, Rules, Badges, RuleEvents, BadgesInfo
-from Badges.enums import Action, ObjectTypes
+from Badges.enums import Action, ObjectTypes, AwardFrequency
 from Badges.conditions_util import get_events_for_condition,\
     stringAndPostDictToCondition
 
@@ -81,10 +81,16 @@ def SaveBadge(request):
                 gameRule.conditionID = badgeCondition
                 gameRule.actionID = Action.giveBadge 
                 gameRule.courseID = current_course
+                
+                awardFreq = int(request.POST['awardFrequency'])
+                gameRule.awardFrequency = awardFreq
+                print("CHOSEN OBJECT SPECIFIER STRING : "+request.POST['chosenObjectSpecifierString']);
+                gameRule.objectSpecifier = request.POST['chosenObjectSpecifierString'];
                 gameRule.save()
     
                 # We get all of the related events.
-                events = get_events_for_condition(badgeCondition,ObjectTypes.none)
+                context = AwardFrequency.awardFrequency[awardFreq]['objectType']
+                events = get_events_for_condition(badgeCondition,context)
                 for event in events:
                     ruleEvent = RuleEvents()
                     ruleEvent.rule = gameRule

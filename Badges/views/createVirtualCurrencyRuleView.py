@@ -20,16 +20,12 @@ def CreateVcRule(request):
     
     context_dict,currentCourse = initialContextDict(request);
 
-    context_dict = setUpContextDictForConditions(context_dict,currentCourse)
+    context_dict = setUpContextDictForConditions(context_dict,currentCourse, None)
     
-    context_dict['initialCond'] = "'empty'"
-
     context_dict['editOrCreate']="create"
     context_dict['capitalEditOrCreate']="Create"
     context_dict['saveOrCreate']="create"
     context_dict['captialSaveOrCreate'] = "Create"
-    context_dict['awardFrequency']=AwardFrequency.justOnce
-    context_dict['awardFrequencyOptions']=AwardFrequency.awardFrequency
     context_dict['isRuleCustom'] = request.GET['isRuleCustom'] in ['true', 'True']
     
     return render(request,'Badges/EditVirtualCurrencyRule.html', context_dict)

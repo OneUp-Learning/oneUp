@@ -92,10 +92,13 @@ def SaveVirtualCurrencyRule(request):
                 gameRule.conditionID = ruleCondition
                 gameRule.actionID = Action.increaseVirtualCurrency
                 gameRule.courseID = currentCourse
+                
+                awardFreq = int(request.POST['awardFrequency'])
+                gameRule.awardFrequency = awardFreq
+                gameRule.objectSpecifier = request.POST['chosenObjectSpecifierString'];
                 gameRule.save()
     
                 # We get all of the related events.
-                awardFreq = int(request.POST['awardFrequency'])
                 context = AwardFrequency.awardFrequency[awardFreq]['objectType']
                 events = get_events_for_condition(ruleCondition,context)
                 for event in events:

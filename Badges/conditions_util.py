@@ -37,9 +37,9 @@ def get_events_for_condition(cond, context):
     if cond.operation in leaf_condition_operators:
         eventSet = set()
         if (cond.operand1Type == OperandTypes.systemVariable):
-            eventSet = eventSet.union(get_events_for_system_variable(cond.operand1Value))
+            eventSet = eventSet.union(get_events_for_system_variable(cond.operand1Value,context))
         if (cond.operand2Type == OperandTypes.systemVariable):
-            eventSet = eventSet.union(get_events_for_system_variable(cond.operand2Value))
+            eventSet = eventSet.union(get_events_for_system_variable(cond.operand2Value,context))
         return eventSet
     elif cond.operation in binary_condition_operators:
         if cond.operand1Type == OperandTypes.conditionSet:
@@ -281,8 +281,8 @@ def databaseConditionToJSONString(condition):
     }
     return operationToFunctionTable[condition.operation]()
 
-def setUpContextDictForConditions(context_dict,course):
-    var_list = []    
+def setUpContextDictForConditions(context_dict,course,rule = None):
+    var_list = []
     for sysVarIndex in SystemVariable.systemVariables.keys():
         sysVarTable = SystemVariable.systemVariables[sysVarIndex]
         sysVar = {
@@ -301,12 +301,23 @@ def setUpContextDictForConditions(context_dict,course):
     topic_list = [{"id":ct.topicID.topicID,"name":ct.topicID.topicName} for ct in CoursesTopics.objects.filter(courseID = course)]
     
     
-    context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list },
-                                   {"name":"activity","plural":"activities", "objects":act_list},
-                                   {"name":"topic","plural":"topics","objects":topic_list},
-                                   {"name":"category","plural":"categories","objects":actCat_list},]
+    context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list,"index":ObjectTypes.challenge },
+                                   {"name":"activity","plural":"activities", "objects":act_list,"index":ObjectTypes.activity },
+                                   {"name":"topic","plural":"topics","objects":topic_list,"index":ObjectTypes.topic },
+                                   {"name":"category","plural":"categories","objects":actCat_list,"index":ObjectTypes.activtyCategory},]
     context_dict['defaultObject'] = "challenge"
     
     context_dict['awardFrequencyOptions']=AwardFrequency.awardFrequency
 
+    if rule != None:
+        condition = rule.conditionID
+        #print("Condition: "+str(condition))    
+        context_dict['initialCond'] = databaseConditionToJSONString(condition)
+        context_dict['awardFrequency']=rule.awardFrequency
+        context_dict['chosenObjectSpecifier'] = rule.objectSpecifier
+    else:
+        context_dict['awardFrequency']=AwardFrequency.justOnce
+        context_dict['chosenObjectSpecifier'] = "[]"
+        context_dict['initialCond'] = "'empty'"
+                
     return context_dict

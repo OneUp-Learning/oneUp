@@ -18,28 +18,30 @@
 		{% for objectType in objectTypes %}
 			<div class="row" 
 		   	{% for dummy, awardFreq in awardFrequencyOptions.items %} 
-		   		{% if awardFrequencyOption.index == awardFrequency %}
+		   		{% if awardFreq.index == awardFrequency %}
 		   			{% if awardFrequencyOption.objectTypeName != objectType %}hidden {% endif %}
 		   		{% endif %}
 		   	{% endfor %}>
 				<div class="col s12 m6 cond-{{objectType.name}}-list" >
 					<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select no-materialize" 
-							onchange="condAddThingieToList(this);this.selectedIndex=0;">
+							onchange="condAddThingieToList(this);this.selectedIndex=0;this.parentNode.parentNode.children[1].children[0].checked = false;">
 						<option disabled selected value="0">select {{objectType.plural}} to add</option>
 					{% for object in objectType.objects %}
 						<option value="{{object.id}}">{{object.name}}</option>
 					{% endfor %}
 					</select>
 				</div>
-			<div class="col s12 m6">
-				or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" checked />
-				<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
+				<div class="col s12 m6">
+					or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" checked 
+					onchange = "if (this.checked) { selectedlist = this.parentNode.parentNode.parentNode.children[1]; while (selectedlist.firstChild) { selectedlist.removeChild(selectedlist.firstChild);}}"/>
+					<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
+				</div>
 			</div>
-		</div>
-		<div class="cond-{{objectType.name}}-selected-list">
-		</div>
+			<div class="cond-{{objectType.name}}-selected-list">
+			</div>
 	 	{% endfor %}	
 	 </div>
+	 <input type="hidden" name="chosenObjectSpecifierString" id="chosenObjectSpecifierString" value="default">
 </div>
 <div class="row">
    <div class="col s12">
@@ -334,11 +336,23 @@
 
 var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
 
-var condAwardFrequencyToThingieType = {
+var condAwardFrequencyToThingieTypeName = {
 	{% for awardFreqNum,awardFreqStruct in awardFrequencyOptions.items %}
 		{{awardFreqNum}}:'{{awardFreqStruct.objectTypeName}}',
 	{% endfor %}
 }
+
+var condAwardFrequencyToThingieType = {
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyOptions.items %}
+		{{awardFreqNum}}:{{awardFreqStruct.objectType}},
+	{% endfor %}
+}
+
+var condObjectsIdToName = { {% for objectType in objectTypes %}"{{objectType.name}}":
+{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
+{% endfor %} };
+
+var condObjectTypeIndexToName = { {%for objectType in objectTypes %}{{objectType.index}}:"{{objectType.name}}",{% endfor %} }
 
 /**************************************************
  * Functions for handling award frequency changes *
@@ -358,9 +372,9 @@ var condOldAwardFreq = document.getElementById("awardFrequencySelect").value;
 
 function condChangeAwardFreq(select) {
 	var newAwardFreq = select.value;
-	var oldType = condAwardFrequencyToThingieType[condOldAwardFreq];
+	var oldType = condAwardFrequencyToThingieTypeName[condOldAwardFreq];
 	var oldLabel = oldType + ":scope";
-	var newType = condAwardFrequencyToThingieType[newAwardFreq];
+	var newType = condAwardFrequencyToThingieTypeName[newAwardFreq];
 	var newLabel = newType + ":scope";
 
 	var conditionDiv = document.getElementById("cond-container");
@@ -370,7 +384,7 @@ function condChangeAwardFreq(select) {
 			subDiv.dataset.condInsideQualifier = newLabel;
 	    }
 	});
-	condUpdateAtomSelectForContext(conditionDiv, condAwardFrequencyToThingieType[newAwardFreq],true);
+	condUpdateAtomSelectForContext(conditionDiv, newType, true);
 	
 	condOldAwardFreq = newAwardFreq;
 	
@@ -409,6 +423,62 @@ function condChangeAwardFreq(select) {
 }
 
 condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
+
+function condFillSpecifierString() {
+	var objectSpecifierDiv = document.getElementById("objectSpecifier");
+	var outStruct = 'error';
+	if (objectSpecifierDiv.hidden) {
+		outStruct = [];
+	} else {
+		var chosenAwardFreq = document.getElementById("awardFrequencySelect").value;
+		var allObjectCheckbox = objectSpecifierDiv.getElementsByClassName('cond-'+condAwardFrequencyToThingieTypeName[chosenAwardFreq]+'-all')[0];
+		if (allObjectCheckbox.checked) {
+			outStruct = [];
+		} else {		
+	        var choiceListDiv = objectSpecifierDiv.querySelector('div.cond-' + condAwardFrequencyToThingieTypeName[chosenAwardFreq] + '-selected-list');
+	        var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
+	        var selectedIDs = []
+	        for (var i = 0; i < choices.length; i++) {
+	            selectedIDs.push(choices[i].dataset.id)
+	        }
+			var specifier_rule = {
+				'specifier': condAwardFrequencyToThingieType[chosenAwardFreq],
+				'op': 'in',
+				'value': selectedIDs,
+			}
+			outStruct = [specifier_rule];
+		}
+	}
+	
+	var hiddenField = document.getElementById("chosenObjectSpecifierString");
+	hiddenField.value = JSON.stringify(outStruct);
+}
+
+condChosenObjectSpecifier = JSON.parse("{{chosenObjectSpecifier|escapejs}}");
+
+function condCreateObjectSpecifierUIFromObjectSpecifier(chosenObjectSpecifier) {
+	if (chosenObjectSpecifier.length == 0) {
+		return;
+	} else {
+		// Note that this is a degenerate case which only handles the simple condition of a list of objects.
+		// This will need to be redone when we make the interface more general.
+		var objectType = chosenObjectSpecifier[0]['specifier'];
+		if (chosenObjectSpecifier[0]['op'] != 'in') {
+			return;
+		}
+		var listOfObjects = chosenObjectSpecifier[0]['value'];
+		var objectSpecifierDiv = document.getElementById("objectSpecifier");
+		var chosenAwardFreq = document.getElementById("awardFrequencySelect").value;
+        var listDiv = objectSpecifierDiv.querySelector('div.cond-' + condAwardFrequencyToThingieTypeName[chosenAwardFreq] + '-selected-list');
+        for (var i=0; i<listOfObjects.length; i++) {
+        	condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[condObjectTypeIndexToName[objectType]][listOfObjects[i]], listOfObjects[i]);
+        }
+		var allObjectCheckbox = objectSpecifierDiv.getElementsByClassName('cond-'+condAwardFrequencyToThingieTypeName[chosenAwardFreq]+'-all')[0];
+		allObjectCheckbox.checked = false;
+	}
+}
+
+condCreateObjectSpecifierUIFromObjectSpecifier(condChosenObjectSpecifier);
 
 /**********************************************
  * Functions for handling Error display stuff *
@@ -632,8 +702,8 @@ function condAddThingieToListByNameAndId(list, name, id) {
 function condAddThingieToList(select) {
     var choice = select.options[select.selectedIndex];
     var list = select.parentNode.parentNode.nextElementSibling;
-    console.log(select.parentNode.parentNode);
-    console.log(select.parentNode.parentNode.nextElementSibling);
+    //console.log(select.parentNode.parentNode);
+    //console.log(select.parentNode.parentNode.nextElementSibling);
     var listOfIds = ['0'];
     for (var i = 0; i < list.children.length; i++) { //>
         listOfIds.push(list.children[i].dataset.id);
@@ -1242,10 +1312,6 @@ function condFillCondString() {
     condString.value = output;
 }
 
-var condObjectsNameToId = { {% for objectType in objectTypes %}"{{objectType.name}}":
-									{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
-								{% endfor %} };
-
 {% if initialCond %}
 var initialCond = {{initialCond|safe}};
 {% else %}
@@ -1336,7 +1402,7 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
         selectOptionByValue(typeSelector, cond.objectType);
         var listDiv = forDiv.querySelector('div.cond-' + cond.objectType + '-selected-list');
         for (var i = 0; i < cond.objects.length; i++) {
-            condAddThingieToListByNameAndId(listDiv, condObjectsNameToId[cond.objectType][cond.objects[i]], cond.objects[i])
+            condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[cond.objectType][cond.objects[i]], cond.objects[i])
         }
         var empty = forDiv.getElementsByClassName("cond-empty")[0];
         condChangeForAllType(typeSelector);
@@ -1358,6 +1424,7 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
 }
 
 function condOnSubmit() {
+	condFillSpecifierString();
     condFillCondString();
     return !condCheckForErrors();
 }
