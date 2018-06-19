@@ -174,7 +174,7 @@ def operandSetTypeToObjectType(operandType):
         OperandTypes.challengeSet: ObjectTypes.challenge,
         OperandTypes.activitySet: ObjectTypes.activity,
         OperandTypes.topicSet: ObjectTypes.topic,
-        OperandTypes.activtiyCategorySet:ObjectTypes.activtyCategory,
+        OperandTypes.activtiyCategorySet:ObjectTypes.activityCategory,
     }
     if operandType in operandSetTypeToOjectTypeMap:
         return operandSetTypeToOjectTypeMap[operandType]
@@ -407,19 +407,47 @@ def fire_action(rule,courseID,studentID,objID):
 
 chosenObjectSpecifierFields = {
     ObjectTypes.activity:{
-        'id':lambda act: [act.activityID],
-        'category': lambda act: [act.category],
+        'id': {
+            'fun': lambda act: [act.activityID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.activity,
+        },
+        'category': {
+            'fun': lambda act: [act.category],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.activityCategory,
+        },
     },
     ObjectTypes.challenge:{
-        'id':lambda chall: [chall.challengeID],
-        'topic':lambda chall: [ct.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
-        'type':lambda chall: ['serious' if chall.isGraded else 'warmup'],
+        'id': {
+            'fun': lambda chall: [chall.challengeID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.challenge,
+        },
+        'topic': {
+            'fun': lambda chall: [ct.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.topic,
+        },
+        'type': {
+            'fun': lambda chall: ['serious' if chall.isGraded else 'warmup'],
+            'selectionType': 'list',
+            'list': ['serious','warmup'],
+        },
     },
     ObjectTypes.topic:{
-        'id':lambda topic: [topic.topicID]
+        'id': {
+            'fun': lambda topic: [topic.topicID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.topic,
+        },
     },
-    ObjectTypes.activtyCategory:{
-        'id':lambda ac: [ac.categoryID],
+    ObjectTypes.activityCategory:{
+        'id': {
+            'fun': lambda ac: [ac.categoryID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.activityCategory,
+        },
     },
     ObjectTypes.none:{},
 }
@@ -428,7 +456,7 @@ objectTypesToObjects = {
     ObjectTypes.challenge: Challenges,
     ObjectTypes.activity: Activities,
     ObjectTypes.topic: Topics,
-    ObjectTypes.activtyCategory: ActivitiesCategory,
+    ObjectTypes.activityCategory: ActivitiesCategory,
 }
 
 def objectTypeFromObject(obj):
@@ -439,10 +467,10 @@ def objectTypeFromObject(obj):
     if type(obj) is Topics:
         return ObjectTypes.topic
     if type(obj) is ActivitiesCategory:
-        return ObjectTypes.activtyCategory
+        return ObjectTypes.activityCategory
 
 relatedObjects = {
-    ObjectTypes.activtyCategory: {
+    ObjectTypes.activityCategory: {
         ObjectTypes.activity: (lambda act: [act.category.categoryID]),
     },
     ObjectTypes.topic: {
@@ -502,7 +530,7 @@ class ChosenObjectSpecifier:
         if self.objectType == objType:
             for rule in self.rules:
                 if rule['op'] == 'in':
-                    objThingieList = chosenObjectSpecifierFields[self.objectType][rule['specifier']](obj)
+                    objThingieList = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['fun'](obj)
                     found = False
                     for objThingie in objThingieList:   # We check all the thingies against the list.  For many cases
                                                         # this is just one thing, actually, like id, but for topic

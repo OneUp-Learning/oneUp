@@ -374,7 +374,7 @@ class ObjectTypes():
     none=1305 # Not an actual object, but used to indicate that a variable only makes sense in the global context
                 # rather than the context of any particular object in circumstances where that is needed.
     topic=1306
-    activtyCategory=1307
+    activityCategory=1307
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
@@ -382,7 +382,7 @@ class ObjectTypes():
         form:"form",
         none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
         topic:"topic",
-        activtyCategory:"activityCategory",
+        activityCategory:"activityCategory",
     }
 
 class OperandTypes():
@@ -514,7 +514,7 @@ class AwardFrequency:
         perActivityCategory:{
             'index':perActivityCategory,
             'name': 'Once per Category',
-            'objectType': ObjectTypes.activtyCategory,
+            'objectType': ObjectTypes.activityCategory,
             'objectTypeName': 'category',
         },
     }

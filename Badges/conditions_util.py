@@ -11,7 +11,7 @@ from Instructors.models import Activities,ActivitiesCategory, Challenges, Course
 from Instructors.constants import unassigned_problems_challenge_name
 from Badges.systemVariables import SystemVariable
 from Badges.enums import AwardFrequency
-from Badges.events import operandSetTypeToObjectType
+from Badges.events import operandSetTypeToObjectType, chosenObjectSpecifierFields
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var,context):
@@ -304,10 +304,24 @@ def setUpContextDictForConditions(context_dict,course,rule = None):
     context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list,"index":ObjectTypes.challenge },
                                    {"name":"activity","plural":"activities", "objects":act_list,"index":ObjectTypes.activity },
                                    {"name":"topic","plural":"topics","objects":topic_list,"index":ObjectTypes.topic },
-                                   {"name":"category","plural":"categories","objects":actCat_list,"index":ObjectTypes.activtyCategory},]
+                                   {"name":"category","plural":"categories","objects":actCat_list,"index":ObjectTypes.activityCategory},]
+    
+    objectTypesStruct = { ot["index"]:ot for ot in context_dict['objectTypes'] }
     context_dict['defaultObject'] = "challenge"
     
     context_dict['awardFrequencyOptions']=AwardFrequency.awardFrequency
+    
+    def processSpecifiers(spDict):
+        def processOneSpecifier(sp):
+            if sp['selectionType'] == 'object':
+                newSp = sp.copy()
+                newSp['objectInfo'] = objectTypesStruct[sp['objectType']]
+                return newSp
+            return sp
+        return { name:processOneSpecifier(sp) for name, sp in spDict.items()}
+            
+    chosenObjectSpecifierStruct = { objType:{'objectTypeStruct':objectTypesStruct[objType],'specifiers':processSpecifiers(specifiers)} for objType,specifiers in chosenObjectSpecifierFields.items() if objType != ObjectTypes.none }
+    context_dict['chosenObjectSpecifierStruct']=chosenObjectSpecifierStruct
 
     if rule != None:
         condition = rule.conditionID

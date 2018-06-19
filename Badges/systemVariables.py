@@ -12,7 +12,7 @@ objectTypeToObjectClass = {
     ObjectTypes.challenge: Challenges,
     ObjectTypes.question: Questions,
     ObjectTypes.topic: Topics,
-    ObjectTypes.activtyCategory: ActivitiesCategory,
+    ObjectTypes.activityCategory: ActivitiesCategory,
 }
     
 # This is where we evaluate the system variables in their appropriate
