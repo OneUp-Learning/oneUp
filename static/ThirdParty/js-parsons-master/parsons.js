@@ -489,13 +489,19 @@
             topBlock = blocks.pop();
             if (!topBlock) {
               blockErrors.push(this.parson.translations.no_matching_open(i + 1, close[blockClose]));
+              {% if warmUp == 1%}
               $("#" + item.id).addClass("incorrectPosition");
+              {% endif %}
             } else if (close[blockClose] !== topBlock.name) { // incorrect closing block
               blockErrors.push(this.parson.translations.block_close_mismatch(i + 1, close[blockClose], topBlock.line, topBlock.name));
+              {% if warmUp == 1%}
               $("#" + item.id).addClass("incorrectPosition");
+              {% endif %}
             } else if (student_code[i].indent !== topBlock.indent) { // incorrect indent
               blockErrors.push(this.parson.translations.no_matching(i + 1));
+              {% if warmUp == 1%}
               $("#" + item.id).addClass("incorrectIndent");
+              {% endif %}
             }
             prevIndent = topBlock?topBlock.indent:0;
             minIndent = 0;
@@ -520,7 +526,9 @@
           if ((prevIndent && student_code[i].indent !== prevIndent) ||
               student_code[i].indent <= minIndent) {
             blockErrors.push(this.parson.translations.no_matching(i + 1));
+            {% if warmUp == 1%}
             $("#" + item.id).addClass("incorrectIndent");
+            {% endif %}
           }
           prevIndent = student_code[i].indent;
         }
@@ -533,7 +541,9 @@
       // create errors for all blocks opened but not closed
       for (i = 0; i < blocks.length; i++) {
         blockErrors.push(this.parson.translations.no_matching_close(blocks[i].line, blocks[i].name));
+        {% if warmUp == 1%}
         $("#" + blocks[i].item.id).addClass("incorrectPosition");
+        {% endif %}
       }
     }
     // if there were errors in the blocks, give feedback and don't execute the code
@@ -707,11 +717,15 @@
 
     // Check the number of lines in student's code
     if (parson.model_solution.length < student_code.length) {
+    	{% if warmUp == 1%}
       $("#ul-" + elemId).addClass("incorrect");
+      	{% endif %}
       errors.push(parson.translations.lines_too_many());
       log_errors.push({type: "tooManyLines", lines: student_code.length});
     } else if (parson.model_solution.length > student_code.length){
+    	{% if warmUp == 1%}
       $("#ul-" + elemId).addClass("incorrect");
+      {% endif %}
       errors.push(parson.translations.lines_missing());
       log_errors.push({type: "tooFewLines", lines: student_code.length});
     }
@@ -823,13 +837,19 @@
     return $("#" + this.id);
   };
   ParsonsCodeline.prototype.markCorrect = function() {
+	  {% if warmUp == 1%}
     this.elem().addClass(this.widget.FEEDBACK_STYLES.correctPosition);
+     {% endif %}
   };
   ParsonsCodeline.prototype.markIncorrectPosition = function() {
+	  {% if warmUp == 1%}
     this.elem().addClass(this.widget.FEEDBACK_STYLES.incorrectPosition);
+    {% endif %}
   };
   ParsonsCodeline.prototype.markIncorrectIndent = function() {
+	  {% if warmUp == 1%}
     this.elem().addClass(this.widget.FEEDBACK_STYLES.incorrectIndent);
+	  {% endif %}  
   };
   //
   ParsonsCodeline.prototype._addToggles = function() {
@@ -1299,7 +1319,9 @@
      }
      // if answer is correct, mark it in the UI
      if (fb.success) {
+    	 {% if warmUp == 1%}
        $("#ul-" + this.options.sortableId).addClass("correct");
+       {% endif %}
      }
      // log the feedback and return; based on the type of grader
      if ('html' in fb) { // unittest/vartests type feedback

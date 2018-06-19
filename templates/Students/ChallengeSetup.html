@@ -16,12 +16,11 @@
       <link href="/static/ThirdParty/js-parsons-master/parsons.css" rel="stylesheet" />
       <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
       <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
-      <!--                                 <script src="/static/ThirdParty/js-parsons-master/lib/jquery.min.js"></script> -->
       <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script>
       <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
       <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
       <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
-      <script src="/static/ThirdParty/js-parsons-master/parsons.js"></script>
+      {% include "../Students/parson.html" %}
       <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
       <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
       <script type="text/javascript">
@@ -168,7 +167,9 @@
                               <div style="clear:both;"></div>
                               <p>
                                  <a href="#{{question.questionID}}" id="newInstanceLink_{{question.questionID}}">New instance</a>
+                                 {% if warmUp == 1%}
                                  <a href="#{{question.questionID}}" id="feedbackLink_{{question.questionID}}">Get feedback</a>
+                                 {% endif %}
                               </p>
                               <script>
                                  //initial will hold the parson problem text, preformatted by django
@@ -178,12 +179,16 @@
                                     var logged_errors_{{question.questionID}} = [];
                                     var countFeedbackButtonClicks_{{question.questionID}} = 0;
                                     var submit_clicked_{{question.questionID}} = false;
+                                    var isGraded = false;
+                                    var displayCorrectAnswerFeedback = false;
+                                    var displayIncorrectAnswerFeedback = false;
                                     
                                     
                                     function displayErrors{{question.questionID}}(fb_{{question.questionID}}) {
                                         if(fb_{{question.questionID}}.errors.length > 0) {
-                                        	
+                                        	{% if warmUp == 1%}
                                             alert(fb_{{question.questionID}}.errors[0]);
+                                            {% endif %}
                                             console.log("Caller: {{question.questionID}}" );
                                  logged_errors_{{question.questionID}}.push(errors);
                                  
@@ -201,7 +206,9 @@
                                             'sortableId': '{{question.questionID}}_sortable',
                                             'trashId': '{{question.questionID}}_sortableTrash',
                                             'max_wrong_lines': {{question.distractorCount}},
-                                            'feedback_cb' : displayErrors{{question.questionID}}
+                                            'feedback_cb' : displayErrors{{question.questionID}},
+                                            'programmingLang': "{{question.languageName}}"
+                                            
                                         });
                                         parson_{{question.questionID}}.init(initial_{{question.questionID}});
                                         parson_{{question.questionID}}.shuffleLines();
@@ -210,26 +217,7 @@
                                             parson_{{question.questionID}}.shuffleLines();
                                         });
                                         $("#feedbackLink_{{question.questionID}}").click(function(event){
-                                            event.preventDefault();
-                                            //this has to be cleared because otherwise they'll retain data
-                                            errors = [], log_errors = [];
-                                            studentCodeLineObjects = [];
-                                            incorrectLines = [];
-                                            
-                                            console.log("Submit Clicked state:")
-                                            console.log(submit_clicked_{{question.questionID}});
-                                            
-                                            if(submit_clicked_{{question.questionID}} == false){
-                                            	countFeedbackButtonClicks_{{question.questionID}}++;
-                                            	console.log("Feeback click state:")
-                                            	console.log(countFeedbackButtonClicks_{{question.questionID}});
-                                            	
-                                            }
-                                            console.log("Get Feedback: {{question.questionID}}");
-                                            console.log(parson_{{question.questionID}}.getFeedback());
-                                            console.log(logged_errors_{{question.questionID}});
-                                            submit_clicked_{{question.questionID}} = false;
-                                            
+                                        	feedbackFunction_{{question.questionID}}();
                                         });
                                         
                                         //on click display the contents of the student error log
@@ -237,7 +225,13 @@
                                         	
                                         	submit_clicked_{{question.questionID}} = true;
                                         	//we click the link here too, and it should not be counted against the student
+                                        	{% if warmUp == 1%}
+                                        	console.log("warmup is 1");
                                         	document.getElementById("feedbackLink_{{question.questionID}}").click();
+                                        	{% else %}
+                                        		console.log("Feeback Function activated!");
+                                        		feedbackFunction_{{question.questionID}}();
+                                        	{% endif %}
                                  
                                         	console.log("Parson problem: {{question.questionID}}:");
                                         	console.log("submit clicked");
@@ -279,7 +273,27 @@
                                        		$("#{{question.questionID}}_feedBackButtonClickCount").val(countFeedbackButtonClicks_{{question.questionID}});
                                        	});
                                        		
-                                       		
+                                        function feedbackFunction_{{question.questionID}}(){
+                                    		event.preventDefault();
+                                            //this has to be cleared because otherwise they'll retain data
+                                            errors = [], log_errors = [];
+                                            studentCodeLineObjects = [];
+                                            incorrectLines = [];
+                                            
+                                            console.log("Submit Clicked state:")
+                                            console.log(submit_clicked_{{question.questionID}});
+                                            
+                                            if(submit_clicked_{{question.questionID}} == false){
+                                            	countFeedbackButtonClicks_{{question.questionID}}++;
+                                            	console.log("Feeback click state:")
+                                            	console.log(countFeedbackButtonClicks_{{question.questionID}});
+                                            	
+                                            }
+                                            console.log("Get Feedback: {{question.questionID}}");
+                                            console.log(parson_{{question.questionID}}.getFeedback());
+                                            console.log(logged_errors_{{question.questionID}});
+                                            submit_clicked_{{question.questionID}} = false;
+                                    	}
                                     });
                                     
                               </script>

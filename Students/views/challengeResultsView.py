@@ -23,6 +23,7 @@ import re
 import math
 from decimal import Decimal
 from pickletools import decimalnl_long
+from sqlparse.utils import indent
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
@@ -252,26 +253,37 @@ def ChallengeResults(request):
                             studentAnswerList = []
                             question['user_points'] = 0
                     elif questionType == QuestionTypes.parsons:
-                            
+                            #get the answer for the question
                             answer = Answers.objects.filter(questionID=question['question']['questionID'])
                             print("Model Solution: ", answer[0].answerText)
+                            answer = answer[0].answerText
                             
+                            #get the language information and indentation status
+                            #remove the first line that keeps the data
+                            searchString = re.search(r'Language:([^;]+);Indentation:([^;]+);', answer)
+                            answer =  re.sub("##", "\\n", answer)
+                            indentation = searchString.group(2)
+                            print("Indentation", indentation)
+                            answer = answer.replace(searchString.group(0), "")
                             
-                            question['model_solution'] = answer[0].answerText
+                            question['model_solution'] = answer
                             
+                            #get all the data from the webpage
+                            #data is accessed through the index
                             lineIndent = request.POST[str(question['index'])+'lineIndent']
                             studentSolution = request.POST[str(question['index'])+'studentSol']
                             wrongPositionLineNumberbers = request.POST[str(question['index'])+'lineNo']
                             errorDescriptions = request.POST[str(question['index'])+'errorDescription']
                             correctLineCount = request.POST[str(question['index'])+'correctLineCount']
                             feedBackButtonClickCount= request.POST[str(question['index'])+'feedBackButtonClickCount']
+                            
                             correctLineCount = int(correctLineCount)
                             print("Correct Line Count", correctLineCount)
+                            print("WrongPositionLineNumbers", wrongPositionLineNumberbers)
                             
                             studentAnswerList = []
-                            #if there are no errors, then give the user the full credit
                             
-                            
+                            #if the student ddnt fill in any solution, zero points
                             if(studentSolution == ""):
                                 question['user_points'] = 0
                                 studentAnswerList.append(studentSolution) 
@@ -279,6 +291,7 @@ def ChallengeResults(request):
                                 ##regex student solution, putting ¬ where the 
                                 ##lines of code are broken into sections
                                 ##§ is how we know which lines are which
+                                #¬ is used join, to create a list
                                 studentSolution = re.sub(r"&lt;", "<", studentSolution)
                                 studentSolution = re.sub(r"&gt;", ">", studentSolution)
                                 studentSolution = re.sub(r"&quot;", "\"", studentSolution)
@@ -286,6 +299,8 @@ def ChallengeResults(request):
                                 studentSolution = re.sub(r";,", ";§¬", studentSolution)
                                 studentSolution = re.sub(r"},", "}§¬", studentSolution)
                                 studentSolution = re.sub(r"{,", "{§¬", studentSolution)
+                                studentSolution = re.sub(r"\),", ")§¬", studentSolution)
+                                studentSolution = re.sub(r"\(,", "(§¬", studentSolution)
                                 
                                 #we turn the student solution into a list
                                 studentSolution = [x.strip() for x in studentSolution.split('¬')]
@@ -295,8 +310,7 @@ def ChallengeResults(request):
                                 lineIndent = [x.strip() for x in lineIndent.split(',')]
                                 print("LineIndent", lineIndent);
                                
-                                #perform the indentation for each line
-                                print("Indenting Student Solution", studentSolution)
+                                #perform the spacing for each line
                                 IndentedStudentSolution = [];
                                 for index, line in enumerate(studentSolution):
                                     line = '    ' * int(lineIndent[index]) + line
@@ -306,7 +320,7 @@ def ChallengeResults(request):
                                 
                                 studentSolution = ""
                                 studentSolution = studentSolution.join(IndentedStudentSolution)
-                                print("Student SolutionHash", studentSolution);
+                                print("Student Solution", studentSolution);
                                 
                                 #apply newlines so the code will be formattedproperly
                                 studentSolution = re.sub(r"§", "\n", studentSolution)
@@ -315,7 +329,8 @@ def ChallengeResults(request):
                                 studentSolution = re.sub(r"§", "\n", studentSolution) 
                                 
                                 question['student_solution'] = studentSolution    
-                            
+                                
+                                ##if no errors happened give them full credit
                                 if(errorDescriptions == ""):
                                     
                                     print("Errors:", studentAnswerList)
@@ -325,39 +340,57 @@ def ChallengeResults(request):
                                 ##otherwise grade on our criteria    
                                 else:
                                     
-                                    print("Student Solution Indented: ", studentSolution)   
-                                    
+                                    print("Student Solution Indented: ", studentSolution)
                                     studentAnswerList.append(studentSolution)
                                     
+                                    
+                                   
+                                    indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(studentSolution)))
+                                    
                                     ##grading section
-                                    studentGrade = correctLineCount
+                                    studentGrade = question['total_points']
+                                    maxPoints = question['total_points']
+                                    penalties = 0.00
+                                    
+                                     ##if there was an indentation problem
+                                    if indentation == "true":
+                                        if indentationErrorCount > 0:
+                                            ##we multiply by 1/2 because each wrong is half of 1/n
+                                            penalties += (indentationErrorCount/correctLineCount)*(1/2)
                                     
                                     ##too few
                                     if(correctLineCount > studentSolutionLineCount):
-                                        studentGrade -= (correctLineCount - studentSolutionLineCount)
-                                        print("Student Grade too few!: ", studentGrade)
+                                        penalties += (correctLineCount - studentSolutionLineCount)*(1/correctLineCount)
+                                        print("Penalties too few!: ", penalties)
                                         ##too many
                                     if(correctLineCount < studentSolutionLineCount):
-                                        studentGrade -= (studentSolutionLineCount - correctLineCount)
-                                        print("Student Grade too many!: ", studentGrade)
+                                        penalties += (studentSolutionLineCount - correctLineCount)*(1/correctLineCount)
+                                        print("Penalties too many!: ", penalties)
                                         
                                     if wrongPositionLineNumberbers:
                                         wrongPositionLineNumberbers = [x.strip() for x in wrongPositionLineNumberbers.split(',')]
                                         print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
-                                        studentGrade -= len(wrongPositionLineNumberbers) * 1/correctLineCount   
-                                        print("WrongLine Number Student Grade: ", studentGrade) 
+                                        penalties += Decimal(len(wrongPositionLineNumberbers)/correctLineCount)
+                                        print("WrongLine Number penalties: ", penalties) 
                                     if int(feedBackButtonClickCount) > 0:
-                                        studentGrade /= int(feedBackButtonClickCount)
+                                        maxPoints /=  feedBackButtonClickCount *2
                                         print("Feedback button click count:" , feedBackButtonClickCount)
-                                        print("Student Grade after feedback:", studentGrade)    
+                                        print("Penalties after feedback:", penalties)
+                                    
+                                    ##max poitns is all the maximum student points, and we subtract the penalties    
+                                    studentGrade = maxPoints - penalties         
                                     if studentGrade < 0:
                                             studentGrade = 0;
                                     
                                     print("Student grade:", studentGrade)
                                     print("Total Points:", question['total_points'])
-                                    question['user_points'] = round(float(question['total_points'] - studentGrade),2)
+                                    if(float(studentGrade) == float(question['total_points'])):
+                                        question['user_points'] = question['total_points']
+                                        print("Correct answer full points", question['user_points'])
+                                    else:
+                                        question['user_points'] = round(float(studentGrade),2)
                             print("Final User Grade: ", question['user_points'])
-                    totalStudentScore += int(question['user_points'])
+                    totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']            
                     if 'seed' in question:
                         seed = question['seed']

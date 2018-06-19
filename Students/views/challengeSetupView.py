@@ -96,6 +96,7 @@ def ChallengeSetup(request):
 
                         # Parsons problems: getting the model solution from the database - it is saved in Answers.answerText
                         if q.type == QuestionTypes.parsons:
+                            print("WarmupStatus", context_dict['warmUp'])
                             modelSolution = Answers.objects.filter(questionID=q)
                             solution_string = modelSolution[0].answerText
                             
@@ -104,7 +105,20 @@ def ChallengeSetup(request):
                             questionDifficulty = questionHardness[0].difficulty
                             print("Difficulty", questionDifficulty)
                             
-                            #get the length of the distractors
+        
+                            questdict['languageName'] = re.search(r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
+                            questdict['indentation'] = re.search(r';Indentation:([^;]+);', solution_string).group(1)
+                            print("language", questdict['languageName'])
+                            print("indentation", questdict['indentation'])
+                            
+                            languageAndLanguageName = re.search(r'Language:([^;]+)', solution_string)
+                            intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);', solution_string)
+                            solution_string = solution_string.replace(languageAndLanguageName.group(0), "")
+                            solution_string = solution_string.replace(intentationEnabledVariableAndValue.group(0), "")
+
+                            
+                            
+                            #get the count of the distractors
                             print("Solution String:", solution_string)
                             distractorCount = len(re.findall(r'(?=#dist)', repr(solution_string).strip('"\'')))
                             questdict['distractorCount'] = distractorCount
@@ -123,8 +137,31 @@ def ChallengeSetup(request):
                             
                             #repr function will give us the raw representation of the string
                             solution_string =  re.sub("\\r", "", solution_string)
-                            solution_string =  re.sub("\\t", "  ", solution_string)
-                            questdict['model_solution']=repr(solution_string)
+                            solution_string =  re.sub("^ *\\t", "", solution_string)
+                            solution_string =  re.sub("^\\t *", "", solution_string)
+                            solution_string =  re.sub("##", "\\n", solution_string)
+                            
+                            #tokenizer characters ☃ and ¬
+                            solution_string = re.sub("\n", "\n¬☃", solution_string)
+                            
+                            print("Solution String after¬:", solution_string)
+                            #we turn the student solution into a list
+                            solution_string = [x.strip() for x in solution_string.split('¬')]
+                            print("Solution String Array", solution_string)
+                            
+                            #give each string the new line
+                            tabedSolution_string = []
+                            for index, line in enumerate(solution_string):
+                                line = re.sub("☃", "", line)
+                                line = line +"\n"
+                                tabedSolution_string.append(line)
+                            
+                            solution_string = ""
+                            solution_string = solution_string.join(tabedSolution_string)
+                            
+                            print("Tabbed Solution String", solution_string)
+                            print("ModelSolution",repr(solution_string).strip('"\''))
+                            questdict['model_solution']=repr(solution_string).strip('"\'')
                                             
                         #getting the matching questions of the challenge from database
                         matchlist = []
