@@ -4,7 +4,7 @@ import random
 from datetime import datetime
 
 ##GMM import Regular Expression, re
-import re
+import re,string
 
 from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
@@ -96,6 +96,10 @@ def ChallengeSetup(request):
 
                         # Parsons problems: getting the model solution from the database - it is saved in Answers.answerText
                         if q.type == QuestionTypes.parsons:
+                            if not challenge.isGraded:
+                                context_dict['warmUp'] = 1
+                            else:
+                                context_dict['warmUp'] = 0
                             print("WarmupStatus", context_dict['warmUp'])
                             modelSolution = Answers.objects.filter(questionID=q)
                             solution_string = modelSolution[0].answerText
@@ -137,9 +141,8 @@ def ChallengeSetup(request):
                             
                             #repr function will give us the raw representation of the string
                             solution_string =  re.sub("\\r", "", solution_string)
-                            solution_string =  re.sub("^ *\\t", "", solution_string)
-                            solution_string =  re.sub("^\\t *", "", solution_string)
-                            solution_string =  re.sub("##", "\\n", solution_string)
+                            solution_string =  re.sub("^ *\\t", "  ", solution_string)
+                            solution_string =  re.sub("^\\t *", "  ", solution_string)
                             
                             #tokenizer characters ☃ and ¬
                             solution_string = re.sub("\n", "\n¬☃", solution_string)
@@ -159,9 +162,12 @@ def ChallengeSetup(request):
                             solution_string = ""
                             solution_string = solution_string.join(tabedSolution_string)
                             
+                            solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
+                            
                             print("Tabbed Solution String", solution_string)
-                            print("ModelSolution",repr(solution_string).strip('"\''))
-                            questdict['model_solution']=repr(solution_string).strip('"\'')
+                            print("Solution string after regex,", solution_string)
+                            print("ModelSolution",repr(solution_string).strip('\''))
+                            questdict['model_solution']=repr(solution_string).strip('\'')
                                             
                         #getting the matching questions of the challenge from database
                         matchlist = []

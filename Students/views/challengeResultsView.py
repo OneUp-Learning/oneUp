@@ -278,6 +278,7 @@ def ChallengeResults(request):
                             feedBackButtonClickCount= request.POST[str(question['index'])+'feedBackButtonClickCount']
                             
                             correctLineCount = int(correctLineCount)
+                            feedBackButtonClickCount = int(feedBackButtonClickCount)
                             print("Correct Line Count", correctLineCount)
                             print("WrongPositionLineNumbers", wrongPositionLineNumberbers)
                             
@@ -350,7 +351,7 @@ def ChallengeResults(request):
                                     ##grading section
                                     studentGrade = question['total_points']
                                     maxPoints = question['total_points']
-                                    penalties = 0.00
+                                    penalties = Decimal(0.0)
                                     
                                      ##if there was an indentation problem
                                     if indentation == "true":
@@ -360,11 +361,11 @@ def ChallengeResults(request):
                                     
                                     ##too few
                                     if(correctLineCount > studentSolutionLineCount):
-                                        penalties += (correctLineCount - studentSolutionLineCount)*(1/correctLineCount)
+                                        penalties += Decimal((correctLineCount - studentSolutionLineCount)*(1/correctLineCount))
                                         print("Penalties too few!: ", penalties)
                                         ##too many
                                     if(correctLineCount < studentSolutionLineCount):
-                                        penalties += (studentSolutionLineCount - correctLineCount)*(1/correctLineCount)
+                                        penalties += Decimal((studentSolutionLineCount - correctLineCount)*(1/correctLineCount))
                                         print("Penalties too many!: ", penalties)
                                         
                                     if wrongPositionLineNumberbers:
@@ -372,13 +373,13 @@ def ChallengeResults(request):
                                         print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
                                         penalties += Decimal(len(wrongPositionLineNumberbers)/correctLineCount)
                                         print("WrongLine Number penalties: ", penalties) 
-                                    if int(feedBackButtonClickCount) > 0:
-                                        maxPoints /=  feedBackButtonClickCount *2
+                                    if feedBackButtonClickCount > 0:
+                                        maxPoints /=  feedBackButtonClickCount * 2
                                         print("Feedback button click count:" , feedBackButtonClickCount)
                                         print("Penalties after feedback:", penalties)
                                     
-                                    ##max poitns is all the maximum student points, and we subtract the penalties    
-                                    studentGrade = maxPoints - penalties         
+                                    #max poitns is all the maximum student points, and we subtract the penalties    
+                                    studentGrade = maxPoints - maxPoints * penalties
                                     if studentGrade < 0:
                                             studentGrade = 0;
                                     
