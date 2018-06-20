@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="input-field col s12">
     	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
-        {% for dummy,awardFrequencyOption in awardFrequencyOptions.items %}
+        {% for dummy,awardFrequencyOption in awardFrequencyStruct.awardFrequency.items %}
             <option value="{{awardFrequencyOption.index}}" {% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}>{{awardFrequencyOption.name}}</option>
         {% endfor %}
 		</select>
@@ -25,10 +25,10 @@
 			{% endfor %}
 		</select>
 		{% for specifiername,specifierInfo in specifiedObjectStruct.specifiers.items %}
-			<div class="cond-specifier-specifier" id="cond-{{specifiedObjectTypeNum}}-by-{{specifiername}}-specifier" hidden>
+			<div class="cond-specifier-specifier" id="cond-{{specifiedObjectTypeNum}}-by-{{specifiername}}-specifier" hidden data-cond-specifier-type="{{specifierInfo.selectionType}}">
 			{% if specifierInfo.selectionType == "object" %}
 				<div><div>
-					<select name="cond-specifier-object-list-select" class="cond-object-list-select no-materialize" 
+					<select name="cond-specifier-object-list-select" class="cond-specifier-object-list-select no-materialize" 
 							onchange="condAddThingieToList(this);this.selectedIndex=0;return true;">
 						<option disabled selected value="0">select {{specifierInfo.objectInfo.plural}} to add</option>
 					{% for object in specifierInfo.objectInfo.objects %}
@@ -39,7 +39,7 @@
 				<div class="cond-specifier-object-selected-list" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-selected-list">
 				</div>
 			{% elif specifierInfo.selectionType == "list" %}
-				<select name="cond-specifier-list-select" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="no-materialize">
+				<select name="cond-specifier-list-select" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="cond-specifier-list-select no-materialize">
 				{% for listItem in specifierInfo.list %}
 					<option value="{{listItem}}" {%if forloop.first%}selected{%endif%}>{{listItem}}</option>
 				{% endfor %}
@@ -345,13 +345,13 @@
 var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
 
 var condAwardFrequencyToThingieTypeName = {
-	{% for awardFreqNum,awardFreqStruct in awardFrequencyOptions.items %}
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyStruct.awardFrequency.items %}
 		{{awardFreqNum}}:'{{awardFreqStruct.objectTypeName}}',
 	{% endfor %}
 }
 
 var condAwardFrequencyToThingieType = {
-	{% for awardFreqNum,awardFreqStruct in awardFrequencyOptions.items %}
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyStruct.awardFrequency.items %}
 		{{awardFreqNum}}:{{awardFreqStruct.objectType}},
 	{% endfor %}
 }
@@ -383,9 +383,6 @@ var condSpecifierDivs = {
 	{{specifiedObjectTypeNum}}:document.getElementById("cond-{{specifiedObjectTypeNum}}-specifier-section"),
 	{% endfor %}
 }
-
-console.log("CONDSPECIFIERDIVS");
-console.log(condSpecifierDivs);
 
 function condChangeAwardFreq(select) {
 	var newAwardFreq = select.value;
@@ -443,32 +440,41 @@ function condChangeSpecifier(select) {
 	}
 	if (select.value != "all") {
 		var selectedSpecifier = document.getElementById("cond-"+objectTypeNum+"-by-"+select.value+"-specifier");
-		console.log("cond-"+objectTypeNum+"-by-"+select.value+"-specifier");
 		selectedSpecifier.removeAttribute("hidden");
 	}
 }
 
 function condFillSpecifierString() {
-	var objectSpecifierDiv = document.getElementById("objectSpecifier");
+	var awardFreqSelect = document.getElementById("awardFrequencySelect");
 	var outStruct = 'error';
-	if (objectSpecifierDiv.hidden) {
+	if (awardFreqSelect.value == {{awardFrequencyStruct.justOnce}}) {
 		outStruct = [];
 	} else {
+		var objectSpecifierDiv = document.getElementById("objectSpecifier");
 		var chosenAwardFreq = document.getElementById("awardFrequencySelect").value;
-		var allObjectCheckbox = objectSpecifierDiv.getElementsByClassName('cond-'+condAwardFrequencyToThingieTypeName[chosenAwardFreq]+'-all')[0];
-		if (allObjectCheckbox.checked) {
+		var awardFreqObjectNum = condAwardFrequencyToThingieType[chosenAwardFreq];
+		var specifierSelector = document.getElementById('cond-'+awardFreqObjectNum+'-specification-selector');
+		var specifier = specifierSelector.value;
+		if (specifier === "all") {
 			outStruct = [];
-		} else {		
-	        var choiceListDiv = objectSpecifierDiv.querySelector('div.cond-' + condAwardFrequencyToThingieTypeName[chosenAwardFreq] + '-selected-list');
-	        var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
-	        var selectedIDs = []
-	        for (var i = 0; i < choices.length; i++) {
-	            selectedIDs.push(choices[i].dataset.id)
-	        }
+		} else {
+	        var selectedThingies = []
+			var specifierDiv = document.getElementById("cond-"+awardFreqObjectNum+"-by-"+specifier+"-specifier");
+			var objectListSelectorList = specifierDiv.getElementsByClassName("cond-specifier-object-list-select");
+			if (objectListSelectorList.length > 0) {	// This means it has an object list.  Otherwise it has a value list.			
+		        var choiceListDiv = specifierDiv.querySelector('div.cond-specifier-object-selected-list');
+		        var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
+		        for (var i = 0; i < choices.length; i++) {
+		        	selectedThingies.push(choices[i].dataset.id)
+		        }
+			} else {
+				var listSelect = specifierDiv.getElementsByClassName("cond-specifier-list-select")[0];
+				selectedThingies = [listSelect.value];
+			}
 			var specifier_rule = {
-				'specifier': 'id',
+				'specifier': specifier,
 				'op': 'in',
-				'value': selectedIDs,
+				'value': selectedThingies,
 			}
 			outStruct = [specifier_rule];
 		}
@@ -484,23 +490,27 @@ function condCreateObjectSpecifierUIFromObjectSpecifier(chosenObjectSpecifier) {
 	if (chosenObjectSpecifier.length == 0) {
 		return;
 	} else {
-		// Note that this is a degenerate case which only handles the simple condition of a list of objects.
-		// This will need to be redone when we make the interface more general.
+		// Note that this is a degenerate case which only handles the simple condition.
+		// This will need to be redone if we have cases where multiple specifiers are beneficial.
 		var chosenAwardFreq = {{awardFrequency}};
 		var objectType = condAwardFrequencyToThingieType[chosenAwardFreq];
 		var objectTypeName = condAwardFrequencyToThingieTypeName[chosenAwardFreq];
-		if (chosenObjectSpecifier[0]['specifier'] == 'id') {
+		var specifierSelect = document.getElementById("cond-"+objectType+"-specification-selector");
+		specifierSelect.value = chosenObjectSpecifier[0]['specifier'];
+		specifierSelect.onchange();  // Takes care of showing appropriate things.
 		if (chosenObjectSpecifier[0]['op'] != 'in') {
-				return;
-			}
-			var listOfObjects = chosenObjectSpecifier[0]['value'];
-			var objectSpecifierDiv = document.getElementById("objectSpecifier");
-	        var listDiv = objectSpecifierDiv.querySelector('div.cond-' + condAwardFrequencyToThingieTypeName[chosenAwardFreq] + '-selected-list');
-	        for (var i=0; i<listOfObjects.length; i++) {
-	        	condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[condObjectTypeIndexToName[objectType]][listOfObjects[i]], listOfObjects[i]);
+			return;
+		}
+		var listOfThingies = chosenObjectSpecifier[0]['value'];
+		var specifierDiv = document.getElementById("cond-"+objectType+"-by-"+chosenObjectSpecifier[0]['specifier']+"-specifier");
+		var objectListSelectorList = specifierDiv.getElementsByClassName("cond-specifier-object-list-select");
+		if (objectListSelectorList.length > 0) { // if this is an object type rather than a list type
+	        var listDiv = specifierDiv.querySelector('div.cond-specifier-object-selected-list');
+	        for (var i=0; i<listOfThingies.length; i++) {
+	        	condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[condObjectTypeIndexToName[objectType]][listOfThingies[i]], listOfThingies[i]);
 	        }
-			var allObjectCheckbox = objectSpecifierDiv.getElementsByClassName('cond-'+condAwardFrequencyToThingieTypeName[chosenAwardFreq]+'-all')[0];
-			allObjectCheckbox.checked = false;
+		} else { // The value case rather than object list case
+			specifierDiv.getElementsByClassName("cond-specifier-list-select")[0].value = listOfThingies[0];
 		}
 	}
 }

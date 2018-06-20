@@ -309,7 +309,7 @@ def setUpContextDictForConditions(context_dict,course,rule = None):
     objectTypesStruct = { ot["index"]:ot for ot in context_dict['objectTypes'] }
     context_dict['defaultObject'] = "challenge"
     
-    context_dict['awardFrequencyOptions']=AwardFrequency.awardFrequency
+    context_dict['awardFrequencyStruct']=AwardFrequency
     
     def processSpecifiers(spDict):
         def processOneSpecifier(sp):
