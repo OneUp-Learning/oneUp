@@ -146,16 +146,24 @@ def ChallengeSetup(request):
                             
                             #tokenizer characters ☃ and ¬
                             solution_string = re.sub("\n", "\n¬☃", solution_string)
+                            solution_string = re.sub("^[ ]+?", "☃", solution_string)
                             
                             print("Solution String after¬:", solution_string)
                             #we turn the student solution into a list
                             solution_string = [x.strip() for x in solution_string.split('¬')]
                             print("Solution String Array", solution_string)
                             
+                            #get how many spces there are in the first line
+                            print("solution_string[0]",solution_string[0])
+                            solution_string[0] = re.sub("☃"," ",solution_string[0])
+                            leadingSpacesCount = len(solution_string[0]) - len(solution_string[0].lstrip(' '))
+                            print("leading spaces", leadingSpacesCount)
+                            
                             #give each string the new line
                             tabedSolution_string = []
                             for index, line in enumerate(solution_string):
                                 line = re.sub("☃", "", line)
+                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
                                 line = line +"\n"
                                 tabedSolution_string.append(line)
                             
