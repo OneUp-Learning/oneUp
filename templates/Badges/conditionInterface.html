@@ -217,7 +217,7 @@
 						{% for object in variable.objects %}
 						data-cond-context-{{object}}="true";
 						{% endfor %}
-						> {{variable.name}} </option>
+						> {{variable.name}} {% if "global" in variable.objects %}(global){% endif %}</option>
 						{% endfor %}
 					</select>
 					</div>
@@ -245,7 +245,7 @@
 							{% for object in variable.objects %}
 							data-cond-context-{{object}}="true";
 							{% endfor %}
-							> {{variable.name}} </option>
+							> {{variable.name}} {% if "global" in variable.objects %}(global){% endif %}</option>
 							{% endfor %}
 						</select>
 					</div>
@@ -400,7 +400,7 @@ function condChangeAwardFreq(select) {
 			subDiv.dataset.condInsideQualifier = newLabel;
 	    }
 	});
-	condUpdateAtomSelectForContext(conditionDiv, newType, true);
+	condUpdateAtomSelectForContext(conditionDiv, newLabel, true);
 	
 	condOldAwardFreq = newAwardFreq;
 	
@@ -712,7 +712,7 @@ function condChangeAtomToMatchType(select) {
         checkbox: justEqual
     };
 
-    var operator = atom.getElementsByClassName("cond-op")[1];
+    var operator = atom.getElementsByClassName("cond-op")[0];
     for (var i = 0; i < operator.options.length; i++) {
         typeStatusChange[type][operator.options[i].value](operator.options[i]);
     }
@@ -915,6 +915,11 @@ function clonePrototype(name) {
 
 function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) {
 
+	var scopePart = context.split(":")[1];
+	var scope = false;
+	if (scopePart === "scope") {
+		scope = true;
+	}
     context = context.split(":")[0];
     if (context == "none") {
         context = "global";
@@ -923,10 +928,10 @@ function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) 
 
     var contextAttributeName = "condContext" + context;
 
-    function updateThisSelect(targetSelect, contextAttributeName, rhs) {
+    function updateThisSelect(targetSelect, contextAttributeName, showGlobals) {
         var inputs = targetSelect.getElementsByTagName("option");
         for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].dataset[contextAttributeName] || (rhs && inputs[i].dataset["condContextGlobal"])) {
+            if (inputs[i].dataset[contextAttributeName] || (showGlobals && inputs[i].dataset["condContextGlobal"])) {
                 inputs[i].removeAttribute("hidden");
             } else {
                 inputs[i].hidden = true;
@@ -943,7 +948,7 @@ function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) 
             		continue;
             	}
             }
-            updateThisSelect(curSelect, contextAttributeName, false);
+            updateThisSelect(curSelect, contextAttributeName, scope);
             if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
                 curSelect.selectedIndex = 0;
             }

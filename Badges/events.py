@@ -525,7 +525,7 @@ class ChosenObjectSpecifier:
         if self.objectType == ObjectTypes.none:
             return True, objType, [objID]
         if objType == ObjectTypes.none:
-            return False, objType, []
+            return True, objType, [objID]
         obj = objectTypeToObjectClass[objType].objects.get(pk=objID)
         if self.objectType == objType:
             for rule in self.rules:
@@ -553,5 +553,6 @@ class ChosenObjectSpecifier:
                     return True, self.objectType, outputList
                 else:
                     return False, objType, []
-        return False, objType, []
+        return True, objType, [objID]
+
             
