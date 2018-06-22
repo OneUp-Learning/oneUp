@@ -1,6 +1,4 @@
-
-
-
+<script>
    // regexp used for trimming
    var trimRegexp = /^\s*(.*?)\s*$/;
    var translations = {
@@ -476,7 +474,9 @@
         // -1 will mean no matching indent was found
         if (item.indent < 0) {
           blockErrors.push(this.parson.translations.no_matching(i + 1));
+          {% if warmUp == 1%}
           $("#" + item.id).addClass("incorrectIndent");
+          {% endif %}
           break; // break on error
         }
 
@@ -1477,3 +1477,4 @@
 
 
    window['ParsonsWidget'] = ParsonsWidget;
+</script>

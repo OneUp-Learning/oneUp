@@ -7,9 +7,9 @@ Updated May/10/2017
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-
 from Instructors.views.utils import utcDate
-from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions
+from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
+    ChallengesQuestions
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
@@ -19,6 +19,11 @@ from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 from Badges.systemVariables import logger
 from Students.views.challengeSetupView import makeSerializableCopyOfDjangoObjectDictionary
+import re
+import math
+from decimal import Decimal
+from pickletools import decimalnl_long
+from sqlparse.utils import indent
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
@@ -247,9 +252,147 @@ def ChallengeResults(request):
                         else:
                             studentAnswerList = []
                             question['user_points'] = 0
+                    elif questionType == QuestionTypes.parsons:
+                            #get the answer for the question
+                            answer = Answers.objects.filter(questionID=question['question']['questionID'])
+                            print("Model Solution: ", answer[0].answerText)
+                            answer = answer[0].answerText
+                            
+                            #get the language information and indentation status
+                            #remove the first line that keeps the data
+                            searchString = re.search(r'Language:([^;]+);Indentation:([^;]+);', answer)
+                            answer =  re.sub("##", "\\n", answer)
+                            indentation = searchString.group(2)
+                            print("Indentation", indentation)
+                            answer = answer.replace(searchString.group(0), "")
+                            
+                            question['model_solution'] = answer
+                            
+                            #get all the data from the webpage
+                            #data is accessed through the index
+                            lineIndent = request.POST[str(question['index'])+'lineIndent']
+                            studentSolution = request.POST[str(question['index'])+'studentSol']
+                            wrongPositionLineNumberbers = request.POST[str(question['index'])+'lineNo']
+                            errorDescriptions = request.POST[str(question['index'])+'errorDescription']
+                            correctLineCount = request.POST[str(question['index'])+'correctLineCount']
+                            feedBackButtonClickCount= request.POST[str(question['index'])+'feedBackButtonClickCount']
+                            
+                            correctLineCount = int(correctLineCount)
+                            feedBackButtonClickCount = int(feedBackButtonClickCount)
+                            print("Correct Line Count", correctLineCount)
+                            print("WrongPositionLineNumbers", wrongPositionLineNumberbers)
+                            
+                            studentAnswerList = []
+                            
+                            #if the student ddnt fill in any solution, zero points
+                            if(studentSolution == ""):
+                                question['user_points'] = 0
+                                studentAnswerList.append(studentSolution) 
+                            else:
+                                ##regex student solution, putting ¬ where the 
+                                ##lines of code are broken into sections
+                                ##§ is how we know which lines are which
+                                #¬ is used join, to create a list
+                                studentSolution = re.sub(r"&lt;", "<", studentSolution)
+                                studentSolution = re.sub(r"&gt;", ">", studentSolution)
+                                studentSolution = re.sub(r"&quot;", "\"", studentSolution)
+                                studentSolution = re.sub(r";,", ";§¬", studentSolution)
+                                studentSolution = re.sub(r";,", ";§¬", studentSolution)
+                                studentSolution = re.sub(r"},", "}§¬", studentSolution)
+                                studentSolution = re.sub(r"{,", "{§¬", studentSolution)
+                                studentSolution = re.sub(r"\),", ")§¬", studentSolution)
+                                studentSolution = re.sub(r"\(,", "(§¬", studentSolution)
+                                
+                                #we turn the student solution into a list
+                                studentSolution = [x.strip() for x in studentSolution.split('¬')]
+                                studentSolutionLineCount = len(studentSolution)
+                                
+                                #make a list of lines, split on , so we know how much to indent where
+                                lineIndent = [x.strip() for x in lineIndent.split(',')]
+                                print("LineIndent", lineIndent);
+                               
+                                #perform the spacing for each line
+                                IndentedStudentSolution = [];
+                                for index, line in enumerate(studentSolution):
+                                    line = '    ' * int(lineIndent[index]) + line
+                                    IndentedStudentSolution.append(line)
+                                    print("Index: ", index)
+                                studentSolution = IndentedStudentSolution
+                                
+                                studentSolution = ""
+                                studentSolution = studentSolution.join(IndentedStudentSolution)
+                                print("Student Solution", studentSolution);
+                                
+                                #apply newlines so the code will be formattedproperly
+                                studentSolution = re.sub(r"§", "\n", studentSolution)
+                                studentSolution = re.sub(r"§", "\n", studentSolution)
+                                studentSolution = re.sub(r"§", "\n", studentSolution)
+                                studentSolution = re.sub(r"§", "\n", studentSolution) 
+                                
+                                question['student_solution'] = studentSolution    
+                                
+                                ##if no errors happened give them full credit
+                                if(errorDescriptions == ""):
+                                    
+                                    print("Errors:", studentAnswerList)
+                                    question['user_points'] = question['total_points']
+                                
+                                    studentAnswerList.append(studentSolution) 
+                                ##otherwise grade on our criteria    
+                                else:
+                                    
+                                    print("Student Solution Indented: ", studentSolution)
+                                    studentAnswerList.append(studentSolution)
+                                    
+                                    
+                                   
+                                    indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(studentSolution)))
+                                    
+                                    ##grading section
+                                    studentGrade = question['total_points']
+                                    maxPoints = question['total_points']
+                                    penalties = Decimal(0.0)
+                                    
+                                     ##if there was an indentation problem
+                                    if indentation == "true":
+                                        if indentationErrorCount > 0:
+                                            ##we multiply by 1/2 because each wrong is half of 1/n
+                                            penalties += (indentationErrorCount/correctLineCount)*(1/2)
+                                    
+                                    ##too few
+                                    if(correctLineCount > studentSolutionLineCount):
+                                        penalties += Decimal((correctLineCount - studentSolutionLineCount)*(1/correctLineCount))
+                                        print("Penalties too few!: ", penalties)
+                                        ##too many
+                                    if(correctLineCount < studentSolutionLineCount):
+                                        penalties += Decimal((studentSolutionLineCount - correctLineCount)*(1/correctLineCount))
+                                        print("Penalties too many!: ", penalties)
                                         
+                                    if wrongPositionLineNumberbers:
+                                        wrongPositionLineNumberbers = [x.strip() for x in wrongPositionLineNumberbers.split(',')]
+                                        print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
+                                        penalties += Decimal(len(wrongPositionLineNumberbers)/correctLineCount)
+                                        print("WrongLine Number penalties: ", penalties) 
+                                    if feedBackButtonClickCount > 0:
+                                        maxPoints /=  feedBackButtonClickCount * 2
+                                        print("Feedback button click count:" , feedBackButtonClickCount)
+                                        print("Penalties after feedback:", penalties)
+                                    
+                                    #max poitns is all the maximum student points, and we subtract the penalties    
+                                    studentGrade = maxPoints - maxPoints * penalties
+                                    if studentGrade < 0:
+                                            studentGrade = 0;
+                                    
+                                    print("Student grade:", studentGrade)
+                                    print("Total Points:", question['total_points'])
+                                    if(float(studentGrade) == float(question['total_points'])):
+                                        question['user_points'] = question['total_points']
+                                        print("Correct answer full points", question['user_points'])
+                                    else:
+                                        question['user_points'] = round(float(studentGrade),2)
+                            print("Final User Grade: ", question['user_points'])
                     totalStudentScore += question['user_points']
-                    totalPossibleScore += question['total_points']
+                    totalPossibleScore += question['total_points']            
                     if 'seed' in question:
                         seed = question['seed']
                     else:
@@ -460,7 +603,14 @@ def ChallengeResults(request):
                         questSessionDict['user_points'] = userScore
                         questSessionDict['user_answers'] = userAnswers
                         
-                    
+                elif q.type == QuestionTypes.parsons:
+                    ##grade the parson problem
+                        userAnswers = []
+                        userScore = []
+                        parson = questdict['parsons']
+
+                        questSessionDict['user_points'] = 57
+                        questSessionDict['user_answers'] = userAnswers
                 elif q.type in dynamicQuestionTypesSet:
                     dynamicQuestion = DynamicQuestions.objects.get(pk=q.questionID)
                     if not lupa_available:

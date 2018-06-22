@@ -17,6 +17,9 @@ from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 
 from oneUp.logger import logger
+import re
+from django.templatetags.i18n import language
+from sqlparse.utils import indent
 
 @login_required
 def parsonsForm(request):
@@ -50,6 +53,8 @@ def parsonsForm(request):
         # Copy all strings from POST to database object.
         for attr in string_attributes:
             setattr(question,attr,request.POST[attr])
+            
+        question.difficulty = request.POST['difficulty']
         
         # Fix the question type
         question.type = QuestionTypes.parsons
@@ -63,22 +68,39 @@ def parsonsForm(request):
         answers = Answers.objects.filter(questionID=question)
         if answers:
             answer = answers[0]
-            answer.answerText = request.POST['setupCode']
-            print("Answer:", answer.answerText)
+            answer.answerText = "";
+            languageName = request.POST['languageName']
+            indentationBoolean = request.POST['indetationBoolean']
+            
+            languageName = "Language:"+languageName+";"
+            indentationBoolean = "Indentation:" + indentationBoolean+";"
+            
+            instructorLine = languageName + indentationBoolean
+            answer.answerText += instructorLine
+            answer.answerText += request.POST['setupCode']
+            print("Answer edit answer:", answer.answerText)
             answer.save()
             # no need to change correct answer
             #correctAnswerObject = CorrectAnswers.objects.filter(questionID=question)
         else:
             answer = Answers()         
             answer.questionID = question
+           #we are crafting a new answer in this section
            # answer.answerText = request.POST['setupCode']
             
-            #GGM
-            aceInput = request.POST['setupCode']
-            print("Answer ", answer.answerText)
-            #proces the input
+            answer.answerText = "";
+            languageName = request.POST['languageName']
+            indentationBoolean = request.POST['indetationBoolean']
             
-            answer.answerText = aceInput
+            languageName = "Language:"+languageName+";"
+            indentationBoolean = "Indentation:" + indentationBoolean+";"
+            
+            instructorLine = languageName + indentationBoolean
+            
+            
+            answer.answerText += instructorLine
+            answer.answerText += request.POST['setupCode']
+            print("Answer new answer", answer.answerText)
             answer.save()
             # the answer is also the correct answer - model solution to be displayed to the student
             correctAnswerObject = CorrectAnswers()
@@ -150,12 +172,24 @@ def parsonsForm(request):
             
             # Copy all of the attribute values into the context_dict to display them on the page.
             context_dict['questionId']=request.GET['questionId']
+            
             for attr in string_attributes:
                 context_dict[attr]=getattr(question,attr)
 
             # Load the model solution, which is stored in Answers
             answer = Answers.objects.filter(questionID=question)
-            context_dict['model_solution'] = answer[0].answerText
+            answer = answer[0].answerText
+            context_dict['languageName'] = re.search(r'Language:([^;]+)', answer).group(1).lower().lstrip()
+            context_dict['indentation'] = re.search(r';Indentation:([^;]+);', answer).group(1)
+            print("language", context_dict['languageName'])
+            print("indentation", context_dict['indentation'])
+            
+            languageAndLanguageName = re.search(r'Language:([^;]+)', answer)
+            intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);', answer)
+            answer = answer.replace(languageAndLanguageName.group(0), "")
+            answer = answer.replace(intentationEnabledVariableAndValue.group(0), "")
+
+            context_dict['model_solution'] = answer
             
  
             # Extract the tags from DB            

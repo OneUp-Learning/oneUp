@@ -6,9 +6,29 @@
       <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 
 	<script type="text/javascript">
+	
+		function validateModelSolution(){
+			console.log("Editor Value");
+			var editorValue = editor.getValue();
+			console.log(editorValue);
+			
+			var submit = true;
+         	if(editorValue == ""){
+         		alert("Error: No Model Solution!");
+         		submit = false;
+         	}
+         	
+         	var CKEDITOR_data = CKEDITOR.instances.question_text.getData();
+         	if(CKEDITOR_data == ""){
+         		alert("Error: No Problem Text!");
+         		submit = false;
+         	}
+            return submit;
+		}
         function copyContentsToHidden() {
             document.question.setupCode.value = editor.getValue();
         }
+        
 
         $( document ).ready(function(){
        	 {% if view %}
@@ -64,7 +84,7 @@
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
-               <form id="form" name="question" action="/oneUp/instructors/forms/ParsonsForm"  method="POST">
+               <form id="form" name="question" action="/oneUp/instructors/forms/ParsonsForm"  onsubmit="return validateModelSolution()" method="POST">
                   {% csrf_token %}
                   {% if questionId %}
                   <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">
@@ -90,7 +110,7 @@
                            <div class="col s12">
                                 <label for="question_text"><span class= "red-text">*</span> Problem Text</label>
                               <textarea name="questionText" id="question_text" rows="2" cols="70" {%if view%}readonly{%else%}required{%endif%}>{{questionText}}</textarea>
-                                
+
                               <script type="text/javascript">
                 				CKEDITOR.config.autoParagraph = false;
                 				CKEDITOR.replace( 'questionText' );
@@ -98,6 +118,37 @@
               				  
                            </div>
                         </div>
+                        
+                        <div class="row">
+                        
+                        
+                        
+                        <div class="row">
+                        <div class="col s5">
+                        <h6>Language: {{languageName}}</h6>
+                        </div>
+                        <div class="col s6">
+                        <h6>Code Indentation: {{indentation}}</h6>
+                        </div>
+                        </div>
+                        
+                        
+                        <div class="col s5">
+                        <select id="LanguageOption" name="languageName">
+                        				  <option value= "{{languageName|default:'java'}}">Please Select Language</option>
+                                          <option value="java">java</option>
+                                          <option value="python">python</option>
+                                          </select>
+                                       </div>
+                                       
+                                       <div class="col s5">
+                        <select id="indentationBoolean" name="indetationBoolean">
+                        				  <option value= "{{indentation|default:'false' }}">Please Select Indentation</option>
+                                          <option value="true">true</option>
+                                          <option value="false">false</option>
+                                       </select>
+                                       </div>
+                                       </div>
 
                         <div class="row">
                             <div class="col s12">
@@ -117,22 +168,27 @@
 
                          <div class="row">
                            <div class="input-field col s12">
-                              <select name="difficulty" {%if view%}readonly{%endif%}>
-                                 <option id="Easy" value="Easy" selected {%if view%}disabled{%endif%}>Easy</option>
-                                 <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
-                                 <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
+                              <select  name="difficulty" id="difficulty" {%if view%}readonly{%endif%}>
+                                 <option val="Easy" value="Easy"  {%if view%}disabled{%endif%}>Easy</option>
+                                 <option val="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
+                                 <option val="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
                               </select>
                               <label>Difficulty</label>
                               <script  type="text/javascript"> 
-                                 window.onload = function() {
+                             
+                              //GGM Difficulty Setting Updated Code
+                              $( document ).ready(function() {
                                      if ("{{difficulty}}" != '')  {
-                                     document.getElementById("{{difficulty}}").selected = "true";
+                                    	 console.log("med");
+                                    	 $('#difficulty').val("{{difficulty}}");
+
+                                         // re-initialize material-select
+                                         $('#difficulty').material_select();
                                      } 
-                                 }
+                                 });
                               </script> 
                            </div>
-                        </div>                                                    
-                        
+                        </div>       
                         {% if challenge %}
                         {% if unassign %}
                         <input type="hidden" name="points" value="0" id="Points">

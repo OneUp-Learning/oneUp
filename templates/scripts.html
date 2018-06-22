@@ -14,7 +14,9 @@
 <meta charset="utf-8" />
 
 <!--Import jQuery before materialize.js-->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-migrate-3.0.1.min.js"></script>
 <script type="text/javascript" src="/static/assets/js/moment.js"></script>
 <!-- Compiled and minified JavaScript -->
 <script src="/static/assets/js/materialize.js"></script>
@@ -22,9 +24,9 @@
 <script>
     $( document ).ready(function(){
       $(".button-collapse").sideNav();
-    $('select').not('.no-materialize').material_select();
-    Materialize.updateTextFields();
-    $('.modal').modal();
+      $('select').not('.no-materialize').material_select();
+      Materialize.updateTextFields();
+      $('.modal').modal();
     }); 
 </script>
 <style>
