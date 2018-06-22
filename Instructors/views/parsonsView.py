@@ -20,6 +20,7 @@ from oneUp.logger import logger
 import re
 from django.templatetags.i18n import language
 from sqlparse.utils import indent
+from django.template.defaultfilters import length
 
 @login_required
 def parsonsForm(request):
@@ -188,7 +189,36 @@ def parsonsForm(request):
             intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);', answer)
             answer = answer.replace(languageAndLanguageName.group(0), "")
             answer = answer.replace(intentationEnabledVariableAndValue.group(0), "")
-
+            
+            answer =  re.sub("^ *\\t", "  ", answer)
+            
+            #tokenizer characters ☃ and ¬
+            answer = re.sub("\n", "\n¬☃", answer)
+            answer = re.sub("^[ ]+?", "☃", answer)
+            
+            #we turn the student solution into a list
+            answer = [x.strip() for x in answer.split('¬')]
+            
+            #get how many spces there are in the first line
+            print("answer[0]",answer[0])
+            answer[0] = re.sub("☃"," ",answer[0])
+            leadingSpacesCount = len(answer[0]) - len(answer[0].lstrip(' '))
+            print("leading spaces", leadingSpacesCount)
+            
+            #give each string the new line
+            tabedanswer = []
+            lengthOfModelSolution = len(answer)
+            for index, line in enumerate(answer):
+                line = re.sub("☃", "", line)
+                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
+                if index < len(answer)- 1:
+                    line = line +"\n"
+                tabedanswer.append(line)
+            
+            answer = ""
+            answer = answer.join(tabedanswer)
+            
+            
             context_dict['model_solution'] = answer
             
  

@@ -150,23 +150,30 @@
 											<label for="preview"><span class= "red-text">*</span> Problem Preview</label>
 										</div>
 									</div>
-									<div class="row">
-											<div class="input-field col s12">
-												<select name="difficulty" {%if view%}readonly{%endif%}>
-													  <option id="Easy" value="Easy" {%if view%}disabled{%endif%} selected>Easy</option>
-													  <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
-													  <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
-												   </select>
-												<label>Difficulty</label>
-												<script type="text/javascript">
-													window.onload = function() {
-														if ("{{difficulty}}" != '') {
-															document.getElementById("{{difficulty}}").selected = "true";
-														}
-													}
-												</script>
-											</div>
-										</div>
+									<!-- GGM Difficulty Setting Updated Code -->
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <select  name="difficulty" id="difficulty" {%if view%}readonly{%endif%}>
+                                 <option val="Easy" value="Easy"  {%if view%}disabled{%endif%}>Easy</option>
+                                 <option val="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
+                                 <option val="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
+                              </select>
+                              <label>Difficulty</label>
+                              <script  type="text/javascript"> 
+                             
+                              
+                              $( document ).ready(function() {
+                                     if ("{{difficulty}}" != '')  {
+                                    	 console.log("med");
+                                    	 $('#difficulty').val("{{difficulty}}");
+
+                                         // re-initialize material-select
+                                         $('#difficulty').material_select();
+                                     } 
+                                 });
+                              </script> 
+                           </div>
+                        </div>  
 										{% if challenge %}
 										{% if unassign %}
 										<input type="hidden" name="points" value="0" id="Points"> {% else %}
