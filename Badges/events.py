@@ -153,8 +153,8 @@ def register_event(eventID, request, student=None, objectId=None):
     for potential in potentials:
         condition = potential.conditionID
         objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
-        objSpecifier = ChosenObjectSpecifier(potential.objectSpecifier,objType)
-        result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectId)
+        objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
+        result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
         if result:
             for objID in objIDList:
                 if check_condition(condition,courseId,student,objType,objID):
@@ -165,9 +165,9 @@ def register_event(eventID, request, student=None, objectId=None):
 
 # This method checks whether or not a given condition is true
 # in the appropriate context.
-def check_condition(condition, course, student, objectType, objectID, vcAwardType):
+def check_condition(condition, course, student, objectType, objectID):
     return check_condition_helper(condition, course, student, 
-                                  objectType,objectID, {}, vcAwardType)
+                                  objectType,objectID, {})
 
 def operandSetTypeToObjectType(operandType):
     operandSetTypeToOjectTypeMap = {
@@ -495,24 +495,31 @@ class ChosenObjectSpecifier:
         self.rules = json.loads(serialized_value)
         self.objectType = objectType
         valid = True
+        print("unserialized self.rules:" +str(self.rules))
         for rule in self.rules:
             if 'specifier' not in rule:
                 valid = False
+                print("no specifier")
                 break
             if rule['specifier'] not in chosenObjectSpecifierFields[objectType]:
                 valid = False
+                print("bad specifier")
                 break
             if 'op' not in rule:
                 valid = False
+                print("no op")
                 break
             if rule['op'] != 'in': # More options will be allowed in the future
                 valid = False
+                print("bad op")
                 break
             if 'value' not in rule:
                 valid = False
+                print("no value")
                 break
-            if type(rule['value']) is not 'list': # Note that we don't validate the contents of the list so things could still go wrong there
+            if type(rule['value']) is not list: # Note that we don't validate the contents of the list so things could still go wrong there
                 valid = False
+                print("value not list instead is "+str(type(rule['value'])))
                 break
         
         if not valid:
@@ -528,20 +535,23 @@ class ChosenObjectSpecifier:
             return True, objType, [objID]
         obj = objectTypeToObjectClass[objType].objects.get(pk=objID)
         if self.objectType == objType:
+
             for rule in self.rules:
                 if rule['op'] == 'in':
                     objThingieList = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['fun'](obj)
                     found = False
+                    print("rule[value] = "+str(rule['value']))
+                    print("objThingieList:"+str(objThingieList))
                     for objThingie in objThingieList:   # We check all the thingies against the list.  For many cases
                                                         # this is just one thing, actually, like id, but for topic
                                                         # challenges can be in more than one topic.  If any of its
                                                         # topics meet the specifier, that's sufficient.
-                        if objThingie in rule['value']:
+                        if str(objThingie) in rule['value']:
                             found = True
                             break
                     if found == False: # If any one specifier is not met, we're done, otherwise, we continue
                         return False, objType, []
-            return True, [objID]
+            return True, objType, [objID]
         if self.objectType in relatedObjects:
             if objType in relatedObjects[self.objectType]:
                 relatedObjs = relatedObjects[self.objectType][objType](obj)

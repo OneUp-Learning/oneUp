@@ -41,9 +41,14 @@ def EditDeleteBadge(request):
             print("badgeID")
             
         else:
-        ##this is the case of creating a new badge
+        ## This is for when a non-existent badgeID gets passed.  It shouldn't normally happen, but could occur due to stale page data.
             context_dict = setUpContextDictForConditions(context_dict,current_course,None)
             print("no badgeID") 
+        
+    else:
+    ##this is the case of creating a new badge
+        context_dict = setUpContextDictForConditions(context_dict,current_course,None)
+        print("no badgeID") 
             
     if 'manualBadgeID' in request.GET:
         if request.GET['manualBadgeID']:
