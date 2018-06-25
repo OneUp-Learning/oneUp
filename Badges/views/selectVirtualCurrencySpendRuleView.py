@@ -3,18 +3,13 @@ Created on Nov 3, 2014
 Last modified 09/02/2016
 
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 
 from Badges.models import VirtualCurrencyRuleInfo, ActionArguments, RuleEvents
-from Instructors.models import Challenges,Courses
 from Instructors.views.utils import initialContextDict
 from Badges.enums import dict_dict_to_zipped_list, Event
 
 from django.contrib.auth.decorators import login_required
-from Badges.conditions_util import get_mandatory_conditions_without_or_and_not, filter_out_associated_challenges, leaf_condition_to_tuple,\
-    get_associated_challenge_if_exists
-from setuptools.command.build_ext import if_dl
 
 @login_required
 def SelectVirtualCurrencySpendRule(request):

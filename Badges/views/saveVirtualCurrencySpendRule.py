@@ -4,18 +4,15 @@ Last updated Dec 21, 2016
 
 @author: Swapna
 '''
-from django.template import RequestContext
-from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Courses, Challenges
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
 from Badges.enums import Action, OperandTypes , Event, dict_dict_to_zipped_list
-from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
-    cond_from_mandatory_cond_list
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
-from Badges.systemVariables import logger
+
+import logging
+logger = logging.getLogger(__name__)
 
 def DeleteVirtualCurrencySpendRule(vcRuleID):
     vcRuleID = int(vcRuleID)
@@ -27,11 +24,8 @@ def DeleteVirtualCurrencySpendRule(vcRuleID):
     deleteVc.ruleID.delete()
     # And then we delete the badge.
     deleteVc.delete()
-            
-def DetermineEvent(conditionOperandValue):
-    # Note: This should be effectively removed soon and also can break for certain inputs.
-    return get_events_for_system_variable(conditionOperandValue)[0]
 
+@login_required
 def SaveVirtualCurrencySpendRule(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -86,12 +80,10 @@ def SaveVirtualCurrencySpendRule(request):
                     newCondition.operand2Type = OperandTypes.immediateInteger
                     newCondition.operand2Value = 1
                     newCondition.save()
-                                
-                    ruleCondition = cond_from_mandatory_cond_list([newCondition])
-                
+                                                
                     # Save game rule to the Rules table
                     gameRule = Rules()
-                    gameRule.conditionID = ruleCondition
+                    gameRule.conditionID = newCondition
                     gameRule.actionID = Action.decreaseVirtualCurrency
                     gameRule.courseID = currentCourse
                     gameRule.save()

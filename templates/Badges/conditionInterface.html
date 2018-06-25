@@ -1,8 +1,68 @@
+<div class="row">
+	<div class="input-field col s12">
+    	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
+        {% for dummy,awardFrequencyOption in awardFrequencyStruct.awardFrequency.items %}
+            <option value="{{awardFrequencyOption.index}}" {% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}>{{awardFrequencyOption.name}}</option>
+        {% endfor %}
+		</select>
+    	<label for="awardFrequencySelect">Award Frequency</label>
+    </div>
+</div>
+<div class="row" id="objectSpecifierLabel">
+	<div class="input-field col s12">
+		<h5><span class= "red-text">*</span> Specify Which Objects </h5>
+	</div>
+</div>
+<div class="row" id="objectSpecifier">
+	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
+	<div class="cond-specify-object-section" id="cond-{{specifiedObjectTypeNum}}-specifier-section" hidden>
+		Method for specifying {{specifiedObjectStruct.objectTypeStruct.plural}}:
+		<select class="no-materialize" name="cond-{{specifiedObjectTypeNum}}-specification-selector" id="cond-{{specifiedObjectTypeNum}}-specification-selector"
+				onchange="condChangeSpecifier(this);return true;" data-cond-object-type-num = "{{specifiedObjectTypeNum}}">
+			<option value="all" selected>include all {{specifiedObjectStruct.objectTypeStruct.plural}}</option>
+			{% for specifiername,specifierInfo in specifiedObjectStruct.specifiers.items %}
+			<option value="{{specifiername}}">specify by {{specifiername}}</option>
+			{% endfor %}
+		</select>
+		{% for specifiername,specifierInfo in specifiedObjectStruct.specifiers.items %}
+			<div class="cond-specifier-specifier" id="cond-{{specifiedObjectTypeNum}}-by-{{specifiername}}-specifier" hidden data-cond-specifier-type="{{specifierInfo.selectionType}}">
+			{% if specifierInfo.selectionType == "object" %}
+				<div><div>
+					<select name="cond-specifier-object-list-select" class="cond-specifier-object-list-select no-materialize" 
+							onchange="condAddThingieToList(this);this.selectedIndex=0;return true;">
+						<option disabled selected value="0">select {{specifierInfo.objectInfo.plural}} to add</option>
+					{% for object in specifierInfo.objectInfo.objects %}
+						<option value="{{object.id}}">{{object.name}}</option>
+					{% endfor %}
+					</select>
+				</div></div>
+				<div class="cond-specifier-object-selected-list" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-selected-list">
+				</div>
+			{% elif specifierInfo.selectionType == "list" %}
+				<select name="cond-specifier-list-select" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="cond-specifier-list-select no-materialize">
+				{% for listItem in specifierInfo.list %}
+					<option value="{{listItem}}" {%if forloop.first%}selected{%endif%}>{{listItem}}</option>
+				{% endfor %}
+				</select>
+			{% endif %}
+			</div>
+	 	{% endfor %}	
+	</div>
+	{% endfor %}
+	<input type="hidden" name="chosenObjectSpecifierString" id="chosenObjectSpecifierString" value="default">
+</div>
+<div class="row">
+   <div class="col s12">
+      <h5><span class= "red-text">*</span> Rule Conditions</h5>
+   </div>
+</div>
+<div class="row">
+
 <style>
-		.cond-prototype {
+	.cond-prototype {
 		display: none;
-		}
-		.cond-item {
+	}
+	.cond-item {
 		border-style: solid;
 		border-width: 1px;
 		border-radius: 6px;
@@ -13,12 +73,12 @@
 		min-height: auto;
 		flex: none;
 		display: flex;
-		}
-		.cond-atom-helper {
+	}
+	.cond-atom-helper {
 		display: flex;
 		flex-direction: row;
-		}
-		.cond-empty {
+	}
+	.cond-empty {
 		border-style: dashed;
 		border-width: 1px;
 		border-radius: 6px;
@@ -26,35 +86,35 @@
 		text-align: center;
 		min-width: 4em;
 		min-height: 1em;
-		}
-		.cond-container {
+	}
+	.cond-container {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: nowrap;
 		justify-content: flex-start;
 		align-items: stretch;
 		align-content: flex-start;
-		height: 400px;
+		height: 500px;
 		min-height: 0px;
 		width: 100%;
 		overflow-x: auto;
 		overflow-y: scroll;
-		}
-		.cond-icon-list {
+	}
+	.cond-icon-list {
 		display: flex;
 		flex-direction: row;
 		align-items: stretch;
-		}
-		.cond-icon {
+	}
+	.cond-icon {
 		border-style: solid;
 		border-width: 1px;
 		border-radius: 6px;
 		padding: 6px;
-		}
-		.cond-trash {
+	}
+	.cond-trash {
 		margin-left: auto;
-		}
-		.cond-or {
+	}
+	.cond-or {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
@@ -62,61 +122,65 @@
 		overflow-x: auto;
 		overflow-y: hidden;
 		background-color: #DDFFFF;
-		}
-		.cond-or-sub {
+	}
+	.cond-or-sub {
 		flex-basis: 45%;
 		height: 100%;
-		}
-		.cond-or-label {
+	}
+	.cond-or-label {
 		color: silver;
 		flex-basis: 8%;
 		text-align: center;
-		}
-		.cond-and-label {
+	}
+	.cond-and-label {
 		font-size: 0.6em;
 		color: silver;
 		text-align: center;
-		}
-		.cond-atom-option-group {
-		}
-		.cond-for {
+	}
+	.cond-atom-option-group {
+	}
+	.cond-for {
 		background-color: yellow;
 		align-items: center;
 		display: flex;
 		flex-direction: column;
-		}
-		.cond-for-list {
+	}
+	.cond-for-list {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		}
-		.cond-for-list-item {
+	}
+	.cond-for-list-item {
 		/*padding: 2px;*/
 		/*background-color: orange;*/
-		}
-		.cond-for-sub {
+	}
+	.cond-for-sub {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: nowrap;
 		width: 90%;
-		}
-		.cond-atom {
+	}
+	.cond-atom {
 		background-color: #EEFFEE;
 		/*overflow: hidden;*/
 		flex-direction: column;
-		}
-		.cond-hidden-error {
+	}
+	.cond-hidden-error {
 		display: none;
-		}
-		.cond-visible-error {
+	}
+	.cond-visible-error {
 		background-color: white;
 		color: red;
-		}
-		.input-field label,
+	}
+	.label,
 		[type="checkbox"] + label {
 			pointer-events: auto;
 			color:black;
-		}
+	}
+	
+	select.cond-var, select.cond-rhs-var {
+		white-space: pre-wrap;
+	}
  </style>
  <!-- Hidden prototypes which will be copied to make the actual nodes in the boolean expression. -->
  <div id="condOrPrototype" class="cond-prototype">
@@ -141,8 +205,8 @@
  <div id="condAtomPrototype" class="cond-prototype">
 		<div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
 			 <div class="row">
-				 <div class="input-field col s12 m4">
-					<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
+				 <div class="col s12 m4">
+					<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var no-materialize">
 						<option value="0" data-cond-var-type="text" data-cond-context-global="true"
 						{% for objectType in objectTypes %}
 						data-cond-context-{{objectType.name}}="true" 
@@ -153,12 +217,12 @@
 						{% for object in variable.objects %}
 						data-cond-context-{{object}}="true";
 						{% endfor %}
-						> {{variable.name}} </option>
+						> {{variable.name}} {% if "global" in variable.objects %}(global){% endif %}</option>
 						{% endfor %}
 					</select>
 					</div>
-					<div class="input-field col s12 m1">
-						<select name="cond-op" class="cond-op">
+					<div class="col s12 m1">
+						<select name="cond-op" class="cond-op no-materialize">
 							<option value="=">=</option>
 							<option value=">">&gt;</option>
 							<option value=">=">&gt;=</option>
@@ -166,11 +230,11 @@
 							<option value="<=">&lt;=</option>
 						</select>
 					</div>
-					<div class="input-field col s12 m3">
+					<div class="col s12 m3">
 						<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
 					</div>
-					<div hidden class="input-field col s12 m5">
-						<select name="cond-rhs-var"  class="cond-rhs-var" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
+					<div hidden class="col s12 m5">
+						<select name="cond-rhs-var"  class="cond-rhs-var no-materialize" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
 							<option value="0" data-cond-context-global="true"
 							{% for objectType in objectTypes %}
 							data-cond-context-{{objectType.name}}="true" 
@@ -181,7 +245,7 @@
 							{% for object in variable.objects %}
 							data-cond-context-{{object}}="true";
 							{% endfor %}
-							> {{variable.name}} </option>
+							> {{variable.name}} {% if "global" in variable.objects %}(global){% endif %}</option>
 							{% endfor %}
 						</select>
 					</div>
@@ -207,16 +271,16 @@
 		<div class="cond-for cond-item" data-cond-type="for" 
 		   data-inside-qualifier="{{defaultObject}}" draggable="true">
 		   <div class="row">
-			  <div class="input-field col s12 m6">
+			  <div class="col s12 m4">
 				<p>For</p>
-				 <select id="cond-allOrAny" name="cond-allOrAny" class="cond-allOrAny">
+				 <select id="cond-allOrAny" name="cond-allOrAny" class="cond-allOrAny no-materialize">
 					<option value="all">each</option>
 					<option value="any">any</option>
 				 </select>
 			  </div>
-			  <div class="input-field col s12 m6">
+			  <div class="col s12 m8">
 				<p>of the following</p>
-				 <select id="cond-thingie-type" name="cond-thingie-type" class="cond-thingie-type" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
+				 <select id="cond-thingie-type" name="cond-thingie-type" class="cond-thingie-type no-materialize" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
 					data-cond-old-type="{{defaultObject}}">
 					{% for objectType in objectTypes %}
 					<option value="{{objectType.name}}">{{objectType.plural}}</option>
@@ -227,16 +291,18 @@
 		   {% for objectType in objectTypes %}
 		   
 		   <div class="row"{% if objectType.name != defaultObject %} hidden {%endif%}>
-					<div class="input-field col s12 cond-{{objectType.name}}-list" >
-						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select" 
+					<div class="col s12 m6 cond-{{objectType.name}}-list" >
+						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select no-materialize" 
 							onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;">
 							<option disabled selected value="0">select {{objectType.plural}} to add</option>
 							{% for object in objectType.objects %}
 							<option value="{{object.id}}">{{object.name}}</option>
 							{% endfor %}
 						</select>
+					</div>
+					<div class="col s12 m6">
 						or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
-					<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
+						<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
 					</div>
 			</div>
 			<div class="cond-for-list cond-{{objectType.name}}-selected-list">
@@ -261,14 +327,201 @@
  </div>
  </p>
  <!-- Container for initial condition -->
- <div class="cond-container cond-item">
+ <div class="cond-container cond-item" id="cond-container">
 		<input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
 		<input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count" id="cond-atom-count">
 		<div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
 		<span class="cond-hidden-error cond-no-condition-error">Some condition must be present.</span>
  </div>
+ 
+ 
+ </div>
  <script>
-		function condFindCondItemAncestor(node) {
+
+
+//All names prefixed with cond to decrease odds of any sort
+//of name-space conflict on import.
+
+var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
+
+var condAwardFrequencyToThingieTypeName = {
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyStruct.awardFrequency.items %}
+		{{awardFreqNum}}:'{{awardFreqStruct.objectTypeName}}',
+	{% endfor %}
+}
+
+var condAwardFrequencyToThingieType = {
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyStruct.awardFrequency.items %}
+		{{awardFreqNum}}:{{awardFreqStruct.objectType}},
+	{% endfor %}
+}
+
+var condObjectsIdToName = { {% for objectType in objectTypes %}"{{objectType.name}}":
+{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
+{% endfor %} };
+
+var condObjectTypeIndexToName = { {%for objectType in objectTypes %}{{objectType.index}}:"{{objectType.name}}",{% endfor %} }
+
+/**************************************************
+ * Functions for handling award frequency changes *
+ **************************************************/
+
+function condIsInFor(element) {
+	while (element != null) {
+		if (element.dataset && element.dataset.condType === "for") {
+			return true;
+		}
+		element = element.parentNode;
+	}
+	return false;
+}	 
+
+var condOldAwardFreq = document.getElementById("awardFrequencySelect").value;
+
+var condSpecifierDivs = {
+	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
+	{{specifiedObjectTypeNum}}:document.getElementById("cond-{{specifiedObjectTypeNum}}-specifier-section"),
+	{% endfor %}
+}
+
+function condChangeAwardFreq(select) {
+	var newAwardFreq = select.value;
+	var oldType = condAwardFrequencyToThingieTypeName[condOldAwardFreq];
+	var oldTypeNum = condAwardFrequencyToThingieType[condOldAwardFreq];
+	var oldLabel = oldType + ":scope";
+	var newType = condAwardFrequencyToThingieTypeName[newAwardFreq];
+	var newTypeNum = condAwardFrequencyToThingieType[newAwardFreq];
+	var newLabel = newType + ":scope";
+
+	var conditionDiv = document.getElementById("cond-container");
+	var subDivs = conditionDiv.getElementsByTagName("DIV");
+	[].forEach.call(subDivs, function(subDiv) {
+		if (subDiv.dataset.condInsideQualifier == "none" || subDiv.dataset.condInsideQualifier == oldLabel) {
+			subDiv.dataset.condInsideQualifier = newLabel;
+	    }
+	});
+	condUpdateAtomSelectForContext(conditionDiv, newLabel, true);
+	
+	condOldAwardFreq = newAwardFreq;
+	
+	var objectSpecifierDiv = document.getElementById("objectSpecifier");
+	var objectSpecifierLabelDiv = document.getElementById("objectSpecifierLabel");
+	
+	if (newType == "none") {
+		objectSpecifierDiv.hidden = "true";
+		objectSpecifierDiv.style.display = "none";
+		objectSpecifierLabelDiv.hidden = "true";
+		objectSpecifierLabelDiv.style.display = "none";
+	} else {
+		objectSpecifierDiv.removeAttribute("hidden");
+		objectSpecifierDiv.style.display = "block";
+		objectSpecifierLabelDiv.removeAttribute("hidden");
+		objectSpecifierLabelDiv.style.display = "block";
+	}
+	
+    if (oldType != "none") {
+    	condSpecifierDivs[oldTypeNum].hidden = "true";
+    	condSpecifierDivs[oldTypeNum].style.display = "none";
+    }
+    if (newType != "none") {
+    	condSpecifierDivs[newTypeNum].removeAttribute("hidden");
+    	condSpecifierDivs[newTypeNum].style.display = "block";
+    }
+}
+
+condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
+
+function condChangeSpecifier(select) {
+	var objectTypeNum = select.dataset.condObjectTypeNum;
+	var myDiv = select.parentNode;
+	var specifiers = myDiv.getElementsByClassName("cond-specifier-specifier");
+	for (var i=0; i<specifiers.length; i++) {
+		specifiers[i].hidden = true;
+	}
+	if (select.value != "all") {
+		var selectedSpecifier = document.getElementById("cond-"+objectTypeNum+"-by-"+select.value+"-specifier");
+		selectedSpecifier.removeAttribute("hidden");
+	}
+}
+
+function condFillSpecifierString() {
+	var awardFreqSelect = document.getElementById("awardFrequencySelect");
+	var outStruct = 'error';
+	if (awardFreqSelect.value == {{awardFrequencyStruct.justOnce}}) {
+		outStruct = [];
+	} else {
+		var objectSpecifierDiv = document.getElementById("objectSpecifier");
+		var chosenAwardFreq = document.getElementById("awardFrequencySelect").value;
+		var awardFreqObjectNum = condAwardFrequencyToThingieType[chosenAwardFreq];
+		var specifierSelector = document.getElementById('cond-'+awardFreqObjectNum+'-specification-selector');
+		var specifier = specifierSelector.value;
+		if (specifier === "all") {
+			outStruct = [];
+		} else {
+	        var selectedThingies = []
+			var specifierDiv = document.getElementById("cond-"+awardFreqObjectNum+"-by-"+specifier+"-specifier");
+			var objectListSelectorList = specifierDiv.getElementsByClassName("cond-specifier-object-list-select");
+			if (objectListSelectorList.length > 0) {	// This means it has an object list.  Otherwise it has a value list.			
+		        var choiceListDiv = specifierDiv.querySelector('div.cond-specifier-object-selected-list');
+		        var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
+		        for (var i = 0; i < choices.length; i++) {
+		        	selectedThingies.push(choices[i].dataset.id)
+		        }
+			} else {
+				var listSelect = specifierDiv.getElementsByClassName("cond-specifier-list-select")[0];
+				selectedThingies = [listSelect.value];
+			}
+			var specifier_rule = {
+				'specifier': specifier,
+				'op': 'in',
+				'value': selectedThingies,
+			}
+			outStruct = [specifier_rule];
+		}
+	}
+	
+	var hiddenField = document.getElementById("chosenObjectSpecifierString");
+	hiddenField.value = JSON.stringify(outStruct);
+}
+
+condChosenObjectSpecifier = JSON.parse("{{chosenObjectSpecifier|escapejs}}");
+
+function condCreateObjectSpecifierUIFromObjectSpecifier(chosenObjectSpecifier) {
+	if (chosenObjectSpecifier.length == 0) {
+		return;
+	} else {
+		// Note that this is a degenerate case which only handles the simple condition.
+		// This will need to be redone if we have cases where multiple specifiers are beneficial.
+		var chosenAwardFreq = {{awardFrequency}};
+		var objectType = condAwardFrequencyToThingieType[chosenAwardFreq];
+		var objectTypeName = condAwardFrequencyToThingieTypeName[chosenAwardFreq];
+		var specifierSelect = document.getElementById("cond-"+objectType+"-specification-selector");
+		specifierSelect.value = chosenObjectSpecifier[0]['specifier'];
+		specifierSelect.onchange();  // Takes care of showing appropriate things.
+		if (chosenObjectSpecifier[0]['op'] != 'in') {
+			return;
+		}
+		var listOfThingies = chosenObjectSpecifier[0]['value'];
+		var specifierDiv = document.getElementById("cond-"+objectType+"-by-"+chosenObjectSpecifier[0]['specifier']+"-specifier");
+		var objectListSelectorList = specifierDiv.getElementsByClassName("cond-specifier-object-list-select");
+		if (objectListSelectorList.length > 0) { // if this is an object type rather than a list type
+	        var listDiv = specifierDiv.querySelector('div.cond-specifier-object-selected-list');
+	        for (var i=0; i<listOfThingies.length; i++) {
+	        	condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[condObjectTypeIndexToName[objectType]][listOfThingies[i]], listOfThingies[i]);
+	        }
+		} else { // The value case rather than object list case
+			specifierDiv.getElementsByClassName("cond-specifier-list-select")[0].value = listOfThingies[0];
+		}
+	}
+}
+
+condCreateObjectSpecifierUIFromObjectSpecifier(condChosenObjectSpecifier);
+
+/**********************************************
+ * Functions for handling Error display stuff *
+ **********************************************/
+
+function condFindCondItemAncestor(node) {
     while (!node.classList.contains("cond-item")) {
         node = node.parentNode;
     }
@@ -394,7 +647,6 @@ function condToggleAtomType(checkboxx) {
         variable.parentElement.removeAttribute("hidden");
         //console.log("Not Checked");
     }
-    $('select').material_select();
 }
 
 function condChangeAtomToMatchType(select) {
@@ -427,8 +679,8 @@ function condChangeAtomToMatchType(select) {
                 newValue.value = savedValue;
             }
         }
-        atom.insertBefore(newValue, value);
-        atom.removeChild(value);
+        value.parentNode.insertBefore(newValue, value);
+        value.parentNode.removeChild(value);
         value = newValue;
     }
 
@@ -442,12 +694,16 @@ function condChangeAtomToMatchType(select) {
     var justEqual = {
         "=": enable,
         ">": disable,
-        "<": disable
+        "<": disable,
+        ">=": disable,
+        "<=": disable
     };
     var allOps = {
         "=": enable,
         ">": enable,
-        "<": enable
+        "<": enable,
+        ">=": enable,
+        "<=": enable
     };
     var typeStatusChange = {
         text: justEqual,
@@ -461,9 +717,6 @@ function condChangeAtomToMatchType(select) {
         typeStatusChange[type][operator.options[i].value](operator.options[i]);
     }
 }
-
-// All names prefixed with cond to decrease odds of any sort
-// of name-space conflict on import.
 
 /******************************************
  * Functions for handling ForAll UI stuff *
@@ -485,8 +738,9 @@ function condAddThingieToListByNameAndId(list, name, id) {
 
 function condAddThingieToList(select) {
     var choice = select.options[select.selectedIndex];
-    var list = select.parentNode.parentNode.parentNode.nextElementSibling;
-    //console.log(select.parentNode.parentNode.parentNode.nextElementSibling);
+    var list = select.parentNode.parentNode.nextElementSibling;
+    //console.log(select.parentNode.parentNode);
+    //console.log(select.parentNode.parentNode.nextElementSibling);
     var listOfIds = ['0'];
     for (var i = 0; i < list.children.length; i++) { //>
         listOfIds.push(list.children[i].dataset.id);
@@ -499,8 +753,6 @@ function condAddThingieToList(select) {
 //function condRemoveThingie(item) {
 //	item.parentNode.parentNode;
 //}
-
-var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
 
 function condChangeForAllType(select) {
     var currentType = select.options[select.selectedIndex].value;
@@ -580,12 +832,21 @@ function condHandleDragEnd(e) {
 
 function condCanDropOn(source, target) {
     var canDrop = true;
+    var insideFor = false;
+    var insideQualifierParts = target.dataset.condInsideQualifier.split(":");
+    if (insideQualifierParts[0] != "none") {
+    	insideFor = true;
+    }
+    if ((insideQualifierParts.length > 1) && (insideQualifierParts[1] == "scope")) {
+    	insideFor = false;
+    }
+    
     if ((target.dataset.condType == "orBlank") &&
         (source.id == "condOrIcon")) {
         canDrop = false;
     }
 
-    if ((target.dataset.condInsideQualifier != "none") &&
+    if (insideFor &&
         (source.id == "condForAllIcon")) {
         canDrop = false;
     }
@@ -594,7 +855,7 @@ function condCanDropOn(source, target) {
         canDrop = false;
     }
 
-    if ((target.dataset.condInsideQualifier != "none") &&
+    if (insideFor &&
         (source.dataset.condType == "for")) {
         canDrop = false;
     }
@@ -635,51 +896,68 @@ function clonePrototype(name) {
         //console.log(prototypeDiv.children[0].children[4]);
     }
     if (name == "condForPrototype") {
-        //console.log(prototypeDiv.children[1].children[0]);
+        console.log(prototypeDiv.children[1].children[1].children[1]);
         //console.log(prototypeDiv.children[4].children[0]);
         //console.log(prototypeDiv.children[7].children[0]);
 		var id = (Date.now() + Math.random()).toString(36);
-        prototypeDiv.children[1].children[0].children[1].id = prototypeDiv.children[1].children[0].children[1].id + id;
-        prototypeDiv.children[1].children[0].children[2].setAttribute("for", prototypeDiv.children[1].children[0].children[1].id);
+        prototypeDiv.children[1].children[1].children[0].id = prototypeDiv.children[1].children[1].children[0].id + id;
+        prototypeDiv.children[1].children[1].children[1].setAttribute("for", prototypeDiv.children[1].children[1].children[0].id);
 
-        prototypeDiv.children[4].children[0].children[1].id = prototypeDiv.children[4].children[0].children[1].id + id;
-        prototypeDiv.children[4].children[0].children[2].setAttribute("for", prototypeDiv.children[4].children[0].children[1].id);
+        prototypeDiv.children[4].children[1].children[0].id = prototypeDiv.children[4].children[1].children[0].id + id;
+        prototypeDiv.children[4].children[1].children[1].setAttribute("for", prototypeDiv.children[4].children[1].children[0].id);
 
-        prototypeDiv.children[7].children[0].children[1].id = prototypeDiv.children[7].children[0].children[1].id + id;
-        prototypeDiv.children[7].children[0].children[2].setAttribute("for", prototypeDiv.children[7].children[0].children[1].id);
+        prototypeDiv.children[7].children[1].children[0].id = prototypeDiv.children[7].children[1].children[0].id + id;
+        prototypeDiv.children[7].children[1].children[1].setAttribute("for", prototypeDiv.children[7].children[1].children[0].id);
 
     }
     return prototypeDiv;
 }
 
-function condUpdateAtomSelectForContext(targetDiv, context) {
+function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) {
 
+	var scopePart = context.split(":")[1];
+	var scope = false;
+	if (scopePart === "scope") {
+		scope = true;
+	}
+    context = context.split(":")[0];
     if (context == "none") {
         context = "global";
     }
     context = context.charAt(0).toUpperCase() + context.slice(1);
+
     var contextAttributeName = "condContext" + context;
 
-    function updateThisSelect(targetSelect, contextAttributeName, rhs) {
+    function updateThisSelect(targetSelect, contextAttributeName, showGlobals) {
         var inputs = targetSelect.getElementsByTagName("option");
         for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].dataset[contextAttributeName] || (rhs && inputs[i].dataset["condContextGlobal"])) {
+            if (inputs[i].dataset[contextAttributeName] || (showGlobals && inputs[i].dataset["condContextGlobal"])) {
                 inputs[i].removeAttribute("hidden");
             } else {
                 inputs[i].hidden = true;
             }
         }
     }
-
+    
     var selects = targetDiv.getElementsByTagName("select");
     for (var i = 0; i < selects.length; i++) {
         var curSelect = selects[i];
         if (curSelect.name == "cond-var") {
-            updateThisSelect(curSelect, contextAttributeName, false);
+            if (excludeFor) {
+            	if (condIsInFor(curSelect)) {
+            		continue;
+            	}
+            }
+            updateThisSelect(curSelect, contextAttributeName, scope);
             if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
                 curSelect.selectedIndex = 0;
             }
         } else if (curSelect.name == "cond-rhs-var") {
+            if (excludeFor) {
+            	if (condIsInFor(curSelect)) {
+            		continue;
+            	}
+            }
             updateThisSelect(curSelect, contextAttributeName, true);
             if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
                 curSelect.selectedIndex = 0;
@@ -712,7 +990,6 @@ function condCreateAtomNode(targetParent, blank, insideQualifier) {
     value.name = "cond-rhs-value" + condCountNewAtom();
 
     condUpdateAtomSelectForContext(atomDiv, insideQualifier);
-    $('select').material_select();
 
     return atomDiv;
 }
@@ -754,7 +1031,6 @@ function condCreateForAllNode(targetParent, blank) {
 
     forAllDiv.addEventListener("dragstart", condHandleDragStartMove, false);
     forAllDiv.addEventListener("dragend", condHandleDragEnd, false);
-    $('select').material_select();
     return forAllDiv;
 }
 
@@ -826,7 +1102,7 @@ function condHandleDropOnBlank(e) {
 
     var targetParent = e.target.parentNode;
     var insideQualifier = e.target.dataset.condInsideQualifier;
-    if (insideQualifier != "none") {
+    if (condIsInFor(e)) {
         // We have just dragged something new inside a For.  We need to
         // turn off the error message for that for if the new thing we have dragged is
         // an atom.
@@ -1078,10 +1354,6 @@ function condFillCondString() {
     condString.value = output;
 }
 
-var condObjectsNameToId = { {% for objectType in objectTypes %}"{{objectType.name}}":
-									{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
-								{% endfor %} };
-
 {% if initialCond %}
 var initialCond = {{initialCond|safe}};
 {% else %}
@@ -1172,7 +1444,7 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
         selectOptionByValue(typeSelector, cond.objectType);
         var listDiv = forDiv.querySelector('div.cond-' + cond.objectType + '-selected-list');
         for (var i = 0; i < cond.objects.length; i++) {
-            condAddThingieToListByNameAndId(listDiv, condObjectsNameToId[cond.objectType][cond.objects[i]], cond.objects[i])
+            condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[cond.objectType][cond.objects[i]], cond.objects[i])
         }
         var empty = forDiv.getElementsByClassName("cond-empty")[0];
         condChangeForAllType(typeSelector);
@@ -1194,6 +1466,7 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
 }
 
 function condOnSubmit() {
+	condFillSpecifierString();
     condFillCondString();
     return !condCheckForErrors();
 }

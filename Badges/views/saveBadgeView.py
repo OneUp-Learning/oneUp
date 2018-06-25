@@ -8,8 +8,8 @@ from django.shortcuts import redirect
 
 from Instructors.views.utils import initialContextDict
 from Badges.models import ActionArguments, Rules, Badges, RuleEvents, BadgesInfo
-from Badges.enums import Action
-from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
+from Badges.enums import Action, ObjectTypes, AwardFrequency
+from Badges.conditions_util import get_events_for_condition,\
     stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
@@ -21,10 +21,6 @@ def DeleteBadgeRule(badge):
     badge.ruleID.delete_related()
     # Then we delete the rule itself
     badge.ruleID.delete()                 
-            
-def DetermineEvent(conditionOperandValue):
-    # Note: This should be effectively removed soon and also can break for certain inputs.
-    return get_events_for_system_variable(conditionOperandValue)[0]
 
 @login_required
 def SaveBadge(request):
@@ -85,10 +81,16 @@ def SaveBadge(request):
                 gameRule.conditionID = badgeCondition
                 gameRule.actionID = Action.giveBadge 
                 gameRule.courseID = current_course
+                
+                awardFreq = int(request.POST['awardFrequency'])
+                gameRule.awardFrequency = awardFreq
+                print("CHOSEN OBJECT SPECIFIER STRING : "+request.POST['chosenObjectSpecifierString']);
+                gameRule.objectSpecifier = request.POST['chosenObjectSpecifierString'];
                 gameRule.save()
     
                 # We get all of the related events.
-                events = get_events_for_condition(badgeCondition)
+                context = AwardFrequency.awardFrequency[awardFreq]['objectType']
+                events = get_events_for_condition(badgeCondition,context)
                 for event in events:
                     ruleEvent = RuleEvents()
                     ruleEvent.rule = gameRule

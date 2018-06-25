@@ -18,7 +18,6 @@ def EditDeleteBadge(request):
  
     context_dict,current_course = initialContextDict(request);
     
-    context_dict = setUpContextDictForConditions(context_dict,current_course)
     
     conditions = []
     
@@ -31,10 +30,9 @@ def EditDeleteBadge(request):
             badgeInfo = BadgesInfo.objects.get(badgeID=badgeId)
             if not badgeInfo.manual:
                 badge = Badges.objects.get(badgeID=badgeId)
-            
-                condition = badge.ruleID.conditionID
-                context_dict['initialCond'] = databaseConditionToJSONString(condition)
-                context_dict['conditions'] = zip(range(1,len(conditions)+1),conditions) 
+                context_dict = setUpContextDictForConditions(context_dict,current_course,badge.ruleID)
+            else: 
+                context_dict = setUpContextDictForConditions(context_dict,current_course,None)
                 
             # The range part is the index numbers.  
             context_dict['badge'] = badgeInfo 
@@ -43,10 +41,14 @@ def EditDeleteBadge(request):
             print("badgeID")
             
         else:
-        ##this is the case of creating a new badge
-            context_dict['initialCond'] = "'empty'"
+        ## This is for when a non-existent badgeID gets passed.  It shouldn't normally happen, but could occur due to stale page data.
+            context_dict = setUpContextDictForConditions(context_dict,current_course,None)
             print("no badgeID") 
-            
+        
+    else:
+    ##this is the case of creating a new badge
+        context_dict = setUpContextDictForConditions(context_dict,current_course,None)
+        print("no badgeID") 
             
     if 'manualBadgeID' in request.GET:
         if request.GET['manualBadgeID']:

@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
-from Badges.enums import Event, OperandTypes, Action, VirtualCurrencyAwardFrequency
+from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
 # Create your models here.
  
@@ -122,6 +122,8 @@ class Rules(models.Model):
     conditionID = models.ForeignKey(Conditions, on_delete=models.SET_NULL, verbose_name="the related condition", db_index=True, null=True, blank=True)
     actionID = models.IntegerField(verbose_name="the related action", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name="Course the rule belongs to", db_index=True)
+    objectSpecifier = models.CharField(max_length=2000, default="[]",verbose_name="A json-serialized object of the type ChosenObjectSpecifier (see events.py)")
+    awardFrequency = models.IntegerField(default=AwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):
         if self.actionID in Action.actions:
             return "[Rule#:"+str(int(self.ruleID))+" When:"+str(self.conditionID)+" Do:"+Action.actions[self.actionID]['name']+']'
@@ -191,7 +193,6 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
 # Virtual Currency Table for the automatically handled VC rules
 class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
     ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)
-    awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):              
         return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
 

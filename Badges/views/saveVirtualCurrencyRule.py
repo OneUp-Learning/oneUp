@@ -10,10 +10,10 @@ from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges, Activities
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
-from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list
+from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list,\
+    AwardFrequency
 from Badges.systemVariables import SystemVariable
-from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
-    cond_from_mandatory_cond_list, stringAndPostDictToCondition
+from Badges.conditions_util import get_events_for_condition, stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
 
@@ -35,10 +35,6 @@ def DeleteVirtualCurrencyRule(vcRuleID, isRuleCustom):
             deleteVc.ruleID.delete()
             # And then we delete the badge.
             deleteVc.delete()
-            
-def DetermineEvent(conditionOperandValue):
-    # Note: This should be effectively removed soon and also can break for certain inputs.
-    return get_events_for_system_variable(conditionOperandValue)[0]
 
 def SaveVirtualCurrencyRule(request):
     # Request the context of the request.
@@ -96,10 +92,15 @@ def SaveVirtualCurrencyRule(request):
                 gameRule.conditionID = ruleCondition
                 gameRule.actionID = Action.increaseVirtualCurrency
                 gameRule.courseID = currentCourse
+                
+                awardFreq = int(request.POST['awardFrequency'])
+                gameRule.awardFrequency = awardFreq
+                gameRule.objectSpecifier = request.POST['chosenObjectSpecifierString'];
                 gameRule.save()
     
                 # We get all of the related events.
-                events = get_events_for_condition(ruleCondition)
+                context = AwardFrequency.awardFrequency[awardFreq]['objectType']
+                events = get_events_for_condition(ruleCondition,context)
                 for event in events:
                     ruleEvent = RuleEvents()
                     ruleEvent.rule = gameRule
