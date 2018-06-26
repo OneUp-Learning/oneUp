@@ -2,19 +2,13 @@
 # Created on  03/10/2015
 # DD
 #
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from Instructors.models import Activities, Courses, UploadedActivityFiles, ActivitiesCategory
-from Instructors.views.activityListView import createContextForActivityList
+from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.utils import utcDate, initialContextDict
-from Instructors.constants import unspecified_topic_name, default_time_str, uncategorized_activity
-from time import time
+from Instructors.constants import default_time_str
 from datetime import datetime
-import filecmp
-from lib2to3.fixer_util import String
-from ckeditor_uploader.views import upload
 
 @login_required
 def activityCreateView(request):
@@ -41,10 +35,7 @@ def activityCreateView(request):
         
         activity.courseID = currentCourse
         
-        if 'actCat' in request.POST:
-            
-            print("WE ARE HERE")
-            print(request.POST['actCat'])
+        if request.POST['actCat']:           
             activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
         
         if 'isGraded' in request.POST:
@@ -88,7 +79,7 @@ def activityCreateView(request):
 
             
                   
-       # get the author                            
+        # get the author                            
         if request.user.is_authenticated():
             activity.author = request.user.username
         else:
@@ -169,7 +160,7 @@ def activityCreateView(request):
 def makeFilesObjects(instructorID, files, activity):
     
     #Get the old files and see if any of the new files match it
-    oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
+    #oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
 
     for i in range(0, len(files)): #make student files so we can save files to hardrive
         print('Makeing file object' + str(files[i].name))
