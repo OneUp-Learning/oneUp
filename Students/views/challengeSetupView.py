@@ -62,7 +62,10 @@ def ChallengeSetup(request):
 #                     context_dict['questionText'] = "Construct a function by drag&amp;dropping and reordering lines from the left to the right.The constructed function should return True if the parameter is True and return False otherwise."
 #                     return render(request,'Students/ChallengeSetup.html', context_dict)
                 
-                challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
+                #GGM changed it so that it will now order by the question position
+                #this allows us to easily order by randomization in the future
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId).order_by("questionPosition")
+                print("Challenge Questions", challenge_questions)
                 for challenge_question in challenge_questions:
                     questionObjects.append(challenge_question.questionID)
                 
@@ -100,20 +103,17 @@ def ChallengeSetup(request):
                                 context_dict['warmUp'] = 1
                             else:
                                 context_dict['warmUp'] = 0
-                            print("WarmupStatus", context_dict['warmUp'])
                             modelSolution = Answers.objects.filter(questionID=q)
                             solution_string = modelSolution[0].answerText
                             
                             #dynamically set dfficulty of parson distractor
                             questionHardness = Questions.objects.filter(questionID=q.questionID)
                             questionDifficulty = questionHardness[0].difficulty
-                            print("Difficulty", questionDifficulty)
                             
         
                             questdict['languageName'] = re.search(r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
                             questdict['indentation'] = re.search(r';Indentation:([^;]+);', solution_string).group(1)
-                            print("language", questdict['languageName'])
-                            print("indentation", questdict['indentation'])
+                            
                             
                             languageAndLanguageName = re.search(r'Language:([^;]+)', solution_string)
                             intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);', solution_string)
@@ -123,10 +123,10 @@ def ChallengeSetup(request):
                             
                             
                             #get the count of the distractors
-                            print("Solution String:", solution_string)
+                            
                             distractorCount = len(re.findall(r'(?=#dist)', repr(solution_string).strip('"\'')))
                             questdict['distractorCount'] = distractorCount
-                            print("Distractor count:", distractorCount)
+                            
                             
                             #set the count of distractors off the question's hardness
                             if(questionDifficulty == "Easy"):
@@ -148,10 +148,8 @@ def ChallengeSetup(request):
                             solution_string = re.sub("\n", "\n¬☃", solution_string)
                             solution_string = re.sub("^[ ]+?", "☃", solution_string)
                             
-                            print("Solution String after¬:", solution_string)
                             #we turn the student solution into a list
                             solution_string = [x.strip() for x in solution_string.split('¬')]
-                            print("Solution String Array", solution_string)
                             
                             #get how many spces there are in the first line
                             print("solution_string[0]",solution_string[0])
@@ -172,9 +170,7 @@ def ChallengeSetup(request):
                             
                             solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
                             
-                            print("Tabbed Solution String", solution_string)
-                            print("Solution string after regex,", solution_string)
-                            print("ModelSolution",repr(solution_string).strip('\''))
+                            
                             questdict['model_solution']=repr(solution_string).strip('\'')
                                             
                         #getting the matching questions of the challenge from database
@@ -229,7 +225,7 @@ def ChallengeSetup(request):
                     sessionDict['questions'].append(questSessionDict)
 
             request.session[attemptId]=sessionDict
-            print("attemptID = "+attemptId)               
+            print("attemptID = "+attemptId)       
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
             
         register_event(Event.startChallenge,request,None,challengeId)
