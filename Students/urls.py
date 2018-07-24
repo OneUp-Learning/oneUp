@@ -34,6 +34,7 @@ from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
 from Students.views.studentEarnedTransactions import earnedTransactionsView
 from Students.views.studentNotifications import studentNotifications, updateNotificationTable
+from Students.views.studentQA import studentQA
 
 
 admin.autodiscover()
@@ -63,9 +64,8 @@ urlpatterns = [
     url(r'^TransactionNotes',transactionNotesView, name='Transaction Notes'),
     url(r'^VirtualCurrencyRules',VirtualCurrencyDisplay, name='Virtual Currency Rule List'),
     url(r'^VirtualCurrencyShop',virtualCurrencyShopView, name='Virtual Current Shop'),
-    url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions')
-
-
+    url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions'),
+    url(r'^StudentQA', studentQA, name='Student QA')
     
     # url(r'^oneUp/students/', include('Students.urls')),   
     # url(r'^blog/', include('blog.urls')),

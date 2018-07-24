@@ -15,6 +15,8 @@ from datetime import datetime
 
 from oneUp.logger import logger
 
+import re
+
 @login_required
 def challengeCreateView(request):
     # Request the context of the request.
@@ -275,7 +277,8 @@ def challengeCreateView(request):
             for q in questionObjects:
                 
                 q_type = q.type
-                if q_type in [1,2,3,4]:     # static problems
+                # 8 is parsons
+                if q_type in [1,2,3,4,8]:     # static problems
                     
                     questdict = q.__dict__
                     
@@ -306,9 +309,21 @@ def challengeCreateView(request):
                         matchlist.append(matchdict)
                     questdict['matches']=matchlist
                     qlist.append(questdict)
-                                   
-                else:
                     
+                    if q_type == 8:
+                        answers = Answers.objects.filter(questionID=q.questionID)
+                        if answers:
+                            answer = answers[0]
+                            print("Answer", repr(answer))
+                            answer = repr(answer)
+                            
+                            #regex the answer, swap out the numbers, add a newline after lang and indent\n
+                            answer = re.sub("^<Answers: \d{3},", "# ", answer)
+                            answer = re.sub("ue;", "ue;\n", answer)
+                            answer = re.sub("se;", "se;\n", answer)
+                            questdict['modelSolution'] = answer 
+                              
+                else:
                     # TODO prepare information for displaying dynamic questions
                     qlist = []
         else:

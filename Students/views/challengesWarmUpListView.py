@@ -13,7 +13,8 @@ from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
 
 def challengesForTopic(topic, student, currentCourse):
-    challenge_ID = []  
+    challenge_ID = [] 
+    isWarmup = [] 
     challenge_Name = [] 
     score = []
     chall_position = []
@@ -28,6 +29,7 @@ def challengesForTopic(topic, student, currentCourse):
                 if challQuestions:
                     challID = ct.challengeID.challengeID
                     challenge_ID.append(challID)
+                    isWarmup.append(True)
                     challenge_Name.append(ct.challengeID.challengeName)
                     chall_position.append(ct.challengeID.challengePosition)
     
@@ -54,12 +56,13 @@ def challengesForTopic(topic, student, currentCourse):
                         score.append(2)  # no attempt
     else:
         challenge_ID.append('')
+        isWarmup.append(True)
         challenge_Name.append('')
         score.append(1)
         chall_position.append(0)
 
     #return sorted(list(zip(challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
-    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
+    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position)), key=lambda tup: tup[4])
     
     
 @login_required

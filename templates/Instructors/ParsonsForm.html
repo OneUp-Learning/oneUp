@@ -121,34 +121,45 @@
                         
                         <div class="row">
                         
-                        
-                        
-                        <div class="row">
                         <div class="col s5">
-                        <h6>Language: {{languageName}}</h6>
-                        </div>
-                        <div class="col s6">
-                        <h6>Code Indentation: {{indentation}}</h6>
-                        </div>
-                        </div>
-                        
-                        
-                        <div class="col s5">
-                        <select id="LanguageOption" name="languageName">
-                        				  <option value= "{{languageName|default:'java'}}">Please Select Language</option>
-                                          <option value="java">java</option>
-                                          <option value="python">python</option>
+                        <label>Language</label>
+                        <select id="LanguageOption" name="languageName" {%if view%}readonly{%endif%}>
+                                          <option val="java" value="java" {%if view%}disabled{%endif%}>java</option>
+                                          <option val="python" value="python" {%if view%}disabled{%endif%}>python</option>
                                           </select>
+                                          
                                        </div>
                                        
                                        <div class="col s5">
-                        <select id="indentationBoolean" name="indetationBoolean">
-                        				  <option value= "{{indentation|default:'false' }}">Please Select Indentation</option>
-                                          <option value="true">true</option>
-                                          <option value="false">false</option>
+                                       <label>Code Indentation</label>
+                        <select id="indentationBoolean" name="indetationBoolean" {%if view%}readonly{%endif%}>
+                                          <option val="true" value="true" {%if view%}disabled{%endif%}>true</option>
+                                          <option val="false" value="false" {%if view%}disabled{%endif%}>false</option>
                                        </select>
+                                       
                                        </div>
                                        </div>
+                                       
+                                     <script  type="text/javascript"> 
+                             
+                              //GGM Code to set the language and indentation
+                              $( document ).ready(function() {
+                                     if ("{{languageName}}" != '')  {
+                                    	 $('#LanguageOption').val("{{languageName}}");
+
+                                         // re-initialize material-select
+                                         $('#LanguageOption').material_select();
+                                     } 
+                                     
+                                     if ("{{indentation}}" != '')  {
+                                    	 $('#indentationBoolean').val("{{indentation}}");
+
+                                         // re-initialize material-select
+                                         $('#indentationBoolean').material_select();
+                                     } 
+                                 });
+                              </script>   
+                                       
 
                         <div class="row">
                             <div class="col s12">
@@ -179,7 +190,6 @@
                               //GGM Difficulty Setting Updated Code
                               $( document ).ready(function() {
                                      if ("{{difficulty}}" != '')  {
-                                    	 console.log("med");
                                     	 $('#difficulty').val("{{difficulty}}");
 
                                          // re-initialize material-select

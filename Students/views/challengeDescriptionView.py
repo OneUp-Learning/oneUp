@@ -15,7 +15,7 @@ def ChallengeDescription(request):
     # The context contains information such as the client's machine details, for example.
 
     context_dict,currentCourse = studentInitialContextDict(request)                 
-
+    print("request", request)
     if 'currentCourseID' in request.session:   
         chall_ID = []      
         chall_Name = []  
@@ -35,7 +35,7 @@ def ChallengeDescription(request):
             # Getting the challenge information which the student has selected
             if request.GET['challengeID']:
                 #studentId = 1; # for now student id is 1 as there is no login table.. else studentd id will be the login ID that we get from the cookie or session
-                
+                print("Context Dict", context_dict)
                 if 'isWarmup' in request.GET:
                     context_dict['isWarmup'] = request.GET['isWarmup']
                    
