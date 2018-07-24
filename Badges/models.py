@@ -141,9 +141,11 @@ class Rules(models.Model):
 class RuleEvents(models.Model):
     rule = models.ForeignKey(Rules,db_index=True)
     event = models.IntegerField(default=0,db_index=True)
+    inGlobalContext = models.BooleanField(default=True)
     def __str__(self):
         if self.event in Event.events:
-            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by Event "+str(Event.events[self.event]["name"])+")"
+            context = "global" if self.inGlobalContext else "local"
+            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by Event "+str(Event.events[self.event]["name"])+" in a "+context+" context)"
         else:
             return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by INVALID EVENT)"
 

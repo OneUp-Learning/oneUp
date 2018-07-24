@@ -91,10 +91,11 @@ def SaveBadge(request):
                 # We get all of the related events.
                 context = AwardFrequency.awardFrequency[awardFreq]['objectType']
                 events = get_events_for_condition(badgeCondition,context)
-                for event in events:
+                for event,isGlobal in events:
                     ruleEvent = RuleEvents()
                     ruleEvent.rule = gameRule
                     ruleEvent.event = event
+                    ruleEvent.inGlobalContext = isGlobal
                     ruleEvent.save()
     
                 # Save badge information to the Badges Table

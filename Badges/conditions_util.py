@@ -12,46 +12,58 @@ from Instructors.constants import unassigned_problems_challenge_name
 from Badges.systemVariables import SystemVariable
 from Badges.enums import AwardFrequency
 from Badges.events import operandSetTypeToObjectType, chosenObjectSpecifierFields
+from Badges import systemVariables
 
 #Determine the appropriate event type for each System Variable
-def get_events_for_system_variable(var,context):
+def get_events_for_system_variable(var,context, insideFor):
     # It may come in as a string rather than a number
     # This way we're sure we've got a number.
     var = int(var)
-    # Then we just use it to find the systemVariable enum and we've added a field to this which is a list of events.
-    return set(SystemVariable.systemVariables[var]['eventsWhichCanChangeThis'][context])
+    # Each systemVariable in the enum has a dictionary which shows all the events which
+    # can change this.
+    eventsDict = SystemVariable.systemVariables[var]['eventsWhichCanChangeThis']
+    # However, in a given context, we could either have events for that context or in some cases
+    # the global context.  Variables can be defined for the global context or a specific one,
+    # not both.  So to see if we're using a global variable, we check if the global context is defined.
+    if ObjectTypes.none in eventsDict:
+        # If it is global, we return its events along with an indication that they are global
+        return set((e,True) for e in eventsDict[ObjectTypes.none])
+    else:
+        # Otherwise, we find the events for the context and return them along with an indication that
+        # they are not global, unless we are inside a for.
+        return set((e,insideFor) for e in eventsDict[context])
 
 leaf_condition_operators = ['==','=','<','>','<=','>=','!=']
 binary_condition_operators = ['AND','OR','NOT']
 unary_condition_operators = ['NOT']
 for_list_condition_operators = ['FOR_ALL','FOR_ANY']
-def get_events_for_condition(cond, context):
+def get_events_for_condition(cond, context, insideFor = False):
     
     def getEventsFromConditionSet(condition,context):
         subConds = [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
         eventSet = set()
         for subCond in subConds:
-            eventSet = eventSet.union(get_events_for_condition(subCond,context))
+            eventSet = eventSet.union(get_events_for_condition(subCond,context,insideFor))
         return eventSet
     
     if cond.operation in leaf_condition_operators:
         eventSet = set()
         if (cond.operand1Type == OperandTypes.systemVariable):
-            eventSet = eventSet.union(get_events_for_system_variable(cond.operand1Value,context))
+            eventSet = eventSet.union(get_events_for_system_variable(cond.operand1Value,context,insideFor))
         if (cond.operand2Type == OperandTypes.systemVariable):
-            eventSet = eventSet.union(get_events_for_system_variable(cond.operand2Value,context))
+            eventSet = eventSet.union(get_events_for_system_variable(cond.operand2Value,context,insideFor))
         return eventSet
     elif cond.operation in binary_condition_operators:
         if cond.operand1Type == OperandTypes.conditionSet:
             return getEventsFromConditionSet(cond)
         else:
-            cond1events = get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value),context)
-            cond2events = get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value),context)
+            cond1events = get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value),context,insideFor)
+            cond2events = get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value),context,insideFor)
             return cond1events.union(cond2events)
     elif cond.operation in unary_condition_operators:
-        return get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value), context)
+        return get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value),context,insideFor)
     elif cond.operation in for_list_condition_operators:
-        return get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value), operandSetTypeToObjectType(cond.operand1Type))
+        return get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value), operandSetTypeToObjectType(cond.operand1Type),True)
     else:
         return "ERROR: Invalid operator in condition.  Should be one of '==','<','>','<=','>=','!=','AND','OR','NOT','FOR_ALL','FOR_ANY'."
 
