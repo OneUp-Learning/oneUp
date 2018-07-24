@@ -1154,7 +1154,7 @@ class SystemVariable():
             'displayName': 'Is WarmUp Challenge',
             'description': 'True if the challenge in question is a warmup challenge, false if serious.',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[],
+                ObjectTypes.challenge:[Event.endChallenge],
             },
             'type':'boolean',
             'functions':{
