@@ -761,7 +761,7 @@ function condChangeForAllType(select) {
         return;
     }
     select.dataset.condOldType = currentType;
-    var forAllDiv = select.parentNode.parentNode.parentNode.parentNode
+    var forAllDiv = select.parentNode.parentNode.parentNode
     //console.log(forAllDiv)
     //console.log(forAllDiv.children)
     var listDivs = {};
@@ -777,10 +777,9 @@ function condChangeForAllType(select) {
     listDivs[currentType].removeAttribute("hidden");
     selectedDivs[currentType].removeAttribute("hidden");
     selectedDivs[currentType].style.display = "flex";
-    console.log(selectedDivs[currentType]);
+    //console.log(selectedDivs[currentType]);
 
     var subDivs = forAllDiv.getElementsByTagName("DIV");
-    console.log(subDivs);
     [].forEach.call(subDivs, function(subDiv) {
         subDiv.dataset.condInsideQualifier = currentType;
     });
