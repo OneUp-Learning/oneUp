@@ -55,7 +55,7 @@ def get_events_for_condition(cond, context, insideFor = False):
         return eventSet
     elif cond.operation in binary_condition_operators:
         if cond.operand1Type == OperandTypes.conditionSet:
-            return getEventsFromConditionSet(cond)
+            return getEventsFromConditionSet(cond,context)
         else:
             cond1events = get_events_for_condition(Conditions.objects.get(pk=cond.operand1Value),context,insideFor)
             cond2events = get_events_for_condition(Conditions.objects.get(pk=cond.operand2Value),context,insideFor)

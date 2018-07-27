@@ -1,5 +1,5 @@
 from Badges.models import Rules, ActionArguments, Conditions, BadgesInfo, Badges,\
-    ActivitySet, VirtualCurrencyRuleInfo
+    ActivitySet, VirtualCurrencyRuleInfo, RuleEvents
 from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     AwardFrequency
@@ -148,19 +148,40 @@ def register_event(eventID, request, student=None, objectId=None):
     eventEntry.save()
     
     # check for rules which are triggered by this event
-    potentials = Rules.objects.filter(courseID=courseId).filter(ruleevents__event=eventID)
-    print(potentials)
-    for potential in potentials:
+    matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventID)
+    matchingRuleWithContext = dict()
+    for ruleEvent in matchingRuleEvents:
+        if ruleEvent.rule in matchingRuleWithContext:
+            matchingRuleWithContext[ruleEvent.rule] = matchingRuleWithContext[ruleEvent.rule] or ruleEvent.inGlobalContext
+        else:
+            matchingRuleWithContext[ruleEvent.rule] = ruleEvent.inGlobalContext
+        
+    for potential in matchingRuleWithContext:
         condition = potential.conditionID
-        objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
-        objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
-        result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
-        if result:
-            for objID in objIDList:
-                if check_condition(condition,courseId,student,objType,objID):
-                    print('after check_condition')
-                    fire_action(potential,courseId,student,objID)
-                
+        
+        # First we check if there is an associated award frequency.  If there isn't, we can just check the 
+        # rule as is.  That's the simple case because there's no local context.
+        if potential.awardFrequency == AwardFrequency.justOnce:
+            if check_condition(condition, courseId, student, eventEntry.objectType, eventEntry.objectID):
+                fire_action(potential,courseId,student,eventEntry.objectID)
+        else:            
+            objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
+            objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
+            
+            if matchingRuleWithContext[potential]:
+                # The match is for a variable in a global context (either a global variable or a variable inside a for clause
+                objIDList = objSpecifier.getMatchingObjectIds(courseId)
+                objType = objSpecifier.objectType
+                result = True
+            else:
+                # The match is for a variable in a local context (a variable from the context of a specifier)
+                result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
+
+            if result:
+                for objID in objIDList:
+                    if check_condition(condition,courseId,student,objType,objID):
+                        fire_action(potential,courseId,student,objID)
+            
     return eventEntry
 
 # This method checks whether or not a given condition is true
@@ -411,11 +432,13 @@ chosenObjectSpecifierFields = {
             'fun': lambda act: [act.activityID],
             'selectionType': 'object',
             'objectType': ObjectTypes.activity,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist)
         },
         'category': {
             'fun': lambda act: [act.category],
             'selectionType': 'object',
             'objectType': ObjectTypes.activityCategory,
+            'addfilter': lambda objs,catlist: objs.filter(category__pk__in=catlist),
         },
     },
     ObjectTypes.challenge:{
@@ -423,16 +446,19 @@ chosenObjectSpecifierFields = {
             'fun': lambda chall: [chall.challengeID],
             'selectionType': 'object',
             'objectType': ObjectTypes.challenge,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
         },
         'topic': {
             'fun': lambda chall: [ct.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
             'selectionType': 'object',
             'objectType': ObjectTypes.topic,
+            'addfilter': lambda objs,topiclist: objs.filter(topicID__pk__in=topiclist),
         },
         'type': {
             'fun': lambda chall: ['serious' if chall.isGraded else 'warmup'],
             'selectionType': 'list',
             'list': ['serious','warmup'],
+            'addfilter': lambda objs, valueList: objs.filter(isGraded=(valueList[0]=='serious')),
         },
     },
     ObjectTypes.topic:{
@@ -440,6 +466,7 @@ chosenObjectSpecifierFields = {
             'fun': lambda topic: [topic.topicID],
             'selectionType': 'object',
             'objectType': ObjectTypes.topic,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
         },
     },
     ObjectTypes.activityCategory:{
@@ -447,6 +474,7 @@ chosenObjectSpecifierFields = {
             'fun': lambda ac: [ac.categoryID],
             'selectionType': 'object',
             'objectType': ObjectTypes.activityCategory,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
         },
     },
     ObjectTypes.none:{},
@@ -459,6 +487,13 @@ objectTypesToObjects = {
     ObjectTypes.activityCategory: ActivitiesCategory,
 }
 
+objectTypesToGetAllFromCourse = {
+    ObjectTypes.challenge: lambda course: Challenges.objects.filter(courseID = course),
+    ObjectTypes.activity: lambda course: Activities.objects.filter(courseID = course),
+    ObjectTypes.topic: lambda course: CoursesTopics.objects.filter(courseID = course).select_related("topicID"),
+    ObjectTypes.activityCategory: lambda course: ActivitiesCategory.objects.filter(courseID = course),
+}
+    
 def objectTypeFromObject(obj):
     if type(obj) is Challenges:
         return ObjectTypes.challenge
@@ -563,6 +598,16 @@ class ChosenObjectSpecifier:
                     return True, self.objectType, outputList
                 else:
                     return False, objType, []
+                
+        # This last case should not actually happen due to how the code which calls this code is structured,
+        # but we're going to default to success since that's less likely to cause problems in the event that
+        # something went wrong.  It may sometimes cause problems, but that's likely preferable to always
+        # giving an error right now.
         return True, objType, [objID]
-
-            
+    
+    def getMatchingObjectIds(self,course):
+        objects = objectTypesToGetAllFromCourse[self.objectType](course)
+        for rule in self.rules:
+            if rule['op'] == 'in':
+                objects = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['addfilter'](objects,rule['value'])
+        return [obj.pk for obj in objects]
