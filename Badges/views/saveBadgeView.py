@@ -117,7 +117,7 @@ def SaveBadge(request):
                     actionArgument.sequenceNumber = 1
                     actionArgument.argumentValue =  badgeId.badgeID
                     actionArgument.save()
-            if 'edit' in request.POST:
+            if 'badgeId' in request.POST:
                 oldRuleToDelete.delete_related()
                 oldRuleToDelete.delete()  
                 
