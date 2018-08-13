@@ -435,7 +435,7 @@ chosenObjectSpecifierFields = {
             'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist)
         },
         'category': {
-            'fun': lambda act: [act.category],
+            'fun': lambda act: [act.category.categoryID],
             'selectionType': 'object',
             'objectType': ObjectTypes.activityCategory,
             'addfilter': lambda objs,catlist: objs.filter(category__pk__in=catlist),
@@ -449,7 +449,7 @@ chosenObjectSpecifierFields = {
             'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
         },
         'topic': {
-            'fun': lambda chall: [ct.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
+            'fun': lambda chall: [ct.topicID.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
             'selectionType': 'object',
             'objectType': ObjectTypes.topic,
             'addfilter': lambda objs,topiclist: objs.filter(topicID__pk__in=topiclist),
