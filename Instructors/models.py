@@ -4,13 +4,11 @@ from django.db import models
 from django import forms
 
 from django.contrib.auth.models import User
-from django.template.defaultfilters import default
 from datetime import datetime
-from Instructors.constants import uncategorized_activity
 
-from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 
+from Badges.enums import QuestionTypes
 
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
@@ -75,13 +73,30 @@ class Questions(models.Model):
     author = models.CharField(max_length=100, default="")  
 #     topicID = models.ForeignKey(Topics, verbose_name="the related topic", db_index=True) 
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
-    def __str__(self):              
+    def __str__(self):
         return str(self.questionID)+","+self.preview
+    def getQuestionDict(self):
+        questdict = {
+            'quetionID':self.questionID,
+            'preview':self.preview,
+            'instructorNotes':self.instructorNotes,
+            'type':self.type,
+            'typedict':QuestionTypes.questionTypes[self.type],
+            'difficulty':self.difficulty,
+            'author':self.author,
+        }
+        return questdict
     
 class StaticQuestions(Questions):
     questionText = models.CharField(max_length=10000)
     correctAnswerFeedback = models.CharField(max_length=1000, default="")
     incorrectAnswerFeedback = models.CharField(max_length=1000, default="")
+    def getQuestionDict(self):
+        questdict = super.getQuestionDict()
+        questdict['questionText'] = self.questionText
+        questdict['correctAnswerFeedback'] = self.correctAnswerFeedback
+        questdict['incorrectAnswerFeedback'] = self.incorrectAnswerFeedback
+        return questdict
     
 # class ParsonsQuestions(Questions):
 #     questionText = models.CharField(max_length=10000)
