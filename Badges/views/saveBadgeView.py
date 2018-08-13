@@ -62,6 +62,7 @@ def SaveBadge(request):
             # If editing an existent one, we need to delete it first before saving the updated information in the database            
             if 'badgeId' in request.POST:   #edit or delete badge 
                 badge = Badges.objects.get(pk=int(request.POST['badgeId']))
+                oldRuleToDelete = vcRuleInfo.ruleID
             else:
                 badge = Badges()  # create new badge             
             if 'edit' in request.POST:
@@ -116,6 +117,9 @@ def SaveBadge(request):
                     actionArgument.sequenceNumber = 1
                     actionArgument.argumentValue =  badgeId.badgeID
                     actionArgument.save()
+            if 'edit' in request.POST:
+                oldRuleToDelete.delete_related()
+                oldRuleToDelete.delete()  
                 
             else:
                 print("other")

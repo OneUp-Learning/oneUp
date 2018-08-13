@@ -130,6 +130,7 @@ def SaveVirtualCurrencyRule(request):
                     actionArgument.save()
 
                 if 'edit' in request.POST:
+                    oldRuleToDelete.delete_related()
                     oldRuleToDelete.delete()
                 
     return redirect("/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom="+str(isRuleCustom))
