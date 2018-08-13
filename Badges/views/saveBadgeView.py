@@ -117,13 +117,18 @@ def SaveBadge(request):
                     actionArgument.sequenceNumber = 1
                     actionArgument.argumentValue =  badgeId.badgeID
                     actionArgument.save()
-            if 'badgeId' in request.POST:
-                oldRuleToDelete.delete_related()
-                oldRuleToDelete.delete()  
-                
+
+                if 'badgeId' in request.POST:
+                    oldRuleToDelete.delete_related()
+                    oldRuleToDelete.delete()  
+                            
             else:
                 print("other")
+                badge.ruleID.delete_related()
+                badge.ruleID.delete()
                 badge.delete()
+
+
                 
     return redirect("/oneUp/badges/Badges")
     
