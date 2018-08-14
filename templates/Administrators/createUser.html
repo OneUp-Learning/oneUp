@@ -3,7 +3,9 @@
    <head>
       {% include 'scripts.html' %}
       <script>
-      $(document).ready(function(){
+
+   		
+      function validateOnSubmit(){
     	  var form = $('#createStudentForm')
     	  form.on('submit', function(ev){
     		  ev.preventDefault();
@@ -17,19 +19,15 @@
    		        		for(var i = 0; i < msg.errorMessages.length; i++){
    		        			Materialize.toast(msg.errorMessages[i], 4000);
    		        		}
+   		        		console.log("false submit clicked");
+   		        		alert("Bad submit");
    		        		return false;
    		        	}
-   		        	form.off('submit').submit();
-   		            
-   		        },
-   		        error: function() {
-   		            alert("Bad submit");
-   		            return false;
-   		        }
-    		  });
-    	  });
-      });
-   
+    	  return true;
+      		  }
+        	  });
+          });
+      }
       </script>
    </head>
    <body>
@@ -44,7 +42,7 @@
          </div>
          <div class="row">
             <div class="col s12 m8 offset-m2">
-               <form id="createStudentForm" name="createStudentForm" action="/oneUp/instructors/createStudentView" method="POST">
+               <form id="createStudentForm" name="createStudentForm" onsubmit= "return validateOnSubmit()" action="/oneUp/instructors/createStudentView" method="POST">
                   {% csrf_token %} 
                   {% if userID %}
                   <input type="hidden" name="userID" id="userID" value="{{userID}}"> 
