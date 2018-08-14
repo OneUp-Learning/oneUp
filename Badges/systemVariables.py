@@ -448,8 +448,8 @@ def getScoreDifferenceFromPreviousActivity(course, student, activity):
     stud_assignments = []
     # filter only the activities started with "Assignment"
     for sa in stud_activities:
-        if sa.activityID.activityName.startswith('Assign'):
-            stud_assignments.append(sa)
+#        if sa.activityID.activityName.startswith('Assign'):
+        stud_assignments.append(sa)
             
     print('Stud_asssignments',stud_assignments)
 
@@ -499,8 +499,8 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
     assignments = []
     # filter only the activities started with "Assignment"
     for sa in stud_activities:
-        if sa.activityID.activityName.startswith('Assign'):
-            assignments.append(sa.activityID)
+#        if sa.activityID.activityName.startswith('Assign'):
+        assignments.append(sa.activityID)
     #print('assignments',assignments)
 
     # now work only with the assignments
