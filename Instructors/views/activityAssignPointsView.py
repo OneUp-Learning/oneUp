@@ -70,7 +70,7 @@ def activityAssignPointsView(request):
                 actName = activity.activityName
                     
                 notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                            verb= actName+' has been graded', nf_type='Activity Graded')
+                            verb= actName+' was graded', nf_type='Activity Graded')
             
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
@@ -107,7 +107,7 @@ def activityAssignPointsView(request):
                 actName = activity.activityName
                     
                 notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                            verb= actName+' has been graded', nf_type='Activity Graded')
+                            verb= actName+' was graded', nf_type='Activity Graded')
 
                 activityGradedNow[studentRC.studentID] = True
        
