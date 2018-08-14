@@ -91,6 +91,9 @@ def register_event(eventID, request, student=None, objectId=None):
         eventEntry.objectID = 0
     if(eventID == Event.visitedVCRulesInfoPage):
         eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0  
+    if(eventID == Event.visitedLeaderboardPage):
+        eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = 0
                 
     # Virtual Currency Events

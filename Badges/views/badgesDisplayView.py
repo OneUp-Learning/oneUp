@@ -22,6 +22,7 @@ def BadgesDisplay(request):
  
     studentId = context_dict['student']
     register_event(Event.visitedBadgesInfoPage, request, studentId, None)
+    register_event(Event.visitedLeaderboardPage, request, studentId, None)
            
     badgeId = [] 
     badgeName = []

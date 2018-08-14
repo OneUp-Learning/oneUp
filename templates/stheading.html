@@ -101,7 +101,11 @@
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course Infomation</a>
 					<ul id="courseinfo" class="dropdown-content">
 						<li><a class="waves-effect" href="/oneUp/students/StudentHome">Student's Home</a></li>
-						<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>							
+						<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>
+						<!-- GGM added leaderboard to navigation bar -->
+						{%if studentConfigParams.displayLeaderBoard %}
+						<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Leaderboard</a></li>
+						{% endif %}							
 						<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
 						<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>						
 						{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
@@ -177,6 +181,9 @@
 									<li><a class="waves-effect" href="/oneUp/students/StudentHome">Student's Home</a></li>
 									<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>							
 									<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
+									{%if ccparams.gamificationUsed and studentConfigParams.displayLeaderBoard %}
+									<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Leaderboard</a></li>
+									{% endif %}	
 									<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>						
 									{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
 									<li><a class="waves-effect" href="/oneUp/badges/CourseBadges">Course Badges</a></li>
