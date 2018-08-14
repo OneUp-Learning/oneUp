@@ -54,34 +54,6 @@
                      </div>
                   </div>
                </div>
-               <div class="row">
-                  {% if leaderboardUsed and displayLeaderBoard and ccparams.gamificationUsed %}                        
-                  <div class="col s12 m6">
-                     <div class="card-panel">
-                        <table>
-                           <caption>
-                              <h5>Leaderboard</h5>
-                           </caption>
-                           <thead>
-                              <th>Student</th>
-                              <th>XP</th>
-                           </thead>
-                           <tbody>
-                              {% for i,avatarImage,xpoints, user in user_range %}
-                              <tr>
-                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
-                            <td>{{xpoints}}</td>
-                        	</tr>
-                              {% empty %}
-                              <tr>
-                                 <td class="center-align" colspan="2"><i>No students with XP</i></td>
-                              </tr>
-                              {% endfor %}
-                           </tbody>
-                        </table>
-                     </div>
-                  </div>
-                  {% endif %}
                   {% if classSkillsDisplayed and displayClassSkills and ccparams.gamificationUsed %}                    
                   <div class="col s12 m6">
                      <div class="card-panel">
@@ -114,32 +86,7 @@
                   </div>
                   {% endif %}
                </div>
-               {% if badgesUsed and displayBadges and ccparams.gamificationUsed %}                
-               <div class="row">
-                  <div class="col s12">
-                     <div class="card-panel">
-                        <table>
-                           <thead>
-                              <th>Latest Badges</th>
-                           </thead>
-                           <tbody>
-                              <tr>
-                                 <td>
-                                    {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}    
-                                    <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
-                                    <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
-                                    &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                                    {% empty %}
-                                    <i>No badges earned</i>
-                                    {% endfor %}
-                                 </td>
-                              </tr>
-                           </tbody>
-                        </table>
-                     </div>
-                  </div>
-               </div>
-               {% endif %}
+              
             </div>
          </div>
       </main>

@@ -24,7 +24,8 @@ def studentInitialContextDict(request):
         
         
     ##GGM determine if student has leaderboard enabled
-    context_dict['studentConfigParams'] = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
+    studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
+    context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
 
         
     return context_dict,currentCourse

@@ -13,17 +13,22 @@ from Badges.enums import Event
 from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
+from Students.views.utils import studentInitialContextDict
+
 
 @login_required
 
 
 def StudentCourseHome(request):
- 
+
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated()
     if request.user.is_authenticated():
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
+        
+        
+
 
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
@@ -41,7 +46,11 @@ def StudentCourseHome(request):
                       
         context_dict = courseLeaderboard(currentCourse, context_dict)
            
-        scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)    
+        scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)   
+        ##GGM determine if student has leaderboard enabled
+        studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
+        context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
+         
         if len(scparamsList) > 0:
             scparams = scparamsList[0]
             context_dict["displayBadges"]=scparams.displayBadges
@@ -51,6 +60,7 @@ def StudentCourseHome(request):
             
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
+
            
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.userLogin, request, None, None)
