@@ -1,253 +1,294 @@
- <!-- Used for the notifications -->
+<header>
+<style>
+    i.icon-yellow:hover {
+        color: yellow;
+    }
+</style>
 {% load staticfiles %}       
 {% load notification_tags %}
-{% include_notify_js_variables %} 
+{% include_notify_js_variables %}
 <script src="{% static "notify/notifyX.js" %}"></script>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <script>
-	var updateSuccess = function (response) {
-	    var notification_box = $('#nMenu');
-	    var notifications = response.notifications;
-	    $.each(notifications, function (i, notification) {
-	        notification_box.prepend(notification.html);
-	    });
-	    
-	    //IF table on page then update
-	};
-
-
-	function countNotifications(){
-		numItems = $('.navNotifications').length;
-		if(numItems == 0){
-			numItems = null;
-			document.getElementById("notificationCount").style.display = "none";
-			x  = document.getElementById("nMenu").children;
-			x = x[0];
-			y = document.createElement('li');
-			y.setAttribute("class", "nav_login_second_level_items" );
-			y.innerHTML = "<a href='#'>No new notifications yet</a>"
-			x.parentNode.replaceChild(y, x);
-			
-			document.getElementById("clearAll").style.display = "none";
-
-		} else {
-			document.getElementById("notificationCount").textContent=numItems;
-			document.getElementById("clearAll").style.display = "inline";
-
-		}
-		
-		noteBoxHeight = $('#nMenu').height();
-		if(noteBoxHeight > 325){
-			$('#nMenu').css('height', 325);
-		}
-		
-	}
-	
-	$(document).ready(function() {
-		countNotifications();
-		setInterval(function(){
-			countNotifications();
-		}, 5000);
-	});
-	
-	$(document).on('click', '#clearAll', function() {
-		console.log("Clear all clicked")
-        $(".delete-box").click();
-		countNotifications();
-		document.getElementById("clearAll").style.display = "none";
-
-    });
-</script>
-
-<style>
-.button__badge {
-  background-color: #fa3e3e;
-  border-radius: 1px;
-  color: white;
- 
-  padding: 1px 1.5px;
-  font-size: 10px;
-  
-  position: relative; /* Position the badge within the relatively positioned button */
-  right: 0px;
-  bottom: 15px;
+        var updateSuccess = function (response) {
+            var notification_box = $('#nMenu1');
+            var notification_box2 = $('#nMenu2');
+            var notifications = response.notifications;
+            $.each(notifications, function (i, notification) {
+                notification_box.prepend(notification.html);
+                notification_box2.prepend(notification.html);
+            });
+            
+            //IF table on page then update
+        };
+    
+    
+        function countNotifications(){
+            numItems = Math.trunc($('.navNotifications').length/2.0);
+            $('.tooltipped').tooltip({delay: 50});
+            if(numItems == 0){
+                numItems = null;
+    
+                document.getElementById("notification-count1").setAttribute('data-tooltip', "No Notifications");
+                document.getElementById('notification-count1').children[0].innerHTML = 'notifications';
+    
+                x = document.getElementById("nMenu1").children;
+                x = x[0];
+                y = document.createElement('li');
+                y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
+                x.parentNode.replaceChild(y, x);
+    
+                document.getElementById("notification-count2").style.display = "none";
+    
+                x = document.getElementById("nMenu2").children;
+                x = x[0];
+                y = document.createElement('li');
+                y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
+                x.parentNode.replaceChild(y, x);
+                
+                document.getElementById("clearAll").style.display = "none";
+    
+            } else {
+                document.getElementById("notification-count1").setAttribute('data-tooltip', numItems + " New");
+                document.getElementById('notification-count1').children[0].innerHTML = 'notifications_active';
+    
+                document.getElementById("notification-count2").style.display = "visible";
+                document.getElementById("notification-count2").textContent= numItems;
+    
+                document.getElementById("clearAll").style.display = "inline";
+            }
+            
+        }
+        
+        $(document).ready(function() {
+            countNotifications();
+            setInterval(function(){
+                countNotifications();
+            }, 5000);
+            $('.tooltipped').tooltip({delay: 50});
+        });	
+        
+            $(document).on('click', '#clearAll', function() {
+                console.log("Clear all clicked")
+                $(".delete-box").click();
+                countNotifications();
+                document.getElementById("clearAll").style.display = "none";
+    
+            });
+    </script>
+    
+    <style>
+.dropdown-submenu {
+    position: relative;
 }
-</style> 
-  <header>
-            <nav class="Navigation">
-               <div class="Nav_Top">
-                  <ul class="nav_top_level">
-                     <a class="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
-                     <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Tools</a>
-                        <ul class="nav_second_level">
-                        	<li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/instructorHome"> Instructor's Home</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/instructorCourseHome"> Course Home</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/announcementList">Announcements</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/exportChallenges">Export Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/uploadChallenges">Import Challenges</a>
-                           </li>
- 						   <li class="nav_second_level_items">
- 						   	  <a href="/oneUp/instructors/exportGradebook">Export GradeBook</a>
- 						   </li>                          
-                           <li class="nav_second_level_items">
-<!--                               <a href="/oneUp/instructors/courseInformation">Email</a> -->
-                               <a href="">Email</a>
-                           </li>                           
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Information</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/courseInformation">Course Description</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/topicsList">Course Topics</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/skillsList">Targeted Skills</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/milestonesList">Course Milestones</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/createStudentListView">Students</a>
-                           </li>
-                           
-                        </ul>
-                     </li>                     
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Content</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/activitiesList">Activities</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengesList">Serious Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/warmUpChallengeList">Warm Up Challenges</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/imageList">Images</a>
-                           </li>   
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/luaLibUploadView">Libraries for Dynamic Problems</a>
-                           </li> 
-                                                   
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Course Reports</a>
-                        <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/studentAchievements">Students Scores</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/studentSummary">Students Summary</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/classAchievements">Class Scores</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/challengesList">Visualization</a>
-                              <ul class="nav_third_level">
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classAchievementsViz?serious"> Serious Challenges</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classAchievementsViz?warmUp"> Warm-Up Challenges</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/instructors/classAchievementsViz?skills"> Skills</a>
-                                 </li>                                 
-                              </ul>
-                           </li>
-                        </ul>
-                     </li>
-                     <li class="nav_top_level_items">
-                        <a href="#">Game Features</a>
-                        <ul class="nav_second_level">
-                          <li class="nav_second_level_items">
-                              <a href="/oneUp/badges/Badges">Badges</a>
-                          </li>
-                          <li class="nav_second_level_items">
-                              <a href="">Leveling</a>
-                           </li>
-                            <li class="nav_second_level_items">
-                              <a href="#!">Virtual Currency</a>
-                              <ul class="nav_third_level">
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency For Students</a>
-                                 </li>
-                                 <li class="nav_third_level_items">
-                                    <a href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a>
-                                 </li>                                 
-                              </ul>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/instructors/preferences">Gamification Configuration</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-               </div>
-               <div class="Nav_Bottom">
-                  {% if logged_in %}
-                  <p>Course: {{course_Name}}</p>
-                  <ul class="nav_login">
-                     <li class="nav_login_items">
-                        <a href="#">Welcome, {{username}}<i class="fa fa-chevron-down"></i></a>
-                        <ul class="nav_login_second_level">
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/administrators/courses">Change Course</a>
-                           </li>
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/students/Logout">Logout</a>
-                           </li>
-                        </ul>
-                     </li>
-                     
-                     &nbsp;&nbsp;&nbsp;
-                     
-                     <li class="nav_login_items">
-						<a href="/oneUp/students/NotificationPage" ><img src="/static/images/horn.png"><span class="button__badge" id='notificationCount'></span> </a>
-							<ul class="nav_login_second_level" style="width: 205px;">  <!-- Width can be between 200 and 300 still playing with it -->
-								<div id="nMenu" class="notification-box-list">
-								{% user_notifications for box %}
-								</div>
-								<li class="nav_login_second_level_items"><a id="clearAll" href="#">
-       								<span size="100">Clear All </span>
-       								<i class="material-icons" style="font-size:18px;vertical-align:middle;position: relative;left: 110px;">&#xe0b8;</i>
-								</a></li>
-							</ul>
-						</li>
-                     
-                  </ul>
-                  {% endif %}
-               </div>
-            </nav>
-         </header>
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -1px;
+}
+</style>
+
+    <ul id="account" class="dropdown-content">
+        <li><p class="center-align">Welcome, {{username}}</p></li>            
+        <li><p class="center-align">Course: {{course_Name}}</p></li>
+        <li class="divider"></li>
+        <li><a href="/oneUp/administrators/courses">Change Course</a></li>
+        <li><a href="/oneUp/students/Logout">Logout</a></li>
+    </ul>
+    <ul id="visualization" class="dropdown-content">
+        <li><a href="/oneUp/instructors/classAchievementsViz?serious">Serious Challenges</a></li>
+        <li><a href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges</a></li>
+        <li><a href="/oneUp/instructors/classAchievementsViz?skills">Skills</a></li>  
+    </ul>
+    <ul id="virtualcurrency" class="dropdown-content"> 
+        <li><a href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
+        <li><a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
+        <li><a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
+        <li><a href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
+        <li><a href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a></li>  
+    </ul>
+    <nav>
+        <div class="nav-wrapper">
+        <a href="#" class="brand-logo"><i class="large material-icons icon-yellow">lightbulb_outline</i>OneUp</a>
+        <a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i></a>
+        <ul class="right hide-on-med-and-down">
+            <li>
+                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Course Tools</a>
+                <ul id="coursetools" class="dropdown-content">
+                    <li><a class="waves-effect" href="/oneUp/instructors/instructorHome">Instructor's Home</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/instructorCourseHome">Course Home</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/announcementList">Announcements</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
+                </ul>
+            </li>
+            <li>
+                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course Information</a>
+                <ul id="courseinfo" class="dropdown-content">
+                    <li><a class="waves-effect" href="/oneUp/instructors/courseInformation">Course Description</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/topicsList">Course Topics</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/activityCats">Activity Categories</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
+                </ul>
+            </li>
+            <li>
+                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursecontent">Course Content</a>
+                <ul id="coursecontent" class="dropdown-content">
+                    <li><a class="waves-effect" href="/oneUp/instructors/activitiesList">Activities</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/challengesList">Serious Challenges</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/warmUpChallengeList">Warm Up Challenges</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/imageList">Images</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/luaLibUploadView">Libraries for Dynamic Problems</a></li>
+                </ul>
+            </li>
+            <li>
+                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursereports">Course Reports</a>
+                <ul id="coursereports" class="dropdown-content">
+                    <li><a class="waves-effect" href="/oneUp/instructors/studentAchievements">Students Scores</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/studentSummary">Student Summary</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?serious">Serious Challenges Visualization</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges visualization</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills Visualization</a></li>  
+                </ul>
+            </li>
+            {% if ccparams.gamificationUsed %}
+            <li>
+                <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="gamefeats">Game Features</a>
+                <ul id="gamefeats" class="dropdown-content">
+                    <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
+<!--                     <li><a class="waves-effect" href="">Leveling</a></li> -->
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
+        			<li><a class="waves-effect" href="/oneUp/badges/AddBadgeManually">Add Badge to Students</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a></li>  
+                    <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
+                </ul>
+            </li>
+            {% endif %}
+            <li>
+                <a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
+                    <i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
+                </a>
+                <ul id="notifications" class="dropdown-content">
+                    <div id="nMenu1" class="notification-box-list">
+                    {% user_notifications for box %}
+                    </div>
+                    <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
+                </ul>
+            </li>
+            {% if logged_in %}            
+            <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="account"><i class="material-icons">more_vert</i></a></li>
+            {% endif %}
+        </ul>
+        <ul class="side-nav" id="slide-out">
+            {% if logged_in %}
+            <li>
+                <div class="user-view">
+                    <div class="background">
+                      <img src="/static/images/pic01.jpg">
+                    </div>
+                    <a href="#!user"><img class="circle" src="/static/images/avatars/25.png"></a>
+                    <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
+                    <a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
+                  </div>
+            </li>   
+            {% endif %}             
+            <li class="no-padding">
+                <ul class="collapsible collapsible-accordion">
+                    <li>
+                        <a class="collapsible-header"><i class="material-icons">build</i>Course Tools</a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a class="waves-effect" href="/oneUp/instructors/instructorHome">Instructor's Home</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/instructorCourseHome">Course Home</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/announcementList">Announcements</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a class="collapsible-header"><i class="material-icons">info</i>Course Information</a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a class="waves-effect" href="/oneUp/instructors/courseInformation">Course Description</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/topicsList">Course Topics</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a class="collapsible-header"><i class="material-icons">library_books</i>Course Content</a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a class="waves-effect" href="/oneUp/instructors/activitiesList">Activities</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/challengesList">Serious Challenges</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/warmUpChallengeList">Warm Up Challenges</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/imageList">Images</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/luaLibUploadView">Libraries for Dynamic Problems</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a class="collapsible-header"><i class="material-icons">assessment</i>Course Reports</a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a class="waves-effect" href="/oneUp/instructors/studentAchievements">Students Scores</a></li>
+                                <li><a href="/oneUp/instructors/studentSummary">Students Summary</a></li>                                
+                                <li><a class="waves-effect" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
+                                <li>
+                                    <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="visualization">Visualization<i class="material-icons right">more_vert</i></a></li>                                    
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    {% if ccparams.gamificationUsed %}
+                    <li>
+                        <a class="collapsible-header"><i class="material-icons">extension</i>Game Features</a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
+<!--                                 <li><a class="waves-effect" href="">Leveling</a></li> -->
+                                <li>
+                                    <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
+                                </li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
+                        </div>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
+                        <div class='collapsible-body'>
+                            <ul>
+                                <div id="nMenu2" class="notification-box-list">
+                                {% user_notifications for box %}
+                                </div>			
+                                <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            {% if logged_in %}                        
+            <li class="divider"></li>
+            <li><a class="waves-effect" href="/oneUp/administrators/courses">Change Course</a></li>
+            <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>
+            {% endif %}
+        </ul>
+        </div>
+    </nav>
+</header>
+

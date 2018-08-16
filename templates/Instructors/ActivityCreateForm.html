@@ -1,110 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">      
-      <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" media="screen"
-     href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">
-    {% include 'scripts.html' %}  
-      
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-   	<script type="text/javascript"
-     src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js">
-    </script> 
-    <script type="text/javascript"
-     src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js">
-    </script>
-    <script type="text/javascript"
-     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">
-    </script>
-    <script type="text/javascript"
-     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.pt-BR.js">
-    </script> 
-    <script type="text/javascript">
- 	// This script handels the datetime fields (AH)
-      $(function() {
-    	  $('#datetimepicker2').datetimepicker({
-              language: 'en',
-              pick12HourFormat: true,
-            
-            });
-         $('#datetimepicker3').datetimepicker({
-           language: 'en',
-           pick12HourFormat: true           
-         });
-         if($("#datetimepicker3").data('datetimepicker').getDate() == $("#datetimepicker2").data('datetimepicker').getDate()){
-             $("#datetimepicker3").data('datetimepicker').setDate(null);
-         }
-        // Called when first datefield(Display From) is changed (AH)
-   		$("#datetimepicker2").on('changeDate', function(e) {
-   			// Sets the Start Date of the second datefield(Display Until) to be the assigned date of the
-   			// first datefield(Display From) (AH)
-   			
-   			console.log($("#datetimepicker3").data('datetimepicker').getDate());
-   			if($("#datetimepicker3").data('datetimepicker').getDate() != null){
-   		  		$("#datetimepicker3").data('datetimepicker').setStartDate(e.date);
-	   			// If the saved date for the second datefield is somehow before the first datefield date,
-	   			// set the second datefield to be the same as the first datefield (AH)
-	   			
-	   		  	if($("#datetimepicker3").data('datetimepicker').getDate() < e.date){
-	   				$("#datetimepicker3").data('datetimepicker').setDate(e.date);
-	   		  	}
-			  	console.log(e.date);
-   			}
-		});
-   		// Called when first datefield(Display From) is changed (AH)
-   		$("#datetimepicker3").on('changeDate', function(e) {
-   			// Sets the End Date of the first datefield(Display From) to be the assigned date of the
-   			// second datefield(Display Until) (AH)
-  		  $("#datetimepicker2").data('datetimepicker').setEndDate(e.date);
-  			// If the saved date for the first datefield is somehow after the second datefield date,
- 			// set the first datefield to be the same as the second datefield (AH)
-  		  if($("#datetimepicker2").data('datetimepicker').getDate() > e.date){
-  			$("#datetimepicker2").data('datetimepicker').setDate(e.date);
-  		  }
-  			console.log(e.date);
-  		});
-   		{% if isFileUpload %}
-        $('.num_attempts').attr("disabled", false);
-        {% else %}
-        $('.num_attempts').attr("disabled", true);
-        {% endif %}
-        $('#file_upload').change(function(){
-           if(this.checked){
-             $('.num_attempts').attr("disabled", false);
-           }
-           else
-           {
-             $('.num_attempts').attr("disabled", true);
-           }
-        });
-        
-      });
-    </script> 
- 
-    <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
+      {% include 'scripts.html' %}
+      <script>
+         $( document ).ready(function(){
+             var endDate = $('#endTime').bootstrapMaterialDatePicker({
+               weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+             });
              
-         }
+             var deadLine = $('#deadLine').bootstrapMaterialDatePicker({
+                 weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+               });
+           
+             var startDate = $('#startTime').bootstrapMaterialDatePicker({
+               weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
+             }).on('change', function(e, date) {
+               $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
+               $('#deadLine').bootstrapMaterialDatePicker('setMinDate', date);
+             });
+             
+             
+             {% if isFileUpload %}
+             $('#num_attempts').attr("disabled", false);
+             {% else %}
+             $('#num_attempts').attr("disabled", true);
+             {% endif %}
+             $('#file_upload').change(function(){
+                if(this.checked){
+                  $('#num_attempts').attr("disabled", false);
+                }
+                else
+                {
+                  $('#num_attempts').attr("disabled", true);
+                }
+             });
+         });
       </script>
    <script>
       $(document).ready(function(){
         $('.add_more').click(function(e){
           e.preventDefault();
-          $(fileupload1).after('<span style="padding-left: 10px;"> <input id="fileupload1" name="actFile" type="file" multiple required/>');
+          $(fileupload1).after('<div id="fileupload1" class="file-field input-field">\n'+
+          '<div class="btn">\n'+'<span>File</span>\n'+'<input name="actFile" type="file" multiple />\n'+'</div>\n'+
+          '<div class="file-path-wrapper">\n'+'<input class="file-path validate" type="text" placeholder="Upload one or mote files"/>\n'+'</div>\n'+'</div>')
           document.getElementById('fileupload1').id = 'fileupload'
         });
       });
@@ -112,146 +50,157 @@
     <script type="text/javascript">
     $(document).ready(function(){
         $('.oldFiles').click(function(e){
-        	confirm("Are you sure you want to remove this file from the activity?");
-            e.currentTarget.style.display = "none";
-            var fileID = e.currentTarget.id;
-            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-            console.log(fileID);
-            
-            
-            $.post("activityRemoveFile",
-            	    {
-            	        fileID: fileID,
-            	        csrfmiddlewaretoken: csrftoken,
-            	    },
-            	    function(data, status){
-            	        console.log("Data: " + data + "\nStatus: " + status);
-            	    });
-            	});
-            });
+        	if(confirm("Are you sure you want to remove this file from the activity?")){
+              e.currentTarget.style.display = "none";
+              var fileID = e.currentTarget.id;
+              var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+              console.log(fileID);
+              
+              
+              $.post("activityRemoveFile",
+                    {
+                        fileID: fileID,
+                        csrfmiddlewaretoken: csrftoken,
+                    },
+                    function(data, status){
+                        console.log("Data: " + data + "\nStatus: " + status);
+                    });
+          }
+        });
+    });
     </script>
    </head>
-   
    <body>
-      <div id="page-wrapper">
-
-        {% include 'heading.html' %}
-                     
-         <div class="frame"  align="center">
-            <div class="container">
-            <div class="row">
-            <div class="12u">
-            <h1>Create/Edit Class Activity</h1>
-               <p class = "center"><span class = "red">*</span> Denotes Required Fields.</p>
-               <div>
-<!-- INSERTED PAGE CONTENT -->
-			<form name="question" action="/oneUp/instructors/createActivity" enctype="multipart/form-data" method="POST">
-               {% csrf_token %}
-               {% if activityID %}
-              		<input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
-               {% endif %}
-				<table class="bg">
-				<tr>
-                   <td>Activity Name <span class = "red">*</span></td>
-                </tr>
-                        <tr>
-                           <td>
-                              <input id="mediumFormBox" type="text" name="activityName" value="{{activityName}}" pattern=".*\S+.*" required>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td>Activity Description </td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <textarea id="mediumFormBox" name="description" rows="3" value="">{{description}}</textarea>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td> Points <span class = "red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <input id="extraSmallFormBox" type="number" name="points" maxlength="4" value="{{points}}" min="0" required >
-                             
-                           </td>
-                        </tr>
-                        <tr>
-                          <td>Activity is Graded  <span class = "red"></span> <input type='checkbox' name='isGraded' id="isGraded"{% if isGraded %} checked {% endif %}  /></td>
-                        </tr>
-            		<tr>
-            			<th>Availability</th>
-        			</tr>
-        			<tr>
-                    	<td>
-                    		Display From:<span class = "red">*</span> <div id="datetimepicker2" class="input-append">
-
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="startTime" value="{{startTimestamp}}"></input>
-
-                            <span class="add-on" style="height:2.75em; line-height:2em">
-                            	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
-                            </span>
-                        </div>
-                    		Display Until:<div id="datetimepicker3" class="input-append">
-
-                                 <input style="display:inline-block" id="smallFormBox" data-format="MM/dd/yyyy HH:mm PP" type="text" name="endTime" value="{{endTimestamp}}"></input>
-                            <span class="add-on" style="height:2.75em; line-height:2em">
-                            	<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
-                            </span>
-                        </div>
-                    	</td>
-            		</tr>
-            		<tr>
-                          <td>Allow Students to Upload Files <span class = "red">*</span>        <input type='checkbox' name='fileUpload' id="file_upload" {% if isFileUpload %} checked {% endif %} /></td>
-                        </tr>
-
-                        <tr>
-                           <td>Upload attempts<span class = "red">*</span></td>
-                        </tr>
-                        <td>
-                              <input id="extraSmallFormBox" type="number" name="attempts" class="num_attempts" maxlength="4" value="{{uploadAttempts}}" min="0" required >     
-
-                         </td>
-                        <tr>
-                           <td>Instructor Notes </td>
-                        </tr>
-                        <tr>
-                           <td>
-                              <textarea id="mediumFormBox" name="instructorNotes" rows="3">{{instructorNotes}}</textarea>
-                           </td>
-                        </tr>
-                        
-                        <tr>
-                        	<td>Files</td>
-                        </tr>
-                        
-                        	{% for file in activityFiles %}
-                        	<tr>
-                        		<td style="padding-left: 30px;" class="oldFiles" id="{{ file.ID }}">
-                        		{{file.activityFileName}} 
-                        		<span style="color:red;"><a href="#"> &#10008</a></span>
-                        		</td>
-                        	</tr>
-                        	{% endfor %}                        
-                        <tr>
-	                  		<td>
-	                    		 <input id="fileupload1" name="actFile" type="file" multiple/>   
-	                  		</td>
-	               		</tr>
-                        
-                     </table>
-                     <button type='button' class="add_more">Add More Files</button>
-                     <input type="submit" name="submit" value="Submit" class="button">
-                     <a href="/oneUp/instructors/activitiesList"><button type="button" class="button special" value="Reset">Cancel</button></a>
-                  </form>
-                  <br>
-                  <!-- END INSERTED PAGE CONTENT -->
-         </div></div></div></div>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Create/Edit Class Activity</h3>
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
+            </div>
          </div>
-         <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-      </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form name="question"id="actForm" enctype="multipart/form-data" action="/oneUp/instructors/createActivity" method="POST">
+                  {% csrf_token %}
+                  {% if activityID %}
+                  <input type="hidden" name="activityID" id="activityID" value="{{activityID}}">
+                  {% endif %}
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Name" value="{{activityName}}" name="activityName" id="act_name" type="text" class="validate" pattern=".*\S+.*" required>
+                              <label for="act_name"><span class= "red-text">*</span> Activity Name</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <textarea id="act_description" name="description" class="materialize-textarea">{{description}}</textarea>
+                              <label for="act_description">Activity Description</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Points" value="{{points}}" name="points" id="act_points" maxlength="4" type="number" class="validate" min="0" step="any" required>
+                              <label for="act_points"><span class= "red-text">*</span> Default Points</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12 m4">
+                              <label for="startTime">Display From:</label> 
+                              <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">
+                           </div>
+                           <div class="col s12 m4">
+                              <label for="endTime">Display Until:</label> 
+                              <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime">
+                           </div>
+                           <div class="col s12 m4">
+                        		<label for="deadLine">Dead Line:</label>
+                        		<input type="text" class="datepicker-until" name="deadLine" id="deadLine" value="{{deadLineTimestamp}}">
+                        	</div>
+                        </div>
+                        <div class="row">
+                             <div class="input-field col s12" id="actCats">
+							    <select name="actCat" form="actForm">
+							      <option value="{{currentCat.categoryID}}" selected>{{currentCat.name}}</option>
+							      {% for cat in categories %}
+							      		{% if cat != currentCat %}
+								      	<option value={{cat.categoryID}} name="actCat">{{cat.name}}</option>
+								      	{% endif %}
+							      {% endfor %}
+							    </select>
+	                          	<label for="actCats">Category</label>
+							</div>
+                        </div>
+                        <div class="row">
+                          <div class="col s12">
+                              <input name="isGraded" type="checkbox" id="is_Graded" {% if isGraded %} checked {% endif %}/>
+                              <label for="is_Graded">Activity is Graded</label>
+                          </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <input name="fileUpload" type="checkbox" id="file_upload" {% if isFileUpload %} checked {% endif %}/>
+                              <label for="file_upload">Allow Students to Upload Files</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input value="{{uploadAttempts}}" name="attempts" id="num_attempts" maxlength="4" type="number" class="validate" min="1" max="999" required>
+                              <label for="num_attempts">Upload attempts</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <textarea id="instructor_notes" name="instructorNotes" class="materialize-textarea">{{instructorNotes}}</textarea>
+                              <label for="instructor_notes">Instructor Notes</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                          <div class="col s12">
+                            <h5>Files</h5>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col s12">
+                            <blockquote>
+                            {% for file in activityFiles %}
+                            <div class="row">
+                                <a class="oldFiles" id="{{file.ID}}" href="#!" >{{file.activityFileName}}<i class="left material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Remove">close</i></a>
+                            </div>
+                            {% empty %}
+                            <p>No files uploaded</p>
+                            {% endfor %}
+                            </blockquote>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col s12">
+                            <div id="fileupload1" class="file-field input-field">
+                              <div class="btn">
+                                 <span>File</span>
+                                 <input name="actFile" type="file" multiple>
+                              </div>
+                              <div class="file-path-wrapper">
+                                 <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                              </div>
+                           </div>
+                          </div>
+                        </div>
+                     </div>
+                     <div class="card-action right-align">
+                        <a class="btn waves-effect waves-light add_more">Add More Files</a> 
+                        <button class="btn waves-effect waves-light" type="submit" name="submit">Submit
+                        <i class="material-icons right">send</i>
+                        </button>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/activitiesList"><i class="material-icons left">close</i>Cancel</a>                                                                  
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

@@ -1,87 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-
-        {% include 'scripts.html' %}
-
+      {% include 'scripts.html' %}
    </head>
    <body>
-      <!-- START PAGE SOURCE -->
-<!--       <div class="page-wrapper"> -->
-      
       {% include 'heading.html' %}
-
-      <div class="frame" id="grad" align="center">
-         <div class="container">
-            <div class="row">
-               <div class="12u">
-                  <h1>Edit / Delete <span>Badge</span></h1>
-                  <p><span class="red">*</span> Denotes Required Fields.</p>
-                  <form id= "editBadge" name= "editBadge" action="/oneUp/badges/SaveBadge" method="POST" onsubmit="return condOnSubmit();">
-                     {% csrf_token %}
-                     <input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
-                     <input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
-                     <table class="bg">
-                        <tr>
-                           <td colspan="5">Badge Name <span style="color: red; font-weight: bolder;">*</span></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5"><input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" size="91" name="badgeName" id="badgeName" value="{{badge.badgeName}}" pattern=".*\S+.*" required></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">Badge Description <span style="color: red; font-weight: bolder;">*</span></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5"><textarea style="border: solid 1px rgba(128, 128, 128, 0.5)" rows="4" cols="92" name="badgeDescription" id="badgeDescription" required>{{badge.badgeDescription}}</textarea></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">Badge Image <span style="color: red; font-weight: bolder;">*</span></td>
-                        </tr>
-                        <tr>
-                           <td><font style="font-size:.8em;">Choose an image for the badge:</font></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">
-                              <!-- New Badges -->
-                              
-                              <div class="badge-selector">
-                              
-                              {% for i, image in imagePaths %}
-                                <input type="radio" id="Badge{{i}}" name="badgeImage" value="{{image}}" {% if badge.badgeImage == image %}checked{% endif %}/> 
-                              	<label class="badge" for="Badge{{i}}"><img src="/{{image}}" width="107" height="107" alt="Choose an image for badge"></label>
-                              	&nbsp;&nbsp;&nbsp;
-
-		 					  {% endfor %}
-                              
- 							  </div>
-                          </td>
-                        </tr>
-                        <tr>
-                        	<td><br/></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">Conditions Applied for the Badge <span style="color: red; font-weight: bolder;">*</span></td>
-                        </tr>
-                        <tr>
-                           <td>
-                           		{% include "Badges/conditionInterface.html" %}
-                           </td>
-                        </tr>
-                     </table>
-                     <ul class="actions">
-                        <li style="margin:0"><input type="submit" id="edit" name="edit" value="Edit Badge" class="button" onclick="return true;"></li>
-                        <li style="margin:0"><input type="submit" id="delete" name="delete" value="Delete Badge" class="button" onclick="return confirm('Are you sure you want to delete?')"></li>
-                        <a href="/oneUp/badges/Badges"><button type="button" class="button special" value="Cancel">Cancel</button></a>
-                     </ul>
-                  </form>
-                  <br />
-               </div>
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+            	{% if edit %}
+               <h3>Modify Badge</h3>
+               {% else %}
+               <h3>Add New Badge</h3>
+               {% endif %}
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
             </div>
          </div>
-      </div>
-          <!-- Footer -->      
-          {% include 'footer.html' %}
-
-      </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form name= "editBadge" action="/oneUp/badges/SaveBadge" method="POST" onsubmit="return condOnSubmit();">
+                  {% csrf_token %}
+                  {% if edit %}
+                  <input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
+                  {% endif %}
+                  {% if isManualBadge %}
+                  <input type="hidden" name="isManualBadge" id="isManualBadge" value="true">
+                  {% endif %}
+                  <input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Name" value="{{badge.badgeName}}" name="badgeName" id="badge_name" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
+                              <label for="badge_name"><span class= "red-text">*</span> Badge Name</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <textarea name="badgeDescription" id="badge_description" class="materialize-textarea validate" required>{{badge.badgeDescription}}</textarea>
+                              <label for="badge_description"><span class= "red-text">*</span> Badge Description</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5><span class= "red-text">*</span> Badge Image</h5>
+                              <p>Choose an image for the badge</p>
+                           </div>
+                           {% for i, image in imagePaths %}
+                           <div class="col s12 m3">
+                              <input name="badgeImage" type="radio" id="Badge{{i}}" value="{{image}}" {% if badge.badgeImage == image %}checked{% endif %}/>
+                              <label for="Badge{{i}}"><img alt="Badge Image" width="85px" height="85px" src="/{{image}}"></label>
+                           </div>
+                           {% endfor %}
+                        </div>
+                        <!-- if we want a custom badge for manual, we need to remove the conditional box GMM -->
+                        {% if not isManualBadge %}
+	                        <div class="row">
+	                           <div class="col s12">
+	                              <h5><span class= "red-text">*</span> Conditions Applied for the Badge</h5>
+	                           </div>
+	                        </div>
+                        	{% include "Badges/conditionInterface.html" %}
+                        {% endif %}
+                     </div>
+                     <div class="card-action right-align">
+                     <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
+                     	<button id="button" class="btn waves-effect waves-light" type="submit" name="edit">Save<i class="material-icons right">send</i>
+                        </button>
+                        {% if edit %}
+                        <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i class="material-icons right">close</i></a>
+                        {% endif %}
+                        <a class="waves-effect waves-light btn" href="/oneUp/badges/Badges">											
+                        <i class="material-icons left">navigate_before</i>Back</a>                                                                  									
+                     </div>
+                     <div id="modal_delete" class="modal">
+                           <div class="modal-content">
+                              <h5>Are you sure you want to delete?</h5>
+                           </div>
+                           <div class="modal-footer">
+                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                              <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="delete" value="Delete">Delete
+                              </button>                                        
+                           </div>
+                        </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

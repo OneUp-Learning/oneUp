@@ -4,17 +4,15 @@ Last updated Dec 21, 2016
 
 @author: Swapna
 '''
-from django.template import RequestContext
-from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import Courses, Challenges
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
 from Badges.enums import Action, OperandTypes , Event, dict_dict_to_zipped_list
-from Badges.conditions_util import get_events_for_system_variable, get_events_for_condition,\
-    cond_from_mandatory_cond_list
-
+from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
+
+import logging
+logger = logging.getLogger(__name__)
 
 def DeleteVirtualCurrencySpendRule(vcRuleID):
     vcRuleID = int(vcRuleID)
@@ -26,65 +24,54 @@ def DeleteVirtualCurrencySpendRule(vcRuleID):
     deleteVc.ruleID.delete()
     # And then we delete the badge.
     deleteVc.delete()
-            
-def DetermineEvent(conditionOperandValue):
-    # Note: This should be effectively removed soon and also can break for certain inputs.
-    return get_events_for_system_variable(conditionOperandValue)[0]
 
+@login_required
 def SaveVirtualCurrencySpendRule(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     
-    currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-    context_dict['course_Name'] = currentCourse.courseName
-    
-    if request.POST: 
-
-        # Delete the spend rule
-        if 'delete' in request.POST:
-            DeleteVirtualCurrencySpendRule(request.POST['vcsRuleID'])
-            return redirect("/oneUp/badges/InstructorVirtualCurrencyList")            
-        
-        if 'create' in request.POST or 'edit' in request.POST:
+    if request.method == "POST": 
+        eventIndex = []
+        eventName = []
+        eventDescription = []
+        eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description'])  
+        # Select only the system variables that are for virtual currency
+        for i, eName, eDescription in eventObjects:
+            if i>= 850:
+                eventIndex.append(i)
+                eventName.append(eName)
+                eventDescription.append(eDescription)
                 
-            eventIndex = []
-            eventName = []
-            eventDescription = []
-            eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description'])  
-            # Select only the system variables that are for virtual currency
-            for i, eName, eDescription in eventObjects:
-                if eName in request.POST and i>= 850:
-                    eventIndex.append(i)
-                    eventName.append(eName)
-                    eventDescription.append(eDescription)
-                    
-            
-            vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False,courseID=currentCourse)
-            for rule in vcRules:
-                found = False
-                for  eventI, eventN, eventD in zip(eventIndex, eventName, eventDescription):
-                    if rule.vcRuleName == eventN:
-                        vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(vcRuleName = eventN, courseID=currentCourse)
-                        found = True
-                if found == False:
-                    # Delete the rule
-                    DeleteVirtualCurrencySpendRule(rule.vcRuleID)
-                    
-            # Loop through all of the system variables.
-            for eventI, eventN, eventD in zip(eventIndex, eventName, eventDescription):
-                found = False  
-                conditions = []
+        selectedSpendRulesEvents = list(map(int,request.POST.getlist('spendRules')))
+        for  eventI, eventN, eventD in zip(eventIndex, eventName, eventDescription):
+            vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False,ruleID__ruleevents__event=eventI, courseID=currentCourse)
+            if vcRules: # If there is a rule created with this event
                 for rule in vcRules:
-                    if rule.vcRuleName == eventN:
-                        vcRuleInfo = VirtualCurrencyRuleInfo.objects.get(vcRuleName = eventN, courseID=currentCourse)
-                        print("found: " + str(vcRuleInfo.vcRuleName))
-                        found = True
-                        break
-                if found == False:
-                    vcRuleInfo = VirtualCurrencyRuleInfo()  # create new VC RuleInfo
-                    # Create New Condition (Template condition(1 == 1) because no condition is required for this rule)
+                    if eventI not in selectedSpendRulesEvents:
+                        DeleteVirtualCurrencySpendRule(rule.vcRuleID)
+                        continue
+                    # Update the rule
+                    if eventI in selectedSpendRulesEvents:
+                        rule.vcRuleName = request.POST["ruleName_"+str(eventI)]
+                        rule.vcRuleDescription = request.POST["ruleDescription_"+str(eventI)]
+                        rule.vcRuleLimit = request.POST["ruleLimit_"+str(eventI)]
+                        if ActionArguments.objects.filter(ruleID=rule.ruleID).exists():
+                            actionArg = ActionArguments.objects.get(ruleID=rule.ruleID)
+                        else:
+                            actionArg = ActionArguments()
+                            actionArg.ruleID = rule.ruleID
+                            actionArg.sequenceNumber = 1
+                        
+                        actionArg.argumentValue = request.POST["ruleAmount_"+str(eventI)]
+                        actionArg.save()
+                        rule.save()
+                        selectedSpendRulesEvents.remove(eventI)
+            else:
+                if eventI in selectedSpendRulesEvents:
+                    vcRuleInfo = VirtualCurrencyRuleInfo()  
+                    
                     newCondition = Conditions()
                     newCondition.courseID = currentCourse
                     newCondition.operation = '='
@@ -93,14 +80,10 @@ def SaveVirtualCurrencySpendRule(request):
                     newCondition.operand2Type = OperandTypes.immediateInteger
                     newCondition.operand2Value = 1
                     newCondition.save()
-                    
-                    conditions.append(newCondition)
-                    
-                    ruleCondition = cond_from_mandatory_cond_list(conditions)
-                
+                                                
                     # Save game rule to the Rules table
                     gameRule = Rules()
-                    gameRule.conditionID = ruleCondition
+                    gameRule.conditionID = newCondition
                     gameRule.actionID = Action.decreaseVirtualCurrency
                     gameRule.courseID = currentCourse
                     gameRule.save()
@@ -113,31 +96,17 @@ def SaveVirtualCurrencySpendRule(request):
                     actionArgs = ActionArguments()
                     actionArgs.ruleID = gameRule
                     actionArgs.sequenceNumber = 1
-                    actionArgs.argumentValue = request.POST[eventN+"_Value"]
-                    print("eventName: " + str(eventN) + " eventD: " + str(eventD) + " eventValue: " + request.POST[eventN+"_Value"])  
+                    actionArgs.argumentValue = request.POST["ruleAmount_"+str(eventI)]
                     actionArgs.save()
                     
                     vcRuleInfo.ruleID = gameRule            
                     vcRuleInfo.courseID = currentCourse
-                    vcRuleInfo.vcRuleName = eventN
-                    vcRuleInfo.vcRuleDescription = eventD
-                    vcRuleInfo.vcRuleAmount = int(request.POST[eventN+"_Value"])
+                    vcRuleInfo.vcRuleName = request.POST["ruleName_"+str(eventI)]
+                    vcRuleInfo.vcRuleDescription = request.POST["ruleDescription_"+str(eventI)]
+                    vcRuleInfo.vcRuleLimit = request.POST["ruleLimit_"+str(eventI)]
+                    vcRuleInfo.vcRuleAmount = request.POST["ruleAmount_"+str(eventI)]
                     vcRuleInfo.vcRuleType = False # Spending type
-                    vcRuleInfo.assignToChallenges = 1
                     vcRuleInfo.save()
-                else:
-                    if ActionArguments.objects.filter(ruleID=vcRuleInfo.ruleID).exists():
-                        actionArg = ActionArguments.objects.get(ruleID=vcRuleInfo.ruleID)
-                    else:
-                        actionArg = ActionArguments()
-                        actionArg.ruleID = vcRuleInfo.ruleID
-                        actionArg.sequenceNumber = 1
-                    
-                    actionArg.argumentValue = request.POST[eventN+"_Value"]
-                    print("eventName: " + str(eventN) + " eventD: " + str(eventD) + " eventValue: " + request.POST[eventN+"_Value"])  
-                    actionArg.save()
-                    
-                
                 
     return redirect("/oneUp/badges/VirtualCurrencySpendRuleList")
     

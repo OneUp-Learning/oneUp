@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.template.defaultfilters import default
 from datetime import datetime
+from Instructors.constants import uncategorized_activity
 
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
@@ -81,6 +82,12 @@ class StaticQuestions(Questions):
     questionText = models.CharField(max_length=10000)
     correctAnswerFeedback = models.CharField(max_length=1000, default="")
     incorrectAnswerFeedback = models.CharField(max_length=1000, default="")
+    
+# class ParsonsQuestions(Questions):
+#     questionText = models.CharField(max_length=10000)
+#     modelSolution = models.CharField(max_length=20000)  # contains the codeLines entered by the instructors
+    #codeLinePartialOrder = models.CharField(max_length=10000)  # contains a specification of partial order: for each codeLine - a list of lines that can possibly follow it directly
+    #numberDistractors = models.IntegerField(default=0)    
 
 class CodeLibrary(models.Model):
     name = models.CharField(max_length=200)
@@ -199,7 +206,7 @@ class ChallengesQuestions(models.Model):
     challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenge")
     questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
     questionPosition = models.IntegerField(default = 0)
-    points =  models.IntegerField()
+    points = models.DecimalField(decimal_places=2, max_digits=6, default=0)
     def __str__(self):              
         return str(self.challengeID)+","+str(self.questionID)
     @staticmethod
@@ -212,11 +219,20 @@ class ChallengesQuestions(models.Model):
         cq.save()
         return cq
 
+
+
+class ActivitiesCategory(models.Model):
+    categoryID = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=75)
+    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    def __str__(self):
+        return str(self.categoryID)+":"+self.name
+
 class Activities(models.Model):
     activityID = models.AutoField(primary_key=True)
     activityName = models.CharField(max_length=75)
     description = models.CharField(max_length=200, default="")
-    points =  models.IntegerField(default=0)
+    points =  models.DecimalField(decimal_places=3, max_digits=6, default=0)
     isGraded = models.BooleanField(default=False,verbose_name = "Activity points will be added to the course grade")
     courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)
@@ -225,8 +241,10 @@ class Activities(models.Model):
     author = models.CharField(max_length=100) 
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True )
+    deadLine = models.DateTimeField(default=datetime.now, blank=True)
+    category = models.ForeignKey(ActivitiesCategory,verbose_name = "Activities Category", db_index=True, default = 1)
     def __str__(self):              
-        return str(self.activityID)+","+self.activityName
+        return str(self.activityID)+","+self.activityName  
         
 class Announcements(models.Model):
     announcementID = models.AutoField(primary_key=True)
@@ -235,7 +253,7 @@ class Announcements(models.Model):
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
     subject = models.CharField(max_length=25, default="")
-    message = models.CharField(max_length=300, default="")
+    message = models.CharField(max_length=1000, default="")
     def __str__(self):              
         return str(self.announcementID)+","+str(self.authorID)+","+str(self.startTimestamp)
 

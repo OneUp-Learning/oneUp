@@ -6,36 +6,27 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Courses, CoursesSkills, Challenges, ChallengesQuestions
-from Instructors.views import utils
-from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Challenges, ChallengesQuestions
 
-from Badges.enums import QuestionTypes
+from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
+from Badges.enums import QuestionTypes, ObjectTypes
+
+from decimal import Decimal
+
+from Instructors.constants import default_time_str, unassigned_problems_challenge_name
 
 from django.contrib.auth.decorators import login_required
+from oneUp.logger import logger
 
 @login_required
 def multipleAnswersForm(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
- 
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
     string_attributes = ['preview','questionText','difficulty','correctAnswerFeedback',
-                  'incorrectAnswerFeedback','instructorNotes','author'];
+                  'incorrectAnswerFeedback','instructorNotes','author']
 
     # We set these structures up here for later use.
     
@@ -49,9 +40,9 @@ def multipleAnswersForm(request):
     ansPK = []         #PK for existing answers
     ansChecked = []    #Whether or not existing answer is the correct one.
 
-    context_dict['skills'] = utils.getCourseSkills(currentCourse)
-    
-    if request.POST:
+    context_dict['skills'] = getCourseSkills(currentCourse)
+    context_dict['tags'] = []
+    if request.method == 'POST':
         # If there's an existing question, we wish to edit it.  If new question,
         # create a new Question object.
         if 'questionId' in request.POST:
@@ -68,12 +59,12 @@ def multipleAnswersForm(request):
         for attr in string_attributes:
             setattr(question,attr,request.POST[attr])
         # Fix the question type
-        question.type = QuestionTypes.multipleAnswers;
+        question.type = QuestionTypes.multipleAnswers
         
         if question.author == '':
             question.author = request.user.username
             
-        question.save();  #Writes to database.
+        question.save()  #Writes to database.
           
         # The number of answers is always sent.
         num_answers = int(request.POST['numAnswers'])
@@ -104,18 +95,20 @@ def multipleAnswersForm(request):
                 answer.answerText = request.POST['answer'+str(x)]
 
                 if (answer.answerText): # Save only if there is text.
-                    answer.save();
+                    answer.save()
                     answers.add(answer)
+                else:
+                    answer.save()
 
             # Note: in current version if the user selects a blank field as
             # the correct answer, errors may result.
             
             if str(x) in correctAnswers:
                 # Create and save a new correct answer entry
-                correctAnswerObject = CorrectAnswers();
-                correctAnswerObject.questionID = question;
-                correctAnswerObject.answerID = answer;
-                correctAnswerObject.save();
+                correctAnswerObject = CorrectAnswers()
+                correctAnswerObject.questionID = question
+                correctAnswerObject.answerID = answer
+                correctAnswerObject.save()
 
         # Get the answers currently in the database
         existingAnswers = Answers.objects.filter(questionID=question)
@@ -123,6 +116,9 @@ def multipleAnswersForm(request):
         for existingAnswer in existingAnswers:
             if existingAnswer not in answers:
                 existingAnswer.delete()
+        
+        # Processing and saving tags in DB                        
+        saveTags(request.POST['tags'], question, ObjectTypes.question)
         
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved        # 02/28/2015    
@@ -138,97 +134,107 @@ def multipleAnswersForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
             # Processing and saving skills for the question in DB
-            utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
-    
-
-        # Processing and saving tags in DB                        
-        tagString = request.POST.get('tags', "default")
-        utils.saveQuestionTags(tagString, question)
-                        
-        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
-        redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
+            addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
+            
+            redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
+            redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
+            return redirectVar
+        
+        # Question is unassigned so create unassigned challenge object
+        challenge = Challenges()
+        challenge.challengeName = unassigned_problems_challenge_name
+        challenge.courseID = currentCourse
+        challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.numberAttempts = 99999
+        challenge.timeLimit = 99999
+        challenge.save()
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
+        
+        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict) 
         return redirectVar
         
     #####################        
     # request.GET     
-    else:
+    elif request.method == 'GET':
         num_answers = 4 #default number of blanks for new questions
-        if request.GET:
+        
+            
+        if 'challengeID' in request.GET:
+            context_dict['challengeID'] = request.GET['challengeID']
+            chall = Challenges.objects.get(pk=int(request.GET['challengeID']))
+            context_dict['challengeName'] = chall.challengeName
+            context_dict['challenge'] = True
+            context_dict['tags'] = []
             if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
                 context_dict["unassign"]= 1
-                
+
+        # In case we specify a different number of blanks
+        if 'num_answers' in request.GET:
+            num_answers = request.GET['num_answers']
+            
+        # If questionId is specified then we load for editing.
+        if 'questionId' in request.GET:
+            question = StaticQuestions.objects.get(pk=int(request.GET['questionId']))
+            
+            # Copy all of the attribute values into the context_dict to
+            # display them on the page.
+            context_dict['questionId']=request.GET['questionId']
+            for attr in string_attributes:
+                context_dict[attr]=getattr(question,attr)
+
+            # Load the correct answers.  Should only be 0 or 1
+            correctAnswers = CorrectAnswers.objects.filter(questionID=question)
+            
+            # Fetch the answers for this question from the database.
+            answers = Answers.objects.filter(questionID=question)
+            # Count them
+            num_answers = len(answers)
+            for answer in answers:
+                # Set up the arrays
+                ansValue.append(answer.answerText)
+                ansPK.append(answer.answerID)
+                checked = False #element must be completely omitted for not checked
+                for correctAnswer in correctAnswers:
+                    if correctAnswer.answerID == answer:
+                        checked = True 
+                ansChecked.append(checked)
+            answersSet = True
+
+            # Extract the tags from DB            
+            context_dict['tags'] = extractTags(question, "question")
+                            
             if 'challengeID' in request.GET:
-                context_dict['challengeID'] = request.GET['challengeID']
-                chall = Challenges.objects.get(pk=int(request.GET['challengeID']))
-                context_dict['challengeName'] = chall.challengeName
-                context_dict['challenge'] = True
-            # In case we specify a different number of blanks
-            if 'num_answers' in request.GET:
-                num_answers = request.GET['num_answers']
+                # get the points to display
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
+                context_dict['points'] = challenge_questions[0].points
                 
-            # If questionId is specified then we load for editing.
-            if 'questionId' in request.GET:
-                question = StaticQuestions.objects.get(pk=int(request.GET['questionId']))
+                # set default skill points - 1                             # 03/17/2015 
+                context_dict['q_skill_points'] = int('1')
                 
-                # Copy all of the attribute values into the context_dict to
-                # display them on the page.
-                context_dict['questionId']=request.GET['questionId']
-                for attr in string_attributes:
-                    context_dict[attr]=getattr(question,attr)
-
-                # Load the correct answers.  Should only be 0 or 1
-                correctAnswers = CorrectAnswers.objects.filter(questionID=question)
+                # Extract the skill                                        
+                context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)                    
                 
-                # Fetch the answers for this question from the database.
-                answers = Answers.objects.filter(questionID=question)
-                # Count them
-                num_answers = len(answers)
-                for answer in answers:
-                    # Set up the arrays
-                    ansValue.append(answer.answerText)
-                    ansPK.append(answer.answerID)
-                    checked = "" #element must be completely omitted for not checked
-                    for correctAnswer in correctAnswers:
-                        if correctAnswer.answerID == answer:
-                            checked = ' checked="true" '; 
-                    ansChecked.append(checked)
-                answersSet = True
-
-                # Extract the tags from DB            
-                context_dict['tags'] = utils.extractTags(question, "question")
-                                
-                if 'challengeID' in request.GET:
-                    # get the points to display
-                    challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
-                    context_dict['points'] = challenge_questions[0].points
-                    
-                    # set default skill points - 1                             # 03/17/2015 
-                    context_dict['q_skill_points'] = int('1')
-                    
-                    # Extract the skill                                        
-                    context_dict['selectedSkills'] = utils.getSkillsForQuestion(currentCourse,question)                    
-                    
-    if 'challengeID' in request.GET:
-        print('challengeID  '+request.GET['challengeID'])  
+                logger.debug('[GET] challengeID  '+request.GET['challengeID'])  
                 
-    # If we didn't run that code to load the values for the answers, then we make
-    # blank lists.  We do this because we need to use a zipped list and a for
-    # in order for the template stuff to be happy with us.  Doing that requires tha
-    # all the lists have the same length
-    if not answersSet:
-        for i in range(0,num_answers):
-            ansValue.append("")
-            ansPK.append("")
-            ansChecked.append("")
+        # If we didn't run that code to load the values for the answers, then we make
+        # blank lists.  We do this because we need to use a zipped list and a for
+        # in order for the template stuff to be happy with us.  Doing that requires tha
+        # all the lists have the same length
+        if not answersSet:
+            for i in range(0,num_answers):
+                ansValue.append("")
+                ansPK.append("")
+                ansChecked.append("")
 
-    context_dict['num_answers'] = num_answers
-    # The range part is the index numbers.
-    context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked)
+        context_dict['num_answers'] = num_answers
+        # The range part is the index numbers.
+        context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked)
 
-    if 'questionId' in request.POST:         
-        return redirect('challengesView')
+        if 'questionId' in request.POST:         
+            return redirect('challengesView')
 
     return render(request,'Instructors/MultipleAnswersForm.html', context_dict)

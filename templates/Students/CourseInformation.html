@@ -1,91 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-
-    {% include 'scripts.html' %}
-
-</head>
-<body>
-	<div id="page-wrapper">
-		
-		 {% include 'stheading.html' %}
-		 
-		<div class="frame" id="grad" align="center">
-			<!-- Body -->
-
-
-			<div class="container">
-				<div class="row">
-					<div class="12u">
-
-						<br>
-						<h1>
-							Course Information
-						</h1>
-						<br>
-						<center>
-							<table style="width: 700px; ">
-
-								<tr>
-									<td><center><h3 style="font-size: 20pt;"><b>Course Description</b></h3></center>
-									</td>
-								</tr>
-								<tr>
-								<table style="width: 700px;" class ="bg">
-									<tr>
-										<td	style="padding-bottom: 40px; padding-left: 25px; font-size: 12pt;"><br>
-
-
-											<textarea
-												style="margin-bottom: 0; color: #5b5b5b; font-size: 12pt; line-height: 1.85em; font-family: 'Source Sans Pro', sans-serif; font-weight: 400; height: 100%; width: 100%;"
-												id="mediumFormBox" name="courseDescr"
-												value="course_Description" id=bglinks  input type="text" disabled="disabled">{{course_Description}}</textarea>
-
-										</td>
-									</tr>
-								</table>
-								</tr>
-								
-								{%if ccparams.gamificationUsed %}
-								<tr>
-									<td><h3 style="font-size: 20pt; color: #5b5b5b; "><b>Targeted Skills</b></h3></td>
-									<br>
-								</tr>
-								<tr>
-									<td>
-									<!-- INSERTED DYNAMIC TABLE -->
-
-									<table class="bg" style="width: 700px;">
-
-										{% for i,skill_ID,skill_Name in skill_range %}
-										<tr>
-											<div id="skills{{i}}">
-												<td style="font-size: 12pt;">{{skill_Name}}</td>
-
-											</div>
-										</tr>
-										{% endfor %}
-									</table>
-									</td>
-								</tr>
-								{%endif%}
-								</td>
-
-								</tr>
-							</table>
-						</center>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Footer -->
-
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>
+                  Course Information
+               </h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m6 offset-m3">
+               <div class="card">
+                  <div class="card-content">
+                     <span class="card-title">
+                        <h5>Course Description</h5>
+					 </span>
+					 {% if course_Description %}
+					 <blockquote>{{course_Description}}</blockquote>
+					 {% else %}
+					 <blockquote>No Course Description</blockquote>
+					 {% endif %}
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m6 offset-m3">
+               <div class="card">
+                  <div class="card-content">
+                     {%if ccparams.gamificationUsed %}
+                     <span class="card-title">
+                        <h5>Targetted Skills</h5>
+                     </span>
+                     <blockquote>
+                     {% for i,skill_ID,skill_Name in skill_range %}
+                     <p>{{skill_Name}}</p>
+                     {% empty %}
+                     <p>No Skills</p>
+                     {% endfor %}
+                     </blockquote>
+                     {%endif%}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
       {% include 'footer.html' %}
-
-	</div>
-
-</body>
+   </body>
 </html>

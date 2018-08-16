@@ -1,204 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="UTF-8">
       <title>OneUp | Admin Home</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-      <link rel="stylesheet" href="/static/assets/css/main.css" />
-      <link rel="icon" type="image/x-icon" href="../../static/images/lightbulb-o.ico"/>
-      <!--[if lte IE 8]>
-      <link rel="stylesheet" href="assets/css/ie8.css" />
-      <![endif]-->
-      <!-- Scripts -->
-      <script src="/static/assets/js/jquery.min.js"></script>
-      <script src="/static/assets/js/jquery.dropotron.min.js"></script>
-      <script src="/static/assets/js/jquery.scrolly.min.js"></script>
-      <script src="/static/assets/js/jquery.onvisible.min.js"></script>
-      <script src="/static/assets/js/skel.min.js"></script>
-      <script src="/static/assets/js/util.js"></script>
-      <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
-      <script src="/static/assets/js/main.js"></script>
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
+      {% include 'scripts.html' %}
    </head>
-   <body>
-      <div id="page-wrapper">
-            <header>
-            <nav class="Navigation">
-           <div class="Nav_Top">
-              <ul class="nav_top_level">
-                 <a class ="nav_bulb" href="/oneUp/home" title="1up" style="border-bottom:0">
-                 <i class="fa fa-lightbulb-o fa-3x nav_bulb"></i></a>
-                 <li class="nav_top_level_items"> 
-                     <a href="/oneUp/administrators/adminHome">Home</a>
-                 </li>
-                 <li class="nav_top_level_items"> 
-                 	<a href="#">Course</a>
-                 	 <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-							  <a href="/oneUp/administrators/createCourse">Create Course</a>                           
-						   </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/deleteCourse">Delete Course</a>
-                           </li>
-                        </ul>
-                 </li>
-				 <li class="nav_top_level_items"> 
-                     <a href="#">Instructor</a>
-                      <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/createTeacher">Create Instructor</a>
-                           </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/deleteTeacher">Delete Instructor</a>
-                           </li>
-                        </ul>
-                 </li>
-                 <li class="nav_top_level_items"> 
-                     <a href="#">Administrator</a>
-                      <ul class="nav_second_level">
-                           <li class="nav_second_level_items">
-							  <a href="/oneUp/administrators/createAdmin">Create Administrator</a>                          
-						   </li>
-                           <li class="nav_second_level_items">
-                              <a href="/oneUp/administrators/deleteAdmin">Delete Administrator</a>
-                           </li>
-                        </ul>
-                 </li>
-               </ul>
-           </div>
-               <div class="Nav_Bottom">
-                  {% if logged_in %}
-                  <ul class="nav_login">
-                     <li class="nav_login_items">
-                        <a href="#">Welcome, {{username}}<i class="fa fa-chevron-down"></i></a>
-                        <ul class="nav_login_second_level">
-                           <li class="nav_login_second_level_items">
-                              <a href="/oneUp/students/Logout">Logout</a>
-                           </li>
-                        </ul>
-                     </li>
-                  </ul>
-                  {% endif %}
-               </div>
-            </nav> 
-          </header>
-          
-          
-         <div class="frame" id="grad" align="center">
-	         <div class="container">
-	 			<!-- This row below is used to give the space between this and the nav bar -->        
-	         	<div class="row">
-	                  <div class="12u"></div>
-	            </div>
-	         	<div class="row">
-	         		<div class="4u 12u(mobile)" >
-	         			<table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                            <th> Administrators </th>
-                            <tr>
-                            <td>
-                            <ul style="height: 100px; width: 100%; overflow: hidden; overflow-y: scroll; border-radius: 4px; border: solid 1px rgba(144, 144, 144, 0.5);">
-                            {% for admin in administrators %}
-                             <li>{{admin}}</li>
-                            {% endfor %}
-                            </ul>
-                            </td>
-                            </tr>
-                        </table>
-                        <div style="padding-top: 0em">
-                        <a href="/oneUp/administrators/createAdmin">
-                        <input type="button" value="Create Administrator"></a>
-                        </div>
-	         		</div>
-	         		<div class="4u 12u(mobile)" >
-	         			<table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                            <th> Instructors </th>
-                            <tr>
-                            <td>
-                            <ul style="height: 100px; width: 100%; overflow: hidden; overflow-y: scroll; border-radius: 4px; border: solid 1px rgba(144, 144, 144, 0.5);">
-                            {% for instructor in instructors %}
-                             <li>{{instructor}}</li>
-                            {% endfor %}
-                            </ul>
-                            </td>
-                            </tr>
-                        </table>
-                        <div style="padding-top: 0em">
-                        <a href="/oneUp/administrators/createTeacher">
-                        <input type="button" value="Create Instructor"></a>
-                        <a href="/oneUp/administrators/deleteTeacher">
-                        <input type="button" value="Delete Instructor"></a>
-                        </div>
-	         		</div>
-	         		<div class="4u 12u(mobile)" >
-	         			<table class="bg" id="bglinks" style="padding-bottom: 0em; margin-bottom: 15px;">
-                            <th> Courses </th>
-                            <tr>
-                            <td>
-                            <ul style="height: 100px; width: 100%; overflow: hidden; overflow-y: scroll; border-radius: 4px; border: solid 1px rgba(144, 144, 144, 0.5);">
-                            {% for i, id, course in courses %}
-                             <li>{{course}}</li>
-                            {% endfor %}
-                            </ul>
-                            </td>
-                            </tr>
-                        </table>
-                        <div style="padding-top: 0em">
-                        <a href="/oneUp/administrators/createCourse">
-                        <input type="button" value="Create Course"></a>
-                        <a href="/oneUp/administrators/deleteCourse">
-                        <input type="button" value="Delete Course"></a>
-                        </div>
-	         		</div>
-	         	</div>
-	         </div>
-         </div>
-         <!-- Footer -->
-         <div id="footer">
-            <div class="container">
+   <body >
+      {% include 'adminHeading.html' %}
+      <main>
+         <div class="row">
+            <div class="col s12 m12 l8 offset-l2">
                <div class="row">
-                  <div class="12u">
-                     <!-- Contact -->
-                     <section class="contact">
-                        <ul class="icons">
-                           <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-                           <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
-                           <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-                           <li><a href="#" class="icon fa-pinterest"><span class="label">Pinterest</span></a></li>
-                           <li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
-                           <li><a href="#" class="icon fa-linkedin"><span class="label">Linkedin</span></a></li>
-                        </ul>
-                     </section>
-                     
-                     <!-- Copyright -->
-                     <div class="copyright">
-                        <ul class="menu">
-                        <li>Copyright &copy; 2014 OneUp. All rights reserved.</li>
-                           <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-                        </ul>
+                  <div class="col s12 m4">
+                     <div class="card">
+                        <div class="card-content">
+                           <table>
+                              <thead>
+                                 <th>Courses</th>
+                              </thead>
+                              <tbody>
+                                 {% for i, id, course in courses %}
+                                 <tr>
+                                    <td>{{course}}</td>
+                                    <td>
+                                       <form action="/oneUp/administrators/deleteItem" method="POST">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="courseToDelete" value="{{id}}"> 
+                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_course{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                          <ul id='dropdown_course{{i}}' class='dropdown-content'>
+                                             <li><a href="/oneUp/administrators/createCourse?courseID={{id}}">Edit</a></li>
+                                             <li class="divider"></li>
+                                             <li><a class="modal-trigger" href="#modal_delete_course{{i}}">Delete</a></li>
+                                          </ul>
+                                          <div id="modal_delete_course{{i}}" class="modal">
+                                             <div class="modal-content">
+                                                <h5>Are you sure you want to delete?</h5>
+                                             </div>
+                                             <div class="modal-footer">
+                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                                </button>                                        
+                                             </div>
+                                          </div>
+                                       </form>
+                                    </td>
+                                 </tr>
+                                 {% empty %}
+                                 <tr>
+                                    <td class="center-align" colspan="2"><i>No courses created.</i></td>
+                                 </tr>
+                                 {% endfor %}
+                              </tbody>
+                           </table>
+                        </div>
+                        <div class="card-action right-align">
+                           <a class="waves-effect waves-light btn" href="/oneUp/administrators/createCourse"><i class="material-icons right">navigate_next</i>Create</a>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col s12 m4">
+                     <div class="card">
+                        <div class="card-content">
+                           <table>
+                              <thead>
+                                 <th>Instructors </th>
+                                 <th><i style="color:black;"class="tooltipped material-icons secondary-content" data-position="top" data-tooltip="instructor">person</i></th>
+                              </thead>
+                              <tbody>
+                                 {% for instructor, isAdmin in instructors %}
+                                 <tr>
+                                    <td>{{instructor}} &nbsp;<i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="instructor">person</i>{% if isAdmin %} <i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="administrator">vpn_key</i>{% endif %}</td>
+                                    <td>
+                                       <form action="/oneUp/administrators/deleteItem" method="POST">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="instructorToDelete" value="{{instructor.username}}"> 
+                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_instructor{{instructor}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                          <ul id='dropdown_instructor{{instructor}}' class='dropdown-content'>
+                                             <li><a href="/oneUp/administrators/createTeacher?instructorID={{instructor}}">Edit</a></li>
+                                             <li class="divider"></li>
+                                             <li><a class="modal-trigger" href="#modal_delete_instructor{{instructor}}">Delete</a></li>
+                                          </ul>
+                                          <div id="modal_delete_instructor{{instructor}}" class="modal">
+                                             <div class="modal-content">
+                                                <h5>Are you sure you want to delete?</h5>
+                                             </div>
+                                             <div class="modal-footer">
+                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                                </button>                                        
+                                             </div>
+                                          </div>
+                                       </form>
+                                    </td>
+                                 </tr>
+                                 {% empty %}
+                                 <tr>
+                                    <td class="center-align" colspan="2"><i>No instructors created.</i></td>
+                                 </tr>
+                                 {% endfor %}
+                              </tbody>
+                           </table>
+                        </div>
+                        <div class="card-action right-align">
+                           <a class="waves-effect waves-light btn" href="/oneUp/administrators/createTeacher"><i class="material-icons right">navigate_next</i>Create</a>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col s12 m4">
+                     <div class="card">
+                        <div class="card-content">
+                           <table>
+                              <thead>
+                                 <th>Administrators</th>
+                                 <th><i style="color:black;"class="tooltipped material-icons secondary-content" data-position="top" data-tooltip="administrator">vpn_key</i></th>
+                              </thead>
+                              <tbody>
+                                 {% for admin, isTeacher in administrators %}
+                                 <tr>
+                                    <td>{{admin}} &nbsp;<i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="administrator">vpn_key</i>{% if isTeacher %} <i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="instructor">person</i>{% endif %}</td>
+                                    <td>
+                                   
+                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_admin{{admin}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                          <ul id='dropdown_admin{{admin}}' class='dropdown-content'>
+                                             <li><a href="/oneUp/administrators/createAdmin?adminID={{admin}}">Edit</a></li>
+                                          </ul>
+                                        
+                                    </td>
+                                 </tr>
+                                 {% empty %}
+                                 <tr>
+                                    <td class="center-align" colspan="2"><i>No administrators created.</i></td>
+                                 </tr>
+                                 {% endfor %}
+                              </tbody>
+                           </table>
+                        </div>
+                        <div class="card-action right-align">
+                           <a class="waves-effect waves-light btn" href="/oneUp/administrators/createAdmin"><i class="material-icons right">navigate_next</i>Create</a>
+                        </div>
                      </div>
                   </div>
                </div>
             </div>
          </div>
-      </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

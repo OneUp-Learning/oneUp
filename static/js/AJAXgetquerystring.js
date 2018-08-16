@@ -26,6 +26,7 @@ function getquerystring(formName) {
         var element = elemArray[i];
         var elemType = element.type.toUpperCase();
         var elemName = element.name;
+        console.log(elemType)
         if (elemName) {
             if (elemType in simpleTypes) {
                 GetElemValue(elemName, element.value);

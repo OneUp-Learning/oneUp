@@ -1,201 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-         
-         {% include 'scripts.html' %}
-           
-         <script>
-			window.location.hash="no-back-button";
-			window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
-			window.onhashchange=function(){window.location.hash="no-back-button";}
-			</script>
-      </head>
-      <body>
-      <div>
-
-          {% include 'stheading.html' %}
-
-            <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
-			<h1> Results for Challenge<span> {{challengeName}}</span></h1>
-			<br>
-			
-			<table class="bg">
-				<tr style="font-size: 1.2em">
-					<td colspan="3">You scored <span>{{total_user_points}}</span> points out of <span>{{total_possible_points}}</span> points in this challenge.</td>
-				</tr> 
-			<form action="">
-			{% for q in questions %}
-				<tr> 
-			<div id="question{{q.index}}">
-				<td colspan="3"><font style="font-weight:600">{{q.index}}. {{q.question.questionText|safe}}</font></td>
-				</tr>									
-				<tr>
-					<td colspan="3"><b>Your Answer:</b></td>
-				</tr>
-				
-				
-				
-		{% if q.question.type == questionTypes.multipleChoice %}
-		<!-- multiple choice question -->
-				<tr><td colspan="3"> 
-			{% for j,answer in q.answers_with_count %}	
-			<!-- use a for loop and display the answers in radio buttons -->
-					<input type="radio" name="{{q.question.questionID}}" value="{{answer.answerText}}" 
-					{% if q.user_answer.answerNumber == j %}checked{% else %}disabled="disabled"{% endif %}>
-					{{answer.answerText|safe}}<br/>
-			{% endfor %}</td>
-				</tr>
-				<tr>
-					<td colspan="3"><b>Correct Answer:</b>
-						{{q.correct_answer_text|safe}}<br>
-					</td>
-				</tr>
-				<! PLace instructor feedback, once we have established exactly what feedbakc we want given >
-				
-				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)</td>
-				</tr>
-		{% elif q.question.type == questionTypes.multipleAnswers %}
-		<!-- multiple answer question -->
-				<tr>
-					<td colspan="3">
-				{% for j,answer in q.answers_with_count %}
-			<!-- use a for loop and display the answers in the check box -->
-					<input type="checkbox" name="{{q.question.questionID}}" value="{{answer.answerText}}"{% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %}>{{answer.answerText|safe}}<br />
-				{% endfor %}</td>
-				</tr>
-				<tr>
-					<td colspan="3">Correct Answer(s):<br />
-				{% for correct_answer_text in q.correct_answer_texts %}
-					{{correct_answer_text|safe}}<br>
-				{% endfor %}</td>
-				</tr>
-				
-				<! PLace instructor feedback, once we have established exactly what feedbakc we want given>
-				
-				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
-				</tr>
-		{% elif q.question.type == questionTypes.matching %}
-		<!-- matching question -->
-				<tr>
-					<td>
-				{% for j,answer in q.answers_with_count %}
-			<!-- use a for loop and display the answers in the matching form -->
-					{{j}} .&nbsp;{{answer.answerText}}<br />
-				{% endfor %}</td>
-					<td  width="1%" !important>
-				{% for user_answer in q.user_answers %}
-					<input type="text" value={{user_answer.answerNumber}} style="height:1.75em; width:2.5em; border-bottom: 2px solid white;"  disabled="disabled">
-				{% endfor %}</td>
-					<td style="position:relative; left:-2em; bottom: 0.2em; text-align: left;" !important >
-				{% for match in q.matches %}
-					{{match.matchingAnswerText}}<br />	
-				{% endfor %}</td>
-				</tr>
-				<tr>
-					<td colspan="3">Correct Answer:</td>
-				</tr>
-				
-				<! PLace instructor feedback, once we have established exactly what feedbakc we want given>
-				
-				<tr>
-					<td width="50%">
-				{% for match in q.matches %}
-			<!-- use a for loop and display the answers in the matching form-->
-					{{match.current_pos}} . &nbsp{{match.answerText}}<br />
-				{% endfor %}</td>
-					<td colspan="2" style="text-align: left;">
-        		{% for match in q.matches %}
-        			{{match.matchingAnswerText}}<br />	
-				{% endfor %}</td>
-				</tr>
-				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
-				</tr>
-		{% elif q.question.type == questionTypes.trueFalse %}
-		<!-- true/false question -->
-				<tr>				
-					<td colspan="3"><input type="radio" name="{{q.question.questionID}}" value="True" {% if q.user_answer.answerValue %}checked{% else %}disabled="disabled"{% endif %}>True<br />
-					<input type="radio" name="{{q.question.questionID}}" value="False" {% if q.user_answer.answerValue %}disabled="disabled"{% else %}checked{% endif %}>False</td>
-				</tr>
-				<tr>
-					<td colspan="3">Correct Answer: <br>
-						{{q.correctAnswerText}}
-					</td>
-				</tr>
-				
-				<!–– PLace instructor feedback, once we have established exactly what feedbakc we want given ––>
-				
-				
-				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
-				</tr>
-		{% elif q.question.type == questionTypes.essay %}
-		<!-- Essay question -->
-				<tr>
-					<td colspan="3"><textarea name="{{q.question.questionID}}" rows="10" cols="90" disabled="disabled">{{q.user_answer}}</textarea></td>
-				</tr>
-				<tr>
-					<td colspan="3"><font style="font-weight:600">You Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
-				</tr>
-		{% elif q.question.type == questionTypes.dynamic or q.question.type == questionTypes.templatedynamic %}
-			{% for answer_blank_name, user_answer_value in q.user_answers.items %}
-				<tr> <td>
-					For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}
-				</td> </tr>
-			{% endfor %}
-			{% if q.evaluations %}
-			  {% for answer in q.evaluations %}
-			  	<tr><td>	
-			  	{% if answer.success %}
-			  		<span style='color: green;'>&#10004;</span> 
-			  	{% else %}
-					<span style='color: red;'>&#10006;</span>
-				{% endif %}
-				You got {{answer.value}} points on answer {{answer.name}}
-		
-			  	{% if answer.details %}
-			  		<ul>
-			  		{% for detail in answer.details %}
-			  			<li>
-			  				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  
-			  				{%if detail.success%}
-								<span style='color: green;'>&#10004;</span> 
-			  				{%else%}
-							    <span style='color: red;'>&#10006;</span> 
-			  				{% endif %}
-			  				{{detail.value}}/{{detail.max_points}} points on criteria {{detail.name}}
-			  			</li>
-			  		{% endfor %}
-			  		</ul>
-			  	{% endif %}
-			  	</tr></td>
-			 {% endfor %}
-			{% endif %}
-				<tr>
-					<td colspan="3"><font style="font-weight:600">Total for this question, you Scored:</font> <span>{{q.user_points}}</span> Point(s) out of <span>{{q.total_points}}</span> Point(s)<br /></td>
-				</tr>
-		{% endif %}
-			</div> 
-		{% endfor %}
-		</form>
-			</table>	
-	{% if warmUp %}
-	<a href="/oneUp/students/ChallengesWarmUpList"><button type="button" value="Reset">OK</button></a>
-	{% else %}
-	<a href="/oneUp/students/ChallengesList"><button type="button" value="Reset">OK</button></a>
-	{% endif %}
-		<br><br>
-   		 </div></div></div></div>
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <style>
+                           .editor{
+                           position: relative;
+                           width: 100%;
+                           height: 150px;
+                           }
+                           .lineHighlight {
+                           position: absolute;
+                           background: rgba(100, 200, 100, 0.5);
+                           z-index: 20
+                           }
+                        </style>
+   <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
+   <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+   <body>
+      {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3> Results for Challenge<i>{{challengeName}}</i></h3>
+            </div>
          </div>
-         <!-- Footer -->
-
-        {% include 'footer.html' %}
-
-    
-      </body>
-   </html>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form action="">
+                  <div class="card">
+                     <div class="card-content">
+                        <span class="card-title">You scored <b>{{total_user_points}}</b> points out of <b>{{total_possible_points}}</b> points in this challenge.</span>
+                        {% for q in questions %}
+                        <div class="divider"></div>
+                        <div class="row">
+                           <p>{% autoescape off %} {{q.index}}. {{q.question.questionText|safe}} {% endautoescape %}</p>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Your Answer:</h5>
+                           </div>
+                        </div>
+                        {% if q.question.type == questionTypes.multipleChoice %}
+                        <div class="row">
+                           <div class="col s12">
+                              {% for j,answer in q.answers_with_count %}
+                              <p>
+                                 <input name="{{q.question.questionID}}" type="radio" id="ans-{{q.question.questionID}}" {% if q.user_answer.answerNumber == j %}checked{% else %} disabled {% endif %}/>
+                                 <label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}} {% endautoescape %}</label>
+                              </p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Correct Answer: </h5>
+                              <blockquote>
+                                 {{q.correct_answer_text|safe}}
+                              </blockquote>
+                              <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+                           </div>
+                        </div>
+                        {% elif q.question.type == questionTypes.multipleAnswers %}
+                        <div class="row">
+                           <div class="col s12">
+                              {% for j,answer in q.answers_with_count %}
+                              <p>
+                                 <input name="{{q.question.questionID}}" class="filled-in" type="checkbox" id="ans-{{q.question.questionID}}" {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %} disabled/>
+                                 <label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}}{% endautoescape %}</label>
+                              </p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Correct Answer(s): </h5>
+                              <blockquote>
+                                 {% for correct_answer_text in q.correct_answer_texts %}
+                                 {{correct_answer_text|safe}} <br />
+                                 {% endfor %}
+                              </blockquote>
+                              <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+                           </div>
+                        </div>
+                        {% elif q.question.type == questionTypes.matching %}
+                        <div class="row">
+                           <div class="col s6">
+                              {% for j,answer in q.answers_with_count %}
+                              <p>{{j}} . {{answer.answerText}}</p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s6">
+                              {% for user_answer in q.user_answers %}
+                              <p>{{user_answer.answerNumber}} . {{user_answer.answerText}}</p>
+                              {% endfor %}
+                           </div>
+                           <div class="col s6">
+                              {% for match in q.matches %}
+                              <p>{{match.matchingAnswerText}}</p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Correct Answer(s): </h5>
+                              <blockquote>
+                                 <div style="column-count:2;">
+                                    {% for match in q.matches %}
+                                    <p>{{match.current_pos}} . {{match.answerText}}</p>
+                                    {% endfor %}
+                                    {% for match in q.matches %}
+                                    <p>{{match.matchingAnswerText}}</p>
+                                    {% endfor %}
+                                 </div>
+                              </blockquote>
+                              <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+                           </div>
+                        </div>
+                        {% elif q.question.type == questionTypes.trueFalse %}
+                        <div class="row">
+                           <div class="col s12">
+                              <p>
+                                 <input name="{{q.question.questionID}}" type="radio" id="ans1-{{q.question.questionID}}" {% if q.user_answer.answerValue %}checked{% else %}disabled="disabled"{% endif %}/>
+                                 <label for="ans1-{{q.question.questionID}}">True</label>
+                              </p>
+                              <p>
+                                 <input name="{{q.question.questionID}}" type="radio" id="ans2-{{q.question.questionID}}" {% if q.user_answer.answerValue %}disabled="disabled"{% else %}checked{% endif %}/>
+                                 <label for="ans2-{{q.question.questionID}}">False</label>
+                              </p>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Correct Answer: </h5>
+                              <blockquote>
+                                 {{q.correctAnswerText}}
+                              </blockquote>
+                              <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+                           </div>
+                        </div>
+                        {% elif q.question.type == questionTypes.parsons %}
+                        <div class="row">
+                           <div class="col s12">
+                              <div id="student_editor{{q.question.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.question.questionID}}" id="setupCode{{q.question.questionID}}">{{q.student_solution}}</textarea></div>
+                              <script>
+                                 var editor = ace.edit("student_editor{{q.question.questionID}}");
+                                 editor.setTheme("ace/theme/chrome");
+                                 editor.session.setMode("ace/mode/java");
+                                 editor.setReadOnly(true);
+                              </script>
+                           </div>
+                           <div class="row">
+                              <div class="col s12">
+                                 <h5>Example Correct  Solution:</h5>
+                              </div>
+                           </div>
+                           <div class="row">
+                           <div class="col s12">
+                              <div id="model_editor{{q.question.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.question.questionID}}" id="setupCode{{q.question.questionID}}">{{q.model_solution}}</textarea></div>
+                              <script>
+                                 var editor = ace.edit("model_editor{{q.question.questionID}}");
+                                 editor.setTheme("ace/theme/chrome");
+                                 editor.session.setMode("ace/mode/java");
+                                 editor.setReadOnly(true);
+                              </script>
+                           </div>
+                           </div>
+                           <div class="row">
+                           <div class = "col s12">
+                           <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+						  </div>
+						  </div>
+                        </div>
+                        {% elif q.question.type == questionTypes.dynamic or q.question.type == questionTypes.templatedynamic %}
+                        <div class="row">
+                           {% for answer_blank_name, user_answer_value in q.user_answers.items %}
+                           <p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+                           {% endfor %}
+                        </div>
+                        {% if q.evaluations %}
+                        {% for answer in q.evaluations %}
+                        <p>	
+                           {% if answer.success %}
+                           <span style='color: green;'>&#10004;</span> 
+                           {% else %}
+                           <span style='color: red;'>&#10006;</span>
+                           {% endif %}
+                           You got {{answer.value}} points on answer {{answer.name}}
+                           {% if answer.details %}
+                        <ul class="collection">
+                           {% for detail in answer.details %}
+                           <li class="collection-item">
+                              {%if detail.success%}
+                              <span style='color: green;'>&#10004;</span> 
+                              {%else%}
+                              <span style='color: red;'>&#10006;</span> 
+                              {% endif %}
+                              {{detail.value}}/{{detail.max_points}} points on criteria {{detail.name}}
+                           </li>
+                           {% endfor %}
+                        </ul>
+                        {% endif %}
+                        </p>
+                        {% endfor %}
+                        {% endif %}
+                        <div class="row">
+                           <div class="col s12">
+                              <p>Total for this question, You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+                           </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                     </div>
+                     <div class="card-action right-align">
+                        {% if view %}
+                        <a class="waves-effect waves-ligh btn" href="/oneUp/students/ChallengesTaken?{% if not all %}challengeID={{challengeID}}{% endif %}{% if is_teacher %}&userID={{student}}{% endif %}{% if classAchievements %}&classAchievements{%endif%}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}">
+                        {% elif warmUp %}									
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList">
+                        {% else %}
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList">											
+                        {% endif %}
+                        <i class="material-icons left">check</i>Done</a> 
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

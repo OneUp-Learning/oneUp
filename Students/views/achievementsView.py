@@ -81,14 +81,15 @@ def achievements(request):
         else:    
             # find the max score for this challenge if there are several attempts                
             gradeID  = []
-            gradeWithBonus = []        
+            gradeWithBonus = []   
             for s in sc:
-                gradeID.append(int(s.getScore()))   # for serious challenges include also score adjustment and curve 
+                gradeID.append(int(s.getScore()))   # for serious challenges include also score adjustment and curve
                 gradeWithBonus.append(int(s.getScoreWithBonus()))
+                print(s.getScoreWithBonus()) 
                 #s_testTotal = s.challengeID.totalScore
                 s_testTotal = s.challengeID.getCombinedScore()
-            maxC = max(gradeID) 
-            maxB = max(gradeWithBonus)                 
+            maxC = max(gradeID)  
+            maxB = max(gradeWithBonus)                
             earnedPointsSeriousChallenges += maxB
             
             score.append(maxC)
@@ -143,6 +144,10 @@ def achievements(request):
     totalWCEarnedPoints = sum(warmUpSumScore)
     totalWCPossiblePoints = sum(warmUpSumPossibleScore)
     
+    containerHeight = 100
+    containerHeight += len(chall_Name) * 60
+    
+    context_dict['warmUpContainerHeight'] = containerHeight
     context_dict['studentWarmUpChallenges_range'] = list(zip(range(1,len(chall_Name)+1),chall_Name,total,noOfAttempts,warmUpMaxScore,warmUpMinScore))
     context_dict['totalWCEarnedPoints'] = totalWCEarnedPoints
     context_dict['totalWCPossiblePoints'] = totalWCPossiblePoints
@@ -160,7 +165,7 @@ def achievements(request):
             gradeWithBonus = []             
             for a in sa:    # for each attempt of this activity
                 gradeID.append(int(a.activityScore))  
-                gradeWithBonus.append(int(a.getScoreWithBonus()))                               
+                gradeWithBonus.append(int(a.getScoreWithBonus()))
 
             earnedActivityPoints += max(gradeWithBonus)
             totalActivityPoints += a.activityID.points
@@ -271,6 +276,5 @@ def achievements(request):
          # The range part is the index numbers.
     #context_dict['badgesInfo'] = zip(range(1,studentBadges.count()+1),badgeId,badgeName,badgeImage)
     context_dict['badgesInfo'] = list(zip(range(1,len(studentCourseBadges)+1),badgeId,badgeName,badgeImage))
-
      
     return render(request,'Students/Achievements.html', context_dict)

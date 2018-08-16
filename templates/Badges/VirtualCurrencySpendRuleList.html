@@ -5,35 +5,44 @@
    </head>
    <body>
       {% include 'heading.html' %}  
-      <div class="frame" id="grad" align="center">
-         <div class="container">
-            <div class="row">
-               <div class="12u">
-                  <h1>Virtual Currency Spend Rules</h1>
+      <main>
+            <div class="row center-align">
+               <div class="col s12">
+                  <h3>Virtual Currency Spend Rules</h3>
                </div>
             </div>
-            <div class="row">
-               <div class="12u">
-                  <a href="/oneUp/badges/CreateVirtualCurrencySpendRule"><input type="button" value="Create Spending Rules"></a>
-                  <a href="/oneUp/badges/EditVirtualCurrencySpendRule"><input type="button" value="Edit Spending Rules"></a>
-                  <br /><br />
-                  <table class="bg">
-                     <tr>
+            <div class="row right-align">
+               <div class="col s12 m8 offset-m2">
+  
+                  <a class="waves-effect waves-light btn" href="/oneUp/badges/SelectVirtualCurrencySpendRule"><i class="material-icons left">edit</i>Modify Spending Rules</a>
+                  
+                 </div>
+                 </div>
+                 <div class="row">
+                 <div class="col s12 m8 offset-m2">
+                 <div class="card">
+                  	<div class="card-content">
+                  <table>
+                     <thead>
                         <th>Name</th>
                         <th>Course Bucks</th>
-                     </tr>
+                     </thead>
+                     <tbody>
                      {% for i,vcsRuleID,vcsRuleName,vcsAmount in vcsRuleInfo %}
                      <tr>
-                        <td style="vertical-align:middle">{{vcsRuleName}}</td>
+                        <td>{{vcsRuleName}}</td>
                         <td>{{vcsAmount}}</td>
                      </tr>
+                     {% empty %}
+                     <tr><td class="center-align" colspan="2"><i>No rules created</i></td></tr>
                      {% endfor %}
+                     </tbody>
                   </table>
                </div>
             </div>
          </div>
       </div>
-      <!-- Footer -->
+      </main>
       {% include 'footer.html' %}
    </body>
 </html>

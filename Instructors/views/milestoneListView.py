@@ -3,21 +3,13 @@ Created on October, 2015
 
 @author: Dillon Perry
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Milestones, Courses
+from Instructors.models import Milestones
+from Instructors.views.utils import initialContextDict
 
 
-def createContextForMilestoneList(request):
-    context_dict = { }
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-
+def createContextForMilestoneList(request, context_dict, currentCourse):
     milestone_ID = []      
     milestone_Name = []         
     description = []
@@ -37,11 +29,7 @@ def createContextForMilestoneList(request):
     
 @login_required
 def milestoneList(request):
- 
-    context_dict = createContextForMilestoneList(request)
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username        
+    context_dict, currentCourse = initialContextDict(request)
+    context_dict = createContextForMilestoneList(request, context_dict, currentCourse)
 
     return render(request,'Instructors/MilestonesList.html', context_dict)

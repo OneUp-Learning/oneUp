@@ -5,38 +5,23 @@ Created on Apr 1, 2014
 '''
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 
 from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, QuestionLibrary
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 
 from Instructors.views import utils
+from Instructors.views.utils import saveTags, extractTags, utcDate, initialContextDict
 from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
-from Instructors.constants import unassigned_problems_challenge_name
-from Badges.enums import QuestionTypes
+from Instructors.constants import unassigned_problems_challenge_name, default_time_str
+from Badges.enums import QuestionTypes, ObjectTypes
 
-from django.views.decorators.csrf import csrf_exempt
-import sys
-from xml.dom.expatbuilder import theDOMImplementation
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 @login_required
-
-
 def dynamicQuestionForm(request):
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict['username']=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
@@ -44,7 +29,7 @@ def dynamicQuestionForm(request):
                          'instructorNotes','code','numParts','author'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
-
+    context_dict['tags'] = []
     if request.POST:
 
         # If there's an existing question, we wish to edit it.  If new question,
@@ -83,31 +68,43 @@ def dynamicQuestionForm(request):
                 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']), position)
+
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
             # save question-skill pair to db                    # 03/01/2015
             # first need to check whether a new skill is selected 
+
+            # Processing and saving tags in DB
+            saveTags(request.POST['tags'], question, ObjectTypes.question)
             
             if request.session['currentCourseID']:          # we presume the course is selected!!!!!!!!!!!!!!!!!!!!!!!!!
                 courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
                 
                 # Processing and saving skills for the question in DB
                 utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
-    
-            # Processing and saving tags in DB
-            tagString = request.POST.get('tags', "default")
-            utils.saveQuestionTags(tagString, question)
             
             makeDependentLibraries(question,request.POST.getlist('dependentLuaLibraries[]'))
             
             redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
             redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
             return redirectVar
+        # Question is unassigned so create unassigned challenge object
+        challenge = Challenges()
+        challenge.challengeName = unassigned_problems_challenge_name
+        challenge.courseID = currentCourse
+        challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.numberAttempts = 99999
+        challenge.timeLimit = 99999
+        challenge.save()
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
+        
+        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict) 
+        return redirectVar
     
     elif request.method == 'GET':
         
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
-        
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1
                 
@@ -130,7 +127,7 @@ def dynamicQuestionForm(request):
             context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
 
             # Extract the tags from DB
-            context_dict['tags'] = utils.extractTags(question, "question")
+            context_dict['tags'] = extractTags(question, "question")
 
             if 'challengeID' in request.GET:
                 # get the challenge points for this problem to display
@@ -161,6 +158,7 @@ end
             context_dict["code"] = code
             context_dict["numParts"] = 1
             context_dict['difficulty']="Easy"
+            context_dict['tags'] = []
     
     if 'questionId' in request.POST:         
             return redirect('challengesView')
@@ -177,8 +175,10 @@ def makePartHTMLwithForm(question,part):
     if (int(part) <= question.numParts):
         questionpart = question.getQuestionPart(part)
         if questionpart != False:
+            formBody += '<div class="input-field col s12">'
             formBody += questionpart
-    formBody += '<input type="submit" name="submit" value="Submit" class="button"> </form>'
+            formBody += '</div>'
+    formBody += '<button class="btn waves-effect waves-light" type="submit" value="Submit" name="submit">Submit<i class="material-icons right">send</i></button></form>'
     return (formHead,formBody)
 
 def makePartHTMLwithoutForm(question,part):
@@ -194,7 +194,7 @@ def makeLibs(dynamicQuestion):
 
 @login_required
 def dynamicQuestionPartAJAX(request):
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     if not lupa_available:
         context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
@@ -243,6 +243,7 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
+                
         else:
             lupaQuestionTable = request.session['lupaQuestions']
             lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
@@ -279,6 +280,6 @@ def dynamicQuestionPartAJAX(request):
         context_dict['part'] = part
         context_dict['partplusone'] = part+1
         context_dict['type'] = requesttype
-        
+        print(context_dict)
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
         

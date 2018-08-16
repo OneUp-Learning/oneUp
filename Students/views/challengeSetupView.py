@@ -3,7 +3,10 @@ from django.contrib.auth.decorators import login_required
 import random 
 from datetime import datetime
 
-from Instructors.models import Challenges, Answers, DynamicQuestions
+##GMM import Regular Expression, re
+import re,string
+
+from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
@@ -53,8 +56,16 @@ def ChallengeSetup(request):
                 if challenge.challengePassword != '':
                     if 'password' not in request.POST or request.POST['password'] != challenge.challengePassword:
                         return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+
+#                 if challenge.challengeName == "Parsons":
+#                     context_dict['questionType'] = 'parsons'
+#                     context_dict['questionText'] = "Construct a function by drag&amp;dropping and reordering lines from the left to the right.The constructed function should return True if the parameter is True and return False otherwise."
+#                     return render(request,'Students/ChallengeSetup.html', context_dict)
                 
-                challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId)
+                #GGM changed it so that it will now order by the question position
+                #this allows us to easily order by randomization in the future
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId).order_by("questionPosition")
+                print("Challenge Questions", challenge_questions)
                 for challenge_question in challenge_questions:
                     questionObjects.append(challenge_question.questionID)
                 
@@ -75,7 +86,7 @@ def ChallengeSetup(request):
                                         
                     if q.type in staticQuestionTypesSet:
                         answers = [makeSerializableCopyOfDjangoObjectDictionary(ans) for ans in Answers.objects.filter(questionID = q.questionID)]
-                        if q.type != QuestionTypes.trueFalse:
+                        if q.type != QuestionTypes.trueFalse and q.type != QuestionTypes.parsons:
                             random.shuffle(answers)
                         answer_range = range(1,len(answers)+1)
                         questdict['answers_with_count'] = list(zip(answer_range,answers))
@@ -85,7 +96,83 @@ def ChallengeSetup(request):
                         
                         staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
                         questdict['questionText']=staticQuestion.questionText
-                    
+
+                        # Parsons problems: getting the model solution from the database - it is saved in Answers.answerText
+                        if q.type == QuestionTypes.parsons:
+                            if not challenge.isGraded:
+                                context_dict['warmUp'] = 1
+                            else:
+                                context_dict['warmUp'] = 0
+                            modelSolution = Answers.objects.filter(questionID=q)
+                            solution_string = modelSolution[0].answerText
+                            
+                            #dynamically set dfficulty of parson distractor
+                            questionHardness = Questions.objects.filter(questionID=q.questionID)
+                            questionDifficulty = questionHardness[0].difficulty
+                            
+        
+                            questdict['languageName'] = re.search(r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
+                            questdict['indentation'] = re.search(r';Indentation:([^;]+);', solution_string).group(1)
+                            
+                            
+                            languageAndLanguageName = re.search(r'Language:([^;]+)', solution_string)
+                            intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);', solution_string)
+                            solution_string = solution_string.replace(languageAndLanguageName.group(0), "")
+                            solution_string = solution_string.replace(intentationEnabledVariableAndValue.group(0), "")
+
+                            
+                            
+                            #get the count of the distractors
+                            
+                            distractorCount = len(re.findall(r'(?=#dist)', repr(solution_string).strip('"\'')))
+                            questdict['distractorCount'] = distractorCount
+                            
+                            
+                            #set the count of distractors off the question's hardness
+                            if(questionDifficulty == "Easy"):
+                                distractorCount = 0
+                            if(questionDifficulty == "Medium"):
+                                distractorCount = int(distractorCount/2)
+                                
+                            questdict['distractorCount'] = distractorCount    
+                            #if the question difficulty is hard, 
+                            ##then we just use the full distractor count
+
+                            
+                            #repr function will give us the raw representation of the string
+                            solution_string =  re.sub("\\r", "", solution_string)
+                            solution_string =  re.sub("^ *\\t", "  ", solution_string)
+                            solution_string =  re.sub("^\\t *", "  ", solution_string)
+                            
+                            #tokenizer characters ☃ and ¬
+                            solution_string = re.sub("\n", "\n¬☃", solution_string)
+                            solution_string = re.sub("^[ ]+?", "☃", solution_string)
+                            
+                            #we turn the student solution into a list
+                            solution_string = [x.strip() for x in solution_string.split('¬')]
+                            
+                            #get how many spces there are in the first line
+                            print("solution_string[0]",solution_string[0])
+                            solution_string[0] = re.sub("☃"," ",solution_string[0])
+                            leadingSpacesCount = len(solution_string[0]) - len(solution_string[0].lstrip(' '))
+                            print("leading spaces", leadingSpacesCount)
+                            
+                            #give each string the new line
+                            tabedSolution_string = []
+                            for index, line in enumerate(solution_string):
+                                line = re.sub("☃", "", line)
+                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
+                                line = line +"\n"
+                                tabedSolution_string.append(line)
+                            
+                            solution_string = ""
+                            solution_string = solution_string.join(tabedSolution_string)
+                            
+                            solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
+                            
+                            
+                            questdict['model_solution']=repr(solution_string).strip('\'')
+                                            
                         #getting the matching questions of the challenge from database
                         matchlist = []
                         for match in MatchingAnswers.objects.filter(questionID=q.questionID):
@@ -138,7 +225,7 @@ def ChallengeSetup(request):
                     sessionDict['questions'].append(questSessionDict)
 
             request.session[attemptId]=sessionDict
-            print("attemptID = "+attemptId)               
+            print("attemptID = "+attemptId)       
             context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
             
         register_event(Event.startChallenge,request,None,challengeId)

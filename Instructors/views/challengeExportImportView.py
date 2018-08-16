@@ -5,10 +5,11 @@ Created on May 1, 2017
 '''
 from django.shortcuts import redirect, render, HttpResponse
 
-from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, Questions, StaticQuestions 
-from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles, Topics 
+from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, StaticQuestions 
+from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
 from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
+from Instructors.views.utils import initialContextDict
 
 from Badges.enums import QuestionTypes
 
@@ -25,19 +26,7 @@ def str2bool(value):
 
 @login_required
 def exportChallenges(request):   
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    
-    else:  
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
+    context_dict, currentCourse = initialContextDict(request)
        
     if request.method == 'GET':
         chall_name = [] 
@@ -55,15 +44,15 @@ def exportChallenges(request):
         selectedChallenges = []
         # get the list of all checked challenges
         selected = request.POST.getlist('selected')
+        
         selectedChallenges_num = [ int(x) for x in selected ]
         
         if not selectedChallenges_num:
             selectedChallenges = Challenges.objects.filter(courseID=currentCourse)
         else:
-            for i in range(1,int(max(selectedChallenges_num))+1):
-                if i in selectedChallenges_num:
-                    chID =  request.POST.get('challengeID'+str(i))
-                    ch = Challenges.objects.get(pk=int(chID))
+            for challengeID in range(1,int(max(selectedChallenges_num))+1):
+                if challengeID in selectedChallenges_num:
+                    ch = Challenges.objects.get(pk=int(challengeID))
                     selectedChallenges.append(ch) 
         
         # Build the tree  
@@ -256,19 +245,7 @@ def saveExportedChallenges(request):
 
 
 def uploadChallenges(request):
-    context_dict = {}
-    
-    context_dict["logged_in"] = request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"] = request.user.username
-        
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-        
+    context_dict, currentCourse = initialContextDict(request)
         
     if request.method == 'GET':
         return render(request,'Instructors/ChallengeImport.html', context_dict)

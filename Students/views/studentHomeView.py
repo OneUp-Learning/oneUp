@@ -23,6 +23,7 @@ def StudentHome(request):
         
     course_ID = []      
     course_Name = []
+    course_available = []
 
     announcement_ID = []       
     announcement_course = []         
@@ -42,8 +43,9 @@ def StudentHome(request):
         if course.courseStartDate <= today and course.courseEndDate >=today:
             course_ID.append(item.courseID.courseID) 
             course_Name.append(item.courseID.courseName)
+            course_available.append(course.courseAvailable)
             course_announcements = Announcements.objects.filter(courseID=item.courseID).order_by('-startTimestamp')
-            if not course_announcements.count()==0:   
+            if not course_announcements.count()==0 and course.courseAvailable:   
                 last_course_announc= course_announcements[0]
                 announcement_ID.append(last_course_announc.announcementID)       
                 announcement_course.append(item.courseID.courseName)         
@@ -52,7 +54,7 @@ def StudentHome(request):
                 message.append(last_course_announc.message[:300])
                 num_announcements = num_announcements+1
                     
-    context_dict['course_range'] = zip(range(1,reg_crs.count()+1),course_ID,course_Name)
+    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name, course_available)), key=lambda tup: -tup[3])
     context_dict['num_announcements'] = num_announcements
     context_dict['announcement_range'] = zip(range(1,num_announcements+1),announcement_ID,announcement_course,start_timestamp,subject,message)
          

@@ -26,7 +26,6 @@ from Students.views.coursePerformanceView import CoursePerformance
 
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
-from Students.views.selectedChallengeTakenView import SelectedChallengeTaken
 from Students.views.studentCourseHomeView import StudentCourseHome
 from Students.views.studentHomeView import StudentHome
 from Students.views.transactionsView import transactionsView
@@ -35,6 +34,7 @@ from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
 from Students.views.studentEarnedTransactions import earnedTransactionsView
 from Students.views.studentNotifications import studentNotifications, updateNotificationTable
+from Students.views.studentQA import studentQA
 
 
 admin.autodiscover()
@@ -58,16 +58,14 @@ urlpatterns = [
     url(r'^CoursePerformance',CoursePerformance,name='CoursePerformance'),
     url(r'^Preferences',preferencesView, name='preferencesView'), 
     url(r'^Logout', LogoutView, name='Logout'),       
-    url(r'^SelectedChallengeTaken',SelectedChallengeTaken, name='SelectedChallengeTaken'),
     url(r'^StudentCourseHome',StudentCourseHome, name='StudentCourseHome'),
     url(r'^StudentHome',StudentHome, name='StudentHome'),
     url(r'^Transactions',transactionsView, name='Transactions'),
     url(r'^TransactionNotes',transactionNotesView, name='Transaction Notes'),
     url(r'^VirtualCurrencyRules',VirtualCurrencyDisplay, name='Virtual Currency Rule List'),
     url(r'^VirtualCurrencyShop',virtualCurrencyShopView, name='Virtual Current Shop'),
-    url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions')
-
-
+    url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions'),
+    url(r'^StudentQA', studentQA, name='Student QA')
     
     # url(r'^oneUp/students/', include('Students.urls')),   
     # url(r'^blog/', include('blog.urls')),

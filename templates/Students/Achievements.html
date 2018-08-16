@@ -1,268 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
- 
-      {% include 'scripts.html' %}
-     
-      <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <!-- Stylesheets, scripts and other resources-->
-      <link rel="shortcut icon" href="/static/images/oup.ico" />
-      <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="all">
-      <link rel="stylesheet" href="/static/css/dashboard/styledashboard.css" type="text/css" media="all">
-      <link rel="stylesheet" href="/static/css/dashboard/tabledashboard.css" type="text/css" media="all">
-      <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js" ></script>
-      <script type="text/javascript" src="/static/js/script.js"></script>
-      <script src="/static/ThirdParty/Highcharts-4.1.4/api/js/jquery-1.9.1.min.js"></script>
-      <script src="/static/ThirdParty/Highcharts-4.1.4/js/highcharts.js"></script>
-      <style>
-        #container5 {
-            height:100%;
-            width:100%;
-        }
-      </style>
-      <script>$(function () {
-         var chalYourPoints = function() {
-                var dataArray1  = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}' , {{score}}]{% if not forloop.last %},{% endif %}{% endfor %}];
-                   return dataArray1 ;
-                   
+<head>
+
+    {% include 'scripts.html' %}
+
+    <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
+
+    <script>
+        $(function() {
+            var chalYourPoints = function() {
+                var dataArray1 = [{% for i, chall_Name, score, total in challenge_range %}['{{chall_Name}}', {{score}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray1;
+
             };
-         var chalTotalPoints = function() {
-                var dataArray2  = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}' , {{total}}]{% if not forloop.last %},{% endif %}{% endfor %}];
-                   return dataArray2 ;
+            var chalTotalPoints = function() {
+                var dataArray2 = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}', {{total}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray2;
             };
-         var challengeName = function() {
-             var dataArray3  = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}']{% if not forloop.last %},{% endif %}{% endfor %}];
-             return dataArray3 ;
-         };
-         //container1 - Student point chart in Challenges
-           $('#container1').highcharts({
-           	chart: {
-                   type: 'column',            
-                   height: '280',
-                   width: '543'
-               },
-               title: {
-                   text: ''
-               },
-               subtitle: {
-                   text: ''
-               },
-               xAxis: {
-                   categories: challengeName(),
-                   title: {
-                	 // x-aixs label in Student point chart
-                      text: 'Challenges',
-                       align: 'middle'
-                   }
-               },
-               yAxis: {
-                   min: 0,
-                   title: {
-                	// x-aixs label in Student point chart
-                       text: 'Points',
-                       align: 'middle'
-                   },
-                   labels: {
-                       overflow: 'justify'
-                   }
-               },
-               tooltip: {
-                   valueSuffix: 'points'
-               },
-               plotOptions: {
-                   bar: {
-                       dataLabels: {
-                           enabled: false
-                       }
-                   }
-               },
-               legend: {
-                   layout: 'horizontal',
-                   align: 'right',
-                   verticalAlign: 'top',
-                   x: 0,
-                   y: 0,
-                   itemStyle: {
-                       width:'100px',
-                       textOverflow: 'ellipsis',
-                 overflow: 'hidden'
-                   },
-                   floating: true,
-                   borderWidth: 1,
-                   backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                   shadow: true
-               },
-               credits: {
-                   enabled: false
-               },
-               series: [{
-            	 //Student point chart label and blue color. 
-                   name: 'Your Points',
-                   color: 'darkblue', 
-                   data: chalYourPoints()
-               }, {
-            	 //Student point chart label and color. 
-                   name: 'Max Possible Points',
-                   color: '#3399ff',		//blue    
-               	   data: chalTotalPoints()
-               }]
-           });
-           
-         });
-      </script>
-      <script>$(function () {
-         var chalYourPoints1 = function() {
-                var dataArray4  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}' , {{score}}]{% if not forloop.last %},{% endif %}{% endfor %}];
-                   
-                return dataArray4 ;
+            var challengeName = function() {
+                var dataArray3 = [{% for i,chall_Name,score,total in challenge_range %}['{{chall_Name}}'] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray3;
             };
-         var chalTotalPoints1 = function() {
-                var dataArray5  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}' , {{total}}]{% if not forloop.last %},{% endif %}{% endfor %}];
-                return dataArray5 ;
+            //container1 - Student point chart in Challenges
+            $('#container1').highcharts({
+                chart: {
+                    type: 'column',
+                },
+                title: {
+                    text: ''
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: challengeName(),
+                    title: {
+                        // x-aixs label in Student point chart
+                        text: 'Challenges',
+                        align: 'middle'
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        // x-aixs label in Student point chart
+                        text: 'Points',
+                        align: 'middle'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                tooltip: {
+                    valueSuffix: 'points'
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: false
+                        }
+                    }
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: 0,
+                    y: 0,
+                    itemStyle: {
+                        width: '100px',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden'
+                    },
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    shadow: true
+                },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                    //Student point chart label and blue color. 
+                    name: 'Your Points',
+                    color: 'darkblue',
+                    data: chalYourPoints()
+                }, {
+                    //Student point chart label and color. 
+                    name: 'Max Possible Points',
+                    color: '#3399ff', //blue    
+                    data: chalTotalPoints()
+                }]
+            });
+
+        });
+    </script>
+    <script>
+        $(function() {
+            var chalYourPoints1 = function() {
+                var dataArray4 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}', {{score}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
+
+                return dataArray4;
+            };
+            var chalTotalPoints1 = function() {
+                var dataArray5 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}', {{total}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray5;
             };
             var chalTotalAvgPoints1 = function() {
-                var dataArray6  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}' , {{challavg}}]{% if not forloop.last %},{% endif %}{% endfor %}];
-                return dataArray6 ;
+                var dataArray6 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}', {{challavg}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray6;
             };
-         var challengeName1 = function() {
-             var dataArray7  = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}']{% if not forloop.last %},{% endif %}{% endfor %}];
-             return dataArray7 ;
-         };
+            var challengeName1 = function() {
+                var dataArray7 = [{% for i,chall_Name,score,total,challavg in challengeWithAverage_range %}['{{chall_Name}}'] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray7;
+            };
 
-         
-         //container2 - Class Average chart in Challenges
-           $('#container2').highcharts({
-           	chart: {
-                   type: 'column',           
-                   height: '280',
-                   width: '543'
-               },
-               title: {
-                   text: ''
-               },
-               subtitle: {
-                   text: ''
-               },
-               xAxis: {
-                   categories: challengeName1(),
-                   title: {
-                	// x-aixs label in Class Average chart
-                      text: 'Challenges',
-                       align: 'middle'
-                   }
-               },
-               yAxis: {
-                   min: 0,
-                   title: {
-                	// y-aixs label in Class Average chart
-                       text: 'Points',
-                       align: 'middle'
-                   },
-                   labels: {
-                       overflow: 'justify'
-                   }
-               },
-               tooltip: {
-                   valueSuffix: ' points'
-               },
-               plotOptions: {
-                   bar: {
-                       dataLabels: {
-                           enabled: false
-                       }
-                   }
-               },
-               legend: {
-                   layout: 'horizontal',
-                   align: 'right',
-                   verticalAlign: 'top',
-                   x: 0,
-                   y: 0,
-                   itemStyle: {
-                       width:'100px',
-                       textOverflow: 'ellipsis',
-                 overflow: 'hidden'
-                   },
-                   floating: true,
-                   borderWidth: 1,
-                   backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                   shadow: true
-               },
-               credits: {
-                   enabled: false
-               },
-               series: [ {
-            	//Class Average chart label and default color
-                   name: 'Your points',
-                   color: 'darkblue', 
-                   data: chalYourPoints1(),
-               }, {
-            	 //Class Average chart label and color
-                   name: 'Max Possible Points',
-                   color: '#3399ff',		//blue
-                   data: chalTotalPoints1()
-               }, {
-            	   //Class Average chart label and color
-                   name: 'Class Average Points',
-                   color: '#33cc33',
-                   data: chalTotalAvgPoints1(),
-               }]
-           });
-         });
-      </script>
-      
-      <script>
-      
-      
-      // SKILLS
-      
-       $(function () {
+
+            //container2 - Class Average chart in Challenges
+            $('#container2').highcharts({
+                chart: {
+                    type: 'column',
+                },
+                title: {
+                    text: ''
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: challengeName1(),
+                    title: {
+                        // x-aixs label in Class Average chart
+                        text: 'Challenges',
+                        align: 'middle'
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        // y-aixs label in Class Average chart
+                        text: 'Points',
+                        align: 'middle'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                tooltip: {
+                    valueSuffix: ' points'
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: false
+                        }
+                    }
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: 0,
+                    y: 0,
+                    itemStyle: {
+                        width: '100px',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden'
+                    },
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    shadow: true
+                },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                    //Class Average chart label and default color
+                    name: 'Your points',
+                    color: 'darkblue',
+                    data: chalYourPoints1(),
+                }, {
+                    //Class Average chart label and color
+                    name: 'Max Possible Points',
+                    color: '#3399ff', //blue
+                    data: chalTotalPoints1()
+                }, {
+                    //Class Average chart label and color
+                    name: 'Class Average Points',
+                    color: '#33cc33',
+                    data: chalTotalAvgPoints1(),
+                }]
+            });
+        });
+    </script>
+
+    <script>
+        // SKILLS
+
+        $(function() {
             var defSkillNamesArray = [];
             var defSkillPointsArray = [];
             var defskillYourPoints = function() {
-         	    var skillNamesArray = [];
-         	    var skillPointsArray = [];
-         	    
-                 var skillArray  = [{% for i,skill_Name,skill_Points in skill_range %}
-                                       ['{{skill_Name}}' , {{skill_Points}}]
-                                   {% if not forloop.last %},{% endif %}{% endfor %}];
-                 var index = 0;
-                 
-                 for (i=0; i<skillArray.length ;i++){
-                 	var defSkillAlreadyExists = 'N';
-                 	
-                 	for (j=0; j<defSkillNamesArray.length ; j++){	        		
-                 		if (skillArray[i][0] == defSkillNamesArray[j] ){
-                 		    defSkillAlreadyExists = 'Y';
-                 			defSkillPointsArray[j]+=skillArray[i][1];
-                 		}
-                 	}
-                 	if (defSkillAlreadyExists == 'N') {	        		
-                 		defSkillNamesArray[index] = skillArray[i][0];
-                 		defSkillPointsArray[index] = skillArray[i][1] ;
-                 		index++;
-                 	}
-                 	
-                 	
-                  } 
-                  return defSkillPointsArray; 
-              };
-          	  var skillName = function() {
-         	        var dataArray  = [{% for i,skill_Name,skill_Points in skill_range %}'{{skill_Name}}'{% if not forloop.last %},{% endif %}{% endfor %}];
-                     return dataArray ;
-         	  };
- 
- 			//container3 - Student skill points only; No class average    
+                var skillNamesArray = [];
+                var skillPointsArray = [];
+
+                var skillArray = [{% for i,skill_Name,skill_Points in skill_range %}['{{skill_Name}}', {{skill_Points}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                var index = 0;
+
+                for (i = 0; i < skillArray.length; i++) {
+                    var defSkillAlreadyExists = 'N';
+
+                    for (j = 0; j < defSkillNamesArray.length; j++) {
+                        if (skillArray[i][0] == defSkillNamesArray[j]) {
+                            defSkillAlreadyExists = 'Y';
+                            defSkillPointsArray[j] += skillArray[i][1];
+                        }
+                    }
+                    if (defSkillAlreadyExists == 'N') {
+                        defSkillNamesArray[index] = skillArray[i][0];
+                        defSkillPointsArray[index] = skillArray[i][1];
+                        index++;
+                    }
+
+
+                }
+                return defSkillPointsArray;
+            };
+            var skillName = function() {
+                var dataArray = [{% for i,skill_Name,skill_Points in skill_range %}'{{skill_Name}}' {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray;
+            };
+
+            //container3 - Student skill points only; No class average    
             $('#container3').highcharts({
-            	chart: {
+                chart: {
                     type: 'bar',
-                    height: '280',
-                    width: '533'
                 },
                 title: {
                     text: ''
@@ -271,17 +244,17 @@
                     text: '.'
                 },
                 xAxis: {
-                    categories: defSkillNamesArray, 
+                    categories: defSkillNamesArray,
                     title: {
-                    	// x-aixs label in Student point chart
-                       text: 'Skills',
-                       align: 'middle'
+                        // x-aixs label in Student point chart
+                        text: 'Skills',
+                        align: 'middle'
                     }
                 },
                 yAxis: {
                     min: 0,
                     title: {
-                    	// y-aixs label in Student point chart
+                        // y-aixs label in Student point chart
                         text: 'Skill Points',
                         align: 'middle'
                     },
@@ -300,16 +273,16 @@
                     }
                 },
                 legend: {
-                	 layout: 'horizontal',
-                     align: 'right',
-                     verticalAlign: 'top',
-                     x: 0,
-                     y: 0,
-                     itemStyle: {
-                         width:'100px',
-                         textOverflow: 'ellipsis',
-         		         overflow: 'hidden'
-                     },
+                    layout: 'horizontal',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: 0,
+                    y: 0,
+                    itemStyle: {
+                        width: '100px',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden'
+                    },
                     floating: true,
                     borderWidth: 1,
                     backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
@@ -319,86 +292,80 @@
                     enabled: false
                 },
                 series: [{
-                	//Student point chart label 
+                    //Student point chart label 
                     name: 'Your points',
                     color: 'darkblue',
                     //color: '#3399ff',		//blue
                     data: defskillYourPoints()
-                }
-			  ]
+                }]
             });
-         });
-      </script>
-      <script>$(function () {
-         var nondefskillsNamesArray2 = [];
-         var nondefskillsPointsArray2 = [];
-         var nondefskillsAvgPointsArray = [];
-         var nondefskillYourPoints = function() {
-                var skillArray2  = [{% for i,skill_Name,skill_Points in nondefskill_range %}
-                                    ['{{skill_Name}}' , {{skill_Points}}]
-                                    {% if not forloop.last %},{% endif %}{% endfor %}];
+        });
+    </script>
+    <script>
+        $(function() {
+            var nondefskillsNamesArray2 = [];
+            var nondefskillsPointsArray2 = [];
+            var nondefskillsAvgPointsArray = [];
+            var nondefskillYourPoints = function() {
+                var skillArray2 = [{% for i,skill_Name,skill_Points in nondefskill_range %}['{{skill_Name}}', {{skill_Points}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 var index = 0;
-                
-                
-                for (i=0; i<skillArray2.length ;i++){
-                	var nondefSkillAlreadyExists = 'N';
-                	
-                	for (j=0; j<nondefskillsNamesArray2.length ; j++){	        		
-                		if (skillArray2[i][0] == nondefskillsNamesArray2[j] ){
-                		    nondefSkillAlreadyExists = 'Y';
-                		    nondefskillsPointsArray2[j]+=skillArray2[i][1];
-                		}
-                	}
-                	if (nondefSkillAlreadyExists == 'N') {	        		
-                		nondefskillsNamesArray2[index] = skillArray2[i][0];
-                		nondefskillsPointsArray2[index] = skillArray2[i][1] ;
-                		index++;
-                	}
+
+
+                for (i = 0; i < skillArray2.length; i++) {
+                    var nondefSkillAlreadyExists = 'N';
+
+                    for (j = 0; j < nondefskillsNamesArray2.length; j++) {
+                        if (skillArray2[i][0] == nondefskillsNamesArray2[j]) {
+                            nondefSkillAlreadyExists = 'Y';
+                            nondefskillsPointsArray2[j] += skillArray2[i][1];
+                        }
+                    }
+                    if (nondefSkillAlreadyExists == 'N') {
+                        nondefskillsNamesArray2[index] = skillArray2[i][0];
+                        nondefskillsPointsArray2[index] = skillArray2[i][1];
+                        index++;
+                    }
                 }
-                return nondefskillsPointsArray2 ;
+                return nondefskillsPointsArray2;
             };
-            
+
             var nondefskillavgpoints = function() {
-                var skillArray3  = [{% for i,skill_Name,skill_ClassAvg in skillWithAverage_range %}
-                                      ['{{skill_Name}}', {{skill_ClassAvg}}]
-                                    {% if not forloop.last %},{% endif %}{% endfor %}];
+                var skillArray3 = [{% for i,skill_Name,skill_ClassAvg in skillWithAverage_range %}['{{skill_Name}}', {{skill_ClassAvg}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
                 var index3 = 0;
                 var nondefskillsNamesArray3 = [];
-                for (i=0; i<skillArray3.length ;i++){
-                	var nondefSkillAlreadyExists = 'N';
-                	
-                	
-                	for (j=0; j<nondefskillsNamesArray3.length ; j++){	        		
-                		if (skillArray3[i][0] == nondefskillsNamesArray3[j] ){
-                		    nondefSkillAlreadyExists = 'Y';
-                		}
-                	}
-                	if (nondefSkillAlreadyExists == 'N') {	        		
-                		nondefskillsNamesArray3[index3] = skillArray3[i][0];
-                		nondefskillsAvgPointsArray[index3] = skillArray3[i][1] ;
-                		index3++;
-                	}
+                for (i = 0; i < skillArray3.length; i++) {
+                    var nondefSkillAlreadyExists = 'N';
+
+
+                    for (j = 0; j < nondefskillsNamesArray3.length; j++) {
+                        if (skillArray3[i][0] == nondefskillsNamesArray3[j]) {
+                            nondefSkillAlreadyExists = 'Y';
+                        }
+                    }
+                    if (nondefSkillAlreadyExists == 'N') {
+                        nondefskillsNamesArray3[index3] = skillArray3[i][0];
+                        nondefskillsAvgPointsArray[index3] = skillArray3[i][1];
+                        index3++;
+                    }
                 }
-                return nondefskillsAvgPointsArray ;
+                return nondefskillsAvgPointsArray;
             };
-            
-            
+
+
             var nondefskilltotalpoints = function() {
-                var skillArray5  = [{% for i,skill_ID,skill_Name,skillTotal_Points in nondefskillTotalpoints_range %}['{{skill_Name}}' , {{skillTotal_Points}}]{% if not forloop.last %},{% endif %}{% endfor %}];
-                return skillArray5 ;
-            };   
-            
+                var skillArray5 = [{% for i,skill_ID,skill_Name,skillTotal_Points in nondefskillTotalpoints_range %}['{{skill_Name}}', {{skillTotal_Points}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return skillArray5;
+            };
+
             var nondefskillName = function() {
-                 var dataArray4  = [{% for i,skill_Name,skill_Points in nondefskill_range %}'{{skill_Name}}'{% if not forloop.last %},{% endif %}{% endfor %}];
-                    return dataArray4 ;
-             };
-             
-         //container4 - Class average skills displayed	    
+                var dataArray4 = [{% for i,skill_Name,skill_Points in nondefskill_range %}'{{skill_Name}}' {% if not forloop.last %}, {% endif %} {% endfor %}];
+                return dataArray4;
+            };
+
+            //container4 - Class average skills displayed	    
             $('#container4').highcharts({
-            	chart: {
+                chart: {
                     type: 'bar',
-                    height: '280',
-                    width: '533'
                 },
                 title: {
                     text: ''
@@ -409,15 +376,15 @@
                 xAxis: {
                     categories: nondefskillsNamesArray2, //nondefskillName(),
                     title: {
-                    	// x-aixs label in Class Average chart
-                       text: 'Skills',
+                        // x-aixs label in Class Average chart
+                        text: 'Skills',
                         align: 'middle'
                     }
                 },
                 yAxis: {
                     min: 0,
                     title: {
-                    	// y-aixs label in Class Average chart
+                        // y-aixs label in Class Average chart
                         text: 'Skill Points',
                         align: 'middle'
                     },
@@ -432,21 +399,21 @@
                     bar: {
                         dataLabels: {
                             enabled: false,
-                            useHTML:true
+                            useHTML: true
                         }
                     }
                 },
                 legend: {
-                	 layout: 'horizontal',
-                     align: 'right',
-                     verticalAlign: 'top',
-                     x: 0,
-                     y: 0,
-                     itemStyle: {
-                         width:'100px',
-                         textOverflow: 'ellipsis',
-         		        overflow: 'hidden'
-                     },
+                    layout: 'horizontal',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: 0,
+                    y: 0,
+                    itemStyle: {
+                        width: '100px',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden'
+                    },
                     floating: true,
                     borderWidth: 1,
                     backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
@@ -456,593 +423,511 @@
                     enabled: false
                 },
                 series: [{
-                	//Student point chart label and default color.
-                    name: 'Your points',
-                    color: 'darkblue',
-                    //color: '#3399ff',		//blue
-                    data: nondefskillYourPoints()
-                },
-                {
-                	//Student point chart label and default color.
-                    name: 'Class Average Points',
-                    color: '#33cc33',		//green
-                    data: nondefskillavgpoints()
-                }]
+                        //Student point chart label and default color.
+                        name: 'Your points',
+                        color: 'darkblue',
+                        //color: '#3399ff',		//blue
+                        data: nondefskillYourPoints()
+                    },
+                    {
+                        //Student point chart label and default color.
+                        name: 'Class Average Points',
+                        color: '#33cc33', //green
+                        data: nondefskillavgpoints()
+                    }
+                ]
             });
-         });
-      </script>
-      <script type='text/javascript'>
-      
-    	//WARM UP CHALLENGES
-    	
-         $(function () {        	
-         	var warmUpChallengeNameArray = [];
-         	var warmupChallengeExists = 'N';
-         	var warmUpAttemptsArray = [];
-         	var warmUpMaxScoreArray = [];
-         	var warmUpMinScoreArray = [];
-         	var warmUpTotalScoreArray = [];
-         	var warmUpCategoryArray = [];
+        });
+    </script>
+    <script type='text/javascript'>
+        //WARM UP CHALLENGES
 
-         	var warmUpChallengeName = function() {
-                 var warmUpdataArray  = [{% for i,chall_Name,total,noOfAttempts,warmUpMaxScore,warmUpMinScore in studentWarmUpChallenges_range %}
-                 ['{{chall_Name}}', {{noOfAttempts}}, {{warmUpMaxScore}}, {{warmUpMinScore}}, {{total}}]
-                 {% if not forloop.last %},{% endif %}{% endfor %}];
+        $(function() {
+            var warmUpChallengeNameArray = [];
+            var warmupChallengeExists = 'N';
+            var warmUpAttemptsArray = [];
+            var warmUpMaxScoreArray = [];
+            var warmUpMinScoreArray = [];
+            var warmUpTotalScoreArray = [];
+            var warmUpCategoryArray = [];
 
-                 var warmUpIndex = 0;
-                 for (i=0; i< warmUpdataArray.length; i++) {
-                 	for (j=0; j < warmUpChallengeNameArray.length ; j++){
-                 		if (warmUpdataArray[i][0] == warmUpChallengeNameArray[j] ){
-                     		warmupChallengeExists = 'Y';
-                     	}
-                 	}
-                 	if (warmupChallengeExists == 'N'){
-                 		warmUpChallengeNameArray[warmUpIndex] = warmUpdataArray[i][0];
-                 		warmUpAttemptsArray[warmUpIndex] = warmUpdataArray[i][1] ;
-                 		warmUpMaxScoreArray[warmUpIndex] = warmUpdataArray[i][2] ;
-                 		warmUpMinScoreArray[warmUpIndex] = warmUpdataArray[i][3] ;
-                 		warmUpTotalScoreArray[warmUpIndex] = warmUpdataArray[i][4] ;
-                 		warmUpCategoryArray[warmUpIndex] = warmUpChallengeNameArray[warmUpIndex] +'<br>Num.of attempts:'+warmUpAttemptsArray[warmUpIndex];
-                 		warmUpIndex++;
-                 	}
-                 }
-                  	
-                 return warmUpChallengeNameArray ;
-             };
-             
-             var warmUpChallengeAttempts = function(){
-             	return warmUpAttemptsArray;
-             };
-             
-             var warmUpChallengeMaxScore = function(){
-             	return warmUpMaxScoreArray;
-             };
-             
-             var warmUpChallengeMinScore = function(){
-             	return warmUpMinScoreArray;
-             };
-         	
-             var warmUpChallengeTotalScore = function(){              
-              	return warmUpTotalScoreArray;
-             }; 
+            var warmUpChallengeName = function() {
+                var warmUpdataArray = [{% for i,chall_Name,total,noOfAttempts,warmUpMaxScore,warmUpMinScore in studentWarmUpChallenges_range %}['{{chall_Name}}', {{noOfAttempts}}, {{warmUpMaxScore}}, {{warmUpMinScore}}, {{total}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
 
-             var warmUpCategory = function(){ 
-            	 var wuN = warmUpChallengeName();
-            	 var wuA = warmUpChallengeAttempts();
-             	 for (i=0; i< warmUpChallengeNameArray.length; i++) {
-             		warmUpCategoryArray[i] = wuN[i] +'<br>Num. attempts:' + wuA[i];
-             		 
-            	 }               	
- 				return warmUpCategoryArray;
-              }; 
-                           
-             $('#container5').highcharts({
-             	chart: {
-                     type: 'bar',
-                     width: '1090',
-                     height: '2000'
-                 },
-                 title: {
-                     text: ''
-                 },
-                 subtitle: {
-                     text: '.'
-                 },
-                 xAxis: {                	 
-                     categories: warmUpCategory(),
-                     title: {
-                    	// x-aixs label in warmup challenges chart
+                var warmUpIndex = 0;
+                for (i = 0; i < warmUpdataArray.length; i++) {
+                    for (j = 0; j < warmUpChallengeNameArray.length; j++) {
+                        if (warmUpdataArray[i][0] == warmUpChallengeNameArray[j]) {
+                            warmupChallengeExists = 'Y';
+                        }
+                    }
+                    if (warmupChallengeExists == 'N') {
+                        warmUpChallengeNameArray[warmUpIndex] = warmUpdataArray[i][0];
+                        warmUpAttemptsArray[warmUpIndex] = warmUpdataArray[i][1];
+                        warmUpMaxScoreArray[warmUpIndex] = warmUpdataArray[i][2];
+                        warmUpMinScoreArray[warmUpIndex] = warmUpdataArray[i][3];
+                        warmUpTotalScoreArray[warmUpIndex] = warmUpdataArray[i][4];
+                        warmUpCategoryArray[warmUpIndex] = warmUpChallengeNameArray[warmUpIndex] + '<br>Num.of attempts:' + warmUpAttemptsArray[warmUpIndex];
+                        warmUpIndex++;
+                    }
+                }
+
+                return warmUpChallengeNameArray;
+            };
+
+            var warmUpChallengeAttempts = function() {
+                return warmUpAttemptsArray;
+            };
+
+            var warmUpChallengeMaxScore = function() {
+                return warmUpMaxScoreArray;
+            };
+
+            var warmUpChallengeMinScore = function() {
+                return warmUpMinScoreArray;
+            };
+
+            var warmUpChallengeTotalScore = function() {
+                return warmUpTotalScoreArray;
+            };
+
+            var warmUpCategory = function() {
+                var wuN = warmUpChallengeName();
+                var wuA = warmUpChallengeAttempts();
+                for (i = 0; i < warmUpChallengeNameArray.length; i++) {
+                    warmUpCategoryArray[i] = wuN[i] + '<br>Num. attempts:' + wuA[i];
+
+                }
+                return warmUpCategoryArray;
+            };
+
+            $('#container5').highcharts({
+                chart: {
+                    type: 'bar',
+                    height: {{warmUpContainerHeight}},
+
+                },
+                title: {
+                    text: ''
+                },
+                subtitle: {
+                    text: '.'
+                },
+                xAxis: {
+                    categories: warmUpCategory(),
+                    title: {
+                        // x-aixs label in warmup challenges chart
                         text: 'Warm Up Challenges',
                         align: 'middle'
-                     }
-                 },
-                 yAxis: {
-                     min: 0,
-                     title: {
-                    	// y-aixs label in warmup challenges chart
-                         text: 'Points',
-                         align: 'middle'
-                     },
-                     labels: {
-                         overflow: 'justify'
-                     }
-                 },
-                 scrollbar: {
-                	    enabled: true
-                	},
-                 tooltip: {
-                     valueSuffix: ' '
-                 },
-                 plotOptions: {
-                     bar: {
-                         dataLabels: {
-                             enabled: false,
-                             //enabled: true,
-                             //useHTML:true
-                         }
-                     }
-                 },
-                 legend: {
-                 	 layout: 'horizontal',
-                      align: 'right',
-                      verticalAlign: 'top',
-                      x: 0,
-                      y: 0,
-                      itemStyle: {
-                          width:'105px',
-                          textOverflow: 'ellipsis',
-          		        overflow: 'hidden'
-                      },
-                     floating: true,
-                     borderWidth: 1,
-                     backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                     shadow: true
-                 },
-                 credits: {
-                     enabled: false
-                 },
-                 series: [{
-                	//Warmup challenges chart label and default color.
-                     name: 'Your Min Score',
-                     color: '#fd7902', // orange
-                     //color: '#33ffcc',  // green-blue
-                     data: warmUpChallengeMinScore()
-                 },
-                 {
-                	//Warmup challenges chart label and default color.
-                     name: 'Your Max Score ',
-                     color: 'darkblue',
-                     data: warmUpChallengeMaxScore()
-                 },
-                 {
-                	//Warmup challenges chart label and default color.
-                     name: 'Max Possible Score',
-                     color: '#3399ff',
-                     data: warmUpChallengeTotalScore()                    
-                 }]
-             });
-         });
-      </script>
-      
-      <script type='text/javascript'>
-      
-   		// PROGRESS BAR
-   		
-         $(function () {
-         	var PointsEarnedData = function() {
-         		
-                 var PointsEarnedDataArray1  = {{currentEarnedPoints}};       
-                 return PointsEarnedDataArray1 ;
-             };
-             var RemainingChallengePoints = function() {
-         		
-                 var RemainingChallengePointsDataArray1  = {{remainingPointsToEarn}};       
-                 return RemainingChallengePointsDataArray1 ;
-             };    
-             var ChallengePointsmissed = function() {
-         		
-                 var ChallengePointsmissedDataArray1  = {{missedPoints}};       
-                 return ChallengePointsmissedDataArray1 ;
-             };	
-             var ChallengePointsProjected = function() {
-         		
-                 var ChallengePointsProjectedDataArray1  = {{projectedEarnedPoints}};
-                 return ChallengePointsProjectedDataArray1 ;
-             };
-             var ChallengesMaxPoints = function() {
-         		
-                 var ChallengesMaxPointsDataArray1  = {{totalMilestonePoints}} ;       
-                 return ChallengesMaxPointsDataArray1 ;
-             };	
-             var ChallengesTickPoints = function() {
-         		
-                 var ChallengesTickPointsDataArray1  = {{projectedEarnedPoints}};       
-                 return ChallengesTickPointsDataArray1 ;
-             };	 
-             //Your Progress
-             $('#p1').highcharts({
-              chart:{
-                 renderTo:'p1',
-                 type:'bar',
-                 borderWidth:0,
-                 borderColor:'#333300',
-                 margin:[0],
-                 width:1090
-             },
-             
-             credits:{enabled:false},
-             exporting:{enabled:false},
-             title:{text:''},
-             legend:{enabled:false},
-             xAxis:{
-                 tickLength:100,
-                 tickColor:'#eee',
-                 gridLineWidth:1,
-                 gridLineColor:'#eee',
-                 labels: {
-                     style: {
-                         fontWeight:'bold'
-                     }
-                 },
-                 lineColor:'#eee',
-                 lineWidth:0,
-                 categories:['']
-             },
-             yAxis:{
-                 tickInterval:5,
-                 allowDecimals:false,
-                 tickColor:'#ccc',
-                 tickWidth:0,
-                 tickLength:300,
-                 lineColor:'#eee',
-                 lineWidth:0,
-                 gridLineWidth:0,
-                 gridLineColor:'rgba(255,255,255,.15)',
-                 endOnTick:true,
-                 title:{text: ''},
-                 //gridZIndex:4,
-                 min:0,
-                 max:[ChallengesMaxPoints()],
-                 endOnTick:true,
-                 startOnTick:false,
-                 plotLines: [{
-                     value:[ChallengePointsProjected()],
-                     width:2,
-                     zIndex:4,
-                     //Progressbar marker black color
-                     color:'darkblue'
-                 }],
-                 labels: {
-                     style: {
-                         fontSize:'9px'
-                     }
-                 }
-              },
-              tooltip: {
-             	 useHTML: true,
-             	 },
-             plotOptions:{
-                 bar:{
-                     grouping: false,
-                     shadow:false,
-                     borderWidth:0,
-                     pointPadding:.25,
-                     groupPadding:0
-                 },
-                 scatter:{
-                     marker:{
-                         symbol:'line',
-                         lineWidth:900,
-                         radius:9,
-                         lineColor:'#333'
-                     }
-                 }
-             },
-              series:[{
-                 name:'Points Already Lost',
-                 enableMouseTracking:true,
-                 borderWidth:0,
-                 borderRadius:0,
-                 stacking:'normal',
-                 grouping:false,
-                 //progress bar red color points already lost
-                 color:'red',//darkred
-                 data:[ChallengePointsmissed()]
-              },{
-                 name:'Points for Future Milestones',
-                 enableMouseTracking:true,
-                 borderWidth:0,
-                 borderRadius:0,
-                 stacking:'normal',
-                 grouping:false,
-                 //Progress bar yellow color points remaining.
-                 color:'#FFFF33',//yellow
-                 data:[ChallengesMaxPoints()-ChallengePointsmissed()-PointsEarnedData()]
-              },{
-                 //pointRange:1.1,
-                 name:'Points Earned',
-                 enableMouseTracking:true,
-                 borderWidth:0,
-                 borderRadius:0,
-                 stacking:'normal',
-                 grouping:false,
-                 //Progressbar purple color points earned.
-                 color:'#9966FF',//purple
-                 //color:'#3399ff',//blue
-                 data: [PointsEarnedData()]
-              },{
-                 name:'Projected Total Points',
-                 //Progress bar total projected points black color.
-                 color:'darkblue',
-                 //color:'#9966FF',
-                 pointRange:.5,
-                 zIndex:1,
-                 data:[ChallengePointsProjected()]
-             },{
-                 name:'Target',
-                 type:'scatter',
-                 zIndex:20,
-                 data:[750]
-             },{
-                 name:'Warnings',
-                 type:'scatter',
-                 marker: { 
-                     symbol:'circle', 
-                     radius:0, 
-                     color:'#FF5050',
-                     lineWidth:0,
-                     lineColor:'#fff',
-                     states: {
-                         hover: {
-                             enabled: false
-                         }
-                     }
-                 },
-                 data:[
-                     {x:0,y:0,marker:{fillColor:'red'}}
-                 ]
-             }]
-             });
-         });
-      </script>
-   </head>
-   
-   <body>
-      <div id="page-wrapper">
-      
-       {% if is_teacher %}    
-              {% include 'heading.html' %}
-       {% else %}
-              {% include 'stheading.html' %}
-       {% endif %}
+                    },
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        // y-aixs label in warmup challenges chart
+                        text: 'Points',
+                        align: 'middle'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                scrollbar: {
+                    enabled: true
+                },
+                tooltip: {
+                    valueSuffix: ' '
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: false,
+                            //enabled: true,
+                            //useHTML:true
+                        }
+                    },
+                    //series: {
+                    //    pointPadding: 0,
+                    //    groupPadding: 0.1,
+                   // }
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: 0,
+                    y: 0,
+                    itemStyle: {
+                        width: '105px',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden'
+                    },
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    shadow: true
+                },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                        //Warmup challenges chart label and default color.
+                        name: 'Your Min Score',
+                        color: '#fd7902', // orange
+                        //color: '#33ffcc',  // green-blue
+                        data: warmUpChallengeMinScore()
+                        //data: [10, 23, 402, 32, 42, 323 ,23 ,23 ,32 ,23, 32, 23,32,10, 23, 402, 32, 42, 323 ,23 ,23 ,32 ,23, 32, 23,32]
+                    },
+                    {
+                        //Warmup challenges chart label and default color.
+                        name: 'Your Max Score ',
+                        color: 'darkblue',
+                        data: warmUpChallengeMaxScore()
+                    },
+                    {
+                        //Warmup challenges chart label and default color.
+                        name: 'Max Possible Score',
+                        color: '#3399ff',
+                        data: warmUpChallengeTotalScore()
+                    }
+                ]
+            });
+        });
+    </script>
 
+    <script type='text/javascript'>
+        // PROGRESS BAR
 
-      <div id="header">
-      <div class="inner">
-         <!-- Body -->
-         
-         <table>
-            <tr>
-               <td>
-               <table  style= 'width: 49.8em; '><tr style= 'height: 2.1em; width: 56em; text-align: center;' >
-                  {% if virtualCurrencyUsed %}
-               		<td class='rcorners11' align='center' style='background-color: #fd7902;font-size:0.7em;color:black; vertical-align: middle; '>
-                      <b>Your XP Points: {{studentXP_range}}</b></td>  
-                    <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black; vertical-align: middle; '>
-                      <b>Your Practice Points: {{totalWCEarnedPoints}}  /  {{totalWCPossiblePoints}}</b></td>
-                    <td class='rcorners11' align='center'  style="background-color: #fd7902; font-size:0.7em; color:black; vertical-align: middle">
-                      <b>Your Course Bucks: {{course_Bucks}}</b> </td>
+        $(function() {
+            var PointsEarnedData = function() {
 
-                  {% else %}
-              		<td class='rcorners11' align='center' style='background-color: #fd7902;font-size:0.7em;color:black'>
-                      <b>Your XP Points: {{studentXP_range}}</b></td>  
-                    <td class='rcorners11' align='center'  style='background-color:orange; font-size:0.7em; color:black'>
-                      <b>Your Practice Points: {{totalWCEarnedPoints}}  /  {{totalWCPossiblePoints}}</b> </td>
-                  {% endif %}
+                var PointsEarnedDataArray1 = {{currentEarnedPoints}};
+                return PointsEarnedDataArray1;
+            };
+            var RemainingChallengePoints = function() {
 
-              </td> 
-              </tr></table>
-               
-           </td>
-            </tr>
-            <tr>
-               <td colspan="2">
-                  <div>
-                     <table>
-                        <tr>
-                           <td class="rcorners4" align="left" height="125px" style="font-size:0.8em;color:white">
-                              <b><span style="color:white;">&nbsp;Your Progress</span></b>
-                              <div id="p1" style="height: 110px"></div>
-                           </td>
-                        </tr>
-                     </table>
-                  </div>
-               </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                 <div>
-                  <table>
-                     <tr>
-                        <td width="50%">
-                           <div>
-                              <table  align="left">
-                                 <tr>
-                                 <td align="left" style="font-size:0.8em;" width="50%" ><b style="color:black;">&nbsp;Skills</b></td>                                
-                                    <td align="right">
-                                      <script>
-                                         var isClassAvgAvailable = {{is_ClassAverage_Displayed|lower}};
-                                         if (isClassAvgAvailable)
-                                         {
-                                           var selectScript = "<select class='select2' id='selectOption' name='selectOption' >";
-                                           selectScript+="<option value='3'>Points</option><option value='4'>Class Average</option></select>";
-                                           document.write(selectScript);
-                                         }
-                                        else
-                                         {
-                                            var selectScript = "<select class='select2' id='selectOption' name='selectOption'>";
-                                            selectScript+="<option value='3'>Points</option><option value='4' disabled>Class Average</option></select>";
-                                            document.write(selectScript);
-                                         }
-                                       
-                                      </script>
-                                    </td>
-                                 </tr>
-                                 <tr  style="font-size:0.7em;">
-                                    <td colspan="2">
-                                       <div id='container3' class="js-box1" style="width:250px; display:none;"></div>
-                                    </td>
-                                 </tr>
-                                 <tr  style="font-size:0.7em;">
-                                    <td colspan="2">
-                                       <div id='container4' class="js-box1" style="width:250px; display:none;"></div>
-                                    </td>
-                                 </tr>
-                                 <script>
-                                    var value1 = 3;
-                                    var $select1 = $('.select2');          	  
-                                    
-                                    var updateBoxes1 = function( value1 ) {
-                                        $('.js-box1').hide();                               
-                                    $('#container' + value1).show();  
-                                    
-                                    }
-                                    
-                                    var initSelects1 = function( value1 ) {
-                                      if (value1 !== 0) {    
-                                        $select1.val( value1 );
-                                       }
-                                      $select1.on('change', function() { 
-                                       updateBoxes1( $select1.val() );
-                                      });
-                                    }
-                                    initSelects1( value1 );
-                                    updateBoxes1( value1 );
-                                 </script>		   
-                              </table>
-                           </div>
-                        </td>
-                        <td width="50%" align="right" >
-                          <div>
-                            <table  align="right">
-                              <tr>
-                           <td align="left" style="font-size:0.8em;" width="50%" >
-                              <b style="color:black;">&nbsp;Challenges</b>
-                           </td>
-                           <td align="right" width="10%">
-                           <script>                 
-                              var isClassAvgAvailable1 = {{is_ClassAverage_Displayed|lower}};                              
-                              if (isClassAvgAvailable1)
-                                 {
-                                     var selectScript1 = "<select class='select1' id='selectOption1'>";
-                                     selectScript1+="<option value='1'>Points</option><option value='2'>Class Average</option></select>";
-                                     document.write(selectScript1);
-                                 }
-                              else
-                                 {
-                                     var selectScript1 = "<select class='select1' id='selectOption1'>";
-                                   	 selectScript1+="<option value='1'>Points</option><option value='2' disabled>Class Average</option></select>";
-                                   	 document.write(selectScript1);
-                                 }
-                                      
-                           </script>
-                           </td>
-                        </tr>
-                              <tr>
-                           <td colspan="2">
-                              <div id='container1' class="js-box" style="width:250px; display:none;"></div>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td colspan="2">
-                              <div id='container2' class="js-box" style="width:250px; display:none;"></div>
-                           </td>
-                        </tr>
-                        <script>
-                           var value = 1;
-                           var $select = $('.select1');
-                           var updateBoxes = function( value ) {
-                                 $('.js-box').hide();
-                             	   $('#container' + value).show();    	
+                var RemainingChallengePointsDataArray1 = {{remainingPointsToEarn}};
+                return RemainingChallengePointsDataArray1;
+            };
+            var ChallengePointsmissed = function() {
+
+                var ChallengePointsmissedDataArray1 = {{missedPoints}};
+                return ChallengePointsmissedDataArray1;
+            };
+            var ChallengePointsProjected = function() {
+
+                var ChallengePointsProjectedDataArray1 = {{projectedEarnedPoints}};
+                return ChallengePointsProjectedDataArray1;
+            };
+            var ChallengesMaxPoints = function() {
+
+                var ChallengesMaxPointsDataArray1 = {{totalMilestonePoints}};
+                return ChallengesMaxPointsDataArray1;
+            };
+            var ChallengesTickPoints = function() {
+
+                var ChallengesTickPointsDataArray1 = {{projectedEarnedPoints}};
+                return ChallengesTickPointsDataArray1;
+            };
+            //Your Progress
+            $('#p1').highcharts({
+                chart: {
+                    renderTo: 'p1',
+                    type: 'bar',
+                    borderWidth: 0,
+                    borderColor: '#333300',
+                    margin: [0],
+                },
+
+                credits: {
+                    enabled: false
+                },
+                exporting: {
+                    enabled: false
+                },
+                title: {
+                    text: ''
+                },
+                legend: {
+                    enabled: false
+                },
+                xAxis: {
+                    lineWidth: 0,
+                    minorGridLineWidth: 0,
+                    lineColor: 'transparent',
+                    labels: {
+                        enabled: false
+                    },
+                    minorTickLength: 0,
+                    tickLength: 0
+                },
+                yAxis: {
+                    tickInterval: 5,
+                    allowDecimals: false,
+                    tickColor: '#ccc',
+                    tickWidth: 0,
+                    tickLength: 300,
+                    lineColor: '#eee',
+                    lineWidth: 0,
+                    gridLineWidth: 0,
+                    gridLineColor: 'rgba(255,255,255,.15)',
+                    endOnTick: true,
+                    title: {
+                        text: ''
+                    },
+                    //gridZIndex:4,
+                    min: 0,
+                    max: [ChallengesMaxPoints()],
+                    endOnTick: true,
+                    startOnTick: false,
+                    plotLines: [{
+                        value: [ChallengePointsProjected()],
+                        width: 2,
+                        zIndex: 4,
+                        //Progressbar marker black color
+                        color: 'darkblue'
+                    }],
+                    labels: {
+                        style: {
+                            fontSize: '9px'
+                        }
+                    }
+                },
+                tooltip: {
+                    useHTML: true,
+                },
+                plotOptions: {
+                    bar: {
+                        grouping: false,
+                        shadow: false,
+                        borderWidth: 0,
+                        pointPadding: .25,
+                        groupPadding: 0
+                    },
+                    scatter: {
+                        marker: {
+                            symbol: 'line',
+                            lineWidth: 0,
+                            radius: 9,
+                            lineColor: '#333'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Points Already Lost',
+                    enableMouseTracking: true,
+                    borderWidth: 0,
+                    borderRadius: 0,
+                    stacking: 'normal',
+                    grouping: false,
+                    //progress bar red color points already lost
+                    color: 'red', //darkred
+                    data: [ChallengePointsmissed()]
+                }, {
+                    name: 'Points for Future Milestones',
+                    enableMouseTracking: true,
+                    borderWidth: 0,
+                    borderRadius: 0,
+                    stacking: 'normal',
+                    grouping: false,
+                    //Progress bar yellow color points remaining.
+                    color: '#FFFF33', //yellow
+                    data: [ChallengesMaxPoints() - ChallengePointsmissed() - PointsEarnedData()]
+                }, {
+                    //pointRange:1.1,
+                    name: 'Points Earned',
+                    enableMouseTracking: true,
+                    borderWidth: 0,
+                    borderRadius: 0,
+                    stacking: 'normal',
+                    grouping: false,
+                    //Progressbar purple color points earned.
+                    color: '#9966FF', //purple
+                    //color:'#3399ff',//blue
+                    data: [PointsEarnedData()]
+                }, {
+                    name: 'Projected Total Points',
+                    //Progress bar total projected points black color.
+                    color: 'darkblue',
+                    //color:'#9966FF',
+                    pointRange: .5,
+                    zIndex: 1,
+                    data: [ChallengePointsProjected()]
+                }, {
+                    name: 'Warnings',
+                    type: 'scatter',
+                    marker: {
+                        symbol: 'circle',
+                        radius: 0,
+                        color: '#FF5050',
+                        lineWidth: 0,
+                        lineColor: '#fff',
+                        states: {
+                            hover: {
+                                enabled: false
                             }
-                           
-                            var initSelects = function( value ) {
-                              if (value !== 0) {    
-                              $select.val( value );
-                             }
-                             $select.on('change', function() {
-                             updateBoxes( $select.val() );
-                             });
-                             }
-                             initSelects( value );
-                             updateBoxes( value );
+                        }
+                    },
+                    data: [{
+                        x: 0,
+                        y: 0,
+                        marker: {
+                            fillColor: 'red'
+                        }
+                    }]
+                }]
+            });
+        });
+    </script>
+</head>
+<body>
+    {% if is_teacher %} {% include 'heading.html' %} {% else %} {% include 'stheading.html' %} {% endif %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Achievements</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <div class="card-panel">
+                    <table class="responsive-table">
+                        <thead>
+                            <th>Your XP Points</th>
+                            <th>Your Practice Points</th>
+                            {% if virtualCurrencyUsed %}
+                            <th>Your Course Bucks</th>
+                            {% endif %}
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{studentXP_range}}</td>
+                                <td>{{totalWCEarnedPoints}} / {{totalWCPossiblePoints}}</td>
+                                {% if virtualCurrencyUsed %}
+                                <td>{{course_Bucks}}</td>
+                                {% endif %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Your Progress</span>
+                        <div id="p1" style="height: 110px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 m4 offset-m2">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Skills</span>
+                        <div id='container3' class="js-box1"></div>
+                        <div id='container4' class="js-box1"></div>
+                    </div>
+                    <div class="card-action right-align">
+                        <script>
+                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
+                            if (isClassAvgAvailable) {
+                                var selectScript = "<a id='points' class='waves-effect btn-flat'>Points</a>";
+                                selectScript += "<a id='classAvg' class='waves-effect btn-flat'>Class Average</a>";
+                                document.write(selectScript);
+                            } else {
+                                var selectScript = "<a id='points' class='waves-effect btn-flat'>Points</a>";
+                                selectScript += "<a id='classAvg' class='waves-effect btn-flat disabled'>Class Average</a>";
+                                document.write(selectScript);
+                            }
+
+                            $('#points').click(function() {
+                                $('.js-box1').hide();
+                                $('#container3').show();
+                            });
+                            $('#classAvg').click(function() {
+                                $('.js-box1').hide();
+                                $('#container4').show();
+                            });
+                            $('#points').click();
                         </script>
-                           </table></div>
-                        </td>
-                     </tr>
-                  </table>
-                  </div>
-               </td> 
-            </tr>
-            <tr>
-                <td colspan="2">
-                   <div>
-                     
-                         <script> 
-                            var useBadge1 = {{are_Badges_Displayed|lower}};
-                            
-                            if (useBadge1)
-                                {
-                                  var showBadge = "<table><tr style='font-size:0.9em;color:white;' align='left'><td><span><b style='color:black;'>Badges</b></span></td></tr>";
-                                  showBadge+= "<tr align='center'>{% for i,badgeId,badgeName,badgeImage in badgesInfo %}";	
-                                 
-                                  showBadge+="<td align='left'><img src='/{{badgeImage}}' alt='Badge Image' width='70px' height='85px' align='middle' />";
-                                  showBadge+="<br clear='all'><span style='font-size:0.7em; color:black;'>{{badgeName}}</span>";
-                                  showBadge+="</td>{% if not forloop.last and forloop.counter == 10 or forloop.counter == 10 %}</tr>";
-                                  showBadge+=" <tr>{% endif %}{% endfor %}</tr></table>";
-                            
-                                  document.write(showBadge);
-                                }
-                            else
-                                document.write();
-                            
-                         </script>
-                    
-                   </div>
-                </td>
-             </tr>
-            <tr>
-               <td colspan="2">
-                  <div>
-                     <table>
-                        <tr>
-                           <td align="left" style="font-size:0.8em;" width="50%" >
-                              <b style="color:black;">&nbsp;WarmUp Challenges</b>
-                           </td>
-                           
-                        </tr>
-                        <tr>
-                          <td>
-                                <div id='container5'></div>
-                          </td>
-                        </tr>
-                       
-                     </table>
-                  </div>
-               </td>
-            </tr>
-            
-            
-         </table>
-         </div>
-          
-        
-         <!-- Footer -->
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m4">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Challenges</span>
+                        <div id='container1' class="js-box"></div>
+                        <div id='container2' class="js-box"></div>
+                    </div>
+                    <div class="card-action right-align">
+                        <script>
+                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
+                            if (isClassAvgAvailable) {
+                                var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
+                                selectScript += "<a id='classAvg2' class='waves-effect btn-flat'>Class Average</a>";
+                                document.write(selectScript);
+                            } else {
+                                var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
+                                selectScript += "<a id='classAvg2' class='waves-effect btn-flat disabled'>Class Average</a>";
+                                document.write(selectScript);
+                            }
 
-       {% include 'footer.html' %}
+                            $('#points2').click(function() {
+                                $('.js-box').hide();
+                                $('#container1').show();
+                            });
+                            $('#classAvg2').click(function() {
+                                $('.js-box').hide();
+                                $('#container2').show();
+                            });
+                            $('#points2').click();
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if are_Badges_Displayed|lower %}
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Badges</span>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {% for i,badgeId,badgeName,badgeImage in badgesInfo %}
+                                        <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" />
+                                        <b>{{badgeName}}</b> {% empty %} No badges earned 
+                                        <!-- moved the endfor to the bottom for easier reading GGM -->
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Warmup Challenges</span>
+                        <div id='container5' class="js-box5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    {% include 'footer.html' %}
 
-      </div>
-      </div>
-      
-   </body>
+</body>
 </html>

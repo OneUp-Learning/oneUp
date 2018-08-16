@@ -34,7 +34,11 @@ def ChallengesTaken(request):
         if 'warmUp' in request.GET:
             context_dict['warmUp'] = 1
             warmUp=1
-                
+        if 'all' in request.GET:
+            context_dict['all'] = True
+        if 'classAchievements' in request.GET:
+            context_dict['classAchievements'] = True
+            
         if 'challengeID' in request.GET:
             context_dict['challengeID'] = request.GET['challengeID']
             context_dict['challengeName'] = Challenges.objects.get(pk=request.GET['challengeID']).challengeName
@@ -58,8 +62,8 @@ def ChallengesTaken(request):
                     chall_ID.append(item.challengeID.challengeID) 
                     chall_Name.append(item.challengeID.challengeName)
                     chall_Difficulty.append(item.challengeID.challengeDifficulty)
-                    strTime = item.startTimestamp
-                    dateTaken.append(strTime)
+                    endTime = item.endTimestamp
+                    dateTaken.append(endTime)
                     score.append(item.testScore)
                     total.append(item.challengeID.totalScore)
                             

@@ -1,81 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8" />
-      
-         {% include 'scripts.html' %}
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
-		
-   </head>
-   <body>
-      <!-- START PAGE SOURCE -->
-
-     <div>
-
-          {% include 'heading.html' %}
- 
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
-               <h1>Student Scores</h1>
-               <br />
-                  <!-- INSERTED DYNAMIC TABLE --> 
-                  <table class="bg">
-                     <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th></th>
-                     </tr>
-                     {% for i,first_Name,last_Name,user_Email,userID in user_range %}
-                     <tr>
-                        <div id="student{{i}}">
-                           <td>{{first_Name}}</td>
-                           <td>{{last_Name}}</td>
-                           <td>{{user_Email}}</td>
-                           <td align="right">
-                              <a href="/oneUp/instructors/studentSkillsEarned?userID={{userID}}"><button type="button" >Skills </button></a>                                                                        
-                              <a href="/oneUp/instructors/activityScore?userID={{userID}}"><button type="button" >Activities </button></a> 
-                                   <!-- <a href="/oneUp/instructors/studentTopics?userID={{userID}}&page={{2}}"><button type="button" >Warm Ups </button></a> --> 
-                              <a href="/oneUp/students/ChallengesWarmUpList?userID={{userID}}&page={{2}}"><button type="button" >Warm Ups </button></a>    
-<!--                               <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&page={{3}}"><button type="button" >Challenges </button></a> 
- -->                          <a href="/oneUp/students/ChallengesList?userID={{userID}}&page={{3}}"><button type="button" >Challenges </button></a> 
-                              <a href="/oneUp/students/achievements?userID={{userID}}&page={{4}}"><button type="button">Dashboard</button></a>
-                              <!-- <a href="/oneUp/instructors/studentChallengesCompleted?userID={{userID}}&page={{4}}"><button type="button" style="width:105px;">Warm Ups </button></a>  -->  
-                              </form> 
-                           </td>
-                        </div>
-                     </tr>
-                     {% endfor %}
-                     
-                  </table>
-                  <!-- END DYNAMIC TABLE -->
-         </div></div></div></div>
-      </div>
-      <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-      </div>
-  
-   </body>
+<head>
+    {% include 'scripts.html' %}
+</head>
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Student Scores</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <div class="card-panel">
+                    <table>
+                        <thead>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th></th>
+                        </thead>
+                        <tbody>
+                            {% for i,first_Name,last_Name,user_Email,userID in user_range %}
+                            <tr>
+                                <td>{{first_Name}}</td>
+                                <td>{{last_Name}}</td>
+                                <td>{{user_Email}}</td>
+                                <td><a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons" >more_vert</i></a>
+                                    <ul id='dropdown{{i}}' class='dropdown-content'>
+                                        <li><a href="/oneUp/instructors/studentSkillsEarned?userID={{userID}}">Skills</a></li>
+                                        <li><a href="/oneUp/instructors/activityScore?userID={{userID}}">Activities</a></li>
+                                        <li><a href="/oneUp/students/ChallengesWarmUpList?userID={{userID}}">Warm Ups</a></li>
+                                        <li><a href="/oneUp/students/ChallengesList?userID={{userID}}">Challenges</a></li>
+                                        <li><a href="/oneUp/students/achievements?userID={{userID}}">Dashboard</a></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    {% include 'footer.html' %}
+</body>
 </html>

@@ -6,7 +6,7 @@ Created on Nov 3, 2016
 
 from django.shortcuts import render
 
-from Badges.models import Badges
+from Badges.models import Badges, BadgesInfo
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
@@ -28,9 +28,8 @@ def BadgesDisplay(request):
     badgeImage = []
     badgeDescription = []
         
-        #Displaying the list of challenges from database
-    #badges = Badges.objects.all()
-    badges = Badges.objects.filter(courseID=currentCourse)
+    #Displaying the list of challenges from database
+    badges = BadgesInfo.objects.filter(courseID=currentCourse)
     for badge in badges:
         badgeId.append(badge.badgeID)
         badgeName.append(badge.badgeName)
@@ -38,8 +37,7 @@ def BadgesDisplay(request):
         badgeDescription.append(badge.badgeDescription)
              
                     
-        # The range part is the index numbers.
+    # The range part is the index numbers.
     context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription)
 
-    #return render(request,'Badges/ListBadges.html', context_dict)
     return render(request,'Students/CourseBadges.html', context_dict)

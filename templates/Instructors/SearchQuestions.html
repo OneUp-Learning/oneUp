@@ -1,154 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
    <head>
-      <meta charset="utf-8" />
-      
-         {% include 'scripts.html' %}
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
+      {% include 'scripts.html' %}
+      <script>
+         $(document).ready(function(){
+             $('.chips').material_chip();
+             $('.chips-tags').material_chip({
+                 placeholder: 'Enter a tag'
+             });
+             $('#search').submit(function(){
+                 var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+         
+                 $('#search').append($(tags));
+                 console.log($('.chips-tags').material_chip('data'));
+             });
+         });
       </script>
-		
    </head>
    <body>
-      <!-- START PAGE SOURCE -->
-
-     <div>
-
-         {% include 'heading.html' %}
- 
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
                {% if challenge %}
-			<h1>Search Problems for <span>{{challengeName}}</span></h1>
-		{% else %}      
-            <h1>Search Problems</h1> 
-        {% endif %}
-			<br />
-<!-- INSERTED DYNAMIC TABLE --> 
-			<form name="search" action="/oneUp/instructors/sresults" method="POST">
-				{% csrf_token %}
-				{% if challenge %}
-					<input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
-		  		{% endif %}
-  				<table class="bg">
-
-        			<tr>
-            			<th>Course Topics</th>
-        			</tr>
-        			<tr>
-                	<td> 				
- 	    			{% for i,ctopicID,ctopicName in topic_range %}
-	    				<div id="ctopic{{i}}">      
-	     					<input type="checkbox" name="selectedTopic" value="{{ctopicID}}">
-		     				{{ctopicName}}<br>
-	      					<input type="hidden" name="ctopicID{{i}}" value="{{ctopicID}}">
-						</div>
-	    			{% endfor %}
- 
- 					</td>
-					</tr> 
-
-        			<tr>
-            			<th>Problem Types</th>
-        			</tr>
-        			<tr>
-                	<td> 				
- 	    			{% for i,displayName in qtypes_range %}
-	    				<div id="qtype{{i}}">      
-	     					<input type="checkbox" name="selectedType" value="{{i}}">
-		     				{{displayName}}<br>
-	      					<input type="hidden" name="stypeID{{i}}" value="{{type}}">
-						</div>
-	    			{% endfor %}
- 
- 					</td>
-					</tr> 
-					<tr>
-            			<th>Difficulty</th>
-        			</tr>
-        			<tr >
-                		<td> 	
-                							
- 	    			{% for i,qdifficulty in qdifficulty_range %}
-	    				<div id="qdifficulty{{i}}">	      
-	     					<input type="checkbox" name="selectedDifficulty" value="{{qdifficulty}}" >
-		     				{{qdifficulty}}
-	      					<input type="hidden" name="qdifficulty{{i}}" value="{{qdifficulty}}">
-	    				</div>
-	    			{% endfor %}
- 	    			
-	    				</td>
-	  				</tr>	  
-	  				
-					<tr>
-            			<th>Related Skills</th>
-        			</tr>
-        			<tr >
-                		<td> 	
-                							
- 	    			{% for i,qskill in skill_range %}
-	    				<div id="qskill{{i}}">	      
-	     					<input type="checkbox" name="selectedSkills" value="{{qskill}}" >
-		     				{{qskill}}
-	      					<input type="hidden" name="qskill{{i}}" value="{{qskill}}">
-	    				</div>
-	    			{% endfor %}
- 	    			
-	    				</td>
-	  				</tr>	  			
-	  							
-					<tr>
-            			<th>Challenges</th>
-        			</tr>
-        			<tr>
-                		<td> 				
-	    			{% for i,qchallengeName,qchallengeID in challenge_range %}
-	    				<div id="qchallengeID{{i}}">	      
-	     					<input type="checkbox" name="selectedChallenges" value="{{qchallengeID}}" >
-		     				{{qchallengeName}} <br>
-	      					<input type="hidden" name="qchallengeID{{i}}" value="{qchallengeID}">
-	    				</div>
-	    			{% endfor %}
-	    			<tr>
-            			<th>Tags</th>
-        			</tr>
-        			<tr>
-                		<td> 		
-  					<input id="mediumFormBox" type="text" name="tags" value="{{tags}}">
-  					<font style="font-size:.8em;">Enter tags separated by commas (,)</font>				
-  				{% if challengeID %}
-					<input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
-		  		{% endif %}
-  					 </table>
-      			<input type="submit" name="submit" value="Search" class="button">
-      			<a href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}"><input type="button" class="special button" value="Cancel"></a>
-      		</form>
-      		<br>
-<!-- END DYNAMIC TABLE -->
-		</div></div></div></div>
-      </div>
-      <!-- Footer -->
-
-        {% include 'footer.html' %}
-      </div>
- 
+               <h3>Search Problems for {{challengeName}}</h3>
+               {% else %}      
+               <h3>Search Problems</h3>
+               {% endif %}
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form id="search" name="search" action="/oneUp/instructors/sresults" method="POST">
+                  {% csrf_token %}
+                  {% if challenge %}
+                  <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+                  {% endif %}
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Course Topic</h5>
+                           </div>
+                           <div class="col s12">
+                              {% for i,ctopicID,ctopicName in topic_range %}
+                              <p>
+                                 <input name="selectedTopic" class="filled-in" type="checkbox" id="topic-{{i}}" value="{{ctopicID}}"/>
+                                 <label for="topic-{{i}}">{{ctopicName}}</label>
+                              </p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Problem Types</h5>
+                           </div>
+                           <div class="col s12">
+                              {% for i,displayName in qtypes_range %}
+                              <p>
+                                 <input name="selectedType" class="filled-in" type="checkbox" id="pType-{{i}}" value="{{i}}"/>
+                                 <label for="pType-{{i}}">{{displayName}}</label>
+                              </p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Difficulty</h5>
+                           </div>
+                           <div class="col s12">
+                              {% for i,qdifficulty in qdifficulty_range %}
+                              <p>
+                                 <input name="selectedDifficulty" class="filled-in" type="checkbox" id="difficulty-{{i}}" value="{{qdifficulty}}"/>
+                                 <label for="difficulty-{{i}}">{{qdifficulty}}</label>
+                              </p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Related Skill</h5>
+                           </div>
+                           <div class="col s12">
+                              {% for i,qskill in skill_range %}
+                              <p>
+                                 <input name="selectedSkills" class="filled-in" type="checkbox" id="skill-{{i}}" value="{{qskill}}"/>
+                                 <label for="skill-{{i}}">{{qskill}}</label>
+                              </p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Challenges</h5>
+                           </div>
+                           <div class="col s12">
+                              {% for i,qchallengeName,qchallengeID in challenge_range %}
+                              <p>
+                                 <input name="selectedChallenges" class="filled-in" type="checkbox" id="challenge-{{i}}" value="{{qchallengeID}}"/>
+                                 <label for="challenge-{{i}}">{{qchallengeName}}</label>
+                              </p>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Tags</h5>
+                           </div>
+                           <div class="col s12">
+                              <label for="tags">Add Tags</label>
+                              <div id="tags" class="chips chips-tags"></div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="card-action right-align">
+                        <button class="waves-effect waves-light btn" type="submit" name="submit" value="Seach"><i class="material-icons left">search</i>Search
+                        </button>  
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}"><i class="material-icons left">navigate_before</i>Back</a>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

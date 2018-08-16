@@ -1,67 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8" />
-      
-        {% include 'scripts.html' %}
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
-		
+      {% include 'scripts.html' %}
    </head>
    <body>
-      <!-- START PAGE SOURCE -->
-
-     <div>
-
-          {% include 'heading.html' %}
- 
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
-               <h1>Enter New Skill</h1>
-                <p class = "center"><span class = "red">*</span>Skills can be linked to problems</p>
-               <br />
-                  <!-- INSERTED DYNAMIC TABLE -->  
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Create Skill</h3>
+               <p><b>Note: </b>Skills can be linked to problems</p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
                   <form name="question" action="/oneUp/instructors/skillsCreate" method="POST">
                   {% csrf_token %}
-                  <input type="hidden" name="skillID" id="skillID"
-                     value="{{skillID}}">
-                  <table class="bg">
-                     <tr>
-                        <th>Skill Name</th>
-                     </tr>
-                     <tr>
-                        <td> 
-                           <input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" name="skillName" value="{{skillName}}" id="preview" pattern=".*\S+.*" required>
-                  </table>
-                  <input type="submit" name="submit" value="Submit" class="button" onclick="return check();">
-                  <a href="/oneUp/instructors/skillsList"><input type="button" value="Done"></a>
-                  <!-- END DYNAMIC TABLE -->
-         </div></div></div></div>
-      </div>
-      <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-      </div>
-     
+                  <input type="hidden" name="skillID" id="skillID" value="{{skillID}}">
+                  <div class="card-content">
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <i class="material-icons prefix">mode_edit</i>
+                           <input value="{{skillName}}" name="skillName" id="skillName" type="text" class="validate" pattern=".*\S+.*" required>
+                           <label for="skillName">Skill Name</label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="card-action right-align">
+                     <button class="btn waves-effect waves-light" type="submit" name="submit">Create<i class="material-icons right">send</i></button>
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/skillsList"><i class="material-icons left">close</i>Cancel</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

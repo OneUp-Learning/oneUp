@@ -4,37 +4,24 @@ Created on Apr 1, 2014
 @author: irwink
 '''
 
-from django.template import RequestContext
 from django.shortcuts import render, redirect
 
-from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, Courses, TemplateTextParts
+from Instructors.models import TemplateDynamicQuestions, Challenges,ChallengesQuestions, TemplateTextParts
 from Instructors.models import LuaLibrary, QuestionLibrary
-from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
+from Instructors.lupaQuestion import CodeSegment
 
 from Instructors.views import utils
-from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 
-from Badges.enums import QuestionTypes
+from Badges.enums import QuestionTypes, ObjectTypes
 
 import re
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 @login_required
 def templateDynamicQuestionForm(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
-    context_dict = { }
-    
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict['username']=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = utils.initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
@@ -43,7 +30,7 @@ def templateDynamicQuestionForm(request):
                          'instructorNotes','setupCode','numParts','author'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
-    
+    context_dict['tags'] = []
     if request.POST:
         
         # If there's an existing question, we wish to edit it.  If new question,
@@ -101,6 +88,8 @@ def templateDynamicQuestionForm(request):
             textPart.save()
             count+= 1
         
+        # Processing and saving tags in DB
+        utils.saveTags(request.POST['tags'], question, ObjectTypes.question)
         
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
@@ -116,25 +105,34 @@ def templateDynamicQuestionForm(request):
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, int(request.POST['points']) , position)
+            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']) , position)
                             
             # Processing and saving skills for the question in DB
             utils.addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
-    
-            # Processing and saving tags in DB
-            tagString = request.POST.get('tags', "default")
-            utils.saveQuestionTags(tagString, question)
-            
+
             makeDependentLibraries(question,request.POST.getlist('dependentLuaLibraries[]'))
             
             redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
             redirectVar['Location']+= '?challengeID='+request.POST['challengeID']
             return redirectVar
+        
+        # Question is unassigned so create unassigned challenge object
+        challenge = Challenges()
+        challenge.challengeName = unassigned_problems_challenge_name
+        challenge.courseID = currentCourse
+        challenge.startTimestamp = utils.utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.endTimestamp = utils.utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.numberAttempts = 99999
+        challenge.timeLimit = 99999
+        challenge.save()
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
+        
+        redirectVar = redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict) 
+        return redirectVar
     
     elif request.method == 'GET':
         
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
-        
         context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True
         
@@ -186,7 +184,7 @@ def templateDynamicQuestionForm(request):
             context_dict['difficulty'] = 'Easy'
             context_dict["setupCode"] = "r1 = math.random(10) + 1 \nr2 = math.random(10) + 1"
             context_dict["numParts"] = 1
-            
+            context_dict['tags'] = []
         
     
     #question = LupaQuestion(code,[],5,"edit",1)

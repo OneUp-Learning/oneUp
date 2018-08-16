@@ -11,8 +11,7 @@ from Administrators.views.aboutUsView import aboutUsView
 from Administrators.views.sitemapView import sitemap
 from Administrators.views.contactUsView import contactUsView
 from Administrators.views.createCourse import courseCreateView
-from Administrators.views.deleteCourse import courseDeleteView
-from Administrators.views.deleteTeacher import teacherDeleteView
+from Administrators.views.deleteItem import deleteItemView
 from Administrators.views.adminHomeView import adminHome
 admin.autodiscover()
 
@@ -22,8 +21,7 @@ urlpatterns = [
     url(r'^createAdmin', createAdminViewUnchecked, name='createAdminView'),
     url(r'^createTeacher', createTeacherViewUnchecked, name='createTeacherView'),
     url(r'^createCourse', courseCreateView, name='courseCreateView'),
-    url(r'^deleteCourse', courseDeleteView, name='courseDeleteView'),
-    url(r'^deleteTeacher', teacherDeleteView, name='teacherDeleteView'),
+    url(r'^deleteItem', deleteItemView, name='deleteItemView'),
     url(r'^home', loginView, name='loginView'),
     url(r'^courses', courseListView, name='courseListView'),
     url(r'^setCourse', setCourseView, name='setCourseView'),

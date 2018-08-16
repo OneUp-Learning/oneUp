@@ -1,167 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8" />
-      
-       {% include 'scripts.html' %}
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
+      {% include 'scripts.html' %}
+      <style type="text/css">
+         .table-scroll {
+         position:relative;
+         margin:auto;
+         overflow:hidden;
          }
-      </script>
-      
-      <style>
-* {
-  box-sizing: border-box;
-}
-html {
-  font-family: helvetica;
-}
-
-html, body {
-  max-width: 100vw;
-}
-
-table {
- margin: auto;
-  border-collapse: collapse;
-  overflow-x: auto;
-  display: block;
-  width: fit-content;
-  max-width: fit-content;
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
-}
-
-td, th {
-  border: solid rgb(200, 200, 200) 1px;
-  <!--padding: 3rem;-->
-  
-}
-
-th {
-  text-align: left;
-  <!--background-color: rgb(190, 220, 250);-->
-  text-transform: uppercase;
-  white-space: nowrap;
-  width:fit-content;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  <!--border-bottom: rgb(50, 50, 300) solid 2px;-->
-  border-top: none;
-}
-
-td {
-  white-space: nowrap;
-  border-bottom: none;
-  color: rgb(20, 20, 20);
-}
-
-td:first-of-type, th:first-of-type {
-  border-left: none;
-}
-
-td:last-of-type, th:last-of-type {
-  border-right: none;
-}
-
-</style>
-		
+         .table-wrap {
+         width:100%;
+         overflow:auto;
+         }
+         .table-scroll table {
+         width:100%;
+         margin:auto;
+         border-collapse:separate;
+         }
+         .table-scroll th, .table-scroll td {
+         white-space:nowrap;
+         vertical-align:top;
+         }
+         .table-scroll thead, .table-scroll tfoot {
+         background:#f9f9f9;
+         }
+         .clone {
+         position:absolute;
+         top:0;
+         left:0;
+         pointer-events:none;
+         }
+         .clone th, .clone td {
+         visibility:hidden
+         }
+         .clone td, .clone th {
+         border-color:transparent
+         }
+         .clone tbody th {
+         visibility:visible;
+         color:red;
+         }
+         .clone .fixed-side {
+         background:#f9f9f9;
+         visibility:visible;
+         }
+      </style>
    </head>
    <body>
-     <div>
-
-        {% include 'heading.html' %}
- 
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
-               <h1>Class Scores</h1>
-			</div></div>
-			<div class="row">
-         	<div class="12u">
-                  <!-- INSERTED DYNAMIC TABLE -->  
-              	<div id="element2"><td align="left">
-                  <form name="menuform" style="background:rgba(255,255,255,.75)">
-                     <select name="menu1">
-                        <option value="/oneUp/instructors/classAchievements?ID={{1}}">Highest Score</option>
-                        {% if ID == '2' %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}" selected>Lowest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}">Latest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}">Earliest Score</option>
-                        {% elif ID == '3' %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}">Lowest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}" selected>Latest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}">Earliest Score</option>
-                        {% elif ID == '4' %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}">Lowest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}">Latest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}" selected>Earliest Score</option>
-                        {% else %}
-                        <option value="/oneUp/instructors/classAchievements?ID={{2}}">Lowest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{3}}">Latest Score</option>
-                        <option value="/oneUp/instructors/classAchievements?ID={{4}}">Earliest Score</option>
-                        {% endif %}
-                     </select></div>
-                     <div id="element2"><a><input type="button" name="Submit" value="Display" 
-                        onClick="top.location.href = this.form.menu1.options[this.form.menu1.selectedIndex].value;
-                        return false;"></a></td>
-                  </form></div>
-                  <br /><br />
-                  
-                  <div width: 200px; overflow-x:auto; overflow-y:hidden;>
-                  <table class="bg" >
-                     <tr>
-                        <th> Name</th>
-                        <th> Total</th>
-                        {% for i,chall_Name in challenge_range %} 
-                        <th>{{chall_Name}} </th>
-                        {% endfor %} 
-                     </tr>
-                     {% for i,first_Name,last_Name,grade_range,allActivityGrade_range, gradeTotal in user_range %}
-                     <tr>
-                        <div id="student{{i}}">
-                           <td><b>{{first_Name}} {{last_Name}} </b></td>
-                           <td>{{gradeTotal}}</td>
-                           {% for grade, sc_user,sc_chall in grade_range %} 
-                           <input type="hidden" name="challID" value="{{sc_user}}">
-                           <input type="hidden" name="challID" value="{{sc_chall}}">
-                           <td><a href="/oneUp/instructors/studentChallengesCompleted?userID={{sc_user}}&challengeID={{sc_chall}}">   {{grade}}</a>
-                           {% endfor %}
-                           
-                           </td>
-	                         {% for activityGrades in allActivityGrade_range %}
-			                      	<td> {{activityGrades}}</td>
-	                 		 {% endfor %}
-                           </form>                         
-                        </div>
-                     </tr>
-                     {% endfor %}
-                     
-                  </table>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Class Scores</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card-panel">
+                  {% if ID == '2' %}
+                  <span class="title flow-text">Displaying Earliest Scores</span> {% elif ID == '3' %}
+                  <span class="title flow-text">Displaying Highest Scores</span> {% elif ID == '4' %}
+                  <span class="title flow-text">Displaying Lowest Scores</span> {% else %}
+                  <span class="title flow-text">Displaying Latest Scores</span> {% endif %}
+                  <div class="secondary-content">
+                     <a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="top" data-delay="50" data-tooltip="Display"><i class="material-icons" >filter_list</i></a>
+                     <ul id='dropdown1' class='dropdown-content'>
+                        <li><a href="/oneUp/instructors/classAchievements?ID={{1}}">Latest Score</a></li>
+                        <li><a href="/oneUp/instructors/classAchievements?ID={{2}}">Earliest Score</a></li>
+                        <li><a href="/oneUp/instructors/classAchievements?ID={{3}}">Highest Score</a></li>
+                        <li><a href="/oneUp/instructors/classAchievements?ID={{4}}">Lowest Score</a></li>
+                     </ul>
                   </div>
-                  <!-- END DYNAMIC TABLE -->
-         </div></div></div></div>
-      </div>
-      <!-- Footer -->
-
-        {% include 'footer.html' %}
-
-      </div>
-  
+                  <div id="table-scroll" class="table-scroll">
+                     <div class="table-wrap">
+                        <table class="highlight main-table">
+                           <thead>
+                              <th class="fixed-side"> Name</th>
+                              <th> Total</th>
+                              {% for i,chall_Name in challenge_range %}
+                              <th>{{chall_Name}} </th>
+                              {% endfor %}
+                           </thead>
+                           <tbody>
+                              {% for i,first_Name,last_Name,grade_range,allActivityGrade_range, gradeTotal in user_range %}
+                              <!-- gave this classes and witdths GGM -->
+                              <tr>
+                                 <td class="fixed-side">{{first_Name}} {{last_Name}}</td>
+                                 <td>{{gradeTotal}}</td>
+                                 {% for grade,sc_user,sc_chall in grade_range %}
+                                 <input type="hidden" name="challID" value="{{sc_user}}">
+                                 <input type="hidden" name="challID" value="{{sc_chall}}">
+                                 <td><a href="/oneUp/students/ChallengesTaken?challengeID={{sc_chall}}&userID={{sc_user}}&classAchievements">{{grade}}</a> {% endfor %}
+                                 </td>
+                                 {% for activityGrades in allActivityGrade_range %}
+                                 <td> {{activityGrades}}</td>
+                                 {% endfor %}
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
+   <script>jQuery(document).ready(function() {
+      jQuery(".main-table").clone(true).appendTo('#table-scroll').addClass('clone');   
+      });
+   </script>
 </html>

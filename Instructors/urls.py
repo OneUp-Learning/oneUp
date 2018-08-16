@@ -6,20 +6,20 @@ from Instructors.views.activityAssignPointsView import assignedPointsList, activ
 from Instructors.views.activityCreateView import activityCreateView, removeFileFromActivty
 from Instructors.views.activityListView import activityList
 from Instructors.views.activityScoreView import activityScore
+from Instructors.views.activityCategories import activityCatList, activityCatCreate, activityCatDelete
 from Instructors.views.announcementCreateView import announcementCreateView
 from Instructors.views.announcementListView import announcementList
 from Instructors.views.allAnnouncementsView import allAnnouncements
  
 from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
 from Instructors.views.challengeCreateView import challengeCreateView
-from Instructors.views.challengeEditQuestionsView import challengeEditQuestionsView
+from Instructors.views.challengeQuestionsListView import challengeQuestionsListView
 from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
 from Instructors.views.challengeListView import challengesList, warmUpChallengeList
 from Instructors.views.challengeAdjusmentView import challengeAdjustmentView, adjustmentList
+from Instructors.views.exportGradeBookView import exportGradebook
 
-from Instructors.views.challengeQuestionSelectView import challengeQuestionSelectView
 from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
-from Instructors.views.challengeSaveView import challengeSaveView
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 
@@ -27,14 +27,11 @@ from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 
 from Instructors.views.courseInfoView import courseInformation
+from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.createStudentListView import createStudentListView
-from Instructors.views.createStudentView import createStudentViewUnchecked
+from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
-from Instructors.views.essayView import  essayForm
-from Instructors.views.exportGradeBookView import exportGradebook
-
-from Instructors.views.gameRulesView import gameRulesView
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents
@@ -47,6 +44,7 @@ from Instructors.views.milestoneCreateView import milestoneCreateView
 from Instructors.views.milestoneListView import milestoneList
 from Instructors.views.multipleAnswersView import multipleAnswersForm
 from Instructors.views.multipleChoiceView import multipleChoiceForm
+from Instructors.views.parsonsView import parsonsForm
 from Instructors.views.preferencesView import preferencesView
 
 from Instructors.views.searchQuestionsView import searchQuestions
@@ -54,8 +52,7 @@ from Instructors.views.searchResultsView import searchResults
 from Instructors.views.skillsCreateView import skillsCreateView
 from Instructors.views.skillsListView import skillsListView
 from Instructors.views.studentAchievementsView import studentAchievements
-from Instructors.views.studentChallengesCompletedView import studentChallengesCompleted
-from Instructors.views.studentGradedChallengeView import studentGradedChallenge
+
 from Instructors.views.studentSkillsEarnedView import studentSkillsEarned
 from Instructors.views.studentSummaryView import studentSummary
 from Instructors.views.subTopicsCreateView import subTopicsCreateView
@@ -81,27 +78,27 @@ urlpatterns = [
     url(r'^activityRemoveFile', removeFileFromActivty, name='removeFileFromActivty'),
     url(r'^activityAssignPointsForm', assignedPointsList, name='activityAssignPointsForm'),
     url(r'^activityAssignPoints', activityAssignPointsView, name='activityAssignPoints'),
+    url(r'^activityCatsCreate', activityCatCreate, name='activityCategoriesCreateForm'),
+    url(r'^activityCatsDelete', activityCatDelete, name='activityCategoriesDeleteForm'),
+    url(r'^activityCats', activityCatList, name='activityCategories'),
     url(r'^activitiesList',activityList, name='activityList'),
     url(r'^announcementCreate', announcementCreateView, name='announcementCreateView'),
     url(r'^announcementList', announcementList, name='announcementListView'),           
     url(r'^challengeAddQuestions',challengeAddQuestionsView, name='challengeAddQuestionsView'),
     url(r'^announcements', allAnnouncements, name='allAnnouncements'),           
     url(r'^announcementList', announcementList, name='announcementListView'),           
-
     url(r'^challengeCreate',challengeCreateView, name='challengeCreateView'),
-    url(r'^challengeQuestionsList',challengeEditQuestionsView, name='challengeEditQuestionsView'),
+    url(r'^challengeQuestionsList',challengeQuestionsListView, name='challengeQuestionsListView'),
     url(r'^challengesList',challengesList, name='ChallengesList'),
     url(r'^challengeSaveSelectedQuestions',challengeSaveSelectedQuestions, name='challengeSaveSelectedQuestions'),
-    url(r'^challengeSave',challengeSaveView, name='challengeSaveView'),
-    url(r'^challengeQuestionSelect',challengeQuestionSelectView, name='challengesList'),
     url(r'^classAchievementsViz',classAchievementsViz, name='classAchievementsViz'),
     url(r'^classAchievements',classAchievements, name='classAchievements'),
     url(r'^createActivity',activityCreateView,name='activityCreateView'),
     url(r'^courseInformation',courseInformation,name='courseInformation'),
     url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
-    url(r'^createMilestone',milestoneCreateView,name='milestoneCreateView'),
     url(r'^createStudentList',createStudentListView,name='createStudentListView'),
     url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
+    url(r'^courseConfiguration', courseConfigurationView, name='courseConfigurationView'),
     url(r'^deleteActivity',deleteActivity, name='deleteActivity'),
     url(r'^deleteAnnouncement',deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge',deleteChallenge, name='deleteChallenge'),
@@ -113,14 +110,18 @@ urlpatterns = [
     url(r'^deleteSubTopic',deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent',deleteStudent, name='deleteStudent'),    
     url(r'^deleteUser',deleteUser, name='deleteUser'),
-    url(r'^gameRules',gameRulesView,name='gameRulesView'),
     url(r'^$', index, name='home'),    
+<<<<<<< HEAD
     url(r'^exportChallenges',exportChallenges,name='exportChallenges'),  
     url(r'^exportGradebook', exportGradebook, name='exportGradebook'),  
     url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
+=======
+    url(r'^exportChallenges',exportChallenges,name='exportChallenges'),    
+>>>>>>> master
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
     url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),
+    url(r'^forms/ParsonsForm', parsonsForm, name='parsonsForm'),    
     url(r'^forms/TrueFalseForm', trueFalseNewForm, name='newTrueFalseForm'),
     url(r'^forms/DynamicQuestionForm',dynamicQuestionForm, name='Dynamic QuestionForm'),
     url(r'^forms/TemplateDynamicQuestionForm',templateDynamicQuestionForm, name='Template Dynamic QuestionForm'),
@@ -141,8 +142,6 @@ urlpatterns = [
     url(r'^skillsList',skillsListView, name='skillsListView'),
     url(r'^sresults',searchResults, name='searchResults'), 
     url(r'^studentAchievements',studentAchievements, name='studentAchievements'),
-    url(r'^studentChallengesCompleted',studentChallengesCompleted, name='studentChallengesCompleted'),
-    url(r'^studentGradedChallenge',studentGradedChallenge, name='studentGradedChallenge'),
     url(r'^studentSkillsEarned',studentSkillsEarned, name='studentSkillsEarned'),
     url(r'^studentSummary',studentSummary, name='studentSummary'),
     url(r'^subTopicsCreate',subTopicsCreateView, name='subTopicsCreateView'),
@@ -160,4 +159,6 @@ urlpatterns = [
     url(r'^adjustmentList', adjustmentList, name='adjustmentList'),
     url(r'^challengeAdjustment', challengeAdjustmentView, name='challengeAdjustmentView'),
     url(r'^activityScore', activityScore, name='activityScore'),
+    url(r'^exportGradebook', exportGradebook, name='exportGradebook'),
+    url(r'^validateCreateStudent',validateCreateStudent,name='validateCreateStudentView'),
 ]

@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import oneUp
-from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT
+from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
+    SESSION_SERIALIZER
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 #This is used for uploading AvatarImages
@@ -27,7 +28,6 @@ SECRET_KEY = '6l1(5i-qm34-eb!@un9gc%(g$o^=rgw8l++0!o9t6-^($qi6&k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 # Logging Levels: DEBUG(Everything) : INFO(Except DEBUG) : WARNING(Except INFO & DEBUG) : ERROR(CRITICAL & ERROR) : CRITICAL(ONLY)
 LOGGING_LEVEL = 'DEBUG'
 
@@ -165,3 +165,6 @@ PASSWORD_HASHERS = (
 
 LOGIN_URL='/oneUp/permission_error'
 
+# Custom serializer which is mostly just JSON, but can handle decimal types
+# without making them floats along the way.
+SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'

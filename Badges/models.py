@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.db import models
-from Instructors.models import Courses, Challenges, Skills, Activities, Topics
-from Badges.enums import Event, OperandTypes, Action, VirtualCurrencyAwardFrequency
+from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
+from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
 # Create your models here.
  
@@ -122,6 +122,8 @@ class Rules(models.Model):
     conditionID = models.ForeignKey(Conditions, on_delete=models.SET_NULL, verbose_name="the related condition", db_index=True, null=True, blank=True)
     actionID = models.IntegerField(verbose_name="the related action", db_index=True)
     courseID = models.ForeignKey(Courses, verbose_name="Course the rule belongs to", db_index=True)
+    objectSpecifier = models.CharField(max_length=2000, default="[]",verbose_name="A json-serialized object of the type ChosenObjectSpecifier (see events.py)")
+    awardFrequency = models.IntegerField(default=AwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):
         if self.actionID in Action.actions:
             return "[Rule#:"+str(int(self.ruleID))+" When:"+str(self.conditionID)+" Do:"+Action.actions[self.actionID]['name']+']'
@@ -139,9 +141,11 @@ class Rules(models.Model):
 class RuleEvents(models.Model):
     rule = models.ForeignKey(Rules,db_index=True)
     event = models.IntegerField(default=0,db_index=True)
+    inGlobalContext = models.BooleanField(default=True)
     def __str__(self):
         if self.event in Event.events:
-            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by Event "+str(Event.events[self.event]["name"])+")"
+            context = "global" if self.inGlobalContext else "local"
+            return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by Event "+str(Event.events[self.event]["name"])+" in a "+context+" context)"
         else:
             return "(Rule#:"+str(int(self.rule.ruleID))+" is triggered by INVALID EVENT)"
 
@@ -154,18 +158,27 @@ class ActionArguments(models.Model):
     def __str__(self):              
         return str(self.ruleID) + str(self.sequenceNumber) +","+str(self.argumentValue) 
 
-# Badges Table
-class Badges(models.Model):
+# Table for the manually assigned badges
+class BadgesInfo(models.Model):
     badgeID = models.AutoField(primary_key=True)
-    ruleID = models.ForeignKey(Rules,  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the related rule", db_index=True)
-    #instructorID = models.ForeignKey(InstructorInfo, verbose_name="the related instructor Id", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     badgeName = models.CharField(max_length=300) # e.g. test score, number of attempts 
     badgeDescription = models.CharField(max_length=10000)
     badgeImage = models.CharField(max_length=300)
-    assignToChallenges = models.IntegerField() # 1. All, 2. Specific
+    manual = models.BooleanField(default=False);
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
+
+# Badges Table    
+class Badges(BadgesInfo):
+#    badgeID = models.AutoField(primary_key=True)
+    ruleID = models.ForeignKey(Rules,  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the related rule", db_index=True)
+#    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+#    badgeName = models.CharField(max_length=300) # e.g. test score, number of attempts 
+#    badgeDescription = models.CharField(max_length=10000)
+#    badgeImage = models.CharField(max_length=300)
+    def __str__(self):              
+        return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)    
 
 # Virtual Currency Table for both automatically and manually handled VC rules
 class VirtualCurrencyCustomRuleInfo(models.Model):
@@ -174,6 +187,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleDescription = models.CharField(max_length=4000)
     vcRuleType = models.BooleanField(default=True) # True: earning , False: spending    
     vcRuleAmount = models.IntegerField()
+    vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo#"+str(self.vcRuleID)+":"+str(self.vcRuleName)+":"+str(self.vcRuleAmount)
@@ -181,8 +195,6 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
 # Virtual Currency Table for the automatically handled VC rules
 class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
     ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)
-    assignToChallenges = models.IntegerField() # 1. All, 2. Specific
-    awardFrequency = models.IntegerField(default=VirtualCurrencyAwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):              
         return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
 
@@ -241,6 +253,7 @@ class CourseConfigParams(models.Model):
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
 
     gamificationUsed = models.BooleanField(default=False) 
+    courseAvailable = models.BooleanField(default=True)               ## Is the course open or closed?
     badgesUsed = models.BooleanField(default=False)                   ## The badgesUsed is for instructor dashboard purposes and system uses as well
     studCanChangeBadgeVis = models.BooleanField(default=False)        ## The studCanChangeBadgeVis is for allowing student to configure student dashboard visibility only
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
@@ -327,5 +340,12 @@ class TopicSet(models.Model):
     topic = models.ForeignKey(Topics,verbose_name="the topic included in the set",db_index=True,on_delete=models.CASCADE)
     def __str__(self):
         return "TopicSet for Condition: "+str(self.condition)+" includes Topic: "+str(self.topic)
+    
+class ActivityCategorySet(models.Model):
+    condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
+    category = models.ForeignKey(ActivitiesCategory,verbose_name="the category included in the set",db_index=True,on_delete=models.CASCADE)
+    def __str__(self):
+        return "ActivityCategorySet for Condition: "+str(self.condition)+" includes Category: "+str(self.category)
+
 
 

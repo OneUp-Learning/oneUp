@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentVirtualCurrencyTransactions
-from Badges.models import ActionArguments, Action, Rules
+from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo
 from Badges.enums import Event
 from datetime import datetime
 #import logging
@@ -15,17 +15,20 @@ def virtualCurrencyCompletedTransactions(request):
         
         # Code from virtual currency shop view
         def getRulesForEvent(event):
-            return Rules.objects.filter(ruleevents__event=event, courseID=course)
+            return VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, ruleID__ruleevents__event=event, courseID=course)
     
         # We assume that if a rule decreases virtual currency, it is a
         # buy rule.  This function assumes that virtual currency penalty
         # rules have already been screened out.  A more robust test
         # would be needed if used in a different context.        
         def checkIfRuleIsBuyRule(rule):
-            return rule.actionID == Action.decreaseVirtualCurrency
+            return rule.ruleID.actionID == Action.decreaseVirtualCurrency
         
         def getAmountFromBuyRule(rule):
-            return int(ActionArguments.objects.get(ruleID=rule, sequenceNumber=1).argumentValue)
+            if ActionArguments.objects.filter(ruleID=rule.ruleID,sequenceNumber=1).exists:
+                return int(ActionArguments.objects.get(ruleID=rule.ruleID, sequenceNumber=1).argumentValue)
+            else:
+                return 0
         
         # We just find the first one.  This should generally be fine
         # since there should be at most one.
@@ -39,15 +42,15 @@ def virtualCurrencyCompletedTransactions(request):
             rules = getRulesForEvent(event)
             buyRule = getFirstBuyRule(rules)
             if buyRule is None:
-                return (False, 0)
+                return (False, 0, None)
             else:
-                return (True, getAmountFromBuyRule(buyRule))
+                return (True, getAmountFromBuyRule(buyRule), buyRule)
             
         # Get all completed student transactions by course and send it to the webpage
 #         transactions = StudentVirtualCurrencyTransactions.objects.filter(course = course, status="Complete").filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.getDifferentProblem,
 #                                                                                                             Event.seeClassAverage, Event.chooseLabPartner, Event.chooseProjectPartner, Event.uploadOwnAvatar, Event.chooseDashboardBackground,
 #                                                                                                             Event.getSurpriseAward, Event.chooseBackgroundForYourName, Event.buyExtraCreditPoints]).order_by('-studentEvent__timestamp')
-        transactions = StudentVirtualCurrencyTransactions.objects.filter(course = course, status="Complete").filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.getDifferentProblem,
+        transactions = StudentVirtualCurrencyTransactions.objects.filter(course = course, status__in=["Complete", "Reverted"]).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.getDifferentProblem,
                                                                                                             Event.getSurpriseAward, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getCreditForOneTestProblem]).order_by('-studentEvent__timestamp')
 
         #logger.debug(transactions)
@@ -60,10 +63,15 @@ def virtualCurrencyCompletedTransactions(request):
         transactionID = []
         for transaction in transactions:
             event = Event.events[transaction.studentEvent.event]
-            name.append(event['displayName'])
-            description.append(event['description'])
+            _, totals, rule = getBuyAmountForEvent(transaction.studentEvent.event)
+            if rule:
+                name.append(rule.vcRuleName)
+                description.append(rule.vcRuleDescription)
+            else:
+                name.append(event['displayName'])
+                description.append(event['description'])
             purchaseDate.append(transaction.studentEvent.timestamp)
-            total.append(getBuyAmountForEvent(transaction.studentEvent.event)[1])
+            total.append(totals)
             student.append(transaction.student)
             status.append(transaction.status)
             transactionID.append(transaction.transactionID)

@@ -15,11 +15,11 @@ def ChallengeDescription(request):
     # The context contains information such as the client's machine details, for example.
 
     context_dict,currentCourse = studentInitialContextDict(request)                 
-
+    print("request", request)
     if 'currentCourseID' in request.session:   
         chall_ID = []      
         chall_Name = []  
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         currentTime = utcDate()   
         string_attributes = ['challengeName','courseID','isGraded',                 #'challengeCategory','timeLimit','numberAttempts',
                       'challengeAuthor',
@@ -35,7 +35,7 @@ def ChallengeDescription(request):
             # Getting the challenge information which the student has selected
             if request.GET['challengeID']:
                 #studentId = 1; # for now student id is 1 as there is no login table.. else studentd id will be the login ID that we get from the cookie or session
-                
+                print("Context Dict", context_dict)
                 if 'isWarmup' in request.GET:
                     context_dict['isWarmup'] = request.GET['isWarmup']
                    
@@ -50,18 +50,18 @@ def ChallengeDescription(request):
                 if challenge in challenges:
                     context_dict['available'] = "This challenge can be taken"
                 else:
-                    context_dict['unAvailable'] = "This challenge can not be taken at this time "    
+                    context_dict['unAvailable'] = "This challenge can not be taken at this time"    
                 
                 data = getattr(challenge,'timeLimit')
                 if data == 99999:
-                    context_dict['timeLimit'] = "no time limit"
+                    context_dict['timeLimit'] = "None"
                 else:
                     context_dict['timeLimit']= data
                     
                 data = getattr(challenge,'numberAttempts')
                 print(str(data))
                 if data == 99999:
-                    context_dict['numberAttempts'] = "unlimited"
+                    context_dict['numberAttempts'] = "Unlimited"
                 else:
                     context_dict['numberAttempts']= data
                 
@@ -71,7 +71,7 @@ def ChallengeDescription(request):
                     
                 total_attempts = challenge.numberAttempts
                 if data == 99999:
-                    context_dict['more_attempts'] = "unlimited"
+                    context_dict['more_attempts'] = "Unlimited"
                 else:                             
                     # getting the number of attempts to check if the student is out of attempts
                     student_attempts = StudentChallenges.objects.filter(studentID=studentId, challengeID=challengeId) 

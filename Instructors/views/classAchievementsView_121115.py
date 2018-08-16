@@ -8,7 +8,8 @@ from django.shortcuts import render
 import math
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Courses, Challenges, CourseConfigParams
+from Instructors.models import Courses, Challenges
+from Badges.models import CourseConfigParams
 from Students.models import Student, StudentChallenges, StudentCourseSkills
 #from numpy import maximum
 

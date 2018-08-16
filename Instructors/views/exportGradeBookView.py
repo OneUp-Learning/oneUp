@@ -8,26 +8,15 @@ from django.shortcuts import render
 import csv
 from django.http import HttpResponse
 from Instructors.models import Courses, Challenges, Activities
+from Instructors.views.utils import initialContextDict
 from Students.models import StudentChallenges, StudentRegisteredCourses, StudentActivities
 from django.contrib.auth.decorators import login_required
 
 @login_required
 def exportGradebook(request):
-    
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-        
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
+    context_dict, currentCourse = initialContextDict(request)
 
     if request.method == 'GET':
-                    
         return render(request,'Instructors/ExportGradebook.html', context_dict)
     
     if request.method == 'POST':        

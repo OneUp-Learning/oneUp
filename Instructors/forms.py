@@ -57,7 +57,7 @@ class TrueFalseQuestionsForm(forms.ModelForm):
         model = Questions
         fields = ('preview', 'instructorNotes', 'difficulty', 'author')
         
-class essayForm(forms.ModelForm):
+class ParsonsForm(forms.ModelForm):
     preview = forms.CharField(max_length=200, help_text="Preview of the question.")
     instructorNotes = forms.CharField(max_length=300, help_text="Notes for the instructor")
     difficulty = forms.CharField(max_length=50, help_text="The difficulty level of the question")
