@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='activities',
             name='category',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='Instructors.ActivitiesCategory', verbose_name='Activities Category'),
+            field=models.ForeignKey(null=True,on_delete=django.db.models.deletion.CASCADE, to='Instructors.ActivitiesCategory', verbose_name='Activities Category'),
         ),
     ]
