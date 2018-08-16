@@ -119,6 +119,7 @@ class Event():
     visitedSpendedVCpage = 817 # Student visited the Spended Virtual Currency Transaction page
     visitedBadgesInfoPage = 818  # Student visited the Badge info page
     visitedVCRulesInfoPage = 819  # Student visited the Virtual Currency Info info page
+    visitedLeaderboardPage = 820 #Student visited leaderoard page
     
     extendDeadlineHW = 851 # Extend the deadline of an assignment
     extendDeadlineLab = 852 # Extend the deadline of an assignment       
@@ -248,6 +249,13 @@ class Event():
                         'name': 'visitedVCRulesInfoPage',
                         'displayName': 'Visited VC Rules Info page',
                         'description': 'Student visited the virtual currency rules info page'
+                        },
+              
+              visitedLeaderboardPage: {
+                        'index': visitedLeaderboardPage,
+                        'name': 'visitedLeaderboardPage',
+                        'displayName': 'Visited class leaderboard page',
+                        'description': 'Student visited the class leaderboard page'
                         },
              
               instructorHelp: {

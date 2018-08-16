@@ -91,6 +91,9 @@ def register_event(eventID, request, student=None, objectId=None):
         eventEntry.objectID = 0
     if(eventID == Event.visitedVCRulesInfoPage):
         eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0  
+    if(eventID == Event.visitedLeaderboardPage):
+        eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = 0
                 
     # Virtual Currency Events
@@ -366,7 +369,7 @@ def fire_action(rule,courseID,studentID,objID):
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         
         #Test to make notifications 
-        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You Won a '+badge.badgeName+'Badge', nf_type='Badge')
+        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge')
         
         return
     
@@ -410,7 +413,7 @@ def fire_action(rule,courseID,studentID,objID):
             # Increase the student virtual currency amount
             student.virtualCurrencyAmount += vcRuleAmount
             student.save()
-            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You Won '+str(vcRuleAmount)+' virtual currency', nf_type='Increase VirtualCurrency')
+            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' virtual bucks', nf_type='Increase VirtualCurrency')
             return
     
         if actionID == Action.decreaseVirtualCurrency:
@@ -419,7 +422,7 @@ def fire_action(rule,courseID,studentID,objID):
                 student.virtualCurrencyAmount -= vcRuleAmount 
                 instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
                 instructor = instructorCourse.instructorID
-                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual currency', nf_type='Decrease VirtualCurrency')
+                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency')
             else:
                 #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
                 print('this purchase did not go through')

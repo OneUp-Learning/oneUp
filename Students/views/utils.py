@@ -1,5 +1,5 @@
 from Instructors.views.utils import initialContextDict
-from Students.models import Student, StudentRegisteredCourses
+from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
 
 def studentInitialContextDict(request):
@@ -21,6 +21,13 @@ def studentInitialContextDict(request):
     context_dict['avatar'] = st_crs.avatarImage
     if not currentCourse:
         context_dict['course_notselected'] = 'Please select a course'
+        
+        
+    ##GGM determine if student has leaderboard enabled
+    studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
+    context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
+    context_dict['displayClassSkills'] = studentConfigParams.displayClassSkills
+
         
     return context_dict,currentCourse
 

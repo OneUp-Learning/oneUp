@@ -783,7 +783,7 @@
 <body>
     {% if is_teacher %} {% include 'heading.html' %} {% else %} {% include 'stheading.html' %} {% endif %}
     <main>
-        <div class="row center-align">
+        <div class="row center-align">skils
             <div class="col s12">
                 <h3>Achievements</h3>
             </div>
@@ -823,8 +823,10 @@
                 </div>
             </div>
         </div>
-
-        <div class="row">
+        
+        <!-- GGM added a switch to display class skills if the student toggles it on -->
+       		{% if displayClassSkills %}
+ <div class="row">
             <div class="col s12 m4 offset-m2">
                 <div class="card">
                     <div class="card-content">
@@ -858,6 +860,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="col s12 m4">
                 <div class="card">
                     <div class="card-content">
@@ -892,6 +895,46 @@
                 </div>
             </div>
         </div>
+
+	{% else %}
+
+<div class="row">
+            <div class="col s12 m8 offset-m2">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Challenges</span>
+                        <div id='container1' class="js-box"></div>
+                        <div id='container2' class="js-box"></div>
+                    </div>
+                    <div class="card-action right-align">
+                        <script>
+                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
+                            if (isClassAvgAvailable) {
+                                var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
+                                selectScript += "<a id='classAvg2' class='waves-effect btn-flat'>Class Average</a>";
+                                document.write(selectScript);
+                            } else {
+                                var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
+                                selectScript += "<a id='classAvg2' class='waves-effect btn-flat disabled'>Class Average</a>";
+                                document.write(selectScript);
+                            }
+
+                            $('#points2').click(function() {
+                                $('.js-box').hide();
+                                $('#container1').show();
+                            });
+                            $('#classAvg2').click(function() {
+                                $('.js-box').hide();
+                                $('#container2').show();
+                            });
+                            $('#points2').click();
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endif %}
         {% if are_Badges_Displayed|lower %}
         <div class="row">
             <div class="col s12 m8 offset-m2">
@@ -903,8 +946,8 @@
                                 <tr>
                                     <td>
                                         {% for i,badgeId,badgeName,badgeImage in badgesInfo %}
-                                        <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" />
-                                        <b>{{badgeName}}</b> {% empty %} No badges earned 
+                                        <img src="/{{badgeImage}}" alt="Badge Image" width="100px" height="100px" />
+                                       <!--<b>{{badgeName}}</b>  -->  {% empty %} No badges earned 
                                         <!-- moved the endfor to the bottom for easier reading GGM -->
                                         {% endfor %}
                                     </td>

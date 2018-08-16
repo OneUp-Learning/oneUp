@@ -26,6 +26,15 @@
       <div class="collapsible-header"><i class="material-icons">question_answer</i>How Can I Remove the Class Leaderboard from My Course Home Page?</div>
       <div class="collapsible-body"><span>If you wish to disable the class Leaderboard you can go to Tools menu and select <a href="/oneUp/students/Preferences">Preferences.</a> Here you will find toggles to disable viewing the class Leaderboard.</span></div>
     </li>
+    <!-- GGM added leaderboard QA, and a dynamic selector to ensure students cant access leaderboard page without enabling it in preferences -->
+    <li>
+      <div class="collapsible-header"><i class="material-icons">question_answer</i>How Can I View the Leaderboard?</div>
+      {%if studentLeaderboardToggle %}
+      <div class="collapsible-body"><span>If you wish to view the class Leaderboard you can go to Course Information menu and select <a href="/oneUp/students/Leaderboard">Leaderboard.</a> Here you will find the class Leaderboard, if enabled.</span></div>
+      {% else %}
+      <div class="collapsible-body"><span>If you wish to view the class Leaderboard you can go to Course Information menu and select Leaderboard. Here you will find the class Leaderboard, if enabled.</span></div>
+      {% endif %}
+    </li>
     <li>
       <div class="collapsible-header"><i class="material-icons">question_answer</i>How Can I Enable/Disable the Display of Class Average in My Achievement Page?</div>
       <div class="collapsible-body"><span>If you wish to disable the class Achievements you can go to Tools menu and select <a href="/oneUp/students/Preferences">Preferences.</a> Here you will find toggles to disable viewing the class Achievements.</span></div>
