@@ -26,7 +26,12 @@ def activityCatCreate(request):
     context_dict, currentCourse = initialContextDict(request)
     
     if request.POST:
-        currentCat = ActivitiesCategory()
+        # Check the category exists and has to be edited
+        if 'catID'in request.POST:
+            currentCat = ActivitiesCategory.objects.get(categoryID=request.POST['catID'])
+        else:           
+            currentCat = ActivitiesCategory()
+            
         currentCat.name = request.POST['catName']
         currentCat.courseID = currentCourse
         currentCat.save()

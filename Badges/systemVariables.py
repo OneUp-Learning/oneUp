@@ -146,20 +146,20 @@ def getAveragePercentageScore(course, student, challenge):
         return percentage
     return percentage
 
-def getHighestPercentageCorrect(course,student,challenge):
-    #Return the actual correct percentage using the highest score from the fired event
-    #Get the student score
-    student_challenges = getTestScores(course,student,challenge)
-    if student_challenges:
-        student_challege = student_challenges.latest('testScore')
-    else:
-        return 0
-
-    #Check if denominator is zero to avoid getting a DivideByZero error
-    if float(student_challege.getScore()) != 0:
-        return (float(student_challege.getScore())/float(student_challege.challengeID.totalScore)) * 100
-    else:
-        return 0
+# def getHighestPercentageCorrect(course,student,challenge):
+#     #Return the actual correct percentage using the highest score from the fired event
+#     #Get the student score
+#     student_challenges = getTestScores(course,student,challenge)
+#     if student_challenges:
+#         student_challege = student_challenges.latest('testScore')
+#     else:
+#         return 0
+# 
+#     #Check if denominator is zero to avoid getting a DivideByZero error
+#     if float(student_challege.getScore()) != 0:
+#         return (float(student_challege.getScore())/float(student_challege.challengeID.totalScore)) * 100
+#     else:
+#         return 0
 
 def getMaxTestScore(course,student,challenge):   
     #return the highest test score achieved out of the entire class for a challenge
@@ -448,8 +448,8 @@ def getScoreDifferenceFromPreviousActivity(course, student, activity):
     stud_assignments = []
     # filter only the activities started with "Assignment"
     for sa in stud_activities:
-        if sa.activityID.activityName.startswith('Assign'):
-            stud_assignments.append(sa)
+#        if sa.activityID.activityName.startswith('Assign'):
+        stud_assignments.append(sa)
             
     print('Stud_asssignments',stud_assignments)
 
@@ -499,8 +499,8 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
     assignments = []
     # filter only the activities started with "Assignment"
     for sa in stud_activities:
-        if sa.activityID.activityName.startswith('Assign'):
-            assignments.append(sa.activityID)
+#        if sa.activityID.activityName.startswith('Assign'):
+        assignments.append(sa.activityID)
     #print('assignments',assignments)
 
     # now work only with the assignments
@@ -672,7 +672,7 @@ def getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, t
         # If topic is assigned to the warmup challenge then find percentage
         challengeTopics = ChallengesTopics.objects.filter(topicID=topic, challengeID = challenge.challengeID)
         if challengeTopics.exists():
-            percentage = getHighestPercentageCorrect(course, student, challenge.challengeID)
+            percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge.challengeID)
             if percentage > 75.0:
                 challengesGreaterThan += 1
     logger.debug("Number of unqiue warmup challenges with specific topic > 75%: " + str(challengesGreaterThan))
@@ -683,7 +683,7 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student):
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     for challenge in challenges:
         # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getHighestPercentageCorrect(course, student, challenge.challengeID)
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge.challengeID)
         if percentage > 75.0:
             challengesGreaterThan += 1
     logger.debug("Number of unqiue warmup challenges > 75%: " + str(challengesGreaterThan))
@@ -694,7 +694,7 @@ def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     for challenge in challenges:
         # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getHighestPercentageCorrect(course, student, challenge.challengeID)
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge.challengeID)
         if percentage > 30.0:
             challengesGreaterThan += 1
     logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
@@ -792,19 +792,19 @@ class SystemVariable():
                 ObjectTypes.challenge: challengeScore
             }    
         },
-        percentageCorrect:{
-            'index': percentageCorrect,
-            'name':'percentageCorrect',
-            'displayName':'Percentage Correct',
-            'description':'The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge, Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.challenge: getHighestPercentageCorrect
-            }
-        },
+#         percentageCorrect:{
+#             'index': percentageCorrect,
+#             'name':'percentageCorrect',
+#             'displayName':'Percentage Correct',
+#             'description':'The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge',
+#             'eventsWhichCanChangeThis':{
+#                 ObjectTypes.challenge:[Event.endChallenge, Event.adjustment],
+#             },
+#             'type':'int',
+#             'functions':{
+#                 ObjectTypes.challenge: getHighestPercentageCorrect
+#             }
+#         },
         maxTestScore:{
             'index': maxTestScore,
             'name':'maxTestScore',

@@ -14,7 +14,7 @@ from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
-    user = models.OneToOneField(User, default=0)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True,default=0)
     #User Attributes:
     # username varchar(30)
     # first_name varchar(30)
@@ -139,6 +139,7 @@ class Challenges(models.Model):
     challengeName = models.CharField(max_length=100)
     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) 
     isGraded = models.BooleanField(default=False)
+    isRandomized = models.BooleanField(default=False)
     totalScore = models.DecimalField(decimal_places=2, max_digits=6, default=0)  #Total possible score  
     manuallyGradedScore = models.DecimalField(decimal_places=2, max_digits=6, default=0, verbose_name="number of possible points for a manually graded part of the challenge")  
     curve = models.DecimalField(decimal_places=2, max_digits=6, default=0) 
