@@ -168,18 +168,21 @@
                                  <a class="waves-effect waves-light btn" id="removeAnswer" onclick="removeAnswer();" {%if view%}disabled{%endif%}><i class="material-icons left">remove</i>Remove Last Answer</a>                                      
                               </div>
                            </div>
+                           
                            <!-- GGM Difficulty Setting Updated Code -->
                         <div class="row">
+                            <div class="col s12">
+                              <h5>Difficulty</h5>
+                           </div>                                               
                            <div class="input-field col s12">
                               <select  name="difficulty" id="difficulty" {%if view%}readonly{%endif%}>
                                  <option val="Easy" value="Easy"  {%if view%}disabled{%endif%}>Easy</option>
                                  <option val="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
                                  <option val="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
                               </select>
-                              <label>Difficulty</label>
-                              <script  type="text/javascript"> 
-                             
                               
+                              <script  type="text/javascript"> 
+                                                           
                               $( document ).ready(function() {
                                      if ("{{difficulty}}" != '')  {
                                     	 console.log("med");
@@ -197,9 +200,12 @@
                            <input type="hidden" name="points" value="0" id="Points">
                            {% else %}
                            <div class="row">
+                             <div class="col s12">
+                              <h5>Points<span class= "red-text">*</span></h5>
+                           </div>                                                 
                               <div class="input-field col s12">
                                  <input value="{{points}}" name="points" id="points" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%}  min="1" max="999" step="any" {%if view%}disabled{%else%}required{%endif%}>
-                                 <label for="points"><span class= "red-text">*</span> Points</label>
+                                 <label for="points"> Points</label>
                               </div>
                            </div>
                            {% endif %}
