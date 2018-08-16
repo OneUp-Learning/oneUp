@@ -156,7 +156,7 @@ def courseLeaderboard(currentCourse, context_dict):
             
             #Displaying the list of challenges from database
             badges = StudentBadges.objects.all().order_by('-timestamp')
-           
+            print("badges")
             print(badges)
             for badge in badges:
                 if badge.studentID in students:
@@ -168,6 +168,8 @@ def courseLeaderboard(currentCourse, context_dict):
                     st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
                     avatarImage.append(st_crs.avatarImage)
                               
+            print("cparams")
+            print(ccparams.numBadgesDisplayed+1)                    
             context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
     
             # Skill Ranking          

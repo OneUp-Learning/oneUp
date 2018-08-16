@@ -54,37 +54,7 @@
                      </div>
                   </div>
                </div>
-                  {% if classSkillsDisplayed and displayClassSkills and ccparams.gamificationUsed %}                    
-                  <div class="col s12 m6">
-                     <div class="card-panel">
-                        <table>
-                           <thead>
-                              <th>Skill</th>
-                              <th>Skill Points</th>
-                           </thead>
-                           <tbody>
-                              {% for skill in skills %}
-                              <tr>
-                                 <td>{{skill.skillName}}</td>
-                                 <td>
-                                    {% for usi in skill.usersInfo %} 
-                                    <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
-                                       <img src="{{usi.avatarImage}}">
-                                       {{usi.skillPoints}}
-                                    </div>
-                                    {% endfor %}
-                                 </td>
-                              </tr>
-                              {% empty %}
-                              <tr>
-                                 <td class="center-align" colspan="2"><i>No students with skill points</i></td>
-                              </tr>
-                              {% endfor %}
-                           </tbody>
-                        </table>
-                     </div>
-                  </div>
-                  {% endif %}
+                  
                </div>
               
             </div>

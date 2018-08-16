@@ -40,12 +40,15 @@ def LeaderboardView(request):
         context_dict['avatar'] =  st_crs.avatarImage    
                       
         context_dict = courseLeaderboard(currentCourse, context_dict)
+        
+        
            
         scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)    
         if len(scparamsList) > 0:
             scparams = scparamsList[0]
             context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
             context_dict["displayBadges"]=scparams.displayBadges
+            context_dict["displayClassSkills"]=scparams.displayClassSkills
             
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)

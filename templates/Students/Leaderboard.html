@@ -12,9 +12,9 @@
             </div>
          </div>
          <div class="row">
-            <div class="col s12 m12 l8 ">
+            <div class="col s12 m12 l9 ">
                <div class="row">                      
-                  <div class="col s15 m8 offset-m5">
+                  <div class="col s11 m4 offset-m4">
                      <div class="card-panel">
                         <table>
                            <thead>
@@ -36,10 +36,41 @@
                         </table>
                      </div>
                   </div>
+                  {% if classSkillsDisplayed and displayClassSkills and ccparams.gamificationUsed %}                    
+                  <div class="col s12 m4">
+                     <div class="card-panel">
+                        <table>
+                           <thead>
+                              <th>Skill</th>
+                              <th>Skill Points</th>
+                           </thead>
+                           <tbody>
+                              {% for skill in skills %}
+                              <tr>
+                                 <td>{{skill.skillName}}</td>
+                                 <td>
+                                    {% for usi in skill.usersInfo %} 
+                                    <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                       <img src="{{usi.avatarImage}}">
+                                       {{usi.skillPoints}}
+                                    </div>
+                                    {% endfor %}
+                                 </td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td class="center-align" colspan="2"><i>No students with skill points</i></td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+                  {% endif %}
                </div>
-                {% if badgesUsed and displayBadges and ccparams.gamificationUsed %}                
+                {% if displayBadges %}                
                <div class="row ">
-                  <div class="col s8 offset-l5">
+                  <div class="col s8 offset-l4">
                      <div class="card-panel">
                         <table>
                            <thead>
@@ -49,7 +80,7 @@
                               <tr>
                                  <td>
                                     {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}    
-                                    <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
+                                    <img src="/{{badgeImage}}" alt="Badge Image" width="70px" height="70px"/>
                                     <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                     &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                                     {% empty %}
