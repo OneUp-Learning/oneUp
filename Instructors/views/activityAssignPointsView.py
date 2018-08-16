@@ -15,7 +15,11 @@ from Badges.enums import Event
 from Instructors.views.activityListView import createContextForActivityList
 from django.template.context_processors import request
 from notify.signals import notify
+from decimal import Decimal
 
+
+default_student_points = -1
+default_student_bonus = 0
 
 def activityAssignPointsView(request):   
     context_dict, currentCourse = initialContextDict(request)
@@ -34,33 +38,38 @@ def activityAssignPointsView(request):
             # See if a student is graded for this activity (AH)
             # Should only be one match (AH)
             stud_activity = StudentActivities.objects.filter(activityID = request.POST['activityID'], studentID = studentRC.studentID.id).first()
-            studentPoints = request.POST['student_Points' + str(studentRC.studentID.id)] 
-            studentBonus = request.POST['student_Bonus' + str(studentRC.studentID.id)] 
+            studentPoints = Decimal(request.POST['student_Points' + str(studentRC.studentID.id)])
+            studentBonus = Decimal(request.POST['student_Bonus' + str(studentRC.studentID.id)])
 
             # If student has been previously graded...
             if stud_activity:
-                
-                print("herrrrrrrrrrrrrrrrrrrrrrre")
-                print(stud_activity,studentPoints)
-                # Check if the student has points wanting to be assigned (AH)
-                if not studentPoints == "0" or not studentBonus == "0":
-                    # Override the activity with the student points (AH)  
-                    if not studentPoints == "0" or stud_activity.activityScore != studentPoints:
-                        stud_activity.activityScore = studentPoints
-                        stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
-                    else:
-                        stud_activity.activityScore = "0"
-                        stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
-                    
-                    if not studentBonus == "0" or stud_activity.bonusPointsAwarded != studentBonus:
-                        stud_activity.bonusPointsAwarded = studentBonus
-                    else:
-                        stud_activity.bonusPointsAwarded = "0"
-                        
+
+                if studentPoints == default_student_points:
+                    # In this case there is already a grade, but the instructor has now set the grade back to -1 (ungraded)
+                    # We are treating this as a special case meaning that the instructor wishes to delete the grade.
+                    stud_activity.delete()
                 else:
-                    stud_activity.activityScore = studentPoints
-                    stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
-                    stud_activity.bonusPointsAwarded = studentBonus
+                    changesNeedSaving = False
+
+                    if studentPoints != stud_activity.activityScore:
+                        # A score exists and a new score has been assigned.
+                        stud_activity.activityScore = studentPoints
+                        stud_activity.timestamp = utcDate()
+                        stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
+                        stud_activity.graded = True
+                        changesNeedSaving = True
+                        activityGradedNow[studentRC.studentID] = True
+
+                        notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                    verb= activity.activityName+' has been graded', nf_type='Activity Graded')
+                    
+                    if studentBonus != stud_activity.bonusPointsAwarded:
+                        # The bonus has changed.
+                        stud_activity.bonusPointsAwarded = studentBonus
+                        changesNeedSaving = True
+
+                    if changesNeedSaving:
+                        stud_activity.save()
 
                 stud_activity.timestamp = utcDate()
                 stud_activity.graded = True
@@ -74,40 +83,26 @@ def activityAssignPointsView(request):
             
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
-                if not studentPoints == "0" or not studentBonus == "0":
+                if not studentPoints == default_student_points or not studentBonus == default_student_bonus:
                     stud_activity = StudentActivities()
                     stud_activity.activityID = activity
                     stud_activity.studentID = studentRC.studentID
 
-                    if not studentPoints == "0":
+                    if not studentPoints == default_student_points:
                         stud_activity.activityScore = studentPoints
                         stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     else:
-                        stud_activity.activityScore = "0"
-                        stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
+                        stud_activity.activityScore = 0
+                        stud_activity.instructorFeedback =  ""
                     
-                    if not studentBonus == "0":
-                        stud_activity.bonusPointsAwarded = studentBonus
-                    else:
-                        stud_activity.bonusPointsAwarded = "0"
-                        
-                else:
-                    stud_activity = StudentActivities()
-                    stud_activity.activityID = activity
-                    stud_activity.studentID = studentRC.studentID
-                    stud_activity.activityScore = studentPoints
-                    stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
                     stud_activity.bonusPointsAwarded = studentBonus
-                    
-                stud_activity.timestamp = utcDate()
-                stud_activity.courseID = currentCourse
-                stud_activity.graded = True
-                stud_activity.save()
-                
-                actName = activity.activityName
-                    
-                notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                            verb= actName+' was graded', nf_type='Activity Graded')
+                    stud_activity.timestamp = utcDate()
+                    stud_activity.courseID = currentCourse
+                    stud_activity.graded = True
+                    stud_activity.save()
+                                            
+                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb= activity.activityName+' has been graded', nf_type='Activity Graded')
 
                 activityGradedNow[studentRC.studentID] = True
        
@@ -127,8 +122,8 @@ def activityAssignPointsView(request):
 def createContextForPointsAssignment(request, context_dict, currentCourse):
     student_ID = []
     student_Name = []
-    student_Points = []   
-    student_Bonus = [] 
+    student_Points = [] 
+    student_Bonus = []   
     student_Feedback = []
     File_Name = []
     
@@ -144,15 +139,12 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
         if (StudentActivities.objects.filter(activityID = request.GET['activityID'], studentID = student)).exists():
             stud_act = StudentActivities.objects.get(activityID = request.GET['activityID'], studentID = student)
             
-            if(stud_act.activityScore == 0 and not stud_act.graded):
-                student_Points.append("0")
+            if not stud_act.graded:
+                student_Points.append(default_student_points)
             else:
                 student_Points.append(stud_act.activityScore)
 
-            if stud_act.bonusPointsAwarded == 0:
-                student_Bonus.append("0")
-            else:
-                student_Bonus.append(stud_act.bonusPointsAwarded) 
+            student_Bonus.append(stud_act.bonusPointsAwarded) 
             
             student_Feedback.append(stud_act.instructorFeedback)
             
@@ -173,15 +165,15 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
                 
             #zipFile_Name.append(StudentFile.objects.get(activity = stud_act, studentID = student).fileName)
         else:
-            student_Points.append("0")
-            student_Bonus.append("0")
+            student_Points.append(str(default_student_points))
+            student_Bonus.append(str(default_student_bonus))
             student_Feedback.append("")
             File_Name.append(False)
 
         
     context_dict['activityID'] = request.GET['activityID']
     context_dict['activityName'] = Activities.objects.get(activityID = request.GET['activityID']).activityName
-    context_dict['assignedActivityPoints_range'] = list(zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Bonus, student_Feedback, File_Name))
+    context_dict['assignedActivityPoints_range'] = list(zip(range(1,len(student_ID)+1),student_ID,student_Name,student_Points, student_Bonus, student_Feedback, File_Name))    
     return context_dict
     
 @login_required
@@ -191,10 +183,3 @@ def assignedPointsList(request):
     context_dict = createContextForPointsAssignment(request, context_dict, currentCourse)
 
     return render(request,'Instructors/ActivityAssignPointsForm.html', context_dict)
-
-
-
-    
-    
-
-        
