@@ -49,8 +49,8 @@ class UploadedAvatarImage(models.Model):
     
 # Table listing all the students and the respective courses they are currently registered for   
 class StudentRegisteredCourses(models.Model):
-    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     avatarImage= models.CharField(max_length=200, default='')    
     virtualCurrencyAmount = models.IntegerField(default=0)
     def __str__(self):
@@ -59,9 +59,9 @@ class StudentRegisteredCourses(models.Model):
 # Students and their corresponding taken challenges information are stored in this table.  
 class StudentChallenges(models.Model):
     studentChallengeID = models.AutoField(primary_key=True)
-    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True, default=1)
-    challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True, default=1)
+    challengeID = models.ForeignKey(Challenges, on_delete=models.CASCADE, verbose_name="the related challenge", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
     testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
@@ -80,8 +80,8 @@ class StudentChallenges(models.Model):
 # This table has each question's score and other information for a student's challenge for all the above table's challenges   
 class StudentChallengeQuestions(models.Model):
     studentChallengeQuestionID = models.AutoField(primary_key=True)
-    studentChallengeID = models.ForeignKey(StudentChallenges, verbose_name="the related student_challenge", db_index=True)
-    questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True) 
+    studentChallengeID = models.ForeignKey(StudentChallenges, on_delete=models.CASCADE, verbose_name="the related student_challenge", db_index=True)
+    questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True) 
     questionScore = models.DecimalField(decimal_places=2, max_digits=6)
     questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
     usedHint = models.BooleanField(default=True)
@@ -92,22 +92,22 @@ class StudentChallengeQuestions(models.Model):
 
 # This table has each question's answer that is answered by students for all the above table's questions    
 class StudentChallengeAnswers(models.Model):
-    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, verbose_name="the related student_challenge_question", db_index=True)
+    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question", db_index=True)
     studentAnswer = models.CharField(max_length=1000)
     def __str__(self):              
         return str(self.studentChallengeQuestionID) +","+str(self.studentAnswer)
 
 # This table has the matching sorted questions
 class MatchShuffledAnswers(models.Model):
-    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, verbose_name="the related student_challenge_question", db_index=True)
+    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question", db_index=True)
     MatchShuffledAnswerText = models.CharField(max_length=1000)
     def __str__(self):              
         return str(self.studentChallengeQuestionID) +","+str(self.MatchShuffledAnswerText)
     
 # This table has student-course skills relations information 
 class StudentCourseSkills(models.Model):
-    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, verbose_name="the related student_challenge_question", db_index=True)
-    skillID = models.ForeignKey(Skills, verbose_name="the related skill", db_index=True)
+    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question", db_index=True)
+    skillID = models.ForeignKey(Skills, on_delete=models.CASCADE, verbose_name="the related skill", db_index=True)
     skillPoints =  models.IntegerField(default=1)
     def __str__(self):              
         return str(self.studentChallengeQuestionID) +","+str(self.skillID)
@@ -115,8 +115,8 @@ class StudentCourseSkills(models.Model):
 # This table has student-course skills relations information 
 class StudentBadges(models.Model):
     studentBadgeID = models.AutoField(primary_key=True)
-    studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
-    badgeID = models.ForeignKey(BadgesInfo, verbose_name="the badge", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    badgeID = models.ForeignKey(BadgesInfo, on_delete=models.CASCADE, verbose_name="the badge", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a badge
     timestamp = models.DateTimeField(default=datetime.now, blank=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
@@ -124,8 +124,8 @@ class StudentBadges(models.Model):
 
 class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
-    studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
-    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, verbose_name="the virtual currency rule", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, on_delete=models.CASCADE, verbose_name="the virtual currency rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
@@ -135,9 +135,9 @@ class StudentVirtualCurrency(models.Model):
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
-    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
-    activityID = models.ForeignKey(Activities, verbose_name="the related activity", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True, default=1)      
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    activityID = models.ForeignKey(Activities, on_delete=models.CASCADE, verbose_name="the related activity", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)      
     timestamp = models.DateTimeField(default= datetime.now)
     activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
@@ -157,9 +157,9 @@ def fileUploadPath(instance,filename):
 #Object to hold student files and where they are located at 
 class StudentFile(models.Model):
     studentFileID = models.AutoField(primary_key=True)
-    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
-    activity = models.ForeignKey(StudentActivities, verbose_name= 'the related activity')
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    activity = models.ForeignKey(StudentActivities, on_delete=models.CASCADE, verbose_name= 'the related activity')
     timestamp = models.DateTimeField(default=datetime.now)
     file = models.FileField(max_length=500,upload_to= fileUploadPath)
     fileName = models.CharField(max_length=200, default='')
@@ -186,9 +186,9 @@ class StudentEventLog(models.Model):
     
 class StudentVirtualCurrencyTransactions(models.Model):
     transactionID = models.AutoField(primary_key=True)
-    student = models.ForeignKey(Student, verbose_name="the student", db_index=True)
-    course = models.ForeignKey(Courses, verbose_name="Course in Which event occurred", db_index=True)
-    studentEvent = models.ForeignKey(StudentEventLog,verbose_name="the Student Event Log", db_index=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="Course in Which event occurred", db_index=True)
+    studentEvent = models.ForeignKey(StudentEventLog, on_delete=models.CASCADE, verbose_name="the Student Event Log", db_index=True)
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
     objectID = models.IntegerField(verbose_name="index into the appropriate table")
     status = models.CharField(max_length=200, default='Requested')
@@ -208,8 +208,8 @@ class StudentVirtualCurrencyTransactions(models.Model):
     
 class StudentConfigParams(models.Model):
     scpID = models.AutoField(primary_key=True)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
-    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
 
     displayBadges = models.BooleanField(default=True)                          ## Student Dashboard display fields
     displayLeaderBoard = models.BooleanField(default=True)
@@ -231,8 +231,8 @@ class StudentConfigParams(models.Model):
 
 class StudentLeaderboardHistory(models.Model):
     id = models.AutoField(primary_key=True)
-    studentID = models.ForeignKey(Student, verbose_name="the related student", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     leaderboardPosition = models.IntegerField(default=0) # Position is ranked starting from 1.
     startTimestamp = models.DateTimeField(auto_now_add=True, verbose_name="Start Timestamp", db_index=True)
     endTimestamp = models.DateTimeField(null=True, blank=True, verbose_name="End Timestamp", db_index=True)
