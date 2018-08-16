@@ -45,8 +45,8 @@ class Courses(models.Model):
     
 # Table listing all the Instructors and the respective courses they are currently administering    
 class InstructorRegisteredCourses(models.Model):
-    instructorID = models.ForeignKey(User, verbose_name="Instructor ID", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    instructorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Instructor ID", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     def __str__(self):
         return str(self.instructorID) + "," + str(self.courseID)
     
@@ -96,7 +96,7 @@ class CodeLibrary(models.Model):
 class Answers(models.Model):
     answerID = models.AutoField(primary_key=True)
     answerText = models.CharField(max_length=5000)
-    questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
+    questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True)
     def __str__(self):              
         return str(self.answerID)+","+self.answerText
 
@@ -109,22 +109,22 @@ class FeedbackType(models.Model):
 class MatchingAnswers(models.Model):
     matchingAnswerID = models.AutoField(primary_key=True)
     matchingAnswerText = models.CharField(max_length=5000)
-    answerID = models.ForeignKey(Answers, verbose_name="the answer which this match goes with", db_index=True)
-    questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
+    answerID = models.ForeignKey(Answers, on_delete=models.CASCADE, verbose_name="the answer which this match goes with", db_index=True)
+    questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True)
     def __str__(self):              
         return str(self.answerID)+","+self.matchingAnswerText
         
 class CorrectAnswers(models.Model):
-    questionID = models.ForeignKey('Instructors.Questions', verbose_name="the question")    
-    answerID = models.ForeignKey('Instructors.Answers', verbose_name="the correct answer")
+    questionID = models.ForeignKey('Instructors.Questions', on_delete=models.CASCADE, verbose_name="the question")    
+    answerID = models.ForeignKey('Instructors.Answers', on_delete=models.CASCADE, verbose_name="the correct answer")
     def __str__(self):              
         return str(self.answerID)+","+str(self.questionID)
     
 class Prompts(models.Model):
     promptID = models.AutoField(primary_key=True)
     promptText = models.CharField(max_length=5000, default="")
-    questionID = models.ForeignKey(Questions, verbose_name="the related question", db_index=True)
-    answerID = models.ForeignKey('Instructors.Answers', verbose_name="the correct answer for this prompt")
+    questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True)
+    answerID = models.ForeignKey('Instructors.Answers', on_delete=models.CASCADE, verbose_name="the correct answer for this prompt")
     
 class Goals(models.Model):    
     goalID = models.AutoField(primary_key=True)
@@ -137,7 +137,7 @@ class Goals(models.Model):
 class Challenges(models.Model):
     challengeID = models.AutoField(primary_key=True)
     challengeName = models.CharField(max_length=100)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) 
+    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
     isGraded = models.BooleanField(default=False)
     isRandomized = models.BooleanField(default=False)
     totalScore = models.DecimalField(decimal_places=2, max_digits=6, default=0)  #Total possible score  
@@ -170,16 +170,16 @@ class Skills(models.Model):
 
 # Total earned points for a skill in a course
 class CoursesSkills(models.Model):
-    skillID = models.ForeignKey('Instructors.Skills', verbose_name="skill")    
-    courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses")
+    skillID = models.ForeignKey('Instructors.Skills', on_delete=models.CASCADE, verbose_name="skill")    
+    courseID = models.ForeignKey('Instructors.Courses', on_delete=models.CASCADE, verbose_name="courses")
     def __str__(self):              
         return str(self.courseID)+","+str(self.skillID)
 
 # Contributed points of a question to a skill in the context of a particular challenge --->  courseID should be replaced by challengeID
 class QuestionsSkills(models.Model):
-    skillID = models.ForeignKey('Instructors.Skills', verbose_name="skill")    
-    questionID = models.ForeignKey('Instructors.Questions', verbose_name="questions")
-    courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses", default=-1)    
+    skillID = models.ForeignKey('Instructors.Skills', on_delete=models.CASCADE, verbose_name="skill")    
+    questionID = models.ForeignKey('Instructors.Questions', on_delete=models.CASCADE, verbose_name="questions")
+    courseID = models.ForeignKey('Instructors.Courses', on_delete=models.CASCADE, verbose_name="courses", default=-1)    
     questionSkillPoints =  models.IntegerField(default=1)
     def __str__(self):              
         return "QuestionSkill: {Question:("+str(self.questionID)+"),Skill:("+str(self.skillID)+"),Course:("+str(self.courseID)+"),points:"+str(self.questionSkillPoints)+"}"
@@ -192,20 +192,20 @@ class Tags(models.Model):
 
 
 class ResourceTags(models.Model): 
-    questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
-    tagID = models.ForeignKey('Instructors.Tags', verbose_name="tag")  
+    questionID = models.ForeignKey('Instructors.Questions', on_delete=models.CASCADE, verbose_name="question")
+    tagID = models.ForeignKey('Instructors.Tags', on_delete=models.CASCADE, verbose_name="tag")  
     def __str__(self):              
         return str(self.questionID) +","+ str(self.tagID)
       
 class ChallengeTags(models.Model): 
-    challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenge")
-    tagID = models.ForeignKey('Instructors.Tags', verbose_name="tag")  
+    challengeID = models.ForeignKey('Instructors.Challenges', on_delete=models.CASCADE, verbose_name="challenge")
+    tagID = models.ForeignKey('Instructors.Tags', on_delete=models.CASCADE, verbose_name="tag")  
     def __str__(self):              
         return str(self.challengeID) +","+ str(self.tagID)
     
 class ChallengesQuestions(models.Model):
-    challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenge")
-    questionID = models.ForeignKey('Instructors.Questions', verbose_name="question")
+    challengeID = models.ForeignKey('Instructors.Challenges', on_delete=models.CASCADE, verbose_name="challenge")
+    questionID = models.ForeignKey('Instructors.Questions', on_delete=models.CASCADE, verbose_name="question")
     questionPosition = models.IntegerField(default = 0)
     points = models.DecimalField(decimal_places=2, max_digits=6, default=0)
     def __str__(self):              
@@ -243,14 +243,14 @@ class Activities(models.Model):
     startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True )
     deadLine = models.DateTimeField(default=datetime.now, blank=True)
-    category = models.ForeignKey(ActivitiesCategory,verbose_name = "Activities Category", db_index=True, default = 1)
+    category = models.ForeignKey(ActivitiesCategory,on_delete=models.CASCADE, verbose_name = "Activities Category", db_index=True, default = 1)
     def __str__(self):              
         return str(self.activityID)+","+self.activityName  
         
 class Announcements(models.Model):
     announcementID = models.AutoField(primary_key=True)
-    authorID = models.ForeignKey(User, verbose_name="Author", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    authorID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Author", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
     subject = models.CharField(max_length=25, default="")
@@ -265,16 +265,16 @@ class Topics(models.Model):
         return str(str(self.topicID)+","+self.topicName)
     
 class CoursesTopics(models.Model):
-    topicID = models.ForeignKey('Instructors.Topics', verbose_name="topic")    
-    courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses")
+    topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")    
+    courseID = models.ForeignKey('Instructors.Courses', on_delete=models.CASCADE, verbose_name="courses")
     topicPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.courseID)+","+str(self.topicID)+","+str(self.topicPos)
     
 class CoursesSubTopics(models.Model):
     subTopicID = models.AutoField(primary_key=True)
-    topicID = models.ForeignKey('Instructors.Topics', verbose_name="topic")    
-    courseID = models.ForeignKey('Instructors.Courses', verbose_name="courses")
+    topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")    
+    courseID = models.ForeignKey('Instructors.Courses', on_delete=models.CASCADE, verbose_name="courses")
     subTopicName = models.CharField(max_length=100)
     subTopicPos = models.IntegerField(default=0)
     thresholdXP = models.IntegerField(default=0)
@@ -285,8 +285,8 @@ class CoursesSubTopics(models.Model):
         return str(self.courseID)+","+str(self.topicID)+","+str(self.subTopicID)
 
 class ChallengesTopics(models.Model):
-    topicID = models.ForeignKey('Instructors.Topics', verbose_name="topic")
-    challengeID = models.ForeignKey('Instructors.Challenges', verbose_name="challenges")  
+    topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")
+    challengeID = models.ForeignKey('Instructors.Challenges', on_delete=models.CASCADE, verbose_name="challenges")  
     def __str__(self):              
         return str(self.challengeID)+","+str(self.topicID)
     
@@ -295,8 +295,8 @@ class Milestones(models.Model):
     milestoneName = models.CharField(max_length=75)
     description = models.CharField(max_length=200, default="")
     points =  models.IntegerField()
-    authorID = models.ForeignKey(User, verbose_name="Author", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    authorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Author", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     def __str__(self):              
         return str(self.milestoneID)+","+self.milestoneName
 
@@ -310,7 +310,7 @@ class UploadedImages(models.Model):
     imageFile = models.FileField(max_length=500, upload_to= imageUploadPath)
     imageFileName = models.CharField(max_length=200, default='')
     imageDescription = models.CharField(max_length=200, default='')
-    imageCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+    imageCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
     def __str__(self):              
         return str(self.imageID)+","+str(self.imageFile)+","+self.imageDescription
     
@@ -326,7 +326,7 @@ class UploadedFiles(models.Model):
         uploadedFile = models.FileField(max_length=500,upload_to= fileUploadPath)
         uploadedFileName = models.CharField(max_length=200, default='')
         uploaded_at = models.DateTimeField(auto_now_add=True)
-        uploadedFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+        uploadedFileCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
         
         def delete(self):
             self.uploadedFile.delete()
@@ -338,11 +338,11 @@ def activityUploadPath(instance,filename):
             
 class UploadedActivityFiles(models.Model):
         ID = models.AutoField(primary_key=True)
-        activity = models.ForeignKey(Activities, verbose_name= 'the related activity')
+        activity = models.ForeignKey(Activities, on_delete=models.SET_NULL, null=True, verbose_name= 'the related activity')
         activityFile = models.FileField(max_length=500,upload_to= activityUploadPath)
         activityFileName = models.CharField(max_length=200, default='')
         uploaded_at = models.DateTimeField(auto_now_add=True)
-        activityFileCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+        activityFileCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
         latest = models.BooleanField(default = True)
         
         def delete(self):
@@ -360,7 +360,7 @@ class TemplateDynamicQuestions(DynamicQuestions):
     
 class TemplateTextParts(models.Model):
     partNumber = models.IntegerField(default=1)
-    dynamicQuestion = models.ForeignKey(TemplateDynamicQuestions)
+    dynamicQuestion = models.ForeignKey(TemplateDynamicQuestions,on_delete=models.CASCADE )
     templateText = models.CharField(max_length=20000)
 
 def luaLibraryUploadLocation(instance,filename):
@@ -371,7 +371,7 @@ class LuaLibrary(models.Model):
     libFile = models.FileField(max_length=5000, upload_to= luaLibraryUploadLocation )
     libraryName = models.CharField(max_length=100, db_index=True, unique=True)
     libDescription = models.CharField(max_length=200, default='')
-    libCreator = models.ForeignKey(User, verbose_name="Creator", db_index=True)
+    libCreator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creator", db_index=True)
     def __str__(self):              
         return str(self.libraryName)+","+self.libDescription
     
@@ -383,13 +383,13 @@ class LuaLibrary(models.Model):
         
 class DependentLibrary(models.Model):
     dependID = models.AutoField(primary_key=True) 
-    mainLibrary = models.ForeignKey(LuaLibrary, related_name='mainLibrary')
-    dependent = models.ForeignKey(LuaLibrary)
+    mainLibrary = models.ForeignKey(LuaLibrary, on_delete=models.CASCADE, related_name='mainLibrary')
+    dependent = models.ForeignKey(LuaLibrary, on_delete=models.CASCADE)
   
 class QuestionLibrary(models.Model):  
     ID = models.AutoField(primary_key=True) 
-    question = models.ForeignKey(Questions)
-    library = models.ForeignKey(LuaLibrary)
+    question = models.ForeignKey(Questions, on_delete=models.CASCADE)
+    library = models.ForeignKey(LuaLibrary, on_delete=models.CASCADE)
     
 
     
