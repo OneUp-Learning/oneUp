@@ -3,30 +3,7 @@ from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
 from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
-# Create your models here.
- 
-# Actions Table
 
-#  Actions (Visible to instructors):
-#  -    Giving a badge
-#  -    Creating a notification
-#  -    Locking
-#  -    Unlocking 
-#  -    Setting a value
-#  -    Adding to a value
-#   
-#  Actions for event "Changing Values":
-#  -    Adding skill points to skills
-
-# Class removed and replaced with enumerated type
-#class Actions(models.Model):
-#    actionID = models.AutoField(primary_key=True)
-#    actionName = models.CharField(max_length=30)
-#    actionDescription = models.CharField(max_length=100)
-#    def __str__(self):              
-#        return str(self.actionID)+","+str(self.actionName)
-
- 
 # Conditions Table
 class Conditions(models.Model):
     conditionID = models.AutoField(primary_key=True)
@@ -121,7 +98,7 @@ class Rules(models.Model):
     ruleID = models.AutoField(primary_key=True)
     conditionID = models.ForeignKey(Conditions, on_delete=models.SET_NULL, verbose_name="the related condition", db_index=True, null=True, blank=True)
     actionID = models.IntegerField(verbose_name="the related action", db_index=True)
-    courseID = models.ForeignKey(Courses, verbose_name="Course the rule belongs to", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="Course the rule belongs to", db_index=True)
     objectSpecifier = models.CharField(max_length=2000, default="[]",verbose_name="A json-serialized object of the type ChosenObjectSpecifier (see events.py)")
     awardFrequency = models.IntegerField(default=AwardFrequency.justOnce) # See enums.py for award frequency options.
     def __str__(self):
@@ -139,7 +116,7 @@ class Rules(models.Model):
 # A model which matches a Rule to a list of events
 # Each entry is one matching
 class RuleEvents(models.Model):
-    rule = models.ForeignKey(Rules,db_index=True)
+    rule = models.ForeignKey(Rules,on_delete=models.CASCADE, db_index=True)
     event = models.IntegerField(default=0,db_index=True)
     inGlobalContext = models.BooleanField(default=True)
     def __str__(self):
@@ -188,7 +165,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleType = models.BooleanField(default=True) # True: earning , False: spending    
     vcRuleAmount = models.IntegerField()
     vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo#"+str(self.vcRuleID)+":"+str(self.vcRuleName)+":"+str(self.vcRuleAmount)
 
@@ -230,8 +207,8 @@ class GameMechanics(models.Model):
  
 # Course Mechanics Table
 class CourseMechanics(models.Model):
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
-    gameMechanismID = models.ForeignKey(GameMechanics, verbose_name="the related game mechanism", db_index=True) 
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    gameMechanismID = models.ForeignKey(GameMechanics, on_delete=models.CASCADE, verbose_name="the related game mechanism", db_index=True) 
     def __str__(self):              
         return str(self.courseID)+","+str(self.gameMechanismID)
 
@@ -250,7 +227,7 @@ class CourseMechanics(models.Model):
 # '''
 class CourseConfigParams(models.Model):
     ccpID = models.AutoField(primary_key=True)
-    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
 
     gamificationUsed = models.BooleanField(default=False) 
     courseAvailable = models.BooleanField(default=True)               ## Is the course open or closed?
