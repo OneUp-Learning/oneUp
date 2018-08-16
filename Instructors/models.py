@@ -225,7 +225,7 @@ class ChallengesQuestions(models.Model):
 class ActivitiesCategory(models.Model):
     categoryID = models.AutoField(primary_key=True)
     name = models.CharField(max_length=75)
-    courseID = models.ForeignKey(Courses, verbose_name = "Course Name", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     def __str__(self):
         return str(self.categoryID)+":"+self.name
 
