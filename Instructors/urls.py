@@ -111,13 +111,7 @@ urlpatterns = [
     url(r'^deleteStudent',deleteStudent, name='deleteStudent'),    
     url(r'^deleteUser',deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),    
-<<<<<<< HEAD
-    url(r'^exportChallenges',exportChallenges,name='exportChallenges'),  
-    url(r'^exportGradebook', exportGradebook, name='exportGradebook'),  
-    url(r'^forms/EssayForm', essayForm, name='newEssayForm'),
-=======
     url(r'^exportChallenges',exportChallenges,name='exportChallenges'),    
->>>>>>> master
     url(r'^forms/MatchingForm',matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm', multipleAnswersForm, name='multipleAnswersForm'),
     url(r'^forms/MultipleChoiceForm', multipleChoiceForm, name='multipleChoiceForm'),
