@@ -9,6 +9,7 @@ from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
+from Students.views.utils import studentInitialContextDict
 
 from django.contrib.auth.decorators import login_required
 
@@ -25,70 +26,70 @@ def CoursePerformance(request):
         optionSelected = 0
         
         
-        studentId = context_dict['student']          
-                   
-        # Activity and Challenges
-        assignmentID = []
-        assignmentName = []
-        assignmentType = []
-        assignmentTime = []
-        assignmentGrade = []
-        assignmentGradeTotal = []
-        assignmentFeedback = []
-        isExpired = []
+    student = context_dict['student']          
+                
+    # Activity and Challenges
+    assignmentID = []
+    assignmentName = []
+    assignmentType = []
+    assignmentTime = []
+    assignmentGrade = []
+    assignmentGradeTotal = []
+    assignmentFeedback = []
+    isExpired = []
+
+    # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
+    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    currentTime = utcDate()
     
-        # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
-        currentTime = utcDate()
-        
-        stud_activities = StudentActivities.objects.filter(studentID=studentId, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))
-        for sa in stud_activities:
-            assignmentID.append(sa.studentActivityID)
-            a = Activities.objects.get(pk=sa.activityID.activityID)
-            assignmentName.append(a.activityName)
-            assignmentType.append("Activity")
-            assignmentTime.append(sa.timestamp)
-            assignmentGrade.append(sa.getScoreWithBonus())
-            assignmentGradeTotal.append(a.points)
-            assignmentFeedback.append(sa.instructorFeedback)
-            if currentTime > sa.activityID.endTimestamp:
+    stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))
+    for sa in stud_activities:
+        assignmentID.append(sa.studentActivityID)
+        a = Activities.objects.get(pk=sa.activityID.activityID)
+        assignmentName.append(a.activityName)
+        assignmentType.append("Activity")
+        assignmentTime.append(sa.timestamp)
+        assignmentGrade.append(sa.getScoreWithBonus())
+        assignmentGradeTotal.append(a.points)
+        assignmentFeedback.append(sa.instructorFeedback)
+        if currentTime > sa.activityID.endTimestamp:
+            isExpired.append(True)
+        else:
+            isExpired.append(False)
+
+            
+    
+    # Select if startTime is less than(__lt) currentTime (AH)
+    challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+    
+    for challenge in challenges:  
+        if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse, challengeID = challenge) :
+            
+            sChallenges = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse, challengeID = challenge)
+            latestSC = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
+
+            gradeID  = []
+                    
+            for sc in sChallenges:
+                gradeID.append(sc.getScoreWithBonus())
+
+            gMax = (max(gradeID))
+            
+            assignmentID.append(challenge.challengeID)
+            assignmentName.append(challenge.challengeName)
+            assignmentType.append("Challenge")
+            assignmentTime.append(latestSC.endTimestamp)
+            assignmentGrade.append(gMax)
+            assignmentGradeTotal.append(latestSC.challengeID.getCombinedScore())
+            assignmentFeedback.append("")
+            if currentTime > challenge.endTimestamp:
                 isExpired.append(True)
             else:
                 isExpired.append(False)
-                
-                
-      
-        # Select if startTime is less than(__lt) currentTime (AH)
-        challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
-        
-        for challenge in challenges:  
-            if StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge) :
-                
-                sChallenges = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge)
-                latestSC = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
-
-                gradeID  = []
-                       
-                for sc in sChallenges:
-                    gradeID.append(sc.getScoreWithBonus())
-
-                gMax = (max(gradeID))
-                
-                assignmentID.append(challenge.challengeID)
-                assignmentName.append(challenge.challengeName)
-                assignmentType.append("Challenge")
-                assignmentTime.append(latestSC.endTimestamp)
-                assignmentGrade.append(gMax)
-                assignmentGradeTotal.append(latestSC.challengeID.getCombinedScore())
-                assignmentFeedback.append("")
-                if currentTime > challenge.endTimestamp:
-                    isExpired.append(True)
-                else:
-                    isExpired.append(False)
-        
-             
-        # The range part is the index numbers.
-        context_dict['challenge_range'] = zip(range(1,len(assignmentID)+1),assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback,isExpired)
-        context_dict['challenge_range'] = reversed(sorted(context_dict['challenge_range'], key = lambda t: t[4]))
+    
+            
+    # The range part is the index numbers.
+    context_dict['challenge_range'] = zip(range(1,len(assignmentID)+1),assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback, isExpired)
+    context_dict['challenge_range'] = reversed(sorted(context_dict['challenge_range'], key = lambda t: t[4]))
     
     return render(request,'Students/CoursePerformance.html', context_dict)

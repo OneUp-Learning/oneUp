@@ -12,14 +12,10 @@ from Badges.conditions_util import setUpContextDictForConditions, databaseCondit
 from Instructors.views.utils import initialContextDict
 from Badges.systemVariables import logger
 
-from Badges.enums import VirtualCurrencyAwardFrequency
-
 @login_required
 def EditVirtualCurrencyRule(request):
  
     context_dict,currentCourse = initialContextDict(request);
-
-    context_dict = setUpContextDictForConditions(context_dict,currentCourse)
         
     if request.GET:
 
@@ -31,28 +27,22 @@ def EditVirtualCurrencyRule(request):
             if isRuleCustom == True:
                 rule = VirtualCurrencyCustomRuleInfo.objects.get(vcRuleID=vcRuleID, courseID=currentCourse)
                 context_dict["vcAmount"] = rule.vcRuleAmount
+                
+                context_dict = setUpContextDictForConditions(context_dict,currentCourse,None)
+
             else:
                 rule = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcRuleID, courseID=currentCourse)
                 
-                condition = rule.ruleID.conditionID
-                print("Condition: "+str(condition))
-                     
-                context_dict['initialCond'] = databaseConditionToJSONString(condition)
-                
-                context_dict['awardFrequency']=rule.awardFrequency
-    
-                context_dict['awardFrequencyOptions']=VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency
-
+                context_dict = setUpContextDictForConditions(context_dict,currentCourse,rule.ruleID)
+                    
                 if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
                     context_dict["vcAmount"] = ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue
                 else:
                     context_dict["vcAmount"] = 0
                     
-                condition = rule.ruleID.conditionID
-                print("Condition: "+str(condition))
-                     
-                context_dict['initialCond'] = databaseConditionToJSONString(condition)
             context_dict['isRuleCustom'] = isRuleCustom
+        else:
+            context_dict = setUpContextDictForConditions(context_dict,currentCourse,None)
 
     # The range part is the index numbers.
     context_dict['vcRule'] = rule

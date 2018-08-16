@@ -1,84 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">
-      
-          {% include 'scripts.html' %} 
-     
-      <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/static/css/ie6.css" type="text/css" media="screen">
-      <script type="text/javascript" src="/static/js/ie_png.js"></script>
-      <script type="text/javascript">ie_png.fix('.png, footer, header nav ul li a, .nav-bg, .list li img');</script>
-      <![endif]-->
-      <!--[if lt IE 9]><script type="text/javascript" src="/static/js/html5.js"></script><![endif]-->
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
+      {% include 'scripts.html' %} 
    </head>
    <body>
-
-     <div>
-
-          {% include 'heading.html' %}
-  
-         <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-            <div class="12u">
-               <h1>Course Milestones</h1>
-               </div></div>
-           	<div class="row">
-            <div class="12u">
-                  <!-- INSERTED DYNAMIC TABLE -->
-                  <a href="/oneUp/instructors/createMilestone"><input type="button" value="Add New Milestone"></a>
-                  <br /><br />
-                  <table class="bg">
-                     <tr>
-                        <th>Milestone Name</th>
-                        <th>Points</th>
-                        <th>Description</th>
-                        <th> </th>
-                     </tr>
-                     {% for i,milestone_ID,milestone_Name,description, points in milestone_range %}
-                     <tr>
-                        <div id="challenges{{i}}">
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Course Milestones</h3>
+            </div>
+         </div>
+         <div class="row right-align">
+            <div class="col s12 m8 offset-m2">
+               <a class="waves-effect waves-light btn" href="/oneUp/instructors/createMilestone"><i class="material-icons left">add_circle</i>Add New Milestone</a>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card-panel">
+                  <table>
+                     <thead>
+                        <tr>
+                           <th>Milestone Name</th>
+                           <th>Points</th>
+                           <th>Description</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {% for i,milestone_ID,milestone_Name,description, points in milestone_range %}
+                        <tr>
                            <td>{{milestone_Name}}</td>
                            <td>{{points}}</td>
                            <td>{{description}}</td>
-                           <td align="right"><form action="/oneUp/instructors/deleteMilestone" method="POST">
+                           <td>
+                              <form action="/oneUp/instructors/deleteMilestone" method="POST">
                                  {% csrf_token %} 
-                                 <a href="/oneUp/instructors/createMilestone?milestoneID={{milestone_ID}}"><button type="button">Edit</button></a>                                                                       
-                                 <!--a href="/oneUp/instructors/challengeEditOutlook?challengeID={{activity_ID}}"><button type="button" style="width:56px;">View </button></a  -->                                                                                                                                                                                       
                                  <input type="hidden" name="milestoneID" value="{{milestone_ID}}">
-                                 <input type="submit" name="submit" value="Delete" class="button" onclick="return confirm('Are you sure you want to delete?')">
+                                 <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                 <ul id='dropdown{{i}}' class='dropdown-content'>
+                                    <li><a href="/oneUp/instructors/createMilestone?milestoneID={{milestone_ID}}">Edit</a></li>
+                                    <li class="divider"></li>
+                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                 </ul>
+                                 <div id="modal_delete{{i}}" class="modal">
+                                    <div class="modal-content">
+                                       <h5>Are you sure you want to delete?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                       </button>                                        
+                                    </div>
+                                 </div>
                               </form>
                            </td>
-                        </div>
-                     </tr>
-                     {% endfor %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                           <td class="center-align" colspan="5">No Milestones</td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
                   </table>
-                  <!-- END DYNAMIC TABLE -->
-         </div></div></div></div>
-         <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-      </div>
-   
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

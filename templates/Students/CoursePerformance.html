@@ -1,70 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-         
-         {% include 'scripts.html' %}
-         
-      </head>
-      <body>
-      <div id="page-wrapper">
-
-            {% include 'stheading.html' %}
-
-            <div class="frame"  id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-         	<div class="12u">
-         		 <h1>Course Grades</h1>
-			</div></div>
-<!-- INSERTED DYNAMIC TABLE --> 
-			<div class="row">
-         	<div class="12u">
-                  
-                  <br /><br />
-        
-            <table class="bg">
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Time</th>
-                    <th>Grade</th>
-                    <th>Instructor's Feedback</th>
-                 	<th></th>
-                </tr>
-                
-                {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback, isExpired in challenge_range %}
-                <tr> 
-                    <td>{{assignmentName}}</td>
-                    <td>{{assignmentType}}</td>
-                    <td>{{assignmentTime}}</td>
-                    <td>{{assignmentGrade}} / {{assignmentGradeTotal}}</td>	
-                    <td>{{assignmentFeedback}}</td>
-                    <td align="right">
-                    {% ifequal assignmentType 'Challenge'%}
-                        {% csrf_token %} 
-                        <div>
-                            <a href="/oneUp/students/ChallengesTaken?challengeID={{assignmentID}}&isExpired={{isExpired}}">
-                                <button class="button">View</button>
-                            </a>
-                        </div>															
-                        <input type="hidden" name="challengeID" value="{{assignmentID}}">
-                    {% endifequal %}
-				    </td>
-                </tr>
-                {% endfor %}
-            </table>
-                        
-            <a href="/oneUp/students/StudentCourseHome">
-            <button class="button">Back</button></a> 
-            <br><br>
-       <!-- END DYNAMIC TABLE --> 
-         </div></div></div>
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Course Grades</h3>
             </div>
          </div>
-         <!-- Footer -->
-
-       {% include 'footer.html' %}
-
-     
-      </body>
-   </html>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <div class="card-content">
+                     <table class="responsive-table">
+                        <thead>
+                           <th>Name</th>
+                           <th>Type</th>
+                           <th>Time</th>
+                           <th>Grade</th>
+                           <th>Instructor's Feedback</th>
+                        </thead>
+                        <tbody>
+                           {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback, isExpired in challenge_range %}
+                           <tr>
+                              <td>{{assignmentName}}</td>
+                              <td>{{assignmentType}}</td>
+                              <td>{{assignmentTime}}</td>
+                              <td>{{assignmentGrade}} / {{assignmentGradeTotal}}</td>
+                              <td>{{assignmentFeedback}}</td>
+                              <td class="right-align">
+                                 {% ifequal assignmentType 'Challenge' %}
+                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{assignmentID}}"><i class="material-icons left">visibility</i>View</a>
+                                 {% endifequal %}
+                              </td>
+                           </tr>
+                           {% empty %}
+                           <tr>
+                               <td class="center-align" colspan="6">No challenges available</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+                  <div class="card-action right-align">
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome"><i class="material-icons left">navigate_before</i>Back</a>                         
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

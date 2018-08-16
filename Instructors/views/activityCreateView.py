@@ -2,39 +2,23 @@
 # Created on  03/10/2015
 # DD
 #
-from django.template import RequestContext
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from Instructors.models import Activities, Courses, UploadedActivityFiles
-from Instructors.views.activityListView import createContextForActivityList
-from Instructors.views.utils import utcDate
-from Instructors.constants import unspecified_topic_name, default_time_str
-from time import time
+from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
+from Instructors.views.utils import utcDate, initialContextDict
+from Instructors.constants import default_time_str
 from datetime import datetime
-import filecmp
-from lib2to3.fixer_util import String
-from ckeditor_uploader.views import upload
 
 @login_required
 def activityCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
     string_attributes = ['activityName','description','points','instructorNotes'];
-    
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
+    actCats = ActivitiesCategory.objects.filter(courseID=currentCourse)
+    context_dict['categories'] = actCats
     
     if request.POST:
 
@@ -51,12 +35,13 @@ def activityCreateView(request):
         
         activity.courseID = currentCourse
         
+        if request.POST['actCat']:           
+            activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
+        
         if 'isGraded' in request.POST:
             activity.isGraded = True
-            print("truuuuuuuuuuuuuuuuuuuuue")
         else:
             activity.isGraded = False
-            print("fallllllllllllllllllllse")
             
         if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
@@ -70,22 +55,31 @@ def activityCreateView(request):
             
         #Set the start date and end data to show the activity
         if(request.POST['startTime'] == ""):
-            activity.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+            activity.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
             activity.startTimestamp = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+            activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         else:
             if datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
                 activity.endTimestamp = utcDate(request.POST['endTime'], "%m/%d/%Y %I:%M %p")
             else:
-                activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M:%S %p")
+                activity.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+                
+        if(request.POST['deadLine'] == ""):
+            activity.deadLine = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        else:
+            if datetime.strptime(request.POST['deadLine'], "%m/%d/%Y %I:%M %p"):
+                activity.deadLine = utcDate(request.POST['deadLine'], "%m/%d/%Y %I:%M %p")
+            else:
+                activity.deadLine = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+
             
                   
-       # get the author                            
+        # get the author                            
         if request.user.is_authenticated():
             activity.author = request.user.username
         else:
@@ -103,14 +97,7 @@ def activityCreateView(request):
             
         print('End Files')    
          
-        # prepare context for Activity List      
-        context_dict = createContextForActivityList(request) 
-
-        context_dict["logged_in"]=request.user.is_authenticated()
-        if request.user.is_authenticated():
-            context_dict["username"]=request.user.username
-                
-        return render(request,'Instructors/ActivitiesList.html', context_dict)
+        return redirect('/oneUp/instructors/activitiesList')
 
     ######################################
     # request.GET 
@@ -126,6 +113,10 @@ def activityCreateView(request):
                 context_dict['activityID'] = request.GET['activityID']
                 for attr in string_attributes:
                     context_dict[attr]=getattr(activity,attr)
+                    
+                context_dict['currentCat'] = activity.category
+                context_dict['categories'] = ActivitiesCategory.objects.filter(courseID=currentCourse)
+        
                 
                 context_dict['uploadAttempts']= activity.uploadAttempts
                 context_dict['isFileUpload'] = activity.isFileAllowed
@@ -141,6 +132,15 @@ def activityCreateView(request):
                     context_dict['endTimestamp']=etime
                 else:
                     context_dict['endTimestamp']=""
+                    
+                deadTime = activity.deadLine.strftime("%m/%d/%Y %I:%M %p")
+                print('deadTime ', deadTime)
+                
+                if deadTime != default_time_str: 
+                    context_dict['deadLineTimestamp']= deadTime
+                else:
+                    context_dict['deadLineTimestamp']=""
+                
             
                 print(activity.startTimestamp.strftime("%Y")) 
                 if activity.startTimestamp.strftime("%Y") < ("2900"):
@@ -160,7 +160,7 @@ def activityCreateView(request):
 def makeFilesObjects(instructorID, files, activity):
     
     #Get the old files and see if any of the new files match it
-    oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
+    #oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
 
     for i in range(0, len(files)): #make student files so we can save files to hardrive
         print('Makeing file object' + str(files[i].name))
@@ -176,6 +176,7 @@ def removeFileFromActivty(request):
         print('IS A USER')
     else:
         return HttpResponse(403)
+    
     
     if request.POST:
         if 'fileID' in request.POST:

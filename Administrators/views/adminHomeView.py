@@ -19,12 +19,27 @@ def adminHome(request):
     # Create Administrators List (AH)
     administrators = User.objects.filter(groups__name='Admins')
     print("Admins:", administrators)
-    context_dict['administrators'] = administrators
+    isTeacher = []
+    for user in administrators:
+        if User.objects.filter(username=user.username, groups__name='Teachers').exists():
+            isTeacher.append(True)
+        else:
+            isTeacher.append(False)
+    print(isTeacher)
+    context_dict['administrators'] = list(zip(administrators, isTeacher))
     
     # Create Instructors List (AH)
     instructors = User.objects.filter(groups__name='Teachers')
+    
     print("Instructors:", instructors)
-    context_dict['instructors'] = instructors
+    isAdmin = []
+    for user in instructors:
+        if User.objects.filter(username=user.username, groups__name='Admins').exists():
+            isAdmin.append(True)
+        else:
+            isAdmin.append(False)
+    print(isAdmin)
+    context_dict['instructors'] = list(zip(instructors, isAdmin))
     
     # Create Courses List (AH)
     courses = Courses.objects.all()

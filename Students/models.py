@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -116,8 +116,8 @@ class StudentCourseSkills(models.Model):
 class StudentBadges(models.Model):
     studentBadgeID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
-    badgeID = models.ForeignKey(Badges, verbose_name="the badge", db_index=True)
-    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a badge
+    badgeID = models.ForeignKey(BadgesInfo, verbose_name="the badge", db_index=True)
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a badge
     timestamp = models.DateTimeField(default=datetime.now, blank=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
         return str(self.studentBadgeID) +"," + str(self.studentID) +"," + str(self.badgeID) +"," + str(self.timestamp)
@@ -126,7 +126,7 @@ class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, verbose_name="the student", db_index=True)
     vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, verbose_name="the virtual currency rule", db_index=True)
-    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,assignment,etc. associated with a v
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
 
@@ -192,8 +192,8 @@ class StudentVirtualCurrencyTransactions(models.Model):
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
     objectID = models.IntegerField(verbose_name="index into the appropriate table")
     status = models.CharField(max_length=200, default='Requested')
-    noteForStudent = models.CharField(max_length=300)
-    instructorNote = models.CharField(max_length=300)
+    noteForStudent = models.CharField(max_length=600)
+    instructorNote = models.CharField(max_length=600)
     
     def __str__(self):
         return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote)

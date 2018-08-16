@@ -8,6 +8,7 @@ import os
 from django.shortcuts import render, redirect
 
 from Instructors.models import Courses, UploadedImages 
+from Instructors.views.utils import initialContextDict
 from django.conf.global_settings import MEDIA_URL
 from django.contrib.auth.decorators import login_required
 
@@ -15,17 +16,7 @@ from django.contrib.auth.decorators import login_required
 
 
 def imageUpload(request):
-    context_dict = {}
-    
-    context_dict["logged_in"] = request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"] = request.user.username
-        
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = initialContextDict(request)
         
     if request.POST and len(request.FILES) != 0:        
         imageFile = request.FILES['imagefile']
@@ -41,17 +32,7 @@ def imageUpload(request):
     return redirect('/oneUp/instructors/imageList', context_dict)
     
 def imageDelete(request):
-    context_dict = {}
-    
-    context_dict["logged_in"] = request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"] = request.user.username
-        
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = initialContextDict(request)
         
     if request.POST: 
         if 'imageID' in request.POST:
@@ -64,23 +45,12 @@ def imageDelete(request):
 @login_required
 def imageList(request):
  
-    context_dict = { }
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-    
-    if not 'currentCourseID' in request.session:
-        context_dict['course_Name'] = 'Not Selected'
-        context_dict['course_notselected'] = 'Please select a course'
-    else:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-          
-        image = [] 
-        imageID = []     
-        imageFilePath = []
-        imageDescription = []                
+    context_dict, currentCourse = initialContextDict(request)
+      
+    image = [] 
+    imageID = []     
+    imageFilePath = []
+    imageDescription = []                
 
     images = UploadedImages.objects.filter(imageCreator=request.user)
 

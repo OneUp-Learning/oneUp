@@ -7,15 +7,23 @@ Updated May/10/2017
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-
 from Instructors.views.utils import utcDate
-from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills
+from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
+    ChallengesQuestions
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.event_utils import updateLeaderboard
-from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet
-from Instructors.lupaQuestion import LupaQuestion
+from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet, staticQuestionTypesSet
+from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
+from Instructors.views.dynamicQuestionView import makeLibs
+from Badges.systemVariables import logger
+from Students.views.challengeSetupView import makeSerializableCopyOfDjangoObjectDictionary
+import re
+import math
+from decimal import Decimal
+from pickletools import decimalnl_long
+from sqlparse.utils import indent
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
@@ -149,7 +157,7 @@ def ChallengeResults(request):
                                 question['user_points'] = 0
                             studentAnswerList = [str(userAnswer['answerID'])]
                     elif questionType == QuestionTypes.multipleAnswers:
-                        answerInputName = str(question['index']) + '-ans[]'
+                        answerInputName = str(question['index']) + '-ans'
                         correctAnswers = [x.answerID for x in CorrectAnswers.objects.filter(questionID=question['question']['questionID'])]
                         correctAnswerIds = [x.answerID for x in correctAnswers]
                         question['correct_answer_texts'] = [x.answerText for x in correctAnswers]
@@ -244,9 +252,177 @@ def ChallengeResults(request):
                         else:
                             studentAnswerList = []
                             question['user_points'] = 0
+                    elif questionType == QuestionTypes.parsons:
+                            #get the answer for the question
+                            answer = Answers.objects.filter(questionID=question['question']['questionID'])
+                            print("Model Solution: ", answer[0].answerText)
+                            answer = answer[0].answerText
+                            
+                            #get the language information and indentation status
+                            #remove the first line that keeps the data
+                            searchString = re.search(r'Language:([^;]+);Indentation:([^;]+);', answer)
+                            answer =  re.sub("##", "", answer)
+                            indentation = searchString.group(2)
+                            print("Indentation", indentation)
+                            answer = answer.replace(searchString.group(0), "")
+                            
+                            answer =  re.sub("^ *\\t", "  ", answer)
+            
+                            #tokenizer characters ☃ and ¬
+                            answer = re.sub("\n", "\n¬☃", answer)
+                            answer = re.sub("^[ ]+?", "☃", answer)
+                            
+                            #we turn the student solution into a list
+                            answer = [x.strip() for x in answer.split('¬')]
+                            
+                            #get how many spces there are in the first line
+                            print("answer[0]",answer[0])
+                            answer[0] = re.sub("☃"," ",answer[0])
+                            leadingSpacesCount = len(answer[0]) - len(answer[0].lstrip(' '))
+                            print("leading spaces", leadingSpacesCount)
+                            
+                            #give each string the new line
+                            tabedanswer = []
+                            lengthOfModelSolution = len(answer)
+                            for index, line in enumerate(answer):
+                                line = re.sub("☃", "", line)
+                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
+                                if index < len(answer)- 1:
+                                    line = line +"\n"
+                                tabedanswer.append(line)
+                            
+                            answer = ""
+                            answer = answer.join(tabedanswer)
+                            
+                            
+                            
+                            question['model_solution'] = answer
+                            
+                            #get all the data from the webpage
+                            #data is accessed through the index
+                            lineIndent = request.POST[str(question['index'])+'lineIndent']
+                            studentSolution = request.POST[str(question['index'])+'studentSol']
+                            wrongPositionLineNumberbers = request.POST[str(question['index'])+'lineNo']
+                            errorDescriptions = request.POST[str(question['index'])+'errorDescription']
+                            correctLineCount = request.POST[str(question['index'])+'correctLineCount']
+                            feedBackButtonClickCount= request.POST[str(question['index'])+'feedBackButtonClickCount']
+                            
+                            correctLineCount = int(correctLineCount)
+                            feedBackButtonClickCount = int(feedBackButtonClickCount)
+                            print("Correct Line Count", correctLineCount)
+                            print("WrongPositionLineNumbers", wrongPositionLineNumberbers)
+                            
+                            studentAnswerList = []
+                            
+                            #if the student ddnt fill in any solution, zero points
+                            if(studentSolution == ""):
+                                question['user_points'] = 0
+                                studentAnswerList.append(studentSolution) 
+                            else:
+                                ##regex student solution, putting ¬ where the 
+                                ##lines of code are broken into sections
+                                ##§ is how we know which lines are which
+                                #¬ is used join, to create a list
+                                studentSolution = re.sub(r"&lt;", "<", studentSolution)
+                                studentSolution = re.sub(r"&gt;", ">", studentSolution)
+                                studentSolution = re.sub(r"&quot;", "\"", studentSolution)
+                                studentSolution = re.sub(r";,", ";§¬", studentSolution)
+                                studentSolution = re.sub(r";,", ";§¬", studentSolution)
+                                studentSolution = re.sub(r"},", "}§¬", studentSolution)
+                                studentSolution = re.sub(r"{,", "{§¬", studentSolution)
+                                studentSolution = re.sub(r"\),", ")§¬", studentSolution)
+                                studentSolution = re.sub(r"\(,", "(§¬", studentSolution)
+                                
+                                #we turn the student solution into a list
+                                studentSolution = [x.strip() for x in studentSolution.split('¬')]
+                                studentSolutionLineCount = len(studentSolution)
+                                
+                                #make a list of lines, split on , so we know how much to indent where
+                                lineIndent = [x.strip() for x in lineIndent.split(',')]
+                                print("LineIndent", lineIndent);
+                               
+                                #perform the spacing for each line
+                                IndentedStudentSolution = [];
+                                for index, line in enumerate(studentSolution):
+                                    line = '    ' * int(lineIndent[index]) + line
+                                    IndentedStudentSolution.append(line)
+                                    print("Index: ", index)
+                                studentSolution = IndentedStudentSolution
+                                
+                                studentSolution = ""
+                                studentSolution = studentSolution.join(IndentedStudentSolution)
+                                print("Student Solution", studentSolution);
+                                
+                                #apply newlines so the code will be formattedproperly
+                                studentSolution = re.sub(r"§", "\n", studentSolution)
+                                studentSolution = re.sub(r"§", "\n", studentSolution)
+                                studentSolution = re.sub(r"§", "\n", studentSolution)
+                                studentSolution = re.sub(r"§", "\n", studentSolution) 
+                                
+                                question['student_solution'] = studentSolution    
+                                
+                                ##if no errors happened give them full credit
+                                if(errorDescriptions == ""):
+                                    
+                                    print("Errors:", studentAnswerList)
+                                    question['user_points'] = question['total_points']
+                                
+                                    studentAnswerList.append(studentSolution) 
+                                ##otherwise grade on our criteria    
+                                else:
+                                    
+                                    print("Student Solution Indented: ", studentSolution)
+                                    studentAnswerList.append(studentSolution)
+                                    
+                                    
+                                   
+                                    indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(studentSolution)))
+                                    
+                                    ##grading section
+                                    studentGrade = question['total_points']
+                                    maxPoints = question['total_points']
+                                    penalties = Decimal(0.0)
+                                    
+                                     ##if there was an indentation problem
+                                    if indentation == "true":
+                                        if indentationErrorCount > 0:
+                                            ##we multiply by 1/2 because each wrong is half of 1/n
+                                            penalties += (indentationErrorCount/correctLineCount)*(1/2)
+                                    
+                                    ##too few
+                                    if(correctLineCount > studentSolutionLineCount):
+                                        penalties += Decimal((correctLineCount - studentSolutionLineCount)*(1/correctLineCount))
+                                        print("Penalties too few!: ", penalties)
+                                        ##too many
+                                    if(correctLineCount < studentSolutionLineCount):
+                                        penalties += Decimal((studentSolutionLineCount - correctLineCount)*(1/correctLineCount))
+                                        print("Penalties too many!: ", penalties)
                                         
+                                    if wrongPositionLineNumberbers:
+                                        wrongPositionLineNumberbers = [x.strip() for x in wrongPositionLineNumberbers.split(',')]
+                                        print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
+                                        penalties += Decimal(len(wrongPositionLineNumberbers)/correctLineCount)
+                                        print("WrongLine Number penalties: ", penalties) 
+                                    if feedBackButtonClickCount > 0:
+                                        maxPoints /=  feedBackButtonClickCount * 2
+                                        print("Feedback button click count:" , feedBackButtonClickCount)
+                                        print("Penalties after feedback:", penalties)
+                                    
+                                    #max poitns is all the maximum student points, and we subtract the penalties    
+                                    studentGrade = maxPoints - maxPoints * penalties
+                                    if studentGrade < 0:
+                                            studentGrade = 0;
+                                    
+                                    print("Student grade:", studentGrade)
+                                    print("Total Points:", question['total_points'])
+                                    if(float(studentGrade) == float(question['total_points'])):
+                                        question['user_points'] = question['total_points']
+                                        print("Correct answer full points", question['user_points'])
+                                    else:
+                                        question['user_points'] = round(float(studentGrade),2)
+                            print("Final User Grade: ", question['user_points'])
                     totalStudentScore += question['user_points']
-                    totalPossibleScore += question['total_points']
+                    totalPossibleScore += question['total_points']            
                     if 'seed' in question:
                         seed = question['seed']
                     else:
@@ -282,6 +458,229 @@ def ChallengeResults(request):
                 print("studentChallege ", studentChallenge)
                 print("studentId ", studentId)
                 
+        if request.GET:      
+            
+            if 'warmUp' in request.GET:
+                context_dict['warmUp'] = True
+            if 'all' in request.GET:
+                context_dict['all'] = True
+            if 'classAchievements' in request.GET:
+                context_dict['classAchievements'] = True
+            if 'view' in request.GET:
+                context_dict['view'] = True
+                
+            if 'studentChallengeID' in request.GET:
+                studentChallengeId = request.GET['studentChallengeID']
+                context_dict['studentChallengeID'] = request.GET['studentChallengeID']
+            else:
+                student = context_dict['student']
+                challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+                studentChallengeId = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challenge.challengeID)
+                
+                        
+            challengeId = request.GET['challengeID']
+            challenge = Challenges.objects.get(pk=int(challengeId))
+            context_dict['challengeName'] = challenge.challengeName
+            context_dict['challengeID'] = request.GET['challengeID']
+                        
+            # Get all the questions for this challenge (AH)
+            questionObjects= []
+            challengeQuestions = []
+            challenge_questions = StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallengeId)
+            for challenge_question in challenge_questions:
+                questionObjects.append(challenge_question.questionID)
+                challengeQuestions.append(challenge_question)
+            
+            # Find the total student score for this challenge attemmpt (AH)
+            studentChallenges = StudentChallenges.objects.filter( courseID=currentCourse,challengeID=challengeId, studentChallengeID = studentChallengeId )
+            for Schallenges in studentChallenges:
+                if int(Schallenges.challengeID.challengeID) == int(challengeId):
+                    totalStudentScore = Schallenges.testScore
+            context_dict['total_user_points'] = totalStudentScore
+                    
+            # Next few lines of code is very similar to POST (AH)
+            questions = []
+            for i, challenge_question in zip(range(0,len(questionObjects)), challengeQuestions):
+                q = questionObjects[i]
+
+                questSessionDict = {}
+                questSessionDict['id']=q.questionID
+                questSessionDict['index']=i+1
+                questSessionDict['total_points']=challenge_questions.get(questionID=q).questionTotal
+                
+                questdict = makeSerializableCopyOfDjangoObjectDictionary(q)
+                    
+                questdict.pop("_state",None)
+                
+                studentAnswers = StudentChallengeAnswers.objects.filter(studentChallengeQuestionID=challenge_question) 
+                
+                if q.type in staticQuestionTypesSet:
+                    answers = [makeSerializableCopyOfDjangoObjectDictionary(ans) for ans in Answers.objects.filter(questionID = q.questionID)]
+                    
+                    answer_range = range(1,len(answers)+1)
+                    questdict['answers_with_count'] = list(zip(answer_range,answers)) # answer_range is used for matching answers on the front-end (AH)
+                    questSessionDict['answers'] = answers
+                    questSessionDict['answers_with_count'] = questdict['answers_with_count']
+                    
+                    staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
+                    questdict['questionText']=staticQuestion.questionText
+                    
+                    #getting the matching questions of the challenge from database
+                    matchlist = []
+                    for match in MatchingAnswers.objects.filter(questionID=q.questionID):
+                        matchdict = makeSerializableCopyOfDjangoObjectDictionary(match)
+                        matchdict['answers_count'] = list(range(1,len(answers)+1))
+                        matchdict['answerText'] = match.answerID.answerText
+                        matchlist.append(matchdict)
+                        
+                    questSessionDict['matches']=[]
+                    j = 1
+                    for matchdict in matchlist:
+                        questSessionDict['matches'].append(matchdict)
+                        matchdict['current_pos'] = j
+                        j = j + 1
+
+                    questdict['matches']=matchlist
+                    
+                    if q.type == QuestionTypes.multipleChoice:
+                        correctAnswer = CorrectAnswers.objects.get(questionID=q.questionID).answerID
+                        correctAnswerText = correctAnswer.answerText
+                        questdict['correct_answer_text'] = correctAnswerText
+                        studentAnswerValue = studentAnswers[0].studentAnswer
+                        userSelection = 0
+                        userAnswer = {}
+                        # Loop through to find the student answer (AH)
+                        for index, answer in questdict['answers_with_count']:
+                            if answer['answerID'] == int(studentAnswerValue):
+                                userSelection = index
+                                userAnswer = answer
+                                break
+                        # answerNumber is used to match answer choices on the front-end (AH)
+                        questSessionDict['user_answer'] = {'answerNumber':userSelection,'answerText':userAnswer['answerText']}
+                        
+                        # Check to see if the student answer matches the correct answer (AH)
+                        if int(studentAnswerValue) == correctAnswer.answerID:
+                            questSessionDict['user_points'] = questSessionDict['total_points']
+                        else:
+                            questSessionDict['user_points'] = 0
+                    elif q.type == QuestionTypes.multipleAnswers:
+                        correctAnswers = [x.answerID for x in CorrectAnswers.objects.filter(questionID=q.questionID)]
+                        correctAnswerIds = [x.answerID for x in correctAnswers]
+                        questSessionDict['correct_answer_texts'] = [x.answerText for x in correctAnswers]
+                        
+                        # Finding the student answers (AH)
+                        userAnswerIndexes = []
+                        userAnswers = []
+                        for stuAns in studentAnswers:
+                            for index, answer in questdict['answers_with_count']:
+                                if answer['answerID'] == int(stuAns.studentAnswer):
+                                    userAnswerIndexes.append(index)
+                                    userAnswers.append((index, answer))
+                                    break
+                        
+                        userAnswerIndexes = [int(x) for x in userAnswerIndexes]   
+                        userAnswerIds = [x['answerID'] for i, x in userAnswers]
+                        
+                        numAnswersIncorrect = len([x for x in userAnswerIds if x not in correctAnswerIds])                            
+                        numAnswersMissing = len([x for x in correctAnswerIds if x not in userAnswerIds])
+                            
+                        valuePerAnswer = questSessionDict['total_points']/len(questSessionDict['answers'])
+                        
+                        questSessionDict['user_points'] = questSessionDict['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
+                        questSessionDict['user_answers'] = [{'answerNumber':i,'answerText':x['answerText']} for i, x in userAnswers]
+                    elif q.type == QuestionTypes.trueFalse:
+                        correctAnswerValue = CorrectAnswers.objects.get(questionID=q.questionID).answerID.answerText == "true"
+                        
+                        questSessionDict['correctAnswerText'] = str(correctAnswerValue)
+                        
+                        studentAnswerValue = studentAnswers[0].studentAnswer
+                        questSessionDict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':studentAnswerValue}
+                        if studentAnswerValue == str(correctAnswerValue):
+                            questSessionDict['user_points'] = questSessionDict['total_points']
+                        else:
+                            questSessionDict['user_points'] = 0
+                    elif q.type == QuestionTypes.matching:
+                        userAnswers = []
+                        userScore = []
+                        matches = questdict['matches']
+                        valuePerAnswer = questSessionDict['total_points']/len(questSessionDict['answers'])
+                        userScore = 0
+                        for match in matches:
+                            if match is not None:
+                                # Find correct answer
+                                correctAnswerIndex = 0
+                                for index,answer in questdict['answers_with_count']:
+                                    if answer['answerID'] == match['answerID_id']:
+                                        correctAnswerIndex = index
+                                        break
+                                    
+                                # Find student answer that matches with the current match object (AH)
+                                for stuAns in studentAnswers:
+                                    userAnswerIndex = 0
+                                    matchAnswer = stuAns.studentAnswer
+                                    parts = matchAnswer.split(':')
+                                
+                                    for index,answer in questdict['answers_with_count']:
+                                        if answer['answerID'] == int(parts[1]) and match['matchingAnswerID'] == int(parts[0]):
+                                            userAnswerIndex = index
+                                            break
+                                    if userAnswerIndex != 0:
+                                        break
+                                userAnswers.append({'answerNumber':userAnswerIndex,'answerText':MatchingAnswers.objects.get(pk=parts[0]).answerID.answerText})
+                                if correctAnswerIndex == userAnswerIndex:
+                                    userScore = userScore + valuePerAnswer
+
+                        questSessionDict['user_points'] = userScore
+                        questSessionDict['user_answers'] = userAnswers
+                        
+                elif q.type == QuestionTypes.parsons:
+                    ##grade the parson problem
+                        userAnswers = []
+                        userScore = []
+                        parson = questdict['parsons']
+
+                        questSessionDict['user_points'] = 57
+                        questSessionDict['user_answers'] = userAnswers
+                elif q.type in dynamicQuestionTypesSet:
+                    dynamicQuestion = DynamicQuestions.objects.get(pk=q.questionID)
+                    if not lupa_available:
+                        questdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+                    else:
+                        if dynamicQuestion.numParts == 1:
+                            seed = challenge_question.seed
+                            questSessionDict['seed'] = seed
+                            
+                            code = [CodeSegment.new(CodeSegment.raw_lua,dynamicQuestion.code,"")]
+                            numParts = dynamicQuestion.numParts
+                            libs = makeLibs(dynamicQuestion)
+                            lupaQuest = LupaQuestion(code, libs, seed, "dummy_uniqid", numParts)
+    
+                            questdict['questionText'] = lupaQuest.getQuestionPart(1)
+                            answers = {}
+                            for ans in studentAnswers:
+                                answerParts = ans.studentAnswer.split(":") 
+                                answers[answerParts[0]] = answerParts[1]
+                            print(studentAnswers)
+                            questSessionDict['user_answers'] = answers
+                            questSessionDict['evaluations'] = lupaQuest.answerQuestionPart(1, answers)
+                            if questSessionDict['evaluations']:
+                                questSessionDict['user_points'] = sum([eval['value'] for eval in questSessionDict['evaluations']])
+                            else:
+                                questSessionDict['user_points'] = 0
+                        else:
+                            questSessionDict['user_points'] = 0
+                    
+                   
+                questSessionDict['question']=questdict
+                questions.append(questSessionDict)
+                
+                
+            
+            context_dict["questionCount"] = len(questions)
+            context_dict['total_possible_points'] = sum([question['total_points'] for question in questions])
+
+            # The sort on the next line should be unnecessary, but better safe than sorry
+            context_dict['questions'] = sorted(questions,key=lambda q:q['index'])
             
     return render(request,'Students/ChallengeResults.html', context_dict)
 

@@ -1,121 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-
-        {% include 'scripts.html' %}
-
-	</head>
+      {% include 'scripts.html' %}
+   </head>
    <body>
-   
-        {% include 'stheading.html' %}  
-          
-		<div class="frame" id="grad" align="center">
-        <div class="container">
-        <div class="row">
-        <div class="12u">
-        	<h1>Your Course Shop</h1>
-		</div>
-		</div>
-        <div class="row">
-        <div class="12u"> 
-            <form id="store" name="store" action="#" onsubmit="return updatePrices()" method="post">
-            <table class="bg">
-        		<tr>
-        			<th>Name</th>
-        			<th>Description</th>
-        			<th>Price</th>
-        			<th>Quantity</th>
- 					<th>Cost</th>
-        			<th>For Assignment</th>
-        			<th></th>
-        		</tr>
-        		{% for buyOpt in buyOptions %}
-        		<tr> 
-        			<td style="vertical-align:middle">{{buyOpt.displayName}}</td>
-        			<td>{{buyOpt.description}}</td>
-        			<td>{{buyOpt.cost}}</td>
-        			<td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0" {% if buyOpt.challenges == None %}readonly{% endif %}></td>		
-        			<td><div id="priceFor{{buyOpt.id}}">0</div></td>
-        			<td>
-        				{% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
-        				<select name="challengeFor{{buyOpt.name}}">
-        				{% for id, name in buyOpt.challenges %}
-        					<option value="{{id}}">{{name}}</option>
-        				{% endfor %}
-        				</select>
-        				{% endif %}
-        			</td>
-        			<td style="vertical-align:middle; text-align:right">					
-        				{% csrf_token %}
-        			</td>
-        		</tr>
-        		{% endfor %}
-        		<tr style="border-top: 1px solid #000;">
-        			<td></td>
-        			<td><b>Your current balance: &nbsp;&nbsp; {{studentVirtualCurrency}}</b></td><td></td>
-        			<td><b>Total:</b></td>
-        			<td><b><div id="total">0</div></b></td>
-        			<td></td>
-        			<td></td>
-        			
-       			</tr>
-       			
-        	</table>
-        	
-        	<input type="submit" value="Buy" > &nbsp;&nbsp;
-<!--         	<a href="/oneUp/students/EarnedVCTransactions"><button class="button" type="button">View Earned Currency</button></a>
-        	<a href="/oneUp/students/Transactions"><button class="button" type="button">View Transactions</button></a>
- -->        	
- 			<a href="/oneUp/students/StudentCourseHome"><button class="button special" type="button">Cancel</button></a>
-        	<p></p>
-        	</form>
-        	
-        	{% if not sufficientStudentCurrency %}
-        	
-        	
-        	 {% endif %} 
-        <!-- END DYNAMIC TABLE -->
-		</div>
-        </div>
-        </div>
-      	</div>
-      <!-- Footer -->
-      
-        {% include 'footer.html' %}
-              <script>
-            	var prices=[{% for buyOpt in buyOptions2 %}{{buyOpt.cost}},{%endfor%}]
-            	function updatePrices() {
-            		var len = prices.length;
-            		var total = 0;
-            		for (var i = 0; i<len; i++) {
-            			if (document.getElementById("buyOptionQuantity"+i).value.length > 3){
-            				document.getElementById("buyOptionQuantity"+i).value = document.getElementById("buyOptionQuantity"+i).value.slice(0, 3);
-            			}
-            			var quantity = document.getElementById("buyOptionQuantity"+i).value;
-            			var price = quantity*prices[i];
-            			total += price;
-            			document.getElementById("priceFor"+i).innerHTML = price;
-            		
-            			
-            		}
-            		document.getElementById("total").innerHTML = total;
-            		checkTotal();
-            	}
-            	function checkTotal(){
-            		var total = document.getElementById("total").innerHTML;
-            		if ( {{studentVirtualCurrency}} - parseInt(total) < 0 ) {
-         		       alert("You do not have enough money ");
-         		       return false;
-     		        }
-            	}
-            	for (var i = 0; i<{{numBuyOptions}}; i++) {
-            		document.getElementById("buyOptionQuantity"+i).addEventListener('change',updatePrices);
-            	}
-            	
+      {% include 'stheading.html' %}  
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Your Course Shop</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <div class="card-content">
+                     <!-- <form id="store" name="store" action="#" onsubmit="return updatePrices()" method="post"> -->
+                     <form id="store" name="store" action="#" onsubmit="return checkTotal()" method="post">
+                        {% csrf_token %}					
+                        <table class="responsive-table">
+                           <thead>
+                              <tr>
+                                 <th>Name</th>
+                                 <th>Description</th>
+                                 <th>Price</th>
+                                 <th>Quantity</th>
+                                 <th>For Assignment</th>
+                                 <th>Remaining</th>
+                                 <th>Cost</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {% for buyOpt in buyOptions %}
+                              <tr>
+                                 <td>{{buyOpt.displayName}}</td>
+                                 <td>{{buyOpt.description}}</td>
+                                 <td>{{buyOpt.cost}}</td>
+                                 <td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0" {% if buyOpt.challenges == None %}readonly{% endif %}></td>
+                                 <td>
+                                    {% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
+                                    <select name="challengeFor{{buyOpt.name}}">
+                                    {% for id, name in buyOpt.challenges %}
+                                        <option value="{{id}}">{{name}}</option>
+                                    {% endfor %}
+                                    </select>
+                                    {% endif %}
+                                </td>
+                                 <td class="center-align">{% if buyOpt.remaining != 0 %} {{buyOpt.remaining}} {% endif %}</td>
+                                 <td id="priceFor{{buyOpt.id}}">0</td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td class="center-align" colspan="6">No Items in Shop</td>
+                              </tr>
+                              {% endfor %}
+                        </table>
+                        <table>
+                           <thead>
+                              <tr>
+                              <th>Your current balance: {{studentVirtualCurrency}}</th>
+                              <th class="secondary-content"><span id="total" class="black-text">Total: 0</span></th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td></td>
+                                 <td class="secondary-content"><button class="btn waves-effect waves-light" type="submit" name="buy" value="Buy">Buy
+                                    <i class="material-icons left">attach_money</i>
+                                    </button>
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </form>
+                  </div>
+                  <div class="card-action right-align">
+                    <div class="row right-align">
+                        <div class="col s12">
+                            <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome"><i class="material-icons left">navigate_before</i>Back</a>
+                        </div>
+                    </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+      <script>
+         var prices=[{% for buyOpt in buyOptions %}{{buyOpt.cost}},{%endfor%}];
+         var indexes = [{% for buyOpt in buyOptions %} {{buyOpt.id}}, {% endfor %}];
+         function updatePrices() {
+         	var len = prices.length;
+         	var total = 0;
+         	for (var i = 0; i < len; i++) {
+         		if (document.getElementById("buyOptionQuantity"+indexes[i]).value.length > 3){
+         			document.getElementById("buyOptionQuantity"+indexes[i]).value = document.getElementById("buyOptionQuantity"+indexes[i]).value.slice(0, 3);
+         		}
+         		var quantity = document.getElementById("buyOptionQuantity"+indexes[i]).value;
+         		var price = quantity*prices[i];
+         		total += price;
+         		document.getElementById("priceFor"+indexes[i]).innerHTML = price;
+         		
+         	}
+         	document.getElementById("total").innerHTML =  "Total: " +  total;
+         	//GGM checkTotal();
+         }
+         function checkTotal(){
+         	var total = document.getElementById("total").innerHTML;
+         	total = total.slice(7);	//GGM get number out of string
+         	if ( {{studentVirtualCurrency}} - parseInt(total) <= 0 ) {	
+              alert("You do not have enough money ");
+              return false;
+           	}
+         	if(parseInt(total) == 0){	//GGM added case to check if zero total
+         		alert("You have not bought anything.")
+         		return false;
+         	}
+         	return true;	//GGM
+         }
          
-  
-     
-
-            </script>
+         for (var i=0; i < {{numBuyOptions}}; i++) {
+         	document.getElementById("buyOptionQuantity"+indexes[i]).addEventListener('change',updatePrices);
+         }
+      </script>
    </body>
 </html>

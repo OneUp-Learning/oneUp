@@ -1,154 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-
-   {% include 'scripts.html' %}
-   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-   <script>
-      $(document).ready(function(){
-        $('.add_more').click(function(e){
-          e.preventDefault();
-          $(fileupload1).after('<span style="padding-left: 10px;"> <input id="fileupload1" name="actFile" type="file" multiple required/>');
-          document.getElementById('fileupload1').id = 'fileupload'
+   <head>
+      {% include 'scripts.html' %}
+      <script>
+        $(document).ready(function(){
+          $('.add_more').click(function(e){
+            e.preventDefault();
+            $(fileupload1).after('<div id="fileupload1" class="file-field input-field">\n'+
+            '<div class="btn">\n'+'<span>File</span>\n'+'<input name="actFile" type="file" multiple required/>\n'+'</div>\n'+
+            '<div class="file-path-wrapper">\n'+'<input class="file-path validate" type="text" placeholder="Upload one or mote files"/>\n'+'</div>\n'+'</div>')
+            document.getElementById('fileupload1').id = 'fileupload'
+          });
         });
-      });
-    </script>
- 
-<body>
-	<div id="page-wrapper">
-
-       {% if is_teacher %}    
-              {% include 'heading.html' %}
-       {% else %}
-              {% include 'stheading.html' %}
-       {% endif %}
- 
-		<div class="frame" id="grad" align="center">
-        <div class="container">
-        <div class="row">
-        <div class="12u">
-        	<h1>{{activity.activityID.activityName}}</h1>
-		</div>
-		</div>
-		<br />
-		
-		<div align="center">	
-		
-		
-			
-		<form id="uploadbanner" action="/oneUp/students/ActivityDescription" enctype="multipart/form-data" method="POST" >
-			{% csrf_token %}   			
-   			<table class="bg" style="margin-bottom: .750em; width: 90%; align: center;">
-               <tr>
-                  <td><b>Activity Description: </b></td>
-               </tr>
-               <tr>
-                  <td>
-                  	<span style="padding-left: 10px;">  {{activity.activityID.description}}</span>
-                  </td>
-               </tr>  
-               <tr>
-                  <td><b>Activity Due Date: </b></td>
-               </tr>
-               <tr>
-                  <td>
-                  	<span style="padding-left: 10px;">  {{activity.activityID.endTimestamp}}</span>
-                  </td>
-               </tr> 
-               <tr>
-                  <td><b>Activity Points: </b></td>
-               </tr>
-                  <td>
-                  	<span style="padding-left: 10px;">  Total points: {{activity.activityID.points}} </span>
-                  	<br/> <span style="padding-left: 10px;">   Your Score: {{activity.activityScore}} </span>
-                  	
-                  </td>
-               </tr> 
-               <tr>
-                  <td><b>Instructors Notes: </b></td> 			
-   			   </tr>
-   			   <tr>
-                  <td><span style="padding-left: 10px;">  {{activity.instructorFeedback}} </td> 			
-   			   </tr>
-   			   
-   			   
-   			   {% if instructorHasFiles == True%}
-   			   <tr>
-   			   		<td><b>Activity Files</b></td>
-   			   </tr>
-   			   
-   			   	  
-   			   
-	   			   <tr>
-	   			     <td>
-	   			     {% for instructorFile in instructorActFiles %}
-	   			     	<span style="padding-left: 10px;">
-	   			     	<a href='../../media/Instructors/instructorActivityFiles/{{instructorFile}}' download>{{instructorFile}}</a>
-	   			     {% endfor %}
-	   			     </td>
-	   			   
-	   			   </tr>
-	   			   
-   			   
-   			   {% endif %}
-   			   
-   			   
-                <tr>    
-                {% if canUpload == True%}
-	                  <td><b>Upload {{activity.activityID.activityName}}:</b></td> 			
-	   			   </tr>
-	               {%if isFile == False %}
-	               <tr>
-	                  <td>
-	                     <input id="fileupload1" name="actFile" type="file" multiple required/>   
-	                  </td>
-	               </tr>
-	               </table>
-	            
-	            
-	            <button type='button' class="add_more">Add More Files</button>   
-	   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
-	   			<input align="center" type="submit" value="Upload" id="Upload"/> 
-	   			 <a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
-	               
-	               {% else %}
-	               
-	               <tr>
-	                  <td>
-	                      <span style="padding-left: 10px;">  File 
-	               {% for file in fileName %}       
-	                      {{file}},
-	               {% endfor %}
-	                       has already been uploaded. </span>
-	                  </td>
-	               </tr> 
-	               </table>
-	   			<input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">
-				<a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
-	               {% endif %}
-	            
-	            {% else %}
-	           		</table>
-	           		<a href="/oneUp/students/ActivityList"><input type="button" class="special" value="Back"></a> 
-	            
-              	{% endif %}
-        </form>
-		</div>
-                                         
-  
-		<br />
-            <br><br>
-        <!-- END DYNAMIC TABLE -->
-        </form>
-		</div>
-        </div>
-        </div>
-      	</div>
-	<!-- Footer -->
-
-     {% include 'footer.html' %}
-
-	</div>`
-	
-</body>
+      </script>
+   </head>
+   <body>
+      {% if is_teacher %}    
+      {% include 'heading.html' %}
+      {% else %}
+      {% include 'stheading.html' %}
+      {% endif %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>{{activity.activityID.activityName}}</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card">
+                  <form id="uploadbanner" action="/oneUp/students/ActivityDescription" enctype="multipart/form-data" method="POST" >
+                     <div class="card-content">
+                        <div class="section">
+                           <h4>Activity Description</h4>
+                           <blockquote>{{activity.activityID.description}}</blockquote>
+                        </div>
+                        <div class="section">
+                            <h4>Activity Due Date</h4>
+                            <blockquote>{{activity.activityID.deadLine}}</blockquote>
+                        </div>
+                        <div class="section">
+                           <h4>Activity Points</h4>
+                           <blockquote>Your Score: {{activity.activityScore}} <br />
+                           Total points: {{activity.activityID.points}}</blockquote>
+                        </div>
+                        <div class="section">
+                           <h4>Instructor Note</h4>
+                           <blockquote>{{activity.instructorFeedback}}</blockquote>
+                        </div>
+                        {% if instructorHasFiles == True%}
+                        <div class="section">
+                          <h4>Activity Files</h4>
+                          <div class="collection">
+                          {% for instructorFile in instructorActFiles %}
+                         
+                          <a class="collection-item tooltipped" href="../../media/Instructors/instructorActivityFiles/{{instructorFile}}" data-position="left" data-delay="50" data-tooltip="Download" download>
+                          	<i class="material-icons secondary-content">file_download</i>{{instructorFile}}
+                          </a>
+                           
+                          {% endfor %}
+                          </div>
+                        </div>
+   			                {% endif %}
+                        	   
+                          <div class="row">
+                           	<h4>Latest Files Uploaded</h4>
+                          	<div class="col s12">
+	                            <blockquote>
+		                            {% for file in fileName %}
+		                            <div class="row">
+		                                <a class="oldFiles" href="#!" >{{file}}</a>
+		                            </div>
+		                            {% empty %}
+		                            	<a class="oldFiles" href="#!" >No files uploaded</a>
+		                            {% endfor %}
+	                            </blockquote>
+                          	</div>
+                        </div>
+                        
+                        {% if canUpload == True %}
+                        <div class="section">
+                           <h4>Upload File</h4>
+                           {% csrf_token %}   
+                           
+                           	
+                           <input type="hidden" name="studentActivity" value="{{activity.studentActivityID}}">	
+                           <div id="fileupload1" class="file-field input-field">
+                              <div class="btn">
+                                 <span>File</span>
+                                 <input name="actFile" type="file" multiple required>
+                              </div>
+                              <div class="file-path-wrapper">
+                                 <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="card-action">
+                        <div class="row right-align">
+                            <a class="btn waves-effect waves-light add_more">Add More Files</a>   
+                            <button class="btn waves-effect waves-light" type="submit" name="Upload">Upload
+                            <i class="material-icons right">send</i>
+                            </button>
+                            <a class="btn waves-effect waves-light" href="/oneUp/students/ActivityList"><i class="material-icons left">navigate_before</i>Back</a> 										  						
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card-action">
+                       <div class="row right-align">
+                       	<a class="btn waves-effect waves-light" href="/oneUp/students/ActivityList"><i class="material-icons left">navigate_before</i>Back</a> 		
+                       	</div>								  						
+                    </div>
+                    
+                   {% endif %}
+                  </form>
+               </div>
+            </div>
+         </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
 </html>

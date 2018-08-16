@@ -1,22 +1,18 @@
-from Badges.models import Rules, ActionArguments, Conditions, Badges,\
-    ActivitySet, VirtualCurrencyRuleInfo
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, ActivitySet, TopicSet, Activities, ConditionSet, Dates
+from Badges.models import Rules, ActionArguments, Conditions, BadgesInfo, Badges,\
+    ActivitySet, VirtualCurrencyRuleInfo, RuleEvents
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
-    VirtualCurrencyAwardFrequency
-from Students.models import StudentBadges, StudentEventLog, Courses, StudentChallenges, Student,\
+    AwardFrequency
+from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
     StudentRegisteredCourses, StudentVirtualCurrency
-from datetime import datetime
-from django.utils import timezone
-from builtins import getattr
-import decimal
-from Instructors.models import Challenges, CoursesTopics
-from Badges.systemVariables import calculate_system_variable
+from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
+    ChallengesTopics
+from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
 from Instructors.views.utils import utcDate
 from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
-from django.contrib.auth.models import User
-from Instructors.models import InstructorRegisteredCourses, Instructors
-
+from Instructors.models import InstructorRegisteredCourses, Topics
+import json
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -58,7 +54,9 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.timePassed):
         eventEntry.objectType = ObjectTypes.challenge #consider doing something similar for specific questions also
         eventEntry.objectID = objectId
-   
+    if(eventID == Event.adjustment):
+        eventEntry.objectType = ObjectTypes.challenge
+        eventEntry.objectID = objectId
     #if(eventID == Event.valueChanged):
         
     if(eventID == Event.startQuestion):
@@ -150,41 +148,69 @@ def register_event(eventID, request, student=None, objectId=None):
     eventEntry.save()
     
     # check for rules which are triggered by this event
-    potentials = Rules.objects.filter(courseID=courseId).filter(ruleevents__event=eventID)
-    print(potentials)
-    for potential in potentials:
-        condition = potential.conditionID
-
-        ## KI: All of this vcAwardType stuff is hacky.  When there's enough time to make sure everything is done right
-        ## we should replace it with a more complete interface for having certain conditions specific to 
-        ## the object which the event creates.
-        vcRule = VirtualCurrencyRuleInfo.objects.filter(ruleID=potential.ruleID).first()
-        if vcRule:
-            vcAwardType = vcRule.awardFrequency
+    matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventID)
+    matchingRuleWithContext = dict()
+    for ruleEvent in matchingRuleEvents:
+        if ruleEvent.rule in matchingRuleWithContext:
+            matchingRuleWithContext[ruleEvent.rule] = matchingRuleWithContext[ruleEvent.rule] or ruleEvent.inGlobalContext
         else:
-            vcAwardType = VirtualCurrencyAwardFrequency.justOnce
-        if check_condition(condition,courseId,student,eventEntry.objectType,objectId,vcAwardType):
-            print('after check_condition')
-            fire_action(potential,courseId,student,eventEntry)
+            matchingRuleWithContext[ruleEvent.rule] = ruleEvent.inGlobalContext
+        
+    for potential in matchingRuleWithContext:
+        condition = potential.conditionID
+        
+        # First we check if there is an associated award frequency.  If there isn't, we can just check the 
+        # rule as is.  That's the simple case because there's no local context.
+        if potential.awardFrequency == AwardFrequency.justOnce:
+            if check_condition(condition, courseId, student, eventEntry.objectType, eventEntry.objectID):
+                fire_action(potential,courseId,student,eventEntry.objectID)
+        else:            
+            objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
+            objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
+            
+            if matchingRuleWithContext[potential]:
+                # The match is for a variable in a global context (either a global variable or a variable inside a for clause
+                objIDList = objSpecifier.getMatchingObjectIds(courseId)
+                objType = objSpecifier.objectType
+                result = True
+            else:
+                # The match is for a variable in a local context (a variable from the context of a specifier)
+                result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
+
+            if result:
+                for objID in objIDList:
+                    if check_condition(condition,courseId,student,objType,objID):
+                        fire_action(potential,courseId,student,objID)
             
     return eventEntry
 
 # This method checks whether or not a given condition is true
 # in the appropriate context.
-def check_condition(condition, course, student, objectType, objectID, vcAwardType):
+def check_condition(condition, course, student, objectType, objectID):
     return check_condition_helper(condition, course, student, 
-                                  objectType,objectID, {}, vcAwardType)
+                                  objectType,objectID, {})
+
+def operandSetTypeToObjectType(operandType):
+    operandSetTypeToOjectTypeMap = {
+        OperandTypes.challengeSet: ObjectTypes.challenge,
+        OperandTypes.activitySet: ObjectTypes.activity,
+        OperandTypes.topicSet: ObjectTypes.topic,
+        OperandTypes.activtiyCategorySet:ObjectTypes.activityCategory,
+    }
+    if operandType in operandSetTypeToOjectTypeMap:
+        return operandSetTypeToOjectTypeMap[operandType]
+    return 0 # Error
 
 # Helper function for the above.  Includes a hash table so that
 # it can avoid loops. (Circular Conditions)
-def check_condition_helper(condition, course, student, objectType, objectID, ht, vcAwardType):
+def check_condition_helper(condition, course, student, objectType, objectID, ht):
     if condition in ht:
         return False
     
     print("Evaluating condition:"+str(condition))
     
     # Fetch operands
-    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition,vcAwardType)
+    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition)
     
     print("Operand 1 = "+str(operand1))
 
@@ -193,17 +219,9 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'NOT'):
         return not operand1
     
-    def operandSetTypeToObjectType(operandType):
-        if (operandType == OperandTypes.challengeSet):
-            return ObjectTypes.challenge
-        if (operandType == OperandTypes.activitySet):
-            return ObjectTypes.activity
-        if (operandType == OperandTypes.topicSet):
-            return ObjectTypes.topic
-        return 0 # Error
     def forallforany_helper(forall):
-        for object in operand1:
-            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), object, ht, condition,vcAwardType):
+        for obj in operand1:
+            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), obj, ht, condition):
                 if not forall:
                     return True
             else:
@@ -215,23 +233,23 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'FOR_ANY'):
         # Here is where we special-case things.  If we're in a virtual currency rule, we treat "for any" as just referring to this particular object.
         # If this particular object is not on the list, we just return false.
-        print("Checking VC workaround in Events!! vcAwardType: "+str(vcAwardType)+"  operandType: "+str(condition.operand1Type))
-        if vcAwardType == VirtualCurrencyAwardFrequency.justOnce or VirtualCurrencyAwardFrequency.virtualCurrencyAwardFrequency[vcAwardType]['objectType']!=operandSetTypeToObjectType(condition.operand1Type):
-            print("Workaround INACTIVE")
-            return forallforany_helper(False)
-        else:
-            print("Workaround ACTIVE")
-            if int(objectID) not in operand1:
-                print("Object: "+str(objectID)+" not in set "+str(operand1))
-                print(str(type(objectID))+" "+str(type(operand1)))
-                return False
-            else:
-                print("Object in set")
-                return get_operand_value(condition.operand2Type, condition.operand2Value, course, student, objectType, objectID, ht, condition,vcAwardType)
+#         print("Checking VC workaround in Events!! vcAwardType: "+str(vcAwardType)+"  operandType: "+str(condition.operand1Type))
+#         if vcAwardType == AwardFrequency.justOnce or AwardFrequency.awardFrequency[vcAwardType]['objectType']!=operandSetTypeToObjectType(condition.operand1Type):
+#             print("Workaround INACTIVE")
+        return forallforany_helper(False)
+#         else:
+#             print("Workaround ACTIVE")
+#             if int(objectID) not in operand1:
+#                 print("Object: "+str(objectID)+" not in set "+str(operand1))
+#                 print(str(type(objectID))+" "+str(type(operand1)))
+#                 return False
+#             else:
+#                 print("Object in set")
+#                 return get_operand_value(condition.operand2Type, condition.operand2Value, course, student, objectType, objectID, ht, condition,vcAwardType)
     
     def andor_helper(isAnd):
         for cond in operand1:
-            if check_condition_helper(cond, course, student, objectType, objectID, ht, vcAwardType):
+            if check_condition_helper(cond, course, student, objectType, objectID, ht):
                 if not isAnd:
                     return True
             else:
@@ -244,7 +262,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if (condition.operation == 'OR') and (condition.operand1Type == OperandTypes.conditionSet):
         return andor_helper(True)
 
-    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition, vcAwardType)
+    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
     print("Operand 2 = "+str(operand2))
     
     if (condition.operation == '='):
@@ -266,14 +284,14 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
 
 # Takes and operand type and value and finds the appropriate
 # value for it.
-def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition, vcAwardType):
+def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition):
     if (operandType == OperandTypes.immediateInteger):
         return operandValue
     elif (operandType == OperandTypes.boolean):
         return operandValue == 1
     elif (operandType == OperandTypes.condition):
         inner_condition = Conditions.objects.get(pk=operandValue)
-        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht,vcAwardType)
+        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht)
     elif (operandType == OperandTypes.floatConstant):
         return FloatConstants.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.stringConstant):
@@ -300,12 +318,18 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
             return [ct.topicID.topicID for ct in CoursesTopics.objects.filter(courseID = course)]
         else:
             return [topicset.topic.topicID for topicset in TopicSet.objects.filter(condition=condition)]
+    elif (operandType == OperandTypes.activtiyCategorySet):
+        if operandValue == 0:
+            # All activetyCategory in this course
+            return [actCat.categoryID for actCat in ActivitiesCategory.objects.filter(courseID = course)]
+        else:
+            return [actCatSet.category.categoryID for actCatSet in ActivityCategorySet.objects.filter(condition=condition)]
     elif (operandType == OperandTypes.conditionSet):
         return [condset.conditionInSet for condset in ConditionSet.objects.filter(parentCondition=condition)]
     else:
         return "Bad operand type value"
 
-def fire_action(rule,courseID,studentID,eventEntry):
+def fire_action(rule,courseID,studentID,objID):
     print("In fire_action ")
     actionID = rule.actionID
     args = ActionArguments.objects.filter(ruleID = rule)
@@ -314,21 +338,29 @@ def fire_action(rule,courseID,studentID,eventEntry):
         badgeIdArg = args.get(sequenceNumber=1)
         badgeIdString = badgeIdArg.argumentValue
         badgeId = int(badgeIdString)
-        badge = Badges.objects.get(pk=badgeId)
+        ##badge = Badges.objects.get(pk=badgeId)
+        print("This is the badge we pick ", badgeId)
+        badge = BadgesInfo.objects.get(pk=badgeId)
         
         #Make sure the student hasn't already been awarded this badge
         #If the student has already received this badge, they will not be awarded again
         studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
+        if rule.awardFrequency != AwardFrequency.justOnce:
+            studentBadges = studentBadges.filter(objectID = objID)
         for existingBadge in studentBadges:
-            if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
-                print("Student " + str(studentID) + " has already earned badge " + str(badge))
-                return
+            badgeInfo = Badges.objects.get(badgeID = existingBadge.badgeID.badgeID)
+            if(not badgeInfo.manual):
+                autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
+                if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
+                #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
+                    print("Student " + str(studentID) + " has already earned badge " + str(badge))
+                    return
             
         #If the badge has not already been earned, then award it    
         studentBadge = StudentBadges()
         studentBadge.studentID = studentID
         studentBadge.badgeID = badge
-        studentBadge.objectID = eventEntry.objectID
+        studentBadge.objectID = objID
         studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
         studentBadge.save()
         print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
@@ -358,20 +390,19 @@ def fire_action(rule,courseID,studentID,eventEntry):
         vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
         
         if actionID == Action.increaseVirtualCurrency:
-            if vcRule.awardFrequency == VirtualCurrencyAwardFrequency.justOnce:
-                searchObject = 0
-            else:
-                searchObject = eventEntry.objectID
-            if StudentVirtualCurrency.objects.filter(studentID = student.studentID, objectID = searchObject, vcRuleID = vcRule).exists():
+            previousAwards = StudentVirtualCurrency.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
+            if rule.awardFrequency != AwardFrequency.justOnce:
+                previousAwards = previousAwards.filter(objectID = objID)
+            if previousAwards.exists():
                 # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
                 return
                         
         studVCRec = StudentVirtualCurrency()
         studVCRec.studentID = student.studentID
-        if vcRule.awardFrequency == VirtualCurrencyAwardFrequency.justOnce:
+        if rule.awardFrequency == AwardFrequency.justOnce:
             studVCRec.objectID = 0
         else:
-            studVCRec.objectID = eventEntry.objectID
+            studVCRec.objectID = objID
         studVCRec.vcRuleID = vcRule
         studVCRec.save()
         
@@ -394,3 +425,189 @@ def fire_action(rule,courseID,studentID,eventEntry):
                 print('this purchase did not go through')
             student.save()
             return
+
+chosenObjectSpecifierFields = {
+    ObjectTypes.activity:{
+        'id': {
+            'fun': lambda act: [act.activityID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.activity,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist)
+        },
+        'category': {
+            'fun': lambda act: [act.category.categoryID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.activityCategory,
+            'addfilter': lambda objs,catlist: objs.filter(category__pk__in=catlist),
+        },
+    },
+    ObjectTypes.challenge:{
+        'id': {
+            'fun': lambda chall: [chall.challengeID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.challenge,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
+        },
+        'topic': {
+            'fun': lambda chall: [ct.topicID.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.topic,
+            'addfilter': lambda objs,topiclist: objs.filter(topicID__pk__in=topiclist),
+        },
+        'type': {
+            'fun': lambda chall: ['serious' if chall.isGraded else 'warmup'],
+            'selectionType': 'list',
+            'list': ['serious','warmup'],
+            'addfilter': lambda objs, valueList: objs.filter(isGraded=(valueList[0]=='serious')),
+        },
+    },
+    ObjectTypes.topic:{
+        'id': {
+            'fun': lambda topic: [topic.topicID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.topic,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
+        },
+    },
+    ObjectTypes.activityCategory:{
+        'id': {
+            'fun': lambda ac: [ac.categoryID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.activityCategory,
+            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
+        },
+    },
+    ObjectTypes.none:{},
+}
+
+objectTypesToObjects = {
+    ObjectTypes.challenge: Challenges,
+    ObjectTypes.activity: Activities,
+    ObjectTypes.topic: Topics,
+    ObjectTypes.activityCategory: ActivitiesCategory,
+}
+
+objectTypesToGetAllFromCourse = {
+    ObjectTypes.challenge: lambda course: Challenges.objects.filter(courseID = course),
+    ObjectTypes.activity: lambda course: Activities.objects.filter(courseID = course),
+    ObjectTypes.topic: lambda course: CoursesTopics.objects.filter(courseID = course).select_related("topicID"),
+    ObjectTypes.activityCategory: lambda course: ActivitiesCategory.objects.filter(courseID = course),
+}
+    
+def objectTypeFromObject(obj):
+    if type(obj) is Challenges:
+        return ObjectTypes.challenge
+    if type(obj) is Activities:
+        return ObjectTypes.activity
+    if type(obj) is Topics:
+        return ObjectTypes.topic
+    if type(obj) is ActivitiesCategory:
+        return ObjectTypes.activityCategory
+
+relatedObjects = {
+    ObjectTypes.activityCategory: {
+        ObjectTypes.activity: (lambda act: [act.category.categoryID]),
+    },
+    ObjectTypes.topic: {
+        ObjectTypes.challenge: (lambda chall: [ct.topicID.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)])
+    },
+}                 
+
+class ChosenObjectSpecifier:
+    # str is expected to be a JSON serialized list of specifier rules.
+    # Each specifier rule is a dictionary with the following entries:
+    #     'specifier' -- should contain a specifier from the allowed list (the list can be found in the
+    #                    chosenObjectSpecifierFields above).  Note that which type of object is in use changes
+    #                    which specifiers are allowed.
+    #     'op' -- which operation is being used to specify.  Currently only 'in' is allowed in this field
+    #     'value' -- a value whose type depends on the specifier and the op.  For 'id' and 'in', it should be
+    #                a list of primary key values of the appropriate type
+    #                For ('topic' or 'category') and 'in', it should be a list of the primary key values
+    #                of those types
+    #                For 'type' it should be either ['serious'] or ['warmup']  (both is allowed, but is normally
+    #                expressed by omitting a rule altogether since no narrowing is needed).
+    def __init__(self,objectType = ObjectTypes.none, serialized_value = "[]"):
+        self.rules = json.loads(serialized_value)
+        self.objectType = objectType
+        valid = True
+        print("unserialized self.rules:" +str(self.rules))
+        for rule in self.rules:
+            if 'specifier' not in rule:
+                valid = False
+                print("no specifier")
+                break
+            if rule['specifier'] not in chosenObjectSpecifierFields[objectType]:
+                valid = False
+                print("bad specifier")
+                break
+            if 'op' not in rule:
+                valid = False
+                print("no op")
+                break
+            if rule['op'] != 'in': # More options will be allowed in the future
+                valid = False
+                print("bad op")
+                break
+            if 'value' not in rule:
+                valid = False
+                print("no value")
+                break
+            if type(rule['value']) is not list: # Note that we don't validate the contents of the list so things could still go wrong there
+                valid = False
+                print("value not list instead is "+str(type(rule['value'])))
+                break
+        
+        if not valid:
+            self.rules = []
+    
+    def __str__(self):
+        return json.dumps(self.rules)
+    
+    def checkAgainst(self,objType,objID):    
+        if self.objectType == ObjectTypes.none:
+            return True, objType, [objID]
+        if objType == ObjectTypes.none:
+            return True, objType, [objID]
+        obj = objectTypeToObjectClass[objType].objects.get(pk=objID)
+        if self.objectType == objType:
+
+            for rule in self.rules:
+                if rule['op'] == 'in':
+                    objThingieList = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['fun'](obj)
+                    found = False
+                    print("rule[value] = "+str(rule['value']))
+                    print("objThingieList:"+str(objThingieList))
+                    for objThingie in objThingieList:   # We check all the thingies against the list.  For many cases
+                                                        # this is just one thing, actually, like id, but for topic
+                                                        # challenges can be in more than one topic.  If any of its
+                                                        # topics meet the specifier, that's sufficient.
+                        if str(objThingie) in rule['value']:
+                            found = True
+                            break
+                    if found == False: # If any one specifier is not met, we're done, otherwise, we continue
+                        return False, objType, []
+            return True, objType, [objID]
+        if self.objectType in relatedObjects:
+            if objType in relatedObjects[self.objectType]:
+                relatedObjs = relatedObjects[self.objectType][objType](obj)
+                outputList = []
+                for relObjID in relatedObjs:
+                    if self.checkAgainst(objType,relObjID):
+                        outputList.append(relObjID)
+                if outputList:
+                    return True, self.objectType, outputList
+                else:
+                    return False, objType, []
+                
+        # This last case should not actually happen due to how the code which calls this code is structured,
+        # but we're going to default to success since that's less likely to cause problems in the event that
+        # something went wrong.  It may sometimes cause problems, but that's likely preferable to always
+        # giving an error right now.
+        return True, objType, [objID]
+    
+    def getMatchingObjectIds(self,course):
+        objects = objectTypesToGetAllFromCourse[self.objectType](course)
+        for rule in self.rules:
+            if rule['op'] == 'in':
+                objects = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['addfilter'](objects,rule['value'])
+        return [obj.pk for obj in objects]

@@ -131,6 +131,7 @@ class Event():
     getCreditForOneTestProblem = 859 #
     getSurpriseAward = 860 # Get a small surprise award from the instructor   
     
+    adjustment = 861
 #    seeClassAverage = 861 # See aggregated class information
 #    chooseLabPartner = 862 # Choose a lab partner
 #    chooseProjectPartner = 863 # Choose a project partner
@@ -309,6 +310,12 @@ class Event():
                         'displayName':'Get Surprise Award',
                         'description':'Get a small surprise award from the instructor.'
                         },
+              adjustment: {
+                        'index': adjustment,
+                        'name':'adjustment',
+                        'displayName':'adjustment',
+                        'description':'when teacher adjust a student challenge grade.'
+                        },
 #               seeClassAverage: {
 #                         'index': seeClassAverage,
 #                         'name':'seeClassAverage',
@@ -367,6 +374,7 @@ class ObjectTypes():
     none=1305 # Not an actual object, but used to indicate that a variable only makes sense in the global context
                 # rather than the context of any particular object in circumstances where that is needed.
     topic=1306
+    activityCategory=1307
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
@@ -374,6 +382,7 @@ class ObjectTypes():
         form:"form",
         none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
         topic:"topic",
+        activityCategory:"activityCategory",
     }
 
 class OperandTypes():
@@ -389,6 +398,7 @@ class OperandTypes():
     dateConstant=1010
     noOperand=1011
     topicSet=1012
+    activtiyCategorySet = 1013
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',
@@ -396,6 +406,7 @@ class OperandTypes():
         stringConstant:'stringConstant',
         systemVariable:'systemVariable',
         challengeSet:'challengeSet',
+        activtiyCategorySet:'activtiyCategorySet',
         activitySet:'activitySet',
         conditionSet:'conditionSet',
         boolean:'boolean',
@@ -409,6 +420,7 @@ class QuestionTypes():
     essay=5
     dynamic=6
     templatedynamic=7
+    parsons=8
     questionTypes={
         multipleChoice:{
            'index': multipleChoice,
@@ -445,41 +457,52 @@ class QuestionTypes():
            'name':'templatedynamic',
            'displayName':'Dynamic Questions (Template)',
         },  
+        parsons:{
+           'index': parsons,
+           'name':'parsons',
+           'displayName':'Parsons Problems',
+        },                     
     }   
 
-staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.essay }
+staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.parsons, QuestionTypes.essay }
 dynamicQuestionTypesSet = { QuestionTypes.dynamic, QuestionTypes.templatedynamic }
 
-class VirtualCurrencyAwardFrequency:
+class AwardFrequency:
     justOnce = 1100
     perChallenge = 1101
     perActivity = 1102
     # PerTopic, daily, and weekly are commented out because the work to support it right now is too much for the available time.
     # It's not bad in general, but removed until I have time to do the work -KI
-    #perTopic = 1103
+    perTopic = 1103
     #daily = 1104
     #weekly = 1105
-    virtualCurrencyAwardFrequency = {
+    perActivityCategory = 1106
+    awardFrequency = {
         justOnce:{
             'index': justOnce,
             'name': 'Just Once Ever',
             'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
         },
         perChallenge:{
             'index': perChallenge,
             'name': 'Once per Challenge',
             'objectType': ObjectTypes.challenge,
+            'objectTypeName': 'challenge',
 
         },
         perActivity:{
             'index': perActivity,
             'name': 'Once per Activity',
             'objectType': ObjectTypes.activity,
+            'objectTypeName': 'activity',
         },
-        #perTopic:{
-        #    'index': perTopic,
-        #    'name': 'Once per Topic',
-        #},
+        perTopic:{
+            'index': perTopic,
+            'name': 'Once per Topic',
+            'objectType': ObjectTypes.topic,
+            'objectTypeName': 'topic',
+        },
         #daily:{
         #    'index': daily,
         #    'name': 'Once per day',
@@ -488,5 +511,11 @@ class VirtualCurrencyAwardFrequency:
         #    'index': weekly,
         #    'name': 'Once per day',
         #},
+        perActivityCategory:{
+            'index':perActivityCategory,
+            'name': 'Once per Category',
+            'objectType': ObjectTypes.activityCategory,
+            'objectTypeName': 'category',
+        },
     }
             

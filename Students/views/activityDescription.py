@@ -7,6 +7,7 @@ import os
 from django.core.files import File
 from oneUp.settings import MEDIA_ROOT
 from zipfile import ZipFile
+import zipfile
 from django.shortcuts import render, redirect
 from Instructors.models import Activities, UploadedFiles, UploadedActivityFiles
 from Students.models import StudentActivities, Student, StudentFile
@@ -16,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import activityScore
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
+from Instructors.views.utils import utcDate
 #from requests.api import request
 
 @login_required
@@ -33,14 +35,6 @@ def ActivityDetail(request):
             context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
             
-            #Need to add the comparsion for time
-            dueTime = datetime.strptime(str(studentActivities.activityID.endTimestamp.time()).split(".")[0], "%H:%M:%S" )
-            print(dueTime.strftime("%I:%M %p"))
-            currentTime = datetime.strptime(datetime.utcnow().time().strftime("%H:%M:%S"), "%H:%M:%S")
-            print(currentTime.strftime("%I:%M %p"))
-            
-
-
             #If the act has files add them to the webpage
             act = studentActivities.activityID
             instructorActFiles = UploadedActivityFiles.objects.filter(activity=act, latest=True )
@@ -54,65 +48,35 @@ def ActivityDetail(request):
                 context_dict['instructorHasFiles'] = True
             else:
                 context_dict['instructorHasFiles'] = False
-            
-
-   
                 
-                    
-                
-
-
-            
-            #we are allowed to uplad files 
-            if(studentActivities.activityID.isFileAllowed == True and studentActivities.activityID.endTimestamp.date() >= datetime.today().date()):
-               #and studentActivities.activityID.endTimestamp.time() > datetime.now().time()):
-                context_dict['canUpload'] = True
-                
-                
-                #Check and see if the activity file has already been uplaoded
-                studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True )
-                
+            timeCheck = checkTimes(studentActivities.activityID.endTimestamp, studentActivities.activityID.deadLine)
+            studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True)
+       
+            #we are allowed to upload files 
+            if(studentActivities.activityID.isFileAllowed == True and timeCheck):                                 
                 if(studentActivities.graded):
-                    isFile = True
-                    fileName = []
-                    for file in studentFile:
-                        name = os.path.basename(file.file.name)
-                        fileName.append(name)
-                    context_dict['fileName'] = fileName
-                else:
-                    
-                    #if you upload a file and you are out of uploads
-                    if studentFile and studentActivities.activityID.uploadAttempts == studentActivities.numOfUploads:
-                       isFile = True
-                       fileName = []
-                       for file in studentFile:
-                        name = os.path.basename(file.file.name)
-                        fileName.append(name)
-                        context_dict['fileName'] = fileName
-                        
+                    context_dict['canUpload'] = False                         
+                else:    
                     #uploaded a file but can still add more files    
-                    elif studentFile and studentActivities.numOfUploads < studentActivities.activityID.uploadAttempts:
-                        isFile = False
-                        fileName = []
-                        for file in studentFile:
-                            fileName.append(file.fileName)
-                            context_dict['fileName'] = fileName
+                    if studentFile and studentActivities.numOfUploads >= studentActivities.activityID.uploadAttempts:
+                        context_dict['canUpload'] = False                         
                              
-                    #You haven't uploaded a file
+                    #You haven't uploaded enough attempts file
                     else:
-                        isFile = False
-                    
-                    print(isFile)
+                        context_dict['canUpload'] = True
                 
-                context_dict['isFile'] = isFile
+                fileName = getUploadedFileNames(studentFile)   
+                context_dict['fileName'] = fileName 
                 
             else: #not allowed to upload files 
                 context_dict['canUpload'] = False
+                fileName = getUploadedFileNames(studentFile)   
+                context_dict['fileName'] = fileName
 
                 
                   
         
-        if request.POST and len(request.FILES) > 0 : #means that we are tryng to upload some activty 
+        if request.POST and len(request.FILES) > 0 : #means that we are tryng to upload some files 
             #print(len(request.FILES.getlist('actFile')))
             
             files = []
@@ -122,7 +86,8 @@ def ActivityDetail(request):
                     files.append(currentFile)
                           
             studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.POST['studentActivity'])
-            makeFileObjects(studentId, currentCourse, files, studentActivities)
+            fileName = makeFileObjects(studentId, currentCourse, files, studentActivities)
+            
             
             print(studentActivities.numOfUploads)
             studentActivities.numOfUploads = studentActivities.numOfUploads + 1
@@ -137,6 +102,8 @@ def ActivityDetail(request):
         return render(request,'Students/ActivityDescription.html', context_dict)
 
 def makeFileObjects(studentId, currentCourse,files, studentActivities):
+    fileNames = []
+    
     
     oldStudentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities)
     for f in oldStudentFile:
@@ -157,6 +124,7 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         studentFile.save()
         studentFile.fileName = os.path.basename(studentFile.file.name) 
         studentFile.save()
+        fileNames.append(files[0].name)
 
     
     else: #if there is more than one file save them and zip together
@@ -170,6 +138,7 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
             studentFile.activity = studentActivities
             studentFile.save()
             filesForZip.append(studentFile)
+            fileNames.append(files[i].name)
         
         
         #make zip file
@@ -199,7 +168,37 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         #delete oldFile objects
         for object in filesForZip:
             object.delete()
+        
+        for ob in oldStudentFile:
+            ob.delete()
+            
+        return fileNames
+
+def checkTimes(endTimestamp, deadLine):
+    print("End" + str(endTimestamp))
+    print("dead" + str(deadLine))
+    utcNow = utcDate(datetime.now().strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    print("Utc" + str(utcNow))
+    endMax = max((endTimestamp, utcNow))
+    deadMax = max((deadLine, utcNow))
     
-              
-            
-            
+    if(endMax == endMax and deadMax == deadLine):
+        return True
+    else:
+        return False  
+
+def getUploadedFileNames(studentFile):
+    fileName = []
+    for file in studentFile:
+        path = file.file.name
+        name = os.path.basename(path)
+        #if zip file get all the files inside the zip
+        if(zipfile.is_zipfile(path)):
+            print('HERE')
+            with ZipFile(path, 'r') as zip:
+                zipNames = zip.namelist()
+                for z in zipNames:
+                    fileName.append(os.path.basename(z))
+        else:
+            fileName.append(name)
+    return fileName

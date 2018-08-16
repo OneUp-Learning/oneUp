@@ -13,18 +13,6 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def searchQuestions(request):
- 
-#     context_dict = { }
-#     context_dict["logged_in"]=request.user.is_authenticated()
-#     if request.user.is_authenticated():
-#         context_dict["username"]=request.user.username
-#         
-#     # check if course was selected
-#     if 'currentCourseID' in request.session:
-#         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-#         context_dict['course_Name'] = currentCourse.courseName
-#     else:
-#         context_dict['course_Name'] = 'Not Selected'
 
     context_dict, currentCourse = initialContextDict(request);  
     

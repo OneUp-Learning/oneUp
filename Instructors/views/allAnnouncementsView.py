@@ -5,11 +5,10 @@ Modified 09/27/2016
 
 @author: Dillon Perry
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from Instructors.models import Announcements, Instructors, Courses
-from Instructors.views.utils import utcDate
+from Instructors.models import Announcements
+from Instructors.views.utils import utcDate, initialContextDict
 from datetime import datetime
 
 
@@ -42,18 +41,7 @@ def createContextForAnnouncementList(currentCourse, context_dict):
 @login_required
 def allAnnouncements(request):
 
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict = createContextForAnnouncementList(currentCourse, context_dict)
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
+    context_dict, currentCourse = initialContextDict(request)
 
     return render(request,'Instructors/Announcements.html', context_dict)
 

@@ -13,7 +13,7 @@ from Instructors.views.utils import initialContextDict
 from Badges.enums import QuestionTypes
 
 from django.contrib.auth.decorators import login_required
-
+import json
 
 @login_required
 def searchResults(request):
@@ -47,8 +47,8 @@ def searchResults(request):
   
         # get the list of all checked problem tags
         if request.POST['tags']:
-            qTags = request.POST['tags']   
-            selectedTags = [x.strip() for x in qTags.split(',')]
+            tags = json.loads(request.POST['tags'])
+            selectedTags = [tag['tag'] for tag in tags]
 
         #q_object_topic = []             
         q_object_type = [] 
@@ -164,4 +164,3 @@ def searchResults(request):
             return render(request,'Instructors/ChallengeReuseQuestions.html', context_dict)
         else:
             return render(request,'Instructors/QuestionsList.html', context_dict)
-

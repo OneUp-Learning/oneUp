@@ -4,18 +4,21 @@ Last Updated Sep 14, 2017
 
 '''
 from django.shortcuts import render
-from Instructors.models import Courses, Challenges
+from Instructors.models import Challenges
 from Instructors.models import Skills, CoursesSkills, Activities
 from Badges.models import CourseConfigParams
 from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses,StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
+from Instructors.views.utils import initialContextDict
 
 from datetime import datetime
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 
 import inspect
+import logging
+logger = logging.getLogger(__name__)
 
 def lineno():
     """Returns the current line number in our program."""
@@ -127,6 +130,7 @@ def courseLeaderboard(currentCourse, context_dict):
                 
             if len(ccparamsList) > 0:
                 ccparams = ccparamsList[0] 
+                context_dict["gamificationUsed"] = ccparams.gamificationUsed
                 context_dict["badgesUsed"]=ccparams.badgesUsed
                 context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
                 context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
@@ -141,6 +145,7 @@ def courseLeaderboard(currentCourse, context_dict):
             badgeName=[]
             badgeImage = []
             avatarImage =[]
+            studentUser = []
             N = 7
             
             date_N_days_ago = datetime.now() - timedelta(days=N)
@@ -152,6 +157,7 @@ def courseLeaderboard(currentCourse, context_dict):
             #Displaying the list of challenges from database
             badges = StudentBadges.objects.all().order_by('-timestamp')
            
+            print(badges)
             for badge in badges:
                 if badge.studentID in students:
                     studentBadgeID.append(badge.studentBadgeID)
@@ -182,6 +188,7 @@ def courseLeaderboard(currentCourse, context_dict):
                     if skillPoints > 0:
                         st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
                         uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
+                        logger.debug('[GET] ' + str(uSkillInfo))
                         usersInfo.append(uSkillInfo)
                         
                 usersInfo = sorted(usersInfo, key=lambda k: k['skillPoints'], reverse=True)
@@ -193,11 +200,16 @@ def courseLeaderboard(currentCourse, context_dict):
             # XP Points       
             # Dictionary student - XP
             studentXP_dict = {}
+            
             for s in students:
                 sXP = studentXP(s, currentCourse)
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
                 #studentXP_dict[st_crs.avatarImage] = sXP 
                 studentXP_dict[st_crs] = sXP
+                if not (s.user.first_name and s.user.last_name):
+                    studentUser.append(s.user)
+                else:
+                    studentUser.append(s.user.first_name +" " + s.user.last_name)
                 
             # sort the dictionary by its values; the result is a list of pairs (key, value)
             xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)
@@ -211,7 +223,7 @@ def courseLeaderboard(currentCourse, context_dict):
                     avatarImage.append(item[0].avatarImage)
                     xpoints.append(item[1])
             
-            context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints)                 
+            context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints, studentUser)                 
                        
         else:
             context_dict['course_Name'] = 'Not Selected'
@@ -221,20 +233,12 @@ def courseLeaderboard(currentCourse, context_dict):
 @login_required
 def instructorCourseHome(request):
     
-    context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    if request.GET:
-        request.session['currentCourseID'] = request.GET['courseID']
+    context_dict, currentCourse = initialContextDict(request)
             
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
-        context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
-        context_dict['course_Name'] = currentCourse.courseName
-    
+    context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
+    context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
+    context_dict['course_Name'] = currentCourse.courseName
+
     context_dict = courseLeaderboard(currentCourse, context_dict)
         
     return render(request,'Instructors/InstructorCourseHome.html', context_dict)

@@ -1,12 +1,7 @@
-<li data-nf-id="{{ notification.id }}"
-class="nav_login_second_level_items notification list-group-item {{ notification.read|yesno:'read,unread' }} navNotifications">
-    <a href="#">
-	  	<div style="padding-left:5px; padding-right:5px;"">
-    		{{ notification.verb }}
-    		<span class="timesince">{{ notification.created|timesince }} ago</span>
-     	</div> 
-       	<span class="delete-notification delete-box" data-id="{{ notification.id }}" style="position: relative;left: 150px;"> 
-       		<i class="material-icons" style="font-size:18px;color:red;">close</i>
-       	</span>
+<li data-nf-id="{{ notification.id }}" class="collection-item avatar notification list-group-item {{ notification.read|yesno:'read,unread' }} navNotifications">
+    <a class='waves-effect truncate grey-text' href="#!">{{ notification.verb }}
+        <i class="material-icons right delete-notification delete-box" data-id="{{ notification.id }}">clear</i>
+        &nbsp; 
+        <p style="margin-top: 0px;"><span class="timesince left">{{ notification.created|timesince }} ago</span> </p>  
      </a>
 </li>

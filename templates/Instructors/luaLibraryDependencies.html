@@ -24,18 +24,27 @@
 		content: " \00D7";
 	}
 </style>
-
-<tr><td>Add Dependency: <select onchange="selectLibrary(this);this.selectedIndex=0;">
-	<option value="">Choose library</option>
-	{%for lib in luaLibraries%}
-		<option value="{{lib}}">{{lib}}</option>
-	{%endfor%}
-</select></td></tr>
-
-<tr><td>Dependent Libraries
-<div id="dependentLibraryDiv"></div>
-</td></tr>
-
+<div class="row">
+		<div class="col s12">
+			<h5>Add Dependency</h5>
+		</div>
+		<div class="input-field col s12">
+				<select onchange="selectLibrary(this);this.selectedIndex=0;">
+					<option value="">Choose library</option>
+					{%for lib in luaLibraries%}
+						<option value="{{lib}}">{{lib}}</option>
+					{%endfor%}
+				</select>
+		</div>
+</div>
+<div class="row">
+	<div class="col s12">
+		<h5>Dependent Libraries</h5>
+	</div>
+	<div class="col s12">
+			<div id="dependentLibraryDiv"></div>
+	</div>
+</div>
 <script>
 	var lua_lib_div = document.getElementById("dependentLibraryDiv");
 	function lua_lib_ul() {

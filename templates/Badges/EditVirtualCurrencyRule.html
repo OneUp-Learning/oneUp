@@ -5,69 +5,53 @@
    </head>
    <body>
       {% include 'heading.html' %}
-      <div class="frame" id="grad" align="center">
-         <div class="container">
-            <div class="row">
-               <div class="12u">
-                  <h1>{{capitalEditOrCreate}} <span>Rule for Earning Course Bucks</span></h1>
-                  <p><span class="red">*</span> Denotes Required Fields.</p>
-                  <form id= "editRule" name= "editRule" action="/oneUp/badges/SaveVirtualCurrencyRule" method="POST" onsubmit="return condOnSubmit();">
-                     {% csrf_token %}
-                     <input type="hidden" name="vcRuleID" id="vcRuleID" value="{{vcRule.vcRuleID}}">
-                     <input type="hidden" name="isRuleCustom" id="isRuleCustom" value="{{isRuleCustom}}">
-                     <table class="bg">
-                        <tr>
-                           <td colspan="5">Rule Name<span class="red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5"><input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="text" size="91" name="ruleName" id="ruleName" pattern=".*\S+.*" value="{{vcRule.vcRuleName}}" required></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">Rule Description</td>
-                        </tr>
-                        <tr>
-                           <td colspan="5"><textarea style="border: solid 1px rgba(128, 128, 128, 0.5)" rows="4" cols="92" name="ruleDescription" id="ruleDescription" >{{vcRule.vcRuleDescription}}</textarea></td>
-                        </tr>
-                        {% if isRuleCustom == False %}
-                        <tr>
-                        	<td colspan="5">Award Frequency</td>
-                        </tr>
-                        <tr>
-                        	<td colspan="5">
-                        		<select name="awardFrequency">
-                        		{% for dummy,awardFrequencyOption in awardFrequencyOptions.items %}
-                        			<option value="{{awardFrequencyOption.index}}" 
-                        				{% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}
-                        			>{{awardFrequencyOption.name}}</option>
-                        		{% endfor %}
-                        		</select>
-                        	</td>
-                        </tr>
-                        <tr>
-                           <td colspan="5">Rule Conditions<span class="red">*</span></td>
-                        </tr>
-                        <tr>
-                        	<td>{% include "Badges/conditionInterface.html" %}</td>
-                       	</tr>
-                       	{% endif %}
-                        <tr>
-                           <td colspan="5">Course Bucks Earned with this Rule<span class="red">*</span></td>
-                        </tr>
-                        <tr>
-                           <td colspan="5"><input style="border: solid 1px rgba(128, 128, 128, 0.5)" type="number" name="ruleAmount" id="ruleAmount" value="{{vcAmount}}" required></td>
-                        </tr>
-                     </table>
-                     <ul class="actions">
-                        <li style="margin:0"><input type="submit" id="{{editOrCreate}}" name="{{editOrCreate}}" value="{{captialSaveOrCreate}} Rule" class="button"></li>
-                        <a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom={{isRuleCustom}}"><button type="button" class="button special" value="Cancel">Cancel</button></a>
-                     </ul>
-                  </form>
-                  <br />
-               </div>
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>{{capitalEditOrCreate}} Rule for Earning Course Bucks</h3>
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
             </div>
          </div>
-      </div>
-      <!-- Footer -->      
+         <div class="row">
+         <div class="col s12 m8 offset-m2">
+            <form id= "editRule" name= "editRule" action="/oneUp/badges/SaveVirtualCurrencyRule" method="POST" onsubmit="return condOnSubmit();">
+               {% csrf_token %}
+               <input type="hidden" name="vcRuleID" id="vcRuleID" value="{{vcRule.vcRuleID}}">
+               <input type="hidden" name="isRuleCustom" id="isRuleCustom" value="{{isRuleCustom}}">
+               <div class="card">
+                  <div class="card-content">
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <input  value="{{vcRule.vcRuleName}}" name="ruleName" id="rule_name" type="text" class="validate" required>
+                           <label for="rule_name"><span class= "red-text">*</span> Rule Name</label>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <input  value="{{vcRule.vcRuleDescription}}" name="ruleDescription" id="rule_description" type="text" class="validate" required>
+                           <label for="rule_description"><span class= "red-text">*</span> Rule Description</label>
+                        </div>
+                     </div>
+                     {% if isRuleCustom == False %}
+                        {% include "Badges/conditionInterface.html" %}
+                     {% endif %}
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <input value="{{vcAmount}}" name="ruleAmount" id="rule_amount" maxlength="4" type="number" class="validate" min="0" max="999" step="any" required>
+                           <label for="rule_amount"><span class= "red-text">*</span> Course Bucks Eanred with this rule</label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="card-action right-align">
+                     <button class="btn waves-effect waves-light" id="{{editOrCreate}}" type="submit" name="{{editOrCreate}}">{{captialSaveOrCreate}} Rule<i class="material-icons right">send</i>
+                     </button>
+                     <a class="waves-effect waves-light btn" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom={{isRuleCustom}}">											
+                     <i class="material-icons left">close</i>Cancel</a>                                                                  									
+                  </div>
+            </form>
+            </div>
+         </div>
+      </main>
       {% include 'footer.html' %}
    </body>
 </html>

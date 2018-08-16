@@ -3,12 +3,10 @@ Created on May 14, 2014
 
 @author: dichevad
 '''
-from django.template import RequestContext
 from django.shortcuts import render
 
-from Instructors.models import StaticQuestions, Courses
-from Instructors.models import Challenges, Tags, ResourceTags, Questions, Skills
-
+from Instructors.models import Challenges, Questions
+from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -16,7 +14,7 @@ def challengeAddQuestionsView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
         
     if request.POST['challengeID']:
         challenge = Challenges.objects.get(pk=int(request.POST['challengeID']))

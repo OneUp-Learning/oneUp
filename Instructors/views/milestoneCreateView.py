@@ -6,7 +6,8 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-from Instructors.models import Milestones, Courses
+from Instructors.models import Milestones
+from Instructors.views.utils import initialContextDict
 from Instructors.views.milestoneListView import createContextForMilestoneList
 
 
@@ -15,7 +16,7 @@ def milestoneCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict = { }
+    context_dict, currentCourse = initialContextDict(request)
 
     # In this class, these are the names of the attributes which are strings.
     # We put them in an array so that we can copy them from one item to
@@ -23,21 +24,7 @@ def milestoneCreateView(request):
     string_attributes = ['milestoneName','description','points'];
 
     # prepare context for Milestone List      
-    context_dict = createContextForMilestoneList(request)
-    
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'
-
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-
+    context_dict = createContextForMilestoneList(request, context_dict, currentCourse)
 
     if request.POST:
 

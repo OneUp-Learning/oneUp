@@ -1,75 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8" />
-      
-         {% include 'scripts.html' %}
-      
-      <script type="text/javascript">
-         function goToNewPage()
-         {
-             var url1 = document.getElementById('qtype').value;
-             var url2 = document.getElementById('list').value;
-             if(url1 != 'none') 
-             {
-                 window.location = url1;
-                 url1='none'
-             }
-             else
-             {
-                 window.location = url2;
-                 url2='none'
-             }
-             
-         }
-      </script>
-		
+   <head>      
+      {% include 'scripts.html' %}
    </head>
    <body>
-      <!-- START PAGE SOURCE -->
-
-     <div>
-
-         {% include 'heading.html' %}
- 
-         <div class="frame" id="grad" align="center">
-            <div class="container">
-            <div class="row">
-         	<div class="12u">
-               <h1>Skills</h1>
-               <br />
-                  <!-- INSERTED DYNAMIC TABLE --> 
-                  <a href="/oneUp/instructors/skillsCreate"><input type="button" value="Add New Skill"></a>
-                  <br /><br />
-                  <table class="bg">
-                     <tr>
-                        <th>Skill Name</th>
-                        <th> </th>
-                     </tr>
-                     {% for i,skill_ID,skill_Name in skill_range %}
-                     <tr>
-                        <div id="skills{{i}}">
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Skills</h3>
+            </div>
+         </div>
+         <div class="row right-align">
+         	<div class="col s12 m8 offset-m2">
+         	<a class="waves-effect waves-light btn" href="/oneUp/instructors/skillsCreate"><i class="material-icons left">add_circle</i>Add New Skill</a>
+         	</div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <div class="card-panel">
+                  <table>
+                     <thead>
+                        <tr>
+                           <th>Skill Name</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {% for i,skill_ID,skill_Name in skill_range %}
+                        <tr>
                            <td>{{skill_Name}}</td>
-                           <td align="right">
-                              <form action="/oneUp/instructors/deleteSkill " method="POST">
-                                 {% csrf_token %}                                                                        
-                                 <input type="hidden" name="skillID" value="{{skill_ID}}">                           
-                                 <a href="/oneUp/instructors/skillsCreate?skillID={{skill_ID}}"><input type="button" value="Edit"></a>
-                                 <input type="submit" name="submit" value="Delete" class="button"  onclick="return confirm('Are you sure you want to delete?')">
+                           <td>
+                              <form action="/oneUp/instructors/deleteSkill" method="POST">
+                                 {% csrf_token %}
+                                 <input type="hidden" name="skillID" value="{{skill_ID}}">                      
+                                 <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='skill{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                 <ul id='skill{{i}}' class='dropdown-content'>
+                                    {% csrf_token %} 
+                                    <li><a href="/oneUp/instructors/skillsCreate?skillID={{skill_ID}}">Edit</a></li>
+                                    <li class="divider"></li>
+                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                 </ul>
+                                 <div id="modal_delete{{i}}" class="modal">
+                                    <div class="modal-content">
+                                       <h5>Are you sure you want to delete?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                       </button>                                        
+                                    </div>
+                                 </div>
                               </form>
                            </td>
-                        </div>
-                     </tr>
-                     {% endfor %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td class="center-align" colspan="2"><i>No Skills</i></td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
                   </table>
-                  <!-- END DYNAMIC TABLE -->
-         </div></div></div></div>
-      </div>
-      <!-- Footer -->
-      
-       {% include 'footer.html' %}
-
-      </div>
- 
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
    </body>
 </html>

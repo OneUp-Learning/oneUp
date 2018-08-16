@@ -1,1091 +1,1472 @@
-     <style>
-      .cond-prototype {
-        display: none;
-      }
-      .cond-item {
-        border-style: solid;
-        border-width: 1px;
-        border-radius: 6px;
-        border-color: dimgray;
-        text-align: center;
-        padding: 2px;
-        min-width: auto;
-        min-height: auto;
-        flex: none;
-        display: flex;
-      }
-      .cond-atom-helper {
-      	display: flex;
-      	flex-direction: row;
-      }
-      .cond-empty {
-        border-style: dashed;
-        border-width: 1px;
-        border-radius: 6px;
-        border-color: dimgray;
-        text-align: center;
-        min-width: 4em;
-        min-height: 1em;
-      }
-      .cond-container {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        align-items: stretch;
-        align-content: flex-start;
-        height: 400px;
-        min-height: 0px;
-        width: 100%;
-        overflow-x: auto;
-        overflow-y: scroll;
-      }
-      .cond-icon-list {
-        display: flex;
-        flex-direction: row:
-        align-items: stretch;
-      }
-      .cond-icon {
-        border-style: solid;
-        border-width: 1px;
-        border-radius: 6px;
-        padding: 6px;
-      }
-      .cond-trash {
-        margin-left: auto;
-      }
-      .cond-or {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        align-items: center;
-        overflow-x: auto;
-        overflow-y: hidden;
-        background-color: #DDFFFF;
-      }
-      .cond-or-sub {
-        flex-basis: 45%;
-        height: 100%;
-      }
-      .cond-or-label {
-        color: silver;
-        flex-basis: 8%;
-        text-align: center;
-      }
-      .cond-and-label {
-        font-size: 0.6em;
-        color: silver;
-        text-align: center;
-      }
-      .cond-atom-option-group {
-      }
-      .cond-for {
-        background-color: yellow;
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-      }
-      .cond-for-list {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-      .cond-for-list-item {
-        padding: 2px;
-        background-color: orange;
-      }
-      .cond-for-sub {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: nowrap;
-        width: 90%;
-      }
-      .cond-atom {
-        background-color: #EEFFEE;
-        overflow: hidden;
-        flex-direction: column;
-      }
-      .cond-hidden-error {
-      	display: none;
-      }
-      .cond-visible-error {
-      	background-color: white;
-      	color: red;
-      }
-    </style>
+<div class="row">
+	<div class="input-field col s12">
+    	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
+        {% for dummy,awardFrequencyOption in awardFrequencyStruct.awardFrequency.items %}
+            <option value="{{awardFrequencyOption.index}}" {% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}>{{awardFrequencyOption.name}}</option>
+        {% endfor %}
+		</select>
+    	<label for="awardFrequencySelect">Award Frequency</label>
+    </div>
+</div>
+<div class="row" id="objectSpecifierLabel">
+	<div class="input-field col s12">
+		<h5><span class= "red-text">*</span> Specify Which Objects </h5>
+	</div>
+</div>
+<div class="row" id="objectSpecifier">
+	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
+	<div class="cond-specify-object-section" id="cond-{{specifiedObjectTypeNum}}-specifier-section" hidden>
+		Method for specifying {{specifiedObjectStruct.objectTypeStruct.plural}}:
+		<select class="no-materialize" name="cond-{{specifiedObjectTypeNum}}-specification-selector" id="cond-{{specifiedObjectTypeNum}}-specification-selector"
+				onchange="condChangeSpecifier(this);return true;" data-cond-object-type-num = "{{specifiedObjectTypeNum}}">
+			<option value="all" selected>include all {{specifiedObjectStruct.objectTypeStruct.plural}}</option>
+			{% for specifiername,specifierInfo in specifiedObjectStruct.specifiers.items %}
+			<option value="{{specifiername}}">specify by {{specifiername}}</option>
+			{% endfor %}
+		</select>
+		{% for specifiername,specifierInfo in specifiedObjectStruct.specifiers.items %}
+			<div class="cond-specifier-specifier" id="cond-{{specifiedObjectTypeNum}}-by-{{specifiername}}-specifier" hidden data-cond-specifier-type="{{specifierInfo.selectionType}}">
+			{% if specifierInfo.selectionType == "object" %}
+				<div><div>
+					<select name="cond-specifier-object-list-select" class="cond-specifier-object-list-select no-materialize" 
+							onchange="condAddThingieToList(this);this.selectedIndex=0;return true;">
+						<option disabled selected value="0">select {{specifierInfo.objectInfo.plural}} to add</option>
+					{% for object in specifierInfo.objectInfo.objects %}
+						<option value="{{object.id}}">{{object.name}}</option>
+					{% endfor %}
+					</select>
+				</div></div>
+				<div class="cond-specifier-object-selected-list" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-selected-list">
+				</div>
+			{% elif specifierInfo.selectionType == "list" %}
+				<select name="cond-specifier-list-select" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="cond-specifier-list-select no-materialize">
+				{% for listItem in specifierInfo.list %}
+					<option value="{{listItem}}" {%if forloop.first%}selected{%endif%}>{{listItem}}</option>
+				{% endfor %}
+				</select>
+			{% endif %}
+			</div>
+	 	{% endfor %}	
+	</div>
+	{% endfor %}
+	<input type="hidden" name="chosenObjectSpecifierString" id="chosenObjectSpecifierString" value="default">
+</div>
+<div class="row">
+   <div class="col s12">
+      <h5><span class= "red-text">*</span> Rule Conditions</h5>
+   </div>
+</div>
+<div class="row">
+
+<style>
+	.cond-prototype {
+		display: none;
+	}
+	.cond-item {
+		border-style: solid;
+		border-width: 1px;
+		border-radius: 6px;
+		border-color: dimgray;
+		text-align: center;
+		padding: 2px;
+		min-width: auto;
+		min-height: auto;
+		flex: none;
+		display: flex;
+	}
+	.cond-atom-helper {
+		display: flex;
+		flex-direction: row;
+	}
+	.cond-empty {
+		border-style: dashed;
+		border-width: 1px;
+		border-radius: 6px;
+		border-color: dimgray;
+		text-align: center;
+		min-width: 4em;
+		min-height: 1em;
+	}
+	.cond-container {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		align-items: stretch;
+		align-content: flex-start;
+		height: 500px;
+		min-height: 0px;
+		width: 100%;
+		overflow-x: auto;
+		overflow-y: scroll;
+	}
+	.cond-icon-list {
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+	}
+	.cond-icon {
+		border-style: solid;
+		border-width: 1px;
+		border-radius: 6px;
+		padding: 6px;
+	}
+	.cond-trash {
+		margin-left: auto;
+	}
+	.cond-or {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: center;
+		overflow-x: auto;
+		overflow-y: hidden;
+		background-color: #DDFFFF;
+	}
+	.cond-or-sub {
+		flex-basis: 45%;
+		height: 100%;
+	}
+	.cond-or-label {
+		color: silver;
+		flex-basis: 8%;
+		text-align: center;
+	}
+	.cond-and-label {
+		font-size: 0.6em;
+		color: silver;
+		text-align: center;
+	}
+	.cond-atom-option-group {
+	}
+	.cond-for {
+		background-color: yellow;
+		align-items: center;
+		display: flex;
+		flex-direction: column;
+	}
+	.cond-for-list {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	.cond-for-list-item {
+		/*padding: 2px;*/
+		/*background-color: orange;*/
+	}
+	.cond-for-sub {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		width: 90%;
+	}
+	.cond-atom {
+		background-color: #EEFFEE;
+		/*overflow: hidden;*/
+		flex-direction: column;
+	}
+	.cond-hidden-error {
+		display: none;
+	}
+	.cond-visible-error {
+		background-color: white;
+		color: red;
+	}
+	.label,
+		[type="checkbox"] + label {
+			pointer-events: auto;
+			color:black;
+	}
+	
+	select.cond-var, select.cond-rhs-var {
+		white-space: pre-wrap;
+	}
+ </style>
  <!-- Hidden prototypes which will be copied to make the actual nodes in the boolean expression. -->
-    <div id="condOrPrototype" class="cond-prototype">
-      <div class="cond-or cond-item" data-cond-type="or" draggable="true">
+ <div id="condOrPrototype" class="cond-prototype">
+		<div class="cond-or cond-item" data-cond-type="or" draggable="true">
+			 <div class="cond-or-sub" data-cond-type="orSub">
+					<div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+			 </div>
+			 <div class="cond-or-label">OR</div>
+			 <div class="cond-or-sub" data-cond-type="orSub">
+					<div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+			 </div>
+		</div>
+ </div>
+ <div id="condEmptyOrSubPrototype" class="cond-prototype">
 		<div class="cond-or-sub" data-cond-type="orSub">
-	  	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
-	    </div>
+			 <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
+		</div>
+ </div>
+ <div id="condOrLabelPrototype" class="cond-prototype">
 		<div class="cond-or-label">OR</div>
-		<div class="cond-or-sub" data-cond-type="orSub">
-	  	  <div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
-		</div>
-      </div>
-    </div>
-    <div id="condEmptyOrSubPrototype" class="cond-prototype">
-      <div class="cond-or-sub" data-cond-type="orSub">
-		<div class="cond-empty" data-cond-type="orBlank">&nbsp;</div>
-      </div>
-    </div>
-    <div id="condOrLabelPrototype" class="cond-prototype">
-      <div class="cond-or-label">OR</div>
-    </div>
-    <div id="condAtomPrototype" class="cond-prototype">
-      <div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
-      	<div class="cond-atom-helper">
-			<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var">
-		  	  <option value="0" data-cond-var-type="text" data-cond-context-global="true"
-		  	  		{% for objectType in objectTypes %}
-		  	  			data-cond-context-{{objectType.name}}="true" 
-		  	  		{% endfor %}
-		  	  		disabled selected>choose a variable</option>
-			  {% for variable in variables %}
-			  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
-			  	  {% for object in variable.objects %}
-			  	    data-cond-context-{{object}}="true";
-			  	  {% endfor %}
-			  	> {{variable.name}} </option>
-			  {% endfor %}
-			</select>
-			<select name="cond-op" class="cond-op">
-		  	  <option value="=">=</option>
-		  	  <option value=">">&gt;</option>
-		  	  <option value=">=">&gt;=</option>
-		  	  <option value="<">&lt;</option>
-		  	  <option value="<=">&lt;=</option>		  	  
-			</select>
-			<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
-			<select name="cond-rhs-var" hidden class="cond-rhs-var" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
-		  	  <option value="0" data-cond-context-global="true"
-		  	  		{% for objectType in objectTypes %}
-		  	  			data-cond-context-{{objectType.name}}="true" 
-		  	  		{% endfor %}
-		  	  		disabled selected>choose a variable</option>
-			  {% for variable in variables %}
-			  	<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
-			  	  {% for object in variable.objects %}
-			  	    data-cond-context-{{object}}="true";
-			  	  {% endfor %}
-			  	> {{variable.name}} </option>
-			  {% endfor %}
-			</select>
-			<label><input type="checkbox" name="cond-value" class="cond-value" checked="true" onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">value</input></label>
-		</div>
-		<span class="cond-hidden-error cond-blank-lhs-error">A variable must be selected on the left-hand side.</span>
-		<span class="cond-hidden-error cond-blank-rhs-var-error">A variable must be selected on the right-hand side.</span>
-		<span class="cond-hidden-error cond-blank-rhs-value-error">A value must be entered on the right-hand side.</span>
-      </div>
-    </div>
-    <div id="condAndLabelPrototype" class="cond-prototype">
-      <div class="cond-and-label">AND</div>
-    </div>
-    <div id="condEmptyAndPrototype" class="cond-prototype">
-      <div class="cond-empty" data-cond-type="andBlank">&nbsp;</div>
-    </div>
-    <div id="condForPrototype" class="cond-prototype">
-      <div class="cond-for cond-item" data-cond-type="for" 
+ </div>
+ <div id="condAtomPrototype" class="cond-prototype">
+		<div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
+			 <div class="row">
+				 <div class="col s12 m4">
+					<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var no-materialize">
+						<option value="0" data-cond-var-type="text" data-cond-context-global="true"
+						{% for objectType in objectTypes %}
+						data-cond-context-{{objectType.name}}="true" 
+						{% endfor %}
+						disabled selected>choose a variable</option>
+						{% for variable in variables %}
+						<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
+						{% for object in variable.objects %}
+						data-cond-context-{{object}}="true";
+						{% endfor %}
+						> {{variable.name}} {% if "global" in variable.objects %}(global){% endif %}</option>
+						{% endfor %}
+					</select>
+					</div>
+					<div class="col s12 m1">
+						<select name="cond-op" class="cond-op no-materialize">
+							<option value="=">=</option>
+							<option value=">">&gt;</option>
+							<option value=">=">&gt;=</option>
+							<option value="<">&lt;</option>
+							<option value="<=">&lt;=</option>
+						</select>
+					</div>
+					<div class="col s12 m3">
+						<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
+					</div>
+					<div hidden class="col s12 m5">
+						<select name="cond-rhs-var"  class="cond-rhs-var no-materialize" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
+							<option value="0" data-cond-context-global="true"
+							{% for objectType in objectTypes %}
+							data-cond-context-{{objectType.name}}="true" 
+							{% endfor %}
+							disabled selected>choose a variable</option>
+							{% for variable in variables %}
+							<option value="{{variable.id}}" data-cond-var-type="{{variable.type}}" title="{{variable.tooltip}}"
+							{% for object in variable.objects %}
+							data-cond-context-{{object}}="true";
+							{% endfor %}
+							> {{variable.name}} {% if "global" in variable.objects %}(global){% endif %}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col s12 m2">
+						<input id="check-" type="checkbox" name="cond-value" class="cond-value" checked onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">
+						<label for="check-">Value</label>
+                    </div>
+
+                    </div>
+                    <span class="cond-hidden-error cond-blank-lhs-error">A variable must be selected on the left-hand side.</span>
+                    <span class="cond-hidden-error cond-blank-rhs-var-error">A variable must be selected on the right-hand side.</span>
+                    <span class="cond-hidden-error cond-blank-rhs-value-error">A value must be entered on the right-hand side.</span>
+             </div>
+             
+ </div>
+ <div id="condAndLabelPrototype" class="cond-prototype">
+		<div class="cond-and-label">AND</div>
+ </div>
+ <div id="condEmptyAndPrototype" class="cond-prototype">
+		<div class="cond-empty" data-cond-type="andBlank">&nbsp;</div>
+ </div>
+ <div id="condForPrototype" class="cond-prototype">
+		<div class="cond-for cond-item" data-cond-type="for" 
 		   data-inside-qualifier="{{defaultObject}}" draggable="true">
-		<div>
-		  	for
-		  	<select name="cond-allOrAny" class="cond-allOrAny">
-		   	 	<option value="all">each</option>
-		    	<option value="any">any</option>
-		  	</select>
-		  	of the following
-		  	<select name="cond-thingie-type" class="cond-thingie-type" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
-				  data-cond-old-type="{{defaultObject}}">
-				{% for objectType in objectTypes %}
-		    		<option value="{{objectType.name}}">{{objectType.plural}}</option>
-		    	{% endfor %}
-		  	</select>
-		</div>
-		{% for objectType in objectTypes %}
-			<div class="cond-{{objectType.name}}-list" {% if objectType.name != defaultObject %} hidden {%endif%}>
-			  <select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select" 
-				  onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;">
-		    	<option value="0">select {{objectType.plural}} to add</option>
-		    	{% for object in objectType.objects %}
-			    	<option value="{{object.id}}">{{object.name}}</option>
-			    {% endfor %}
-		  	  </select>
-		  	  or <input type="checkbox" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;">
-			  <label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
+		   <div class="row">
+			  <div class="col s12 m4">
+				<p>For</p>
+				 <select id="cond-allOrAny" name="cond-allOrAny" class="cond-allOrAny no-materialize">
+					<option value="all">each</option>
+					<option value="any">any</option>
+				 </select>
+			  </div>
+			  <div class="col s12 m8">
+				<p>of the following</p>
+				 <select id="cond-thingie-type" name="cond-thingie-type" class="cond-thingie-type no-materialize" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
+					data-cond-old-type="{{defaultObject}}">
+					{% for objectType in objectTypes %}
+					<option value="{{objectType.name}}">{{objectType.plural}}</option>
+					{% endfor %}
+				 </select>
+			  </div>
+		   </div>
+		   {% for objectType in objectTypes %}
+		   
+		   <div class="row"{% if objectType.name != defaultObject %} hidden {%endif%}>
+					<div class="col s12 m6 cond-{{objectType.name}}-list" >
+						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select no-materialize" 
+							onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;">
+							<option disabled selected value="0">select {{objectType.plural}} to add</option>
+							{% for object in objectType.objects %}
+							<option value="{{object.id}}">{{object.name}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col s12 m6">
+						or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
+						<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
+					</div>
 			</div>
 			<div class="cond-for-list cond-{{objectType.name}}-selected-list">
-			</div>  
+			</div>
 			<span class="cond-hidden-error cond-blank-{{objectType.name}}-list-error"><br>One or more {{objectType.plural}} must be added or the all {{objectType.plural}} 
 			box should be checked</span>
-		{% endfor %}
-		<span class="cond-hidden-error cond-no-subcond-error">For all/for any blocks must contain at least one condition.</span>
-		<div class="cond-for-sub">
-			<div class="cond-empty">&nbsp;</div>
-		</div>
-      </div>
-    </div>
+	 		{% endfor %}
+			<span class="cond-hidden-error cond-no-subcond-error">For all/for any blocks must contain at least one condition.</span>
+			<div class="cond-for-sub">
+				<div class="cond-empty">&nbsp;
+				</div>
+			</div>
+	 	</div>
+	</div>
+ <!-- Icons -->
+ <p>
+ <div class="cond-icon-list">
+		<div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
+		<div id="condAtomIcon" class="cond-icon" draggable="true">Atom</div>
+		<div id="condForAllIcon" class="cond-icon" draggable="true">Forall</div>
+		<div id="condTrashIcon" class="cond-icon cond-trash"> Trash </div>
+ </div>
+ </p>
+ <!-- Container for initial condition -->
+ <div class="cond-container cond-item" id="cond-container">
+		<input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
+		<input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count" id="cond-atom-count">
+		<div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
+		<span class="cond-hidden-error cond-no-condition-error">Some condition must be present.</span>
+ </div>
+ 
+ 
+ </div>
+ <script>
 
-<!-- Icons -->
-    <p>
-    <div class="cond-icon-list">
-      <div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
-      <div id="condAtomIcon" class="cond-icon" draggable="true">Atom</div>
-      <div id="condForAllIcon" class="cond-icon" draggable="true">Forall</div>
-      <div id="condTrashIcon" class="cond-icon cond-trash"> Trash </div>
-    </div>
-    </p>
 
-<!-- Container for initial condition -->
-    <div class="cond-container cond-item">
-      <input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
-      <input type="hidden" value="0" class="cond-atom-count" name="cond-atom-count" id="cond-atom-count">
-      <div class="cond-empty" data-cond-inside-qualifier="none">&nbsp;</div>
-      <span class="cond-hidden-error cond-no-condition-error">Some condition must be present.</span>
-    </div>
+//All names prefixed with cond to decrease odds of any sort
+//of name-space conflict on import.
 
-    <script>
-    function condFindCondItemAncestor(node) {
-    	while (!node.classList.contains("cond-item")) {
-    		node = node.parentNode;
-    	}
-    	return node;
-    }
-    
-    function condHideError(node,errorTypeList) {
-    	var nodeParent = condFindCondItemAncestor(node)
-    	function hideOneErrorType(type) {
-    		errors = nodeParent.getElementsByClassName(type);
-    		for (var i=0;i<errors.length;i++) { /* This should only be one, but I'm following a better safe than sorry strategy */
-    			errors[i].classList.add("cond-hidden-error");
-    			errors[i].classList.remove("cond-visible-error");
-    		}
-    	}
-    	errorTypeList.forEach(hideOneErrorType);
-    }
-    
-    function condShowError(node,errorType) {
-    	var nodeParent = condFindCondItemAncestor(node)
-    	errors = nodeParent.getElementsByClassName(errorType);
-    	for (var i=0;i<errors.length;i++) {
-    		errors[i].classList.remove("cond-hidden-error");
-    		errors[i].classList.add("cond-visible-error");
-    	}
-    }
-    
-    /* Returns true if the condition is incomplete. */
-    function condCheckForErrors() {
-    	
-    	function checkForErrorsInChildren(node,subTypeName) {
-    		var errorInSub;
-    		var errorsPresent = false;
-			var subConds = condFilterChildren(node,function(x){return x.classList.contains(subTypeName);});
-			for (var i = 0; i<subConds.length;i++) {
-				errorInSub = checkForErrors(subConds[i]);
-				errorsPresent = errorsPresent || errorInSub;
-			}
-			return errorsPresent;
-    	}
-    	
-    	function checkForErrors(node) {
-			var errorsPresent = false;
-			
-    		if (node.dataset.condType == "atom") {
-    			var lhs = node.getElementsByClassName("cond-var")[0];
-    			var rhsVar = node.getElementsByClassName("cond-rhs-var")[0];
-    			var rhsValue = node.getElementsByClassName("cond-rhs-value")[0];
-    			var rhsIsValue = node.getElementsByClassName("cond-value")[0];
-    			
-    			if (lhs.value == 0) {
-    				condShowError(node,"cond-blank-lhs-error");
-    				errorsPresent = true;
-    			}
-    			if (!rhsIsValue.checked) {
-    				if (rhsVar.value == 0) {
-    					condShowError(node,"cond-blank-rhs-var-error");
-        				errorsPresent = true;
-    				}
-    			} else {
-    				if (rhsValue.value === "") {
-    					condShowError(node,"cond-blank-rhs-value-error");
-        				errorsPresent = true;
-    				}
-    			}
-    			return errorsPresent;
+var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
 
-    		} else if (node.dataset.condType == "for") {
-    			var thingieTypeName = node.getElementsByClassName("cond-thingie-type")[0].value;
-    			var thingieListDiv = node.getElementsByClassName("cond-"+thingieTypeName+"-selected-list")[0];
-    			var allThingies = node.getElementsByClassName("cond-"+thingieTypeName+"-all")[0];
-    			var subCondsDiv = node.getElementsByClassName("cond-for-sub")[0];
-    			if ((thingieListDiv.getElementsByClassName("cond-for-list-item").length == 0) && (!allThingies.checked)) {
-    				condShowError(node,"cond-blank-"+thingieTypeName+"-list-error");
-    				errorsPresent = true;
-    			}
-    			if (node.getElementsByClassName("cond-atom").length == 0) {
-    				condShowError(node,"cond-no-subcond-error");
-    				errorsPresent = true;
-    			}
-				var errorInAtLeastOneSub = checkForErrorsInChildren(subCondsDiv,"cond-item");
-				return errorsPresent || errorInAtLeastOneSub;
-    		} else if (node.dataset.condType == "or") {
-    			return checkForErrorsInChildren(node,"cond-or-sub");
-    		} else if (node.dataset.condType == "orSub") {
-    			return checkForErrorsInChildren(node,"cond-item"); 
-    		}
-    	}
-    	
-    	var errorsPresent = false;
-    	var container = document.getElementsByClassName("cond-container")[0];
-    	if (container.getElementsByTagName("DIV").length < 2) {
-    		errorsPresent = true;
-    		condShowError(container,"cond-no-condition-error");
-    	}
-    	return checkForErrorsInChildren(container,"cond-item") || errorsPresent;;
-    }
-    
-      function condFilterChildren(node,proposition) {
-    	  var output = [];
-    	  for (var i=0;i<node.children.length;i++) {
-    		  if (proposition(node.children[i])) {
-    			  output.push(node.children[i]);
-    		  }
-    	  }
-    	  return output;
-      }
-    
-      function condToggleAtomType(x) {
-    	  var atom = x.parentNode.parentNode;
-    	  var value = atom.getElementsByClassName('cond-rhs-value')[0];
-          var variable = atom.getElementsByClassName('cond-rhs-var')[0];
-    	  if (x.checked) {
-    		  variable.hidden = true;
-    		  value.removeAttribute("hidden");
-    	  } else {
-    		  value.hidden = true;
-    		  variable.removeAttribute("hidden");
-    	  }
-      }
-    
-      function condChangeAtomToMatchType(select) {
-    	  console.log("changing atom type");
-    	  var atom = select.parentNode;
-    	  var option = select.options[select.selectedIndex];
-    	  var type = option.dataset.condVarType;
-    	  var value = atom.getElementsByClassName('cond-rhs-value')[0];
-    	  if (type != value.type) {	  
-	    	  // We have to remake the value node in order to change the type in some web browsers, so we just do it for everyone.
-	    	  var newValue = document.createElement('input');
-	    	  newValue.type = type;
-	    	  newValue.name = value.name;
-			  newValue.classList.add("cond-rhs-value");
+var condAwardFrequencyToThingieTypeName = {
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyStruct.awardFrequency.items %}
+		{{awardFreqNum}}:'{{awardFreqStruct.objectTypeName}}',
+	{% endfor %}
+}
 
-			  var oldValue = value.type == "checkbox" ? (value.checked ? true : false) : value.value
-			  
-	    	  // We save the type-specific value so that changing types doesn't destroy values.
-	    	  atom.dataset["condSavedValue_"+value.type] = oldValue;
-	    	  // And then we restore an old one if it exists
-	    	  if (atom.dataset["condSavedValue_"+type]) {
-	    		  var savedValue = atom.dataset["condSavedValue_"+type]
-	    		  if (value.type == "checkbox") {
-	    			  newValue.checked = savedValue;
-	    		  } else {
-		    		  newValue.value = savedValue;
-	    		  }
-	    	  }
-	    	  
-	    	  atom.insertBefore(newValue,value);
-	    	  atom.removeChild(value);
-	    	  value = newValue;
-    	  }
-	    	 
-    	  function disable(opt) {
-    		  opt.hidden = "true";
-    	  }
-    	  function enable(opt) {
-    		  opt.removeAttribute("hidden");
-    	  }
-    	  var justEqual = { "=":enable, ">":disable, "<":disable };
-    	  var allOps = { "=":enable, ">":enable, "<":enable };
-    	  var typeStatusChange = { text: justEqual, date: allOps, number: allOps, checkbox: justEqual };
-    	  
-    	  var operator = atom.getElementsByClassName("cond-op")[0];
-    	  for (var i = 0; i<operator.options.length; i++) {
-    		  typeStatusChange[type][operator.options[i].value](operator.options[i]);
-    	  }
-      }
-      
-      // All names prefixed with cond to decrease odds of any sort
-      // of name-space conflict on import.
+var condAwardFrequencyToThingieType = {
+	{% for awardFreqNum,awardFreqStruct in awardFrequencyStruct.awardFrequency.items %}
+		{{awardFreqNum}}:{{awardFreqStruct.objectType}},
+	{% endfor %}
+}
 
-      /******************************************
-       * Functions for handling ForAll UI stuff *
-       ******************************************/
-      
-      function condAddThingieToListByNameAndId(list,name,id) {
-        var itemDiv = document.createElement("div");
-        itemDiv.onclick = function(e){condRemoveThingie(this)};
-        itemDiv.dataset.id = id;
-        itemDiv.className = "cond-for-list-item";
-        var name_text = document.createTextNode(name+" \u00D7");
-        itemDiv.appendChild(name_text);
-        list.appendChild(itemDiv);
-      }
+var condObjectsIdToName = { {% for objectType in objectTypes %}"{{objectType.name}}":
+{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
+{% endfor %} };
 
-      function condAddThingieToList(select) {
-        var choice = select.options[select.selectedIndex];
-        var list = select.parentNode.nextElementSibling;
-        var listOfIds = [];
-        for (var i = 0; i<list.children.length; i++) { //>
-          listOfIds.push(list.children[i].dataset.id);
-        }
-        if (!listOfIds.includes(choice.value)) {
-          condAddThingieToListByNameAndId(list,choice.text,choice.value);
-        }
-      }
+var condObjectTypeIndexToName = { {%for objectType in objectTypes %}{{objectType.index}}:"{{objectType.name}}",{% endfor %} }
 
-      function condRemoveThingie(item) {
-        item.parentNode.removeChild(item);
-      }
+/**************************************************
+ * Functions for handling award frequency changes *
+ **************************************************/
 
-      var condForAllTypeList = [{%for objectType in objectTypes %}"{{objectType.name}}",{%endfor%}]
-      function condChangeForAllType(select) {
-        var currentType = select.options[select.selectedIndex].value;
-        var oldType = select.dataset.condOldType;
-        if (currentType == oldType) {
-          return;
-        }
-        select.dataset.condOldType = currentType;
-        var forAllDiv = select.parentNode.parentNode
-        var listDivs = {};
-        var selectedDivs = {};
-        for (var i=0; i<condForAllTypeList.length; i++) {
-        	var typeI = condForAllTypeList[i];
-        	listDivs[typeI] = forAllDiv.getElementsByClassName("cond-"+typeI+"-list")[0];
-       		selectedDivs[typeI] = forAllDiv.getElementsByClassName("cond-"+typeI+"-selected-list")[0];
-        }
-        listDivs[oldType].hidden = "true";
-        selectedDivs[oldType].hidden = "true";
-        selectedDivs[oldType].style.display = "none";
-        listDivs[currentType].removeAttribute("hidden");
-        selectedDivs[currentType].removeAttribute("hidden");
-        selectedDivs[currentType].style.display = "flex";
-
-        var subDivs = forAllDiv.getElementsByTagName("DIV");
-        [].forEach.call(subDivs,function(subDiv) {
-          subDiv.dataset.condInsideQualifier = currentType;
-        });
-        
-        condUpdateAtomSelectForContext(forAllDiv,currentType);
-        
-        return true;
-      }
-
-      /*********************************************
-       * Functions relating to draggable interface *
-       *********************************************/
-
-      var condDragSource = null;
-      var condSourceType = null;
-
-      // The two condHandleDragStart functions are used to set up
-      // visual effects and note the drag source when a drag event begins.
-
-      // This one is used for the icons at the top which will be copied
-      // into the condition container.
-      function condHandleDragStartCopy(e) {
-        this.style.opacity = 0.4;
-        condDragSource = this;
-        condSourceType = "copy";
-        e.dataTransfer.setData('text','icon drag');
-        e.dataTransfer.effectAllowed = "copy";
-
-        e.stopPropagation();
-      }
-
-      // This one is used for the parts of the condition itself which
-      // can be dragged around in order to redo things.
-      function condHandleDragStartMove(e) {
-        this.style.opacity = 0.4;
-        if (!this.id) {
-          this.id = "cond-id-"+(Date.now()+Math.random()).toString(36);
-        }
-        condDragSource = this;
-        condSourceType = "move";
-        e.dataTransfer.setData('text','move drag');
-        e.dataTransfer.effectAllowed = "move";
-
-        e.stopPropagation();
-      }
-      function condHandleDragEnd(e) {
-        this.style.opacity = 1.0;
-      }
-
-      function condCanDropOn(source,target) {
-        var canDrop = true;
-        if ((target.dataset.condType=="orBlank") && 
-            (source.id=="condOrIcon")) {
-          canDrop = false;
-        }
-
-        if ((target.dataset.condInsideQualifier!="none") &&
-            (source.id=="condForAllIcon")) {
-          canDrop = false;
-        }
-
-        if (target.parentNode == source.parentNode) {
-          canDrop = false;
-        }
-
-        if ((target.dataset.condInsideQualifier!="none") &&
-            (source.dataset.condType=="for")) {
-          canDrop = false;
-        }
-
-        var targetAncestor = target;
-        while (targetAncestor.parentNode) {
-          if (source == targetAncestor) {
-            canDrop = false;
-          }
-          targetAncestor = targetAncestor.parentNode;
-        }
-          
-        return canDrop;
-
-      }
-
-      function condHandleDragOverBlank(e) {
-        if (e.preventDefault) {
-          e.preventDefault();
-        }
-
-        if (!condCanDropOn(condDragSource,this)) {
-          e.dataTransfer.dropEffect = "none";
-          return false;
-        }
-
-        e.dataTransfer.dropEffect = condSourceType;
-        return false;
-      }
-
-      function clonePrototype(name) {
-        var prototypeSuperDiv = document.getElementById(name);
-        var prototypeDiv = prototypeSuperDiv.getElementsByTagName('div')[0].cloneNode(true);
-        return prototypeDiv;
-      }
-
-      function condUpdateAtomSelectForContext(targetDiv,context) {
-
-    	  if (context == "none") {
-    		  context = "global";
-    	  }
-    	  context = context.charAt(0).toUpperCase() + context.slice(1);
-    	  var contextAttributeName = "condContext"+context;
-    	  
-    	  function updateThisSelect(targetSelect,contextAttributeName, rhs) {
-        	  var inputs = targetSelect.getElementsByTagName("option");
-        	  for (var i = 0; i < inputs.length; i++) {
-        		  if (inputs[i].dataset[contextAttributeName] || (rhs && inputs[i].dataset["condContextGlobal"])) {
-        			  inputs[i].removeAttribute("hidden");
-        		  } else {
-        			  inputs[i].hidden = true;
-        		  }
-        	  }
-    	  }
-    	  
-    	  var selects = targetDiv.getElementsByTagName("select");
-          for (var i = 0; i < selects.length; i++) {
-        	var curSelect = selects[i];
-          	if (curSelect.name == "cond-var") {
-          		updateThisSelect(curSelect,contextAttributeName, false);
-              	if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
-              		curSelect.selectedIndex = 0;
-              	}          		
-          	} else if (curSelect.name == "cond-rhs-var") {
-          		updateThisSelect(curSelect,contextAttributeName, true);
-              	if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
-              		curSelect.selectedIndex = 0;
-              	}
-          	}
-          }
-      }
-      
-      var atomCountInput = document.querySelector('input.cond-atom-count');
-      function condCountNewAtom() {
-    	  var count = parseInt(atomCountInput.value);
-    	  atomCountInput.value=count+1;
-    	  return count;
-      }
-      
-      function condCreateAtomNode(targetParent,blank,insideQualifier) {
-        var atomDiv = clonePrototype("condAtomPrototype");
-        targetParent.insertBefore(atomDiv,blank);
-        var labelDiv = clonePrototype("condAndLabelPrototype");
-        targetParent.insertBefore(labelDiv,blank);
-        var blankDiv = clonePrototype("condEmptyAndPrototype");
-        targetParent.insertBefore(blankDiv,blank);
-        condPrepareEmptyDescendants(blankDiv,insideQualifier);
-
-        atomDiv.addEventListener("dragstart",condHandleDragStartMove,false);
-        atomDiv.addEventListener("dragend",condHandleDragEnd,false);
-
-	var value = atomDiv.getElementsByClassName('cond-rhs-value')[0];
-	value.name = "cond-rhs-value"+condCountNewAtom();
-        
-        condUpdateAtomSelectForContext(atomDiv,insideQualifier);
-        
-        return atomDiv;
-      }
-      function condCreateOrNode(targetParent,blank,insideQualifier) {
-        var orDiv = clonePrototype("condOrPrototype");
-        targetParent.insertBefore(orDiv,blank);
-        var labelDiv = clonePrototype("condAndLabelPrototype");
-        targetParent.insertBefore(labelDiv,blank);
-        var blankDiv = clonePrototype("condEmptyAndPrototype");
-        targetParent.insertBefore(blankDiv,blank);
-        condPrepareEmptyDescendants(orDiv,insideQualifier);
-        condPrepareEmptyDescendants(blankDiv,insideQualifier);
-
-        orDiv.addEventListener("dragstart",condHandleDragStartMove,false);
-        orDiv.addEventListener("dragend",condHandleDragEnd,false);
-
-        return orDiv;
-      }
-      function condExpandOrNode(targetParent,insideQualifier) {
-        var labelDiv = clonePrototype("condOrLabelPrototype");
-        targetParent.appendChild(labelDiv);
-        var blankSubDiv = clonePrototype("condEmptyOrSubPrototype");
-        targetParent.appendChild(blankSubDiv);
-        condPrepareEmptyDescendants(blankSubDiv,insideQualifier);
-        return blankSubDiv;
-      }
-      function condCreateForAllNode(targetParent,blank) {
-        var blankDiv = clonePrototype("condEmptyAndPrototype");
-        targetParent.insertBefore(blankDiv,blank);
-        var labelDiv = clonePrototype("condAndLabelPrototype");
-        targetParent.insertBefore(labelDiv,blank);
-        var forAllDiv = clonePrototype("condForPrototype");
-        targetParent.insertBefore(forAllDiv,blank);
-        condPrepareEmptyDescendants(blankDiv,"none");
-        condPrepareEmptyDescendants(forAllDiv,"{{defaultObject}}");
-
-        forAllDiv.addEventListener("dragstart",condHandleDragStartMove,false);
-        forAllDiv.addEventListener("dragend",condHandleDragEnd,false);
-
-        return forAllDiv;
-      }
-
-      function condOrIsFull(orNode) {
-        return (condCountEmptyOrSubs(orNode) == 0);
-      }
-      
-      function condOrSubIsEmpty(orSubNode) {
-    	  return orSubNode.getElementsByClassName("cond-item").length == 0;
-      }
-      
-      function condCountEmptyOrSubs(orNode) {
-          var numEmptySubs = 0;
-          var orSubs = orNode.getElementsByClassName("cond-or-sub");
-          for (var i = 0; i < orSubs.length; i++) {
-          	if (condOrSubIsEmpty(orSubs[i])) {
-  	    		numEmptySubs++;
-  	  		}
-          }
-          return numEmptySubs;
-      }
-
-      function condCleanUpOr(orNode) {
-        var orSubs = orNode.getElementsByClassName("cond-or-sub");
-        if (orSubs.length == 2) {
-          return;
-        }
-        var emptyCount = 0;
-        var subItems = [];
-        for (var i = 0; i < orSubs.length; i++) {
-          subItems[i] = orSubs[i].getElementsByClassName("cond-item");
-          if (subItems[i].length == 0) {
-            emptyCount += 1;
-          }
-        }
-
-        var j = 0;
-        while (emptyCount > 1) {
-	  if (subItems[j].length == 0) {
-            orNode.removeChild(orSubs[j].nextElementSibling);
-            orNode.removeChild(orSubs[j]);
-	    emptyCount -= 1;
-	  }
-	  j++;
-	}   
-      }
-
-      // This function adds event listeners and also sets the flag
-      // for whether or not they are inside a qualifier block
-      function condPrepareEmptyDescendants(node,insideQualifier) {
-        function prepareEmptyDescendantsHelper(node) {
-          if (node.nodeName == "DIV") {
-            node.dataset.condInsideQualifier = insideQualifier;
-            if (node.classList.contains("cond-empty")) {
-              node.addEventListener("dragover",condHandleDragOverBlank,false);
-              node.addEventListener("drop",condHandleDropOnBlank,false);
-            }
-          }
-          // Recursive call for all children
-          [].forEach.call(node.childNodes,prepareEmptyDescendantsHelper);
-        }
-        prepareEmptyDescendantsHelper(node);
-      }
-
-	function condHandleDropOnBlank(e) {
-		if (e.preventDefault) {
-        	e.preventDefault();
-        }
-
-        var targetParent = e.target.parentNode;
-        var insideQualifier = e.target.dataset.condInsideQualifier;
-        if (insideQualifier != "none") {
-        	// We have just dragged something new inside a For.  We need to
-        	// turn off the error message for that for if the new thing we have dragged is
-        	// an atom.
-        	if (condDragSource.id == "condAtomIcon" || condDragSource.dataset.condType == "atom") {
-        		// Find ancestor which is the for object so that we can hide the error.
-        		var ancestor = targetParent;
-        		while (ancestor.dataset.condType != "for") {
-        			ancestor = ancestor.parentNode;
-        		}
-        		condHideError(ancestor,["cond-no-subcond-error"]);
-        	}
-        }
-        if (condDragSource.id == "condOrIcon") {
-			condCreateOrNode(targetParent,e.target,insideQualifier);
-			targetParent.removeChild(e.target);
-        } else if (condDragSource.id == "condAtomIcon") {
-			condCreateAtomNode(targetParent,e.target,insideQualifier);
-			targetParent.removeChild(e.target);
-			condHideError(document.getElementsByClassName("cond-container")[0],["cond-no-condition-error"]);
-        } else if (condDragSource.id == "condForAllIcon") {
-			condCreateForAllNode(targetParent,e.target);
-        	targetParent.removeChild(e.target);
-        } else /* a node to be moved */ {
-	 	 	var sourceParentIsOr = 
-		    	condDragSource.parentNode.parentNode.dataset.condType == "or";
-		  	var sourceOr;
-		  	if (sourceParentIsOr) {
-		    	sourceOr = condDragSource.parentNode.parentNode;
-		  	}
-	      	if ((condDragSource.dataset.condType == "or") || 
-	        	(condDragSource.dataset.condType == "atom")) {
-	        	var andLabelDiv = condDragSource.nextElementSibling;
-	        	targetParent.insertBefore(condDragSource,e.target);
-	        	targetParent.insertBefore(andLabelDiv,e.target);
-	      	} else { // for
-	        	var sourceAndLabelDiv = condDragSource.previousElementSibling;
-	        	if (e.target.nextElementSibling) {
-	          		var targetAndLabelDiv = e.target.nextElementSibling;
-	          		targetParent.insertBefore(sourceAndLabelDiv,targetAndLabelDiv);
-	          		targetParent.insertBefore(condDragSource,targetAndLabelDiv);
-	       		} else { // Last on list.
-	          		targetParent.appendChild(sourceAndLabelDiv);
-	          		targetParent.appendChild(condDragSource);
-	        	}
-	      	}
-		  	if (sourceParentIsOr) {
-		    	condCleanUpOr(sourceOr);
-		  	}
-		  	condUpdateAtomSelectForContext(condDragSource,insideQualifier);
-        }
-
-        if (targetParent.dataset.condType == "orSub") {
-          if (condOrIsFull(targetParent.parentNode)) {
-            condExpandOrNode(targetParent.parentNode,insideQualifier);
-          } 
-        }
-        
-    }
-
-	var icons = document.querySelectorAll('.cond-icon');
-	[].forEach.call(icons,function(icon) {
-		icon.addEventListener('dragstart', condHandleDragStartCopy, false);
-		icon.addEventListener('dragend', condHandleDragEnd, false);
-	});
-
-	var blanks = document.querySelectorAll('.cond-empty');
-	[].forEach.call(blanks,function(blank) {
-		blank.addEventListener('dragover', condHandleDragOverBlank, false);
-		blank.addEventListener('drop', condHandleDropOnBlank, false);
-	});
-
-	function condHandleDragOverTrash(e) {
-		if (e.preventDefault) {
-			e.preventDefault();
+function condIsInFor(element) {
+	while (element != null) {
+		if (element.dataset && element.dataset.condType === "for") {
+			return true;
 		}
-
-		if (condDragSource.classList.contains("cond-icon")) {
-			e.dataTransfer.dropEffect = "none";
-			return false;
-		}
-
-		e.dataTransfer.dropEffect = "move";
-		return false;
+		element = element.parentNode;
 	}
+	return false;
+}	 
 
-	function condHandleDropOnTrash(e) {
-		if (e.preventDefault) {
-			e.preventDefault();
+var condOldAwardFreq = document.getElementById("awardFrequencySelect").value;
+
+var condSpecifierDivs = {
+	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
+	{{specifiedObjectTypeNum}}:document.getElementById("cond-{{specifiedObjectTypeNum}}-specifier-section"),
+	{% endfor %}
+}
+
+function condChangeAwardFreq(select) {
+	var newAwardFreq = select.value;
+	var oldType = condAwardFrequencyToThingieTypeName[condOldAwardFreq];
+	var oldTypeNum = condAwardFrequencyToThingieType[condOldAwardFreq];
+	var oldLabel = oldType + ":scope";
+	var newType = condAwardFrequencyToThingieTypeName[newAwardFreq];
+	var newTypeNum = condAwardFrequencyToThingieType[newAwardFreq];
+	var newLabel = newType + ":scope";
+
+	var conditionDiv = document.getElementById("cond-container");
+	var subDivs = conditionDiv.getElementsByTagName("DIV");
+	[].forEach.call(subDivs, function(subDiv) {
+		if (subDiv.dataset.condInsideQualifier == "none" || subDiv.dataset.condInsideQualifier == oldLabel) {
+			subDiv.dataset.condInsideQualifier = newLabel;
+	    }
+	});
+	condUpdateAtomSelectForContext(conditionDiv, newLabel, true);
+	
+	condOldAwardFreq = newAwardFreq;
+	
+	var objectSpecifierDiv = document.getElementById("objectSpecifier");
+	var objectSpecifierLabelDiv = document.getElementById("objectSpecifierLabel");
+	
+	if (newType == "none") {
+		objectSpecifierDiv.hidden = "true";
+		objectSpecifierDiv.style.display = "none";
+		objectSpecifierLabelDiv.hidden = "true";
+		objectSpecifierLabelDiv.style.display = "none";
+	} else {
+		objectSpecifierDiv.removeAttribute("hidden");
+		objectSpecifierDiv.style.display = "block";
+		objectSpecifierLabelDiv.removeAttribute("hidden");
+		objectSpecifierLabelDiv.style.display = "block";
+	}
+	
+    if (oldType != "none") {
+    	condSpecifierDivs[oldTypeNum].hidden = "true";
+    	condSpecifierDivs[oldTypeNum].style.display = "none";
+    }
+    if (newType != "none") {
+    	condSpecifierDivs[newTypeNum].removeAttribute("hidden");
+    	condSpecifierDivs[newTypeNum].style.display = "block";
+    }
+}
+
+condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
+
+function condChangeSpecifier(select) {
+	var objectTypeNum = select.dataset.condObjectTypeNum;
+	var myDiv = select.parentNode;
+	var specifiers = myDiv.getElementsByClassName("cond-specifier-specifier");
+	for (var i=0; i<specifiers.length; i++) {
+		specifiers[i].hidden = true;
+	}
+	if (select.value != "all") {
+		var selectedSpecifier = document.getElementById("cond-"+objectTypeNum+"-by-"+select.value+"-specifier");
+		selectedSpecifier.removeAttribute("hidden");
+	}
+}
+
+function condFillSpecifierString() {
+	var awardFreqSelect = document.getElementById("awardFrequencySelect");
+	var outStruct = 'error';
+	if (awardFreqSelect.value == {{awardFrequencyStruct.justOnce}}) {
+		outStruct = [];
+	} else {
+		var objectSpecifierDiv = document.getElementById("objectSpecifier");
+		var chosenAwardFreq = document.getElementById("awardFrequencySelect").value;
+		var awardFreqObjectNum = condAwardFrequencyToThingieType[chosenAwardFreq];
+		var specifierSelector = document.getElementById('cond-'+awardFreqObjectNum+'-specification-selector');
+		var specifier = specifierSelector.value;
+		if (specifier === "all") {
+			outStruct = [];
+		} else {
+	        var selectedThingies = []
+			var specifierDiv = document.getElementById("cond-"+awardFreqObjectNum+"-by-"+specifier+"-specifier");
+			var objectListSelectorList = specifierDiv.getElementsByClassName("cond-specifier-object-list-select");
+			if (objectListSelectorList.length > 0) {	// This means it has an object list.  Otherwise it has a value list.			
+		        var choiceListDiv = specifierDiv.querySelector('div.cond-specifier-object-selected-list');
+		        var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
+		        for (var i = 0; i < choices.length; i++) {
+		        	selectedThingies.push(choices[i].dataset.id)
+		        }
+			} else {
+				var listSelect = specifierDiv.getElementsByClassName("cond-specifier-list-select")[0];
+				selectedThingies = [listSelect.value];
+			}
+			var specifier_rule = {
+				'specifier': specifier,
+				'op': 'in',
+				'value': selectedThingies,
+			}
+			outStruct = [specifier_rule];
 		}
-    	
-		if (condDragSource.classList.contains("cond-icon")) {
+	}
+	
+	var hiddenField = document.getElementById("chosenObjectSpecifierString");
+	hiddenField.value = JSON.stringify(outStruct);
+}
+
+condChosenObjectSpecifier = JSON.parse("{{chosenObjectSpecifier|escapejs}}");
+
+function condCreateObjectSpecifierUIFromObjectSpecifier(chosenObjectSpecifier) {
+	if (chosenObjectSpecifier.length == 0) {
+		return;
+	} else {
+		// Note that this is a degenerate case which only handles the simple condition.
+		// This will need to be redone if we have cases where multiple specifiers are beneficial.
+		var chosenAwardFreq = {{awardFrequency}};
+		var objectType = condAwardFrequencyToThingieType[chosenAwardFreq];
+		var objectTypeName = condAwardFrequencyToThingieTypeName[chosenAwardFreq];
+		var specifierSelect = document.getElementById("cond-"+objectType+"-specification-selector");
+		specifierSelect.value = chosenObjectSpecifier[0]['specifier'];
+		specifierSelect.onchange();  // Takes care of showing appropriate things.
+		if (chosenObjectSpecifier[0]['op'] != 'in') {
 			return;
 		}
-
-		var sourceParent = condDragSource.parentNode;
-		var sourceLabel = condDragSource.dataset.condType == "for" ? 
-							condDragSource.previousElementSibling :
-							condDragSource.nextElementSibling;
-		sourceParent.removeChild(condDragSource);
-		sourceParent.removeChild(sourceLabel);
-		if ((sourceParent.parentNode) && (sourceParent.parentNode.dataset.condType == "or")) {
-			condCleanUpOr(sourceParent.parentNode);
+		var listOfThingies = chosenObjectSpecifier[0]['value'];
+		var specifierDiv = document.getElementById("cond-"+objectType+"-by-"+chosenObjectSpecifier[0]['specifier']+"-specifier");
+		var objectListSelectorList = specifierDiv.getElementsByClassName("cond-specifier-object-list-select");
+		if (objectListSelectorList.length > 0) { // if this is an object type rather than a list type
+	        var listDiv = specifierDiv.querySelector('div.cond-specifier-object-selected-list');
+	        for (var i=0; i<listOfThingies.length; i++) {
+	        	condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[condObjectTypeIndexToName[objectType]][listOfThingies[i]], listOfThingies[i]);
+	        }
+		} else { // The value case rather than object list case
+			specifierDiv.getElementsByClassName("cond-specifier-list-select")[0].value = listOfThingies[0];
 		}
 	}
+}
 
-    trashCan = document.getElementById("condTrashIcon");
-    trashCan.addEventListener('dragover', condHandleDragOverTrash, false);
-    trashCan.addEventListener('drop', condHandleDropOnTrash, false);
+condCreateObjectSpecifierUIFromObjectSpecifier(condChosenObjectSpecifier);
 
-    /************************************
-     * Functions for Saving and Loading *
-     ************************************/
+/**********************************************
+ * Functions for handling Error display stuff *
+ **********************************************/
 
-    var valueTypeToChar = {
-    	text:'T',
-    	date:'Y',
-    	checkbox:'X',
-    	number:'N'
+function condFindCondItemAncestor(node) {
+    while (!node.classList.contains("cond-item")) {
+        node = node.parentNode;
     }
-     
-    function condGetConditionString(container) {
-    	
-    	var outputArray = []
-    	function addToOutputArray(str) {
-    		return outputArray.push(str);
-    	}
-    	 
-    	function getConditionListStringHelper(condList) {
-    		if (condList.length == 0) {
-    			return "";
-    		} else if (condList.length == 1) {
-    			return getConditionStringHelper(condList[0]);
-    		} else {
-    			var output = "D:";
-    			output += "[";
-    			for (var i=0; i<condList.length; i++) {
-    				output += getConditionStringHelper(condList[i]);
-    				output += ",";
-    			}
-    			output += ']';
-    			return addToOutputArray(output);
-    		}
-    	}
-    	function getConditionStringHelper(cond) {
-	     	if (cond.classList.contains("cond-empty")) {
-				return "";
-			} else if (cond.dataset.condType == "atom") {
-				var output = "A:";
-		    	var lhsVariable = cond.querySelector('select[name="cond-var"]');
-		    	output += "V."+lhsVariable.value + ".";
-				var op = cond.getElementsByClassName("cond-op")[0];
-				output += op.value + ".";
-		    	var valueCheckbox = cond.querySelector('input[name="cond-value"]')
-		    	if (valueCheckbox.checked) {
-		    		output += valueTypeToChar[lhsVariable.options[lhsVariable.selectedIndex].dataset.condVarType];
-		    		output += "."
-					var rhsValue = cond.getElementsByClassName('cond-rhs-value')[0];
-		    		output += parseInt(rhsValue.name.slice(14));
-		    	} else {
-			        output += "V."
-		    		var rhsVariable = cond.querySelector('select[name="cond-rhs-var"]');
-			        output += rhsVariable.value;
-		    	}
-		    	return addToOutputArray(output);
-			} else if (cond.dataset.condType == "or") {
-				var output = "O:";
-				var numEmptySubs = condCountEmptyOrSubs(cond);
-				var subs = condFilterChildren(cond,function(x){return x.dataset.condType == "orSub";});
-				var numNonEmpty = subs.length-numEmptySubs;
-				if (numNonEmpty == 0) { // Nothing but empty clauses should just return an empty item.
-					return addToOutputArray("E");
-				} else if (numNonEmpty == 1) {  // One non-empty clause should just return that clause.
-					for (var i=0;i<subs.length;i++) {
-						if (!condOrSubIsEmpty(subs[i])) {
-							var condList = condFilterChildren(subs[i],function(x){return x.classList.contains("cond-item");});
-							return getConditionListStringHelper(condList);
-						}
-					}
-				} else {  // Two or more non-empty clases should result in an OR node.
-					output += "[";
-					for (var i=0;i<subs.length;i++) {
-						if (!condOrSubIsEmpty(subs[i])) {
-							var condList = condFilterChildren(subs[i],function(x){return x.classList.contains("cond-item");});
-							output += getConditionListStringHelper(condList);
-							output += ",";
-						}
-					}
-					output += ']';
-				}
-				return addToOutputArray(output);
-			} else if (cond.dataset.condType == "for") {
-				var output = "F:";
-				var allOrAny = cond.getElementsByClassName("cond-allOrAny")[0];
-				if (allOrAny.value == 'all') {
-					output += "*.";
-				} else {
-					output += "1.";
-				}
-				var type = cond.getElementsByClassName("cond-thingie-type")[0].value;
-				output += type + ".";
-				var allOfType = cond.getElementsByClassName('cond-'+type+'-all')[0];
-				if (allOfType.checked) {
-					output += "*";
-				} else {
-					var choiceListDiv = cond.querySelector('div.cond-'+type+'-selected-list');
-					var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
-					output += "[";
-					for (var i=0;i<choices.length;i++) {
-						output += choices[i].dataset.id + ",";
-					}
-					output += "]";
-				}
-				output += ".";
-				var insideCondDiv = cond.querySelector('div.cond-for-sub');
-				var insideCondList = condFilterChildren(insideCondDiv,function(x){return x.classList.contains("cond-item")});
-				if (insideCondList.length == 0) {
-					output += "E";
-				} else {
-					output += getConditionListStringHelper(insideCondList);
-				}
-				return addToOutputArray(output);
-			}
-    	}
-     	var items = condFilterChildren(container,function(x){return x.classList.contains("cond-item");});
-     	var output = getConditionListStringHelper(items) + ";"
-     	for (var i = 0; i<outputArray.length; i++) {
-     		output += outputArray[i] + ";";
-     	}
-     	return output;
-   	}
-   	function condFillCondString() {
-   		var container = document.getElementsByClassName("cond-container")[0];
-   		var output = condGetConditionString(container);
-   		var condString = document.getElementById("cond-cond-string");
-   		condString.value=output;
-   	}
-   	
-	var condObjectsNameToId = { {% for objectType in objectTypes %}"{{objectType.name}}":
-									{ {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
-								{% endfor %} };
-	
-	{% if initialCond %}
-   	var initialCond = {{initialCond|safe}};
-   	{% else %}
-   	var initialCond = "empty";
-   	{% endif %}
-   	var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
-	if (initialCond === "empty") {
-		condCreateAtomNode(initialEmpty.parentNode,initialEmpty,"none");
-		initialEmpty.parentNode.removeChild(initialEmpty);
-	} else {
-	   	condCreateUIFromCondition (initialCond,initialEmpty,"none");
+    return node;
+}
+
+function condHideError(node, errorTypeList) {
+    var nodeParent = condFindCondItemAncestor(node)
+
+    function hideOneErrorType(type) {
+        errors = nodeParent.getElementsByClassName(type);
+        for (var i = 0; i < errors.length; i++) { /* This should only be one, but I'm following a better safe than sorry strategy */
+            errors[i].classList.add("cond-hidden-error");
+            errors[i].classList.remove("cond-visible-error");
+        }
+    }
+    errorTypeList.forEach(hideOneErrorType);
+}
+
+function condShowError(node, errorType) {
+    var nodeParent = condFindCondItemAncestor(node);
+    errors = nodeParent.getElementsByClassName(errorType);
+    for (var i = 0; i < errors.length; i++) {
+        errors[i].classList.remove("cond-hidden-error");
+        errors[i].classList.add("cond-visible-error");
+    }
+}
+
+/* Returns true if the condition is incomplete. */
+function condCheckForErrors() {
+
+    function checkForErrorsInChildren(node, subTypeName) {
+        var errorInSub;
+        var errorsPresent = false;
+        var subConds = condFilterChildren(node, function(x) {
+            return x.classList.contains(subTypeName);
+        });
+        for (var i = 0; i < subConds.length; i++) {
+            errorInSub = checkForErrors(subConds[i]);
+            errorsPresent = errorsPresent || errorInSub;
+        }
+        return errorsPresent;
+    }
+
+    function checkForErrors(node) {
+        var errorsPresent = false;
+
+        if (node.dataset.condType == "atom") {
+            var lhs = node.querySelector('select[name="cond-var"]');
+            var rhsVar = node.querySelector('select[name="cond-rhs-var"]');
+            var rhsValue = node.getElementsByClassName("cond-rhs-value")[0];
+            var rhsIsValue = node.querySelector('input[name="cond-value"]');
+
+            if (lhs.value == 0) {
+                condShowError(node, "cond-blank-lhs-error");
+                errorsPresent = true;
+            }
+            if (!rhsIsValue.checked) {
+                if (rhsVar.value == 0) {
+                    condShowError(node, "cond-blank-rhs-var-error");
+                    errorsPresent = true;
+                }
+            } else {
+                if (rhsValue.value === "") {
+                    condShowError(node, "cond-blank-rhs-value-error");
+                    errorsPresent = true;
+                }
+            }
+            return errorsPresent;
+
+        } else if (node.dataset.condType == "for") {
+            var thingieTypeName = node.querySelector('select[name="cond-thingie-type"]').value;
+            var thingieListDiv = node.getElementsByClassName("cond-" + thingieTypeName + "-selected-list")[0];
+            var allThingies = node.getElementsByClassName("cond-" + thingieTypeName + "-all")[0];
+            var subCondsDiv = node.getElementsByClassName("cond-for-sub")[0];
+            if ((thingieListDiv.getElementsByClassName("cond-for-list-item").length == 0) && (!allThingies.checked)) {
+                condShowError(node, "cond-blank-" + thingieTypeName + "-list-error");
+                errorsPresent = true;
+            }
+            if (node.getElementsByClassName("cond-atom").length == 0) {
+                condShowError(node, "cond-no-subcond-error");
+                errorsPresent = true;
+            }
+            var errorInAtLeastOneSub = checkForErrorsInChildren(subCondsDiv, "cond-item");
+            return errorsPresent || errorInAtLeastOneSub;
+        } else if (node.dataset.condType == "or") {
+            return checkForErrorsInChildren(node, "cond-or-sub");
+        } else if (node.dataset.condType == "orSub") {
+            return checkForErrorsInChildren(node, "cond-item");
+        }
+    }
+
+    var errorsPresent = false;
+    var container = document.getElementsByClassName("cond-container")[0];
+    if (container.getElementsByTagName("DIV").length < 2) {
+        errorsPresent = true;
+        condShowError(container, "cond-no-condition-error");
+    }
+    return checkForErrorsInChildren(container, "cond-item") || errorsPresent;;
+}
+
+function condFilterChildren(node, proposition) {
+    var output = [];
+    for (var i = 0; i < node.children.length; i++) {
+        if (proposition(node.children[i])) {
+            output.push(node.children[i]);
+        }
+    }
+    return output;
+}
+
+function condToggleAtomType(checkboxx) {
+    var atom = checkboxx.parentNode.parentNode.parentNode;
+    //console.log(checkboxx);
+    var value = atom.getElementsByClassName('cond-rhs-value')[0];
+    var variable = atom.getElementsByClassName('cond-rhs-var')[0];
+    if (checkboxx.checked) {
+        variable.parentElement.hidden = true;
+        value.parentElement.removeAttribute("hidden");
+        //console.log("Checked");
+    } else {
+        value.parentElement.hidden = true;
+        variable.parentElement.removeAttribute("hidden");
+        //console.log("Not Checked");
+    }
+}
+
+function condChangeAtomToMatchType(select) {
+    console.log("changing atom type");
+    var atom = select.parentNode.parentNode.parentNode;
+    var option = select.options[select.selectedIndex];
+    var type = option.dataset.condVarType;
+    var value = atom.getElementsByClassName('cond-rhs-value')[0];
+	console.log(option);
+	console.log(type);
+	console.log(atom);
+	console.log(value);
+    if (type != value.type) {
+        // We have to remake the value node in order to change the type in some web browsers, so we just do it for everyone.
+        var newValue = document.createElement('input');
+        newValue.type = type;
+        newValue.name = value.name;
+        newValue.classList.add("cond-rhs-value");
+
+        var oldValue = value.type == "checkbox" ? (value.checked ? true : false) : value.value
+
+        // We save the type-specific value so that changing types doesn't destroy values.
+        atom.dataset["condSavedValue_" + value.type] = oldValue;
+        // And then we restore an old one if it exists
+        if (atom.dataset["condSavedValue_" + type]) {
+            var savedValue = atom.dataset["condSavedValue_" + type]
+            if (value.type == "checkbox") {
+                newValue.checked = savedValue;
+            } else {
+                newValue.value = savedValue;
+            }
+        }
+        value.parentNode.insertBefore(newValue, value);
+        value.parentNode.removeChild(value);
+        value = newValue;
+    }
+
+    function disable(opt) {
+        opt.hidden = "true";
+    }
+
+    function enable(opt) {
+        opt.removeAttribute("hidden");
+    }
+    var justEqual = {
+        "=": enable,
+        ">": disable,
+        "<": disable,
+        ">=": disable,
+        "<=": disable
+    };
+    var allOps = {
+        "=": enable,
+        ">": enable,
+        "<": enable,
+        ">=": enable,
+        "<=": enable
+    };
+    var typeStatusChange = {
+        text: justEqual,
+        date: allOps,
+        number: allOps,
+        checkbox: justEqual
+    };
+
+    var operator = atom.getElementsByClassName("cond-op")[0];
+    for (var i = 0; i < operator.options.length; i++) {
+        typeStatusChange[type][operator.options[i].value](operator.options[i]);
+    }
+}
+
+/******************************************
+ * Functions for handling ForAll UI stuff *
+ ******************************************/
+
+function condAddThingieToListByNameAndId(list, name, id) {
+    var itemDiv = document.createElement("div");
+    //itemDiv.onclick = function(e){condRemoveThingie(this)};
+    var icon = document.createElement("i");
+    icon.className = "close material-icons";
+    icon.appendChild(document.createTextNode("close"));
+    itemDiv.dataset.id = id;
+    itemDiv.className = "chip cond-for-list-item orange";
+    var name_text = document.createTextNode(name);
+    itemDiv.appendChild(name_text);
+    itemDiv.appendChild(icon);
+    list.appendChild(itemDiv);
+}
+
+function condAddThingieToList(select) {
+    var choice = select.options[select.selectedIndex];
+    var list = select.parentNode.parentNode.nextElementSibling;
+    //console.log(select.parentNode.parentNode);
+    //console.log(select.parentNode.parentNode.nextElementSibling);
+    var listOfIds = ['0'];
+    for (var i = 0; i < list.children.length; i++) { //>
+        listOfIds.push(list.children[i].dataset.id);
+    }
+    if (!listOfIds.includes(choice.value)) {
+        condAddThingieToListByNameAndId(list, choice.text, choice.value);
+    }
+}
+
+//function condRemoveThingie(item) {
+//	item.parentNode.parentNode;
+//}
+
+function condChangeForAllType(select) {
+    var currentType = select.options[select.selectedIndex].value;
+    var oldType = select.dataset.condOldType;
+    if (currentType == oldType) {
+        return;
+    }
+    select.dataset.condOldType = currentType;
+    var forAllDiv = select.parentNode.parentNode.parentNode
+    //console.log(forAllDiv)
+    //console.log(forAllDiv.children)
+    var listDivs = {};
+    var selectedDivs = {};
+    for (var i = 0; i < condForAllTypeList.length; i++) {
+        var typeI = condForAllTypeList[i];
+        listDivs[typeI] = forAllDiv.getElementsByClassName("cond-" + typeI + "-list")[0].parentNode;
+        selectedDivs[typeI] = forAllDiv.getElementsByClassName("cond-" + typeI + "-selected-list")[0];
+    }
+    listDivs[oldType].hidden = "true";
+    selectedDivs[oldType].hidden = "true";
+    selectedDivs[oldType].style.display = "none";
+    listDivs[currentType].removeAttribute("hidden");
+    selectedDivs[currentType].removeAttribute("hidden");
+    selectedDivs[currentType].style.display = "flex";
+    //console.log(selectedDivs[currentType]);
+
+    var subDivs = forAllDiv.getElementsByTagName("DIV");
+    [].forEach.call(subDivs, function(subDiv) {
+        subDiv.dataset.condInsideQualifier = currentType;
+    });
+    condUpdateAtomSelectForContext(forAllDiv, currentType);
+
+    return true;
+}
+
+/*********************************************
+ * Functions relating to draggable interface *
+ *********************************************/
+
+var condDragSource = null;
+var condSourceType = null;
+
+// The two condHandleDragStart functions are used to set up
+// visual effects and note the drag source when a drag event begins.
+
+// This one is used for the icons at the top which will be copied
+// into the condition container.
+function condHandleDragStartCopy(e) {
+    this.style.opacity = 0.4;
+    condDragSource = this;
+    condSourceType = "copy";
+    e.dataTransfer.setData('text', 'icon drag');
+    e.dataTransfer.effectAllowed = "copy";
+
+    e.stopPropagation();
+}
+
+// This one is used for the parts of the condition itself which
+// can be dragged around in order to redo things.
+function condHandleDragStartMove(e) {
+    this.style.opacity = 0.4;
+    if (!this.id) {
+        this.id = "cond-id-" + (Date.now() + Math.random()).toString(36);
+    }
+    condDragSource = this;
+    condSourceType = "move";
+    e.dataTransfer.setData('text', 'move drag');
+    e.dataTransfer.effectAllowed = "move";
+
+    e.stopPropagation();
+}
+
+function condHandleDragEnd(e) {
+    this.style.opacity = 1.0;
+}
+
+function condCanDropOn(source, target) {
+    var canDrop = true;
+    var insideFor = false;
+    var insideQualifierParts = target.dataset.condInsideQualifier.split(":");
+    if (insideQualifierParts[0] != "none") {
+    	insideFor = true;
+    }
+    if ((insideQualifierParts.length > 1) && (insideQualifierParts[1] == "scope")) {
+    	insideFor = false;
+    }
+    
+    if ((target.dataset.condType == "orBlank") &&
+        (source.id == "condOrIcon")) {
+        canDrop = false;
+    }
+
+    if (insideFor &&
+        (source.id == "condForAllIcon")) {
+        canDrop = false;
+    }
+
+    if (target.parentNode == source.parentNode) {
+        canDrop = false;
+    }
+
+    if (insideFor &&
+        (source.dataset.condType == "for")) {
+        canDrop = false;
+    }
+
+    var targetAncestor = target;
+    while (targetAncestor.parentNode) {
+        if (source == targetAncestor) {
+            canDrop = false;
+        }
+        targetAncestor = targetAncestor.parentNode;
+    }
+
+    return canDrop;
+
+}
+
+function condHandleDragOverBlank(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+
+    if (!condCanDropOn(condDragSource, this)) {
+        e.dataTransfer.dropEffect = "none";
+        return false;
+    }
+
+    e.dataTransfer.dropEffect = condSourceType;
+    return false;
+}
+
+function clonePrototype(name) {
+    var prototypeSuperDiv = document.getElementById(name);
+    var prototypeDiv = prototypeSuperDiv.getElementsByTagName('div')[0].cloneNode(true);
+    if (name == "condAtomPrototype") {
+		var id = (Date.now() + Math.random()).toString(36);
+        prototypeDiv.children[0].children[4].children[0].id = "check-" + id;
+        prototypeDiv.children[0].children[4].children[1].setAttribute("for", "check-" + id);
+        //console.log(prototypeDiv.children[0].children[4]);
+    }
+    if (name == "condForPrototype") {
+        console.log(prototypeDiv.children[1].children[1].children[1]);
+        //console.log(prototypeDiv.children[4].children[0]);
+        //console.log(prototypeDiv.children[7].children[0]);
+		var id = (Date.now() + Math.random()).toString(36);
+        prototypeDiv.children[1].children[1].children[0].id = prototypeDiv.children[1].children[1].children[0].id + id;
+        prototypeDiv.children[1].children[1].children[1].setAttribute("for", prototypeDiv.children[1].children[1].children[0].id);
+
+        prototypeDiv.children[4].children[1].children[0].id = prototypeDiv.children[4].children[1].children[0].id + id;
+        prototypeDiv.children[4].children[1].children[1].setAttribute("for", prototypeDiv.children[4].children[1].children[0].id);
+
+        prototypeDiv.children[7].children[1].children[0].id = prototypeDiv.children[7].children[1].children[0].id + id;
+        prototypeDiv.children[7].children[1].children[1].setAttribute("for", prototypeDiv.children[7].children[1].children[0].id);
+
+    }
+    return prototypeDiv;
+}
+
+function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) {
+
+	var scopePart = context.split(":")[1];
+	var scope = false;
+	if (scopePart === "scope") {
+		scope = true;
 	}
-	
-   	function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
-   		function selectOptionByValue(sel,val) {
-   			var options = sel.options;
-   			for (var i=0; i<options.length; i++) {
-   				if (options[i].value == val) {
-   					sel.selectedIndex = i;
-   					return;
-   				}
-   			}
-   		}
-   		
-   		var targetParent = targetEmpty.parentNode;
-   		function createAtom() {
-            var atomDiv = condCreateAtomNode(targetParent,targetEmpty,insideQualifier);
-            targetParent.removeChild(targetEmpty);
-			var op = atomDiv.getElementsByClassName("cond-op")[0];
- 			selectOptionByValue(op,cond.op);
-	    	var lhsVariable = atomDiv.getElementsByClassName("cond-var")[0];
-			selectOptionByValue(lhsVariable,cond.lhs);
- 			var valueCheckBox = atomDiv.getElementsByClassName("cond-value")[0];
-			if (cond.rhstype == "V") {
-				valueCheckBox.checked = false;
-	    		var rhsVariable = atomDiv.getElementsByClassName("cond-rhs-var")[0];
-	    		selectOptionByValue(rhsVariable,cond.rhsvalue);
-	    		condToggleAtomType(valueCheckBox);
-			} else {
-				valueCheckBox.checked = true;
-				var charToType = { "X":"checkbox", "Y":"date", "T":"text","N":"number"};
-				var rhsValue = atomDiv.getElementsByClassName('cond-rhs-value')[0];
-				rhsValue.type = charToType[cond.rhstype];
-				rhsValue.value = cond.rhsvalue;
-			}
-   		}
-   		function createAnd() {
-   			for (var i=0; i<cond.subConds.length; i++) {
-   				var subCond = cond.subConds[i];
-   				var empty = targetParent.querySelector('div.cond-empty');
-   				condCreateUIFromCondition(subCond,empty,insideQualifier);
-   			}
-   		}
-   		function createOr() {
-   			var orDiv = condCreateOrNode(targetParent,targetEmpty,insideQualifier);
-   			targetParent.removeChild(targetEmpty)
-   			var lastOrSub = orDiv.querySelector('div.cond-or-sub');
-   			for (var i=0; i<cond.subConds.length; i++) {
-   				var subCond = cond.subConds[i];
-   				var empty = lastOrSub.querySelector('div.cond-empty');
-   				condCreateUIFromCondition(subCond,empty,insideQualifier);
-   				if (i==0) {
-   					lastOrSub = orDiv.querySelectorAll('div.cond-or-sub')[1];
-   				} else {
-   					lastOrSub = condExpandOrNode(orDiv,insideQualifier);
-   				}
-   			}
-   		}
-   		function createFor() {
-   			var forDiv = condCreateForAllNode(targetParent,targetEmpty);
-			var allOrAny = forDiv.getElementsByClassName("cond-allOrAny")[0];
-			selectOptionByValue(allOrAny,cond.allOrAny.toLowerCase());
-			var typeSelector = forDiv.getElementsByClassName("cond-thingie-type")[0];
-			selectOptionByValue(typeSelector,cond.objectType);
-			var listDiv = forDiv.querySelector('div.cond-'+cond.objectType+'-selected-list');
-			for (var i=0;i<cond.objects.length;i++) {
-				condAddThingieToListByNameAndId(listDiv,condObjectsNameToId[cond.objectType][cond.objects[i]],cond.objects[i])
-			}
-			var empty = forDiv.getElementsByClassName("cond-empty")[0];
-			condChangeForAllType(typeSelector);
-			condCreateUIFromCondition(cond.subCond,empty,cond.objectType);
-   		}
-   		
-   		if (cond.type == "EMPTY") {
-   			condCreateAtomNode(targetParent,targetEmpty,insideQualifier);
-   			targetParent.removeChild(targetEmpty);
-   		} else if (cond.type == "ATOM") {
-   			createAtom();
-   		} else if (cond.type == "AND") {
-   			createAnd();
-   		} else if (cond.type == "OR") {
-   			createOr();
-   		} else if (cond.type == "FOR") {
-   			createFor();
-   		}
-   	}
+    context = context.split(":")[0];
+    if (context == "none") {
+        context = "global";
+    }
+    context = context.charAt(0).toUpperCase() + context.slice(1);
 
-   	function condOnSubmit() {
-   		condFillCondString();
-   		return !condCheckForErrors();
-   	}
-   	
-    </script>
+    var contextAttributeName = "condContext" + context;
 
+    function updateThisSelect(targetSelect, contextAttributeName, showGlobals) {
+        var inputs = targetSelect.getElementsByTagName("option");
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].dataset[contextAttributeName] || (showGlobals && inputs[i].dataset["condContextGlobal"])) {
+                inputs[i].removeAttribute("hidden");
+            } else {
+                inputs[i].hidden = true;
+            }
+        }
+    }
+    
+    var selects = targetDiv.getElementsByTagName("select");
+    for (var i = 0; i < selects.length; i++) {
+        var curSelect = selects[i];
+        if (curSelect.name == "cond-var") {
+            if (excludeFor) {
+            	if (condIsInFor(curSelect)) {
+            		continue;
+            	}
+            }
+            updateThisSelect(curSelect, contextAttributeName, scope);
+            if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
+                curSelect.selectedIndex = 0;
+            }
+        } else if (curSelect.name == "cond-rhs-var") {
+            if (excludeFor) {
+            	if (condIsInFor(curSelect)) {
+            		continue;
+            	}
+            }
+            updateThisSelect(curSelect, contextAttributeName, true);
+            if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
+                curSelect.selectedIndex = 0;
+            }
+        }
+    }
+}
+
+var atomCountInput = document.querySelector('input.cond-atom-count');
+
+function condCountNewAtom() {
+    var count = parseInt(atomCountInput.value);
+    atomCountInput.value = count + 1;
+    return count;
+}
+
+function condCreateAtomNode(targetParent, blank, insideQualifier) {
+    var atomDiv = clonePrototype("condAtomPrototype");
+    targetParent.insertBefore(atomDiv, blank);
+    var labelDiv = clonePrototype("condAndLabelPrototype");
+    targetParent.insertBefore(labelDiv, blank);
+    var blankDiv = clonePrototype("condEmptyAndPrototype");
+    targetParent.insertBefore(blankDiv, blank);
+    condPrepareEmptyDescendants(blankDiv, insideQualifier);
+
+    atomDiv.addEventListener("dragstart", condHandleDragStartMove, false);
+    atomDiv.addEventListener("dragend", condHandleDragEnd, false);
+
+    var value = atomDiv.getElementsByClassName('cond-rhs-value')[0];
+    value.name = "cond-rhs-value" + condCountNewAtom();
+
+    condUpdateAtomSelectForContext(atomDiv, insideQualifier);
+
+    return atomDiv;
+}
+
+function condCreateOrNode(targetParent, blank, insideQualifier) {
+    var orDiv = clonePrototype("condOrPrototype");
+    targetParent.insertBefore(orDiv, blank);
+    var labelDiv = clonePrototype("condAndLabelPrototype");
+    targetParent.insertBefore(labelDiv, blank);
+    var blankDiv = clonePrototype("condEmptyAndPrototype");
+    targetParent.insertBefore(blankDiv, blank);
+    condPrepareEmptyDescendants(orDiv, insideQualifier);
+    condPrepareEmptyDescendants(blankDiv, insideQualifier);
+
+    orDiv.addEventListener("dragstart", condHandleDragStartMove, false);
+    orDiv.addEventListener("dragend", condHandleDragEnd, false);
+
+    return orDiv;
+}
+
+function condExpandOrNode(targetParent, insideQualifier) {
+    var labelDiv = clonePrototype("condOrLabelPrototype");
+    targetParent.appendChild(labelDiv);
+    var blankSubDiv = clonePrototype("condEmptyOrSubPrototype");
+    targetParent.appendChild(blankSubDiv);
+    condPrepareEmptyDescendants(blankSubDiv, insideQualifier);
+    return blankSubDiv;
+}
+
+function condCreateForAllNode(targetParent, blank) {
+    var blankDiv = clonePrototype("condEmptyAndPrototype");
+    targetParent.insertBefore(blankDiv, blank);
+    var labelDiv = clonePrototype("condAndLabelPrototype");
+    targetParent.insertBefore(labelDiv, blank);
+    var forAllDiv = clonePrototype("condForPrototype");
+    targetParent.insertBefore(forAllDiv, blank);
+    condPrepareEmptyDescendants(blankDiv, "none");
+    condPrepareEmptyDescendants(forAllDiv, "{{defaultObject}}");
+
+    forAllDiv.addEventListener("dragstart", condHandleDragStartMove, false);
+    forAllDiv.addEventListener("dragend", condHandleDragEnd, false);
+    return forAllDiv;
+}
+
+function condOrIsFull(orNode) {
+    return (condCountEmptyOrSubs(orNode) == 0);
+}
+
+function condOrSubIsEmpty(orSubNode) {
+    return orSubNode.getElementsByClassName("cond-item").length == 0;
+}
+
+function condCountEmptyOrSubs(orNode) {
+    var numEmptySubs = 0;
+    var orSubs = orNode.getElementsByClassName("cond-or-sub");
+    for (var i = 0; i < orSubs.length; i++) {
+        if (condOrSubIsEmpty(orSubs[i])) {
+            numEmptySubs++;
+        }
+    }
+    return numEmptySubs;
+}
+
+function condCleanUpOr(orNode) {
+    var orSubs = orNode.getElementsByClassName("cond-or-sub");
+    if (orSubs.length == 2) {
+        return;
+    }
+    var emptyCount = 0;
+    var subItems = [];
+    for (var i = 0; i < orSubs.length; i++) {
+        subItems[i] = orSubs[i].getElementsByClassName("cond-item");
+        if (subItems[i].length == 0) {
+            emptyCount += 1;
+        }
+    }
+
+    var j = 0;
+    while (emptyCount > 1) {
+        if (subItems[j].length == 0) {
+            orNode.removeChild(orSubs[j].nextElementSibling);
+            orNode.removeChild(orSubs[j]);
+            emptyCount -= 1;
+        }
+        j++;
+    }
+}
+
+// This function adds event listeners and also sets the flag
+// for whether or not they are inside a qualifier block
+function condPrepareEmptyDescendants(node, insideQualifier) {
+    function prepareEmptyDescendantsHelper(node) {
+        if (node.nodeName == "DIV") {
+            node.dataset.condInsideQualifier = insideQualifier;
+            if (node.classList.contains("cond-empty")) {
+                node.addEventListener("dragover", condHandleDragOverBlank, false);
+                node.addEventListener("drop", condHandleDropOnBlank, false);
+            }
+        }
+        // Recursive call for all children
+        [].forEach.call(node.childNodes, prepareEmptyDescendantsHelper);
+    }
+    prepareEmptyDescendantsHelper(node);
+}
+
+function condHandleDropOnBlank(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+
+    var targetParent = e.target.parentNode;
+    var insideQualifier = e.target.dataset.condInsideQualifier;
+    if (condIsInFor(e)) {
+        // We have just dragged something new inside a For.  We need to
+        // turn off the error message for that for if the new thing we have dragged is
+        // an atom.
+        if (condDragSource.id == "condAtomIcon" || condDragSource.dataset.condType == "atom") {
+            // Find ancestor which is the for object so that we can hide the error.
+            var ancestor = targetParent;
+            while (ancestor.dataset.condType != "for") {
+                ancestor = ancestor.parentNode;
+            }
+            condHideError(ancestor, ["cond-no-subcond-error"]);
+        }
+    }
+    if (condDragSource.id == "condOrIcon") {
+        condCreateOrNode(targetParent, e.target, insideQualifier);
+        targetParent.removeChild(e.target);
+    } else if (condDragSource.id == "condAtomIcon") {
+        condCreateAtomNode(targetParent, e.target, insideQualifier);
+        targetParent.removeChild(e.target);
+        condHideError(document.getElementsByClassName("cond-container")[0], ["cond-no-condition-error"]);
+    } else if (condDragSource.id == "condForAllIcon") {
+        condCreateForAllNode(targetParent, e.target);
+        targetParent.removeChild(e.target);
+    } else /* a node to be moved */ {
+        var sourceParentIsOr =
+            condDragSource.parentNode.parentNode.dataset.condType == "or";
+        var sourceOr;
+        if (sourceParentIsOr) {
+            sourceOr = condDragSource.parentNode.parentNode;
+        }
+        if ((condDragSource.dataset.condType == "or") ||
+            (condDragSource.dataset.condType == "atom")) {
+            var andLabelDiv = condDragSource.nextElementSibling;
+            targetParent.insertBefore(condDragSource, e.target);
+            targetParent.insertBefore(andLabelDiv, e.target);
+        } else { // for
+            var sourceAndLabelDiv = condDragSource.previousElementSibling;
+            if (e.target.nextElementSibling) {
+                var targetAndLabelDiv = e.target.nextElementSibling;
+                targetParent.insertBefore(sourceAndLabelDiv, targetAndLabelDiv);
+                targetParent.insertBefore(condDragSource, targetAndLabelDiv);
+            } else { // Last on list.
+                targetParent.appendChild(sourceAndLabelDiv);
+                targetParent.appendChild(condDragSource);
+            }
+        }
+        if (sourceParentIsOr) {
+            condCleanUpOr(sourceOr);
+        }
+        condUpdateAtomSelectForContext(condDragSource, insideQualifier);
+    }
+
+    if (targetParent.dataset.condType == "orSub") {
+        if (condOrIsFull(targetParent.parentNode)) {
+            condExpandOrNode(targetParent.parentNode, insideQualifier);
+        }
+    }
+
+}
+
+var icons = document.querySelectorAll('.cond-icon');
+[].forEach.call(icons, function(icon) {
+    icon.addEventListener('dragstart', condHandleDragStartCopy, false);
+    icon.addEventListener('dragend', condHandleDragEnd, false);
+});
+
+var blanks = document.querySelectorAll('.cond-empty');
+[].forEach.call(blanks, function(blank) {
+    blank.addEventListener('dragover', condHandleDragOverBlank, false);
+    blank.addEventListener('drop', condHandleDropOnBlank, false);
+});
+
+function condHandleDragOverTrash(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+
+    if (condDragSource.classList.contains("cond-icon")) {
+        e.dataTransfer.dropEffect = "none";
+        return false;
+    }
+
+    e.dataTransfer.dropEffect = "move";
+    return false;
+}
+
+function condHandleDropOnTrash(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+
+    if (condDragSource.classList.contains("cond-icon")) {
+        return;
+    }
+
+    var sourceParent = condDragSource.parentNode;
+    var sourceLabel = condDragSource.dataset.condType == "for" ?
+        condDragSource.previousElementSibling :
+        condDragSource.nextElementSibling;
+    sourceParent.removeChild(condDragSource);
+    sourceParent.removeChild(sourceLabel);
+    if ((sourceParent.parentNode) && (sourceParent.parentNode.dataset.condType == "or")) {
+        condCleanUpOr(sourceParent.parentNode);
+    }
+}
+
+trashCan = document.getElementById("condTrashIcon");
+trashCan.addEventListener('dragover', condHandleDragOverTrash, false);
+trashCan.addEventListener('drop', condHandleDropOnTrash, false);
+
+/************************************
+ * Functions for Saving and Loading *
+ ************************************/
+
+var valueTypeToChar = {
+    text: 'T',
+    date: 'Y',
+    checkbox: 'X',
+    number: 'N'
+}
+
+function condGetConditionString(container) {
+
+    var outputArray = []
+
+    function addToOutputArray(str) {
+        return outputArray.push(str);
+    }
+
+    function getConditionListStringHelper(condList) {
+        if (condList.length == 0) {
+            return "";
+        } else if (condList.length == 1) {
+            return getConditionStringHelper(condList[0]);
+        } else {
+            var output = "D:";
+            output += "[";
+            for (var i = 0; i < condList.length; i++) {
+                output += getConditionStringHelper(condList[i]);
+                output += ",";
+            }
+            output += ']';
+            return addToOutputArray(output);
+        }
+    }
+
+    function getConditionStringHelper(cond) {
+        if (cond.classList.contains("cond-empty")) {
+            return "";
+        } else if (cond.dataset.condType == "atom") {
+            var output = "A:";
+            var lhsVariable = cond.querySelector('select[name="cond-var"]');
+            output += "V." + lhsVariable.value + ".";
+            //var op = cond.getElementsByClassName("cond-op")[0];
+            var op = cond.querySelector('select[name="cond-op"]');
+            output += op.value + ".";
+            var valueCheckbox = cond.querySelector('input[name="cond-value"]')
+            if (valueCheckbox.checked) {
+                output += valueTypeToChar[lhsVariable.options[lhsVariable.selectedIndex].dataset.condVarType];
+                output += "."
+                var rhsValue = cond.getElementsByClassName('cond-rhs-value')[0];
+                output += parseInt(rhsValue.name.slice(14));
+            } else {
+                output += "V."
+                var rhsVariable = cond.querySelector('select[name="cond-rhs-var"]');
+                output += rhsVariable.value;
+            }
+            return addToOutputArray(output);
+        } else if (cond.dataset.condType == "or") {
+            var output = "O:";
+            var numEmptySubs = condCountEmptyOrSubs(cond);
+            var subs = condFilterChildren(cond, function(x) {
+                return x.dataset.condType == "orSub";
+            });
+            var numNonEmpty = subs.length - numEmptySubs;
+            if (numNonEmpty == 0) { // Nothing but empty clauses should just return an empty item.
+                return addToOutputArray("E");
+            } else if (numNonEmpty == 1) { // One non-empty clause should just return that clause.
+                for (var i = 0; i < subs.length; i++) {
+                    if (!condOrSubIsEmpty(subs[i])) {
+                        var condList = condFilterChildren(subs[i], function(x) {
+                            return x.classList.contains("cond-item");
+                        });
+                        return getConditionListStringHelper(condList);
+                    }
+                }
+            } else { // Two or more non-empty clases should result in an OR node.
+                output += "[";
+                for (var i = 0; i < subs.length; i++) {
+                    if (!condOrSubIsEmpty(subs[i])) {
+                        var condList = condFilterChildren(subs[i], function(x) {
+                            return x.classList.contains("cond-item");
+                        });
+                        output += getConditionListStringHelper(condList);
+                        output += ",";
+                    }
+                }
+                output += ']';
+            }
+            return addToOutputArray(output);
+        } else if (cond.dataset.condType == "for") {
+            var output = "F:";
+            var allOrAny = cond.querySelector('select[name="cond-allOrAny"]');
+            if (allOrAny.value == 'all') {
+                output += "*.";
+            } else {
+                output += "1.";
+            }
+            var type = cond.querySelector('select[name="cond-thingie-type"]').value;
+            output += type + ".";
+            var allOfType = cond.querySelector('input[name="cond-'+type+'-all"]');
+            if (allOfType.checked) {
+                output += "*";
+            } else {
+                var choiceListDiv = cond.querySelector('div.cond-' + type + '-selected-list');
+                var choices = choiceListDiv.getElementsByClassName("cond-for-list-item");
+                output += "[";
+                for (var i = 0; i < choices.length; i++) {
+                    output += choices[i].dataset.id + ",";
+                }
+                output += "]";
+            }
+            output += ".";
+            var insideCondDiv = cond.querySelector('div.cond-for-sub');
+            var insideCondList = condFilterChildren(insideCondDiv, function(x) {
+                return x.classList.contains("cond-item")
+            });
+            if (insideCondList.length == 0) {
+                output += "E";
+            } else {
+                output += getConditionListStringHelper(insideCondList);
+            }
+            return addToOutputArray(output);
+        }
+    }
+    var items = condFilterChildren(container, function(x) {
+        return x.classList.contains("cond-item");
+    });
+    var output = getConditionListStringHelper(items) + ";"
+    for (var i = 0; i < outputArray.length; i++) {
+        output += outputArray[i] + ";";
+    }
+    return output;
+}
+
+function condFillCondString() {
+    var container = document.getElementsByClassName("cond-container")[0];
+    var output = condGetConditionString(container);
+    var condString = document.getElementById("cond-cond-string");
+    condString.value = output;
+}
+
+{% if initialCond %}
+var initialCond = {{initialCond|safe}};
+{% else %}
+var initialCond = "empty";
+{% endif %}
+
+var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
+if (initialCond === "empty") {
+    condCreateAtomNode(initialEmpty.parentNode, initialEmpty, "none");
+    initialEmpty.parentNode.removeChild(initialEmpty);
+} else {
+    condCreateUIFromCondition(initialCond, initialEmpty, "none");
+}
+
+function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
+    function selectOptionByValue(sel, val) {
+        var options = sel.options;
+        for (var i = 0; i < options.length; i++) {
+            if (options[i].value == val) {
+                sel.selectedIndex = i;
+                return;
+            }
+        }
+    }
+
+    var targetParent = targetEmpty.parentNode;
+
+    function createAtom() {
+        var atomDiv = condCreateAtomNode(targetParent, targetEmpty, insideQualifier);
+        targetParent.removeChild(targetEmpty);
+        var op = atomDiv.querySelector('select[name="cond-op"]');
+        selectOptionByValue(op, cond.op);
+        var lhsVariable = atomDiv.querySelector('select[name="cond-var"]');
+        selectOptionByValue(lhsVariable, cond.lhs);
+        var valueCheckBox = atomDiv.querySelector('input[name="cond-value"]');
+        if (cond.rhstype == "V") {
+            valueCheckBox.checked = false;
+            var rhsVariable = atomDiv.querySelector('select[name="cond-rhs-var"]');
+            selectOptionByValue(rhsVariable, cond.rhsvalue);
+            condToggleAtomType(valueCheckBox);
+        } else {
+            valueCheckBox.checked = true;
+            var charToType = {
+                "X": "checkbox",
+                "Y": "date",
+                "T": "text",
+                "N": "number"
+            };
+            var rhsValue = atomDiv.getElementsByClassName('cond-rhs-value')[0];
+            rhsValue.type = charToType[cond.rhstype];
+            rhsValue.value = cond.rhsvalue;
+        }
+    }
+
+    function createAnd() {
+        for (var i = 0; i < cond.subConds.length; i++) {
+            var subCond = cond.subConds[i];
+            var empty = targetParent.querySelector('div.cond-empty');
+            condCreateUIFromCondition(subCond, empty, insideQualifier);
+        }
+    }
+
+    function createOr() {
+        var orDiv = condCreateOrNode(targetParent, targetEmpty, insideQualifier);
+        targetParent.removeChild(targetEmpty)
+        var lastOrSub = orDiv.querySelector('div.cond-or-sub');
+        for (var i = 0; i < cond.subConds.length; i++) {
+            var subCond = cond.subConds[i];
+            var empty = lastOrSub.querySelector('div.cond-empty');
+            condCreateUIFromCondition(subCond, empty, insideQualifier);
+            if (i == 0) {
+                lastOrSub = orDiv.querySelectorAll('div.cond-or-sub')[1];
+            } else {
+                lastOrSub = condExpandOrNode(orDiv, insideQualifier);
+            }
+        }
+    }
+
+    function createFor() {
+        var forDiv = condCreateForAllNode(targetParent, targetEmpty);
+        var allOrAny = forDiv.querySelector('select[name="cond-allOrAny"]');
+        selectOptionByValue(allOrAny, cond.allOrAny.toLowerCase());
+        var allObjectsInput = forDiv.querySelector('input[name="cond-'+cond.objectType+'-all"]');
+        if(cond.allObjects == "True"){
+        	allObjectsInput.checked = cond.allObjects;
+        }
+        var typeSelector = forDiv.querySelector('select[name="cond-thingie-type"]');
+        selectOptionByValue(typeSelector, cond.objectType);
+        var listDiv = forDiv.querySelector('div.cond-' + cond.objectType + '-selected-list');
+        for (var i = 0; i < cond.objects.length; i++) {
+            condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[cond.objectType][cond.objects[i]], cond.objects[i])
+        }
+        var empty = forDiv.getElementsByClassName("cond-empty")[0];
+        condChangeForAllType(typeSelector);
+        condCreateUIFromCondition(cond.subCond, empty, cond.objectType);
+    }
+
+    if (cond.type == "EMPTY") {
+        condCreateAtomNode(targetParent, targetEmpty, insideQualifier);
+        targetParent.removeChild(targetEmpty);
+    } else if (cond.type == "ATOM") {
+        createAtom();
+    } else if (cond.type == "AND") {
+        createAnd();
+    } else if (cond.type == "OR") {
+        createOr();
+    } else if (cond.type == "FOR") {
+        createFor();
+    }
+}
+
+function condOnSubmit() {
+	condFillSpecifierString();
+    condFillCondString();
+    return !condCheckForErrors();
+}
+ </script>

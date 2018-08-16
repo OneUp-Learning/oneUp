@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import utcDate, initialContextDict
 from Students.models import StudentActivities
 from Badges.events import register_event
 from Badges.enums import Event
@@ -22,10 +22,10 @@ default_student_points = -1
 default_student_bonus = 0
 
 def activityAssignPointsView(request):   
-    
+    context_dict, currentCourse = initialContextDict(request)
+
     if request.method == 'POST':
         # Get all students assigned to the current course (AH)
-        currentCourse = Courses.objects.get(courseID=request.session['currentCourseID'])
         studentRCList = StudentRegisteredCourses.objects.filter(courseID = currentCourse)
         
         activity = Activities.objects.get(activityID = request.POST['activityID'])
@@ -48,7 +48,6 @@ def activityAssignPointsView(request):
                     # In this case there is already a grade, but the instructor has now set the grade back to -1 (ungraded)
                     # We are treating this as a special case meaning that the instructor wishes to delete the grade.
                     stud_activity.delete()
-                
                 else:
                     changesNeedSaving = False
 
@@ -72,6 +71,16 @@ def activityAssignPointsView(request):
                     if changesNeedSaving:
                         stud_activity.save()
 
+                stud_activity.timestamp = utcDate()
+                stud_activity.graded = True
+                stud_activity.save()
+                activityGradedNow[studentRC.studentID] = True
+    
+                actName = activity.activityName
+                    
+                notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                            verb= actName+' has been graded', nf_type='Activity Graded')
+            
             else:
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
                 if not studentPoints == default_student_points or not studentBonus == default_student_bonus:
@@ -95,7 +104,7 @@ def activityAssignPointsView(request):
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb= activity.activityName+' has been graded', nf_type='Activity Graded')
 
-                    activityGradedNow[studentRC.studentID] = True
+                activityGradedNow[studentRC.studentID] = True
        
         #Register event for participationNoted
         for studentRC in studentRCList:
@@ -105,17 +114,12 @@ def activityAssignPointsView(request):
                 print("Registered Event: Participation Noted Event, Student: " + str(studentRC.studentID) + ", Activity Assignment: " + str(activity))                          
     
     # prepare context for Activity List      
-    context_dict = createContextForActivityList(request) 
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
+    context_dict = createContextForActivityList(request, context_dict, currentCourse) 
             
     return redirect('/oneUp/instructors/activitiesList', context_dict)    
         
         
-def createContextForPointsAssignment(request):
-    context_dict = { }
+def createContextForPointsAssignment(request, context_dict, currentCourse):
     student_ID = []
     student_Name = []
     student_Points = [] 
@@ -123,7 +127,7 @@ def createContextForPointsAssignment(request):
     student_Feedback = []
     File_Name = []
     
-    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name')
+    studentCourse = StudentRegisteredCourses.objects.filter(courseID = currentCourse).order_by('studentID__user__last_name')
     
     for stud_course in studentCourse:
         student = stud_course.studentID
@@ -174,19 +178,9 @@ def createContextForPointsAssignment(request):
     
 @login_required
 def assignedPointsList(request):
+    context_dict, currentCourse = initialContextDict(request)
 
-    context_dict = createContextForPointsAssignment(request)
-
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
-        context_dict["username"]=request.user.username
-
-    # check if course was selected
-    if 'currentCourseID' in request.session:
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
-    else:
-        context_dict['course_Name'] = 'Not Selected'        
+    context_dict = createContextForPointsAssignment(request, context_dict, currentCourse)
 
     return render(request,'Instructors/ActivityAssignPointsForm.html', context_dict)
 

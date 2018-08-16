@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %} 
+      <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
+      <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+	<script type="text/javascript">
+	
+		function validateModelSolution(){
+			console.log("Editor Value");
+			var editorValue = editor.getValue();
+			console.log(editorValue);
+			
+			var submit = true;
+         	if(editorValue == ""){
+         		alert("Error: No Model Solution!");
+         		submit = false;
+         	}
+         	
+         	var CKEDITOR_data = CKEDITOR.instances.question_text.getData();
+         	if(CKEDITOR_data == ""){
+         		alert("Error: No Problem Text!");
+         		submit = false;
+         	}
+            return submit;
+		}
+        function copyContentsToHidden() {
+            document.question.setupCode.value = editor.getValue();
+        }
+        
+
+        $( document ).ready(function(){
+       	 {% if view %}
+        	var tags = JSON.parse('{{ tags | escapejs }}')
+			var topics = JSON.parse('{{ topics | escapejs }}')
+			for(var i = 0; i < tags.length; i++){
+				var tag = tags[i];
+				var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
+				$('#tags').append($(tagDOM));
+			}
+        {% else %}
+           $('.chips').material_chip();
+            $('.chips-tags').material_chip({
+                data: JSON.parse('{{ tags | escapejs }}'),
+                placeholder: 'Enter a tag',
+            });
+            $('#form').submit(function(){
+                var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+                
+                $('#form').append($(tags));
+                console.log($('.chips-tags').material_chip('data'));
+                copyContentsToHidden();
+            });
+            {% endif %}
+        });
+     </script> 
+           
+   <style>
+        #editor {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .lineHighlight {
+            position: absolute;
+            background: rgba(100, 200, 100, 0.5);
+            z-index: 20
+        }
+    </style>  
+        
+   </head>
+   
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>{{challengeName}}</h3>
+               <h4>Create/Edit Parsons Problem</h4>
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+               <form id="form" name="question" action="/oneUp/instructors/forms/ParsonsForm"  onsubmit="return validateModelSolution()" method="POST">
+                  {% csrf_token %}
+                  {% if questionId %}
+                  <input type="hidden" name="questionId" id="questionId" value="{{questionId}}">
+                  {% endif %}
+                  {% if challengeID %}
+                  <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
+                  {% endif %}
+                  <input type="hidden" name="numAnswers" id="numAnswers" value="2">
+                  <input type="hidden" name="newSkills" id="newSkills" value="">
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="col s12">
+                               <h5>Problem Info</h5>
+                           </div>
+                           <div class="input-field col s12">
+                                <i class="material-icons prefix">mode_edit</i>
+                              <input value="{{preview}}" name="preview" id="preview" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
+                              <label for="preview"><span class= "red-text">*</span> Problem Preview</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                                <label for="question_text"><span class= "red-text">*</span> Problem Text</label>
+                              <textarea name="questionText" id="question_text" rows="2" cols="70" {%if view%}readonly{%else%}required{%endif%}>{{questionText}}</textarea>
+
+                              <script type="text/javascript">
+                				CKEDITOR.config.autoParagraph = false;
+                				CKEDITOR.replace( 'questionText' );
+              				  </script>
+              				  
+                           </div>
+                        </div>
+                        
+                        <div class="row">
+                        
+                        <div class="col s5">
+                        <label>Language</label>
+                        <select id="LanguageOption" name="languageName" {%if view%}readonly{%endif%}>
+                                          <option val="java" value="java" {%if view%}disabled{%endif%}>java</option>
+                                          <option val="python" value="python" {%if view%}disabled{%endif%}>python</option>
+                                          </select>
+                                          
+                                       </div>
+                                       
+                                       <div class="col s5">
+                                       <label>Code Indentation</label>
+                        <select id="indentationBoolean" name="indetationBoolean" {%if view%}readonly{%endif%}>
+                                          <option val="true" value="true" {%if view%}disabled{%endif%}>true</option>
+                                          <option val="false" value="false" {%if view%}disabled{%endif%}>false</option>
+                                       </select>
+                                       
+                                       </div>
+                                       </div>
+                                       
+                                     <script  type="text/javascript"> 
+                             
+                              //GGM Code to set the language and indentation
+                              $( document ).ready(function() {
+                                     if ("{{languageName}}" != '')  {
+                                    	 $('#LanguageOption').val("{{languageName}}");
+
+                                         // re-initialize material-select
+                                         $('#LanguageOption').material_select();
+                                     } 
+                                     
+                                     if ("{{indentation}}" != '')  {
+                                    	 $('#indentationBoolean').val("{{indentation}}");
+
+                                         // re-initialize material-select
+                                         $('#indentationBoolean').material_select();
+                                     } 
+                                 });
+                              </script>   
+                                       
+
+                        <div class="row">
+                            <div class="col s12">
+                                <h5><span class= "red-text">*</span>Model Solution</h5>
+                            </div>
+                            <div class="col s12">
+                                <div id="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode" id="setupCode">{{model_solution}}</textarea></div>
+                                <script>
+                                    var editor = ace.edit("editor");
+                                    editor.setTheme("ace/theme/chrome");
+                                    editor.session.setMode("ace/mode/java");
+                                </script>
+                                <input type="hidden" name="setupCode" style="display: none;" />
+                            </div>
+                        </div>
+
+
+                         <div class="row">
+                           <div class="input-field col s12">
+                              <select  name="difficulty" id="difficulty" {%if view%}readonly{%endif%}>
+                                 <option val="Easy" value="Easy"  {%if view%}disabled{%endif%}>Easy</option>
+                                 <option val="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
+                                 <option val="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
+                              </select>
+                              <label>Difficulty</label>
+                              <script  type="text/javascript"> 
+                             
+                              //GGM Difficulty Setting Updated Code
+                              $( document ).ready(function() {
+                                     if ("{{difficulty}}" != '')  {
+                                    	 $('#difficulty').val("{{difficulty}}");
+
+                                         // re-initialize material-select
+                                         $('#difficulty').material_select();
+                                     } 
+                                 });
+                              </script> 
+                           </div>
+                        </div>       
+                        {% if challenge %}
+                        {% if unassign %}
+                        <input type="hidden" name="points" value="0" id="Points">
+                        {% else %}
+                        <div class="row">
+                            <div class="col s12">
+                                <h5><span class= "red-text">*</span>Points</h5>
+                            </div>
+                        
+                           <div class="input-field col s12">
+                              <input value="{{points}}" name="points" id="points" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%}  min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>                             
+                           </div>
+                        </div>
+                        {% endif %}
+                        <div class="row">
+                           <div class="col s12">
+                                <div class="col s12">
+                                   <h5>Skills</h5>
+                                </div>
+                                <div class="col s12">
+                               {% include "Instructors/ProblemSkillEmbed.html" %}
+                               </div>
+                           </div>
+                        </div>
+                        {% endif %}
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Feedback</h5>
+                           </div>
+                           <div class="input-field col s12">
+                              <i class="material-icons prefix">mode_edit</i>
+                              <textarea name="correctAnswerFeedback" id="correct_feedback" class="materialize-textarea">{{correctAnswerFeedback}}</textarea>
+                              <label for="correct_feedback">Feedback for Correct Answers</label>
+                           </div>
+                           <div class="input-field col s12">
+                              <i class="material-icons prefix">mode_edit</i>
+                              <textarea name="incorrectAnswerFeedback" id="incorrect_feedback" class="materialize-textarea">{{incorrectAnswerFeedback}}</textarea>
+                              <label for="incorrect_feedback">Feedback for Incorrect Answers</label>
+                           </div>
+                           <div class="input-field col s12">
+                              <i class="material-icons prefix">mode_edit</i>
+                              <textarea name="instructorNotes" id="instructor_notes" class="materialize-textarea">{{instructorNotes}}</textarea>
+                              <label for="instructor_notes">Instructor Notes</label>
+                           </div>
+                           <div class="input-field col s12">
+                              <i class="material-icons prefix">mode_edit</i>
+                              <textarea name="author" id="author" class="materialize-textarea">{{author}}</textarea>
+                              <label for="author">Author</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <h5>Tags</h5>
+                            </div>
+                           <div class="col s12">
+                              <label for="tags">Add Tags</label>
+                              <div id="tags" class="chips chips-tags"></div>
+                           </div>
+                        </div>
+                     </div>
+                      
+                     <div class="card-action right-align">
+                        {% if view %}
+                        <a class="waves-effect waves-light btn" href="#!" onclick="window.history.back();"><i class="material-icons left">navigate_before</i>Back</a>
+                        {% else %}
+                        <button class="btn waves-effect waves-light"  type="submit" name="submit">Save<i class="material-icons right">send</i></button>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeQuestionsList?challengeID={{challengeID}}">
+                        <i class="material-icons left">close</i>Cancel</a>
+                        {% endif %}
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>
