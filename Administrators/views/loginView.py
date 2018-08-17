@@ -9,7 +9,7 @@ def loginView(request):
     context_dict = { }
     
     context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         user = request.user
         context_dict["username"]=user.username
                 
