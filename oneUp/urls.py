@@ -1,4 +1,5 @@
 from django.conf.urls import include, url
+from django.urls import path
 from django.conf import settings
 
 from django.contrib import admin
@@ -14,7 +15,7 @@ urlpatterns = [
     #url(r'^$', 'oneUp.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
-    url(r'^admin/', include(admin.site.urls)),
+    path('admin/', admin.site.urls),
     url(r'^oneUp/instructors/', include('Instructors.urls')),
     url(r'^oneUp/students/', include('Students.urls')),
     url(r'^oneUp/badges/', include('Badges.urls')),

@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             name='StudentRegisteredCourses',
             fields=[
                 ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
-                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='the related course', default=1)),
-                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student')),
+                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='the related course', default=1,on_delete=models.CASCADE)),
+                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student',on_delete=models.CASCADE)),
             ],
             options={
             },

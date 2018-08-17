@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('activityAssigmentID', models.AutoField(serialize=False, primary_key=True)),
                 ('pointsReceived', models.IntegerField()),
-                ('activityID', models.ForeignKey(to='Instructors.Activities', verbose_name='Activity ID')),
-                ('recipientStudentID', models.ForeignKey(to='Students.Student', verbose_name='Recipient Student ID')),
+                ('activityID', models.ForeignKey(to='Instructors.Activities', verbose_name='Activity ID',on_delete=models.CASCADE)),
+                ('recipientStudentID', models.ForeignKey(to='Students.Student', verbose_name='Recipient Student ID',on_delete=models.CASCADE)),
             ],
             options={
             },

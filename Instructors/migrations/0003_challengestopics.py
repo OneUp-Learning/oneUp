@@ -15,8 +15,8 @@ class Migration(migrations.Migration):
             name='ChallengesTopics',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('challengeID', models.ForeignKey(verbose_name=b'challenges', to='Instructors.Challenges')),
-                ('topicID', models.ForeignKey(verbose_name=b'topic', to='Instructors.Topics')),
+                ('challengeID', models.ForeignKey(verbose_name=b'challenges', to='Instructors.Challenges',on_delete=models.CASCADE)),
+                ('topicID', models.ForeignKey(verbose_name=b'topic', to='Instructors.Topics',on_delete=models.CASCADE)),
             ],
             options={
             },

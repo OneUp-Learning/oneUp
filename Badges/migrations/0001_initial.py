@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 ('badgeDescription', models.CharField(max_length=100)),
                 ('badgeImage', models.CharField(max_length=30)),
                 ('assignToChallenges', models.IntegerField(max_length=1)),
-                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses')),
+                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
             name='CourseMechanics',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses')),
+                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -106,8 +106,8 @@ class Migration(migrations.Migration):
                 ('ruleID', models.AutoField(primary_key=True, serialize=False)),
                 ('eventID', models.IntegerField(verbose_name='the related event', db_index=True)),
                 ('actionID', models.IntegerField(verbose_name='the related action', db_index=True)),
-                ('conditionID', models.ForeignKey(verbose_name='the related condition', to='Badges.Conditions')),
-                ('courseID', models.ForeignKey(verbose_name='Course the rule belongs to', to='Instructors.Courses')),
+                ('conditionID', models.ForeignKey(verbose_name='the related condition', to='Badges.Conditions',on_delete=models.CASCADE)),
+                ('courseID', models.ForeignKey(verbose_name='Course the rule belongs to', to='Instructors.Courses',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -126,31 +126,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='coursemechanics',
             name='gameMechanismID',
-            field=models.ForeignKey(verbose_name='the related game mechanism', to='Badges.GameMechanics'),
+            field=models.ForeignKey(verbose_name='the related game mechanism', to='Badges.GameMechanics',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badges',
             name='ruleID',
-            field=models.ForeignKey(verbose_name='the related rule', to='Badges.Rules'),
+            field=models.ForeignKey(verbose_name='the related rule', to='Badges.Rules',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badgechallenges',
             name='badgeID',
-            field=models.ForeignKey(verbose_name='the related badge', to='Badges.Badges'),
+            field=models.ForeignKey(verbose_name='the related badge', to='Badges.Badges',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badgechallenges',
             name='challengeID',
-            field=models.ForeignKey(verbose_name='the related challenge', to='Instructors.Challenges'),
+            field=models.ForeignKey(verbose_name='the related challenge', to='Instructors.Challenges',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='actionarguments',
             name='ruleID',
-            field=models.ForeignKey(verbose_name='the related rule', to='Badges.Rules'),
+            field=models.ForeignKey(verbose_name='the related rule', to='Badges.Rules',on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

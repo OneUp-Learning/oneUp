@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('courseAuthor', models.CharField(max_length=75)),
                 ('courseBucks', models.BooleanField(default=False)),
                 ('isClassAverageDisplayed', models.BooleanField(default=False)),
-                ('courseID', models.ForeignKey(verbose_name='course', to='Instructors.Courses')),
+                ('courseID', models.ForeignKey(verbose_name='course', to='Instructors.Courses',on_delete=models.CASCADE )),
             ],
             options={
             },

@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('universityID', models.CharField(max_length=100)),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL,on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('questionTotal', models.DecimalField(decimal_places=2, max_digits=6)),
                 ('usedHint', models.BooleanField(default=True)),
                 ('instructorFeedback', models.CharField(max_length=200)),
-                ('questionID', models.ForeignKey(verbose_name='the related question', to='Instructors.Questions')),
+                ('questionID', models.ForeignKey(verbose_name='the related question', to='Instructors.Questions',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -67,9 +67,9 @@ class Migration(migrations.Migration):
                 ('testScore', models.DecimalField(decimal_places=2, max_digits=6)),
                 ('testTotal', models.DecimalField(decimal_places=2, max_digits=6)),
                 ('instructorFeedback', models.CharField(max_length=200)),
-                ('challengeID', models.ForeignKey(verbose_name='the related challenge', to='Instructors.Challenges')),
-                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses')),
-                ('studentID', models.ForeignKey(verbose_name='the related student', to='Students.Student')),
+                ('challengeID', models.ForeignKey(verbose_name='the related challenge', to='Instructors.Challenges',on_delete=models.CASCADE)),
+                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses',on_delete=models.CASCADE)),
+                ('studentID', models.ForeignKey(verbose_name='the related student', to='Students.Student',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -80,8 +80,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('skillPoints', models.IntegerField(default=1, max_length=5)),
-                ('skillID', models.ForeignKey(verbose_name='the related skill', to='Instructors.Skills')),
-                ('studentChallengeQuestionID', models.ForeignKey(verbose_name='the related student_challenge_question', to='Students.StudentChallengeQuestions')),
+                ('skillID', models.ForeignKey(verbose_name='the related skill', to='Instructors.Skills',on_delete=models.CASCADE)),
+                ('studentChallengeQuestionID', models.ForeignKey(verbose_name='the related student_challenge_question', to='Students.StudentChallengeQuestions',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -93,8 +93,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('event', models.IntegerField(default=-1, verbose_name='the event which occurred', db_index=True)),
                 ('timestamp', models.DateTimeField(verbose_name='timestamp', db_index=True, auto_now_add=True)),
-                ('course', models.ForeignKey(verbose_name='Course in Which event occurred', to='Instructors.Courses')),
-                ('student', models.ForeignKey(verbose_name='the student', to='Students.Student')),
+                ('course', models.ForeignKey(verbose_name='Course in Which event occurred', to='Instructors.Courses',on_delete=models.CASCADE)),
+                ('student', models.ForeignKey(verbose_name='the student', to='Students.Student',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -103,19 +103,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentchallengequestions',
             name='studentChallengeID',
-            field=models.ForeignKey(verbose_name='the related student_challenge', to='Students.StudentChallenges'),
+            field=models.ForeignKey(verbose_name='the related student_challenge', to='Students.StudentChallenges',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='studentchallengeanswers',
             name='studentChallengeQuestionID',
-            field=models.ForeignKey(verbose_name='the related student_challenge_question', to='Students.StudentChallengeQuestions'),
+            field=models.ForeignKey(verbose_name='the related student_challenge_question', to='Students.StudentChallengeQuestions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='matchshuffledanswers',
             name='studentChallengeQuestionID',
-            field=models.ForeignKey(verbose_name='the related student_challenge_question', to='Students.StudentChallengeQuestions'),
+            field=models.ForeignKey(verbose_name='the related student_challenge_question', to='Students.StudentChallengeQuestions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

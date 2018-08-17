@@ -5,15 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 
-def fill_courseID(apps, schema_editor):
-    # We can't import the QuestionSkills model directly as it may be a newer
-    # version than this migration expects. We use the historical version.
-    QuestionSkills = apps.get_model('Instructors', 'questionsskills')
-    for question in QuestionSkills.objects.all():
-        course = question.challengeID.courseID
-        question.courseID = course
-        question.save()
-        
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -24,7 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='questionsskills',
             name='courseID',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to='Instructors.Courses', verbose_name='courses'),
+            field=models.ForeignKey(null=True,default="", on_delete=django.db.models.deletion.CASCADE, to='Instructors.Courses', verbose_name='courses'),
         ),
-        migrations.RunPython(fill_courseID),
     ]
