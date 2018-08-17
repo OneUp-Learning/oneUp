@@ -14,12 +14,12 @@ def fill_courseID(apps, schema_editor):
         question.courseID = course
         question.save()
         
-class Migration(migrations.Migration):
+#class Migration(migrations.Migration):
 
-    dependencies = [
-        ('Instructors', '0069_questionsskills_courseid'),
-    ]
+#    dependencies = [
+#        ('Instructors', '0069_questionsskills_courseid'),
+#    ]
 
-    operations = [
-        migrations.RunPython(fill_courseID),
-    ]
+#    operations = [
+#        migrations.RunPython(fill_courseID),
+#    ]
