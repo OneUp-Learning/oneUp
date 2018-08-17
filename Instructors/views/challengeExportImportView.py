@@ -10,6 +10,7 @@ from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, Uploade
 from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
 from Instructors.views.utils import initialContextDict
+from decimal import Decimal
 
 from Badges.enums import QuestionTypes
 
@@ -362,7 +363,7 @@ def importChallenges(uploadedFileName, currentCourse):
             challengeQuestion.challengeID = challenge
             el_points = el_challengeQuestion.find('points')
             if not el_points is None:
-                challengeQuestion.points = int(el_points.text)
+                challengeQuestion.points = Decimal(el_points.text)
             else:
                 challengeQuestion.points = 0
                 
