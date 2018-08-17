@@ -88,7 +88,7 @@ def challengeCreateView(request):
             challenge.manuallyGradedScore = Decimal(0)
 
         # get the logged in user for an author                           
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             challenge.challengeAuthor = request.user.username
         else:
             challenge.challengeAuthor = ""        

@@ -366,8 +366,8 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
 # Sets up the logged_in, username, and course_Name entries in the context_dict and then returns it along with the currentCourse if any.
 def initialContextDict(request):
     context_dict = {}
-    context_dict["logged_in"] = request.user.is_authenticated()
-    if request.user.is_authenticated():
+    context_dict["logged_in"] = request.user.is_authenticated
+    if request.user.is_authenticated:
         context_dict["username"] = request.user.username
         
     if 'currentCourseID' in request.session:

@@ -25,7 +25,7 @@ def studentNotifications(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         sID = Student.objects.filter(user=request.user).exists()
         if(sID):
             context_dict,currentCourse = studentInitialContextDict(request)

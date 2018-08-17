@@ -80,7 +80,7 @@ def activityCreateView(request):
             
                   
         # get the author                            
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             activity.author = request.user.username
         else:
             activity.author = ""
@@ -172,7 +172,7 @@ def makeFilesObjects(instructorID, files, activity):
         actFile.save()
         
 def removeFileFromActivty(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         print('IS A USER')
     else:
         return HttpResponse(403)
