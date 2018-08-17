@@ -23,7 +23,7 @@ def skillsCreateView(request):
             setattr(skill,attr,request.POST[attr])
 
         # get the author
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             skill.skillAuthor = request.user.username
         else:
             skill.skillAuthor = ""

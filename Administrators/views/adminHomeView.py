@@ -12,8 +12,8 @@ from Instructors.models import Courses
 def adminHome(request):
  
     context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
+    context_dict["logged_in"]=request.user.is_authenticated
+    if request.user.is_authenticated:
         context_dict["username"]=request.user.username
     
     # Create Administrators List (AH)

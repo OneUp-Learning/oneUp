@@ -44,7 +44,7 @@ def announcementCreateView(request):
             
                    
        # get the author                            
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             announcement.authorID = request.user
         else:
             announcement.author = "This Should Not Exist" #We don't think this code should ever run

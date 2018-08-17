@@ -40,7 +40,7 @@ def milestoneCreateView(request):
             setattr(milestone,attr,request.POST[attr])
                    
        # get the author                            
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             milestone.authorID = request.user
         else:
             milestone.author = ""
