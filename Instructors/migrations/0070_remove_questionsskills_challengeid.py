@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('Instructors', '0069_questionsskills_courseid'),
-        ('Instructors', 'special'),
     ]
 
     operations = [
