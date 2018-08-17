@@ -18,7 +18,7 @@ from Instructors.views.instructorHomeView import instructorHome
  
 # Student Information Table used for login purposes.
 class Student(models.Model):
-    user = models.OneToOneField(User, default=0)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, default=0)
     #User Attrbutes:
     # username varchar(30)
     # first_name varchar(30)
