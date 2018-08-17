@@ -22,8 +22,8 @@ from Students.views.utils import studentInitialContextDict
 def StudentCourseHome(request):
 
     context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
+    context_dict["logged_in"]=request.user.is_authenticated
+    if request.user.is_authenticated:
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
         

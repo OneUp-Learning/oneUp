@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 
 def deleteItemView(request):
     context_dict = { }
-    context_dict["logged_in"]=request.user.is_authenticated()
-    if request.user.is_authenticated():
+    context_dict["logged_in"]=request.user.is_authenticated
+    if request.user.is_authenticated:
         user = request.user
     context_dict["username"]=user.username
     

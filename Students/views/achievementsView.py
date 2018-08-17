@@ -21,7 +21,7 @@ def achievements(request):
  
     context_dict, currentCourse = studentInitialContextDict(request)
     
-    context_dict["logged_in"]=request.user.is_authenticated()
+    context_dict["logged_in"]=request.user.is_authenticated
 
 
     studentId = context_dict['student']
