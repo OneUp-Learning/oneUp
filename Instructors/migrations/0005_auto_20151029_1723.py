@@ -20,8 +20,8 @@ class Migration(migrations.Migration):
                 ('startTimestamp', models.DateTimeField()),
                 ('endTimestamp', models.DateTimeField()),
                 ('message', models.CharField(max_length=300)),
-                ('authorID', models.ForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Author')),
-                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name')),
+                ('authorID', models.ForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Author',on_delete=models.CASCADE)),
+                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -30,25 +30,25 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='challengestopics',
             name='challengeID',
-            field=models.ForeignKey(to='Instructors.Challenges', verbose_name='challenges'),
+            field=models.ForeignKey(to='Instructors.Challenges', verbose_name='challenges',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='challengestopics',
             name='topicID',
-            field=models.ForeignKey(to='Instructors.Topics', verbose_name='topic'),
+            field=models.ForeignKey(to='Instructors.Topics', verbose_name='topic',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='coursestopics',
             name='courseID',
-            field=models.ForeignKey(to='Instructors.Courses', verbose_name='courses'),
+            field=models.ForeignKey(to='Instructors.Courses', verbose_name='courses',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='coursestopics',
             name='topicID',
-            field=models.ForeignKey(to='Instructors.Topics', verbose_name='topic'),
+            field=models.ForeignKey(to='Instructors.Topics', verbose_name='topic',on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

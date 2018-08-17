@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             name='Leaderboards',
             fields=[
                 ('leaderboardID', models.AutoField(primary_key=True, serialize=False)),
-                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name')),
-                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student')),
+                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name',on_delete=models.CASCADE)),
+                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student',on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -29,8 +29,8 @@ class Migration(migrations.Migration):
                 ('displayClassSkills', models.BooleanField(default=False)),
                 ('displayClassAverage', models.BooleanField(default=False)),
                 ('displayClassRanking', models.BooleanField(default=False)),
-                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='the related course')),
-                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student')),
+                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='the related course',on_delete=models.CASCADE)),
+                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student',on_delete=models.CASCADE)),
             ],
         ),
     ]

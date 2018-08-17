@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='virtualcurrencyruleinfo',
             name='vcRuleID',
-            field=models.AutoField(default=1, primary_key=True, serialize=False),
+            field=models.AutoField(primary_key=True, serialize=False),
             preserve_default=False,
         ),
         migrations.AddField(

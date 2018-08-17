@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             name='InstructorRegisteredCourses',
             fields=[
                 ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
-                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name')),
-                ('instructorID', models.ForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Instructor ID')),
+                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name', on_delete=models.CASCADE )),
+                ('instructorID', models.ForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Instructor ID', on_delete=models.CASCADE )),
             ],
             options={
             },

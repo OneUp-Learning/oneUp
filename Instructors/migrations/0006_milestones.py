@@ -20,8 +20,8 @@ class Migration(migrations.Migration):
                 ('milestoneName', models.CharField(max_length=75)),
                 ('description', models.CharField(max_length=200)),
                 ('points', models.IntegerField(max_length=5)),
-                ('authorID', models.ForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Author')),
-                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name')),
+                ('authorID', models.ForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Author',on_delete=models.CASCADE)),
+                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name',on_delete=models.CASCADE)),
             ],
             options={
             },

@@ -14,19 +14,19 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='studentactivities',
             name='activityID',
-            field=models.ForeignKey(to='Instructors.Activities', verbose_name='the related student'),
+            field=models.ForeignKey(to='Instructors.Activities', verbose_name='the related student',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='studentactivities',
             name='courseID',
-            field=models.ForeignKey(default=1, verbose_name='the related course', to='Instructors.Courses'),
+            field=models.ForeignKey(default=1, verbose_name='the related course', to='Instructors.Courses',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='studentactivities',
             name='studentID',
-            field=models.ForeignKey(to='Students.Student', verbose_name='the related student'),
+            field=models.ForeignKey(to='Students.Student', verbose_name='the related student',on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
