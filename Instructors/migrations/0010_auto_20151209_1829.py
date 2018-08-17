@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='activities',
             name='courseID',
-            field=models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name', default=2),
+            field=models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name', default=2,on_delete=models.CASCADE),
             preserve_default=False,
         ),
         migrations.AddField(

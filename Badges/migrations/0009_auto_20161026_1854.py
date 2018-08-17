@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
             name='Leaderboards',
             fields=[
                 ('leaderboardID', models.AutoField(serialize=False, primary_key=True)),
-                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name')),
-                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student')),
+                ('courseID', models.ForeignKey(to='Instructors.Courses', verbose_name='Course Name',on_delete=models.CASCADE)),
+                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the related student',on_delete=models.CASCADE)),
             ],
         ),
         migrations.RenameField(
@@ -140,7 +140,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentconfigparams',
             name='studentID',
-            field=models.ForeignKey(verbose_name='the related student', default=0, to='Students.Student'),
+            field=models.ForeignKey(verbose_name='the related student', default=0, to='Students.Student',on_delete=models.CASCADE),
             preserve_default=False,
         ),
     ]

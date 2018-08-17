@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='student',
             name='user',
-            field=models.OneToOneField(default=0, to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(default=0, to=settings.AUTH_USER_MODEL,on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

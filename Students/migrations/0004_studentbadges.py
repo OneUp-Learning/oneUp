@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             name='StudentBadges',
             fields=[
                 ('studentBadgeID', models.AutoField(serialize=False, primary_key=True)),
-                ('badgeID', models.ForeignKey(to='Badges.Badges', verbose_name='the badge')),
-                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the student')),
+                ('badgeID', models.ForeignKey(to='Badges.Badges', verbose_name='the badge',on_delete=models.CASCADE)),
+                ('studentID', models.ForeignKey(to='Students.Student', verbose_name='the student',on_delete=models.CASCADE)),
             ],
             options={
             },

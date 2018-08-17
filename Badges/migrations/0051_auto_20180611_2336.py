@@ -29,5 +29,7 @@ class Migration(migrations.Migration):
             name='objectSpecifier',
             field=models.CharField(default='[]', max_length=2000, verbose_name='A json-serialized object of the type ChosenObjectSpecifier (see events.py)'),
         ),
-        migrations.RunPython(copy_award_frequency),
+#        migrations.RunPython(copy_award_frequency),
+# This worked at the time it was run, but doesn't seem to work now,
+# for some reason.
     ]

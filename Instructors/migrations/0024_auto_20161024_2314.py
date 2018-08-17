@@ -17,15 +17,15 @@ class Migration(migrations.Migration):
             name='Avatars',
             fields=[
                 ('avatarID', models.AutoField(primary_key=True, serialize=False)),
-                ('courseID', models.ForeignKey(verbose_name='Course Name', to='Instructors.Courses')),
+                ('courseID', models.ForeignKey(verbose_name='Course Name', to='Instructors.Courses', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
             name='Leaderboards',
             fields=[
                 ('leaderboardID', models.AutoField(primary_key=True, serialize=False)),
-                ('avatarID', models.ForeignKey(verbose_name='Author', to=settings.AUTH_USER_MODEL)),
-                ('courseID', models.ForeignKey(verbose_name='Course Name', to='Instructors.Courses')),
+                ('avatarID', models.ForeignKey(verbose_name='Author', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('courseID', models.ForeignKey(verbose_name='Course Name', to='Instructors.Courses',on_delete=models.CASCADE)),
             ],
         ),
         migrations.RemoveField(

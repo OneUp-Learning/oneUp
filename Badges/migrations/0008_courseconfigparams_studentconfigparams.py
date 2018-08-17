@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('classAverageUsed', models.BooleanField(default=False)),
                 ('numStudentToppersUsed', models.IntegerField(default=0)),
                 ('numStudentBestSkillsUsed', models.IntegerField(default=0)),
-                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses')),
+                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses',on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -41,8 +41,8 @@ class Migration(migrations.Migration):
                 ('studentToppersDisplayed', models.BooleanField(default=False)),
                 ('studentBestSkillsDisplayed', models.BooleanField(default=False)),
                 ('classRankingDisplayed', models.BooleanField(default=False)),
-                ('ccpID', models.ForeignKey(verbose_name='course config parameter ID', to='Badges.CourseConfigParams')),
-                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses')),
+                ('ccpID', models.ForeignKey(verbose_name='course config parameter ID', to='Badges.CourseConfigParams',on_delete=models.CASCADE)),
+                ('courseID', models.ForeignKey(verbose_name='the related course', to='Instructors.Courses',on_delete=models.CASCADE)),
             ],
         ),
     ]

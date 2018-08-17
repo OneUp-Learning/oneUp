@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('points', models.IntegerField(max_length=5)),
-                ('challengeID', models.ForeignKey(verbose_name='challenge', to='Instructors.Challenges')),
+                ('challengeID', models.ForeignKey(verbose_name='challenge', to='Instructors.Challenges',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
             name='ChallengeTags',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('challengeID', models.ForeignKey(verbose_name='challenge', to='Instructors.Challenges')),
+                ('challengeID', models.ForeignKey(verbose_name='challenge', to='Instructors.Challenges',on_delete=models.CASCADE )),
             ],
             options={
             },
@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
             name='CorrectAnswers',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('answerID', models.ForeignKey(verbose_name='the correct answer', to='Instructors.Answers')),
+                ('answerID', models.ForeignKey(verbose_name='the correct answer', to='Instructors.Answers',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
             name='CoursesSkills',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('courseID', models.ForeignKey(verbose_name='courses', to='Instructors.Courses')),
+                ('courseID', models.ForeignKey(verbose_name='courses', to='Instructors.Courses',on_delete=models.CASCADE )),
             ],
             options={
             },
@@ -149,7 +149,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('matchingAnswerID', models.AutoField(primary_key=True, serialize=False)),
                 ('matchingAnswerText', models.CharField(max_length=100)),
-                ('answerID', models.ForeignKey(verbose_name='the related question', to='Instructors.Answers')),
+                ('answerID', models.ForeignKey(verbose_name='the related question', to='Instructors.Answers',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -160,7 +160,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('promptID', models.AutoField(primary_key=True, serialize=False)),
                 ('promptText', models.CharField(max_length=100)),
-                ('answerID', models.ForeignKey(verbose_name='the correct answer for this prompt', to='Instructors.Answers')),
+                ('answerID', models.ForeignKey(verbose_name='the correct answer for this prompt', to='Instructors.Answers',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -182,7 +182,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DynamicQuestions',
             fields=[
-                ('questions_ptr', models.OneToOneField(parent_link=True, to='Instructors.Questions', serialize=False, primary_key=True, auto_created=True)),
+                ('questions_ptr', models.OneToOneField(parent_link=True, to='Instructors.Questions', serialize=False, primary_key=True, auto_created=True,on_delete=models.CASCADE)),
                 ('code', models.CharField(max_length=10000)),
             ],
             options={
@@ -194,7 +194,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('questionSkillPoints', models.IntegerField(max_length=5, default=1)),
-                ('challengeID', models.ForeignKey(verbose_name='challenges', to='Instructors.Challenges')),
+                ('challengeID', models.ForeignKey(verbose_name='challenges', to='Instructors.Challenges',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -233,7 +233,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='StaticQuestions',
             fields=[
-                ('questions_ptr', models.OneToOneField(parent_link=True, to='Instructors.Questions', serialize=False, primary_key=True, auto_created=True)),
+                ('questions_ptr', models.OneToOneField(parent_link=True, to='Instructors.Questions', serialize=False, primary_key=True, auto_created=True,on_delete=models.CASCADE)),
                 ('questionText', models.CharField(max_length=1000)),
                 ('correctAnswerFeedback', models.CharField(max_length=200)),
                 ('incorrectAnswerFeedback', models.CharField(max_length=200)),
@@ -255,79 +255,79 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='resourcetags',
             name='questionID',
-            field=models.ForeignKey(verbose_name='question', to='Instructors.Questions'),
+            field=models.ForeignKey(verbose_name='question', to='Instructors.Questions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='resourcetags',
             name='tagID',
-            field=models.ForeignKey(verbose_name='tag', to='Instructors.Tags'),
+            field=models.ForeignKey(verbose_name='tag', to='Instructors.Tags',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='questionsskills',
             name='questionID',
-            field=models.ForeignKey(verbose_name='questions', to='Instructors.Questions'),
+            field=models.ForeignKey(verbose_name='questions', to='Instructors.Questions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='questionsskills',
             name='skillID',
-            field=models.ForeignKey(verbose_name='skill', to='Instructors.Skills'),
+            field=models.ForeignKey(verbose_name='skill', to='Instructors.Skills',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='questions',
             name='type',
-            field=models.ForeignKey(verbose_name='the type of the question', to='Instructors.QuestionTypes'),
+            field=models.ForeignKey(verbose_name='the type of the question', to='Instructors.QuestionTypes',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='prompts',
             name='questionID',
-            field=models.ForeignKey(verbose_name='the related question', to='Instructors.Questions'),
+            field=models.ForeignKey(verbose_name='the related question', to='Instructors.Questions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='matchinganswers',
             name='questionID',
-            field=models.ForeignKey(verbose_name='the related question', to='Instructors.Questions'),
+            field=models.ForeignKey(verbose_name='the related question', to='Instructors.Questions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='coursesskills',
             name='skillID',
-            field=models.ForeignKey(verbose_name='skill', to='Instructors.Skills'),
+            field=models.ForeignKey(verbose_name='skill', to='Instructors.Skills',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='correctanswers',
             name='questionID',
-            field=models.ForeignKey(verbose_name='the question', to='Instructors.Questions'),
+            field=models.ForeignKey(verbose_name='the question', to='Instructors.Questions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='challengetags',
             name='tagID',
-            field=models.ForeignKey(verbose_name='tag', to='Instructors.Tags'),
+            field=models.ForeignKey(verbose_name='tag', to='Instructors.Tags',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='challengesquestions',
             name='questionID',
-            field=models.ForeignKey(verbose_name='question', to='Instructors.Questions'),
+            field=models.ForeignKey(verbose_name='question', to='Instructors.Questions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='challenges',
             name='courseID',
-            field=models.ForeignKey(verbose_name='the related course', to='Instructors.Courses'),
+            field=models.ForeignKey(verbose_name='the related course', to='Instructors.Courses',on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='answers',
             name='questionID',
-            field=models.ForeignKey(verbose_name='the related question', to='Instructors.Questions'),
+            field=models.ForeignKey(verbose_name='the related question', to='Instructors.Questions',on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

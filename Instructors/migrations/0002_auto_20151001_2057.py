@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='CoursesTopics',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('courseID', models.ForeignKey(verbose_name=b'courses', to='Instructors.Courses')),
+                ('courseID', models.ForeignKey(verbose_name=b'courses', to='Instructors.Courses',on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='coursestopics',
             name='topicID',
-            field=models.ForeignKey(verbose_name=b'topic', to='Instructors.Topics'),
+            field=models.ForeignKey(verbose_name=b'topic', to='Instructors.Topics',on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

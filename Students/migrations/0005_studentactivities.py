@@ -19,9 +19,9 @@ class Migration(migrations.Migration):
                 ('timestamp', models.DateTimeField()),
                 ('activityScore', models.DecimalField(max_digits=6, decimal_places=2)),
                 ('instructorFeedback', models.CharField(max_length=200)),
-                ('activityID', models.ForeignKey(verbose_name=b'the related student', to='Instructors.Activities')),
-                ('courseID', models.ForeignKey(default=1, verbose_name=b'the related course', to='Instructors.Courses')),
-                ('studentID', models.ForeignKey(verbose_name=b'the related student', to='Students.Student')),
+                ('activityID', models.ForeignKey(verbose_name=b'the related student', to='Instructors.Activities',on_delete=models.CASCADE)),
+                ('courseID', models.ForeignKey(default=1, verbose_name=b'the related course', to='Instructors.Courses',on_delete=models.CASCADE)),
+                ('studentID', models.ForeignKey(verbose_name=b'the related student', to='Students.Student',on_delete=models.CASCADE)),
             ],
             options={
             },
