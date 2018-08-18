@@ -43,18 +43,18 @@ def LeaderboardView(request):
         
         
            
-        scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)    
-        if len(scparamsList) > 0:
-            scparams = scparamsList[0]
-            context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
-            context_dict["displayBadges"]=scparams.displayBadges
-            context_dict["displayClassSkills"]=scparams.displayClassSkills
+        scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)    
+        context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
+        context_dict["displayBadges"]=scparams.displayBadges
+        context_dict["displayClassSkills"]=scparams.displayClassSkills
             
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
         ##GGM determine if student has leaderboard enabled
         studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
         context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
+        print("class skills")
+        context_dict["displayClassSkills"]= studentConfigParams.displayClassSkills
            
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.visitedLeaderboardPage, request, sID, None)
