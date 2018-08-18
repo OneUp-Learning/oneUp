@@ -57,10 +57,15 @@ def challengeCreateView(request):
             challenge.courseID = currentCourse
         
         #get isGraded
-        isGraded = str(request.POST.get('isGraded','false'))  
+        isGraded = str(request.POST.get('isGraded','false'))
+        print("isGraded post")
+        print(isGraded)  
         
         #get isVisible
         isVisible = str(request.POST.get('isVisible','false'))
+        
+        #get randomization GGM
+        isRandomized = str(request.POST.get('randomizeProblems','false'))
         
         #get difficulty
         if('challengeDifficulty' in request.POST):
@@ -99,12 +104,17 @@ def challengeCreateView(request):
         challenge.isGraded = bool(isGraded)
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.isGraded)
 
-        # only empty strings return false when converted to boolean    
+        # only empty strings return false when converted to boolean
         if isVisible == str("false"):
             isVisible =""
         challenge.isVisible = bool(isVisible)
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.isVisible)
         
+        # only empty strings return false when converted to boolean
+        if isRandomized == str("false"):
+            isRandomized =""
+        challenge.isRandomized = bool(isRandomized)
+        context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.isRandomized)
         
         if displayCorrectAnswer == str("false"):
             displayCorrectAnswer =""
@@ -158,7 +168,8 @@ def challengeCreateView(request):
             else:
                 timeLimit = int(request.POST.get("timeLimit", 45))
                 challenge.timeLimit = timeLimit
-                              
+        print("challenge")
+        print(challenge)                      
         challenge.save()  #Save challenge to database
         # check if course was selected
         addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic, currentCourse)                 
@@ -232,6 +243,11 @@ def challengeCreateView(request):
                 context_dict['isVisible']=True
             else:
                 context_dict['isVisible']=False
+                
+            if challenge.isRandomized:
+                context_dict['randomizeProblems']=True
+            else:
+                context_dict['randomizeProblems']=False
 
             if challenge.displayCorrectAnswer:
                 context_dict['displayCorrectAnswer']=True
