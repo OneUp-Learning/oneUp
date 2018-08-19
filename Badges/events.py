@@ -13,6 +13,8 @@ from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses, Topics
 import json
+from oneUp.settings import CELERY_ENABLED
+from Badges.tasks import register_event_offline
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -24,18 +26,43 @@ import json
 # be included.
 def register_event(eventID, request, student=None, objectId=None):
 
+    def make_smaller_serializable_request(request):
+        # This should contain only the parts of request which actually get used by the register_event_actual method
+        minireq = {
+            'currentCourseID':request.session['currentCourseID'],
+            'user':request.user.username,
+        }
+        return minireq
+
+    if student is None:
+        studentpk = None
+    else:
+        studentpk = student.pk
+
+    if CELERY_ENABLED:
+        register_event_offline.delay(eventID, make_smaller_serializable_request(request), studentpk, objectId)
+    else:
+        register_event_actual(eventID, make_smaller_serializable_request(request), studentpk, objectId)
+
+def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
+
     print('in register_event: ')
     print(str(eventID))
     # Create event log entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
     eventEntry.timestamp = utcDate()
-    courseIDint = int(request.session['currentCourseID'])
+    courseIDint = int(minireq['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
-    if (student is None):
-        student = Student.objects.get(user=request.user)
+    print("Got to just before student DB search")
+    if studentpk is None:
+        student = Student.objects.get(user__username=minireq['user'])
+    else:
+        student = Student.objects.get(pk=studentpk)
     eventEntry.student = student
+
+    print("Got this far")
 
     # Here we need to add special handling for different types
     # of events which can occur
