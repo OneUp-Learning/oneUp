@@ -22,14 +22,17 @@ def makeContextDictForSearch(context_dict, currentCourse):
     # Get skills from the DB
     c_skills = CoursesSkills.objects.filter(courseID = currentCourse)
     for cs in c_skills:
-        qskill.append(cs.skillID.skillName) 
+        qskill.append(cs.skillID.skillName)    
             
     # Get challenges from the DB
     challenges = Challenges.objects.filter(courseID=currentCourse)
     for challenge in challenges:
         if challenge.challengeName != "Unassigned Problems":
             qchallenge.append(challenge.challengeName)
-        
+    
+    
+    
+    
     if len(c_skills) > 0:
         context_dict['has_skills'] = True
     if len(qdifficulty) > 0:
@@ -51,7 +54,11 @@ def challengeQuestionsListView(request):
     context_dict['lupa_available'] = lupa_available
         
     if 'challengeID' in request.GET:   
-        challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))    
+        challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+        
+        currentChallenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+        isRandomized = currentChallenge.isRandomized 
+        context_dict['isRandomized'] = isRandomized    
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1
             context_dict['serious'] = False
