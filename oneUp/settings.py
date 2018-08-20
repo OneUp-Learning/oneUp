@@ -168,3 +168,15 @@ LOGIN_URL='/oneUp/permission_error'
 # Custom serializer which is mostly just JSON, but can handle decimal types
 # without making them floats along the way.
 SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
+
+# Celery Settings
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+# Turns celery on or off in oneUp code.
+# Note that this is not automatic, but enabled by statements in our
+# code which check its value.  Turning it on or off will only effect
+# oneUp code which uses "if CELERY_ENABLED:" statements
+CELERY_ENABLED = False
+
