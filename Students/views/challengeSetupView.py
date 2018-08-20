@@ -15,6 +15,7 @@ from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet,
     QuestionTypes
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
+from locale import currency
 
 def makeSerializableCopyOfDjangoObjectDictionary(obj):
     dict = obj.__dict__.copy()
@@ -64,7 +65,14 @@ def ChallengeSetup(request):
                 
                 #GGM changed it so that it will now order by the question position
                 #this allows us to easily order by randomization in the future
-                challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId).order_by("questionPosition")
+                currentChallenge = Challenges.objects.filter(challengeID=challengeId).first()
+                isRandomized = currentChallenge.isRandomized
+                
+                if(isRandomized):
+                    ##GGM this line is problematic for large data sets
+                    challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId).order_by('?')
+                else:
+                    challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId).order_by("questionPosition")
                 print("Challenge Questions", challenge_questions)
                 for challenge_question in challenge_questions:
                     questionObjects.append(challenge_question.questionID)
