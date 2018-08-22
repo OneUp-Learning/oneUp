@@ -8,6 +8,7 @@ from Instructors.models import Skills, Courses, CoursesSkills
 from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
+from Badges.models import CourseConfigParams
 
 @login_required
 def CourseInformation(request):
@@ -19,7 +20,13 @@ def CourseInformation(request):
             context_dict['course_Description'] = currentCourse.courseDescription
                         
         skill_ID = []      
-        skill_Name = []         
+        skill_Name = []
+        
+        ##GGM added class skills displayed
+        ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
+        if len(ccparamsList) >0:
+            cparams = ccparamsList[0]
+            context_dict['studentClassSkillsToggle']=cparams.classSkillsDisplayed        
         
         cskills = CoursesSkills.objects.filter(courseID=currentCourse)
         for sk in cskills:
