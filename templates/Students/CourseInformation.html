@@ -29,13 +29,18 @@
                </div>
             </div>
          </div>
+         <!-- GGM added ifs to remove Targeted skills  -->
+         {%if ccparams.gamificationUsed %}
+          {%if studentClassSkillsToggle %}
+          {%if displayClassSkills %}
          <div class="row">
             <div class="col s12 m6 offset-m3">
                <div class="card">
                   <div class="card-content">
-                     {%if ccparams.gamificationUsed %}
+                     
+                    
                      <span class="card-title">
-                        <h5>Targetted Skills</h5>
+                        <h5>Targeted Skills</h5>
                      </span>
                      <blockquote>
                      {% for i,skill_ID,skill_Name in skill_range %}
@@ -44,11 +49,14 @@
                      <p>No Skills</p>
                      {% endfor %}
                      </blockquote>
-                     {%endif%}
+                     
                   </div>
                </div>
             </div>
          </div>
+         {%endif%}
+         {%endif%}
+         {%endif%}
       </main>
       {% include 'footer.html' %}
    </body>
