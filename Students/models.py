@@ -148,7 +148,15 @@ class StudentActivities(models.Model):
         return str(self.studentActivityID) +"," + str(self.studentID) 
     def getScoreWithBonus(self):
         return self.activityScore + self.bonusPointsAwarded
-   
+
+class StudentAttendance(models.Model):
+    studentAttendanceID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)      
+    timestamp = models.DateTimeField(default= datetime.now)
+    isPresent = models.BooleanField(default=False)
+    def __str__(self):              
+        return str(self.studentAttendanceID) +"," + str(self.studentID)    
     
 def fileUploadPath(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'studentActivities'),filename)
