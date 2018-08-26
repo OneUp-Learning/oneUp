@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+      <script>
+         $( document ).ready(function(){
+          var rollDate = $('#rollDate').bootstrapMaterialDatePicker({
+            weekStart: 0, format: 'YYYY-MM-DD', time:false
+          });
+         
+         });
+         
+         $(function(){
+        	    $("#markPresent").click(function () {
+        	          $('.checkbox').prop("checked", true);
+        	          $('#hidden').prop("value", "true");
+        	          
+        	    });
+        	});
+         
+         $(function(){
+     	    $("#unmarkPresent").click(function () {
+     	         $('.checkbox').prop("checked", false);
+     	         $('#hidden').prop("value", "false");
+     	    });
+     	});
+         
+         $(function(){
+      	    $("#save").click(function () {
+      	        $('#rollForm').submit();
+      	    });
+      	  
+      	});
+      </script>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Student Attendance</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m8 offset-m2">
+            <form name="question" enctype="multipart/form-data" action="/oneUp/instructors/studentAttendance" method="POST">
+	            {% csrf_token %}
+	            <div class="input-field col s4">
+	            <div class="col s12">
+                              <label for="rollDate">Current Date</label> 
+                              <input onchange="this.form.submit()" type="text" class="datepicker-from" name="rollDate" value="{{rollDate}}" id="rollDate">
+                           </div>
+				</div>
+			</form>
+			<br/>
+               <div class="row right-align">
+                  <div class="col s8">
+                     <a type="button" class="waves-effect waves-light btn" id="markPresent">Mark All Present</a>  
+                     <a class="waves-effect waves-light btn" id="unmarkPresent">Unmark All Present</a>
+                     <a class="waves-effect waves-light btn" onclick="location.href='http://google.com';" id="save">Save</a>                                                             
+                  </div>
+               </div>
+               
+               <div class="card-panel">
+               <form action="/oneUp/instructors/studentAttendance" id="rollForm" method="POST">
+               {% csrf_token %}
+                  <table id="tableAttendance" >
+                     <thead>
+                        <tr>
+                           <th>Present</th>
+                           <th>Avatar</th>
+                           <th>Name</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {% for student_ID, student_Avatars, student_Names, isPresent in class %}
+                        <tr>
+                           <td><input class="checkbox" type="checkbox" name="present[]" value="{{student_ID}}" id="{{student_ID}}" style="padding:0;" {{isPresent}} /><label for="{{student_ID}}"></label></td>
+                           <td><a><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></a></td>
+                           <td>{{student_Names}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                           <td class="center-align" colspan="4"><i>No Students Created</i></td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+                  </table>
+                  <input type="hidden" id="hidden" name="noCheckboxes" value="true">
+                  </form>
+				 </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>
