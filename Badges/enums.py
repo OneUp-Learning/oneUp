@@ -140,6 +140,7 @@ class Event():
 #    chooseDashboardBackground = 865 # Choose a background for the student dashboard
 #    chooseBackgroundForYourName = 866 # ?
     
+    classAttendance = 870
     
     events = {
               startChallenge: {
@@ -171,6 +172,12 @@ class Event():
                         'displayName':'Instructor Action',
                         'description':'An instructor awards points for a particular activity'
                         },
+              classAttendance: {
+                        'index': classAttendance,
+                        'name':'classAttendance',
+                        'displayName':'Instructor set student attendance',
+                        'description':'An instructor enters class attendance for a particular student on a particular date'
+                        },              
               timePassed: {
                         'index': timePassed,
                         'name':'timePassed',

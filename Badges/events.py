@@ -102,6 +102,10 @@ def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
     if(eventID == Event.leaderboardUpdate):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
+
+    if(eventID == Event.classAttendance):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
         
     # Visited Pages Events    
     if(eventID == Event.visitedDashboard):
