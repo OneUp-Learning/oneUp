@@ -42,9 +42,7 @@ def extractPaths(context_dict, currentCourse, sID): #function used to get the na
 	usedAvatars = ''
 	st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	 
 	usedAvatars = st_crs.avatarImage
-	print("#############  We are here ########### ")
-	print("Used avatar: " + usedAvatars)
-	
+		
 	#Get all the avatars
 	avatarPath = []	
 	absolutePath = []
@@ -55,10 +53,21 @@ def extractPaths(context_dict, currentCourse, sID): #function used to get the na
 		absolutePath.append(namec)
 	
 	#Check to make sure the students avatar still exisit if not chagne to default
-	if not usedAvatars in absolutePath:
-		st_crs.avatarImage = defaultAvatar
-		st_crs.save()
+	checkIfAvatarExist(st_crs)
 		
 	
 	context_dict["avatarPaths"] = zip(range(1,len(avatarPath)+1), avatarPath)
+
+def checkIfAvatarExist(student):
+	avatars = glob.glob('static/images/avatars/*')
+	defaultAvatar = '/static/images/avatars/anonymous.png'
+	studentAvatarPath = student.avatarImage
+	studentAvatarPath = studentAvatarPath[1:]
+	if studentAvatarPath in avatars:
+		return student.avatarImage
+	else:
+		student.avatarImage = defaultAvatar #change the students avatar to the default
+		student.save()
+    
+	return defaultAvatar 
 
