@@ -4,58 +4,46 @@ Created on 8/23/18
 @author: GGM
 '''
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Students.models import StudentRegisteredCourses, StudentAttendance, Student
-from Instructors.views.utils import initialContextDict, utcDate,localizedDate
+from Instructors.views.utils import initialContextDict
 from django.contrib.auth.models import User
-from Instructors.models import Courses
 import datetime
+from Instructors.views.challengeExportImportView import str2bool
+from django.urls import reverse
 
-@login_required
-def createContextForStudentAttendance(request, context_dict, currentCourse): 
-    sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
-    attendanceRecords = []
-    
-    if request.POST.get('rollDate') == None:
-        context_dict["rollDate"] = datetime.datetime.today().strftime('%Y-%m-%d')
-        getRollByDate(request, context_dict,attendanceRecords)
-        
-    if request.POST.get('rollDate'): 
-        context_dict["rollDate"] = request.POST.get('rollDate')
-        getRollByDate(request, context_dict,attendanceRecords)  
-        
-    if request.POST.getlist('present[]'):
-        context_dict['present[]'] = request.POST.getlist('present[]')
-        print(context_dict['present[]'])
-        updateAttendaceRecord(request, context_dict)
-        createAttendanceRecords(context_dict['present[]'], context_dict ,currentCourse)
-    
-    if request.POST.getlist('noCheckboxes'): 
-        context_dict['noCheckboxes'] = request.POST.getlist('noCheckboxes')
-        print(context_dict['noCheckboxes'])
-        if(context_dict['noCheckboxes'] == ['false']):
-            print("ran")
-            updateAttendaceRecord(request, context_dict)
-        
-    if request.GET:
-        getRollByDate(request, context_dict,attendanceRecords) 
-        
-    return context_dict
-
-    
 @login_required
 def studentAttendance(request):
-
     context_dict, currentCourse = initialContextDict(request)
-    context_dict = createContextForStudentAttendance(request, context_dict, currentCourse)
-    
-    return render(request,'Instructors/StudentAttendance.html', context_dict)  
+    if request.method == 'GET':
+        context_dict["rollDate"] = datetime.datetime.today().strftime('%Y-%m-%d')
+        context_dict = getRollByDate(request, context_dict) 
+        return render(request, 'Instructors/StudentAttendance.html', context_dict)    
+        
+    if request.method == 'POST':
+        if 'present[]' in request.POST:
+            context_dict['rollDate'] = request.POST['rollDate']
+            context_dict['present[]'] = request.POST.getlist('present[]')
+            print(context_dict['present[]'])
+            print(context_dict['rollDate'])
+            context_dict = getRollByDate(request, context_dict)   
+            context_dict = createAttendanceRecords(context_dict['present[]'], context_dict ,currentCourse)
+            return redirect('studentAttendance')   
+            
+        if 'rollDate' in request.POST: 
+            context_dict["rollDate"] = request.POST['rollDate']
+            context_dict = getRollByDate(request, context_dict)
+            return render(request, 'Instructors/StudentAttendance.html', context_dict)     
+        else:
+            context_dict["rollDate"] = datetime.datetime.today().strftime('%Y-%m-%d')
+            context_dict = getRollByDate(request, context_dict)      
 
-def getRollByDate(request, context_dict,attendanceRecords):
+def getRollByDate(request, context_dict):
     student_Names = []
     student_Avatars = []
     student_ID = []
+    
     studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
     for entry in studentCourse:
         user = User.objects.get(username=entry.studentID)
@@ -65,36 +53,41 @@ def getRollByDate(request, context_dict,attendanceRecords):
         student_Names.append((entry.studentID).user.get_full_name())
     isPresent = [] 
     
-    
+    context_dict["students"] = student_ID
+    print(context_dict["students"])
     for studentId in student_ID:
         studentAttendance = StudentAttendance.objects.filter(courseID = request.session['currentCourseID'], timestamp=context_dict["rollDate"]+" 00:00:00", studentID=studentId).first()
-        if studentAttendance != None:
-            attendanceRecords.append(studentAttendance)
         if not studentAttendance:
-            isPresent.append("") 
+            isPresent.append('false') 
         else:
-            isPresent.append("checked")
+            if studentAttendance.isPresent == True:
+                isPresent.append('true')
+            else:
+                isPresent.append('false')
         
     context_dict["class"] = zip(student_ID, student_Avatars, student_Names, isPresent)
+    return context_dict
+    
     
 def createAttendanceRecords(presentStudents, context_dict, currentCourse):
-    for student in presentStudents:
+    studentsAndPresentData = zip(context_dict["students"], presentStudents)
+    for student, present in studentsAndPresentData:
+        createStudentAttendance(str2bool(present), currentCourse, context_dict, student)
+    
+    return context_dict    
+def createStudentAttendance(isPresent, currentCourse, context_dict, student):
+    studentAttendance = StudentAttendance.objects.filter(courseID = currentCourse, timestamp=context_dict["rollDate"]+" 00:00:00", studentID=student).first()
+    if studentAttendance == None:
         studentRecord = StudentAttendance()
         user = User.objects.get(username=student)
         studentID = Student.objects.get(user=user)
         studentRecord.studentID = studentID
-        studentRecord.isPresent = True
+        studentRecord.isPresent = isPresent
         studentRecord.courseID = currentCourse
         studentRecord.timestamp = context_dict["rollDate"]+" 00:00:00"
-        studentRecord.save()  
-def updateAttendaceRecord(request,context_dict):
-    attendanceRecords = StudentAttendance.objects.filter(courseID = request.session['currentCourseID'], timestamp=context_dict["rollDate"]+" 00:00:00")
-    print("attendanceRecords")
-    print(attendanceRecords)
-    for record in attendanceRecords:
-        print("delete")
-        print(record)
-        studentRecord = StudentAttendance.objects.get(studentAttendanceID=record.studentAttendanceID).delete()
-    attendanceRecords = []    
-    
-        
+        studentRecord.save()
+    else:    
+        studentAttendance.isPresent = isPresent
+        studentAttendance.save();
+def str2bool(v):
+  return v.lower() in ("yes", "true", "t", "1")    

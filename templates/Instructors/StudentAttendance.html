@@ -14,7 +14,7 @@
          $(function(){
         	    $("#markPresent").click(function () {
         	          $('.checkbox').prop("checked", true);
-        	          $('#hidden').prop("value", "true");
+        	          $('input[name=present[]]').prop("value", true);
         	          
         	    });
         	});
@@ -22,16 +22,30 @@
          $(function(){
      	    $("#unmarkPresent").click(function () {
      	         $('.checkbox').prop("checked", false);
-     	         $('#hidden').prop("value", "false");
+     	         $('input[name=present[]]').prop("value", false);
      	    });
      	});
          
          $(function(){
       	    $("#save").click(function () {
-      	        $('#rollForm').submit();
+      	    	validateCheckBox();
+      	    	$("#rollForm").submit();
       	    });
       	  
       	});
+         
+         function validateCheckBox(){
+             var checkBoxes = document.getElementsByName('checkbox');
+                 for (var i = 0; i < checkBoxes.length; i++) {
+                	 var id = checkBoxes[i].id;
+                     if ( checkBoxes[i].checked ==  true) {
+                    	 $("#"+id+"_hidden").prop("value", true);
+                     }else{
+                    	 $("#"+id+"_hidden").prop("value", false);
+                     }
+                 }
+                 console.log("ran");
+             }
       </script>
    <body>
       {% include 'heading.html' %}
@@ -57,26 +71,35 @@
                   <div class="col s8">
                      <a type="button" class="waves-effect waves-light btn" id="markPresent">Mark All Present</a>  
                      <a class="waves-effect waves-light btn" id="unmarkPresent">Unmark All Present</a>
-                     <a class="waves-effect waves-light btn" onclick="location.href='http://google.com';" id="save">Save</a>                                                             
+                     <a class="waves-effect waves-light btn" id="save">Save</a>                                                             
                   </div>
                </div>
                
                <div class="card-panel">
-               <form action="/oneUp/instructors/studentAttendance" id="rollForm" method="POST">
+               <form action="/oneUp/instructors/studentAttendance"  id="rollForm" method="POST">
                {% csrf_token %}
                   <table id="tableAttendance" >
                      <thead>
                         <tr>
-                           <th>Present</th>
-                           <th>Avatar</th>
+                        <th></th>
+                        <th>Present</th>
                            <th>Name</th>
                         </tr>
                      </thead>
                      <tbody>
                         {% for student_ID, student_Avatars, student_Names, isPresent in class %}
                         <tr>
-                           <td><input class="checkbox" type="checkbox" name="present[]" value="{{student_ID}}" id="{{student_ID}}" style="padding:0;" {{isPresent}} /><label for="{{student_ID}}"></label></td>
                            <td><a><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></a></td>
+                           <td>
+                           {% if isPresent == "true" %}
+                           <input class="checkbox" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" checked/>
+                           {% else %}
+                           <input class="checkbox" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" />
+                           {% endif %}	
+                           
+                           <label for="{{student_ID}}"></label>
+                               <input class="hidden" type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
+                           </td>
                            <td>{{student_Names}}</td>
                         </tr>
                         {% empty %}
@@ -86,7 +109,7 @@
                         {% endfor %}
                      </tbody>
                   </table>
-                  <input type="hidden" id="hidden" name="noCheckboxes" value="true">
+                  	<input class="hidden" type="hidden" class="datepicker-from" name="rollDate" value={{rollDate}} id="rollDate">
                   </form>
 				 </div>
                </div>
