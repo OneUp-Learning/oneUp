@@ -10,6 +10,7 @@ import glob
 from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
+from django.template.context_processors import request
 
 @login_required
 def avatar(request):
@@ -18,8 +19,8 @@ def avatar(request):
 
 
 	if 'currentCourseID' in request.session:	
-		extractPaths(context_dict, currentCourse)
 		sID = Student.objects.get(user=request.user)
+		extractPaths(context_dict, currentCourse, sID)
 	
 	if request.POST: 
 		avatarImage = request.POST['avatar'] # The Chosen Avatar Image Name
@@ -34,28 +35,30 @@ def avatar(request):
 
 	return render(request, 'Students/Avatar.html', context_dict)
 
-def extractPaths(context_dict, currentCourse): #function used to get the names from the file locaiton
-
-	#Find all used avatars
-	usedAvatars = []
-	sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
-	for st_cs in sts_crs:
-		usedAvatars.append(st_cs.avatarImage)
-	print(usedAvatars)
+def extractPaths(context_dict, currentCourse, sID): #function used to get the names from the file locaiton
+	defaultAvatar = '/static/images/avatars/anonymous.png'
 	
+	#Find the users used avatar
+	usedAvatars = ''
+	st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	 
+	usedAvatars = st_crs.avatarImage
+	print("#############  We are here ########### ")
+	print("Used avatar: " + usedAvatars)
+	
+	#Get all the avatars
 	avatarPath = []	
+	absolutePath = []
 	for name in glob.glob('static/images/avatars/*'):
 		name = name.replace("\\","/")
 		namec = '/'+name
-		if not namec in usedAvatars:
-			avatarPath.append(name)
-			print(name)
+		avatarPath.append(name)
+		absolutePath.append(namec)
+	
+	#Check to make sure the students avatar still exisit if not chagne to default
+	if not usedAvatars in absolutePath:
+		st_crs.avatarImage = defaultAvatar
+		st_crs.save()
 		
-	#Find all used avatars
-	usedAvatars = []
-	sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
-	for st_cs in sts_crs:
-		usedAvatars.append(st_cs.avatarImage)
 	
 	context_dict["avatarPaths"] = zip(range(1,len(avatarPath)+1), avatarPath)
 
