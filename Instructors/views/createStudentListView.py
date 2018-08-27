@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentRegisteredCourses, StudentEventLog
 from Badges.enums import Event
+import glob
 
 @login_required
 def createStudentListView(request):
@@ -20,7 +21,11 @@ def createStudentListView(request):
     last_Name = []
     user_Email = []  
     user_Action = []   
-    user_Avatar = []   
+    user_Avatar = []  
+    avatars = glob.glob('static/images/avatars/*')
+    defaultAvatar = '/static/images/avatars/anonymous.png'
+
+    
 
     courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
     studentEvents = [Event.startChallenge, Event.endChallenge, Event.userLogin, Event.studentUpload, Event.spendingVirtualCurrency,
@@ -38,7 +43,17 @@ def createStudentListView(request):
             user_Action.append(last_action.timestamp)
         else:
             user_Action.append("None")
-        user_Avatar.append(cs.avatarImage)
+        
+        studentAvatarPath = cs.avatarImage
+        studentAvatarPath = studentAvatarPath[1:]
+        
+        if studentAvatarPath in avatars:
+            user_Avatar.append(cs.avatarImage)
+        else:
+            user_Avatar.append(defaultAvatar) #add the default 
+            cs.avatarImage = defaultAvatar #change the students avatar to the default
+            cs.save()
+
                
     # The range part is the index numbers.
     context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Action, user_Avatar)), key=lambda tup: tup[3])

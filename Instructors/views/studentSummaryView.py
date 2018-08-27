@@ -13,6 +13,7 @@ from Instructors.constants import default_time_str
 from Instructors.views.instructorCourseHomeView import studentXP
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog
 from Badges.enums import Event
+import glob
     
 @login_required
 def studentSummary(request):
@@ -23,6 +24,8 @@ def studentSummary(request):
     first_Name = []
     last_Name = []
     user_Avatar = []
+    avatars = glob.glob('static/images/avatars/*')
+    defaultAvatar = '/static/images/avatars/anonymous.png'
     user_Action = []
     # Serious Challenge (sc)
     sc_totalStudentScore = []
@@ -53,7 +56,15 @@ def studentSummary(request):
         userID.append(s.user)
         first_Name.append(s.user.first_name)
         last_Name.append(s.user.last_name)
-        user_Avatar.append(cs.avatarImage)
+        studentAvatarPath = cs.avatarImage
+        studentAvatarPath = studentAvatarPath[1:]
+        
+        if studentAvatarPath in avatars:
+            user_Avatar.append(cs.avatarImage)
+        else:
+            user_Avatar.append(defaultAvatar) #add the default 
+            cs.avatarImage = defaultAvatar #change the students avatar to the default
+            cs.save()
         
         last_action = StudentEventLog.objects.filter(course=currentCourse, student = s, event__in = studentEvents).order_by('-timestamp').first()
         if last_action:
