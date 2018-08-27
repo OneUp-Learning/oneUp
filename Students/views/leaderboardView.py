@@ -14,6 +14,8 @@ from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
 
+import glob
+
 @login_required
 
 
@@ -37,7 +39,18 @@ def LeaderboardView(request):
         context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
         context_dict['course_Name'] = currentCourse.courseName
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
-        context_dict['avatar'] =  st_crs.avatarImage    
+        avatars = glob.glob('static/images/avatars/*')
+        defaultAvatar = '/static/images/avatars/anonymous.png'
+
+        studentAvatarPath = st_crs.avatarImage
+        studentAvatarPath = studentAvatarPath[1:]
+        
+        if studentAvatarPath in avatars:
+            context_dict['avatar'] =  st_crs.avatarImage  
+        else:
+            context_dict['avatar'] =  defaultAvatar  
+            st_crs.avatarImage = defaultAvatar #change the students avatar to the default
+            st_crs.save()     
                       
         context_dict = courseLeaderboard(currentCourse, context_dict)
         

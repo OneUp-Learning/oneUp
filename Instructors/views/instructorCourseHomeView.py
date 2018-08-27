@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required
 
 import inspect
 import logging
+import glob
 logger = logging.getLogger(__name__)
 
 def lineno():
@@ -145,6 +146,8 @@ def courseLeaderboard(currentCourse, context_dict):
             badgeName=[]
             badgeImage = []
             avatarImage =[]
+            avatars = glob.glob('static/images/avatars/*')
+            defaultAvatar = '/static/images/avatars/anonymous.png'
             studentUser = []
             N = 7
             
@@ -165,8 +168,17 @@ def courseLeaderboard(currentCourse, context_dict):
                     badgeID.append(badge.badgeID)
                     badgeName.append(badge.badgeID.badgeName)
                     badgeImage.append(badge.badgeID.badgeImage)
-                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
-                    avatarImage.append(st_crs.avatarImage)
+                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)             
+                    
+                    studentAvatarPath = st_crs.avatarImage
+                    studentAvatarPath = studentAvatarPath[1:]
+        
+                    if studentAvatarPath in avatars:
+                        avatarImage.append(st_crs.avatarImage)
+                    else:
+                        avatarImage.append(defaultAvatar) #add the default 
+                        st_crs.avatarImage = defaultAvatar #change the students avatar to the default
+                        st_crs.save()   
                               
             print("cparams")
             print(ccparams.numBadgesDisplayed+1)                    
