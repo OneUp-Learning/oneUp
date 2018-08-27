@@ -6297,7 +6297,7 @@ input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::before {
 
 /* Select Field
    ========================================================================== */
-select {
+select:not(.no-materialize) {
   display: none;
 }
 
@@ -6305,7 +6305,7 @@ select.browser-default {
   display: block;
 }
 
-select {
+select:not(.no-materialize) {
   background-color: rgba(255, 255, 255, 0.9);
   width: 100%;
   padding: 5px;
