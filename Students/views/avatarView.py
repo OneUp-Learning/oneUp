@@ -38,11 +38,12 @@ def avatar(request):
 def extractPaths(context_dict, currentCourse, sID): #function used to get the names from the file locaiton
 	defaultAvatar = '/static/images/avatars/anonymous.png'
 	
-	#Find the users used avatar
-	usedAvatars = ''
-	st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	 
-	usedAvatars = st_crs.avatarImage
-		
+	#Find all used avatars
+        usedAvatars = []
+        sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+        for st_cs in sts_crs:
+                usedAvatars.append(st_cs.avatarImage)	
+	
 	#Get all the avatars
 	avatarPath = []	
 	absolutePath = []
