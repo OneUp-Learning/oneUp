@@ -1,9 +1,7 @@
 <header>
-{% load staticfiles %}       
-{% load notification_tags %}
-{% include_notify_js_variables %}
-<script src="{% static "notify/notifyX.js" %}"></script>
-<script>
+    {% load staticfiles %} {% load notification_tags %} {% include_notify_js_variables %}
+    <script src="{% static " notify/notifyX.js " %}"></script>
+    <script>
         var updateSuccess = function (response) {
             var notification_box = $('#nMenu1');
             var notification_box2 = $('#nMenu2');
@@ -12,123 +10,152 @@
                 notification_box.prepend(notification.html);
                 notification_box2.prepend(notification.html);
             });
-            
+
             //IF table on page then update
         };
-    
-    
-        function countNotifications(){
-            numItems = Math.trunc($('.navNotifications').length/2.0);
-            $('.tooltipped').tooltip({delay: 50});
-            if(numItems == 0){
+
+
+        function countNotifications() {
+            numItems = Math.trunc($('.navNotifications').length / 2.0);
+            $('.tooltipped').tooltip({
+                delay: 50
+            });
+            if (numItems == 0) {
                 numItems = null;
-    
+
                 document.getElementById("notification-count1").setAttribute('data-tooltip', "No Notifications");
                 document.getElementById('notification-count1').children[0].innerHTML = 'notifications';
-    
+
                 x = document.getElementById("nMenu1").children;
                 x = x[0];
                 y = document.createElement('li');
                 y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
                 x.parentNode.replaceChild(y, x);
-    
+
                 document.getElementById("notification-count2").style.display = "none";
-    
+
                 x = document.getElementById("nMenu2").children;
                 x = x[0];
                 y = document.createElement('li');
                 y.innerHTML = "<a class='waves-effect' href='#!'>No new notifications yet</a>"
                 x.parentNode.replaceChild(y, x);
-                
+
                 document.getElementById("clearAll").style.display = "none";
-    
+
             } else {
                 document.getElementById("notification-count1").setAttribute('data-tooltip', numItems + " New");
                 document.getElementById('notification-count1').children[0].innerHTML = 'notifications_active';
-    
+
                 document.getElementById("notification-count2").style.display = "visible";
-                document.getElementById("notification-count2").textContent= numItems;
-    
+                document.getElementById("notification-count2").textContent = numItems;
+
                 document.getElementById("clearAll").style.display = "inline";
             }
-            
+
         }
-        
-        $(document).ready(function() {
+
+        $(document).ready(function () {
             countNotifications();
-            setInterval(function(){
+            setInterval(function () {
                 countNotifications();
             }, 5000);
-            $('.tooltipped').tooltip({delay: 50});
-        });	
-        
-            $(document).on('click', '#clearAll', function() {
-                console.log("Clear all clicked")
-                $(".delete-box").click();
-                countNotifications();
-                document.getElementById("clearAll").style.display = "none";
-    
+            $('.tooltipped').tooltip({
+                delay: 50
             });
+        });
+
+        $(document).on('click', '#clearAll', function () {
+            console.log("Clear all clicked")
+            $(".delete-box").click();
+            countNotifications();
+            document.getElementById("clearAll").style.display = "none";
+
+        });
     </script>
     <nav>
         <div class="nav-wrapper">
-        <a href="#" class="brand-logo"><i class="material-icons">lightbulb_outline</i>OneUp</a>
-        <a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i> </a>
-         
-        <ul class="right hide-on-med-and-down">
-            <li>
-                <a class="dropdown-button" href="/oneUp/administrators/adminHome" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Admin Home</a>
-            </li>
-            <li>
-                <a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
-                    <i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
-                </a>
-                <ul id="notifications" class="dropdown-content">
-                    <div id="nMenu1" class="notification-box-list">
-                    {% user_notifications for box %}
-                    </div>
-                    <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
-                </ul>
-            </li>
-        {% if logged_in %}                        
-        <li class="divider"></li>
-        <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>
-        {% endif %}
-    </ul>
+            <a href="#" class="brand-logo">
+                <i class="material-icons">lightbulb_outline</i>OneUp</a>
+            <a href="#" data-activates="slide-out" class="button-collapse">
+                <i class="material-icons">menu</i>
+            </a>
+
+            <ul class="right hide-on-med-and-down">
+                <li>
+                    <a class="dropdown-button" href="/oneUp/administrators/adminHome" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Admin Home</a>
+                </li>
+                <li>
+                    <a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth='false' data-beloworigin='true'
+                        data-activates='notifications' data-position="left" data-delay="50">
+                        <i class='material-icons'>notifications</i>
+                        <!-- This needs to be linked to an actual notification page -->
+                    </a>
+                    <ul id="notifications" class="dropdown-content">
+                        <div id="nMenu1" class="notification-box-list">
+                            {% user_notifications for box %}
+                        </div>
+                        <li id="clearAll">
+                            <a class="waves-effect" href="#!">
+                                <i class="material-icons">clear_all</i>Clear All</a>
+                        </li>
+                    </ul>
+                </li>
+                {% if logged_in %}
+                <li class="divider"></li>
+                <li>
+                    <a class="waves-effect" href="/oneUp/students/Logout">Logout</a>
+                </li>
+                {% endif %}
+            </ul>
         </div>
         <ul class="side-nav" id="slide-out">
             {% if logged_in %}
             <li>
                 <div class="user-view">
                     <div class="background">
-                      <img src="/static/images/pic01.jpg">
+                        <img src="/static/images/pic01.jpg">
                     </div>
-                    <a href="#!user"><img class="circle" src="/static/images/avatars/25.png"></a>
-                    <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
-                  </div>
-            </li>   
-            {% endif %}             
+                    <a href="#!user">
+                        <img class="circle" src="/static/images/avatars/25.png">
+                    </a>
+                    <a href="#!name">
+                        <span class="white-text name">Welcome, {{username}}</span>
+                    </a>
+                </div>
+            </li>
+            {% endif %}
             <li class="no-padding">
                 <ul>
-                   <li><a class="waves-effect" href="/oneUp/administrators/adminHome">Admin Home</a></li>
                     <li>
-                        <a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
+                        <a class="waves-effect" href="/oneUp/administrators/adminHome">Admin Home</a>
+                    </li>
+                    <li>
+                        <a class='collapsible-header'>
+                            <i class='material-icons'>notifications</i>Notifications
+                            <div class='right'>
+                                <span id='notification-count2' class="new badge red"></span>
+                            </div>
+                        </a>
                         <div class='collapsible-body'>
                             <ul>
                                 <div id="nMenu2" class="notification-box-list">
-                                {% user_notifications for box %}
-                                </div>			
-                                <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
+                                    {% user_notifications for box %}
+                                </div>
+                                <li id="clearAll">
+                                    <a class="waves-effect" href="#!">
+                                        <i class="material-icons">clear_all</i>Clear All</a>
+                                </li>
                             </ul>
                         </div>
                     </li>
                 </ul>
             </li>
-            {% if logged_in %}                        
+            {% if logged_in %}
             <li class="divider"></li>
-            <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>
+            <li>
+                <a class="waves-effect" href="/oneUp/students/Logout">Logout</a>
+            </li>
             {% endif %}
         </ul>
     </nav>
 </header>
-                         

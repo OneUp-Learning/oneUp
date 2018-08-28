@@ -16,7 +16,7 @@
             </div>
          </div>
          <div class="row">
-            <div class="col s12 m8 offset-m2">
+            <div class="col s12 m10 offset-m1">
                <form name="question" action="/oneUp/instructors/challengeSaveSelectedQuestions" method="POST">
                   {% csrf_token %}
                   <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
