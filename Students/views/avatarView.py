@@ -36,25 +36,23 @@ def avatar(request):
 	return render(request, 'Students/Avatar.html', context_dict)
 
 def extractPaths(context_dict, currentCourse, sID): #function used to get the names from the file locaiton
-	defaultAvatar = '/static/images/avatars/anonymous.png'
+	usedAvatars = []
+	student = StudentRegisteredCourses.objects.get(courseID=currentCourse, studentID = sID)
+	sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+	for st_cs in sts_crs:
+		usedAvatars.append(st_cs.avatarImage)
+	print(usedAvatars)
 	
-	#Find all used avatars
-        usedAvatars = []
-        sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
-        for st_cs in sts_crs:
-                usedAvatars.append(st_cs.avatarImage)	
-	
-	#Get all the avatars
 	avatarPath = []	
-	absolutePath = []
 	for name in glob.glob('static/images/avatars/*'):
 		name = name.replace("\\","/")
 		namec = '/'+name
-		avatarPath.append(name)
-		absolutePath.append(namec)
+		if not namec in usedAvatars:
+			avatarPath.append(name)
+			print(name)	
 	
 	#Check to make sure the students avatar still exisit if not chagne to default
-	checkIfAvatarExist(st_crs)
+	checkIfAvatarExist(student)
 		
 	avatarPath.sort()
 	context_dict["avatarPaths"] = zip(range(1,len(avatarPath)+1), avatarPath)
