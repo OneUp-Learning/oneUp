@@ -55,7 +55,7 @@ def extractPaths(context_dict, currentCourse, sID): #function used to get the na
 	#Check to make sure the students avatar still exisit if not chagne to default
 	checkIfAvatarExist(st_crs)
 		
-	
+	avatarPath.sort()
 	context_dict["avatarPaths"] = zip(range(1,len(avatarPath)+1), avatarPath)
 
 def checkIfAvatarExist(student):
