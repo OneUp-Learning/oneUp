@@ -35,6 +35,8 @@ class Student(models.Model):
     universityID = models.CharField(max_length=100)
     def __str__(self):              
         #return str(self.studentID)+","+self.name+self.name
+        if self.user is None:
+            return "Unknown student"
         return str(self.user.username)
   
 def avatarImageUploadLocation(instance,filename):
