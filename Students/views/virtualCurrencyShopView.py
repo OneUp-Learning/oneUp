@@ -97,11 +97,11 @@ def virtualCurrencyShopView(request):
         if request.method == "GET":
             buyOptions = []
             rules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, courseID = currentCourse)
-            eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description'])  
+            eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description','isVirtualCurrencySpendRule'])  
             index = 0
-            for i, eName, eDescription in eventObjects:
+            for i, eName, eDescription, eIsVirtualCurrencySpendRule in eventObjects:
                 # disabled adjustment event(861) for now since teacher can adjust a student challenge grade and we don’t have a way to restrict number of purchases in course shop :( 
-                if i >= 850 and i != 861:
+                if eIsVirtualCurrencySpendRule:
                     for rule in rules:
                         ruleEvent = RuleEvents.objects.get(rule = rule.ruleID)
                         if ruleEvent.event == i:

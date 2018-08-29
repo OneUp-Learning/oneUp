@@ -11,6 +11,7 @@ from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
 from Instructors.views.utils import initialContextDict
+from Students.views.avatarView import checkIfAvatarExist
 
 from datetime import datetime
 from datetime import timedelta
@@ -165,8 +166,8 @@ def courseLeaderboard(currentCourse, context_dict):
                     badgeID.append(badge.badgeID)
                     badgeName.append(badge.badgeID.badgeName)
                     badgeImage.append(badge.badgeID.badgeImage)
-                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
-                    avatarImage.append(st_crs.avatarImage)
+                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)       
+                    avatarImage.append(checkIfAvatarExist(st_crs))       
                               
             print("cparams")
             print(ccparams.numBadgesDisplayed+1)                    

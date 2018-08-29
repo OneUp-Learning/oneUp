@@ -1,8 +1,9 @@
 from Instructors.views.utils import initialContextDict
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
+import glob
 
-def studentInitialContextDict(request):
+def studentInitialContextDict(request):    
     context_dict, currentCourse = initialContextDict(request)
     
     #student = Student.objects.get(user=request.user) 
@@ -18,7 +19,9 @@ def studentInitialContextDict(request):
     context_dict['student'] = student
     print('context_dict')
     print(context_dict['student'])
-    context_dict['avatar'] = st_crs.avatarImage
+    
+    context_dict['avatar'] = checkIfAvatarExist(st_crs)
+    
     if not currentCourse:
         context_dict['course_notselected'] = 'Please select a course'
         
@@ -43,4 +46,17 @@ def studentInstructorInitialContextDict(request):
         stud = request.user
 
     studentId = Student.objects.filter(user=stud)
+    
+def checkIfAvatarExist(student):
+    avatars = glob.glob('static/images/avatars/*')
+    defaultAvatar = '/static/images/avatars/anonymous.png'
+    studentAvatarPath = student.avatarImage
+    studentAvatarPath = studentAvatarPath[1:]
+    if studentAvatarPath in avatars:
+        return student.avatarImage
+    else:
+        student.avatarImage = defaultAvatar #change the students avatar to the default
+        student.save()
+    
+    return defaultAvatar 
 

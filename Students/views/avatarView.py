@@ -10,6 +10,7 @@ import glob
 from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
+from django.template.context_processors import request
 
 @login_required
 def avatar(request):
@@ -18,8 +19,8 @@ def avatar(request):
 
 
 	if 'currentCourseID' in request.session:	
-		extractPaths(context_dict, currentCourse)
 		sID = Student.objects.get(user=request.user)
+		extractPaths(context_dict, currentCourse, sID)
 	
 	if request.POST: 
 		avatarImage = request.POST['avatar'] # The Chosen Avatar Image Name
@@ -34,10 +35,9 @@ def avatar(request):
 
 	return render(request, 'Students/Avatar.html', context_dict)
 
-def extractPaths(context_dict, currentCourse): #function used to get the names from the file locaiton
-
-	#Find all used avatars
+def extractPaths(context_dict, currentCourse, sID): #function used to get the names from the file locaiton
 	usedAvatars = []
+	student = StudentRegisteredCourses.objects.get(courseID=currentCourse, studentID = sID)
 	sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
 	for st_cs in sts_crs:
 		usedAvatars.append(st_cs.avatarImage)
@@ -49,13 +49,24 @@ def extractPaths(context_dict, currentCourse): #function used to get the names f
 		namec = '/'+name
 		if not namec in usedAvatars:
 			avatarPath.append(name)
-			print(name)
-		
-	#Find all used avatars
-	usedAvatars = []
-	sts_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
-	for st_cs in sts_crs:
-		usedAvatars.append(st_cs.avatarImage)
+			print(name)	
 	
+	#Check to make sure the students avatar still exisit if not chagne to default
+	checkIfAvatarExist(student)
+		
+	avatarPath.sort()
 	context_dict["avatarPaths"] = zip(range(1,len(avatarPath)+1), avatarPath)
+
+def checkIfAvatarExist(student):
+	avatars = glob.glob('static/images/avatars/*')
+	defaultAvatar = '/static/images/avatars/anonymous.png'
+	studentAvatarPath = student.avatarImage
+	studentAvatarPath = studentAvatarPath[1:]
+	if studentAvatarPath in avatars:
+		return student.avatarImage
+	else:
+		student.avatarImage = defaultAvatar #change the students avatar to the default
+		student.save()
+    
+	return defaultAvatar 
 
