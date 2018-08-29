@@ -66,6 +66,7 @@ def SaveVirtualCurrencySpendRule(request):
                         
                         actionArg.argumentValue = request.POST["ruleAmount_"+str(eventI)]
                         actionArg.save()
+                        rule.vcRuleAmount = actionArg.argumentValue
                         rule.save()
                         selectedSpendRulesEvents.remove(eventI)
             else:
