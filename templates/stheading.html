@@ -101,13 +101,13 @@
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course Infomation</a>
 					<ul id="courseinfo" class="dropdown-content">
 						<li><a class="waves-effect" href="/oneUp/students/StudentHome">Student's Home</a></li>
-						<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>
+						<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>						
+						<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
+						<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>	
 						<!-- GGM added leaderboard to navigation bar -->
 						{%if studentLeaderboardToggle %}
 						<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Leaderboard</a></li>
-						{% endif %}							
-						<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
-						<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>						
+						{% endif %}						
 						{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
 						<li><a class="waves-effect" href="/oneUp/badges/CourseBadges">Course Badges</a></li>
 						{% endif %}
@@ -181,10 +181,10 @@
 									<li><a class="waves-effect" href="/oneUp/students/StudentHome">Student's Home</a></li>
 									<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>							
 									<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
+									<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>	
 									{%if studentLeaderboardToggle %}
 									<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Leaderboard</a></li>
-									{% endif %}	
-									<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>						
+									{% endif %}						
 									{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
 									<li><a class="waves-effect" href="/oneUp/badges/CourseBadges">Course Badges</a></li>
 									{% endif %}
@@ -219,6 +219,9 @@
 									
 								</ul>
 							</div>
+						</li>
+						<li>
+							<a class="collapsible-header waves-effect" href="/oneUp/students/StudentQA"><i class="material-icons">help</i>Help</a>
 						</li>
 						{% endif %}
 						<li>
