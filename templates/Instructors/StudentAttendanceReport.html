@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <script>
+      $( document ).ready(function(){
+
+       var rollDate = $('#firstDate').bootstrapMaterialDatePicker({
+         weekStart: 0, format: 'YYYY-MM-DD', time:false
+       });
+      
+      });
+      
+      $( document ).ready(function(){
+          var rollDate = $('#secondDate').bootstrapMaterialDatePicker({
+            weekStart: 0, format: 'YYYY-MM-DD', time:false
+          });
+         
+         });
+      
+      $(function(){
+    	    $("#save").click(function () {
+    	    	validateDateFields();
+    	    	$("#dateForm").submit();
+    	    });
+    	  
+    	});
+      
+      function validateDateFields(){
+    	  var firstDate = document.getElementById("firstDate");
+    	  var secondDate = document.getElementById("secondDate");
+    	  if (firstDate.value == "") {
+    		
+    	    alert("Please fill out the first date!");
+    	    return false;
+    	  }
+    	  
+
+    	  if (secondDate.value == "") {
+      	    alert("Please fill out the second date!");
+      	    return false;
+      	  }
+      }
+      </script>
+      <style type="text/css">
+         .table-scroll {
+         position:relative;
+         margin:auto;
+         overflow:hidden;
+         }
+         .table-wrap {
+         width:100%;
+         overflow:auto;
+         }
+         .table-scroll table {
+         width:100%;
+         margin:auto;
+         border-collapse:separate;
+         }
+         .table-scroll th, .table-scroll td {
+         white-space:nowrap;
+         vertical-align:top;
+         }
+         .table-scroll thead, .table-scroll tfoot {
+         background:#f9f9f9;
+         }
+         .clone {
+         position:absolute;
+         top:0;
+         left:0;
+         pointer-events:none;
+         }
+         .clone th, .clone td {
+         visibility:hidden
+         }
+         .clone td, .clone th {
+         border-color:transparent
+         }
+         .clone tbody th {
+         visibility:visible;
+         color:red;
+         }
+         .clone .fixed-side {
+         background:#f9f9f9;
+         visibility:visible;
+         }
+      </style>
+   </head>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Class Attendance</h3>
+            </div>
+         </div>
+         <form id="dateForm" name="question" onsumbit="return validateDateFields()"  enctype="multipart/form-data" action="/oneUp/instructors/studentAttendanceReport" method="POST">
+	            {% csrf_token %}
+	            <div class="row ">
+	            <div class="offset-m1 col s6">
+	            <div class="input-field">
+	            <div class="col s5">
+	            
+                              <h6>First Date:</h6>
+                              <input type="text" class="datepicker-from" name="firstDate" value="{{firstDate}}" id="firstDate">
+                              </div>
+				</div>
+				<div class="input-field">
+				<div class="col s5">
+                              <h6>Second Date:</h6>
+                              <input type="text" class="datepicker-from" name="secondDate" value="{{secondDate}}" id="secondDate">
+                           </div>
+				</div>
+				<a class="waves-effect waves-light btn" id="save">Save</a> 
+				</div>
+			</form>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  <div id="table-scroll" class="table-scroll">
+                     <div class="table-wrap">
+                        <table class="highlight main-table">
+                           <thead>
+                           <th>Avatar</th>
+                              <th class="fixed-side">Name</th>
+                              {% for date in Dates %}
+                              <th>{{date}}</th>
+                              {% endfor %}
+                           </thead>
+                           <tbody>
+                              {% for student_ID ,student_Avatars, student_Names, isPresent in class %}
+                              <!-- gave this classes and witdths GGM -->
+                              <tr>
+                              <td class="fixed-side"><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></td>
+                              <td>{{student_Names}}</td>
+                              
+                           {% for attendance in isPresent %}   
+                           <td>
+                           {% if attendance == "true" %}
+                           <input class="checkbox" name="checkbox" type="checkbox" id="{{ forloop.counter }}" checked disabled/>
+                           {% else %}
+                           <input class="checkbox" name="checkbox" type="checkbox" id="{{ forloop.counter }}" disabled />
+                           {% endif %}
+                            <label for="{{ forloop.counter }}"></label>
+                           </td>
+                           {% endfor %}
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+   <script>jQuery(document).ready(function() {
+      jQuery(".main-table").clone(true).appendTo('#table-scroll').addClass('clone');   
+      });
+   </script>
+</html>
