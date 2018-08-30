@@ -160,7 +160,7 @@ def courseLeaderboard(currentCourse, context_dict):
             print("badges")
             print(badges)
             for badge in badges:
-                if badge.studentID in students:
+                if (badge.studentID in students) and (badge.badgeID.courseID == currentCourse):
                     studentBadgeID.append(badge.studentBadgeID)
                     studentID.append(badge.studentID)
                     badgeID.append(badge.badgeID)
