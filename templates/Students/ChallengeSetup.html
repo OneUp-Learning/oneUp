@@ -38,33 +38,7 @@
          
          
       </script>
-      <script>
-         var ace_editor_divs = document.getElementsByClassName('ace-editor');
-         var ace_editors = {};
-         for (var i=0;i<ace_editor_divs.length;i++) {
-             var new_editor = ace.edit(ace_editor_divs[i].id);
-          new_editor.setTheme("ace/theme/chrome");
-         new_editor.session.setMode("ace/mode/"+ace_editor_divs[i].title);
-         ace_editors[ace_editor_divs[i].id] = new_editor;
-         }
-         
-         var parson_divs = document.getElementsByClassName('parson');
-         var parsons = {};
-         
-         function copyContentsToHidden() {
-                for (var i=0;i<ace_editor_divs.length;i++) {
-                    var name = ace_editor_divs[i].id;
-                    var editor = ace_editors[name];
-                    var hiddenfield = document.getElementById(name+"-hidden");
-                    hiddenfield.value = editor.getValue();
-                }
-              
-            
-                
-         }
-         
-         
-      </script>
+
    </head>
    <body>
       {% include 'stheading.html' %}
@@ -326,5 +300,33 @@
       </main>
       <!-- Footer -->
       {% include 'footer.html' %}
+      
+      <script>
+         var ace_editor_divs = document.getElementsByClassName('ace-editor');
+         var ace_editors = {};
+         for (var i=0;i<ace_editor_divs.length;i++) {
+         	var new_editor = ace.edit(ace_editor_divs[i].id);
+         	new_editor.setTheme("ace/theme/chrome");
+         	new_editor.session.setMode("ace/mode/"+ace_editor_divs[i].title);
+         	ace_editors[ace_editor_divs[i].id] = new_editor;
+         }
+         
+         var parson_divs = document.getElementsByClassName('parson');
+         var parsons = {};
+         
+         function copyContentsToHidden() {
+                for (var i=0;i<ace_editor_divs.length;i++) {
+                    var name = ace_editor_divs[i].id;
+                    var editor = ace_editors[name];
+                    var hiddenfield = document.getElementById(name+"-hidden");
+                    hiddenfield.value = editor.getValue();
+                }
+              
+            
+                
+         }
+         
+         
+      </script>
    </body>
 </html>
