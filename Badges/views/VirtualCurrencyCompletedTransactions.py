@@ -51,7 +51,7 @@ def virtualCurrencyCompletedTransactions(request):
 #                                                                                                             Event.seeClassAverage, Event.chooseLabPartner, Event.chooseProjectPartner, Event.uploadOwnAvatar, Event.chooseDashboardBackground,
 #                                                                                                             Event.getSurpriseAward, Event.chooseBackgroundForYourName, Event.buyExtraCreditPoints]).order_by('-studentEvent__timestamp')
         transactions = StudentVirtualCurrencyTransactions.objects.filter(course = course, status__in=["Complete", "Reverted"]).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.getDifferentProblem,
-                                                                                                            Event.getSurpriseAward, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getCreditForOneTestProblem]).order_by('-studentEvent__timestamp')
+                                                Event.getSurpriseAward, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getCreditForOneTestProblem, Event.buyMissedLab, Event.changeHWWeights, Event.examExemption]).order_by('-studentEvent__timestamp')
 
         #logger.debug(transactions)
         name = []

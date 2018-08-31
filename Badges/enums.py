@@ -133,7 +133,7 @@ class Event():
     getSurpriseAward = 860 # Get a small surprise award from the instructor   
     changeHWWeights = 862 # Set weights on the grades of 2 HWs
     examExemption = 863 # Get Exempt from Final
-    
+    buyMissedLab = 864  # Buy the points for a missed lab
     
     adjustment = 861
 #    seeClassAverage = 861 # See aggregated class information
@@ -292,21 +292,21 @@ class Event():
               instructorHelp: {
                         'index': instructorHelp,
                         'name':'instructorHelp',
-                        'displayName':'Get Feedback on Assignment Problem',
+                        'displayName':'Get Help on 1 HW Problem',
                         'description':'Get help/feedback from the instructor on 1 problem before submitting an assignment.',
                         'isVirtualCurrencySpendRule':True
                         },
               buyAttempt: {
                         'index': buyAttempt,
                         'name':'buyAttempt',
-                        'displayName':'Buy Attempt',
+                        'displayName':'Buy HW Re-submission',
                         'description':'Buy another attempt (re-submission) for an assignment (restrictions may apply).',
                         'isVirtualCurrencySpendRule':True
                         },
               extendDeadlineHW: {
                         'index': extendDeadlineHW,
                         'name':'extendDeadlineHW',
-                        'displayName':'Extend Deadline of Assignment',
+                        'displayName':'Extend HW Deadline',
                         'description':'Extend the due date for an assignment with 12 hours.',
                         'isVirtualCurrencySpendRule':True
                         },              
@@ -327,7 +327,7 @@ class Event():
               replaceLowestAssignGrade: {
                         'index': replaceLowestAssignGrade,
                         'name':'replaceLowestAssignGrade',
-                        'displayName':'Replace Lowest Assignment Grade',
+                        'displayName':'Replace Lowest HW Grade',
                         'description':'Replace your lowest assignment grade with your average assignment grade.',
                         'isVirtualCurrencySpendRule':True
                         },              
@@ -337,11 +337,18 @@ class Event():
                         'displayName':'Buy Test Time',
                         'description':'Buy a 15-min extension of the time for one test.',
                         'isVirtualCurrencySpendRule':True
-                        },              
+                        }, 
+              buyMissedLab: {
+                        'index': buyMissedLab,
+                        'name':'buyMissedLab',
+                        'displayName':'Buy Missed Lab',
+                        'description':'Buy the points for a missed lab.',
+                        'isVirtualCurrencySpendRule':True
+                        },                                         
               getDifferentProblem: {
                         'index': getDifferentProblem,
                         'name':'getDifferentProblem',
-                        'displayName':'Get Different Problem',
+                        'displayName':'Get Different Test Problem',
                         'description':'Get 1 different problem on a test (for designated problems).',
                         'isVirtualCurrencySpendRule':True
                         },              
@@ -362,7 +369,7 @@ class Event():
               changeHWWeights: {
                         'index': changeHWWeights,
                         'name':'changeHWWeights',
-                        'displayName':'Change Assignment Weights',
+                        'displayName':'Change HW Weights',
                         'description':'Set weights on the grades of 2 HWs. The weights must total 200%, with each weight between 75% and 125%.',
                         'isVirtualCurrencySpendRule':True
                         },
