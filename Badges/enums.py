@@ -133,7 +133,7 @@ class Event():
     getSurpriseAward = 860 # Get a small surprise award from the instructor   
     changeHWWeights = 862 # Set weights on the grades of 2 HWs
     examExemption = 863 # Get Exempt from Final
-    
+    buyMissedLab = 864  # Buy the points for a missed lab
     
     adjustment = 861
 #    seeClassAverage = 861 # See aggregated class information
@@ -337,7 +337,14 @@ class Event():
                         'displayName':'Buy Test Time',
                         'description':'Buy a 15-min extension of the time for one test.',
                         'isVirtualCurrencySpendRule':True
-                        },              
+                        }, 
+              buyMissedLab: {
+                        'index': buyMissedLab,
+                        'name':'buyMissedLab',
+                        'displayName':'Buy Missed Lab',
+                        'description':'Buy the points for a missed lab.',
+                        'isVirtualCurrencySpendRule':True
+                        },                                         
               getDifferentProblem: {
                         'index': getDifferentProblem,
                         'name':'getDifferentProblem',
