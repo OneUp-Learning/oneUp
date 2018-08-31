@@ -207,12 +207,8 @@ def courseLeaderboard(currentCourse, context_dict):
             for s in students:
                 sXP = studentXP(s, currentCourse)
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
-                #studentXP_dict[st_crs.avatarImage] = sXP 
-                studentXP_dict[st_crs] = sXP
-                if not (s.user.first_name and s.user.last_name):
-                    studentUser.append(s.user)
-                else:
-                    studentUser.append(s.user.first_name +" " + s.user.last_name)
+                studentXP_dict[st_crs] = sXP 
+                
                 
             # sort the dictionary by its values; the result is a list of pairs (key, value)
             xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)
@@ -225,6 +221,11 @@ def courseLeaderboard(currentCourse, context_dict):
                     #avatarImage.append(item[0])
                     avatarImage.append(item[0].avatarImage)
                     xpoints.append(item[1])
+                    student = item[0].studentID
+                    if not (student.user.first_name and student.user.last_name):
+                        studentUser.append(student.user)
+                    else:
+                        studentUser.append(student.user.first_name +" " + student.user.last_name)
             
             context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints, studentUser)                 
                        
