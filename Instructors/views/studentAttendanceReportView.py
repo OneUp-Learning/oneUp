@@ -11,6 +11,7 @@ from Instructors.views.utils import initialContextDict
 from django.contrib.auth.models import User
 from datetime import datetime, date, timedelta
 from django.utils.dateparse import parse_date
+from django.utils.timezone import localtime, now
 
 @login_required
 def studentAttendanceReportView(request):
@@ -18,10 +19,10 @@ def studentAttendanceReportView(request):
     #if we have request get, get the roll by the current date(today)
     #we must parse the date to get it into a special format for querying the database
     if request.method == 'GET':
-        context_dict["firstDate"] = datetime.today().strftime('%Y-%m-%d')
+        context_dict["firstDate"] = localtime(now()).replace(hour=0, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d')
         context_dict["firstDateParsed"] = parse_date(context_dict["firstDate"])
         
-        context_dict["secondDate"] = datetime.today().strftime('%Y-%m-%d')
+        context_dict["secondDate"] = localtime(now()).replace(hour=0, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d')
         context_dict["secondDateParsed"] = parse_date(context_dict["secondDate"])
         
         context_dict = getRollByDate(request, context_dict) 
@@ -87,7 +88,7 @@ def generateDatesListForIteration(startDate, endDate):
     dates = []
     step = timedelta(days=1)
     while startDate <= endDate:
-        dates.append(str(startDate) + " 00:00:00")
+        dates.append(str(startDate))
         startDate += step 
     return dates
 

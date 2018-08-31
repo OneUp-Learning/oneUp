@@ -10,9 +10,7 @@ from Students.models import StudentRegisteredCourses, StudentAttendance, Student
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.models import User
 import datetime
-import pytz
 from Instructors.views.challengeExportImportView import str2bool
-from django.utils import timezone
 from django.utils.timezone import localtime, now
 
 @login_required
@@ -39,7 +37,6 @@ def studentAttendance(request):
             return render(request, 'Instructors/StudentAttendance.html', context_dict)     
         else:#otherwise get the rollby date for today
             context_dict["rollDate"] = datetime.datetime.today().strftime('%Y-%m-%d')
-            print(timezone.now())
             context_dict = getRollByDate(request, context_dict)      
 #loads in the student objects if any, in studentattendance table
 #and get the data of the student if they were here or not
