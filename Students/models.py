@@ -33,6 +33,7 @@ class Student(models.Model):
     # last_login DateTime of last log in
     # date_joined DateTime of creation 
     universityID = models.CharField(max_length=100)
+    isTestStudent = models.BooleanField(default=False)  # indicates a student to be used by the instructor for testing purposes
     def __str__(self):              
         #return str(self.studentID)+","+self.name+self.name
         if self.user is None:
