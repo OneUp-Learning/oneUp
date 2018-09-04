@@ -3,7 +3,8 @@ from Badges.tasks import app
 import json
 
 
-def setup_periodic_variable(variable_index, course, time_period, number_of_rank=3, badge_id=None, virtual_currency_amount=None):
+def setup_periodic_variable(variable_index, course, time_period, number_of_top_students=3, badge_id=None, virtual_currency_amount=None):
+    ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     PeriodicTask.objects.get_or_create(
         name=periodic_variable['name'],
@@ -11,21 +12,33 @@ def setup_periodic_variable(variable_index, course, time_period, number_of_rank=
             'variable_index': variable_index,
             'course_id': course.courseID,
             'time_period': time_period,
-            'number_of_rank': number_of_rank,
+            'number_of_top_students': number_of_top_students,
             'badge_id': badge_id,
             'virtual_currency_amount': virtual_currency_amount
         }),
         task=periodic_variable['task_type'],
         crontab=TimePeriods.timePeriods[time_period]['schedule'],
     )
+
 def get_course(course_id):
+    ''' Method to get the course object from course id'''
     from Instructors.models import Courses
     course = Courses.objects.get(pk=int(course_id))
     return course
 
 
 @app.task(ignore_result=True)
-def ranking_task(variable_index, course_id, time_period, number_of_rank, badge_id=None, virtual_currency_amount=None):  
+def ranking_task(variable_index, course_id, time_period, number_of_top_students, badge_id=None, virtual_currency_amount=None): 
+    ''' Celery task which runs based on the time period (weekly, daily, etc). This task specifically ranks all the students
+        in the course by the results which is given by a periodic variable function then takes the top number of students
+        specified by number_of_top_students variable and gives the student(s) a award (Bdage or Virtual Currency).
+
+        If badge_id is provided the student(s) will be given a badge.
+        If virtual_currency_amount is provied the student(s) will be given virtual currency.
+        Both can be provied to give both to student(s).
+
+        Note: All method parameters should be a integer.
+    '''
     from notify.signals import notify  
     from Students.models import StudentRegisteredCourses, StudentBadges
     from Badges.models import BadgesInfo
@@ -44,8 +57,8 @@ def ranking_task(variable_index, course_id, time_period, number_of_rank, badge_i
 
     # Sort by periodic variable results (student, value) and get top results based on number _of_rank
     rank.sort(key=lambda tup: tup[1])
-    if len(rank) >= number_of_rank:
-        rank = rank[:number_of_rank]
+    if len(rank) >= number_of_top_students:
+        rank = rank[:number_of_top_students]
     
     print(rank)
 
