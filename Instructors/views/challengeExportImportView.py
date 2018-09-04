@@ -372,7 +372,7 @@ def importChallenges(uploadedFileName, currentCourse):
                         
             # Process Questions
             print(q_type)
-            if q_type in [1,2,3,4]:
+            if q_type in [1,2,3,4,8]:
                 question = StaticQuestions()
             else:
                 if q_type == 6:
@@ -394,7 +394,7 @@ def importChallenges(uploadedFileName, currentCourse):
             question.save()
             
             # Continue with Static questions    
-            if q_type in [1,2,3,4]:    
+            if q_type in [1,2,3,4,8]:    
             # Process Static question           
                 el_staticQuestion = el_question.find("StaticQuestion")
                 if not el_staticQuestion is None:   
