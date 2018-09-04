@@ -3,6 +3,7 @@ astroid==1.5.3
 bcrypt==3.1.4
 cffi==1.11.2
 Django==1.11.7
+django-celery-beat==1.1.1
 django-ckeditor==5.4.0
 django-js-asset==1.0.0
 django-jsonfield==1.0.1
