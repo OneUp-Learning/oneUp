@@ -286,6 +286,7 @@ def ChallengeResults(request):
                             lengthOfModelSolution = len(answer)
                             for index, line in enumerate(answer):
                                 line = re.sub("☃", "", line)
+                                line = re.sub(".*#distractor", "", line)
                                 line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
                                 if index < len(answer)- 1:
                                     line = line +"\n"
@@ -293,9 +294,7 @@ def ChallengeResults(request):
                             
                             answer = ""
                             answer = answer.join(tabedanswer)
-                            
-                            
-                            
+                                                        
                             question['model_solution'] = answer
                             
                             #get all the data from the webpage
