@@ -756,8 +756,66 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
             return average - float(latestAttempt.activityScore)
 
     return 0
+def getTotalScoreForWarmupChallenges(course,student,challenge):
+    totalScore = 0
+    all
+    return totalScore
 
+def getTotalScoreForSeriousChallenges(course,student,challenge):
+    totalScore = 0
+    
+    return totalScore
 
+def getAllChallenges(course,student, isGraded):
+    #utility function to get all the challenges for a course, student
+    from Students.models import StudentChallenges
+
+    #get all the challenges for the course, and depending on isGraded(serious=true,warmup=false)
+    challenges = Challenges.objects.filter(courseID=course, isGraded=isGraded)
+    
+    attempts = []
+    #for each challenge fetch the studentChallenges(attempts)
+    for challenge in challenges:
+        studentAttempts = StudentChallenges.objects.filter(courseID=challenge, studentID=student)
+    
+    for attempt in studentAttempts:
+        attempts.append(attempt.studentChallengeID) 
+    #return all the attempts for each challenge the student has taken    
+    return attempts
+
+def getChallengeQuestions(attempts) :
+    #get the questions for each attempt via studentChallengeID
+    from Students.models import StudentChallengeQuestions
+    questions = []
+    for attempt in attempts:
+        ##attempt is studentChallengeID
+        questions = StudentChallengeQuestions.objects.filter(studentChallengeID = attempt)
+        questions.append(questions)
+    
+    questionIDandType = []
+    #for each questionList in questions
+    for questionList in questions:
+        for question in questionList:
+            questionIDandType.append((question.questionID, question.questionID.type))
+            
+            
+    return questionIDandType    
+def dynamicQuestionMax(questionID):
+    #find the max score for the dynamic problem, dynamics are 6 or 7
+    from Students.models import StudentChallengeQuestions
+    questions = StudentChallengeQuestions.objects.filter(questionID = questionID)
+    
+    scores = []
+    #for each question find the max by finding the scores for each question
+    for question in questions:
+        scores.append(question.questionScore)
+    return max(scores)
+    
+    
+def firstAttemptStatic(questionID):
+    
+    #find the first attempt for the challenge, and sum the static problem scores
+    
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -800,6 +858,8 @@ class SystemVariable():
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
+    totalScoreForWarmupChallenges = 941
+    totalScoreForSeriousChallenges = 942
     
     systemVariables = {
         numAttempts:{
@@ -1289,5 +1349,32 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
             },
-        },                                                               
+        },
+        totalScoreForWarmupChallenges:{
+            'index': totalScoreForWarmupChallenges,
+            'name':'totalScoreForWarmupChallenges',
+            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
+            'description':'Total Score For Warmup Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getTotalScoreForWarmupChallenges
+            },
+        },
+        totalScoreForSeriousChallenges:{
+            'index': totalScoreForSeriousChallenges,
+            'name':'totalScoreForSeriousChallenges',
+            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
+            'description':'Total Score For Serious Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getTotalScoreForSeriousChallenges
+            },
+        },
+                                                                       
     }
