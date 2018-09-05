@@ -84,6 +84,7 @@ INSTALLED_APPS = (
     'Administrators',
     'notify',
     'easy_timezones',
+    'django_celery_beat'
 )
 
 MIDDLEWARE = [
@@ -187,7 +188,8 @@ SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-
+CELERY_IMPORTS = ['Badges.periodicVariables']
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # Turns celery on or off in oneUp code.
 # Note that this is not automatic, but enabled by statements in our
 # code which check its value.  Turning it on or off will only effect

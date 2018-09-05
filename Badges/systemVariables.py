@@ -721,6 +721,43 @@ def getNumberOfBadgesEarned(course, student):
     logger.debug("Number of Earned Badges by student: " + str(count))
     return count
 
+def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student, activity):
+    ''' This system variable calculates the score difference from the activity provided and 
+        the previous activies based on the average of the previous activities and the activity
+        category for the student. The previous activities are selected if the activity deadline 
+        is less than or equal to the activity provied deadline as well as the activity provided category.
+
+        Author: Austin
+        Last Modified by: Austin
+    '''
+    from Instructors.models import Activities
+    from Students.models import StudentActivities 
+    print("activity {}".format(activity))
+    # Get all the activities within the category that has a deadline earlier than the passed in activity
+    activitiesWithCategory = Activities.objects.filter(category = activity.category).filter(deadLine__lte=activity.deadLine)
+    # Get the student activities that has a score and is apart of activites with category and order by deadline with the latest being first
+    studentActivites = StudentActivities.objects.filter(courseID = course, activityID__in = activitiesWithCategory, studentID = student, graded = True).order_by('-activityID__deadLine')
+    if studentActivites.exists():
+        latestAttempt = studentActivites.first()
+        # Calculate the total of the earlier activities scores
+        total = sum(int(act.activityScore) for act in studentActivites[1:])
+        count = studentActivites.count()-1
+        if count <= 0:
+            print("Total: " + str(total))
+            print("latest Score: " + str(latestAttempt.activityScore))
+            return 0
+        # Calculate the average
+        average = total/count
+        print("Total: " + str(total))
+        print("Average: "+ str(average))
+        print("latest Score: " + str(latestAttempt.activityScore))
+        # The student on average has earned more than their last attempt return the difference
+        if average > latestAttempt.activityScore:
+            return average - float(latestAttempt.activityScore)
+
+    return 0
+
+
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -754,6 +791,7 @@ class SystemVariable():
     numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
     isWarmUp = 932 # is a warm-up challenge
+    activityScoreDifferenceByCategory = 941
 #    scoreDifferenceFromLastActivity = 933 # Difference between the student scores for the latest and the previous activities
     scorePercentageDifferenceFromPreviousActivity = 934 # Difference between the percentages of the student's scores for this activity and the one preceding it'''      
     percentageOfActivityScore = 935 # Percentage of the student's score out of the max possible score for this activity
@@ -1161,6 +1199,19 @@ class SystemVariable():
                 ObjectTypes.challenge:isWarmUpChallenge
             },
         },
+        activityScoreDifferenceByCategory:{
+            'index': activityScoreDifferenceByCategory,
+            'name':'activityScoreDifferenceFromPreviousAveragedScoresByCategory',
+            'displayName':'Averaged Score Difference From Previous Activities By Activity Category',
+            'description':'Averaged score difference from previous activities based on the activity category.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity: [Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity: activityScoreDifferenceFromPreviousAveragedScoresByCategory
+            },
+        }, 
         scorePercentageDifferenceFromPreviousActivity:{
             'index': scorePercentageDifferenceFromPreviousActivity,
             'name':'scorePercentageDifferenceFromPreviousActivity',
