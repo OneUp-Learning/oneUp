@@ -813,7 +813,7 @@ def dynamicQuestionMax(questionID):
     
     
 def firstAttemptStatic(questionID):
-    
+    first = 10
     #find the first attempt for the challenge, and sum the static problem scores
     
 class SystemVariable():
