@@ -23,6 +23,8 @@ from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSe
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 
+from Instructors.views.debugSystemVars import debugVars
+
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 
@@ -102,6 +104,7 @@ urlpatterns = [
     url(r'^createStudentList',createStudentListView,name='createStudentListView'),
     url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
     url(r'^courseConfiguration', courseConfigurationView, name='courseConfigurationView'),
+    url(r'^debugSystemVar',debugVars, name='debugSystemVar'),
     url(r'^deleteActivity',deleteActivity, name='deleteActivity'),
     url(r'^deleteAnnouncement',deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge',deleteChallenge, name='deleteChallenge'),
