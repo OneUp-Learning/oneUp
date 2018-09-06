@@ -41,3 +41,6 @@ oneUpVenv/*
 
 media/studentActivities/*
 /.metadata/
+Pipfile*
+
+.vscode/*

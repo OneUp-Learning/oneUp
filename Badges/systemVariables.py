@@ -18,10 +18,11 @@ objectTypeToObjectClass = {
 # This is where we evaluate the system variables in their appropriate
 # context.
 def calculate_system_variable(varIndex,course,student,objectType,objectID):
-    print("VarIndex: " + str(varIndex))
+    print("VarIndex: " + str(varIndex))    
     
     systemVar = SystemVariable.systemVariables[varIndex]
     functions = systemVar["functions"]
+
     if ObjectTypes.none in functions:
         return functions[ObjectTypes.none](course,student)
     else:

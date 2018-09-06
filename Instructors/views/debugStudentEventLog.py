@@ -21,7 +21,7 @@ from django.contrib.auth.models import User
 import collections
     
 @login_required
-def debugVars(request):
+def debugEventVars(request):
     
     context_dict, currentCourse = initialContextDict(request)
     defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
@@ -158,7 +158,7 @@ def debugVars(request):
         
         context_dict['debugTable'] = list(zip(range(1,len(allDebugEvents)+1), displayStudents, displayEvents, displayObject, disaplyTimeStamp))
 
-    return render(request,'Instructors/DebugSystemVars.html', context_dict)
+    return render(request,'Instructors/DebugStudentEventLog.html', context_dict)
 
 def getAllStudents(courseStudents):
     studentList = []
