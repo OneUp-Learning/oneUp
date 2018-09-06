@@ -756,15 +756,32 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
             return average - float(latestAttempt.activityScore)
 
     return 0
-def getTotalScoreForWarmupChallenges(course,student,challenge):
+def getTotalScore(attempts):
+    questionIDsAndTypes =  getChallengeQuestions(attempts)
+    
+    consumedIDs = []
     totalScore = 0
-    all
+    for questionIDAndType in questionIDsAndTypes:
+        if questionIDAndType[1] == 6 or questionIDAndType[0] == 7:
+            totalScore += dynamicQuestionMax(questionIDAndType[0])
+        else:
+            if questionIDAndType[0] not in consumedIDs:
+                result = firstAttemptStatic(questionIDAndType[0])
+                totalScore += result[0]
+                consumedIDs.append(result[1])
+    
+    print("TotalScore")     
+    print(totalScore)   
     return totalScore
+    
+def getTotalScoreForWarmupChallenges(course,student,challenge):
+    attempts = getAllChallenges(course, student, False)
+    return getTotalScore(attempts)
 
 def getTotalScoreForSeriousChallenges(course,student,challenge):
-    totalScore = 0
-    
-    return totalScore
+    attempts = getAllChallenges(course, student, True)
+
+    return getTotalScore(attempts)
 
 def getAllChallenges(course,student, isGraded):
     #utility function to get all the challenges for a course, student
@@ -773,32 +790,38 @@ def getAllChallenges(course,student, isGraded):
     #get all the challenges for the course, and depending on isGraded(serious=true,warmup=false)
     challenges = Challenges.objects.filter(courseID=course, isGraded=isGraded)
     
+    
     attempts = []
+    studentAttemptsList = []
     #for each challenge fetch the studentChallenges(attempts)
     for challenge in challenges:
-        studentAttempts = StudentChallenges.objects.filter(courseID=challenge, studentID=student)
+        studentAttempts = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=challenge)
+        if studentAttempts:
+            studentAttemptsList.append(studentAttempts)
     
-    for attempt in studentAttempts:
-        attempts.append(attempt.studentChallengeID) 
-    #return all the attempts for each challenge the student has taken    
+    studentAttemptsList = list(studentAttemptsList)
+    for attempt in studentAttemptsList:
+        attempt = list(attempt)
+        print(attempt)
+        attempts.append(attempt[0].studentChallengeID) 
+    #return all the attempts for each challenge the student has taken  
     return attempts
 
 def getChallengeQuestions(attempts) :
     #get the questions for each attempt via studentChallengeID
     from Students.models import StudentChallengeQuestions
-    questions = []
+    questionsList = []
     for attempt in attempts:
         ##attempt is studentChallengeID
         questions = StudentChallengeQuestions.objects.filter(studentChallengeID = attempt)
-        questions.append(questions)
+        questionsList.append(questions)
     
     questionIDandType = []
     #for each questionList in questions
-    for questionList in questions:
-        for question in questionList:
-            questionIDandType.append((question.questionID, question.questionID.type))
-            
-            
+    for questionObject in questionsList:
+        for q in questionObject:
+            questionIDandType.append((q.questionID, q.questionID.type))
+        
     return questionIDandType    
 def dynamicQuestionMax(questionID):
     #find the max score for the dynamic problem, dynamics are 6 or 7
@@ -806,16 +829,19 @@ def dynamicQuestionMax(questionID):
     questions = StudentChallengeQuestions.objects.filter(questionID = questionID)
     
     scores = []
+    
     #for each question find the max by finding the scores for each question
     for question in questions:
         scores.append(question.questionScore)
+      
     return max(scores)
     
     
 def firstAttemptStatic(questionID):
-    first = 10
-    #find the first attempt for the challenge, and sum the static problem scores
-    
+    #find the first attempt for the questions, and sum the static problem scores
+    from Students.models import StudentChallengeQuestions
+    question = StudentChallengeQuestions.objects.filter(questionID=questionID).first()
+    return (question.questionScore, questionID)
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -1353,27 +1379,27 @@ class SystemVariable():
         totalScoreForWarmupChallenges:{
             'index': totalScoreForWarmupChallenges,
             'name':'totalScoreForWarmupChallenges',
-            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
+            'displayName':'Warmup Challenge Total Score',
             'description':'Total Score For Warmup Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.adjustment],
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none:getTotalScoreForWarmupChallenges
+                ObjectTypes.challenge:getTotalScoreForWarmupChallenges
             },
         },
         totalScoreForSeriousChallenges:{
             'index': totalScoreForSeriousChallenges,
             'name':'totalScoreForSeriousChallenges',
-            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
+            'displayName':'Serious Challenge Total Score',
             'description':'Total Score For Serious Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.endChallenge],
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none:getTotalScoreForSeriousChallenges
+                ObjectTypes.challenge:getTotalScoreForSeriousChallenges
             },
         },
                                                                        
