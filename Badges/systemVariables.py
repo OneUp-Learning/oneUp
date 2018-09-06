@@ -243,8 +243,13 @@ def totalTimeSpentOnQuestions(course,student):
     # Also if a student starts a challenge and then abandons it, the counts will not be equal and then this code
     # will always return None for that student in that course.
     
-    questionStartTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.startQuestion)
-    questionEndTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.endQuestion)
+    if(type(course) != int):
+        course = course.pk
+        print(course)
+
+    
+    questionStartTimes = StudentEventLog.objects.filter(course = course,student = student, event = Event.startQuestion)
+    questionEndTimes = StudentEventLog.objects.filter(course = course,student = student, event = Event.endQuestion)
     #assert that the two are of equal size
 
     if (questionStartTimes.count() == questionEndTimes.count()):

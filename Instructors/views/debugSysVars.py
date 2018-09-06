@@ -7,7 +7,7 @@ Created on Sept 4, 2018
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from Instructors.models import Challenges, Activities, ActivitiesCategory
+from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, Topics
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import default_time_str
 from Instructors.views.instructorCourseHomeView import studentXP
@@ -104,6 +104,7 @@ def debugSysVars(request):
                 
             
         #Get all the events for each student for each event in each object
+        values = []
         for studentID in userIdDebugTable:
             for var in sysVarDeBugTable:
                 for obj in objectTypeDeBugTable:
@@ -111,12 +112,9 @@ def debugSysVars(request):
                         varIndex = var['index']
                     else:
                         varIndex = var
-
-                    val = calculate_system_variable(varIndex,currentCourse,studentID,obj,obj)
-                    print(val)
-                         
                     
-                    
+                    getSysValues(studentID,varIndex,obj,currentCourse)
+                     
                     # allStudentEventsObj = StudentEventLog.objects.filter(student=studentID,course=currentCourse,event=eventIndex,objectType=obj).order_by('-timestamp')
                     # allDebugEvents.extend(allStudentEventsObj)
                         
@@ -174,3 +172,40 @@ def getObjsForSysVar(sysVar):
         objNames.append(currentObj)
     
     return objIndex, objNames
+
+def getSysValues(student,sysVar,objectType,currentCourse):
+    values = []
+    objString = ObjectTypes.objectTypes[int(objectType)]
+
+    #Get the objects from the db
+    if objString == 'challenge':
+        print('########### challenge')
+        chall = Challenges.objects.filter(courseID=currentCourse).values('pk')
+        for x in chall:
+            val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
+            values.append(val)
+
+    elif objString == 'activity':
+        print('###########  activity')
+        acts = Activities.objects.filter(courseID=currentCourse).values('pk')
+        for x in acts:
+            val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
+            values.append(val)
+
+    # elif objString == 'question':
+    #     print('###########  question')
+    #     #questions = Questions.objects.filter()
+    #     #ASK ABOUT HOW TO GET QUESTON FROM THE COURSE
+
+    # elif objString == 'topic':
+    #     print('###########  topic')
+    #     #ASK ABOUT HOW TO GET A TOPIC 
+
+    # elif objString == 'activityCategory':
+    #     print('###########  activityCategory')
+    #     actCats = Activities.objects.filter(courseID=currentCourse).values('pk')
+    #     for x in actCats:
+    #        val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
+    #         values.append(val)
+
+    print(values)

@@ -86,10 +86,8 @@ def debugEventVars(request):
             student = request.POST['student']
             if student == "all":
                 userIdDebugTable, first_NameDebugTable, last_NameDebugTable, user_AvatarDebugTable = getAllStudents(courseStudents)
-                print("HERE")
 
             else:
-               print("Student from if " + str(student))
                user = User.objects.get(username=student)
                cs = Student.objects.get(user=user)
                currentStudent =  StudentRegisteredCourses.objects.get(courseID=currentCourse,studentID=cs)
@@ -112,7 +110,6 @@ def debugEventVars(request):
                 eventsDeBugTable.append(currentEvent)
                 eventNamesDebugTable.append(currentEvent['name'])
                 context_dict['currentEvent'] = int(event)
-                print(event)
                 
             
             context_dict['debuggedEvents'] = sorted(list(zip(range(1, len(eventsDeBugTable)+1), eventsDeBugTable, eventNamesDebugTable)))
