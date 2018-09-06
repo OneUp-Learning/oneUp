@@ -120,9 +120,10 @@ def debugSysVars(request):
                         
         # #Order them for display
         # displayStudents = []
-        # displayEvents = []
+        # displayVars = []
         # displayObject = []   
         # disaplyTimeStamp = []
+        # displayValue = []
         # for sEventLog in allDebugEvents:
         #     name = sEventLog.student.user.first_name + " " + sEventLog.student.user.last_name
         #     e = events[sEventLog.event]['name']
@@ -179,14 +180,12 @@ def getSysValues(student,sysVar,objectType,currentCourse):
 
     #Get the objects from the db
     if objString == 'challenge':
-        print('########### challenge')
         chall = Challenges.objects.filter(courseID=currentCourse).values('pk')
         for x in chall:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
             values.append(val)
 
     elif objString == 'activity':
-        print('###########  activity')
         acts = Activities.objects.filter(courseID=currentCourse).values('pk')
         for x in acts:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
@@ -209,3 +208,5 @@ def getSysValues(student,sysVar,objectType,currentCourse):
     #         values.append(val)
 
     print(values)
+    
+    #GET THE STUDENT AND THE VALUES then idspaly them on the page
