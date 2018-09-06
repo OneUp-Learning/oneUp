@@ -157,10 +157,6 @@ def debugVars(request):
         
         
         context_dict['debugTable'] = list(zip(range(1,len(allDebugEvents)+1), displayStudents, displayEvents, displayObject, disaplyTimeStamp))
-            
-             
-        
-
 
     return render(request,'Instructors/DebugSystemVars.html', context_dict)
 
