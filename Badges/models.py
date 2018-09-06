@@ -142,7 +142,8 @@ class BadgesInfo(models.Model):
     badgeName = models.CharField(max_length=300) # e.g. test score, number of attempts 
     badgeDescription = models.CharField(max_length=10000)
     badgeImage = models.CharField(max_length=300)
-    manual = models.BooleanField(default=False);
+    manual = models.BooleanField(default=False) #TODO: Reconstruct badges types (automatic, manual, perioidic)
+    isPeriodic = models.BooleanField(default=False) # Is this badge info for a periodic badge
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
 
@@ -157,6 +158,14 @@ class Badges(BadgesInfo):
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)    
 
+# Table for Periodic Badges
+class PeriodicBadges(BadgesInfo):
+    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
+    timePeriodID = models.IntegerField() # The Time Period index set for this badge
+    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
+    def __str__(self):
+        return "Badge #{} : {}".format(self.badgeID, self.badgeName)
+
 # Virtual Currency Table for both automatically and manually handled VC rules
 class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
@@ -166,6 +175,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleAmount = models.IntegerField()
     vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    isPeriodic = models.BooleanField(default=False) # this is info for a periodic virtual currency
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo#"+str(self.vcRuleID)+":"+str(self.vcRuleName)+":"+str(self.vcRuleAmount)
 
@@ -175,6 +185,13 @@ class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
     def __str__(self):              
         return "VirtualCurrencyRule#"+str(self.vcRuleID)+":"+str(self.vcRuleName)
 
+# Table for Periodic Virtual Currency Rules
+class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
+    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
+    timePeriodID = models.IntegerField() # The Time Period index set for this badge
+    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
+    def __str__(self):
+        return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
 
 # Dates Table
 class Dates(models.Model):

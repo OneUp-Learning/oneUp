@@ -79,7 +79,7 @@ def timeBasedBadgeView(request):
         ranking = int(request.POST['ranking'])
         timePeriodSelected = int(request.POST['timePeriodSelected'])
         periodicVariableSelected = int(request.POST['periodicVariableSelected'])
-        setup_periodic_variable(periodicVariableSelected, current_course, timePeriodSelected, number_of_rank=ranking, badge_id=1)
+        setup_periodic_variable(periodicVariableSelected, current_course, timePeriodSelected, number_of_top_students=ranking, badge_id=1)
 
 def extractPaths(context_dict): #function used to get the names from the file location
     imagePath = []

@@ -138,7 +138,9 @@ class TimePeriods:
     }
 class PeriodicVariables:
     '''PeriodicVariables enum starting at 1400.'''
+    
     highest_earner = 1400
+
     periodicVariables = {
         highest_earner: {
             'index': highest_earner,
