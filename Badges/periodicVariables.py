@@ -19,6 +19,16 @@ def setup_periodic_variable(variable_index, course, time_period, number_of_top_s
         task=periodic_variable['task_type'],
         crontab=TimePeriods.timePeriods[time_period]['schedule'],
     )
+def delete_periodic_task(variable_index, course, time_period, number_of_top_students=3, badge_id=None, virtual_currency_amount=None):
+    ''' Deletes Periodic Task when rule or badge is deleted'''
+    PeriodicTask.objects.filter(kwargs__contains=json.dumps({
+            'variable_index': variable_index,
+            'course_id': course.courseID,
+            'time_period': time_period,
+            'number_of_top_students': number_of_top_students,
+            'badge_id': badge_id,
+            'virtual_currency_amount': virtual_currency_amount
+        })).delete()
 
 def get_course(course_id):
     ''' Method to get the course object from course id'''

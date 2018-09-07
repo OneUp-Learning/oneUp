@@ -13,7 +13,8 @@ from Instructors.views.utils import initialContextDict
 from Badges.models import Badges, BadgesInfo, PeriodicBadges
 from django.views.decorators.http import condition
 from django.shortcuts import redirect
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_variable
+from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_variable,\
+    delete_periodic_task
 from Students.models import Student
 @login_required
 def timeBasedBadgeView(request):
@@ -35,7 +36,6 @@ def timeBasedBadgeView(request):
                     
                 # The range part is the index numbers.  
                 context_dict['badge'] = badgeInfo 
-                context_dict['edit'] = True
                 
                 print("badgeID")
                 
@@ -54,7 +54,7 @@ def timeBasedBadgeView(request):
                 badgeId = request.GET['TimeBasedBadgeID']
                 badge = PeriodicBadges.objects.get(badgeID=badgeId)
                     
-                context_dict['TimeBasedBadgeID'] = True
+                context_dict['TimeBasedBadgeID'] = request.GET['TimeBasedBadgeID']
                 # The range part is the index numbers.  
                 context_dict['badge'] = badge 
                 context_dict['edit'] = True
@@ -75,6 +75,11 @@ def timeBasedBadgeView(request):
     
         return render(request,'Badges/TimeBasedBadge.html', context_dict)
     elif request.method == 'POST':
+        
+        if 'delete' in request.POST:
+            delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=request.POST['ranking'], badge_id=request.POST['badgeId'])
+            PeriodicBadges.objects.get(badgeID=request.POST['badgeId']).delete()
+        return redirect('Badges.html')
         # Create the badge
         studentPeriodicBadge = PeriodicBadges()
         if 'ranking' in request.POST:
@@ -104,9 +109,11 @@ def timeBasedBadgeView(request):
         ranking = int(request.POST['ranking'])
         timePeriodSelected = int(request.POST['timePeriodSelected'])
         periodicVariableSelected = int(request.POST['periodicVariableSelected'])
-        setup_periodic_variable(periodicVariableSelected, current_course, timePeriodSelected, number_of_top_students=ranking, badge_id=1)
         
+        setup_periodic_variable(periodicVariableSelected, current_course, timePeriodSelected, number_of_top_students=ranking, badge_id=studentPeriodicBadge.badgeID)
         return redirect('Badges.html')
+        
+        
 
 def extractPaths(context_dict): #function used to get the names from the file location
     imagePath = []
