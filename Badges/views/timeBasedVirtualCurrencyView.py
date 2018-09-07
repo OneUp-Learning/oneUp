@@ -10,8 +10,9 @@ import glob, os
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.views.utils import initialContextDict
-from Badges.models import Badges, BadgesInfo
+from Badges.models import Badges, BadgesInfo, VirtualCurrencyPeriodicRule
 from django.views.decorators.http import condition
+from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_variable
 
 @login_required
 def timeBasedVirtualCurrencyView(request):
@@ -20,67 +21,40 @@ def timeBasedVirtualCurrencyView(request):
     
     
     conditions = []
-    
-    extractPaths(context_dict) 
         
-    if 'badgeID' in request.GET:    
-    # Getting the Badge information which has been selected
-        if request.GET['badgeID']:
-            badgeId = request.GET['badgeID']
-            badgeInfo = BadgesInfo.objects.get(badgeID=badgeId)
-            if not badgeInfo.manual:
-                badge = Badges.objects.get(badgeID=badgeId)
-                context_dict = setUpContextDictForConditions(context_dict,current_course,badge.ruleID)
-            else: 
-                context_dict = setUpContextDictForConditions(context_dict,current_course,None)
+    if 'vcRuleID' in request.GET:    
+    # Getting the currency information which has been selected
+        if request.GET['vcRuleID']:
+            vcId = request.GET['vcRuleID']
+            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId)
                 
             # The range part is the index numbers.  
-            context_dict['badge'] = badgeInfo 
-            context_dict['edit'] = True
+            context_dict['vc'] = periodicVC
             
-            print("badgeID")
+    if 'vcRuleName' in request.POST:
+            periodicVC = VirtualCurrencyPeriodicRule()
             
-        else:
-        ## This is for when a non-existent badgeID gets passed.  It shouldn't normally happen, but could occur due to stale page data.
-            context_dict = setUpContextDictForConditions(context_dict,current_course,None)
-            print("no badgeID") 
-        
-    else:
-    ##this is the case of creating a new badge
-        context_dict = setUpContextDictForConditions(context_dict,current_course,None)
-        print("no badgeID") 
-            
-    if 'manualBadgeID' in request.GET:
-        if request.GET['manualBadgeID']:
-            badgeId = request.GET['manualBadgeID']
-            badge = BadgesInfo.objects.get(badgeID=badgeId)
+            if request.POST['vcRuleName']:
+                periodicVC.vcRuleName = request.POST['vcRuleName']
                 
-            context_dict['isManualBadge'] = True
-            # The range part is the index numbers.  
-            context_dict['badge'] = badge 
-            context_dict['edit'] = True
-            
-            print("badgeID")
-        
-        
-            
-    ## check if the conditional box should be displayed or it is a manually assigned badge  
-    if 'isManualBadge' in request.GET:
-        if request.GET['isManualBadge'] == 'true':
-            
-            context_dict['isManualBadge'] = True
-        else:
-            context_dict['isManualBadge'] = False
+            if request.POST['vcRuleDescription']:
+                periodicVC.vcRuleDescription = request.POST['vcRuleDescription']
+                periodicVC.vcRuleType = True
+                        
+            if request.POST['vcRuleAmount']:
+                periodicVC.vcRuleAmount = request.POST['vcRuleAmount']
+                periodicVC.courseID = current_course
+                periodicVC.isPeriodic = True
+                periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
+                periodicVC.timePeriodID = request.POST['timePeriodSelected']
+                periodicVC.save()
+                      
                 
-    
+    context_dict = createTimePeriodContext(context_dict) 
     return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
 
-def extractPaths(context_dict): #function used to get the names from the file location
-    imagePath = []
-    
-    for name in glob.glob('static/images/badges/*'):
-        name = name.replace("\\","/")
-        imagePath.append(name)
-        print(name)
-    
-    context_dict["imagePaths"] = zip(range(1,len(imagePath)+1), imagePath)
+def createTimePeriodContext(context_dict):
+
+    context_dict['periodicVariables'] = [v for _, v in PeriodicVariables.periodicVariables.items()]
+    context_dict['timePeriods'] = [t for _, t in TimePeriods.timePeriods.items()]
+    return context_dict

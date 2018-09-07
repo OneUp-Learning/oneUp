@@ -8,67 +8,66 @@
       <main>
          <div class="row center-align">
             <div class="col s12">
-            	{% if edit %}
-               <h3>Modify Time Based</h3>
+               {% if edit %}
+               <h3>Modify Time Based Virtual Currency</h3>
                {% else %}
-               <h3>Add New Time Based</h3>
+               <h3>Add New Time Based Virtual Currency</h3>
                {% endif %}
                <p><span class= "red-text">*</span> Denotes Required Fields.</p>
             </div>
          </div>
          <div class="row">
-            <div class="col s12 m8 offset-m2">
-               <form name= "editBadge" action="/oneUp/badges/SaveBadge" method="POST" onsubmit="return condOnSubmit();">
-                  {% csrf_token %}
-                  {% if edit %}
-                  <input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
-                  {% endif %}
-                  {% if isManualBadge %}
-                  <input type="hidden" name="isManualBadge" id="isManualBadge" value="true">
-                  {% endif %}
-                  <input type="hidden" name="numConditions" id="numConditions" value="{{num_Conditions}}">
-                  <div class="card">
-                     <div class="card-content">
+         <div class="col s12 m8 offset-m2">
+            <form name= "editPeriodicVC" action="/oneUp/badges/TimeBasedVirtualCurrency" method="POST" onsubmit="return condOnSubmit();">
+               {% csrf_token %}
+               {% if edit %}
+               <input type="hidden" name="vcRuleID" id="badgeId" value="{{vc.vcRuleID}}">
+               {% endif %}
+               <div class="card">
+                  <div class="card-content">
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <input placeholder="" value="{{vc.vcRuleName}}" name="vcRuleName" id="vcRuleName" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
+                           <label for="vcRuleName"><span class= "red-text">*</span> Name</label>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <textarea name="vcRuleDescription" id="vcRuleDescription" class="materialize-textarea validate" required>{{vc.vcRuleDescription}}</textarea>
+                           <label for="vcRuleDescription"><span class= "red-text">*</span> Description</label>
+                        </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input placeholder="" value="{{badge.badgeName}}" name="badgeName" id="badge_name" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
-                              <label for="badge_name"><span class= "red-text">*</span> Name</label>
+                              <input name="numberOfAwards" id="numberOfAwards" type="number" class="materialize-textarea validate" required>{{vc.numberOfAwards}}</input>
+                              <label for="numberOfAwards"><span class= "red-text">*</span> Number of students to receive the award</label>
                            </div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <textarea name="badgeDescription" id="badge_description" class="materialize-textarea validate" required>{{badge.badgeDescription}}</textarea>
-                              <label for="badge_description"><span class= "red-text">*</span> Description</label>
-                           </div>
-                           
-                        <div class="row">
-                           <div class="input-field col s12">
-                              <input name="" id="" type="number" class="materialize-textarea validate" required>{{badge.badgeDescription}}</input>
-                              <label for=""><span class= "red-text">*</span> Number of students to receive the award</label>
+                              <input type="number" id="vcRuleAmount" name="vcRuleAmount" class="materialize-textarea validate" required>{{vc.vcRuleAmount}}</input>
+                              <label for="vcRuleAmount"><span class= "red-text">*</span>Course Bucks Earned with This Rule</label>
                            </div>
                         </div>
-                        <div class="row">
-                           <div class="input-field col s12">
-                              <input type="number" class="materialize-textarea validate" required>{{badge.badgeDescription}}</input>
-                              <label for=""><span class= "red-text">*</span>Course Bucks Earned with This Rule</label>
-                           </div>
-                        </div>
-        <div  col s6">
-        <select id="periodSelect" required name="periodSelected" >
-                                          <option value="week">Each Week</option>
-                                          <option value="day">Each Day</option>
-                                          <option value="2week">Two Weeks</option>
-                                       </select>
+                        <div  col s6">
+                           <label for="timePeriodSelected"><span>Time Period:</span></label>
+                           <select id="timePeriodSelected" name="timePeriodSelected">
+                              {% for timePeriod in timePeriods %}
+                              <option value="{{timePeriod.index}}">{{timePeriod.displayName}}</option>
+                              {% endfor %}
+                           </select>
                            <div col s6">
-                           <select id="reason" required name="reason" >
-                                          <option value="week">Best Earner</option>
-                                          
-                                       </select></div>
+                              <label for="reason"><span>Reason:</span></label>
+                              <select id="periodicVariableSelected" name="periodicVariableSelected">
+                                 {% for periodicVariable in periodicVariables %}
+                                 <option value="{{periodicVariable.index}}">{{periodicVariable.displayName}}</option>
+                                 {% endfor %}
+                              </select>
+                           </div>
                         </div>
-                        </div>
+                     </div>
                      <div class="card-action right-align">
-                     <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
-                     	<button id="button" class="btn waves-effect waves-light" type="submit" name="edit">Create Rule<i class="material-icons right">send</i>
+                        <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
+                        <button id="button" class="btn waves-effect waves-light" type="submit" name="edit">Create Rule<i class="material-icons right">send</i>
                         </button>
                         {% if edit %}
                         <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i class="material-icons right">close</i></a>
@@ -77,17 +76,17 @@
                         <i class="material-icons left">navigate_before</i>Back</a>                                                                  									
                      </div>
                      <div id="modal_delete" class="modal">
-                           <div class="modal-content">
-                              <h5>Are you sure you want to delete?</h5>
-                           </div>
-                           <div class="modal-footer">
-                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
-                              <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="delete" value="Delete">Delete
-                              </button>                                        
-                           </div>
+                        <div class="modal-content">
+                           <h5>Are you sure you want to delete?</h5>
                         </div>
+                        <div class="modal-footer">
+                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                           <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="delete" value="Delete">Delete
+                           </button>                                        
+                        </div>
+                     </div>
                   </div>
-               </form>
+            </form>
             </div>
          </div>
       </main>

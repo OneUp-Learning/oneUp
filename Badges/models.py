@@ -160,7 +160,7 @@ class Badges(BadgesInfo):
 
 # Table for Periodic Badges
 class PeriodicBadges(BadgesInfo):
-    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
+    periodicVariableID = models.IntegerField() # The Periodic Variable index set for this badge
     timePeriodID = models.IntegerField() # The Time Period index set for this badge
     numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
     def __str__(self):

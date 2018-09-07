@@ -25,9 +25,6 @@
                               {% if edit %}
                               <input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
                               {% endif %}
-                              {% if isManualBadge %}
-                              <input type="hidden" name="isManualBadge" id="isManualBadge" value="true">
-                              {% endif %}
                               <div class="card">
                                     <div class="card-content">
                                           <div class="row">
@@ -46,13 +43,14 @@
                                           </div>
                                           <div class="row">
                                                 <div class="input-field col s12">
-                                                      <input name="ranking" id="ranking" type="number"
+                                                      <input name="ranking" id="ranking" value="{{badge.numberOfAwards}}" type="number"
                                                             class="materialize-textarea validate" required></input>
                                                       <label for="ranking"><span class="red-text">*</span>
                                                             Give to how many students</label>
                                                 </div>
                                           </div>
                                           <div class="col s12">
+                                           <label for="timePeriodSelected"><span>Time Period:</span></label>
                                                 <select id="timePeriodSelected" name="timePeriodSelected">
                                                       {% for timePeriod in timePeriods %}
                                                       <option value="{{timePeriod.index}}">{{timePeriod.displayName}}</option>
@@ -60,6 +58,7 @@
                                                 </select>
                                           </div>
                                           <div class="col s12">
+                                          <label for="timePeriodSelected"><span>Reason:</span></label>
                                                 <select id="periodicVariableSelected" name="periodicVariableSelected">
                                                       {% for periodicVariable in periodicVariables %}
                                                       <option value="{{periodicVariable.index}}">{{periodicVariable.displayName}}</option>
