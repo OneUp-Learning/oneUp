@@ -217,10 +217,11 @@ def getSysValues(student,sysVar,objectType,currentCourse):
 
 def prepForDisplay(student, sysVar, object, value,assignment):
     name = student.user.first_name + " " + student.user.last_name
+    avatarImage = checkIfAvatarExist(StudentRegisteredCourses.objects.get(studentID=student))
     objectName = ObjectTypes.objectTypes[int(object)]
     sysVarName = SystemVariable.systemVariables[int(sysVar)]['name']
     if objectName == 'global':
         assignment = "N/A"
     if type(value) == str and "Error" in value:
         value = "No value available "
-    return (name, assignment, objectName, sysVarName, value)
+    return (name, assignment, objectName, sysVarName, value, avatarImage)
