@@ -19,7 +19,7 @@ from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
 from django.contrib.auth.models import User
 
-import collections
+from django.http import JsonResponse
     
 @login_required
 def debugSysVars(request):
@@ -62,10 +62,9 @@ def debugSysVars(request):
         
         #Object info
         objectTypeDeBugTable = []
-        objectNamesDebugTable = []
         
         
-        
+        #Refines data from drop down menus and gets data needed to loop through to make the table
         if 'student' in request.POST:
             student = request.POST['student']
             if student == "all":
@@ -87,24 +86,24 @@ def debugSysVars(request):
                 sysVarDeBugTable.append(currentVar)
                 sysVarNamesDebugTable.append(currentVar['name'])
                 context_dict['currenSysVar'] = int(sysVarIndex)
-                print(currentVar)
-                objectType, objectTypeNames= getObjsForSysVar(currentVar)
+                objectType, objectTypeNames= getObjsForSysVarLocal(currentVar)
             
 
             if 'objectType' in request.POST:
                 object = request.POST['objectType']
                 if object == "all":
-                    objectTypeDeBugTable = ObjectTypes.objectTypes
+                    objectTypeDeBugTable = getObjsForSysVarLocal(currentVar)[0]
+                    print(objectTypeDeBugTable)
+                    context_dict['isAll'] = True
                 else:
                     print("OBJECT:" + str(object))
                     currentObject = ObjectTypes.objectTypes[int(object)]
                     objectTypeDeBugTable.append(object)
-                    objectNamesDebugTable.append(currentObject)
                     context_dict['currentObj'] = int(object)
                 
             
         #Get all the events for each student for each event in each object
-        values = []
+        displayData = []
         for studentID in userIdDebugTable:
             for var in sysVarDeBugTable:
                 for obj in objectTypeDeBugTable:
@@ -113,29 +112,13 @@ def debugSysVars(request):
                     else:
                         varIndex = var
                     
-                    getSysValues(studentID,varIndex,obj,currentCourse)
-                     
-                    # allStudentEventsObj = StudentEventLog.objects.filter(student=studentID,course=currentCourse,event=eventIndex,objectType=obj).order_by('-timestamp')
-                    # allDebugEvents.extend(allStudentEventsObj)
-                        
-        # #Order them for display
-        # displayStudents = []
-        # displayVars = []
-        # displayObject = []   
-        # disaplyTimeStamp = []
-        # displayValue = []
-        # for sEventLog in allDebugEvents:
-        #     name = sEventLog.student.user.first_name + " " + sEventLog.student.user.last_name
-        #     e = events[sEventLog.event]['name']
-        #     o = objectType[sEventLog.objectType]
-        #     timestamp = sEventLog.timestamp
-        #     displayStudents.append(name)
-        #     displayEvents.append(e)
-        #     displayObject.append(o)
-        #     disaplyTimeStamp.append(timestamp)
+                    print("########")
+                    print(obj)
+                    
+                    displayData.extend(getSysValues(studentID,varIndex,obj,currentCourse))
         
-        
-        
+        context_dict['debugData'] = displayData
+                    
     # Used to fill values for the three drop down menus
     context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Avatar, )))
     context_dict['sysVars'] = sorted(list(zip(range(1,len(sysVars)+1), sysVars, sysVarsName, )))
@@ -163,7 +146,7 @@ def getAllStudents(courseStudents):
     return userID, first_Name, last_Name, user_Avatar
     
 
-def getObjsForSysVar(sysVar):
+def getObjsForSysVarLocal(sysVar):
     objectTypes = ObjectTypes.objectTypes #enum of system objects
     objIndex =  list(sysVar['functions'].keys())
     objNames = []
@@ -171,25 +154,51 @@ def getObjsForSysVar(sysVar):
     for i in objIndex:
         currentObj = objectTypes[i]
         objNames.append(currentObj)
-    
+
     return objIndex, objNames
+
+@login_required
+def getObjsForSysVar(request):
+    objectTypes = ObjectTypes.objectTypes #enum of system objects
+    sysVars = SystemVariable.systemVariables #enums of system vars
+    objects = {}
+
+    if request.POST:
+        sysVarIndex = request.POST['sysVarIndex']
+        var = sysVars[int(sysVarIndex)]
+        objIndex =  list(var['functions'].keys())
+        objNames = []
+
+        for i in objIndex:
+            currentObj = objectTypes[i]
+            objects[i] = currentObj
+        
+    return JsonResponse(objects)
 
 def getSysValues(student,sysVar,objectType,currentCourse):
     values = []
+    disaplyData = []
+
     objString = ObjectTypes.objectTypes[int(objectType)]
 
     #Get the objects from the db
     if objString == 'challenge':
-        chall = Challenges.objects.filter(courseID=currentCourse).values('pk')
+        chall = Challenges.objects.filter(courseID=currentCourse).values('pk', 'challengeName')
         for x in chall:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
-            values.append(val)
+            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['challengeName']))
 
     elif objString == 'activity':
-        acts = Activities.objects.filter(courseID=currentCourse).values('pk')
+        acts = Activities.objects.filter(courseID=currentCourse).values('pk', 'activityName')
         for x in acts:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
-            values.append(val)
+            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['activityName']))
+    
+    elif objString == 'activityCategory':
+        actCats = ActivitiesCategory.objects.filter(courseID=currentCourse).values('pk', 'name')
+        for x in actCats:
+           val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
+           disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['name']))
 
     # elif objString == 'question':
     #     print('###########  question')
@@ -200,13 +209,18 @@ def getSysValues(student,sysVar,objectType,currentCourse):
     #     print('###########  topic')
     #     #ASK ABOUT HOW TO GET A TOPIC 
 
-    # elif objString == 'activityCategory':
-    #     print('###########  activityCategory')
-    #     actCats = Activities.objects.filter(courseID=currentCourse).values('pk')
-    #     for x in actCats:
-    #        val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
-    #         values.append(val)
+    elif objString == 'global':
+        val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),0)
+        disaplyData.append(prepForDisplay(student,sysVar,objectType,val,0))
 
-    print(values)
-    
-    #GET THE STUDENT AND THE VALUES then idspaly them on the page
+    return disaplyData
+
+def prepForDisplay(student, sysVar, object, value,assignment):
+    name = student.user.first_name + " " + student.user.last_name
+    objectName = ObjectTypes.objectTypes[int(object)]
+    sysVarName = SystemVariable.systemVariables[int(sysVar)]['name']
+    if objectName == 'global':
+        assignment = "N/A"
+    if type(value) == str and "Error" in value:
+        value = "No value available "
+    return (name, assignment, objectName, sysVarName, value)
