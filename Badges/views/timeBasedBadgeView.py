@@ -75,13 +75,19 @@ def timeBasedBadgeView(request):
     
         return render(request,'Badges/TimeBasedBadge.html', context_dict)
     elif request.method == 'POST':
-        
+         
         if 'delete' in request.POST:
             delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=request.POST['ranking'], badge_id=request.POST['badgeId'])
             PeriodicBadges.objects.get(badgeID=request.POST['badgeId']).delete()
-        return redirect('Badges.html')
-        # Create the badge
-        studentPeriodicBadge = PeriodicBadges()
+            return redirect('Badges.html')
+        if 'edit' in request.POST:
+            # Edit badge
+            delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=request.POST['ranking'], badge_id=request.POST['badgeId'])
+            studentPeriodicBadge = PeriodicBadges.objects.get(badgeID=request.POST['badgeId'])
+        else:
+            # Create the badge
+            studentPeriodicBadge = PeriodicBadges()
+            
         if 'ranking' in request.POST:
             studentPeriodicBadge.numberOfAwards = request.POST['ranking']
         
@@ -110,7 +116,7 @@ def timeBasedBadgeView(request):
         timePeriodSelected = int(request.POST['timePeriodSelected'])
         periodicVariableSelected = int(request.POST['periodicVariableSelected'])
         
-        setup_periodic_variable(periodicVariableSelected, current_course, timePeriodSelected, number_of_top_students=ranking, badge_id=studentPeriodicBadge.badgeID)
+        setup_periodic_variable(studentPeriodicBadge.badgeID, periodicVariableSelected, current_course, timePeriodSelected, number_of_top_students=ranking, badge_id=studentPeriodicBadge.badgeID)
         return redirect('Badges.html')
         
         

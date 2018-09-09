@@ -3,11 +3,11 @@ from Badges.tasks import app
 import json
 
 
-def setup_periodic_variable(variable_index, course, time_period, number_of_top_students=3, badge_id=None, virtual_currency_amount=None):
+def setup_periodic_variable(unique_id, variable_index, course, time_period, number_of_top_students=3, badge_id=None, virtual_currency_amount=None):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     PeriodicTask.objects.get_or_create(
-        name=periodic_variable['name'],
+        name=periodic_variable['name']+"_"+str(unique_id),
         kwargs=json.dumps({
             'variable_index': variable_index,
             'course_id': course.courseID,
