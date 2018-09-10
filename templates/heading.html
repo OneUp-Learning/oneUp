@@ -84,7 +84,7 @@
                 outDuration: 225,
                 constrain_width: false, // Does not change width of dropdown to that of the activator
                 hover: true, // Activate on hover
-                gutter: ($('.dropdown-content').width()*3)/2.5 + 5, // Spacing from edge
+                gutter: ($('.dropdown-content').width()*- 3)/2.5 + 50, // Spacing from edge
                 belowOrigin: true, // Displays dropdown below the button
                 alignment: 'right' // Displays dropdown with edge aligned to the left of button
               }
@@ -180,13 +180,13 @@
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="gamefeats">Game Features</a>
                 <ul id="gamefeats" class="dropdown-content">
               <!--<li><a class="waves-effect" href="">Leveling</a></li> -->
+              		<li><a class='dropdown-button 2d' href='#' data-activates='dropdown2' data-hover="hover" data-alignment="left"><i class="material-icons">more_vert</i>Badges</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">VC Spending Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic VC Earning Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/TimeBasedVirtualCurrency">Time Period Earning Rules</a></li>
                     <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual VC Earning Rules</a></li>
         			<li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyTransactions">Student VC Transactions</a></li>  
                     <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
-                    <li><a class='dropdown-button 2d' href='#' data-activates='dropdown2' data-hover="hover" data-alignment="left"><i class="material-icons">more_vert</i>Badges</a></li>
                 </ul>
                 <ul id='dropdown2' class='dropdown-content'>
                 	<li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
