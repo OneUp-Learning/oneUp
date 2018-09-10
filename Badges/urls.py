@@ -27,6 +27,7 @@ from Badges.views.conditionTestView import conditionTestView
 from Badges.views.addBadgeManuallyView import addBadgeManuallyView
 from Badges.views.timeBasedBadgeView import timeBasedBadgeView
 from Badges.views.timeBasedVirtualCurrencyView import timeBasedVirtualCurrencyView
+from Badges.views.periodicBadgeView import PeriodicBadgeView
 admin.autodiscover()
 
 urlpatterns = [    
@@ -48,5 +49,6 @@ urlpatterns = [
     url(r'^VirtualCurrencyCompletedTransactions',virtualCurrencyCompletedTransactions, name="Virtual Currency Completed Transactions"),
     url(r'^AddBadgeManually',addBadgeManuallyView, name="Add Badge Manually"),
     url(r'^TimeBasedBadge',timeBasedBadgeView, name="Periodic Badges"),
-    url(r'^TimeBasedVirtualCurrency',timeBasedVirtualCurrencyView, name="Periodic Virtual Currency")
+    url(r'^TimeBasedVirtualCurrency',timeBasedVirtualCurrencyView, name="Periodic Virtual Currency"),
+    url(r'^PeriodicBadges',PeriodicBadgeView, name="Periodic Badges")
 ]
