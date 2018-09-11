@@ -23,6 +23,10 @@ from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSe
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 
+from Instructors.views.debugStudentEventLog import debugEventVars
+from Instructors.views.debugSysVars import debugSysVars
+from Instructors.views.debugSysVars import getObjsForSysVar
+
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 
@@ -71,8 +75,12 @@ from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
 from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit, libDeleteConfirmView
 from Instructors.views.studentAttendanceView import studentAttendance
+
 from Instructors.views.switchToStudentView import switchToStudentView
 from Instructors.views.resetTestStudentData import resetTestStudent
+
+from Instructors.views.studentAttendanceReportView import studentAttendanceReportView
+
 
 admin.autodiscover()
 
@@ -102,6 +110,9 @@ urlpatterns = [
     url(r'^createStudentList',createStudentListView,name='createStudentListView'),
     url(r'^createStudent',createStudentViewUnchecked,name='createStudentView'),
     url(r'^courseConfiguration', courseConfigurationView, name='courseConfigurationView'),
+    url(r'^debugEventLog',debugEventVars, name='debugSystemVar'),
+    url(r'^debugSysVar', debugSysVars, name='debugSysVars'),
+    url(r'^getObjsForSysVar', getObjsForSysVar, name='getObjsForSysVar'),
     url(r'^deleteActivity',deleteActivity, name='deleteActivity'),
     url(r'^deleteAnnouncement',deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge',deleteChallenge, name='deleteChallenge'),
@@ -158,7 +169,9 @@ urlpatterns = [
     url(r'^activityScore', activityScore, name='activityScore'),
     url(r'^exportGradebook', exportGradebook, name='exportGradebook'),
     url(r'^validateCreateStudent',validateCreateStudent,name='validateCreateStudentView'),
+    url(r'^studentAttendanceReport',studentAttendanceReportView,name='studentAttendanceReportView'),
     url(r'^studentAttendance',studentAttendance,name='studentAttendance'),
     url(r'^switchView', switchToStudentView, name='swtichView'),
     url(r'^resetTestStudent', resetTestStudent, name='resetTestStudent')
+
 ]
