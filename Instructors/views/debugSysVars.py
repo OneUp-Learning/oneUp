@@ -7,7 +7,7 @@ Created on Sept 4, 2018
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, Topics
+from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, CoursesTopics
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import default_time_str
 from Instructors.views.instructorCourseHomeView import studentXP
@@ -39,7 +39,7 @@ def debugSysVars(request):
     sysVars = SystemVariable.systemVariables #enum of system vars
     sysVarsName = []
     
-    
+    #Help display all system vars
     for var in sysVars:
         print(sysVars[var]["name"])
         sysVarsName.append(sysVars[var]["name"])
@@ -112,8 +112,6 @@ def debugSysVars(request):
                     else:
                         varIndex = var
                     
-                    print("########")
-                    print(obj)
                     
                     displayData.extend(getSysValues(studentID,varIndex,obj,currentCourse))
         
@@ -200,15 +198,13 @@ def getSysValues(student,sysVar,objectType,currentCourse):
            val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['name']))
 
-    # elif objString == 'question':
-    #     print('###########  question')
-    #     #questions = Questions.objects.filter()
-    #     #ASK ABOUT HOW TO GET QUESTON FROM THE COURSE
-
-    # elif objString == 'topic':
-    #     print('###########  topic')
-    #     #ASK ABOUT HOW TO GET A TOPIC 
-
+    elif objString == 'topic':
+        #ASK ABOUT HOW TO GET A TOPIC 
+        coruseTopcis = CoursesTopics.objects.filter(courseID = currentCourse)
+        for x in coruseTopcis:
+           val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x.pk)
+           disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x.topicID.topicName))
+           
     elif objString == 'global':
         val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),0)
         disaplyData.append(prepForDisplay(student,sysVar,objectType,val,0))
