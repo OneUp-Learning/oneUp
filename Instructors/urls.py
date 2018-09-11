@@ -71,7 +71,8 @@ from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
 from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit, libDeleteConfirmView
 from Instructors.views.studentAttendanceView import studentAttendance
-
+from Instructors.views.switchToStudentView import switchToStudentView
+from Instructors.views.resetTestStudentData import resetTestStudent
 
 admin.autodiscover()
 
@@ -158,4 +159,6 @@ urlpatterns = [
     url(r'^exportGradebook', exportGradebook, name='exportGradebook'),
     url(r'^validateCreateStudent',validateCreateStudent,name='validateCreateStudentView'),
     url(r'^studentAttendance',studentAttendance,name='studentAttendance'),
+    url(r'^switchView', switchToStudentView, name='swtichView'),
+    url(r'^resetTestStudent', resetTestStudent, name='resetTestStudent')
 ]

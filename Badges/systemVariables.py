@@ -44,7 +44,7 @@ def getTestScores(course,student,challenge):
 # Utility function used by other functions.  
 def getAllTestScores(course,challenge):
     from Students.models import StudentChallenges
-    return StudentChallenges.objects.filter(courseID=course, challengeID=challenge)
+    return StudentChallenges.objects.filter(courseID=course, challengeID=challenge).exclude(studentID__isTestStudent=True)
 
 def challengeScore(course,student,challenge):    
     #Return the test score from the fired event
@@ -66,7 +66,7 @@ def activityScore(course,student,activity):
 def getActivityScore(course, activity):
     from Students.models import StudentActivities
     
-    activities = StudentActivities.objects.filter(courseID=course, activityID=activity)
+    activities = StudentActivities.objects.filter(courseID=course, activityID=activity).exclude(studentID__isTestStudent=True)
     scores = []
     
     for activity in activities:
@@ -431,7 +431,7 @@ def getNumDaysSubmissionEarlyActivity(course, student , activity):
 
 # utility function return difference in days between the submission and due date
 def getDaysDifferenceActity(activity, studentActivity):
-    deadline = activity.endTimestamp
+    deadline = activity.deadLine
     submission = studentActivity.timestamp
     print("Deadline ", deadline)
     print("submission", submission)
@@ -811,7 +811,7 @@ class SystemVariable():
             'displayName':'Maximum Challenge Score',
             'description':"The maximum of the test scores of all the student's attempts for a particular challenge",
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.challengeExpiration, Event.adjustment],
+                ObjectTypes.challenge:[ Event.challengeExpiration, Event.adjustment],
             },
             'type':'int',
             'functions':{
@@ -824,7 +824,7 @@ class SystemVariable():
             'displayName':'Minimum Challenge Score',
             'description':"The minimum of the test scores of all the student's attempts for a particular challenge",
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.challengeExpiration,Event.adjustment],
+                ObjectTypes.challenge:[ Event.challengeExpiration,Event.adjustment],
             },
             'type':'int',
             'functions':{
@@ -942,7 +942,7 @@ class SystemVariable():
             'description':'The number of days a submission is turned in earlier than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge,],
-                ObjectTypes.activity: [Event.instructorAction, Event.studentUpload],
+                ObjectTypes.activity: [Event.participationNoted, Event.instructorAction, Event.studentUpload],
             },
             'type':'int',
             'functions':{

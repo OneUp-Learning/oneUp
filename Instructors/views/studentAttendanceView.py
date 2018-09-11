@@ -44,7 +44,7 @@ def getRollByDate(request, context_dict):
     student_Avatars = []
     student_ID = []
     
-    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
+    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).exclude(studentID__isTestStudent=True)
     for entry in studentCourse:
         user = User.objects.get(username=entry.studentID)
         studentID = Student.objects.get(user=user)

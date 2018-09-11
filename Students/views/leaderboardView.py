@@ -42,6 +42,7 @@ def LeaderboardView(request):
 
         context_dict['avatar'] =  checkIfAvatarExist(st_crs)  
    
+        context_dict['is_test_student'] = sID.isTestStudent
                       
         context_dict = courseLeaderboard(currentCourse, context_dict)
         

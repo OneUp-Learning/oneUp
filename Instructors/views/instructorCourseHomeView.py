@@ -241,6 +241,7 @@ def instructorCourseHome(request):
     context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
     context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
     context_dict['course_Name'] = currentCourse.courseName
+    context_dict['courseId'] = currentCourse.courseID
 
     context_dict = courseLeaderboard(currentCourse, context_dict)
         
