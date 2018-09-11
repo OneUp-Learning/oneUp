@@ -25,7 +25,7 @@ def createStudentListView(request):
 
     
 
-    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
     studentEvents = [Event.startChallenge, Event.endChallenge, Event.userLogin, Event.studentUpload, Event.spendingVirtualCurrency,
                      Event.visitedDashboard, Event.visitedEarnedVCpage, Event.visitedBadgesInfoPage, Event.visitedSpendedVCpage,
                      Event.visitedVCRulesInfoPage]

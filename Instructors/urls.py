@@ -72,6 +72,8 @@ from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit,
 from Instructors.views.studentAttendanceView import studentAttendance
 from Instructors.views.studentAttendanceReportView import studentAttendanceReportView
 
+from Instructors.views.switchToStudentView import switchToStudentView
+from Instructors.views.resetTestStudentData import resetTestStudent
 
 admin.autodiscover()
 
@@ -159,5 +161,7 @@ urlpatterns = [
     url(r'^validateCreateStudent',validateCreateStudent,name='validateCreateStudentView'),
     url(r'^studentAttendanceReport',studentAttendanceReportView,name='studentAttendanceReportView'),
     url(r'^studentAttendance',studentAttendance,name='studentAttendance'),
-    
+    url(r'^switchView', switchToStudentView, name='swtichView'),
+    url(r'^resetTestStudent', resetTestStudent, name='resetTestStudent')
+
 ]

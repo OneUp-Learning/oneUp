@@ -8,8 +8,9 @@ from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 
-from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str
+from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str, anonymous_avatar
 from Instructors.views.utils import utcDate
+from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
 
 def courseCreateView(request):
@@ -39,11 +40,81 @@ def courseCreateView(request):
                         instructor = User.objects.get(username=instructor_username)
                         irc.instructorID = instructor
                         irc.save()
+                        
+                        # Add test student to the course while adding instructor to the course
+                        # Note: Some of the conditions codes try to handle exceptions for instructors with no test_student accounts, once every instructor has an associated test student account , some codes can be removed
+                        student = Student.objects.filter(user = instructor)
+                        if student:
+                            student = student[0]
+                            studentRegisteredCourses = StudentRegisteredCourses.objects.filter(courseID=course)
+                            if studentRegisteredCourses:
+                                studentRegisteredCourses[0].studentID = student
+                                studentRegisteredCourses[0].courseID = course
+                                studentRegisteredCourses[0].avatarImage = anonymous_avatar
+                                studentRegisteredCourses[0].save()
+                            else:
+                                 # Add test student to the course while adding instructor to the course
+                                student = Student.objects.get(user = instructor)
+                                studentRegisteredCourses = StudentRegisteredCourses()
+                                studentRegisteredCourses.studentID = student
+                                studentRegisteredCourses.courseID = course
+                                studentRegisteredCourses.avatarImage = anonymous_avatar
+                                studentRegisteredCourses.save()
+                                
+                            # Configure params for test student
+                            scparams = StudentConfigParams.objects.filter(courseID=course)
+                            if scparams:
+                                scparams[0].courseID = course
+                                scparams[0].studentID = student
+                                scparams[0].save()
+                            else:
+                                scparams = StudentConfigParams()
+                                scparams.courseID = course
+                                scparams.studentID = student
+                                scparams.save()
+                        
+                        # Otherwise test student is not created yet, create test student, register student to the course and configure course params
+                        else: 
+                            student = Student()
+                            student.user = instructor
+                            student.universityID = instructor.email
+                            student.isTestStudent = True
+                            student.save()
+                             
+                             # Add test student to the course while adding instructor to the course
+                            student = Student.objects.get(user = instructor)
+                            studentRegisteredCourses = StudentRegisteredCourses()
+                            studentRegisteredCourses.studentID = student
+                            studentRegisteredCourses.courseID = course
+                            studentRegisteredCourses.avatarImage = anonymous_avatar
+                            studentRegisteredCourses.save()
+                            
+                            # Configure params for test student
+                            
+                            scparams = StudentConfigParams()
+                            scparams.courseID = course
+                            scparams.studentID = student
+                            scparams.save()
+                            
                     else:
                         irc = InstructorRegisteredCourses()
                         irc.instructorID = User.objects.get(username=instructor_username)
                         irc.courseID = course
                         irc.save()
+                    
+                        # Add test student to the course while adding instructor to the course
+                        student = Student.objects.get(user = irc.instructorID)
+                        studentRegisteredCourses = StudentRegisteredCourses()
+                        studentRegisteredCourses.studentID = student
+                        studentRegisteredCourses.courseID = course
+                        studentRegisteredCourses.avatarImage = anonymous_avatar
+                        studentRegisteredCourses.save()
+                        
+                        # Configure params for test student
+                        scparams = StudentConfigParams()
+                        scparams.courseID = course
+                        scparams.studentID = student
+                        scparams.save()
                 
                 ccp = CourseConfigParams.objects.get(courseID = course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
@@ -72,12 +143,29 @@ def courseCreateView(request):
                         instructor = User.objects.get(username=instructor_username)
                         irc.instructorID = instructor
                         irc.save()
+                        
+                        student = Student.objects.filter(user = instructor)
+                        if student:
+                            student = student[0]
+                            studentRegisteredCourses = StudentRegisteredCourses.objects.filter(courseID=course)
+                            if studentRegisteredCourses:
+                                studentRegisteredCourses[0].studentID = student
+                                studentRegisteredCourses[0].courseID = course
+                                studentRegisteredCourses[0].avatarImage = anonymous_avatar
+                                studentRegisteredCourses[0].save()
                     else:
                         irc = InstructorRegisteredCourses()
                         irc.instructorID = User.objects.get(username=instructor_username)
                         irc.courseID = course
                         irc.save()
-                
+                        
+                        student = Student.objects.get(user = irc.instructorID)
+                        studentRegisteredCourses = StudentRegisteredCourses()
+                        studentRegisteredCourses.studentID = student
+                        studentRegisteredCourses.courseID = course
+                        studentRegisteredCourses.avatarImage = anonymous_avatar
+                        studentRegisteredCourses.save()
+        
                 ccp = CourseConfigParams.objects.get(courseID = course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
                     ccp.courseStartDate = utcDate()
@@ -102,13 +190,27 @@ def courseCreateView(request):
                 course.save()
                 
                 if 'instructorName' in request.POST:
-                    instructor = User.objects.get(username=instructor_username)
+                    user = User.objects.get(username=instructor_username)
                     
                     irc = InstructorRegisteredCourses()
-                    irc.instructorID = instructor
+                    irc.instructorID = user
                     irc.courseID = course
                     irc.save()
-                
+                    
+                    # Add test student to the course while adding instructor to the course
+                    student = Student.objects.get(user = user)
+                    studentRegisteredCourses = StudentRegisteredCourses()
+                    studentRegisteredCourses.studentID = student
+                    studentRegisteredCourses.courseID = course
+                    studentRegisteredCourses.avatarImage = anonymous_avatar
+                    studentRegisteredCourses.save()
+                    
+                    # Configure params for test student
+                    scparams = StudentConfigParams()
+                    scparams.courseID = course
+                    scparams.studentID = student
+                    scparams.save()
+                    
                 ccp = CourseConfigParams()
                 ccp.courseID = course
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
