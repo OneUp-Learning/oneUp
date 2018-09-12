@@ -49,6 +49,7 @@
 											<form action="/oneUp/setCourse" method="POST">
 											{% csrf_token %}                                                                        
 												<input type="hidden" name="courseID" value="{{course_ID}}">
+												<input type="hidden" name="is_student" value="True">
 												<button class="btn waves-effect waves-light secondary-content" type="submit" name="submit" value="Select"{% if not course_available%} disabled {%endif%}>
 												{% if course_available %}Select{%else%}Not Available{%endif%}
 												</button>                         

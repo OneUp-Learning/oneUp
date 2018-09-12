@@ -132,7 +132,10 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     for stud_course in studentCourse:
         student = stud_course.studentID
         student_ID.append(student.id)
-        student_Name.append((student).user.get_full_name())
+        if student.isTestStudent:
+            student_Name.append("Test Student")
+        else:
+            student_Name.append((student).user.get_full_name())
         
         #zipFile_Name.append(student.user.first_name + student.user.last_name + Activities.objects.get(activityID = request.GET['activityID']).activityName + '.zip')
         

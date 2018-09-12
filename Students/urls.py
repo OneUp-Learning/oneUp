@@ -36,6 +36,7 @@ from Students.views.studentEarnedTransactions import earnedTransactionsView
 from Students.views.studentNotifications import studentNotifications, updateNotificationTable
 from Students.views.studentQA import studentQA
 from Students.views.leaderboardView import LeaderboardView
+from Students.views.switchToInstructorView import switchToInstructorView
 
 
 admin.autodiscover()
@@ -67,7 +68,8 @@ urlpatterns = [
     url(r'^VirtualCurrencyShop',virtualCurrencyShopView, name='Virtual Current Shop'),
     url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions'),
     url(r'^StudentQA', studentQA, name='Student QA'),
-    url(r'^Leaderboard',LeaderboardView, name='Leaderboard')
+    url(r'^Leaderboard',LeaderboardView, name='Leaderboard'),
+    url(r'^switchView', switchToInstructorView, name="switchToInstructorView")
     
     # url(r'^oneUp/students/', include('Students.urls')),   
     # url(r'^blog/', include('blog.urls')),

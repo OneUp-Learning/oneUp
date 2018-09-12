@@ -20,6 +20,7 @@ def instructorHome(request):
         
     # course still not selected
     context_dict['course_Name'] = 'Not Selected'
+    context_dict["is_teacher"] = True
         
     course_ID = []      
     course_Name = []        

@@ -20,7 +20,7 @@ def studentAchievements(request):
     user_Email = []         
     
     # Only shows students that are registred in the current course (AH)
-    user = StudentRegisteredCourses.objects.filter(courseID=request.session['currentCourseID'])
+    user = StudentRegisteredCourses.objects.filter(courseID=request.session['currentCourseID']).exclude(studentID__isTestStudent=True)
     for u in user:
         student = u.studentID
         userID.append(student)

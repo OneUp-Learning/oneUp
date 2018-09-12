@@ -33,7 +33,10 @@ def StudentHome(request):
         
     num_announcements = 0
     # get only the courses of the logged in user
-    student = Student.objects.get(user=request.user)   
+    student = Student.objects.get(user=request.user) 
+    context_dict['is_test_student'] = student.isTestStudent
+    if student.isTestStudent:
+        context_dict["username"]="Test Student"
     reg_crs = StudentRegisteredCourses.objects.filter(studentID=student)
 
     #get today's date
