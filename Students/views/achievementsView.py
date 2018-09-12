@@ -162,10 +162,10 @@ def achievements(request):
         
         if sa:          # if activity was graded for this student            
             gradeID  = []
-            gradeWithBonus = []                  
+            gradeWithBonus = []             
             for a in sa:    # for each attempt of this activity
-                gradeID.append(int(a.activityScore)) 
-                gradeWithBonus.append(int(a.getScoreWithBonus()))                                
+                gradeID.append(int(a.activityScore))  
+                gradeWithBonus.append(int(a.getScoreWithBonus()))
 
             earnedActivityPoints += max(gradeWithBonus)
             totalActivityPoints += a.activityID.points

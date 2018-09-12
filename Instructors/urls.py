@@ -37,7 +37,6 @@ from Instructors.views.createStudentView import createStudentViewUnchecked, vali
 
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
 
-
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents
 
@@ -75,12 +74,10 @@ from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
 from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit, libDeleteConfirmView
 from Instructors.views.studentAttendanceView import studentAttendance
+from Instructors.views.studentAttendanceReportView import studentAttendanceReportView
 
 from Instructors.views.switchToStudentView import switchToStudentView
 from Instructors.views.resetTestStudentData import resetTestStudent
-
-from Instructors.views.studentAttendanceReportView import studentAttendanceReportView
-
 
 admin.autodiscover()
 

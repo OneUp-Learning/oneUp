@@ -29,6 +29,7 @@ def VirtualCurrencyDisplay(request):
     vcSpendingRuleName = []
     vcSpendingRuleDescription = []
     vcSpendingRuleAmount = []
+    vcSpendingRuleLimit = []
     countEarningRules = 0
     countSpendingRules = 0
             
@@ -66,10 +67,11 @@ def VirtualCurrencyDisplay(request):
             else:
                 value = rule.vcRuleAmount   # manually handled rule
             vcSpendingRuleAmount.append(value)
+            vcSpendingRuleLimit.append(rule.vcRuleLimit)
             countSpendingRules = countSpendingRules+1
              
         # The range part is the index numbers.
     context_dict['vcEarningRuleInfo'] = zip(range(1,countEarningRules+1),vcEarningRuleID,vcEarningRuleName, vcEarningRuleDescription, vcEarningRuleAmount)
-    context_dict['vcSpendingRuleInfo'] = zip(range(1,countSpendingRules+1),vcSpendingRuleID,vcSpendingRuleName, vcSpendingRuleDescription, vcSpendingRuleAmount)
+    context_dict['vcSpendingRuleInfo'] = zip(range(1,countSpendingRules+1),vcSpendingRuleID,vcSpendingRuleName, vcSpendingRuleDescription, vcSpendingRuleAmount, vcSpendingRuleLimit)
 
     return render(request,'Students/VirtualCurrencyRules.html', context_dict)

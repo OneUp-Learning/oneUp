@@ -46,7 +46,6 @@ def challengeAdjustmentView(request):
                     studentChallenge.save()
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
-                
             else:
                 if not adjustmentScore == "0" or not bonusScore == "0":
                     studentChallenge = StudentChallenges()

@@ -14,7 +14,6 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def exportGradebook(request):
-    
     context_dict, currentCourse = initialContextDict(request)
 
     if request.method == 'GET':
