@@ -131,6 +131,9 @@ class Event():
     getDifferentProblem = 858 # Get a different dynamic problem on a test
     getCreditForOneTestProblem = 859 #
     getSurpriseAward = 860 # Get a small surprise award from the instructor   
+    changeHWWeights = 862 # Set weights on the grades of 2 HWs
+    examExemption = 863 # Get Exempt from Final
+    buyMissedLab = 864  # Buy the points for a missed lab
     
     adjustment = 861
 #    seeClassAverage = 861 # See aggregated class information
@@ -140,225 +143,291 @@ class Event():
 #    chooseDashboardBackground = 865 # Choose a background for the student dashboard
 #    chooseBackgroundForYourName = 866 # ?
     
+    classAttendance = 870
     
     events = {
               startChallenge: {
                         'index': startChallenge,
                         'name':'startChallenge',
                         'displayName':'Start of Challenge',
-                        'description':'Time when a student has started to attempt a particular challenge'
+                        'description':'Time when a student has started to attempt a particular challenge',
+                        'isVirtualCurrencySpendRule':False
                         },
               endChallenge: {
                         'index': endChallenge,
                         'name':'endChallenge',
                         'displayName':'End of Challenge',
-                        'description':'Time when a student has finished to attempt and has submitted a particular challenge'},
+                        'description':'Time when a student has finished to attempt and has submitted a particular challenge',
+                        'isVirtualCurrencySpendRule':False
+                        },
               completeQuestion: {
                         'index': completeQuestion,
                         'name':'completeQuestion',
                         'displayName':'Question Completed',
-                        'description':'A student completes answering a particular question in a particular challenge'
+                        'description':'A student completes answering a particular question in a particular challenge',
+                        'isVirtualCurrencySpendRule':False
                         },
               participationNoted: {
                         'index': participationNoted,
                         'name':'participationNoted',
                         'displayName':'Instructor Notes Participation',
-                        'description':'An instructor acknowledges participation for a particular student for a particular activity'
+                        'description':'An instructor acknowledges participation for a particular student for a particular activity',
+                        'isVirtualCurrencySpendRule':False
                         },
               instructorAction: {
                         'index': instructorAction,
                         'name':'instructorAction',
                         'displayName':'Instructor Action',
-                        'description':'An instructor awards points for a particular activity'
+                        'description':'An instructor awards points for a particular activity',
+                        'isVirtualCurrencySpendRule':False
                         },
+              classAttendance: {
+                        'index': classAttendance,
+                        'name':'classAttendance',
+                        'displayName':'Instructor set student attendance',
+                        'description':'An instructor enters class attendance for a particular student on a particular date',
+                        'isVirtualCurrencySpendRule':False
+                        },              
               timePassed: {
                         'index': timePassed,
                         'name':'timePassed',
                         'displayName':'Time Passed',
-                        'description':'The duration/time limit of a challenge has been reached'
+                        'description':'The duration/time limit of a challenge has been reached',
+                        'isVirtualCurrencySpendRule':False
                         },
               valueChanged: {
                         'index': valueChanged,
                         'name':'valueChanged',
                         'displayName':'Variable Changes Value',
-                        'description':'The value of a particular variable in a particular challenge is changed'
+                        'description':'The value of a particular variable in a particular challenge is changed',
+                        'isVirtualCurrencySpendRule':False
                         },
               startQuestion: {
                         'index': startQuestion,
                         'name':'startQuestion',
                         'displayName':'Start of Question',
-                        'description':'Time when a student has started to attempt a particular question'
+                        'description':'Time when a student has started to attempt a particular question',
+                        'isVirtualCurrencySpendRule':False
                         },
               endQuestion: {
                         'index': endQuestion,
                         'name':'endQuestion',
                         'displayName':'End of Question',
-                        'description':'Time when a student has finished to attempt and has submitted a particular question'
+                        'description':'Time when a student has finished to attempt and has submitted a particular question',
+                        'isVirtualCurrencySpendRule':False
                         },
               studentUpload: {
                         'index': studentUpload,
                         'name':'studentUpload',
                         'displayName':'Student Uploads Assignment',
-                        'description':'A student uploads an assignment'
+                        'description':'A student uploads an assignment',
+                        'isVirtualCurrencySpendRule':False
                         },
               leaderboardUpdate: {
                         'index': leaderboardUpdate,
                         'name':'leaderboardUpdate',
                         'displayName':'The Leaderboard is Updated',
-                        'description':'The leaderboard is updated'
+                        'description':'The leaderboard is updated',
+                        'isVirtualCurrencySpendRule':False
                         },
 
               userLogin: {
                         'index': userLogin,
                         'name':'userLogin',
                         'displayName':'User Login',
-                        'description':'A student logs in with their credentials'
+                        'description':'A student logs in with their credentials',
+                        'isVirtualCurrencySpendRule':False
                           },
               challengeExpiration: {
                         'index': challengeExpiration,
                         'name':'challengeExpiration',
                         'displayName':'Challenge Expiration',
-                        'description':'The time allowed for students to take a challenge expires.'
+                        'description':'The time allowed for students to take a challenge expires.',
+                        'isVirtualCurrencySpendRule':False
                         },
               visitedDashboard: {
                         'index': visitedDashboard,
                         'name': 'visitedDashboard',
                         'displayName': 'Visited Dashboard',
-                        'description': 'Loaded the dashboard page'
+                        'description': 'Loaded the dashboard page',
+                        'isVirtualCurrencySpendRule':False
                         },
               visitedEarnedVCpage: {
                         'index': visitedEarnedVCpage,
                         'name': 'visitedEarnedVCpage',
                         'displayName': 'Visited Earning Transactions page',
-                        'description': 'Student visited the earning virtual currency transactions page'
+                        'description': 'Student visited the earning virtual currency transactions page',
+                        'isVirtualCurrencySpendRule':False
                         },
               visitedSpendedVCpage: {
                         'index': visitedSpendedVCpage,
                         'name': 'visitedSpendedVCpage',
                         'displayName': 'Visited Spending Transactions page',
-                        'description': 'Student visited the spending virtual currency transactions page'
+                        'description': 'Student visited the spending virtual currency transactions page',
+                        'isVirtualCurrencySpendRule':False
                         },
               visitedBadgesInfoPage: {
                         'index': visitedBadgesInfoPage,
                         'name': 'visitedBadgesInfoPage',
                         'displayName': 'Visited Badges Info page',
-                        'description': 'Student visited the Badges info page'
+                        'description': 'Student visited the Badges info page',
+                        'isVirtualCurrencySpendRule':False
                         },
               visitedVCRulesInfoPage: {
                         'index': visitedVCRulesInfoPage,
                         'name': 'visitedVCRulesInfoPage',
                         'displayName': 'Visited VC Rules Info page',
-                        'description': 'Student visited the virtual currency rules info page'
+                        'description': 'Student visited the virtual currency rules info page',
+                        'isVirtualCurrencySpendRule':False
                         },
               
               visitedLeaderboardPage: {
                         'index': visitedLeaderboardPage,
                         'name': 'visitedLeaderboardPage',
                         'displayName': 'Visited class leaderboard page',
-                        'description': 'Student visited the class leaderboard page'
+                        'description': 'Student visited the class leaderboard page',
+                        'isVirtualCurrencySpendRule':False
                         },
              
               instructorHelp: {
                         'index': instructorHelp,
                         'name':'instructorHelp',
-                        'displayName':'Get Feedback on Assignment Problem',
-                        'description':'Get help/feedback from the instructor on 1 problem before submitting an assignment.'
+                        'displayName':'Get Help on 1 HW Problem',
+                        'description':'Get help/feedback from the instructor on 1 problem before submitting an assignment.',
+                        'isVirtualCurrencySpendRule':True
                         },
               buyAttempt: {
                         'index': buyAttempt,
                         'name':'buyAttempt',
-                        'displayName':'Buy Attempt',
-                        'description':'Buy another attempt (re-submission) for an assignment (restrictions may apply).'
+                        'displayName':'Buy HW Re-submission',
+                        'description':'Buy another attempt (re-submission) for an assignment (restrictions may apply).',
+                        'isVirtualCurrencySpendRule':True
                         },
               extendDeadlineHW: {
                         'index': extendDeadlineHW,
                         'name':'extendDeadlineHW',
-                        'displayName':'Extend Deadline of Assignment',
-                        'description':'Extend the due date for an assignment with 12 hours.'
+                        'displayName':'Extend HW Deadline',
+                        'description':'Extend the due date for an assignment with 12 hours.',
+                        'isVirtualCurrencySpendRule':True
                         },              
               extendDeadlineLab: {
                         'index': extendDeadlineLab,
                         'name':'extendDeadlineLab',
                         'displayName':'Extend Deadline of Lab',
-                        'description':'Extend the due date for a lab with 24 hours.'
+                        'description':'Extend the due date for a lab with 24 hours.',
+                        'isVirtualCurrencySpendRule':True
                         },              
               buyExtraCreditPoints: {
                         'index': buyExtraCreditPoints,
                         'name':'buyExtraCreditPoints',
                         'displayName':'Buy Extra Credit Points',
-                        'description':'Buy 5 extra credit points for an assignment.'
+                        'description':'Buy 5 extra credit points for an assignment.',
+                        'isVirtualCurrencySpendRule':True
                         },
               replaceLowestAssignGrade: {
                         'index': replaceLowestAssignGrade,
                         'name':'replaceLowestAssignGrade',
-                        'displayName':'Replace Lowest Assignment Grade',
-                        'description':'Replace your lowest assignment grade with your average assignment grade.'
+                        'displayName':'Replace Lowest HW Grade',
+                        'description':'Replace your lowest assignment grade with your average assignment grade.',
+                        'isVirtualCurrencySpendRule':True
                         },              
               buyTestTime: {
                         'index': buyTestTime,
                         'name':'buyTestTime',
                         'displayName':'Buy Test Time',
-                        'description':'Buy a 15-min extension of the time for one test.'
-                        },              
+                        'description':'Buy a 15-min extension of the time for one test.',
+                        'isVirtualCurrencySpendRule':True
+                        }, 
+              buyMissedLab: {
+                        'index': buyMissedLab,
+                        'name':'buyMissedLab',
+                        'displayName':'Buy Missed Lab',
+                        'description':'Buy the points for a missed lab.',
+                        'isVirtualCurrencySpendRule':True
+                        },                                         
               getDifferentProblem: {
                         'index': getDifferentProblem,
                         'name':'getDifferentProblem',
-                        'displayName':'Get Different Problem',
-                        'description':'Get 1 different problem on a test (for designated problems).'
+                        'displayName':'Get Different Test Problem',
+                        'description':'Get 1 different problem on a test (for designated problems).',
+                        'isVirtualCurrencySpendRule':True
                         },              
               getCreditForOneTestProblem: {
                         'index': getCreditForOneTestProblem,
                         'name':'getCreditForOneTestProblem',
                         'displayName':'Get Credit for One Test Problem',
-                        'description':'Get full credit for 1 problem (from designated problems) in 1 test.'
+                        'description':'Get full credit for 1 problem (from designated problems) in 1 test.',
+                        'isVirtualCurrencySpendRule':True
                         },              
               getSurpriseAward: {
                         'index': getSurpriseAward,
                         'name':'getSurpriseAward',
                         'displayName':'Get Surprise Award',
-                        'description':'Get a small surprise award from the instructor.'
+                        'description':'Get a small surprise award from the instructor.',
+                        'isVirtualCurrencySpendRule':True
+                        },
+              changeHWWeights: {
+                        'index': changeHWWeights,
+                        'name':'changeHWWeights',
+                        'displayName':'Change HW Weights',
+                        'description':'Set weights on the grades of 2 HWs. The weights must total 200%, with each weight between 75% and 125%.',
+                        'isVirtualCurrencySpendRule':True
+                        },
+              examExemption: {
+                        'index': examExemption,
+                        'name':'examExemption',
+                        'displayName':'Get Exempt from Final',
+                        'description':'If you have accumulated 700+ course points, you can buy an exemption from the Final exam.',
+                        'isVirtualCurrencySpendRule':True
                         },
               adjustment: {
                         'index': adjustment,
                         'name':'adjustment',
                         'displayName':'adjustment',
-                        'description':'when teacher adjust a student challenge grade.'
+                        'description':'when teacher adjust a student challenge grade.',
+                        'isVirtualCurrencySpendRule':False
                         },
 #               seeClassAverage: {
 #                         'index': seeClassAverage,
 #                         'name':'seeClassAverage',
 #                         'displayName':'See Class Average',
-#                         'description':'See aggregated class information'
+#                         'description':'See aggregated class information',
+#                         'isVirtualCurrencySpendRule':True
 #                         },  
 #               chooseLabPartner: {
 #                         'index': chooseLabPartner,
 #                         'name':'chooseLabPartner',
 #                         'displayName':'Choose Lab Partner',
-#                         'description':'Choose a lab partner'
+#                         'description':'Choose a lab partner',
+#                         'isVirtualCurrencySpendRule':True
 #                         },                            
 #               chooseProjectPartner: {
 #                         'index': chooseProjectPartner,
 #                         'name':'chooseProjectPartner',
 #                         'displayName':'Choose Project Partner',
-#                         'description':'Choose a project partner'
+#                         'description':'Choose a project partner',
+#                         'isVirtualCurrencySpendRule':True
 #                         },                            
 #               uploadOwnAvatar: {
 #                         'index': uploadOwnAvatar,
 #                         'name':'uploadOwnAvatar',
 #                         'displayName':'Upload Own Avatar',
-#                         'description':'Upload your own avatar.'
+#                         'description':'Upload your own avatar.',
+#                         'isVirtualCurrencySpendRule':True
 #                         },
 #               chooseDashboardBackground: {
 #                         'index': chooseDashboardBackground,
 #                         'name':'chooseDashboardBackground',
 #                         'displayName':'Choose Dashboard Background',
-#                         'description':'Choose a background for the your dashboard'
+#                         'description':'Choose a background for the your dashboard',
+#                         'isVirtualCurrencySpendRule':True
 #                         },
 #               chooseBackgroundForYourName: {
 #                         'index': chooseBackgroundForYourName,
 #                         'name':'chooseBackgroundForYourName',
 #                         'displayName':'Choose Background for Your Name',
-#                         'description':'Choose background or border for your name'
+#                         'description':'Choose background or border for your name',
+#                         'isVirtualCurrencySpendRule':True
 #                         },              
 
               }

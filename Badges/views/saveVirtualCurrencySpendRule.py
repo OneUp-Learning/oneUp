@@ -36,10 +36,10 @@ def SaveVirtualCurrencySpendRule(request):
         eventIndex = []
         eventName = []
         eventDescription = []
-        eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description'])  
+        eventObjects= dict_dict_to_zipped_list(Event.events,['index','displayName', 'description','isVirtualCurrencySpendRule'])  
         # Select only the system variables that are for virtual currency
-        for i, eName, eDescription in eventObjects:
-            if i>= 850:
+        for i, eName, eDescription, eIsVirtualCurrencySpendRule in eventObjects:
+            if eIsVirtualCurrencySpendRule:
                 eventIndex.append(i)
                 eventName.append(eName)
                 eventDescription.append(eDescription)
@@ -66,6 +66,7 @@ def SaveVirtualCurrencySpendRule(request):
                         
                         actionArg.argumentValue = request.POST["ruleAmount_"+str(eventI)]
                         actionArg.save()
+                        rule.vcRuleAmount = int(actionArg.argumentValue)
                         rule.save()
                         selectedSpendRulesEvents.remove(eventI)
             else:

@@ -1,10 +1,10 @@
 /* Select Field
    ========================================================================== */
 
-select { display: none; }
+select:not(.no-materialize) { display: none; }
 select.browser-default { display: block; }
 
-select {
+select:not(.no-materialize) {
   background-color: $select-background;
   width: 100%;
   padding: $select-padding;

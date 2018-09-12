@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col s12 m8 offset-m2">
+            <div class="col s12 m10 offset-m1">
                 <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
                     {% csrf_token %} {% if activityID %}
                     <input type="hidden" name="activityID" id="activityID" value="{{activityID}}"> {% endif %}
@@ -54,7 +54,7 @@
                                         </td>
                                         <td>
                                             <div class="input-field col s12">
-                                                <input value="{{student_Points}}" name="student_Points{{student_ID}}" id="{{student_ID}}_points" type="number" class="validate" min="0" step="any" required>
+                                                <input value="{{student_Points}}" name="student_Points{{student_ID}}" id="{{student_ID}}_points" type="number" class="validate" min="-1" step="any" required>
                                             </div>
                                         </td>
                                         <td>
@@ -73,7 +73,7 @@
                                     </tr>
                                     {% empty %}
                                     <tr>
-                                        <td><i>No Students in the course!</i></td>
+                                        <td class="center-align" colspan="4"><i>No Students in the course!</i></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

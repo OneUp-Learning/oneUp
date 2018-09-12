@@ -204,9 +204,12 @@
  </div>
  <div id="condAtomPrototype" class="cond-prototype">
 		<div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
-			 <div class="row">
+             <div class="row" style="margin-left: 0; margin-right: 0; margin-top: 20px; margin-bottom: 0;">
 				 <div class="col s12 m4">
-					<select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var no-materialize">
+                    <select name="cond-var" onchange="condHideError(this,['cond-blank-lhs-error','cond-blank-rhs-value-error']);condChangeAtomToMatchType(this);return true;" class="cond-var browser-default"
+                    onactivate="this.style.width='auto';"
+                    onchange="this.blur();"
+                    onblur="this.style.width='100%';">
 						<option value="0" data-cond-var-type="text" data-cond-context-global="true"
 						{% for objectType in objectTypes %}
 						data-cond-context-{{objectType.name}}="true" 
@@ -222,7 +225,7 @@
 					</select>
 					</div>
 					<div class="col s12 m1">
-						<select name="cond-op" class="cond-op no-materialize">
+						<select name="cond-op" class="cond-op browser-default">
 							<option value="=">=</option>
 							<option value=">">&gt;</option>
 							<option value=">=">&gt;=</option>
@@ -234,7 +237,10 @@
 						<input type="text" name="cond-rhs-value" class="cond-rhs-value" onchange="condHideError(this,['cond-blank-rhs-value-error'])">
 					</div>
 					<div hidden class="col s12 m5">
-						<select name="cond-rhs-var"  class="cond-rhs-var no-materialize" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;">
+                        <select name="cond-rhs-var"  class="cond-rhs-var browser-default" onchange="condHideError(this,['cond-blank-rhs-var-error']);return true;"
+                        onactivate="this.style.width='auto';"
+                        onchange="this.blur();"
+                        onblur="this.style.width='100%';">
 							<option value="0" data-cond-context-global="true"
 							{% for objectType in objectTypes %}
 							data-cond-context-{{objectType.name}}="true" 
@@ -273,15 +279,19 @@
 		   <div class="row">
 			  <div class="col s12 m4">
 				<p>For</p>
-				 <select id="cond-allOrAny" name="cond-allOrAny" class="cond-allOrAny no-materialize">
+                 <select id="cond-allOrAny" name="cond-allOrAny" class="cond-allOrAny browser-default"
+                    style="width: auto;">
 					<option value="all">each</option>
 					<option value="any">any</option>
 				 </select>
 			  </div>
 			  <div class="col s12 m8">
 				<p>of the following</p>
-				 <select id="cond-thingie-type" name="cond-thingie-type" class="cond-thingie-type no-materialize" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
-					data-cond-old-type="{{defaultObject}}">
+				 <select id="cond-thingie-type" name="cond-thingie-type" class="cond-thingie-type browser-default" onchange="condHideError(this,['cond-visible-error'])/*all errors!*/;condChangeForAllType(this);return true;"
+                    data-cond-old-type="{{defaultObject}}"
+                    onactivate="this.style.width='auto';"
+                    onchange="this.blur();"
+                    onblur="this.style.width='100%';">
 					{% for objectType in objectTypes %}
 					<option value="{{objectType.name}}">{{objectType.plural}}</option>
 					{% endfor %}
@@ -292,8 +302,9 @@
 		   
 		   <div class="row"{% if objectType.name != defaultObject %} hidden {%endif%}>
 					<div class="col s12 m6 cond-{{objectType.name}}-list" >
-						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select no-materialize" 
-							onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;">
+						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select browser-default" 
+                            onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;"
+                            style="width: auto;">
 							<option disabled selected value="0">select {{objectType.plural}} to add</option>
 							{% for object in objectType.objects %}
 							<option value="{{object.id}}">{{object.name}}</option>
@@ -318,14 +329,13 @@
 	 	</div>
 	</div>
  <!-- Icons -->
- <p>
  <div class="cond-icon-list">
 		<div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
 		<div id="condAtomIcon" class="cond-icon" draggable="true">Atom</div>
 		<div id="condForAllIcon" class="cond-icon" draggable="true">Forall</div>
 		<div id="condTrashIcon" class="cond-icon cond-trash"> Trash </div>
  </div>
- </p>
+ <br />
  <!-- Container for initial condition -->
  <div class="cond-container cond-item" id="cond-container">
 		<input type="hidden" value="0" name="cond-cond-string" id="cond-cond-string">
@@ -895,19 +905,24 @@ function clonePrototype(name) {
         //console.log(prototypeDiv.children[0].children[4]);
     }
     if (name == "condForPrototype") {
-        console.log(prototypeDiv.children[1].children[1].children[1]);
+        //console.log(prototypeDiv.children[1].children[1].children[1]);
         //console.log(prototypeDiv.children[4].children[0]);
         //console.log(prototypeDiv.children[7].children[0]);
+
+        // Setup labels and checkboxes for the 'for all' types:
 		var id = (Date.now() + Math.random()).toString(36);
+        // Challenges
         prototypeDiv.children[1].children[1].children[0].id = prototypeDiv.children[1].children[1].children[0].id + id;
         prototypeDiv.children[1].children[1].children[1].setAttribute("for", prototypeDiv.children[1].children[1].children[0].id);
-
+        // Activities
         prototypeDiv.children[4].children[1].children[0].id = prototypeDiv.children[4].children[1].children[0].id + id;
         prototypeDiv.children[4].children[1].children[1].setAttribute("for", prototypeDiv.children[4].children[1].children[0].id);
-
+        // Topics
         prototypeDiv.children[7].children[1].children[0].id = prototypeDiv.children[7].children[1].children[0].id + id;
         prototypeDiv.children[7].children[1].children[1].setAttribute("for", prototypeDiv.children[7].children[1].children[0].id);
-
+        // Categories
+        prototypeDiv.children[10].children[1].children[0].id = prototypeDiv.children[10].children[1].children[0].id + id;
+        prototypeDiv.children[10].children[1].children[1].setAttribute("for", prototypeDiv.children[10].children[1].children[0].id);
     }
     return prototypeDiv;
 }

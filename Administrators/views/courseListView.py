@@ -24,10 +24,10 @@ def courseListView(request):
     context_dict['course_range'] = zip(range(1,crs.count()+1),course_ID,course_Name)
 
     user = request.user    
-    if user.groups.filter(name='Teachers').exists():
+    if user.groups.filter(name='Teachers').exists() and not 'is_student' in request.GET:
         context_dict["is_teacher"] = True
         return redirect('instructorHome')
-    elif user.groups.filter(name='Admins').exists():
+    elif user.groups.filter(name='Admins').exists() and not 'is_student' in request.GET:
         context_dict["is_admin"] = True
         return redirect('adminHomeView')
     else:

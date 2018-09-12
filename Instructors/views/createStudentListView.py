@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentRegisteredCourses, StudentEventLog
 from Badges.enums import Event
+from Students.views.avatarView import checkIfAvatarExist
 
 @login_required
 def createStudentListView(request):
@@ -20,9 +21,11 @@ def createStudentListView(request):
     last_Name = []
     user_Email = []  
     user_Action = []   
-    user_Avatar = []   
+    user_Avatar = []  
 
-    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+    
+
+    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
     studentEvents = [Event.startChallenge, Event.endChallenge, Event.userLogin, Event.studentUpload, Event.spendingVirtualCurrency,
                      Event.visitedDashboard, Event.visitedEarnedVCpage, Event.visitedBadgesInfoPage, Event.visitedSpendedVCpage,
                      Event.visitedVCRulesInfoPage]
@@ -38,7 +41,8 @@ def createStudentListView(request):
             user_Action.append(last_action.timestamp)
         else:
             user_Action.append("None")
-        user_Avatar.append(cs.avatarImage)
+        
+        user_Avatar.append(checkIfAvatarExist(cs))
                
     # The range part is the index numbers.
     context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Action, user_Avatar)), key=lambda tup: tup[3])

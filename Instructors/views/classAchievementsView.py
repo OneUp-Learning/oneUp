@@ -134,9 +134,13 @@ def classAchievements(request):
         #gradeTotal.append(("%0.2f" %sum(activityGrade)))
         
     for u in users:
-        first_Name.append(u.user.first_name)
-        last_Name.append(u.user.last_name)
-    
+        if u.isTestStudent:
+            first_Name.append("Test")
+            last_Name.append("Student")
+        else:
+            first_Name.append(u.user.first_name)
+            last_Name.append(u.user.last_name)
+        
     for c in challenges:
         chall_Name.append(c.challengeName)
         

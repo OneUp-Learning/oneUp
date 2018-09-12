@@ -11,6 +11,7 @@ from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
 from Instructors.views.utils import initialContextDict
+from Students.views.avatarView import checkIfAvatarExist
 
 from datetime import datetime
 from datetime import timedelta
@@ -159,14 +160,14 @@ def courseLeaderboard(currentCourse, context_dict):
             print("badges")
             print(badges)
             for badge in badges:
-                if badge.studentID in students:
+                if (badge.studentID in students) and (badge.badgeID.courseID == currentCourse):
                     studentBadgeID.append(badge.studentBadgeID)
                     studentID.append(badge.studentID)
                     badgeID.append(badge.badgeID)
                     badgeName.append(badge.badgeID.badgeName)
                     badgeImage.append(badge.badgeID.badgeImage)
-                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)                
-                    avatarImage.append(st_crs.avatarImage)
+                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)       
+                    avatarImage.append(checkIfAvatarExist(st_crs))       
                               
             print("cparams")
             print(ccparams.numBadgesDisplayed+1)                    
@@ -206,12 +207,8 @@ def courseLeaderboard(currentCourse, context_dict):
             for s in students:
                 sXP = studentXP(s, currentCourse)
                 st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
-                #studentXP_dict[st_crs.avatarImage] = sXP 
-                studentXP_dict[st_crs] = sXP
-                if not (s.user.first_name and s.user.last_name):
-                    studentUser.append(s.user)
-                else:
-                    studentUser.append(s.user.first_name +" " + s.user.last_name)
+                studentXP_dict[st_crs] = sXP 
+                
                 
             # sort the dictionary by its values; the result is a list of pairs (key, value)
             xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)
@@ -224,6 +221,11 @@ def courseLeaderboard(currentCourse, context_dict):
                     #avatarImage.append(item[0])
                     avatarImage.append(item[0].avatarImage)
                     xpoints.append(item[1])
+                    student = item[0].studentID
+                    if not (student.user.first_name and student.user.last_name):
+                        studentUser.append(student.user)
+                    else:
+                        studentUser.append(student.user.first_name +" " + student.user.last_name)
             
             context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints, studentUser)                 
                        
@@ -240,6 +242,7 @@ def instructorCourseHome(request):
     context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
     context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
     context_dict['course_Name'] = currentCourse.courseName
+    context_dict['courseId'] = currentCourse.courseID
 
     context_dict = courseLeaderboard(currentCourse, context_dict)
         

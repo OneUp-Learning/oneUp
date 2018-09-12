@@ -87,6 +87,21 @@
     margin-top: -1px;
 }
 </style>
+				<form action="/oneUp/instructors/resetTestStudent" method="POST">
+                  		    {% csrf_token %}
+                  			 <input type=hidden  name="courseID" value={{courseId}}>
+                  			<div id="reset_test_student" class="modal">
+                                 <div class="modal-content">
+                                    <h5>Are you sure you want to reset Test Student's data? This action will delete any taken challenge, activity, earned badge, and virtual currency. </h5>
+                                  </div>
+                                  
+                                  <div class="modal-footer">
+                                      <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                      <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Reset</button>                                        
+                                  </div>
+                            </div>
+                  </form>
+
 
     <ul id="account" class="dropdown-content">
         <li><p class="center-align">Welcome, {{username}}</p></li>            
@@ -103,6 +118,7 @@
     <ul id="virtualcurrency" class="dropdown-content"> 
         <li><a href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
         <li><a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
+        <li><a class="waves-effect" href="/oneUp/badges/TimeBasedVirtualCurrency">Time Period Earning Rules</a></li>
         <li><a href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
         <li><a href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
         <li><a href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a></li>  
@@ -118,9 +134,15 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/instructorHome">Instructor's Home</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/instructorCourseHome">Course Home</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/announcementList">Announcements</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/studentAttendance">Set Student Attendance</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
+                      
+                  	 <li><a class="modal-trigger" href="#reset_test_student">Reset Test Student</a></li> 
+                  	 
+                  
+                  	
                 </ul>
             </li>
             <li>
@@ -154,7 +176,8 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?serious">Serious Challenges Visualization</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges visualization</a></li>
-                    <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills Visualization</a></li>  
+                    <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills Visualization</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/studentAttendanceReport">Student Attendance Report</a></li>   
                 </ul>
             </li>
             {% if ccparams.gamificationUsed %}
@@ -162,13 +185,14 @@
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="gamefeats">Game Features</a>
                 <ul id="gamefeats" class="dropdown-content">
                     <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
-<!--                     <li><a class="waves-effect" href="">Leveling</a></li> -->
-                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
-                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
-                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual Earning Rules</a></li>
-                    <li><a class="waves-effect" href="/oneUp/badges/AddVirtualCurrency">Add Virtual Currency To Students</a></li>
-        			<li><a class="waves-effect" href="/oneUp/badges/AddBadgeManually">Add Badge to Students</a></li>
-                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyTransactions">Student Transactions</a></li>  
+                    <li><a class="waves-effect" href="/oneUp/badges/TimeBasedBadge">Time Period Based Badges</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/AddBadgeManually">Add Badges to Students</a></li>
+<!--                     <!--<li><a class="waves-effect" href="">Leveling</a></li> -->
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">VC Spending Rules</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic VC Earning Rules</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/TimeBasedVirtualCurrency">Time Period Earning Rules</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">Manual VC Earning Rules</a></li>
+        			<li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyTransactions">Student VC Transactions</a></li>  
                     <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
                 </ul>
             </li>
@@ -183,6 +207,11 @@
                     </div>
                     <li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
                 </ul>
+            </li>
+            <li>
+                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true&courseID={{courseId}}" >
+                    <i class='material-icons'>visibility</i> 
+                </a>
             </li>
             {% if logged_in %}            
             <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="account"><i class="material-icons">more_vert</i></a></li>
@@ -210,9 +239,11 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/instructorHome">Instructor's Home</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/instructorCourseHome">Course Home</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/announcementList">Announcements</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/studentAttendance">Set Student Attendance</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
+                            	<li><a class="waves-effect" href="/oneUp/instructors/resetTestStudent?courseID={{courseId}}">Reset Test Student</a></li>
                             </ul>
                         </div>
                     </li>
@@ -222,6 +253,7 @@
                             <ul>
                                 <li><a class="waves-effect" href="/oneUp/instructors/courseInformation">Course Description</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/topicsList">Course Topics</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/activityCats">Activity Categories</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
@@ -249,6 +281,7 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/studentAchievements">Students Scores</a></li>
                                 <li><a href="/oneUp/instructors/studentSummary">Students Summary</a></li>                                
                                 <li><a class="waves-effect" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/studentAttendance">Student Attendance</a></li>
                                 <li>
                                     <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="visualization">Visualization<i class="material-icons right">more_vert</i></a></li>                                    
                                 </li>
@@ -261,6 +294,8 @@
                         <div class="collapsible-body">
                             <ul>
                                 <li><a class="waves-effect" href="/oneUp/badges/Badges">Badges</a></li>
+                                <li><a class="waves-effect" href="/oneUp/badges/TimeBasedBadge">Time Period Based Badges</a></li>
+                                <li><a class="waves-effect" href="/oneUp/badges/AddBadgeManually">Add Badge to Students</a></li>
 <!--                                 <li><a class="waves-effect" href="">Leveling</a></li> -->
                                 <li>
                                     <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
@@ -280,6 +315,11 @@
                             </ul>
                         </div>
                     </li>
+                    <li>
+		                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true&courseID={{courseId}}" >
+		                    <i class='material-icons'>visibility</i> 
+		                </a>
+		            </li>
                 </ul>
             </li>
             {% if logged_in %}                        

@@ -3,7 +3,7 @@ Last updated on Sep 12, 2016
 
 '''
 from django.template import RequestContext
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 def loginView(request):
     context_dict = { }

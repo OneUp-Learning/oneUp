@@ -13,6 +13,7 @@ from Instructors.constants import default_time_str
 from Instructors.views.instructorCourseHomeView import studentXP
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog
 from Badges.enums import Event
+from Students.views.avatarView import checkIfAvatarExist
     
 @login_required
 def studentSummary(request):
@@ -37,7 +38,7 @@ def studentSummary(request):
     user_XP = []
     user_VC = []
 
-    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
     courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
     defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     # default time
@@ -53,7 +54,7 @@ def studentSummary(request):
         userID.append(s.user)
         first_Name.append(s.user.first_name)
         last_Name.append(s.user.last_name)
-        user_Avatar.append(cs.avatarImage)
+        user_Avatar.append(checkIfAvatarExist(cs))
         
         last_action = StudentEventLog.objects.filter(course=currentCourse, student = s, event__in = studentEvents).order_by('-timestamp').first()
         if last_action:
