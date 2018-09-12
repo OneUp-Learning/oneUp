@@ -42,7 +42,11 @@
                                 <td>{{chall_Name}}</td>	
                                 <td>{{challDueDate}}</td>
                                 <td>{{grade}}</td>
-                                <td>{{numberOfAttempts}}</td>		
+                                {% if numberOfAttempts == '0' %}
+                                <td>Unlimited</td>
+                                {% else %}
+                                <td>{{numberOfAttempts}}</td>
+                                {% endif %}		
                                 <td>{{adjusmentReason}}</td>
                               <td class="right-align">
                                  {% if is_teacher %} 

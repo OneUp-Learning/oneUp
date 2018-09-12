@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
+        <link href="/static/ThirdParty/js-parsons-master/parsons.css" rel="stylesheet" />
+        <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
       {% include 'scripts.html' %}
       <script>
          jQuery.browser = {};
@@ -13,8 +15,7 @@
          }
          })();
       </script>
-      <link href="/static/ThirdParty/js-parsons-master/parsons.css" rel="stylesheet" />
-      <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
+      
       <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
       <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script>
       <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
@@ -38,33 +39,244 @@
          
          
       </script>
-      <script>
-         var ace_editor_divs = document.getElementsByClassName('ace-editor');
-         var ace_editors = {};
-         for (var i=0;i<ace_editor_divs.length;i++) {
-             var new_editor = ace.edit(ace_editor_divs[i].id);
-          new_editor.setTheme("ace/theme/chrome");
-         new_editor.session.setMode("ace/mode/"+ace_editor_divs[i].title);
-         ace_editors[ace_editor_divs[i].id] = new_editor;
-         }
-         
-         var parson_divs = document.getElementsByClassName('parson');
-         var parsons = {};
-         
-         function copyContentsToHidden() {
-                for (var i=0;i<ace_editor_divs.length;i++) {
-                    var name = ace_editor_divs[i].id;
-                    var editor = ace_editors[name];
-                    var hiddenfield = document.getElementById(name+"-hidden");
-                    hiddenfield.value = editor.getValue();
-                }
-              
-            
-                
-         }
-         
-         
-      </script>
+
+    <style>
+    /*
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
+*/
+
+.ck-view img:not([width]) {
+    width: 100%;
+}
+.ck-view img {
+    max-width: 100%;
+}
+.ck-view table {
+    border-collapse: collapse;
+    border-spacing: 2px;
+    border: 1px solid #ccc;
+    width: initial;
+}
+.ck-view table td {
+    border: 1px solid black;
+}
+.ck-view .ck-compact-table {
+    border-collapse: collapse;
+    border-spacing: 2px;
+    border: 1px solid #ccc;
+    width: initial;
+}
+.ck-view .ck-compact-table td {
+    border: 1px solid #ccc;
+}
+.ck-view body
+{
+	/* Font */
+	font-family: sans-serif, Arial, Verdana, "Trebuchet MS";
+	font-size: 12px;
+
+	/* Text color */
+	color: #333;
+
+	/* Remove the background color to make it transparent */
+	background-color: #fff;
+
+	margin: 20px;
+}
+
+.ck-view .cke_editable
+{
+	font-size: 13px;
+	line-height: 1.6;
+
+	/* Fix for missing scrollbars with RTL texts. (#10488) */
+	word-wrap: break-word;
+}
+
+.ck-view blockquote
+{
+	font-style: italic;
+	font-family: Georgia, Times, "Times New Roman", serif;
+	padding: 2px 0;
+	border-style: solid;
+	border-color: #ccc;
+	border-width: 0;
+}
+
+.ck-view .cke_contents_ltr blockquote
+{
+	padding-left: 20px;
+	padding-right: 8px;
+	border-left-width: 5px;
+}
+
+.ck-view .cke_contents_rtl blockquote
+{
+	padding-left: 8px;
+	padding-right: 20px;
+	border-right-width: 5px;
+}
+
+.ck-view a
+{
+	color: #0782C1;
+}
+
+.ck-view ol, .ck-view ul, .ck-view dl
+{
+	/* IE7: reset rtl list margin. (#7334) */
+	margin-right: 0px;
+	/* preserved spaces for list items with text direction other than the list. (#6249,#8049)*/
+	padding: 0 40px;
+}
+
+.ck-view h1, .ck-view h2,
+.ck-view h3, .ck-view h4,
+.ck-view h5, .ck-view h6
+{
+	font-weight: normal;
+    line-height: 1.2;
+}
+
+.ck-view hr
+{
+	border: 0px;
+	border-top: 1px solid #ccc;
+}
+
+.ck-view img.right
+{
+	border: 1px solid #ccc;
+	float: right;
+	margin-left: 15px;
+	padding: 5px;
+}
+
+.ck-view img.left
+{
+	border: 1px solid #ccc;
+	float: left;
+	margin-right: 15px;
+	padding: 5px;
+}
+
+.ck-view pre
+{
+	white-space: pre-wrap; /* CSS 2.1 */
+	word-wrap: break-word; /* IE7 */
+	-moz-tab-size: 4;
+	tab-size: 4;
+}
+
+.ck-view .marker
+{
+	background-color: Yellow;
+}
+
+.ck-view span[lang]
+{
+	font-style: italic;
+}
+
+.ck-view figure
+{
+	text-align: center;
+	border: solid 1px #ccc;
+	border-radius: 2px;
+	background: rgba(0,0,0,0.05);
+	padding: 10px;
+	margin: 10px 20px;
+	display: inline-block;
+}
+
+.ck-view figure > figcaption
+{
+	text-align: center;
+	display: block; /* For IE8 */
+}
+
+.ck-view a > img {
+	padding: 1px;
+	margin: 1px;
+	border: none;
+	outline: 1px solid #0782C1;
+}
+
+/* Widget Styles */
+.ck-view .code-featured
+{
+	border: 5px solid red;
+}
+
+.ck-view .math-featured
+{
+	padding: 20px;
+	box-shadow: 0 0 2px rgba(200, 0, 0, 1);
+	background-color: rgba(255, 0, 0, 0.05);
+	margin: 10px;
+}
+
+.ck-view .image-clean
+{
+	border: 0;
+	background: none;
+	padding: 0;
+}
+
+.ck-view .image-clean > figcaption
+{
+	font-size: .9em;
+	text-align: right;
+}
+
+.ck-view .image-grayscale
+{
+	background-color: white;
+	color: #666;
+}
+
+.ck-view .image-grayscale img, .ck-view img.image-grayscale
+{
+	filter: grayscale(100%);
+}
+
+.ck-view .embed-240p
+{
+	max-width: 426px;
+	max-height: 240px;
+	margin:0 auto;
+}
+
+.ck-view .embed-360p
+{
+	max-width: 640px;
+	max-height: 360px;
+	margin:0 auto;
+}
+
+.ck-view .embed-480p
+{
+	max-width: 854px;
+	max-height: 480px;
+	margin:0 auto;
+}
+
+.ck-view .embed-720p
+{
+	max-width: 1280px;
+	max-height: 720px;
+	margin:0 auto;
+}
+
+.ck-view .embed-1080p
+{
+	max-width: 1920px;
+	max-height: 1080px;
+	margin:0 auto;
+}
+
+    </style>
    </head>
    <body>
       {% include 'stheading.html' %}
@@ -84,9 +296,11 @@
                   <div class="card">
                      <div class="card-content">
                         {% for i,question in question_range %}
+                        {% if i != 1 %}
                         <div class="divider"></div>
+                        {% endif %}
                         <div class="row">
-                           <p>{% autoescape off %} {{i}}. {{question.questionText|safe}} {% endautoescape %}</p>
+                            {{i}}. <div class="ck-view"> {{question.questionText|safe}} </div>
                         </div>
                         {% if question.type == questionTypes.multipleChoice %}
                         <div class="row">
@@ -300,7 +514,6 @@
                               </script>
                            </div>
                         </div>
-                        <div class="divider"></div>
                         {% endif %}
                         {% endfor %}
                      </div>

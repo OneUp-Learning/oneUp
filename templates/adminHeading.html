@@ -103,11 +103,15 @@
                     <div class="background">
                       <img src="/static/images/pic01.jpg">
                     </div>
-                    <a href="#!user"><img class="circle" src="/static/images/avatars/25.png"></a>
-                    <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
-                  </div>
-            </li>   
-            {% endif %}             
+                    <a href="#!user">
+                        <img class="circle" src="/static/images/avatars/anonymous.png">
+                    </a>
+                    <a href="#!name">
+                        <span class="white-text name">Welcome, {{username}}</span>
+                    </a>
+                </div>
+            </li>
+            {% endif %}
             <li class="no-padding">
                 <ul>
                    <li><a class="waves-effect" href="/oneUp/administrators/adminHome">Admin Home</a></li>
