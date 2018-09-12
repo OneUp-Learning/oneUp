@@ -18,10 +18,11 @@ objectTypeToObjectClass = {
 # This is where we evaluate the system variables in their appropriate
 # context.
 def calculate_system_variable(varIndex,course,student,objectType,objectID):
-    print("VarIndex: " + str(varIndex))
+    print("VarIndex: " + str(varIndex))    
     
     systemVar = SystemVariable.systemVariables[varIndex]
     functions = systemVar["functions"]
+
     if ObjectTypes.none in functions:
         return functions[ObjectTypes.none](course,student)
     else:
@@ -44,7 +45,7 @@ def getTestScores(course,student,challenge):
 # Utility function used by other functions.  
 def getAllTestScores(course,challenge):
     from Students.models import StudentChallenges
-    return StudentChallenges.objects.filter(courseID=course, challengeID=challenge)
+    return StudentChallenges.objects.filter(courseID=course, challengeID=challenge).exclude(studentID__isTestStudent=True)
 
 def challengeScore(course,student,challenge):    
     #Return the test score from the fired event
@@ -66,7 +67,7 @@ def activityScore(course,student,activity):
 def getActivityScore(course, activity):
     from Students.models import StudentActivities
     
-    activities = StudentActivities.objects.filter(courseID=course, activityID=activity)
+    activities = StudentActivities.objects.filter(courseID=course, activityID=activity).exclude(studentID__isTestStudent=True)
     scores = []
     
     for activity in activities:
@@ -242,8 +243,13 @@ def totalTimeSpentOnQuestions(course,student):
     # Also if a student starts a challenge and then abandons it, the counts will not be equal and then this code
     # will always return None for that student in that course.
     
-    questionStartTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.startQuestion)
-    questionEndTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.endQuestion)
+    if(type(course) != int):
+        course = course.pk
+        print(course)
+
+    
+    questionStartTimes = StudentEventLog.objects.filter(course = course,student = student, event = Event.startQuestion)
+    questionEndTimes = StudentEventLog.objects.filter(course = course,student = student, event = Event.endQuestion)
     #assert that the two are of equal size
 
     if (questionStartTimes.count() == questionEndTimes.count()):
@@ -431,7 +437,7 @@ def getNumDaysSubmissionEarlyActivity(course, student , activity):
 
 # utility function return difference in days between the submission and due date
 def getDaysDifferenceActity(activity, studentActivity):
-    deadline = activity.endTimestamp
+    deadline = activity.deadLine
     submission = studentActivity.timestamp
     print("Deadline ", deadline)
     print("submission", submission)
@@ -849,7 +855,7 @@ class SystemVariable():
             'displayName':'Maximum Challenge Score',
             'description':"The maximum of the test scores of all the student's attempts for a particular challenge",
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.challengeExpiration, Event.adjustment],
+                ObjectTypes.challenge:[ Event.challengeExpiration, Event.adjustment],
             },
             'type':'int',
             'functions':{
@@ -862,7 +868,7 @@ class SystemVariable():
             'displayName':'Minimum Challenge Score',
             'description':"The minimum of the test scores of all the student's attempts for a particular challenge",
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.challengeExpiration,Event.adjustment],
+                ObjectTypes.challenge:[ Event.challengeExpiration,Event.adjustment],
             },
             'type':'int',
             'functions':{
@@ -980,7 +986,7 @@ class SystemVariable():
             'description':'The number of days a submission is turned in earlier than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge,],
-                ObjectTypes.activity: [Event.instructorAction, Event.studentUpload],
+                ObjectTypes.activity: [Event.participationNoted, Event.instructorAction, Event.studentUpload],
             },
             'type':'int',
             'functions':{

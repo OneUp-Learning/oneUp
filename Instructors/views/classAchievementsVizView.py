@@ -23,7 +23,7 @@ def classAchievementsViz(request):
         skills = 1
         context_dict['skills']= 1   
         
-    st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)                
+    st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)                
     students = []                                         
     for st_c in st_crs:
         students.append(st_c.studentID)     # all students in the course

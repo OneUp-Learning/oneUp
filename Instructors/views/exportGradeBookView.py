@@ -81,7 +81,7 @@ def exportGradebook(request):
                 
                 users = [] 
                 #Displaying the list of students from the current class
-                stud_course = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+                stud_course = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
                 for sc in stud_course:
                     users.append(sc.studentID)
 
