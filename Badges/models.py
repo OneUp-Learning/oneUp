@@ -163,6 +163,9 @@ class PeriodicBadges(BadgesInfo):
     periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
     timePeriodID = models.IntegerField() # The Time Period index set for this badge
     numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
+    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
+    isRandom = models.BooleanField(default=False) # Is this being awarded to random student(s)
     def __str__(self):
         return "Badge #{} : {}".format(self.badgeID, self.badgeName)
 
@@ -187,9 +190,12 @@ class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
 
 # Table for Periodic Virtual Currency Rules
 class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
-    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
-    timePeriodID = models.IntegerField() # The Time Period index set for this badge
-    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
+    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this rule
+    timePeriodID = models.IntegerField() # The Time Period index set for this rule
+    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this rule to
+    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
+    isRandom = models.BooleanField(default=False) # Is this being awarded to random student(s)
     def __str__(self):
         return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
 
