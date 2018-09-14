@@ -5,6 +5,8 @@ from Instructors.models import Challenges, Activities, Questions, Topics,\
     ActivitiesCategory
 from django.utils import timezone
 import logging
+from billiard.connection import CHALLENGE
+from django.conf.urls.static import static
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -756,73 +758,47 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
             return average - float(latestAttempt.activityScore)
 
     return 0
-def getTotalScore(attempts):
-    questionIDsAndTypes =  getChallengeQuestions(attempts)
-    
-    consumedIDs = []
-    totalScore = 0
-    for questionIDAndType in questionIDsAndTypes:
-        if questionIDAndType[1] == 6 or questionIDAndType[0] == 7:
-            totalScore += dynamicQuestionMax(questionIDAndType[0])
-        else:
-            if questionIDAndType[0] not in consumedIDs:
-                result = firstAttemptStatic(questionIDAndType[0])
-                totalScore += result[0]
-                consumedIDs.append(result[1])
-    
-    print("TotalScore")     
-    print(totalScore)   
-    return totalScore
+
     
 def getTotalScoreForWarmupChallenges(course,student,challenge):
-    attempts = getAllChallenges(course, student, False)
-    return getTotalScore(attempts)
+    return getAllChallenges(course, student, False)
 
 def getTotalScoreForSeriousChallenges(course,student,challenge):
-    attempts = getAllChallenges(course, student, True)
-
-    return getTotalScore(attempts)
+    return getAllChallenges(course, student, True)
 
 def getAllChallenges(course,student, isGraded):
+    #isGraded true means serious, false warmup
     #utility function to get all the challenges for a course, student
     from Students.models import StudentChallenges
-
+    from Instructors.models import ChallengesQuestions
+    challengeQuestions = []
     #get all the challenges for the course, and depending on isGraded(serious=true,warmup=false)
-    challenges = Challenges.objects.filter(courseID=course, isGraded=isGraded)
+    challenges = StudentChallenges.objects.filter(courseID=course, studentID=student)
     
-    
-    attempts = []
-    studentAttemptsList = []
-    #for each challenge fetch the studentChallenges(attempts)
     for challenge in challenges:
-        studentAttempts = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=challenge)
-        if studentAttempts:
-            studentAttemptsList.append(studentAttempts)
-    
-    studentAttemptsList = list(studentAttemptsList)
-    for attempt in studentAttemptsList:
-        attempt = list(attempt)
-        print(attempt)
-        attempts.append(attempt[0].studentChallengeID) 
-    #return all the attempts for each challenge the student has taken  
-    return attempts
-
-def getChallengeQuestions(attempts) :
-    #get the questions for each attempt via studentChallengeID
-    from Students.models import StudentChallengeQuestions
-    questionsList = []
-    for attempt in attempts:
-        ##attempt is studentChallengeID
-        questions = StudentChallengeQuestions.objects.filter(studentChallengeID = attempt)
-        questionsList.append(questions)
-    
-    questionIDandType = []
-    #for each questionList in questions
-    for questionObject in questionsList:
-        for q in questionObject:
-            questionIDandType.append((q.questionID, q.questionID.type))
+        challengeQuestions.append(list(ChallengesQuestions.objects.filter(challengeID=challenge.challengeID)))
+      
+    staticList = []
+    dynamicList = [] 
+    for challengeItem in challengeQuestions:
+        for item in challengeItem:
+            if item.challengeID.isGraded == isGraded:
+                if item.questionID.type == 6 or item.questionID.type == 7:
+                    if item.questionID not in dynamicList:
+                        dynamicList.append(item.questionID)
+                else:
+                    if item.questionID not in staticList:
+                        staticList.append(item.questionID)
+              
+    totalScore = 0
+    for static in staticList:
+        totalScore += firstAttemptStatic(static)
         
-    return questionIDandType    
+    for dynamic in dynamicList:
+        totalScore += dynamicQuestionMax(dynamic)
+            
+    return totalScore
+
 def dynamicQuestionMax(questionID):
     #find the max score for the dynamic problem, dynamics are 6 or 7
     from Students.models import StudentChallengeQuestions
@@ -833,7 +809,6 @@ def dynamicQuestionMax(questionID):
     #for each question find the max by finding the scores for each question
     for question in questions:
         scores.append(question.questionScore)
-      
     return max(scores)
     
     
@@ -841,7 +816,11 @@ def firstAttemptStatic(questionID):
     #find the first attempt for the questions, and sum the static problem scores
     from Students.models import StudentChallengeQuestions
     question = StudentChallengeQuestions.objects.filter(questionID=questionID).first()
-    return (question.questionScore, questionID)
+    
+    if question == None:
+        return 0
+    else:
+        return question.questionScore
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
