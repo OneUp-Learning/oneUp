@@ -65,7 +65,7 @@ def getRollByDate(request, context_dict):
             else:
                 isPresent.append('false')
         
-    context_dict["class"] = zip(student_ID, student_Avatars, student_Names, isPresent)
+    context_dict["class"] = sorted(zip(student_ID, student_Avatars, student_Names, isPresent),key=lambda student: student[2])
     return context_dict
     
 #create the attendance record if they dont have a record    

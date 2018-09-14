@@ -28,6 +28,7 @@ from Badges.views.addBadgeManuallyView import addBadgeManuallyView
 from Badges.views.timeBasedBadgeView import timeBasedBadgeView
 from Badges.views.timeBasedVirtualCurrencyView import timeBasedVirtualCurrencyView
 from Badges.views.periodicBadgeView import PeriodicBadgeView
+from Badges.views.periodicVirtualCurrencyEarnRuleList import periodicVirtualCurrencyEarnRuleList
 admin.autodiscover()
 
 urlpatterns = [    
@@ -50,5 +51,6 @@ urlpatterns = [
     url(r'^AddBadgeManually',addBadgeManuallyView, name="Add Badge Manually"),
     url(r'^TimeBasedBadge',timeBasedBadgeView, name="Periodic Badges"),
     url(r'^TimeBasedVirtualCurrency',timeBasedVirtualCurrencyView, name="Periodic Virtual Currency"),
-    url(r'^PeriodicBadges',PeriodicBadgeView, name="Periodic Badges")
+    url(r'^PeriodicBadges',PeriodicBadgeView, name="Periodic Badges"),
+    url(r'^PeriodicVirtualCurrencyEarnRuleList',periodicVirtualCurrencyEarnRuleList, name="Periodic Virtual Currency Earn Rule List")
 ]

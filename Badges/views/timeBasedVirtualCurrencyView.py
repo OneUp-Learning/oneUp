@@ -5,39 +5,36 @@ Last modified 09/02/2016
 '''
 from django.shortcuts import render
 
-import glob, os
 
 from django.contrib.auth.decorators import login_required
-from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.views.utils import initialContextDict
-from Badges.models import Badges, BadgesInfo, VirtualCurrencyPeriodicRule
-from django.views.decorators.http import condition
+from Badges.models import VirtualCurrencyPeriodicRule
 from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_variable, delete_periodic_task
 from django.shortcuts import redirect
+from Students.models import StudentRegisteredCourses
+import random
 
 @login_required
 def timeBasedVirtualCurrencyView(request):
  
     context_dict,current_course = initialContextDict(request);
-    
-    
-    conditions = []
         
     if 'vcRuleID' in request.GET:    
     # Getting the currency information which has been selected
         if request.GET['vcRuleID']:
             vcId = request.GET['vcRuleID']
             periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId)
-                
             # The range part is the index numbers.  
+            context_dict = createTimePeriodContext(context_dict) 
             context_dict['vc'] = periodicVC
-    
-            
-    if 'vcRuleName' in request.POST:
+        return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
+        
+    if request.POST:
         if 'delete' in request.POST:
-            delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=request.POST['numberOfAwards'], badge_id=request.GET['vcRuleID'])
+            vc = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=request.POST['vcRuleID'])
+            delete_periodic_task(vc.periodicVariableID, current_course, vc.timePeriodID, number_of_top_students= vc.numberOfAwards, badge_id=vc.vcRuleID)
             VirtualCurrencyPeriodicRule.objects.get(vcRuleID=request.POST['vcRuleID']).delete()
-            return redirect('TimeBasedVirtualCurrency.html')
+            return redirect('PeriodicVirtualCurrencyEarnRuleList.html')
     
         if 'edit' in request.POST:
             # Edit badge
@@ -60,14 +57,26 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC.isPeriodic = True
                 periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
                 periodicVC.timePeriodID = request.POST['timePeriodSelected']
-                periodicVC.numberOfAwards = request.POST['numberOfAwards']
+                selection = request.POST['selection']
+                
+                if selection == "TopN":
+                    periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
+                if selection == "All":
+                    count = StudentRegisteredCourses.objects.filter(courseID=current_course).count()
+                    periodicVC.numberOfAwards = count
+                    request.POST['numberOfAwards'] = count
+                if selection == "Random":
+                    periodicVC.numberOfAwards = random.randint(1,request.POST['numberOfAwards'])
+                    request.POST['numberOfAwards'] = periodicVC.numberOfAwards
+                    
+                
                 periodicVC.save()
                 
                 setup_periodic_variable(int(periodicVC.vcRuleID), int(request.POST['periodicVariableSelected']), current_course, int(request.POST['timePeriodSelected']), number_of_top_students=int(request.POST['numberOfAwards']), badge_id=periodicVC.vcRuleID)                 
-                
+            return render(request,'Badges/PeriodicVirtualCurrencyEarnRuleList.html', context_dict)
     context_dict = createTimePeriodContext(context_dict) 
     
-    return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
+    return render(request,'Badges/PeriodicVirtualCurrencyEarnRuleList.html', context_dict)
 
 def createTimePeriodContext(context_dict):
 
