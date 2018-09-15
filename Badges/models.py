@@ -177,6 +177,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     isPeriodic = models.BooleanField(default=False) # this is info for a periodic virtual currency
+    vcRulePostion = models.IntegerField(default=0) # The postion a vcRule should be displayed to everyone 
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo#"+str(self.vcRuleID)+":"+str(self.vcRuleName)+":"+str(self.vcRuleAmount)
 
