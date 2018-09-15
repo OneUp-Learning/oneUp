@@ -143,6 +143,7 @@ class BadgesInfo(models.Model):
     badgeDescription = models.CharField(max_length=10000)
     badgeImage = models.CharField(max_length=300)
     manual = models.BooleanField(default=False) #TODO: Reconstruct badges types (automatic, manual, perioidic)
+    badgePostion = models.IntegerField(default=0) # The postion a badge should be displayed to everyone 
     isPeriodic = models.BooleanField(default=False) # Is this badge info for a periodic badge
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)

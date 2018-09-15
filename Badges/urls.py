@@ -27,6 +27,7 @@ from Badges.views.conditionTestView import conditionTestView
 from Badges.views.addBadgeManuallyView import addBadgeManuallyView
 from Badges.views.timeBasedBadgeView import timeBasedBadgeView
 from Badges.views.timeBasedVirtualCurrencyView import timeBasedVirtualCurrencyView
+from Badges.views.badgesView import reorderBadges
 admin.autodiscover()
 
 urlpatterns = [    
@@ -36,6 +37,7 @@ urlpatterns = [
     url(r'^CourseBadges', BadgesDisplay, name='BadgeDisplay'),
     url(r'^EditDeleteBadge',EditDeleteBadge, name='EditDeleteBadge'),
     url(r'^EditVirtualCurrencyRule',EditVirtualCurrencyRule, name='Edit Virtual Currency Rule'),
+    url(r'^reorderBadges', reorderBadges, name='reorderBadges'),
     url(r'^SelectVirtualCurrencySpendRule',SelectVirtualCurrencySpendRule, name='Edit Virtual Currency Spend Rule'),
     url(r'^SaveBadge',SaveBadge, name='SaveBadge'),
     url(r'^SaveVirtualCurrencyRule',SaveVirtualCurrencyRule, name='Save Virtual Currency Rule'),
