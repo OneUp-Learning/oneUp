@@ -121,8 +121,9 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
     for question in questionIds:
         studentQuestion = StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallenge,questionID=question)
         
-        if studentQuestion[0].questionTotal == studentQuestion[0].questionScore:
-            correctlyAnsweredQuestions +=1
+        if studentQuestion:
+            if studentQuestion[0].questionTotal == studentQuestion[0].questionScore:
+                correctlyAnsweredQuestions +=1
     
     if correctlyAnsweredQuestions != 0 and totalQuestions != 0:
         return round((float(correctlyAnsweredQuestions)/float(totalQuestions))*100)
@@ -214,7 +215,7 @@ def getMinTestScore(course,student,challenge):
 def getDateOfFirstAttempt(course,student,challenge):
     from Students.models import StudentEventLog
     #return the oldest date from the event log with matching object ID (looking at only the endChallenge event trigger 802)
-    attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
+    attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge.challengeID,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
     if len(attemptObjectsByDate) > 0:
         return attemptObjectsByDate[0].timestamp
     else:
@@ -424,16 +425,22 @@ def getNumDaysSubmissionLateActivity(course, student , activity):
     from Students.models import StudentActivities
     
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
-    return (-1 * getDaysDifferenceActity(activity,studentActivity[0]))
+    if not studentActivity:
+        return "Activity not submitted yet"
+    else: 
+        print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
+        return (-1 * getDaysDifferenceActity(activity,studentActivity[0]))
     
 def getNumDaysSubmissionEarlyActivity(course, student , activity):
     '''Return the number of days an activity submitted before due date'''
     from Students.models import StudentActivities
     
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
-    return getDaysDifferenceActity(activity,studentActivity[0])
+    if(not studentActivity):
+        return "Activity not submitted yet"
+    else:
+        print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
+        return getDaysDifferenceActity(activity,studentActivity[0])
 
 # utility function return difference in days between the submission and due date
 def getDaysDifferenceActity(activity, studentActivity):
@@ -655,18 +662,20 @@ def getConsecutiveScoresDifference(course, student, challenge):
     difference = 0
     logger.debug(challenge)
     # Get the last challenge the student has taken whether it's a warmpup or serious challenge
-    studentLastChallengeEvent = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, event = Event.endChallenge).exclude(objectID = challenge.challengeID).latest('timestamp')
-    studentLastChallenge = StudentChallenges.objects.filter(courseID = course, studentID=student, challengeID = studentLastChallengeEvent.objectID)
-    if studentLastChallenge.exists():
-        # Get both challenges highest test score
-        latestScore = challengeScore(course,student, studentLastChallengeEvent.objectID)
-        previousScore = challengeScore(course, student, challenge.challengeID)
-        logger.debug(latestScore)
-        logger.debug(previousScore)
-        
-        difference = abs(previousScore - latestScore)
-        logger.debug("Difference between last challenge score: " + str(difference))
-        return difference
+    studentLastChallengeEvent = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, event = Event.endChallenge).exclude(objectID = challenge.challengeID).order_by('-timestamp')
+    if studentLastChallengeEvent:
+        studentLastChallengeEvent = studentLastChallengeEvent[0]
+        studentLastChallenge = StudentChallenges.objects.filter(courseID = course, studentID=student, challengeID = studentLastChallengeEvent.objectID)
+        if studentLastChallenge.exists():
+            # Get both challenges highest test score
+            latestScore = challengeScore(course,student, studentLastChallengeEvent.objectID)
+            previousScore = challengeScore(course, student, challenge.challengeID)
+            logger.debug(latestScore)
+            logger.debug(previousScore)
+            
+            difference = abs(previousScore - latestScore)
+            logger.debug("Difference between last challenge score: " + str(difference))
+            return difference
             
     return difference
             
