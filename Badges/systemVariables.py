@@ -425,12 +425,11 @@ def getNumDaysSubmissionLateActivity(course, student , activity):
     from Students.models import StudentActivities
     
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-
     if not studentActivity:
         return "Activity not submitted yet"
     else: 
         print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
-        return getDaysDifferenceActity(activity,studentActivity[0])
+        return (-1 * getDaysDifferenceActity(activity,studentActivity[0]))
     
 def getNumDaysSubmissionEarlyActivity(course, student , activity):
     '''Return the number of days an activity submitted before due date'''
