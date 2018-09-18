@@ -11,9 +11,23 @@
                   <h3>{% if isRuleCustom == True %}Manual {% else %} Automatic {% endif %} Virtual Currency Earn Rules</h3>
                </div>
             </div>
+
+            <form name="reorderBadges" action="/oneUp/badges/reorderVirtualCurrencyEarnRules" method="POST">
+
+                  {% if isRuleCustom == True %}
+                        <input type="hidden" name="isRuleCustom" value="true">
+                  {% else %}
+                        <input type="hidden" name="isRuleCustom" value="false">
+                  {% endif %}
+
+                  {% csrf_token %}
+
             <div class="row right-align">
                <div class="col s12 m10 offset-m1">
                   <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><i class="material-icons left">add_circle</i> {% if isRuleCustom == True %}Add New Manual Earning Rule{% else %}Add New Automatic Earning Rule{% endif %}</a>
+                  <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Rules
+                              <i class="material-icons right">reorder</i>
+                  </button>
                 </div>
               </div>
               <div class="row">
@@ -24,13 +38,19 @@
                      <thead>
                         <th>Name</th>
                         <th>Course Bucks</th>
+                        <th>Rule Position ({{numRules}})</th>
                         <th></th>
                      </thead>
                      <tbody>
-                     {% for i,vcRuleID,vcRuleName,vcAmount in vcRuleInfo %}
+                     {% for i,vcRuleID,vcRuleName,vcAmount, postion in vcRuleInfo %}
                      <tr>
                         <td>{{vcRuleName}}</td>
                         <td>{{vcAmount}}</td>
+                        <td>
+                              <div class="input-field col s6">
+                                    <input placeholder="Position" value="{{postion}}" name="{{vcRuleID}}" id="rulePostion" maxlength="4" type="number" class="validate" min="0" required>
+                              </div>
+                        </td>
                         <td>
                            <form action="/oneUp/badges/SaveVirtualCurrencyRule" method="POST">
                               {% csrf_token %} 
@@ -68,6 +88,7 @@
                </div>
                </div>   
                </div>
+               </form>
       </main>
       {% include 'footer.html' %}
    </body>
