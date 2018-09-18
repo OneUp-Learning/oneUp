@@ -271,6 +271,7 @@ def ChallengeResults(request):
                             #tokenizer characters ☃ and ¬
                             answer = re.sub("\n", "\n¬☃", answer)
                             answer = re.sub("^[ ]+?", "☃", answer)
+                            answer = re.sub("^.*#distractor", "", answer)
                             
                             #we turn the student solution into a list
                             answer = [x.strip() for x in answer.split('¬')]
