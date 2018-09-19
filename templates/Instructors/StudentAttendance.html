@@ -26,22 +26,19 @@
      	    });
      	});
          
-         $(function(){
-      	    $("#save").click(function () {
+         function submitButton(){
       	    	validateCheckBox();
-      	    	$("#rollForm").submit();
-      	    });
-      	  
-      	});
+      	    	document.getElementById('rollForm').submit();
+      	    }
          
          function validateCheckBox(){
              var checkBoxes = document.getElementsByName('checkbox');
                  for (var i = 0; i < checkBoxes.length; i++) {
                 	 var id = checkBoxes[i].id;
                      if ( checkBoxes[i].checked ==  true) {
-                    	 document.getElementById(id+"_hidden").prop("value", true);
+                    	 document.getElementById(id+"_hidden").value = true;
                      }else{
-                    	 document.getElementById(id+"_hidden").prop("value", false);
+                    	 document.getElementById(id+"_hidden").value = false;
                      }
                  }
                  console.log("ran");
@@ -71,7 +68,7 @@
                   <div class="col s8">
                      <a type="button" class="waves-effect waves-light btn" id="markPresent">Mark All Present</a>  
                      <a class="waves-effect waves-light btn" id="unmarkPresent">Unmark All Present</a>
-                     <a class="waves-effect waves-light btn" id="save">Save</a>                                                             
+                     <button id="save" onclick="submitButton()" class="waves-effect waves-light btn">Save</button>                                                          
                   </div>
                </div>
                
