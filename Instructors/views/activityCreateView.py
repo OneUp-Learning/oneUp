@@ -36,7 +36,10 @@ def activityCreateView(request):
         activity.courseID = currentCourse
         
         if request.POST['actCat']:           
-            activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
+            if ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse):
+                activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
+            else:
+                activity.categrory = ActivitiesCategory.objects.filter(name="Uncategorized", courseID=currentCourse).first()
         
         if 'isGraded' in request.POST:
             activity.isGraded = True
