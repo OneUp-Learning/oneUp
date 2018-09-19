@@ -53,7 +53,7 @@ def ActivityDetail(request):
             studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True)
        
             #we are allowed to upload files 
-            if(studentActivities.activityID.isFileAllowed == True and timeCheck):                                 
+            if(studentActivities.activityID.isFileAllowed == True and isDisplayTimePassed(studentActivities.activityID.endTimestamp)):                                 
                 if(studentActivities.graded):
                     context_dict['canUpload'] = False                         
                 else:    
@@ -174,6 +174,15 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
             
         return fileNames
 
+def isDisplayTimePassed(endTimeStamp):
+    utcNow = utcDate(datetime.now().strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    print(utcNow)
+    print(endTimeStamp)
+    if endTimeStamp < utcNow:
+        return False
+    else:
+        return True
+    
 def checkTimes(endTimestamp, deadLine):
     print("End" + str(endTimestamp))
     print("dead" + str(deadLine))
