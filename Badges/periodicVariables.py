@@ -3,7 +3,7 @@ from Badges.tasks import app
 import json
 import random
 
-def setup_periodic_variable(unique_id, variable_index, course, time_period, number_of_top_students=None, threshold=None, operator_type=None, is_random=None, badge_id=None, virtual_currency_amount=None):
+def setup_periodic_variable(unique_id, variable_index, course, time_period, number_of_top_students=None, threshold=1, operator_type=None, is_random=None, badge_id=None, virtual_currency_amount=None):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     PeriodicTask.objects.get_or_create(
@@ -23,7 +23,7 @@ def setup_periodic_variable(unique_id, variable_index, course, time_period, numb
         task=periodic_variable['task_type'],
         crontab=TimePeriods.timePeriods[time_period]['schedule'],
     )
-def delete_periodic_task(unique_id, variable_index, course, time_period, number_of_top_students=None,threshold=None, operator_type=None, is_random=None, badge_id=None, virtual_currency_amount=None):
+def delete_periodic_task(unique_id, variable_index, course, time_period, number_of_top_students=None,threshold=1, operator_type=None, is_random=None, badge_id=None, virtual_currency_amount=None):
     ''' Deletes Periodic Task when rule or badge is deleted'''
     PeriodicTask.objects.filter(kwargs__contains=json.dumps({
             'variable_index': variable_index,
@@ -48,10 +48,10 @@ def get_course(course_id):
 def ranking_task(unique_id, variable_index, course_id, time_period, number_of_top_students, threshold, operator_type, is_random, badge_id=None, virtual_currency_amount=None): 
     ''' Celery task which runs based on the time period (weekly, daily, etc). This task either does one of the following
         with the results given by the periodic variable function:
-            1. Takes the top number of students specified by number_of_top_students variable
+            1. Takes the top number of students specified by number_of_top_students variable above a threshold
             2. Takes the students above a threshold based on students results
             3. Takes a student at random above a threshold based on students results
-            3. Takes a student a random
+            4. Take all the students above a threshold
         Then awards the student(s) with a badge or virtual currency.
 
         If badge_id is provided the student(s) will be given a badge.
@@ -59,6 +59,7 @@ def ranking_task(unique_id, variable_index, course_id, time_period, number_of_to
         Both can be provied to give both to student(s).
 
         Note: operator_type is string and is_random is a boolean. Everything else should be an integer
+        None: if number_of_top_students and is_random is null then all is assumed (see number 4)
     '''
     from Students.models import StudentRegisteredCourses
 
@@ -89,26 +90,24 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
     '''
 
     if students:
-        if number_of_top_students:
+        operatorType = {
+            '>=': lambda x, y : x >= y,
+            '>' : lambda x, y : x > y,
+            '=' : lambda x, y : x == y
+        }
+        # Filter students based on if their result passes the threshold
+        students = [(student, val) for student, val in students if operatorType[operator_type](val, threshold)]
+
+        if number_of_top_students and students:
             # Sort the students
             students.sort(key=lambda tup: tup[1])
             # Check if what we want is greater than the number of students
             if len(students) >= number_of_top_students:
                 # Only select the top number of students
                 students = students[:number_of_top_students]
-        elif threshold:
-            operatorType = {
-                '>=': lambda x, y : x >= y,
-                '>' : lambda x, y : x > y,
-                '=' : lambda x, y : x == y
-            }
-            # Filter students based on if their result passes the threshold
-            students = [(student, val) for student, val in students if operatorType[operator_type](val, threshold)]
-            if is_random and students:
-                # If random, choose one student and remove everyone else
-                students = random.sample(students, 1)
-        elif is_random:
+        elif is_random and students:
             # If random, choose one student and remove everyone else
+            random.shuffle(students)
             students = random.sample(students, 1)
     return students
 
@@ -223,6 +222,7 @@ def calculate_unique_warmups(unique_id, course, student, periodic_variable):
     print("Calculating Unique Warmups with a Score > 60%") 
     from Instructors.models import Challenges
     from Students.models import StudentChallenges
+    from decimal import Decimal
 
     # Get the last time this periodic variable has ran
     last_ran = PeriodicTask.objects.get(kwargs__contains='"unique_id": '+str(unique_id)+', "variable_index": '+str(periodic_variable['index'])+', "course_id": '+str(course.courseID), task=periodic_variable['task_type']).last_run_at
@@ -244,17 +244,17 @@ def calculate_unique_warmups(unique_id, course, student, periodic_variable):
 
         if studentChallenges.exists():
             print("Student Challenges: {}".format(studentChallenges))
-            # Get the total possible score for this challenge
-            total_score_possible = float(challenge.totalScore)
-            # Get the highest score out of the student attempts for this challenge
-            highest_score = max([float(warmup.testScore) for warmup in studentChallenges])
+            # Get the total possible score (Note: total score is Decimal type) for this challenge
+            total_score_possible = challenge.totalScore
+            # Get the highest score out of the student attempts for this challenge (Note: test score is Decimal type)
+            highest_score = max([warmup.testScore for warmup in studentChallenges])
             # If the total possible score is not set then skip this Warm-up challenge
             if total_score_possible <= 0:
                 continue
             # Calculate the percentage
             percentage = highest_score/total_score_possible
             # Say this challenge is counted for if the student score percentage is greater than 60%
-            if percentage > 60.0:
+            if percentage > Decimal(60.0):
                 unique_warmups += 1
 
     print("Course: {}".format(course))
@@ -269,13 +269,12 @@ class TimePeriods:
     ''' TimePeriods enum starting at 1500.'''
     daily = 1500 # Runs every day at midnight
     weekly = 1501 # Runs every Sunday at midnight
-    two_weeks = 1502 # Runs every two weeks on Sunday at midnight
     daily_test = 1599
     timePeriods = {
         daily_test:{
             'index': daily_test,
             'name': 'daily_test',
-            'displayName': 'Test',
+            'displayName': 'Every Minute (For Testing)',
             'schedule': CrontabSchedule.objects.get_or_create(
                         minute='*', hour='*', day_of_week='*', 
                         day_of_month='*', month_of_year='*')[0]
@@ -283,7 +282,7 @@ class TimePeriods:
         daily:{
             'index': daily,
             'name': 'daily',
-            'displayName': 'Daily',
+            'displayName': 'Daily at Midnight',
             'schedule': CrontabSchedule.objects.get_or_create(
                         minute='0', hour='0', day_of_week='*', 
                         day_of_month='*', month_of_year='*')[0]
@@ -291,13 +290,7 @@ class TimePeriods:
         weekly:{
             'index': weekly,
             'name': 'weekly',
-            'displayName': 'Weekly',
-            'schedule': CrontabSchedule.objects.get_or_create(minute="0", hour="0", day_of_week='0')[0]
-        },
-        two_weeks:{
-            'index': two_weeks,
-            'name': 'two_weeks',
-            'displayName': 'Two Weeks',
+            'displayName': 'Weekly on Sundays at Midnight',
             'schedule': CrontabSchedule.objects.get_or_create(minute="0", hour="0", day_of_week='0')[0]
         }
     }
