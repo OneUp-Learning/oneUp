@@ -418,7 +418,7 @@ def ChallengeResults(request):
                                         question['user_points'] = question['total_points']
                                         print("Correct answer full points", question['user_points'])
                                     else:
-                                        question['user_points'] = round(float(studentGrade),2)
+                                        question['user_points'] = round(Decimal(studentGrade),2)
                             print("Final User Grade: ", question['user_points'])
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']            
