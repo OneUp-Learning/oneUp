@@ -419,7 +419,7 @@ def getNumDaysSubmissionLateActivity(course, student , activity):
     
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
     print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
-    return (-1 * getDaysDifferenceActity(activity,studentActivity[0]))
+    return getDaysDifferenceActity(activity,studentActivity[0])
     
 def getNumDaysSubmissionEarlyActivity(course, student , activity):
     '''Return the number of days an activity submitted before due date'''
@@ -435,7 +435,19 @@ def getDaysDifferenceActity(activity, studentActivity):
     submission = studentActivity.timestamp
     print("Deadline ", deadline)
     print("submission", submission)
-    return deadline - submission
+    numDays = str(deadline - submission)
+    print(numDays)
+    if numDays[0]== "-":
+        i=0
+        for x in numDays:
+            if x==" ":
+                return int(numDays[1:i])
+            i+=1
+    i=0
+    for x in numDays:
+        if x==" ":
+            return int(numDays[0:i])
+        i+=1
     
 def getScoreDifferenceFromPreviousActivity(course, student, activity):
     '''Returns the the difference of score between this activity and the previous one.'''
@@ -995,7 +1007,7 @@ class SystemVariable():
             'description':'The number of days a submission is turned in later than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge,],
-                ObjectTypes.activity: [Event.instructorAction, Event.studentUpload],
+                ObjectTypes.activity: [Event.participationNoted,Event.instructorAction, Event.studentUpload],
             },
             'type':'int',
             'functions':{
