@@ -19,14 +19,15 @@ def timeBasedVirtualCurrencyView(request):
  
     context_dict,current_course = initialContextDict(request);
         
-    if 'vcRuleID' in request.GET:    
-    # Getting the currency information which has been selected
-        if request.GET['vcRuleID']:
-            vcId = request.GET['vcRuleID']
-            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId)
-            # The range part is the index numbers.  
-            context_dict = createTimePeriodContext(context_dict) 
-            context_dict['vc'] = periodicVC
+    if request.GET:    
+        # Getting the currency information which has been selected
+        if 'vcRuleID' in request.GET:    
+            if request.GET['vcRuleID']:
+                vcId = request.GET['vcRuleID']
+                periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId)
+                # The range part is the index numbers.  
+                context_dict = createTimePeriodContext(context_dict) 
+                context_dict['vc'] = periodicVC
         return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
         
     if request.POST:
@@ -76,7 +77,7 @@ def timeBasedVirtualCurrencyView(request):
             return render(request,'Badges/PeriodicVirtualCurrencyEarnRuleList.html', context_dict)
     context_dict = createTimePeriodContext(context_dict) 
     
-    return render(request,'Badges/PeriodicVirtualCurrencyEarnRuleList.html', context_dict)
+    return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
 
 def createTimePeriodContext(context_dict):
 

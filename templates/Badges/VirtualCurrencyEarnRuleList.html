@@ -11,6 +11,16 @@
                   <h3>{% if isRuleCustom == True %}Manual {% else %} Automatic {% endif %} Virtual Currency Earn Rules</h3>
                </div>
             </div>
+            
+             <div class="center-align col s12">
+            	<a class="waves-effect waves-light btn" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">
+                    <i class="material-icons left">add_circle</i>Automatic VC Earning Rules</a>
+                <a class="waves-effect waves-light btn" href="/oneUp/badges/PeriodicVirtualCurrencyEarnRuleList">
+                    <i class="material-icons left">add_circle</i>Time Period Earning Rules</a>
+                     <a class="waves-effect waves-light btn" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true">
+                    <i class="material-icons left">add_circle</i>Manual VC Earning Rules</a>
+            </div>
+            <br>
             <div class="row right-align">
                <div class="col s12 m10 offset-m1">
                   <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><i class="material-icons left">add_circle</i> {% if isRuleCustom == True %}Add New Manual Earning Rule{% else %}Add New Automatic Earning Rule{% endif %}</a>
