@@ -17,69 +17,73 @@
             </div>
          </div>
          <div class="row">
-         <div class="col s12 m8 offset-m2">
-            <form name= "editPeriodicVC" action="/oneUp/badges/TimeBasedVirtualCurrency" method="POST" onsubmit="return condOnSubmit();">
-               {% csrf_token %}
-               {% if edit %}
-               <input type="hidden" name="vcRuleID" id="badgeId" value="{{vc.vcRuleID}}">
-               {% endif %}
-               <div class="card">
-                  <div class="card-content">
-                     <div class="row">
-                        <div class="input-field col s12">
-                           <input placeholder="" value="{{vc.vcRuleName}}" name="vcRuleName" id="vcRuleName" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
-                           <label for="vcRuleName"><span class= "red-text">*</span> Name</label>
-                        </div>
-                     </div>
-                     <div class="row">
-                        <div class="input-field col s12">
-                           <textarea name="vcRuleDescription" id="vcRuleDescription" class="materialize-textarea validate" required>{{vc.vcRuleDescription}}</textarea>
-                           <label for="vcRuleDescription"><span class= "red-text">*</span> Description</label>
-                        </div>
-                        <div class="col s6">
-                        
-                           <label for="timePeriodSelected"><span>Select One</span></label>
-                              <select id="periodicVariableSelected" name="selection">
-                                 <option value="TopN" >Top N</option>
-                                 <option value="All" >All</option>
-                                 <option value="Random" >Random</option>
-                              </select>
-                              
-                        </div>
-                       
-                        <div class="col s6">
-                         <label for="numberOfAwards"><span>Number of Students:</span></label>
-                        <input type="number" id="numberOfAwards" name="numberOfAwards" value="{{vc.numberOfAwards}}"></input>
+            <div class="col s12 m8 offset-m2">
+               <form name= "editPeriodicVC" action="/oneUp/badges/TimeBasedVirtualCurrency" method="POST" onsubmit="return condOnSubmit();">
+                  {% csrf_token %}
+                  {% if edit %}
+                  <input type="hidden" name="vcRuleID" id="badgeId" value="{{vc.vcRuleID}}">
+                  {% endif %}
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="" value="{{vc.vcRuleName}}" name="vcRuleName" id="vcRuleName" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
+                              <label for="vcRuleName"><span class= "red-text">*</span> Name</label>
+                           </div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input type="number" id="vcRuleAmount" name="vcRuleAmount" class="materialize-textarea validate" value="{{vc.vcRuleAmount}}"required></input>
-                              <label for="vcRuleAmount"><span class= "red-text">*</span>Course Bucks Earned with This Rule</label>
+                              <textarea name="vcRuleDescription" id="vcRuleDescription" class="materialize-textarea validate" required>{{vc.vcRuleDescription}}</textarea>
+                              <label for="vcRuleDescription"><span class= "red-text">*</span> Description</label>
                            </div>
-                        </div>
-                        <div class="col s7">
-                           <label for="timePeriodSelected"><span>Time Period:</span></label>
-                           <select id="timePeriodSelected" name="timePeriodSelected">
-                              {% for timePeriod in timePeriods %}
-                              <option value="{{timePeriod.index}}">{{timePeriod.displayName}}</option>
-                              {% endfor %}
-                           </select>
+                           <div class="col s6">
+                           <label>Reason:</label>
+                              <p>
+                                 <input name="selectors" id="TopN" onclick="showStudentNum()" checked type="radio" />
+                                 <label for="TopN">TopN</label>
+                              </p>
+                              <p>
+                              	<input name="selectors" id="All" onclick="hideStudentNum()" type="radio" />
+                                 <label for="All">All</label>
+                              </p>
+                              <p>
+                              	<input name="selectors" id="Random" onclick="hideStudentNum()" type="radio" />
+                                 <label for="Random">Random</label>
+                              </p>
+                              </div>
+                              <br>
+                           <div id="studentNum" class="col s6">
+                              <label for="numberOfAwards"><span>Number of Students:</span></label>
+                              <input required type="number" id="numberOfAwards" name="numberOfAwards" value="{{vc.numberOfAwards}}"></input>
                            </div>
                            <div class="row">
-                           <div class="col s6">
-                              <label for="reason"><span>Condition:</span></label>
-                              <select id="periodicVariableSelected" name="periodicVariableSelected">
-                                 {% for periodicVariable in periodicVariables %}
-                                 <option value="{{periodicVariable.index}}">{{periodicVariable.displayName}}</option>
+                              <div class="input-field col s12">
+                                 <input type="number" id="vcRuleAmount" name="vcRuleAmount" class="materialize-textarea validate" value="{{vc.vcRuleAmount}}"required></input>
+                                 <label for="vcRuleAmount"><span class= "red-text">*</span>Course Bucks Earned with This Rule</label>
+                              </div>
+                           </div>
+                           <div class="col s7">
+                              <label for="timePeriodSelected"><span>Time Period:</span></label>
+                              <select id="timePeriodSelected" name="timePeriodSelected">
+                                 {% for timePeriod in timePeriods %}
+                                 <option value="{{timePeriod.index}}">{{timePeriod.displayName}}</option>
                                  {% endfor %}
                               </select>
                            </div>
-                           
-                            <div class="col s6">
-                           <label for="timePeriodSelected"><span> Treshold:</span></label>
-                           <input type="number" id="treshold" name="threshold"></input>
+                           <div class="row">
+                              <div class="col s6">
+                                 <label><span>Condition:</span></label>
+                                 <select id="periodicVariableSelected" name="periodicVariableSelected">
+                                    {% for periodicVariable in periodicVariables %}
+                                    <option value="{{periodicVariable.index}}">{{periodicVariable.displayName}}</option>
+                                    {% endfor %}
+                                 </select>
                               </div>
+                              <div class="col s6">
+                                 <label for="timePeriodSelected"><span> Treshold:</span></label>
+                                 <input type="number" id="treshold" name="threshold"></input>
                               </div>
+                           </div>
                         </div>
                      </div>
                      <div class="card-action right-align">
@@ -103,10 +107,25 @@
                         </div>
                      </div>
                   </div>
-            </form>
+               </form>
             </div>
          </div>
       </main>
       {% include 'footer.html' %}
    </body>
+   <script>
+  function showStudentNum() {
+		   	var x = document.getElementById("studentNum");
+		   	if (x.style.display === "none")
+		        x.style.display = "block";
+		   	else
+		   		x.style.display = "block";
+   }
+  
+  function hideStudentNum(){
+		var x = document.getElementById("studentNum");
+	   	x.style.display = "none";
+  }
+
+   </script>
 </html>
