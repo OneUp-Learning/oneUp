@@ -180,6 +180,7 @@ def ChallengeSetup(request):
                             print("joinedSolString", solution_string)
                             
                             solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
+                        
                             
                             
                             questdict['model_solution']=repr(solution_string).strip('\'')

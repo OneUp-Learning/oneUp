@@ -286,7 +286,7 @@ def ChallengeResults(request):
                             lengthOfModelSolution = len(answer)
                             for index, line in enumerate(answer):
                                 line = re.sub("☃", "", line)
-                                line = re.sub("", "", line)
+                                line = re.sub(".*#distractor", "", line)
                                 line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
                                 if index < len(answer)- 1:
                                     line = line +"\n"
@@ -322,16 +322,20 @@ def ChallengeResults(request):
                                 ##lines of code are broken into sections
                                 ##§ is how we know which lines are which
                                 #¬ is used join, to create a list
+                                print("StudentSolutonBeforeChanges", studentSolution)
                                 studentSolution = re.sub(r"&lt;", "<", studentSolution)
                                 studentSolution = re.sub(r"&gt;", ">", studentSolution)
                                 studentSolution = re.sub(r"&quot;", "\"", studentSolution)
-                                studentSolution = re.sub(r"&amp;nbsp;", "", studentSolution)
+                                studentSolution = re.sub(r"&quot;", "\"", studentSolution)
+                                studentSolution = re.sub(r"^&amp;nbsp;", "", studentSolution)
+                                studentSolution = re.sub(r",&amp;nbsp;", "ℊ", studentSolution)
                                 studentSolution = re.sub(r";,", ";§¬", studentSolution)
                                 studentSolution = re.sub(r";,", ";§¬", studentSolution)
                                 studentSolution = re.sub(r"},", "}§¬", studentSolution)
                                 studentSolution = re.sub(r"{,", "{§¬", studentSolution)
                                 studentSolution = re.sub(r"\),", ")§¬", studentSolution)
                                 studentSolution = re.sub(r"\(,", "(§¬", studentSolution)
+                                print("StudentSolAfter change", studentSolution)
                                 
                                 #we turn the student solution into a list
                                 studentSolution = [x.strip() for x in studentSolution.split('¬')]
@@ -351,14 +355,14 @@ def ChallengeResults(request):
                                 
                                 studentSolution = ""
                                 studentSolution = studentSolution.join(IndentedStudentSolution)
-                                print("Student Solution", studentSolution);
+                                print("stdentSol post join", studentSolution)
+                                
                                 
                                 #apply newlines so the code will be formattedproperly
                                 studentSolution = re.sub(r"§", "\n", studentSolution)
-                                studentSolution = re.sub(r"§", "\n", studentSolution)
-                                studentSolution = re.sub(r"§", "\n", studentSolution)
-                                studentSolution = re.sub(r"§", "\n", studentSolution) 
+                                studentSolution = re.sub(r"ℊ","\n", studentSolution)
                                 
+                                print("Student Solution", studentSolution);
                                 question['student_solution'] = studentSolution    
                                 
                                 ##if no errors happened give them full credit
@@ -419,7 +423,7 @@ def ChallengeResults(request):
                                         question['user_points'] = question['total_points']
                                         print("Correct answer full points", question['user_points'])
                                     else:
-                                        question['user_points'] = round(Decimal(studentGrade),2)
+                                        question['user_points'] = round(float(studentGrade),2)
                             print("Final User Grade: ", question['user_points'])
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']            
