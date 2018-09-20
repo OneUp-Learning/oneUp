@@ -155,6 +155,7 @@ def ChallengeSetup(request):
                             #tokenizer characters ☃ and ¬
                             solution_string = re.sub("\n", "\n¬☃", solution_string)
                             solution_string = re.sub("^[ ]+?", "☃", solution_string)
+                            print("Solution StringF", solution_string)
                             
                             #we turn the student solution into a list
                             solution_string = [x.strip() for x in solution_string.split('¬')]
@@ -169,12 +170,14 @@ def ChallengeSetup(request):
                             tabedSolution_string = []
                             for index, line in enumerate(solution_string):
                                 line = re.sub("☃", "", line)
-                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
+                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", '&nbsp;', line)
                                 line = line +"\n"
                                 tabedSolution_string.append(line)
                             
                             solution_string = ""
                             solution_string = solution_string.join(tabedSolution_string)
+                            print("tabbedSol String", tabedSolution_string)
+                            print("joinedSolString", solution_string)
                             
                             solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
                             

@@ -286,7 +286,7 @@ def ChallengeResults(request):
                             lengthOfModelSolution = len(answer)
                             for index, line in enumerate(answer):
                                 line = re.sub("☃", "", line)
-                                line = re.sub(".*#distractor", "", line)
+                                line = re.sub("", "", line)
                                 line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
                                 if index < len(answer)- 1:
                                     line = line +"\n"
@@ -325,6 +325,7 @@ def ChallengeResults(request):
                                 studentSolution = re.sub(r"&lt;", "<", studentSolution)
                                 studentSolution = re.sub(r"&gt;", ">", studentSolution)
                                 studentSolution = re.sub(r"&quot;", "\"", studentSolution)
+                                studentSolution = re.sub(r"&amp;nbsp;", "", studentSolution)
                                 studentSolution = re.sub(r";,", ";§¬", studentSolution)
                                 studentSolution = re.sub(r";,", ";§¬", studentSolution)
                                 studentSolution = re.sub(r"},", "}§¬", studentSolution)
