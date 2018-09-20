@@ -77,7 +77,7 @@
                      </div>
                   </div>
                   <div class="modal-footer">
-                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
                      <a href="#!" class="modal-action modal-close waves-effect waves-light btn" id="create">Create Problem</a>
                   </div>
                   
@@ -151,8 +151,8 @@
                                           <h5>Are you sure you want to delete?</h5>
                                        </div>
                                        <div class="modal-footer">
-                                          <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
-                                          <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" {% if challenge %}onclick="deleteQuestion({{q_ID}},{{challengeID}})" {%else%}onclick="deleteQuestion({{q_ID}}, 0)" {%endif%}value="Delete">Delete
+                                          <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                          <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" {% if challenge %}onclick="deleteQuestion({{q_ID}},{{challengeID}})" {%else%}onclick="deleteQuestion({{q_ID}}, 0)" {%endif%}value="Delete">Delete
                                           </button>                                        
                                        </div>
                                     </div>

@@ -38,8 +38,8 @@
                      <thead>
                         <th>Name</th>
                         <th>Course Bucks</th>
-                        <th>Rule Position ({{numRules}})</th>
-                        <th></th>
+                        <th>Rule Position</th>
+                        <th><span class="badge">{{numRules}}</span></th>
                      </thead>
                      <tbody>
                      {% for i,vcRuleID,vcRuleName,vcAmount, postion in vcRuleInfo %}
@@ -69,7 +69,7 @@
                                        <h5>Are you sure you want to delete?</h5>
                                     </div>
                                     <div class="modal-footer">
-                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
                                        <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
                                        </button>                                        
                                     </div>

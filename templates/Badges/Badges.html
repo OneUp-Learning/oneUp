@@ -40,8 +40,8 @@
                                     <th>Badge Image</th>
                                     <th>Badge Name</th>
                                     <th>Badge Description</th>
-                                    <th>Badge Position ({{numBadges}}) </th>
-                                    <th>  </th>
+                                    <th>Badge Position</th>
+                                    <th><span class="badge">{{numBadges}}</span></th>
                                 </thead>
                                 <tbody>
                                     {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePostion in badgesInfo %}
@@ -58,7 +58,9 @@
                                         </td>
                                         <td class="right-align">
                                             <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}">
-                                                <i class="material-icons left">edit</i>Modify</a>
+                                                <div class="hide-on-med-and-down" style="display:inline;">
+                                                <i class="material-icons left">edit</i>
+                                                </div>Modify</a>
                                         </td>
                                     </tr>
                                     {% empty %}
@@ -97,8 +99,8 @@
                                     <th>Badge Image</th>
                                     <th>Badge Name</th>
                                     <th>Badge Description</th>
-                                    <th>Badge Position ({{numBadgesMan}}) </th>
-                                    <th></th>
+                                    <th>Badge Position</th>
+                                    <th><span class="badge">{{numBadgesMan}}</span></th>
                                 </thead>
                                 <tbody>
                                     {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePostion in manualBadgesInfo %}
@@ -115,7 +117,9 @@
                                         </td>
                                         <td class="right-align">
                                             <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?manualBadgeID={{badgeId}}">
-                                                <i class="material-icons left">edit</i>Modify</a>
+                                                <div class="hide-on-med-and-down" style="display:inline;">
+                                                <i class="material-icons left">edit</i>
+                                                </div>Modify</a>
                                         </td>
                                     </tr>
                                     {% empty %}
