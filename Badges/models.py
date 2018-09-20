@@ -143,6 +143,7 @@ class BadgesInfo(models.Model):
     badgeDescription = models.CharField(max_length=10000)
     badgeImage = models.CharField(max_length=300)
     manual = models.BooleanField(default=False) #TODO: Reconstruct badges types (automatic, manual, perioidic)
+    badgePostion = models.IntegerField(default=0) # The postion a badge should be displayed to everyone 
     isPeriodic = models.BooleanField(default=False) # Is this badge info for a periodic badge
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
@@ -160,9 +161,12 @@ class Badges(BadgesInfo):
 
 # Table for Periodic Badges
 class PeriodicBadges(BadgesInfo):
-    periodicVariableID = models.IntegerField() # The Periodic Variable index set for this badge
+    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
     timePeriodID = models.IntegerField() # The Time Period index set for this badge
     numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
+    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
+    isRandom = models.BooleanField(default=False) # Is this being awarded to random student(s)
     def __str__(self):
         return "Badge #{} : {}".format(self.badgeID, self.badgeName)
 
@@ -176,6 +180,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     isPeriodic = models.BooleanField(default=False) # this is info for a periodic virtual currency
+    vcRulePostion = models.IntegerField(default=0) # The postion a vcRule should be displayed to everyone 
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo#"+str(self.vcRuleID)+":"+str(self.vcRuleName)+":"+str(self.vcRuleAmount)
 
@@ -187,9 +192,12 @@ class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
 
 # Table for Periodic Virtual Currency Rules
 class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
-    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
-    timePeriodID = models.IntegerField() # The Time Period index set for this badge
-    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
+    periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this rule
+    timePeriodID = models.IntegerField() # The Time Period index set for this rule
+    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this rule to
+    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
+    isRandom = models.BooleanField(default=False) # Is this being awarded to random student(s)
     def __str__(self):
         return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
 

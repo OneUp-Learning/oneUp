@@ -58,15 +58,15 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC.isPeriodic = True
                 periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
                 periodicVC.timePeriodID = request.POST['timePeriodSelected']
-                selection = request.POST['selection']
+                selectors = request.POST['selectors']
                 
-                if selection == "TopN":
+                if selectors == "TopN":
                     periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
-                if selection == "All":
+                if selectors == "All":
                     count = StudentRegisteredCourses.objects.filter(courseID=current_course).count()
                     periodicVC.numberOfAwards = count
                     request.POST['numberOfAwards'] = count
-                if selection == "Random":
+                if selectors == "Random":
                     periodicVC.numberOfAwards = random.randint(1,request.POST['numberOfAwards'])
                     request.POST['numberOfAwards'] = periodicVC.numberOfAwards
                     
