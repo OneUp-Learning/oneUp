@@ -3,7 +3,7 @@ from Badges.tasks import app
 import json
 import random
 
-def setup_periodic_variable(unique_id, variable_index, course, time_period, number_of_top_students=None, threshold=1, operator_type=None, is_random=None, badge_id=None, virtual_currency_amount=None):
+def setup_periodic_variable(unique_id, variable_index, course, time_period, number_of_top_students=None, threshold=1, operator_type='>', is_random=None, badge_id=None, virtual_currency_amount=None):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     PeriodicTask.objects.get_or_create(
@@ -20,10 +20,10 @@ def setup_periodic_variable(unique_id, variable_index, course, time_period, numb
             'badge_id': badge_id,
             'virtual_currency_amount': virtual_currency_amount
         }),
-        task=periodic_variable['task_type'],
+        task='Badges.periodicVariables.periodic_task',
         crontab=TimePeriods.timePeriods[time_period]['schedule'],
     )
-def delete_periodic_task(unique_id, variable_index, course, time_period, number_of_top_students=None,threshold=1, operator_type=None, is_random=None, badge_id=None, virtual_currency_amount=None):
+def delete_periodic_task(unique_id, variable_index, course, time_period, number_of_top_students=None,threshold=1, operator_type='>', is_random=None, badge_id=None, virtual_currency_amount=None):
     ''' Deletes Periodic Task when rule or badge is deleted'''
     PeriodicTask.objects.filter(kwargs__contains=json.dumps({
             'variable_index': variable_index,
@@ -45,7 +45,7 @@ def get_course(course_id):
 
 
 @app.task(ignore_result=True)
-def ranking_task(unique_id, variable_index, course_id, time_period, number_of_top_students, threshold, operator_type, is_random, badge_id=None, virtual_currency_amount=None): 
+def periodic_task(unique_id, variable_index, course_id, time_period, number_of_top_students, threshold, operator_type, is_random, badge_id=None, virtual_currency_amount=None): 
     ''' Celery task which runs based on the time period (weekly, daily, etc). This task either does one of the following
         with the results given by the periodic variable function:
             1. Takes the top number of students specified by number_of_top_students variable above a threshold
@@ -149,6 +149,13 @@ def award_students(students, badge_id=None, virtual_currency_amount=None):
                 # Notify student of VC award 
                 notify.send(None, recipient=student.user, actor=student.user, verb='You won '+str(virtual_currency_amount)+' virtual bucks', nf_type='Increase VirtualCurrency')
 
+def get_last_ran(unique_id, variable_index, course_id):
+    ''' Retrieves the last time a periodic task has ran. 
+        Returns None if it is has not ran yet.
+    '''
+    last_ran = PeriodicTask.objects.get(kwargs__contains='"unique_id": '+str(unique_id)+', "variable_index": '+str(variable_index)+', "course_id": '+str(course_id)).last_run_at
+    return last_ran
+
 def calculate_student_earnings(unique_id, course, student, periodic_variable):
     ''' This calculates the student earnings of virtual currency since the last period.
         Earnings are defined by only what virtual currency they gained and not spent.'''
@@ -156,7 +163,7 @@ def calculate_student_earnings(unique_id, course, student, periodic_variable):
     print("Calculating Highest Earner") 
     from Students.models import StudentVirtualCurrency
     # Get the last time this periodic variable has ran
-    last_ran = PeriodicTask.objects.get(kwargs__contains='"unique_id": '+str(unique_id)+', "variable_index": '+str(periodic_variable['index'])+', "course_id": '+str(course.courseID), task=periodic_variable['task_type']).last_run_at
+    last_ran = get_last_ran(unique_id, periodic_variable['index'], course.courseID)
     # Get the earnings for this student
     #last_ran = PeriodicTask.objects.get(kwargs__contains='"unique_id": 1, "variable_index": 1400, "course_id": 2',task='Badges.periodicVariables.ranking_task').last_run_at
     earnings = StudentVirtualCurrency.objects.filter(studentID = student, vcRuleID__courseID = course)
@@ -187,7 +194,7 @@ def calculate_student_warmup_practice(unique_id, course, student, periodic_varia
     from Students.models import StudentChallenges
 
     # Get the last time this periodic variable has ran
-    last_ran = PeriodicTask.objects.get(kwargs__contains='"unique_id": '+str(unique_id)+', "variable_index": '+str(periodic_variable['index'])+', "course_id": '+str(course.courseID), task=periodic_variable['task_type']).last_run_at
+    last_ran = get_last_ran(unique_id, periodic_variable['index'], course.courseID)    
     # Check aganist only Warm-up challenges
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     # The amount of times the student has practice Warm-up challenges
@@ -225,7 +232,7 @@ def calculate_unique_warmups(unique_id, course, student, periodic_variable):
     from decimal import Decimal
 
     # Get the last time this periodic variable has ran
-    last_ran = PeriodicTask.objects.get(kwargs__contains='"unique_id": '+str(unique_id)+', "variable_index": '+str(periodic_variable['index'])+', "course_id": '+str(course.courseID), task=periodic_variable['task_type']).last_run_at
+    last_ran = get_last_ran(unique_id, periodic_variable['index'], course.courseID)    
     # Check aganist only Warm-up challenges
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     # The amount of unique Warm-up challenges with a score greater than 60%
@@ -308,7 +315,7 @@ class PeriodicVariables:
             'displayName': 'Highest Earner',
             'description': 'Calculates the Highest Earner(s) of students based on the virtual currency they have earned',
             'function': calculate_student_earnings,
-            'task_type': 'Badges.periodicVariables.ranking_task',
+            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         student_warmup_pratice: {
             'index': student_warmup_pratice,
@@ -316,7 +323,7 @@ class PeriodicVariables:
             'displayName': 'Student Practice Warm-up Challenges',
             'description': 'Retrieves the amount of times students has practice different Warm-up challenges',
             'function': calculate_student_warmup_practice,
-            'task_type': 'Badges.periodicVariables.ranking_task',
+            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         unique_warmups: {
             'index': unique_warmups,
@@ -324,7 +331,7 @@ class PeriodicVariables:
             'displayName': 'Student Unique Warm-up Challenges Completed with a Score > 60%',
             'description': 'Retrieves the amount of unique Warm-up Challenges completed by students with a score greater than 60%',
             'function': calculate_unique_warmups,
-            'task_type': 'Badges.periodicVariables.ranking_task',
+            'task_type': 'Badges.periodicVariables.periodic_task',
         }
     }
 
