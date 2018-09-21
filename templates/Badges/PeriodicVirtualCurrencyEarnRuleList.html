@@ -25,7 +25,6 @@
                         <th>Name</th>
                         <th>Course Bucks</th>
                         <th>Description</th>
-                        <th></th>
                      </thead>
                      <tbody>
                      {% for i,vcRuleID,vcRuleName,vcAmount,vcDescription in vcRuleInfo %}
@@ -39,7 +38,7 @@
                               <input type="hidden" name="vcRuleID" value="{{vcRuleID}}">
                               <input type="hidden" name="edit">
                               <input type="hidden" name="delete" value="delete">
-                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="left" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <a id= "dropdownA{{i}}" class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="false" data-activates='dropdown{{i}}' data-position="left" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                               <ul id='dropdown{{i}}' class='dropdown-content'>
                                     <li><a href="/oneUp/badges/TimeBasedVirtualCurrency?vcRuleID={{vcRuleID}}">Edit</a></li>
                                     <li class="divider"></li>                         
@@ -69,6 +68,9 @@
                </div>
                </div>   
                </div>
+               <script>
+               $('.dropdown-button').dropdown();
+               </script>
       </main>
       {% include 'footer.html' %}
    </body>
