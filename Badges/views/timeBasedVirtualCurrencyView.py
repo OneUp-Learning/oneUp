@@ -57,6 +57,7 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
                 periodicVC.timePeriodID = request.POST['timePeriodSelected']
                 periodicVC.threshold = request.POST['threshold']
+                periodicVC.operatorType = request.POST['operator']
                 selectors = request.POST['selectors']
                 
                 if selectors == "TopN":
@@ -90,6 +91,7 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
                 periodicVC.timePeriodID = request.POST['timePeriodSelected']
                 periodicVC.threshold = request.POST['threshold']
+                periodicVC.operatorType = request.POST['operator']
                 selectors = request.POST['selectors']
                 
                 if selectors == "TopN":

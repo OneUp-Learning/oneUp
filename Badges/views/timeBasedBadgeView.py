@@ -117,7 +117,7 @@ def timeBasedBadgeView(request):
         periodicVariableSelected = int(request.POST['periodicVariableSelected'])
         
         setup_periodic_variable(studentPeriodicBadge.badgeID, periodicVariableSelected, current_course, timePeriodSelected, number_of_top_students=ranking, badge_id=studentPeriodicBadge.badgeID)
-        return redirect('Badges.html')
+        return redirect('PeriodicBadges.html')
         
         
 
