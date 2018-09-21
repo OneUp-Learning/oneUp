@@ -21,13 +21,14 @@ def timeBasedVirtualCurrencyView(request):
         
     if request.GET:    
         # Getting the currency information which has been selected
-        if 'vcRuleID' in request.GET:    
+        if 'vcRuleID' in request.GET:  
             if request.GET['vcRuleID']:
                 vcId = request.GET['vcRuleID']
                 periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId)
                 # The range part is the index numbers.  
                 context_dict = createTimePeriodContext(context_dict) 
                 context_dict['vc'] = periodicVC
+                context_dict['edit'] = True
         return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
         
     if request.POST:
@@ -39,8 +40,38 @@ def timeBasedVirtualCurrencyView(request):
     
         if 'edit' in request.POST:
             # Edit badge
-            delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=request.POST['ranking'], badge_id=request.POST['badgeId'])
+            delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=int(request.POST['numberOfAwards']), badge_id=request.POST['vcRuleID'])
             periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=request.POST['vcRuleID'])
+            
+            if request.POST['vcRuleName']:
+                periodicVC.vcRuleName = request.POST['vcRuleName']
+                
+            if request.POST['vcRuleDescription']:
+                periodicVC.vcRuleDescription = request.POST['vcRuleDescription']
+                periodicVC.vcRuleType = True
+                        
+            if request.POST['vcRuleAmount']:
+                periodicVC.vcRuleAmount = request.POST['vcRuleAmount']
+                periodicVC.courseID = current_course
+                periodicVC.isPeriodic = True
+                periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
+                periodicVC.timePeriodID = request.POST['timePeriodSelected']
+                periodicVC.threshold = request.POST['threshold']
+                selectors = request.POST['selectors']
+                
+                if selectors == "TopN":
+                    periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
+                if selectors == "All":
+                    count = StudentRegisteredCourses.objects.filter(courseID=current_course).count()
+                    periodicVC.numberOfAwards = count
+                    request.POST['numberOfAwards'] = count
+                if selectors == "Random":
+                    periodicVC.isRandom = True
+                    request.POST['numberOfAwards'] = periodicVC.numberOfAwards
+                    
+                
+                periodicVC.save()
+                return redirect('PeriodicVirtualCurrencyEarnRuleList.html')
         else:
             # Create the rule
             periodicVC = VirtualCurrencyPeriodicRule()
@@ -58,6 +89,7 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC.isPeriodic = True
                 periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
                 periodicVC.timePeriodID = request.POST['timePeriodSelected']
+                periodicVC.threshold = request.POST['threshold']
                 selectors = request.POST['selectors']
                 
                 if selectors == "TopN":
@@ -67,14 +99,14 @@ def timeBasedVirtualCurrencyView(request):
                     periodicVC.numberOfAwards = count
                     request.POST['numberOfAwards'] = count
                 if selectors == "Random":
-                    periodicVC.numberOfAwards = random.randint(1,request.POST['numberOfAwards'])
+                    periodicVC.isRandom = True
                     request.POST['numberOfAwards'] = periodicVC.numberOfAwards
                     
                 
                 periodicVC.save()
                 
                 setup_periodic_variable(int(periodicVC.vcRuleID), int(request.POST['periodicVariableSelected']), current_course, int(request.POST['timePeriodSelected']), number_of_top_students=int(request.POST['numberOfAwards']), badge_id=periodicVC.vcRuleID)                 
-            return render(request,'Badges/PeriodicVirtualCurrencyEarnRuleList.html', context_dict)
+            return redirect('PeriodicVirtualCurrencyEarnRuleList.html')
     context_dict = createTimePeriodContext(context_dict) 
     
     return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
