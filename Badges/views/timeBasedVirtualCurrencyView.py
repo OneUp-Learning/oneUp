@@ -5,82 +5,116 @@ Last modified 09/02/2016
 '''
 from django.shortcuts import render
 
-import glob, os
 
 from django.contrib.auth.decorators import login_required
-from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.views.utils import initialContextDict
-from Badges.models import Badges, BadgesInfo
-from django.views.decorators.http import condition
+from Badges.models import VirtualCurrencyPeriodicRule
+from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_variable, delete_periodic_task
+from django.shortcuts import redirect
+from Students.models import StudentRegisteredCourses
+import random
 
 @login_required
 def timeBasedVirtualCurrencyView(request):
  
     context_dict,current_course = initialContextDict(request);
-    
-    
-    conditions = []
-    
-    extractPaths(context_dict) 
         
-    if 'badgeID' in request.GET:    
-    # Getting the Badge information which has been selected
-        if request.GET['badgeID']:
-            badgeId = request.GET['badgeID']
-            badgeInfo = BadgesInfo.objects.get(badgeID=badgeId)
-            if not badgeInfo.manual:
-                badge = Badges.objects.get(badgeID=badgeId)
-                context_dict = setUpContextDictForConditions(context_dict,current_course,badge.ruleID)
-            else: 
-                context_dict = setUpContextDictForConditions(context_dict,current_course,None)
+    if request.GET:    
+        # Getting the currency information which has been selected
+        if 'vcRuleID' in request.GET:  
+            if request.GET['vcRuleID']:
+                vcId = request.GET['vcRuleID']
+                periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId)
+                # The range part is the index numbers.  
+                context_dict = createTimePeriodContext(context_dict) 
+                context_dict['vc'] = periodicVC
+                context_dict['edit'] = True
+        return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
+        
+    if request.POST:
+        if 'delete' in request.POST:
+            vc = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=request.POST['vcRuleID'])
+            delete_periodic_task(vc.periodicVariableID, current_course, vc.timePeriodID, number_of_top_students= vc.numberOfAwards, badge_id=vc.vcRuleID)
+            VirtualCurrencyPeriodicRule.objects.get(vcRuleID=request.POST['vcRuleID']).delete()
+            return redirect('PeriodicVirtualCurrencyEarnRuleList.html')
+    
+        if 'edit' in request.POST:
+            # Edit badge
+            delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=int(request.POST['numberOfAwards']), badge_id=request.POST['vcRuleID'])
+            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=request.POST['vcRuleID'])
+            
+            if request.POST['vcRuleName']:
+                periodicVC.vcRuleName = request.POST['vcRuleName']
                 
-            # The range part is the index numbers.  
-            context_dict['badge'] = badgeInfo 
-            context_dict['edit'] = True
-            
-            print("badgeID")
-            
+            if request.POST['vcRuleDescription']:
+                periodicVC.vcRuleDescription = request.POST['vcRuleDescription']
+                periodicVC.vcRuleType = True
+                        
+            if request.POST['vcRuleAmount']:
+                periodicVC.vcRuleAmount = request.POST['vcRuleAmount']
+                periodicVC.courseID = current_course
+                periodicVC.isPeriodic = True
+                periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
+                periodicVC.timePeriodID = request.POST['timePeriodSelected']
+                periodicVC.threshold = request.POST['threshold']
+                periodicVC.operatorType = request.POST['operator']
+                selectors = request.POST['selectors']
+                
+                if selectors == "TopN":
+                    periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
+                if selectors == "All":
+                    count = StudentRegisteredCourses.objects.filter(courseID=current_course).count()
+                    periodicVC.numberOfAwards = count
+                    request.POST['numberOfAwards'] = count
+                if selectors == "Random":
+                    periodicVC.isRandom = True
+                    request.POST['numberOfAwards'] = periodicVC.numberOfAwards
+                    
+                
+                periodicVC.save()
+                return redirect('PeriodicVirtualCurrencyEarnRuleList.html')
         else:
-        ## This is for when a non-existent badgeID gets passed.  It shouldn't normally happen, but could occur due to stale page data.
-            context_dict = setUpContextDictForConditions(context_dict,current_course,None)
-            print("no badgeID") 
-        
-    else:
-    ##this is the case of creating a new badge
-        context_dict = setUpContextDictForConditions(context_dict,current_course,None)
-        print("no badgeID") 
+            # Create the rule
+            periodicVC = VirtualCurrencyPeriodicRule()
             
-    if 'manualBadgeID' in request.GET:
-        if request.GET['manualBadgeID']:
-            badgeId = request.GET['manualBadgeID']
-            badge = BadgesInfo.objects.get(badgeID=badgeId)
+            if request.POST['vcRuleName']:
+                periodicVC.vcRuleName = request.POST['vcRuleName']
                 
-            context_dict['isManualBadge'] = True
-            # The range part is the index numbers.  
-            context_dict['badge'] = badge 
-            context_dict['edit'] = True
-            
-            print("badgeID")
-        
-        
-            
-    ## check if the conditional box should be displayed or it is a manually assigned badge  
-    if 'isManualBadge' in request.GET:
-        if request.GET['isManualBadge'] == 'true':
-            
-            context_dict['isManualBadge'] = True
-        else:
-            context_dict['isManualBadge'] = False
+            if request.POST['vcRuleDescription']:
+                periodicVC.vcRuleDescription = request.POST['vcRuleDescription']
+                periodicVC.vcRuleType = True
+                        
+            if request.POST['vcRuleAmount']:
+                periodicVC.vcRuleAmount = request.POST['vcRuleAmount']
+                periodicVC.courseID = current_course
+                periodicVC.isPeriodic = True
+                periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
+                periodicVC.timePeriodID = request.POST['timePeriodSelected']
+                periodicVC.threshold = request.POST['threshold']
+                periodicVC.operatorType = request.POST['operator']
+                selectors = request.POST['selectors']
                 
+                if selectors == "TopN":
+                    periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
+                if selectors == "All":
+                    count = StudentRegisteredCourses.objects.filter(courseID=current_course).count()
+                    periodicVC.numberOfAwards = count
+                    request.POST['numberOfAwards'] = count
+                if selectors == "Random":
+                    periodicVC.isRandom = True
+                    request.POST['numberOfAwards'] = periodicVC.numberOfAwards
+                    
+                
+                periodicVC.save()
+                
+                setup_periodic_variable(int(periodicVC.vcRuleID), int(request.POST['periodicVariableSelected']), current_course, int(request.POST['timePeriodSelected']), number_of_top_students=int(request.POST['numberOfAwards']), badge_id=periodicVC.vcRuleID)                 
+            return redirect('PeriodicVirtualCurrencyEarnRuleList.html')
+    context_dict = createTimePeriodContext(context_dict) 
     
     return render(request,'Badges/TimeBasedVirtualCurrency.html', context_dict)
 
-def extractPaths(context_dict): #function used to get the names from the file location
-    imagePath = []
-    
-    for name in glob.glob('static/images/badges/*'):
-        name = name.replace("\\","/")
-        imagePath.append(name)
-        print(name)
-    
-    context_dict["imagePaths"] = zip(range(1,len(imagePath)+1), imagePath)
+def createTimePeriodContext(context_dict):
+
+    context_dict['periodicVariables'] = [v for _, v in PeriodicVariables.periodicVariables.items()]
+    context_dict['timePeriods'] = [t for _, t in TimePeriods.timePeriods.items()]
+    return context_dict

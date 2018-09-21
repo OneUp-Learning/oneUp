@@ -45,12 +45,24 @@ def BadgesMain(request):
             manualBadgeId.append(manualBadge.badgeID)
             manualBadgeName.append(manualBadge.badgeName)
             manualBadgeImage.append(manualBadge.badgeImage)
-            manualBadgeDescription.append(manualBadge.badgeDescription)    
             manualBadgePostion.append(manualBadge.badgePostion)
+            manualBadgeDescription.append(manualBadge.badgeDescription)  
+            
+    periodicBadgeId = [] 
+    periodicBadgeName = []
+    periodicBadgeImage = []
+    periodicBadgeDescription = []
+    #Displaying the list of manual badges from database
+    periodicBadges = PeriodicBadges.objects.filter(courseID=current_course)
+    for periodicBadge in periodicBadges:
+        if(periodicBadge.isPeriodic == True):
+            periodicBadgeId.append(periodicBadge.badgeID)
+            periodicBadgeName.append(periodicBadge.badgeName)
+            periodicBadgeImage.append(periodicBadge.badgeImage)
+            periodicBadgeDescription.append(periodicBadge.badgeDescription)           
                     
         # The range part is the index numbers.
     context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription, badgePostion)
-    
     context_dict['manualBadgesInfo'] = zip(range(1,manualBadges.count()+1),manualBadgeId, manualBadgeName,manualBadgeImage, manualBadgeDescription, manualBadgePostion)
 
     return render(request,'Badges/Badges.html', context_dict)
