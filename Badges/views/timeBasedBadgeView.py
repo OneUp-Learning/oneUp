@@ -82,7 +82,7 @@ def timeBasedBadgeView(request):
             return redirect('Badges.html')
         if 'edit' in request.POST:
             # Edit badge
-            delete_periodic_task(request.POST['periodicVariableSelected'], current_course, request.POST['timePeriodSelected'], number_of_top_students=request.POST['ranking'], badge_id=request.POST['badgeId'])
+            delete_periodic_task(int(request.POST['periodicVariableSelected']), current_course, request.POST['timePeriodSelected'], number_of_top_students=request.POST['ranking'], badge_id=int(request.POST['badgeId']))
             studentPeriodicBadge = PeriodicBadges.objects.get(badgeID=request.POST['badgeId'])
         else:
             # Create the badge
