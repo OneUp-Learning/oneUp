@@ -1,4 +1,4 @@
-from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTasks
 from Badges.tasks import app
 import json
 import random
@@ -155,6 +155,13 @@ def get_last_ran(unique_id, variable_index, course_id):
     '''
     last_ran = PeriodicTask.objects.get(kwargs__contains='"unique_id": '+str(unique_id)+', "variable_index": '+str(variable_index)+', "course_id": '+str(course_id)).last_run_at
     return last_ran
+def set_last_ran(unique_id, variable_index, course_id):
+    ''' Sets periodic task last time ran datefield. It is not updated accurately by itself.'''
+    from datetime import datetime
+    task = PeriodicTask.objects.get(kwargs__contains='"unique_id": '+str(unique_id)+', "variable_index": '+str(variable_index)+', "course_id": '+str(course_id))
+    task.last_run_at = datetime.utcnow()
+    task.save()
+    PeriodicTasks.changed(task)
 
 def calculate_student_earnings(unique_id, course, student, periodic_variable):
     ''' This calculates the student earnings of virtual currency since the last period.
@@ -179,6 +186,9 @@ def calculate_student_earnings(unique_id, course, student, periodic_variable):
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
+
+    # Set this as the last time this task has ran
+    set_last_ran(unique_id, periodic_variable['index'], course.courseID)
     return (student, total)
 
 def calculate_student_warmup_practice(unique_id, course, student, periodic_variable):
@@ -220,6 +230,9 @@ def calculate_student_warmup_practice(unique_id, course, student, periodic_varia
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
     print("Practices: {}".format(practices))
+
+    # Set this as the last time this task has ran
+    set_last_ran(unique_id, periodic_variable['index'], course.courseID)
     return (student, practices)
 
 def calculate_unique_warmups(unique_id, course, student, periodic_variable):
@@ -259,7 +272,7 @@ def calculate_unique_warmups(unique_id, course, student, periodic_variable):
             if total_score_possible <= 0:
                 continue
             # Calculate the percentage
-            percentage = highest_score/total_score_possible
+            percentage = (highest_score/total_score_possible) * Decimal(100)
             # Say this challenge is counted for if the student score percentage is greater than 60%
             if percentage > Decimal(60.0):
                 unique_warmups += 1
@@ -270,6 +283,8 @@ def calculate_unique_warmups(unique_id, course, student, periodic_variable):
     print("Last Ran: {}".format(last_ran))
     print("Unique Warm-ups: {}".format(unique_warmups))
 
+    # Set this as the last time this task has ran
+    set_last_ran(unique_id, periodic_variable['index'], course.courseID)
     return (student, unique_warmups)
 
 class TimePeriods:
