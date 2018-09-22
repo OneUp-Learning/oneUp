@@ -449,6 +449,7 @@ def fire_action(rule,courseID,studentID,objID):
         else:
             studVCRec.objectID = objID
         studVCRec.vcRuleID = vcRule
+        studVCRec.value = vcRuleAmount
         studVCRec.save()
         
         if actionID == Action.increaseVirtualCurrency:

@@ -38,18 +38,18 @@
                               <input type="hidden" name="vcRuleID" value="{{vcRuleID}}">
                               <input type="hidden" name="edit">
                               <input type="hidden" name="delete" value="delete">
-                              <a id= "dropdownA{{i}}" class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="false" data-activates='dropdown{{i}}' data-position="left" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                              <ul id='dropdown{{i}}' class='dropdown-content'>
+                              <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="false" data-activates='dropdown{{vcRuleID}}' data-position="left" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                              <ul id='dropdown{{vcRuleID}}' class='dropdown-content'>
                                     <li><a href="/oneUp/badges/TimeBasedVirtualCurrency?vcRuleID={{vcRuleID}}">Edit</a></li>
                                     <li class="divider"></li>                         
-                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                    <li><a class="modal-trigger" href="#modal_delete{{vcRuleID}}">Delete</a></li>
                               </ul>
-                              <div id="modal_delete{{i}}" class="modal">
+                              <div id="modal_delete{{vcRuleID}}" class="modal">
                                     <div class="modal-content">
                                        <h5>Are you sure you want to delete?</h5>
                                     </div>
                                     <div class="modal-footer">
-                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
                                        <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
                                        </button>                                        
                                     </div>

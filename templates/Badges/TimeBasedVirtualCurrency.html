@@ -22,7 +22,7 @@
                   {% csrf_token %}
                   {% if edit %}
                   <input type="hidden" name="vcRuleID" id="badgeId" value="{{vc.vcRuleID}}">
-                  <input type="hidden" name="edit" id="badgeId" value="{{edit}}">
+                  <input type="hidden" name="edit"  value="{{edit}}">
                   {% endif %}
                   <div class="card">
                      <div class="card-content">
@@ -37,74 +37,76 @@
                               <textarea name="vcRuleDescription" id="vcRuleDescription" class="materialize-textarea validate" required>{{vc.vcRuleDescription}}</textarea>
                               <label for="vcRuleDescription"><span class= "red-text">*</span> Description</label>
                            </div>
-                           <div class="col s6">
-                           <label>Reason:</label>
-                              <p>
-                                 <input name="selectors" value="TopN" id="TopN" onclick="showStudentNum()" checked type="radio" />
-                                 <label for="TopN">TopN</label>
-                              </p>
-                              <p>
-                              	<input name="selectors" id="All" value="All" onclick="hideStudentNum()" type="radio" />
-                                 <label for="All">All</label>
-                              </p>
-                              <p>
-                              	<input name="selectors" id="Random" value="Random" onclick="hideStudentNum()" type="radio" />
-                                 <label for="Random">Random</label>
-                              </p>
-                              </div>
-                              <br>
+                        </div>
+                        <div class="row">
+                            <div class="col s6">
+                                <label>Reason:</label>
+                                <p>
+                                    <input name="selectors" value="TopN" id="TopN" onclick="showStudentNum()" {% if vc.periodicType == 0 %}checked{% endif %} type="radio" />
+                                    <label for="TopN">TopN</label>
+                                </p>
+                                <p>
+                                    <input name="selectors" id="All" value="All" onclick="hideStudentNum()" {% if vc.periodicType == 1 %}checked{% endif %} type="radio" />
+                                    <label for="All">All</label>
+                                </p>
+                                <p>
+                                    <input name="selectors" id="Random" value="Random" onclick="hideStudentNum()" {% if vc.periodicType == 2 %}checked{% endif %} type="radio" />
+                                    <label for="Random">Random</label>
+                                </p>
+                            </div>
                            <div id="studentNum" class="col s6">
-                              <label for="numberOfAwards"><span>Number of Students:</span></label>
-                              <input required type="number" id="numberOfAwards" name="numberOfAwards" value="{{vc.numberOfAwards}}"></input>
+                              <label for="numberOfAwards">Number of Students:</label>
+                              <input required type="number" id="numberOfAwards" name="numberOfAwards" value="{{vc.numberOfAwards}}" min="1" required></input>
                            </div>
-                           <div class="row">
-                              <div class="input-field col s12">
-                                 <input type="number" id="vcRuleAmount" name="vcRuleAmount" class="materialize-textarea validate" value="{{vc.vcRuleAmount}}"required></input>
-                                 <label for="vcRuleAmount"><span class= "red-text">*</span>Course Bucks Earned with This Rule</label>
-                              </div>
-                           </div>
-                           <div class="col s12">
-                              <label for="timePeriodSelected"><span>Time Period:</span></label>
-                              <select id="timePeriodSelected" name="timePeriodSelected">
-                                 {% for timePeriod in timePeriods %}
-                                 <option value="{{timePeriod.index}}">{{timePeriod.displayName}}</option>
-                                 {% endfor %}
-                              </select>
-                           </div>
-                           <div class="row">
-                              <div class="col s5">
-                                 <label><span>Condition:</span></label>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="number" id="vcRuleAmount" name="vcRuleAmount" class="materialize-textarea validate" value="{{vc.vcRuleAmount}}"required></input>
+                                <label for="vcRuleAmount"><span class= "red-text">*</span>Course Bucks Earned with This Rule</label>
+                            </div>
+                        </div>
+                        <div class="col s12">
+                            <label for="timePeriodSelected">Time Period:</label>
+                            <select id="timePeriodSelected" name="timePeriodSelected">
+                                {% for timePeriod in timePeriods %}
+                                <option value="{{timePeriod.index}}" {% if vc.timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col s5">
+                                 <label>Condition:</label>
                                  <select id="periodicVariableSelected" name="periodicVariableSelected">
                                     {% for periodicVariable in periodicVariables %}
-                                    <option value="{{periodicVariable.index}}">{{periodicVariable.displayName}}</option>
+                                    <option value="{{periodicVariable.index}}" {% if vc.periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
                                     {% endfor %}
                                  </select>
-                              </div>
-                              <div class="col s2">
-                              <label for="operator"><span>Operator: </span></label>
+                            </div>
+                            <div class="col s2">
+                              <label for="operator">Operator: </label>
                               <select id="operator" name="operator">
-                                 <option id="&amp;gt;" value=">"   > >   </option>
-                                 <option id="&amp;gt;=" value=">=" > >=  </option>
-                                 <option id="=" value="="   > =   </option>
+                                 <option id="&amp;gt;" value=">">></option>
+                                 <option id="&amp;gt;=" value=">=">>=</option>
+                                 <option id="=" value="=">=</option>
                               </select>
                               <script  type="text/javascript"> 
                                  window.onload = function() {
                                  	if ("{{vc.operatorType}}" != '')  {
-                                 	document.getElementById("{{vc.operatorType}}").selected = true;
+                                        var x = document.getElementById("operator");
+                                        x.options["{{vc.operatorType}}"].selected = true;
                                  	} 
                                  }
                               </script> 
-                              </div>
-                              <div class="col s5">
-                                 <label for="timePeriodSelected"><span> Treshold:</span></label>
-                                 <input type="number" id="treshold" name="threshold" value="{{vc.threshold}}"></input>
-                              </div>
-                           </div>
+                            </div>
+                            <div class="col s5">
+                                <label for="timePeriodSelected">Treshold:</label>
+                                <input type="number" id="treshold" name="threshold" value="{{vc.threshold}}" min="0" required></input>
+                            </div>
                         </div>
                      </div>
                      <div class="card-action right-align">
                         <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
-                        <button id="button" class="btn waves-effect waves-light" type="submit">Create Rule<i class="material-icons right">send</i>
+                        <button id="button" class="btn waves-effect waves-light" type="submit">{% if edit %}Save{% else %} Create{% endif %} Rule<i class="material-icons right">send</i>
                         </button>
                         {% if edit %}
                         <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i class="material-icons right">close</i></a>
@@ -117,7 +119,7 @@
                            <h5>Are you sure you want to delete?</h5>
                         </div>
                         <div class="modal-footer">
-                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
                            <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="delete" value="Delete">Delete
                            </button>                                        
                         </div>
@@ -130,18 +132,31 @@
       {% include 'footer.html' %}
    </body>
    <script>
-  function showStudentNum() {
-		   	var x = document.getElementById("studentNum");
-		   	if (x.style.display === "none")
-		        x.style.display = "block";
-		   	else
-		   		x.style.display = "block";
-   }
-  
-  function hideStudentNum(){
-		var x = document.getElementById("studentNum");
-	   	x.style.display = "none";
-  }
-
-   </script>
+       load();
+       function load(){
+           {% if edit is True %}
+            if({{vc.periodicType}} > 0){
+                hideStudentNum();
+            }
+           {% endif %}
+       }
+		function showStudentNum() {
+			var x = document.getElementById("studentNum");
+			var input = document.getElementById("numberOfAwards");
+			if (x.style.display === "none"){
+			x.style.display = "block";
+			input.required = true;
+			} else {
+				x.style.display = "block";
+				input.required = false;
+			}
+		 }
+		
+		function hideStudentNum(){
+			var x = document.getElementById("studentNum");
+			x.style.display = "none";
+			var input = document.getElementById("numberOfAwards");
+			input.required = false;
+		}
+</script>
 </html>

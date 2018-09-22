@@ -3,6 +3,8 @@ from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
 from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
+from Badges.periodicVariables import PeriodicVariables
+from django_celery_beat.models import PeriodicTask
 
 # Conditions Table
 class Conditions(models.Model):
@@ -143,7 +145,7 @@ class BadgesInfo(models.Model):
     badgeDescription = models.CharField(max_length=10000)
     badgeImage = models.CharField(max_length=300)
     manual = models.BooleanField(default=False) #TODO: Reconstruct badges types (automatic, manual, perioidic)
-    badgePostion = models.IntegerField(default=0) # The postion a badge should be displayed to everyone 
+    badgePostion = models.IntegerField(default=0) # The position a badge should be displayed to everyone 
     isPeriodic = models.BooleanField(default=False) # Is this badge info for a periodic badge
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)
@@ -163,10 +165,20 @@ class Badges(BadgesInfo):
 class PeriodicBadges(BadgesInfo):
     periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this badge
     timePeriodID = models.IntegerField() # The Time Period index set for this badge
-    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this badge to
+    periodicType = models.IntegerField(default=0) # The type of selected: TopN (0), All(1), Random(2)
+    numberOfAwards = models.IntegerField(default=1, null=True) # The top number of students to award this badge to
     threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
-    isRandom = models.BooleanField(default=False) # Is this being awarded to random student(s)
+    isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
+    lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+
+    def delete(self, *args, **kwargs):
+        ''' Custom delete method which deletes the PeriodicTask object before deleting the badge.'''
+        periodic_variable = PeriodicVariables.periodicVariables[self.periodicVariableID]
+        unique_str = str(self.badgeID)+"_badge"
+        PeriodicTask.objects.filter(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(self.courseID.courseID)).delete()
+
+        super().delete(*args, **kwargs)
     def __str__(self):
         return "Badge #{} : {}".format(self.badgeID, self.badgeName)
 
@@ -180,7 +192,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     isPeriodic = models.BooleanField(default=False) # this is info for a periodic virtual currency
-    vcRulePostion = models.IntegerField(default=0) # The postion a vcRule should be displayed to everyone 
+    vcRulePostion = models.IntegerField(default=0) # The position a vcRule should be displayed to everyone 
     def __str__(self):
         return "VirtualCurrencyCustomRuleInfo#"+str(self.vcRuleID)+":"+str(self.vcRuleName)+":"+str(self.vcRuleAmount)
 
@@ -194,10 +206,20 @@ class VirtualCurrencyRuleInfo(VirtualCurrencyCustomRuleInfo):
 class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     periodicVariableID = models.IntegerField() # The Perioidc Variable index set for this rule
     timePeriodID = models.IntegerField() # The Time Period index set for this rule
-    numberOfAwards = models.IntegerField(default=1) # The top number of students to award this rule to
+    periodicType = models.IntegerField(default=0) # The type of selected: TopN (0), All(1), Random(2)
+    numberOfAwards = models.IntegerField(default=1, null=True) # The top number of students to award this rule to
     threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
-    isRandom = models.BooleanField(default=False) # Is this being awarded to random student(s)
+    isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
+    lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+   
+    def delete(self, *args, **kwargs):
+        ''' Custom delete method which deletes the PeriodicTask object before deleting the rule.'''
+        periodic_variable = PeriodicVariables.periodicVariables[self.periodicVariableID]
+        unique_str = str(self.vcRuleID)+"_vc"
+        PeriodicTask.objects.filter(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(self.courseID.courseID)).delete()
+        super().delete(*args, **kwargs)
+
     def __str__(self):
         return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
 

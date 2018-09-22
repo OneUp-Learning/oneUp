@@ -2,117 +2,174 @@
 <html lang="en">
 
 <head>
-      {% include 'scripts.html' %}
+	{% include 'scripts.html' %}
 </head>
 
 <body>
-      {% include 'heading.html' %}
-      <main>
-            <div class="row center-align">
-                  <div class="col s12">
-                        {% if edit %}
-                        <h3>Modify Badge</h3>
-                        {% else %}
-                        <h3>Add New Badge</h3>
-                        {% endif %}
-                        <p><span class="red-text">*</span> Denotes Required Fields.</p>
-                  </div>
-            </div>
-            <div class="row">
-                  <div class="col s12 m8 offset-m2">
-                        <form name="editBadge" action="/oneUp/badges/TimeBasedBadge" method="POST" onsubmit="return condOnSubmit();">
-                              {% csrf_token %}
-                              {% if edit %}
-                              <input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
-                              {% endif %}
-                              <div class="card">
-                                    <div class="card-content">
-                                          <div class="row">
-                                                <div class="input-field col s12">
-                                                      <input placeholder="Name" value="{{badge.badgeName}}" name="badgeName" id="badge_name" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
-                                                      <label for="badge_name"><span class="red-text">*</span> Badge Name</label>
-                                                </div>
-                                          </div>
-                                          <div class="row">
-                                                <div class="input-field col s12">
-                                                      <textarea name="badgeDescription" id="badge_description" class="materialize-textarea validate"
-                                                            required>{{badge.badgeDescription}}</textarea>
-                                                      <label for="badge_description"><span class="red-text">*</span>
-                                                            Badge Description</label>
-                                                </div>
-                                          </div>
-                                          <div class="row">
-                                                <div class="input-field col s12">
-                                                      <input name="ranking" id="ranking" value="{{badge.numberOfAwards}}" type="number"
-                                                            class="materialize-textarea validate" required></input>
-                                                      <label for="ranking"><span class="red-text">*</span>
-                                                            Give to how many students</label>
-                                                </div>
-                                          </div>
-                                          <div class="col s12">
-                                           <label for="timePeriodSelected"><span>Time Period:</span></label>
-                                                <select id="timePeriodSelected" name="timePeriodSelected">
-                                                      {% for timePeriod in timePeriods %}
-                                                      <option value="{{timePeriod.index}}">{{timePeriod.displayName}}</option>
-                                                      {% endfor %}
-                                                </select>
-                                          </div>
-                                          <div class="col s12">
-                                          <label for="timePeriodSelected"><span>Reason:</span></label>
-                                                <select id="periodicVariableSelected" name="periodicVariableSelected">
-                                                      {% for periodicVariable in periodicVariables %}
-                                                      <option value="{{periodicVariable.index}}">{{periodicVariable.displayName}}</option>
-                                                      {% endfor %}
-                                                </select>
-                                          </div>
-                                          <div class="row">
-                                                <div class="col s12">
-                                                      <h5><span class="red-text">*</span> Badge Image</h5>
-                                                      <p>Choose an image for the badge</p>
-                                                </div>
-                                                {% for i, image in imagePaths %}
-                                                <div class="col s12 m3">
-                                                      <!-- GGM added required to the input so we require a badge image selection -->
-                                                      <input name="badgeImage" type="radio" id="Badge{{i}}" value="{{image}}"
-                                                            required {% if badge.badgeImage == image %}checked{%endif %} />
-                                                      <label for="Badge{{i}}"><img alt="Badge Image" width="85px"
-                                                                  height="85px" src="/{{image}}">*</label>
-                                                </div>
-                                                {% endfor %}
-                                          </div>
-                                    </div>
+	{% include 'heading.html' %}
+	<main>
+		<div class="row center-align">
+			<div class="col s12">
+				{% if edit %}
+				<h3>Modify Badge</h3>
+				{% else %}
+				<h3>Add New Badge</h3>
+				{% endif %}
+				<p><span class="red-text">*</span> Denotes Required Fields.</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s12 m8 offset-m2">
+				<form name="editBadge" action="/oneUp/badges/TimeBasedBadge" method="POST" onsubmit="return condOnSubmit();">
+					{% csrf_token %}
+					{% if edit %}
+					<input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
+					<input type="hidden" name="edit"  value="{{edit}}">
+					{% endif %}
+					<div class="card">
+						<div class="card-content">
+							<div class="row">
+								<div class="input-field col s12">
+									<input placeholder="Name" value="{{badge.badgeName}}" name="badgeName" id="badge_name" type="text" {% if view == False %}class="validate" {%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
+									<label for="badge_name"><span class="red-text">*</span> Badge Name</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<textarea name="badgeDescription" id="badge_description" class="materialize-textarea validate" required>{{badge.badgeDescription}}</textarea>
+									<label for="badge_description"><span class="red-text">*</span>
+										Badge Description</label>
+								</div>
+							</div>
+							<div class="row">
+									<div class="col s6">
+										<label>Reason:</label>
+										<p>
+											<input name="selectors" value="TopN" id="TopN" onclick="showStudentNum()" {% if badge.periodicType == 0 %}checked{% endif %} type="radio" />
+											<label for="TopN">TopN</label>
+										</p>
+										<p>
+											<input name="selectors" id="All" value="All" onclick="hideStudentNum()" {% if badge.periodicType == 1 %}checked{% endif %} type="radio" />
+											<label for="All">All</label>
+										</p>
+										<p>
+											<input name="selectors" id="Random" value="Random" onclick="hideStudentNum()" {% if badge.periodicType == 2 %}checked{% endif %} type="radio" />
+											<label for="Random">Random</label>
+										</p>
+									</div>
+								   <div id="studentNum" class="col s6">
+									  <label for="numberOfAwards">Number of Students:</label>
+									  <input required type="number" id="numberOfAwards" name="numberOfAwards" value="{{badge.numberOfAwards}}" min="1" required></input>
+								   </div>
+								</div>
+								<div class="col s12">
+									<label for="timePeriodSelected">Time Period:</label>
+									<select id="timePeriodSelected" name="timePeriodSelected">
+										{% for timePeriod in timePeriods %}
+										<option value="{{timePeriod.index}}" {% if badge.timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>
+										{% endfor %}
+									</select>
+								</div>
+								<div class="row">
+									<div class="col s5">
+										 <label>Condition:</label>
+										 <select id="periodicVariableSelected" name="periodicVariableSelected">
+											{% for periodicVariable in periodicVariables %}
+											<option value="{{periodicVariable.index}}" {% if badge.periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
+											{% endfor %}
+										 </select>
+									</div>
+									<div class="col s2">
+									  <label for="operator">Operator: </label>
+									  <select id="operator" name="operator">
+										 <option id="&amp;gt;" value=">">></option>
+										 <option id="&amp;gt;=" value=">=">>=</option>
+										 <option id="=" value="=">=</option>
+									  </select>
+									  <script  type="text/javascript"> 
+										 window.onload = function() {
+											 if ("{{badge.operatorType}}" != '')  {
+												var x = document.getElementById("operator");
+                                        		x.options["{{badge.operatorType}}"].selected = true;
+											 } 
+										 }
+									  </script> 
+									</div>
+									<div class="col s5">
+										<label for="timePeriodSelected">Treshold:</label>
+										<input type="number" id="treshold" name="threshold" value="{{badge.threshold}}" min="0" required></input>
+									</div>
+								</div>
+							<div class="row">
+								<div class="col s12">
+									<h5><span class="red-text">*</span> Badge Image</h5>
+									<p>Choose an image for the badge</p>
+								</div>
+								{% for i, image in imagePaths %}
+								<div class="col s12 m3">
+									<!-- GGM added required to the input so we require a badge image selection -->
+									<input name="badgeImage" type="radio" id="Badge{{i}}" value="{{image}}" required {% if badge.badgeImage == image %}checked{%endif %} />
+									<label for="Badge{{i}}"><img alt="Badge Image" width="85px" height="85px" src="/{{image}}">*</label>
+								</div>
+								{% endfor %}
+							</div>
+						</div>
 
 
-                                    <div class="card-action right-align">
-                                          <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
-                                          <button id="button" class="btn waves-effect waves-light" type="submit">Save<i
-                                                      class="material-icons right">send</i>
-                                          </button>
-                                          {% if edit %}
-                                          <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i
-                                                      class="material-icons right">close</i></a>
-                                          {% endif %}
-                                          <a class="waves-effect waves-light btn" href="/oneUp/badges/Badges">
-                                                <i class="material-icons left">navigate_before</i>Back</a>
-                                    </div>
+						<div class="card-action right-align">
+							<!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
+							<button id="button" class="btn waves-effect waves-light" type="submit">{% if edit %}Save{% else %} Create{% endif %} Badge<i class="material-icons right">send</i>
+							</button>
+							{% if edit %}
+							<a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i class="material-icons right">close</i></a>
+							{% endif %}
+							<a class="waves-effect waves-light btn" href="/oneUp/badges/Badges">
+								<i class="material-icons left">navigate_before</i>Back</a>
+						</div>
 
-                                    <div id="modal_delete" class="modal">
-                                          <div class="modal-content">
-                                                <h5>Are you sure you want to delete?</h5>
-                                          </div>
-                                          <div class="modal-footer">
-                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
-                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"
-                                                      type="submit" name="delete" value="Delete">Delete
-                                                </button>
-                                          </div>
-                                    </div>
-                              </div>
-                        </form>
-                  </div>
-            </div>
-      </main>
-      {% include 'footer.html' %}
+						<div id="modal_delete" class="modal">
+							<div class="modal-content">
+								<h5>Are you sure you want to delete?</h5>
+							</div>
+							<div class="modal-footer">
+								<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+								<button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="delete" value="Delete">Delete
+								</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</main>
+	{% include 'footer.html' %}
 </body>
-
+<script>
+	load();
+       function load(){
+		   {% if edit %}
+			if({{badge.periodicType}} > 0){
+				hideStudentNum();
+			}
+		   {% endif %}
+       }
+		function showStudentNum() {
+			var x = document.getElementById("studentNum");
+			var input = document.getElementById("numberOfAwards");
+			if (x.style.display === "none"){
+			x.style.display = "block";
+			input.required = true;
+			} else {
+				x.style.display = "block";
+				input.required = false;
+			}
+		 }
+		
+		function hideStudentNum(){
+			var x = document.getElementById("studentNum");
+			x.style.display = "none";
+			var input = document.getElementById("numberOfAwards");
+			input.required = false;
+		}
+</script>
 </html>
