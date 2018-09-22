@@ -44,7 +44,7 @@
                                     <th><span class="badge">{{numBadges}}</span></th>
                                 </thead>
                                 <tbody>
-                                    {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePostion in badgesInfo %}
+                                    {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in badgesInfo %}
                                     <tr>
                                         <td>
                                             <img src="/{{badgeImage}}" alt="Badge Image" width="76px" height="76px">
@@ -53,7 +53,7 @@
                                         <td>{{badgeDescription}}</td>
                                         <td>
                                             <div class="input-field col s12">
-                                                <input placeholder="Position" value="{{badgePostion}}" name="{{badgeId}}" id="badgePostion" maxlength="4" type="number" class="validate" min="0" required>
+                                                <input placeholder="Position" value="{{badgePosition}}" name="{{badgeId}}" id="badgePosition" maxlength="4" type="number" class="validate" min="0" required>
                                             </div>
                                         </td>
                                         <td class="right-align">
@@ -103,7 +103,7 @@
                                     <th><span class="badge">{{numBadgesMan}}</span></th>
                                 </thead>
                                 <tbody>
-                                    {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePostion in manualBadgesInfo %}
+                                    {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in manualBadgesInfo %}
                                     <tr>
                                         <td>
                                             <img src="/{{badgeImage}}" alt="Badge Image" width="76px" height="76px">
@@ -112,7 +112,7 @@
                                         <td>{{badgeDescription}}</td>
                                         <td>
                                             <div class="input-field col s12">
-                                                <input placeholder="Position" value="{{badgePostion}}" name="{{badgeId}}" id="badgePostion2" maxlength="4" type="number" class="validate" min="0" required>
+                                                <input placeholder="Position" value="{{badgePosition}}" name="{{badgeId}}" id="badgePosition2" maxlength="4" type="number" class="validate" min="0" required>
                                             </div>
                                         </td>
                                         <td class="right-align">

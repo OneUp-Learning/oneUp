@@ -1,93 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      {% include 'scripts.html' %}
-   </head>
-   <body>
-      {% include 'heading.html' %}  
-      <main>
-            <div class="row center-align">
-               <div class="col s12">
-                  <h3>{% if isRuleCustom == True %}Manual {% else %} Automatic {% endif %} Virtual Currency Earn Rules</h3>
-               </div>
-            </div>
-            <form name="reorderBadges" action="/oneUp/badges/reorderVirtualCurrencyEarnRules" method="POST">
 
-                  {% if isRuleCustom == True %}
-                        <input type="hidden" name="isRuleCustom" value="true">
-                  {% else %}
-                        <input type="hidden" name="isRuleCustom" value="false">
-                  {% endif %}
+<head>
+	{% include 'scripts.html' %}
+</head>
 
-                  {% csrf_token %}
-            <div class="row right-align">
-               <div class="col s12 m10 offset-m1">
-                  <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><i class="material-icons left">add_circle</i> {% if isRuleCustom == True %}Add New Manual Earning Rule{% else %}Add New Automatic Earning Rule{% endif %}</a>
-                  <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Rules
-                              <i class="material-icons right">reorder</i>
-                  </button>
-                </div>
-              </div>
-              <div class="row">
-            	<div class="col s12 m10 offset-m1">
-                  <div class="card">
-                  	<div class="card-content">
-                  <table>
-                     <thead>
-                        <th>Name</th>
-                        <th>Course Bucks</th>
-                        <th>Rule Position</th>
-                        <th><span class="badge">{{numRules}}</span></th>
-                     </thead>
-                     <tbody>
-                     {% for i,vcRuleID,vcRuleName,vcAmount, postion in vcRuleInfo %}
-                     <tr>
-                        <td>{{vcRuleName}}</td>
-                        <td>{{vcAmount}}</td>
-                        <td>
-                              <div class="input-field col s6">
-                                    <input placeholder="Position" value="{{postion}}" name="{{vcRuleID}}" id="rulePostion" maxlength="4" type="number" class="validate" min="0" required>
-                              </div>
-                        </td>
-                        <td>
-                           <form action="/oneUp/badges/SaveVirtualCurrencyRule" method="POST">
-                              {% csrf_token %} 
-                              <input type="hidden" name="vcRuleID" value="{{vcRuleID}}">
-                              <input type="hidden" name="isRuleCustom" value="{{isRuleCustom}}">
-                              <input type="hidden" name="edit">
-                              <input type="hidden" name="delete" value="delete">
-                              <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                              <ul id='dropdown{{i}}' class='dropdown-content'>
-                                    <li><a href="/oneUp/badges/EditVirtualCurrencyRule?vcRuleID={{vcRuleID}}&isRuleCustom={{isRuleCustom}}">Edit</a></li>
-                                    <li class="divider"></li>                         
-                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
-                              </ul>
-                              <div id="modal_delete{{i}}" class="modal">
-                                    <div class="modal-content">
-                                       <h5>Are you sure you want to delete?</h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
-                                       </button>                                        
-                                    </div>
-                                 </div>
-                           </form>
-                        </td>
-                     </tr>
-                     {% empty %}
-                     <tr>
-                       <td class="center-align" colspan="3"><i>No rules created</i></td>
-                     </tr>
-                     {% endfor %}
-                     </tbody>
-                  </table>
-                  </div>
-               </div>
-               </div>   
-               </div>
-               </form>
-      </main>
-      {% include 'footer.html' %}
-   </body>
+<body>
+	{% include 'heading.html' %}
+	<main>
+		<div class="row center-align">
+			<div class="col s12">
+				<h3>{% if isRuleCustom == True %}Manual {% else %} Automatic {% endif %} Virtual Currency Earn
+					Rules</h3>
+			</div>
+		</div>
+		<form name="reorderBadges" action="/oneUp/badges/reorderVirtualCurrencyEarnRules" method="POST">
+
+			{% if isRuleCustom == True %}
+			<input type="hidden" name="isRuleCustom" value="true">
+			{% else %}
+			<input type="hidden" name="isRuleCustom" value="false">
+			{% endif %}
+
+			{% csrf_token %}
+			<div class="row right-align">
+				<div class="col s12 m10 offset-m1">
+					<a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencyRule?isRuleCustom={{isRuleCustom}}"><i
+						 class="material-icons left">add_circle</i> {% if isRuleCustom == True %}Add
+						New Manual Earning Rule{% else %}Add New Automatic Earning Rule{% endif %}</a>
+					<button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Rules
+						<i class="material-icons right">reorder</i>
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col s12 m10 offset-m1">
+					<div class="card">
+						<div class="card-content">
+							<table>
+								<thead>
+									<th>Name</th>
+									<th>Course Bucks</th>
+									<th>Rule Position</th>
+									<th><span class="badge">{{numRules}}</span></th>
+								</thead>
+								<tbody>
+									{% for i,vcRuleID,vcRuleName,vcAmount, position in vcRuleInfo %}
+									<tr>
+										<td>{{vcRuleName}}</td>
+										<td>{{vcAmount}}</td>
+										<td>
+											<div class="input-field col s6">
+												<input placeholder="Position" value="{{position}}" name="{{vcRuleID}}" id="rulePosition" maxlength="4" type="number"
+												 class="validate" min="0" required>
+											</div>
+										</td>
+										<td>
+											<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+											 data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+												 class="material-icons">more_vert</i></a>
+											<ul id='dropdown{{i}}' class='dropdown-content'>
+												<li><a href="/oneUp/badges/EditVirtualCurrencyRule?vcRuleID={{vcRuleID}}&isRuleCustom={{isRuleCustom}}">Edit</a></li>
+												<li class="divider"></li>
+												<li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+											</ul>
+											<div id="modal_delete{{i}}" class="modal">
+												<div class="modal-content">
+													<h5>Are you sure you want to delete?</h5>
+												</div>
+												<div class="modal-footer">
+													<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+													<button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
+													 value="Delete" onclick="deleteRule('{{vcRuleID}}', '{{isRuleCustom}}')">Delete
+													</button>
+												</div>
+											</div>
+										</td>
+									</tr>
+									{% empty %}
+									<tr>
+										<td class="center-align" colspan="3"><i>No rules created</i></td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</main>
+	{% include 'footer.html' %}
+</body>
+<script>
+	function deleteRule(rule_id, rule_custom) {
+		function getCookie(name) {
+			var cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				var cookies = document.cookie.split(';');
+				for (var i = 0; i < cookies.length; i++) {
+					var cookie = jQuery.trim(cookies[i]);
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		}
+
+		var csrftoken = getCookie('csrftoken');
+		$.ajaxSetup({
+			beforeSend: function (xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			}
+		});
+		$.ajax({
+			type: "POST",
+			url: "/oneUp/badges/SaveVirtualCurrencyRule",
+			data: {
+				'vcRuleID': rule_id, // from form
+				'isRuleCustom': rule_custom,
+				'edit': 'edit',
+				'delete': 'delete'
+			},
+			success: function () {
+				console.log("Deleted");
+			}
+		});
+	}
+</script>
+
 </html>

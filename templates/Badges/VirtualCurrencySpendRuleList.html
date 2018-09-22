@@ -41,16 +41,16 @@
                                           <thead>
                                                 <th>Name</th>
                                                 <th>Course Bucks</th>
-                                                <th>&nbsp; Rule Postion</th>
+                                                <th>&nbsp; Rule Position</th>
                                           </thead>
                                           <tbody>
-                                                {% for i,vcsRuleID,vcsRuleName,vcsAmount, postion in vcsRuleInfo %}
+                                                {% for i,vcsRuleID,vcsRuleName,vcsAmount, position in vcsRuleInfo %}
                                                 <tr>
                                                       <td>{{vcsRuleName}}</td>
                                                       <td>{{vcsAmount}}</td>
                                                       <td>
                                                             <div class="input-field col s6">
-                                                                  <input placeholder="Position" value="{{postion}}" name="{{vcsRuleID}}" id="vcsRulePostion" maxlength="4"
+                                                                  <input placeholder="Position" value="{{position}}" name="{{vcsRuleID}}" id="vcsRulePosition" maxlength="4"
                                                                   type="number" class="validate" min="0" required>
                                                             </div>
                                                       </td>

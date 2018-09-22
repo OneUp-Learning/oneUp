@@ -17,7 +17,7 @@
 	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
 	<div class="cond-specify-object-section" id="cond-{{specifiedObjectTypeNum}}-specifier-section" hidden>
 		Method for specifying {{specifiedObjectStruct.objectTypeStruct.plural}}:
-		<select class="no-materialize" name="cond-{{specifiedObjectTypeNum}}-specification-selector" id="cond-{{specifiedObjectTypeNum}}-specification-selector"
+		<select class="browser-default" name="cond-{{specifiedObjectTypeNum}}-specification-selector" id="cond-{{specifiedObjectTypeNum}}-specification-selector"
 				onchange="condChangeSpecifier(this);return true;" data-cond-object-type-num = "{{specifiedObjectTypeNum}}">
 			<option value="all" selected>include all {{specifiedObjectStruct.objectTypeStruct.plural}}</option>
 			{% for specifiername,specifierInfo in specifiedObjectStruct.specifiers.items %}
@@ -28,7 +28,7 @@
 			<div class="cond-specifier-specifier" id="cond-{{specifiedObjectTypeNum}}-by-{{specifiername}}-specifier" hidden data-cond-specifier-type="{{specifierInfo.selectionType}}">
 			{% if specifierInfo.selectionType == "object" %}
 				<div><div>
-					<select name="cond-specifier-object-list-select" class="cond-specifier-object-list-select no-materialize" 
+					<select name="cond-specifier-object-list-select" class="cond-specifier-object-list-select browser-default" 
 							onchange="condAddThingieToList(this);this.selectedIndex=0;return true;">
 						<option disabled selected value="0">select {{specifierInfo.objectInfo.plural}} to add</option>
 					{% for object in specifierInfo.objectInfo.objects %}
@@ -39,7 +39,7 @@
 				<div class="cond-specifier-object-selected-list" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-selected-list">
 				</div>
 			{% elif specifierInfo.selectionType == "list" %}
-				<select name="cond-specifier-list-select" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="cond-specifier-list-select no-materialize">
+				<select name="cond-specifier-list-select" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="cond-specifier-list-select browser-default">
 				{% for listItem in specifierInfo.list %}
 					<option value="{{listItem}}" {%if forloop.first%}selected{%endif%}>{{listItem}}</option>
 				{% endfor %}
