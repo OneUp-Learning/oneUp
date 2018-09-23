@@ -133,7 +133,7 @@
             <div class="table-wrap">
               <table class="highlight main-table">
                 <thead>
-                  <th>Avatar</th>
+                  <th class="fixed-side"></th>
                   <th class="fixed-side">Name</th>
                   {% for date in Dates %}
                   <th>{{date}}</th>
@@ -144,18 +144,21 @@
                   <!-- gave this classes and witdths GGM -->
                   <tr>
                     <td class="fixed-side"><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></td>
-                    <td>{{student_Names}}</td>
+                    <td class="fixed-side">{{student_Names}}</td>
 
                     {% for attendance in isPresent %}
+                    {% if attendance != "clear" %}
                     <td>
                       {% if attendance == "true" %}
                       <input class="checkbox" name="checkbox" type="checkbox" id="{{ forloop.counter }}" checked
                         disabled />
-                      {% else %}
+                      {% elif attendance == "false" %}
                       <input class="checkbox" name="checkbox" type="checkbox" id="{{ forloop.counter }}" disabled />
                       {% endif %}
                       <label for="{{ forloop.counter }}"></label>
                     </td>
+                    {% else %}
+                    {% endif %}
                     {% endfor %}
                   </tr>
                   {% endfor %}
