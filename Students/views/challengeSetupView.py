@@ -16,6 +16,7 @@ from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet,
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 from locale import currency
+from django.db.models.functions.window import Lead
 
 def makeSerializableCopyOfDjangoObjectDictionary(obj):
     dict = obj.__dict__.copy()
@@ -168,9 +169,13 @@ def ChallengeSetup(request):
                             
                             #give each string the new line
                             tabedSolution_string = []
+                            pattern = re.compile("##")
                             for index, line in enumerate(solution_string):
                                 line = re.sub("☃", "", line)
-                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", '&nbsp;', line)
+                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", '', line)
+                                if(pattern.search(line) != None):
+                                    line = re.sub("^ *", '&nbsp;     ', line)
+                                print("line", line)
                                 line = line +"\n"
                                 tabedSolution_string.append(line)
                             
