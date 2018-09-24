@@ -61,6 +61,8 @@ class Conditions(models.Model):
     # A simple method to clean up all objects associated with a condition
     # these can be assumed to be unique because we do not share references or any such
     # If we want to change to such a model to save database space, this would need to be changed. 
+    # This method is needed because pks are stored as values rather than foreign keys, so they
+    # don't cascade automatically.  
     def delete_children(self):
         def deleteOperand(type,value):
             if (type == OperandTypes.condition):
@@ -71,6 +73,12 @@ class Conditions(models.Model):
                 FloatConstants.objects.get(pk=value).delete()
             elif (type == OperandTypes.stringConstant):
                 StringConstants.objects.get(pk=value).delete()
+            elif (type == OperandTypes.conditionSet):
+                childCondSetEntries = ConditionSet.objects.filter(parentCondition=self)
+                for childCondSetEntry in childCondSetEntries:
+                    childCondSetEntry.conditionInSet.delete_children()
+                    childCondSetEntry.conditionInSet.delete()
+                    # The childCondSetEntry will delete itself due to cascading delete, so we don't add an explicit delete
         deleteOperand(self.operand1Type,self.operand1Value)
         deleteOperand(self.operand2Type,self.operand2Value)
         
