@@ -40,9 +40,9 @@ def register_event(eventID, request, student=None, objectId=None):
         studentpk = student.pk
 
     if CELERY_ENABLED:
-        register_event_offline.delay(eventID, make_smaller_serializable_request(request), studentpk, objectId)
+        return register_event_offline.delay(eventID, make_smaller_serializable_request(request), studentpk, objectId)
     else:
-        register_event_actual(eventID, make_smaller_serializable_request(request), studentpk, objectId)
+        return register_event_actual(eventID, make_smaller_serializable_request(request), studentpk, objectId)
 
 def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
 
