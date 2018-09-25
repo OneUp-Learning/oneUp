@@ -39,15 +39,8 @@ def register_event(eventID, request, student=None, objectId=None):
     else:
         studentpk = student.pk
 
-    if CELERY_ENABLED:
-        register_event_offline.delay(eventID, make_smaller_serializable_request(request), studentpk, objectId)
-    else:
-        register_event_actual(eventID, make_smaller_serializable_request(request), studentpk, objectId)
-
 def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
 
-    print('in register_event: ')
-    print(str(eventID))
     # Create event log entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
@@ -55,14 +48,11 @@ def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
     courseIDint = int(minireq['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
-    print("Got to just before student DB search")
     if studentpk is None:
         student = Student.objects.get(user__username=minireq['user'])
     else:
         student = Student.objects.get(pk=studentpk)
     eventEntry.student = student
-
-    print("Got this far")
 
     # Here we need to add special handling for different types
     # of events which can occur
@@ -191,7 +181,20 @@ def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
     
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
-    
+
+    if CELERY_ENABLED:
+        process_event_offline.delay(eventID, make_smaller_serializable_request(request), studentpk, objectId)
+    else:
+        process_event_actual(eventID, make_smaller_serializable_request(request), studentpk, objectId)
+
+    return eventEntry
+
+def process_event_actual(event, minireq, studentpk, objectId):    
+    if studentpk is None:
+        student = Student.objects.get(user__username=minireq['user'])
+    else:
+        student = Student.objects.get(pk=studentpk)
+
     # check for rules which are triggered by this event
     matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventID)
     matchingRuleWithContext = dict()
