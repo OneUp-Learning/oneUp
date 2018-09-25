@@ -119,8 +119,8 @@
                               </div>
                            	  </td>
                               <td>
-                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                    <ul id='dropdown{{i}}' class='dropdown-content'>
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                    <ul id='dropdown-{{i}}' class='dropdown-content'>
                                        {% csrf_token %} 
                                        {% if q_type_name == 'multipleChoice' %}
                                        <li><a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
@@ -144,9 +144,9 @@
                                        <li><a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}">Edit</a></li>
                                        {% endif %}
                                        <li class="divider"></li>
-                                       <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                       <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
                                     </ul>
-                                    <div id="modal_delete{{i}}" class="modal">
+                                    <div id="modal_delete-{{i}}" class="modal">
                                        <div class="modal-content">
                                           <h5>Are you sure you want to delete?</h5>
                                        </div>
