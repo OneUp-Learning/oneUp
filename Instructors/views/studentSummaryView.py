@@ -38,7 +38,7 @@ def studentSummary(request):
     user_XP = []
     user_VC = []
 
-    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+    courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
     courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
     defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     # default time

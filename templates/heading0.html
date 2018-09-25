@@ -18,6 +18,13 @@
           <li><a href="/oneUp/home.html">Home</a></li>
           <li><a href="/oneUp/aboutUs">About OneUp</a></li>
           <li><a href="/oneUp/contact-us">Contact Us</a></li>
+          {% if is_teacher %}
+          <li>
+                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true" >
+                    <i class='material-icons'>visibility</i> 
+                </a>
+            </li>
+            {% endif %}
           {% if logged_in %}            
           <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="account"><i class="material-icons">more_vert</i></a></li>
           {% endif %}
@@ -29,7 +36,7 @@
               <div class="background">
                 <img src="/static/images/pic01.jpg">
               </div>
-              <a href="#!user"><img class="circle" src="/static/images/avatars/25.png"></a>
+              <a href="#!user"><img class="circle" src="/static/images/avatars/anonymous.png"></a>
               <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
               <a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
             </div>
@@ -38,6 +45,15 @@
           <li><a href="/oneUp/home.html">Home</a></li>
           <li><a href="/oneUp/aboutUs">About OneUp</a></li>
           <li><a href="/oneUp/contact-us">Contact Us</a></li>
+          
+          {% if is_teacher %}
+            <li>
+                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true" >
+                    <i class='material-icons'>visibility</i> 
+                </a>
+            </li>
+            
+           {% endif %}
           {% if logged_in %}                        
           <li class="divider"></li>
           <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>

@@ -11,9 +11,11 @@ def studentInitialContextDict(request):
         stud = User.objects.get(username=request.GET['userID'])
         student = Student.objects.get(user=stud)
         context_dict["is_teacher"] = True
+        context_dict['is_test_student'] = student.isTestStudent
     else:
         context_dict["is_student"] = True
         student = Student.objects.get(user=request.user)
+        context_dict['is_test_student'] = student.isTestStudent
       
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
     context_dict['student'] = student

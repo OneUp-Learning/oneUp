@@ -18,10 +18,11 @@ def setCourseView(request):
         request.session['currentCourseID'] = request.POST['courseID']
 
     user = request.user    
-    if user.groups.filter(name='Teachers').exists():
+    
+    if user.groups.filter(name='Teachers').exists() and not 'is_student' in request.POST:
         context_dict["is_teacher"] = True
         return redirect('instructorCourseHome')
-    elif user.groups.filter(name='Admins').exists():
+    elif user.groups.filter(name='Admins').exists() and not 'is_student' in request.GET:
         context_dict["is_admin"] = True
         return redirect('adminHomeView')
     else:

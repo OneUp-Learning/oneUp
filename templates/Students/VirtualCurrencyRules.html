@@ -29,9 +29,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                        	<td></td>
                            <td class="center-align" colspan="3"><i>No Virtual Currency Earning Rules</i></td>
-                           <td></td>
                         </tr>
                         {% endfor %}
                      </tbody>
@@ -52,19 +50,19 @@
                         <th>Name</th>
                         <th>Description</th>
                         <th>Course Bucks</th>
+                        <th>Total Amount Allowed</th>
                      </thead>
                      <tbody>
-                        {% for i,vcRuleID,vcRuleName, vcRuleDescription, vcAmount in vcSpendingRuleInfo %}
+                        {% for i,vcRuleID,vcRuleName, vcRuleDescription, vcAmount, vcLimit in vcSpendingRuleInfo %}
                         <tr>
                            <td>{{vcRuleName}}</td>
                            <td>{{vcRuleDescription}}</td>
                            <td>{{vcAmount}}</td>
+                           <td>{{vcLimit}}</td>
                         </tr>
                         {% empty %}
                         <tr>
-                        	<td></td>
-                           <td class="center-align" colspan="3"><i>No Virtual Currency Spending Rules</i></td>
-                           <td></td>
+                           <td class="center-align" colspan="4"><i>No Virtual Currency Spending Rules</i></td>
                         </tr>
                         {% endfor %}
                      </tbody>
