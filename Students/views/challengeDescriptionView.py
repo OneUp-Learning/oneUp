@@ -74,17 +74,17 @@ def ChallengeDescription(request):
                     context_dict['more_attempts'] = "Unlimited"
                 else:                             
                     # getting the number of attempts to check if the student is out of attempts
-                    student_attempts = StudentChallenges.objects.filter(studentID=studentId, challengeID=challengeId) 
+                    num_student_attempts = StudentChallenges.objects.filter(studentID=studentId, challengeID=challengeId).count()
                     
-                    if int(len(student_attempts)) < (int(total_attempts) - 1):
+                    if num_student_attempts < (int(total_attempts) - 1):
                         # student has more than one attempt
-                        context_dict['more_attempts'] = '' + str(int(total_attempts) - int(len(student_attempts))) + ''
+                        context_dict['more_attempts'] = '' + str(int(total_attempts) - num_student_attempts) + ''
                         
-                    elif int(len(student_attempts)) == (int(total_attempts) - 1):
+                    elif num_student_attempts == (int(total_attempts) - 1):
                         # last attempt of the student
                         context_dict['last_attempt'] = 'This is your last attempt!!!'
                                             
-                    elif int(len(student_attempts)) > (int(total_attempts) - 1):
+                    elif num_student_attempts > (int(total_attempts) - 1):
                         # no more attempts left
                         context_dict['no_attempt'] = "Sorry!! You don't have any more attempts left"
                  
