@@ -42,7 +42,7 @@ def ChallengeDescription(request):
                 else:
                     context_dict['isWarmup'] = False
                     
-                studentId = Student.objects.filter(user=request.user)
+                studentId = Student.objects.get(user=request.user)
                 
                 challengeId = request.GET['challengeID']
                 challenge = Challenges.objects.get(pk=int(challengeId))
