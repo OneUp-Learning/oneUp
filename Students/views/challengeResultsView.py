@@ -544,7 +544,7 @@ def ChallengeResults(request):
                     if q.type == QuestionTypes.multipleChoice:
                         correctAnswer = CorrectAnswers.objects.get(questionID=q.questionID).answerID
                         correctAnswerText = correctAnswer.answerText
-                        questdict['correct_answer_text'] = correctAnswerText
+                        questSessionDict['correct_answer_text'] = correctAnswerText
                         studentAnswerValue = studentAnswers[0].studentAnswer
                         userSelection = 0
                         userAnswer = {}
