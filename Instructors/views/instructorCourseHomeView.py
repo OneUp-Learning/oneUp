@@ -167,11 +167,17 @@ def courseLeaderboard(currentCourse, context_dict):
                     badgeName.append(badge.badgeID.badgeName)
                     badgeImage.append(badge.badgeID.badgeImage)
                     st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)       
-                    avatarImage.append(checkIfAvatarExist(st_crs))       
+                    avatarImage.append(checkIfAvatarExist(st_crs)) 
+                    student = badge.studentID
+                    if not (student.user.first_name and student.user.last_name):
+                        studentUser.append(student.user)
+                    else:
+                        studentUser.append(student.user.first_name +" " + student.user.last_name)
+                  
                               
             print("cparams")
             print(ccparams.numBadgesDisplayed+1)                    
-            context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage)
+            context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage, studentUser)
     
             # Skill Ranking          
             context_dict['skills'] = []
@@ -216,6 +222,7 @@ def courseLeaderboard(currentCourse, context_dict):
             
             avatarImage = []
             xpoints = []
+            studentUser = []
             for item in xp_pairs:
                 if item[1] > 0:         # don't append if 0 XP points
                     #avatarImage.append(item[0])
