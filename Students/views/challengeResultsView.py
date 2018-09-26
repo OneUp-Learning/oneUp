@@ -360,7 +360,7 @@ def ChallengeResults(request):
                                 
                                 #apply newlines so the code will be formattedproperly
                                 studentSolution = re.sub(r"§", "\n", studentSolution)
-                                studentSolution = re.sub(r"ℊ","\n", studentSolution)
+                                studentSolution = re.sub(r"ℊ ","\n", studentSolution)
                                 
                                 print("Student Solution", studentSolution);
                                 question['student_solution'] = studentSolution    

@@ -160,22 +160,20 @@ def ChallengeSetup(request):
                             
                             #we turn the student solution into a list
                             solution_string = [x.strip() for x in solution_string.split('¬')]
-                            
-                            #get how many spces there are in the first line
-                            print("solution_string[0]",solution_string[0])
-                            solution_string[0] = re.sub("☃"," ",solution_string[0])
-                            leadingSpacesCount = len(solution_string[0]) - len(solution_string[0].lstrip(' '))
-                            print("leading spaces", leadingSpacesCount)
+                            print("solutionString", solution_string)
                             
                             #give each string the new line
                             tabedSolution_string = []
                             pattern = re.compile("##")
-                            for index, line in enumerate(solution_string):
-                                line = re.sub("☃", "", line)
-                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", '', line)
-                                if(pattern.search(line) != None):
-                                    line = re.sub("^ *", '&nbsp;     ', line)
+                            for line in solution_string:
                                 print("line", line)
+                                line = re.sub("☃", "", line)
+                                leadingSpacesCount = len(line[0]) - len(line[0].lstrip(' '))
+                                print("line", line)
+                                print("leading spaces", leadingSpacesCount)
+                                line = re.sub("^[ ]{ *}", '', line)
+                                if(pattern.search(line) != None):
+                                    line = re.sub("^ *", '&nbsp;'+ ' '* (leadingSpacesCount ), line)
                                 line = line +"\n"
                                 tabedSolution_string.append(line)
                             
