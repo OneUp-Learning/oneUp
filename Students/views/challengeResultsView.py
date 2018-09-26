@@ -592,8 +592,8 @@ def ChallengeResults(request):
                         
                         questSessionDict['correctAnswerText'] = str(correctAnswerValue)
                         
-                        studentAnswerValue = (studentAnswers[0].studentAnswer == 'True')
-                        questSessionDict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':studentAnswerValue}
+                        studentAnswerValue = studentAnswers[0].studentAnswer
+                        questSessionDict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':(studentAnswers[0].studentAnswer == 'True')}
                         if studentAnswerValue == str(correctAnswerValue):
                             questSessionDict['user_points'] = questSessionDict['total_points']
                         else:
