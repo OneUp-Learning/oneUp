@@ -584,11 +584,17 @@ def ChallengeResults(request):
                         
                         
                         studentAnswer = studentAnswers[0].studentAnswer
-                        lineIndent = re.search(r'IndentationArray:([^;]+);', studentAnswer).group(1)
-                        lineIndent= numberfromstring = re.findall('\d+',lineIndent)
+                        lineIndentRegex = re.search(r'IndentationArray:([^;]+);', studentAnswer)
+                        if(lineIndentRegex != None):
+                            lineIndent = lineIndentRegex.group(1)
+                            studentAnswer = studentAnswer.replace(lineIndentRegex.group(0), "")
                             
-                        indentationArrayData = re.search(r'IndentationArray:([^;]+);', studentAnswer)
-                        studentAnswer = studentAnswer.replace(indentationArrayData.group(0), "")
+                        else:
+                            lineIndent = '[' + '0,' * 15 +'0]'
+                        
+                        
+                        lineIndent = re.findall('\d+',lineIndent)    
+                        
                         #we turn the student solution into a list
                         studentAnswer = [x.strip() for x in studentAnswer.split(',')]
                         #make a list of lines, split on , so we know how much to indent where
