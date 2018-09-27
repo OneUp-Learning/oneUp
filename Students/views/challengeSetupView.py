@@ -166,14 +166,13 @@ def ChallengeSetup(request):
                             tabedSolution_string = []
                             pattern = re.compile("##")
                             for line in solution_string:
-                                print("line", line)
                                 line = re.sub("☃", "", line)
-                                leadingSpacesCount = len(line[0]) - len(line[0].lstrip(' '))
                                 print("line", line)
+                                leadingSpacesCount = len(line) - len(line.lstrip(' '))
                                 print("leading spaces", leadingSpacesCount)
-                                line = re.sub("^[ ]{ *}", '', line)
-                                if(pattern.search(line) != None):
-                                    line = re.sub("^ *", '&nbsp;'+ ' '* (leadingSpacesCount ), line)
+                                if(leadingSpacesCount == 8):
+                                    line = re.sub("^ *", '&nbsp;'+' '* (4), line)
+                                print("finished line", line)    
                                 line = line +"\n"
                                 tabedSolution_string.append(line)
                             
