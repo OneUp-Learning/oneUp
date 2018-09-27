@@ -47,7 +47,7 @@ def register_event(eventID, request, student=None, objectId=None):
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
     if studentpk is None:
-        student = Student.objects.get(user__username=request.user.username['user'])
+        student = Student.objects.get(user__username=request.user.username)
     else:
         student = Student.objects.get(pk=studentpk)
     eventEntry.student = student
@@ -187,7 +187,7 @@ def register_event(eventID, request, student=None, objectId=None):
 
     return eventEntry
 
-def process_event_actual(eventID, minireq, studentpk, objectId):    
+def process_event_actual(eventID, minireq, studentpk, objectId):
     if studentpk is None:
         student = Student.objects.get(user__username=minireq['user'])
     else:
@@ -199,13 +199,15 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     eventEntry = StudentEventLog.objects.get(pk=eventID)
 
     # check for rules which are triggered by this event
-    matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventID)
+    matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventEntry.event)
     matchingRuleWithContext = dict()
     for ruleEvent in matchingRuleEvents:
         if ruleEvent.rule in matchingRuleWithContext:
             matchingRuleWithContext[ruleEvent.rule] = matchingRuleWithContext[ruleEvent.rule] or ruleEvent.inGlobalContext
         else:
             matchingRuleWithContext[ruleEvent.rule] = ruleEvent.inGlobalContext
+
+    print("Found "+str(len(matchingRuleEvents))+" rules which match")
         
     for potential in matchingRuleWithContext:
         condition = potential.conditionID
