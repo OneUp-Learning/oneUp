@@ -952,7 +952,7 @@
                                 <tr>
                                     <td>
                                         {% for i,badgeId,badgeName,badgeImage in badgesInfo %}
-                                        <img src="/{{badgeImage}}" alt="Badge Image" width="100px" height="100px" />
+                                        <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="100px" height="100px" data-tooltip="{{badgeName}}"/>
                                         {% empty %} 
                                         <i>No badges earned</i> 
                                         <!-- moved the endfor to the bottom for easier reading GGM -->
