@@ -14,7 +14,7 @@ from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses, Topics
 import json
 from oneUp.settings import CELERY_ENABLED
-from Badges.tasks import register_event_offline
+from Badges.tasks import process_event_offline
 
 # Method to register events with the database and also to
 # trigger appropriate action.
@@ -39,30 +39,18 @@ def register_event(eventID, request, student=None, objectId=None):
     else:
         studentpk = student.pk
 
-    if CELERY_ENABLED:
-        return register_event_offline.delay(eventID, make_smaller_serializable_request(request), studentpk, objectId)
-    else:
-        return register_event_actual(eventID, make_smaller_serializable_request(request), studentpk, objectId)
-
-def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
-
-    print('in register_event: ')
-    print(str(eventID))
     # Create event log entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
     eventEntry.timestamp = utcDate()
-    courseIDint = int(minireq['currentCourseID'])
+    courseIDint = int(request.session['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
-    print("Got to just before student DB search")
     if studentpk is None:
-        student = Student.objects.get(user__username=minireq['user'])
+        student = Student.objects.get(user__username=request.user.username)
     else:
         student = Student.objects.get(pk=studentpk)
     eventEntry.student = student
-
-    print("Got this far")
 
     # Here we need to add special handling for different types
     # of events which can occur
@@ -191,15 +179,35 @@ def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
     
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
+
+    if CELERY_ENABLED:
+        process_event_offline.delay(eventEntry.pk, make_smaller_serializable_request(request), studentpk, objectId)
+    else:
+        process_event_actual(eventEntry.pk, make_smaller_serializable_request(request), studentpk, objectId)
+
+    return eventEntry
+
+def process_event_actual(eventID, minireq, studentpk, objectId):
+    if studentpk is None:
+        student = Student.objects.get(user__username=minireq['user'])
+    else:
+        student = Student.objects.get(pk=studentpk)
+
+    courseIDint = int(minireq['currentCourseID'])
+    courseId = Courses.objects.get(pk=courseIDint)
     
+    eventEntry = StudentEventLog.objects.get(pk=eventID)
+
     # check for rules which are triggered by this event
-    matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventID)
+    matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventEntry.event)
     matchingRuleWithContext = dict()
     for ruleEvent in matchingRuleEvents:
         if ruleEvent.rule in matchingRuleWithContext:
             matchingRuleWithContext[ruleEvent.rule] = matchingRuleWithContext[ruleEvent.rule] or ruleEvent.inGlobalContext
         else:
             matchingRuleWithContext[ruleEvent.rule] = ruleEvent.inGlobalContext
+
+    print("Found "+str(len(matchingRuleEvents))+" rules which match")
         
     for potential in matchingRuleWithContext:
         condition = potential.conditionID
