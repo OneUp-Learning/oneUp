@@ -131,9 +131,9 @@
                     <tbody>
                         <tr>
                             <td>
-                               {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage in badgesInfo %}                                                       
+                               {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage, user in badgesInfo %}                                                       
                                <img src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"/>
-                               <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+                               <img class="tooltipped" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50" data-tooltip="{{user}}">
                                &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                                {% empty %}
                                <i>No badges earned</i>
