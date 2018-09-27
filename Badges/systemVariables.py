@@ -178,15 +178,13 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
  
     allScores = getTestScores(course,student,challenge)
-    if allScores.exists():
-        maxObject = allScores.latest('testScore')
+    maxScore = 0
+    for score in allScores:
+        combinedScore = score.getScore()
+        if combinedScore > maxScore:
+            maxScore = combinedScore
         
-        if float(maxObject.challengeID.totalScore) != 0:
-            return ((float(maxObject.getScore())/float(maxObject.challengeID.totalScore) * 100))
-        else:
-            return 0
-    else:
-        return 0
+    return float(maxScore)/float(challenge.getCombinedScore()) * 100
     
 def getAverageTestScore(course, student, challenge):    
     #return the average score of the a challenge
