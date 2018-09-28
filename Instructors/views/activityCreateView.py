@@ -9,6 +9,7 @@ from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCate
 from Instructors.views.utils import utcDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime
+import os
 
 @login_required
 def activityCreateView(request):
@@ -166,12 +167,13 @@ def makeFilesObjects(instructorID, files, activity):
     #oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
 
     for i in range(0, len(files)): #make student files so we can save files to hardrive
-        print('Makeing file object' + str(files[i].name))
+        print('Makeing file object ' + str(files[i].name))
         actFile = UploadedActivityFiles()
         actFile.activity = activity
         actFile.activityFile = files[i]
-        actFile.activityFileName = files[i].name
         actFile.activityFileCreator = instructorID
+        actFile.save()
+        actFile.activityFileName = os.path.basename(actFile.activityFile.name) 
         actFile.save()
         
 def removeFileFromActivty(request):
