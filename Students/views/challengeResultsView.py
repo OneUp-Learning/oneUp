@@ -440,7 +440,7 @@ def ChallengeResults(request):
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
                         studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
-                        studentChallengeAnswers.studentAnswer = studentAnswer
+                        studentChallengeAnswers.studentAnswer = 'IndentationArray:'+ str(lineIndent)+ ";" + studentAnswer
                         studentChallengeAnswers.save()
 
                 # The sort on the next line should be unnecessary, but better safe than sorry
@@ -545,6 +545,76 @@ def ChallengeResults(request):
                         j = j + 1
 
                     questdict['matches']=matchlist
+                    if q.type == QuestionTypes.parsons:
+                        answer = Answers.objects.filter(questionID=q.questionID)
+                        answer = answer[0].answerText
+                        print("Model Solution: ", answer)
+                        
+                        #get the language information and indentation status
+                        #remove the first line that keeps the data
+                        searchString = re.search(r'Language:([^;]+);Indentation:([^;]+);', answer)
+                        answer =  re.sub("##", "", answer)
+                        indentation = searchString.group(2)
+                        answer = answer.replace(searchString.group(0), "")
+                        
+                        
+                        
+                        answer =  re.sub("^ *\\t", "  ", answer)
+        
+                        #tokenizer characters ☃ and ¬
+                        answer = re.sub("\n", "\n¬☃", answer)
+                        answer = re.sub("^[ ]+?", "☃", answer)
+                        
+                        #we turn the student solution into a list
+                        answer = [x.strip() for x in answer.split('¬')]
+                        
+                        #get how many spces there are in the first line
+                        answer[0] = re.sub("☃"," ",answer[0])
+                        leadingSpacesCount = len(answer[0]) - len(answer[0].lstrip(' '))
+                        
+                        #give each string the new line
+                        tabedanswer = []
+                        for index, line in enumerate(answer):
+                            line = re.sub("☃", "", line)
+                            line = re.sub(".*#distractor", "", line)
+                            line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
+                            if index < len(answer)- 1:
+                                line = line +"\n"
+                            tabedanswer.append(line)
+                        
+                        answer = ""
+                        answer = answer.join(tabedanswer)
+                                                    
+                        questSessionDict['model_solution'] = answer
+                        
+                        
+                        studentAnswer = studentAnswers[0].studentAnswer
+                        lineIndentRegex = re.search(r'IndentationArray:([^;]+);', studentAnswer)
+                        if(lineIndentRegex != None):
+                            lineIndent = lineIndentRegex.group(1)
+                            studentAnswer = studentAnswer.replace(lineIndentRegex.group(0), "")
+                            
+                        else:
+                            lineIndent = '[' + '0,' * 15 +'0]'
+                        
+                        
+                        lineIndent = re.findall('\d+',lineIndent)    
+                        
+                        #we turn the student solution into a list
+                        studentAnswer = [x.strip() for x in studentAnswer.split(',')]
+                        #make a list of lines, split on , so we know how much to indent where
+                        lineIndent = [int(line) for line in lineIndent]
+                       
+                        #perform the spacing for each line
+                        IndentedStudentSolution = [];
+                        for index, line in enumerate(studentAnswer,0):
+                            line = '    ' * lineIndent[index] + line +'\n'
+                            IndentedStudentSolution.append(line)
+                        
+                        studentAnswer = ""
+                        studentAnswer = studentAnswer.join(IndentedStudentSolution)
+                        
+                        questSessionDict['student_solution'] = studentAnswer
                     
                     if q.type == QuestionTypes.multipleChoice:
                         correctAnswer = CorrectAnswers.objects.get(questionID=q.questionID).answerID
@@ -635,15 +705,6 @@ def ChallengeResults(request):
                                     userScore = userScore + valuePerAnswer
 
                         questSessionDict['user_points'] = userScore
-                        questSessionDict['user_answers'] = userAnswers
-                        
-                elif q.type == QuestionTypes.parsons:
-                    ##grade the parson problem
-                        userAnswers = []
-                        userScore = []
-                        parson = questdict['parsons']
-
-                        questSessionDict['user_points'] = 57
                         questSessionDict['user_answers'] = userAnswers
                 elif q.type in dynamicQuestionTypesSet:
                     dynamicQuestion = DynamicQuestions.objects.get(pk=q.questionID)
