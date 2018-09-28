@@ -70,7 +70,7 @@ def virtualCurrencyShopView(request):
                 defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
                 currentTime = utcDate()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
-                activites = Activities.objects.filter(courseID=currentCourse)
+                activites = Activities.objects.filter(courseID=currentCourse).filter(Q(deadLine__gt=currentTime) | Q(deadLine=defaultTime)).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
                 
                 for challenge in challenges:
                     studentChallenges = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challenge)
@@ -80,12 +80,11 @@ def virtualCurrencyShopView(request):
                         challenges_id.append(challenge.challengeID)
                         challenges_name.append(challenge.challengeName)
                 for activity in activites:
-                    studentActivities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse,activityID=activity)
+                    #studentActivities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse,activityID=activity)
                     # Only pick activities that are graded
-                    for sAct in studentActivities:
-                        if sAct.graded == True:
-                            challenges_id.append(activity.activityID)
-                            challenges_name.append(activity.activityName)
+                    if activity.isGraded == True:
+                        challenges_id.append(activity.activityID)
+                        challenges_name.append(activity.activityName)
                     
                 if len(challenges_id) == 0:
                     return None
