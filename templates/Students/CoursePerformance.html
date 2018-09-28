@@ -15,7 +15,7 @@
             <div class="col s12 m10 offset-m1">
                <div class="card">
                   <div class="card-content">
-                     <table class="responsive-table">
+                     <table {% if challenge_range %}class="responsive-table"{% else %}class="table"{% endif%}>
                         <thead>
                            <th>Name</th>
                            <th>Type</th>
