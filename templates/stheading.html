@@ -3,6 +3,10 @@
 	i.icon-yellow:hover {
 		color: yellow;
 	}
+	.notification-count-parent:hover,
+	.clearAll:hover {
+        background-color: white;
+    }
 </style>
 
 <!-- Used for the notifications -->
@@ -11,71 +15,151 @@
 {% include_notify_js_variables %}
 <script src="{% static "notify/notifyX.js" %}"></script>
 <script>
-	var updateSuccess = function (response) {
-	    var notification_box = $('#nMenu1');
-		var notification_box2 = $('#nMenu2');
-	    var notifications = response.notifications;
-	    $.each(notifications, function (i, notification) {
-	        notification_box.prepend(notification.html);
-			notification_box2.prepend(notification.html);
-	    });
-	    
-	    //IF table on page then update
-	};
-
-
-	function countNotifications(){
-		numItems = Math.trunc($('.navNotifications').length/2.0);
-		$('.tooltipped').tooltip({delay: 50});
-		if(numItems == 0){
-			numItems = null;
-
-			document.getElementById("notification-count1").setAttribute('data-tooltip', "No Notifications");
-			document.getElementById('notification-count1').children[0].innerHTML = 'notifications';
-
-			x = document.getElementById("nMenu1").children;
-			x = x[0];
-			y = document.createElement('li');
-			y.innerHTML = "<a class='waves-effect grey-text text-darken-2' href='#!'>No new notifications yet</a>"
-			x.parentNode.replaceChild(y, x);
-
-			document.getElementById("notification-count2").style.display = "none";
-
-			x = document.getElementById("nMenu2").children;
-			x = x[0];
-			y = document.createElement('li');
-			y.innerHTML = "<a class='waves-effect grey-text text-darken-2' href='#!'>No new notifications yet</a>"
-			x.parentNode.replaceChild(y, x);
-			
-			document.getElementById("clearAll").style.display = "none";
-
-		} else {
-			document.getElementById("notification-count1").setAttribute('data-tooltip', numItems + " New");
-			document.getElementById('notification-count1').children[0].innerHTML = 'notifications_active';
-
-			document.getElementById("notification-count2").style.display = "visible";
-			document.getElementById("notification-count2").textContent= numItems;
-
-			document.getElementById("clearAll").style.display = "inline";
-		}
-		
-	}
-	
-	$(document).ready(function() {
-		countNotifications();
-		setInterval(function(){
+		var updateSuccess = function (response) {
+			var notification_box = $('#nMenu1');
+			var notification_box2 = $('#nMenu2');
+			var notifications = response.notifications;
+			$.each(notifications, function (i, notification) {
+				notification_box.prepend(notification.html);
+				notification_box2.prepend(notification.html);
+			});
+			removeDuplicates();
 			countNotifications();
-		}, 5000);
-		$('.tooltipped').tooltip({delay: 50});
-	});	
-	
-		$(document).on('click', '#clearAll', function() {
-			console.log("Clear all clicked")
-	        $(".delete-box").click();
-			countNotifications();
-			document.getElementById("clearAll").style.display = "none";
+			//IF table on page then update
+		};
+        var deleteSuccess = function(response, $notification){
+            // If notification deleted from desktop remove from mobile side as well and vice versa
+            var notification_box = $('#nMenu1');
+            var notification_box2 = $('#nMenu2');
+            var notification_id = $notification.attr("data-id");
+            function removeAll(notification_box, id){
+                notification_box.children().children().children("i[data-id='"+id+"']").each(function(index){
+                    $(this).parent().parent().remove();
+                });
+            }
+            removeAll(notification_box, notification_id);
+            removeAll(notification_box2, notification_id);
+        }
+        var removeDuplicates = function(){
+            // Fixes weird bug with notifications. Once notification is created it can create more than one at a time.
+            // Ex. student buys 3 items from shop it sends 6 notifications
+            var notification_box = $('#nMenu1');
+            var notification_box2 = $('#nMenu2');
+            function removeDupes(notification_box){
+                var seen = {};
+                notification_box.children().each(function(index){
+                    if(seen[$(this).attr("data-nf-id")] == true){
+                        $(this).remove();
+                    }
+                    else{
+                        seen[$(this).attr("data-nf-id")] = true;
+                    }
+                });
+            }
+            removeDupes(notification_box);
+            removeDupes(notification_box2);
+        }
+    
+        function countNotifications(){
+            // Get number of notifications which is double becuase of the mobile nav so divide it back down
+            
+            let numItems = Math.max(Math.trunc($('.navNotifications').length/2.0), 0);
 
-	    });
+            let tooltip_element = $("#notification-count1");
+            let badge_element = document.getElementById("notification-count2");
+
+            // Get the badge count elements of the number of notifications
+            notification_count_elements = document.getElementsByClassName('notification-count');
+            for(var i = 0; i < notification_count_elements.length; i++){
+                let element = notification_count_elements[i];
+                // Set parent to visible/none if there are some notifications not read and vice versa
+                if(numItems > 0)
+                    element.parentNode.parentNode.style.display = "inline";
+                else
+                    element.parentNode.parentNode.style.display = "none";
+
+                element.innerHTML = numItems;
+            }
+            // Hide/Show the clearAll elements 
+            clearAll_elements = document.getElementsByClassName('clearAll');
+            for(var i = 0; i < clearAll_elements.length; i++){
+                let element = clearAll_elements[i];
+                if(numItems > 0)
+                    element.parentNode.style.display = "inline";
+                else 
+                    element.parentNode.style.display = "none";
+            }
+            if(numItems == 0){
+                // Set tooltip count and change icon to signal no notifications
+                
+                tooltip_element.attr('data-tooltip', "No Notifications");
+                tooltip_element.tooltip();
+                tooltip_element.children(":first").html('notifications');
+                
+                // Create no notification element for desktop view
+                desktop_notifications = document.getElementById("nMenu1");
+                // Remove unwanted default notification which is <b>no notifications yet</b>
+                if(desktop_notifications.getElementsByTagName('b').length > 0){
+                    while (desktop_notifications.firstChild) {
+                        desktop_notifications.removeChild(desktop_notifications.firstChild);
+                    }
+                }
+                if(desktop_notifications.children.length <= 0){
+                    x = document.createElement('li');
+                    x.innerHTML = "<a class='no-notifications waves-effect' href='#!'>No new notifications yet</a>"
+                    desktop_notifications.appendChild(x, desktop_notifications);
+                }
+
+                // Hide badge for mobile view
+                badge_element.style.display = "none";
+                
+                // Create no notification element for mobile view
+                mobile_notifications = document.getElementById("nMenu2");
+                // Remove unwanted default notification which is <b>no notifications yet</b>
+                if(mobile_notifications.getElementsByTagName('b').length > 0){
+                    while (mobile_notifications.firstChild) {
+                        mobile_notifications.removeChild(mobile_notifications.firstChild);
+                    }
+                }
+                if(mobile_notifications.children.length <= 0){
+                    x = document.createElement('li');
+                    x.innerHTML = "<a class='no-notifications waves-effect' href='#!'>No new notifications yet</a>"
+                    mobile_notifications.appendChild(x, mobile_notifications);
+                }
+                
+                
+    
+            } else {
+                // Remove the no-notification elements
+                no_notifcation_elements = document.getElementsByClassName('no-notifications');
+                for(var i = 0; i < no_notifcation_elements.length; i++){
+                    let element = no_notifcation_elements[i];
+                    element.parentNode.parentNode.removeChild(element.parentNode);                    
+                }
+
+                // Set tooltip count and change icon to signal notifications
+                tooltip_element.attr('data-tooltip', numItems + " New");
+                tooltip_element.tooltip();
+                tooltip_element.children(":first").html('notifications_active');
+                
+                // Show badge for mobile view and set count 
+                badge_element.style.display = "block";
+                badge_element.textContent= numItems;
+                
+            }
+            
+        }
+        
+        $(document).ready(function() {
+            countNotifications();
+            $('.tooltipped').tooltip({delay: 50});
+            
+        });	
+        
+        $(document).on('click', '.clearAll', function() {
+            $(".delete-box").click();
+            countNotifications();
+        });
 </script>
 		<ul id="account" class="dropdown-content">
 			{% if ccparams.gamificationUsed and ccparams.avatarUsed %}
@@ -149,10 +233,11 @@
 						<i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
 					</a>
 					<ul id="notifications" class="dropdown-content">
+						<li><a class="notification-count-parent" href="#!">Notifications <span style="float:right;" class="badge notification-count">1</span></a></li>
 						<div id="nMenu1" class="notification-box-list">
 						{% user_notifications for box %}
 						</div>
-						<li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
+						<li><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
 					</ul>
 				</li>
 				{% if is_test_student %}
@@ -241,7 +326,7 @@
 									<div id="nMenu2" class="notification-box-list">
 									{% user_notifications for box %}
 									</div>			
-									<li id="clearAll"><a class="waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
+									<li><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
 								</ul>
 							</div>
 						</li>
