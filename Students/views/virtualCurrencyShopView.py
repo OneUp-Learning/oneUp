@@ -117,7 +117,7 @@ def virtualCurrencyShopView(request):
                 index += 1
             # filter out the potential buy options if the student has went over the limit by looking at their transactions
             for buyOption in buyOptions:
-                studentTransactions = StudentVirtualCurrencyTransactions.objects.filter(course = currentCourse, student = student, status__in = ['Requested', 'In Progress', 'Completed'], studentEvent__event = buyOption['eventID'])
+                studentTransactions = StudentVirtualCurrencyTransactions.objects.filter(course = currentCourse, student = student, status__in = ['Requested', 'In Progress', 'Complete'], studentEvent__event = buyOption['eventID'])
                 if buyOption['limit'] == 0:
                     continue
                 elif len(studentTransactions) >= buyOption['limit']:
