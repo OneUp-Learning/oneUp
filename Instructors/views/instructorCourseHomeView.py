@@ -177,7 +177,7 @@ def courseLeaderboard(currentCourse, context_dict):
                               
             print("cparams")
             print(ccparams.numBadgesDisplayed+1)                    
-            context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID,badgeImage,avatarImage, studentUser)
+            context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID, badgeName, badgeImage,avatarImage, studentUser)
     
             # Skill Ranking          
             context_dict['skills'] = []
