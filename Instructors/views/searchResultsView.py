@@ -154,7 +154,8 @@ def searchResults(request):
             context_dict['empty'] = 1
             
         # The range part is the index numbers.
-        context_dict['question_range'] = zip(range(1,num_found_questions+1),q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId)
+        zipped = zip(range(1,num_found_questions+1),q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId)
+        context_dict['question_range'] = sorted(zipped, key=lambda x: x[2])
         
         if 'challengeID' in request.POST:                                   # 03/05/2015
             context_dict['challengeID'] = request.POST['challengeID']
