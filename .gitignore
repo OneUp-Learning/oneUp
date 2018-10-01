@@ -41,3 +41,8 @@ oneUpVenv/*
 
 media/studentActivities/*
 /.metadata/
+
+# Stuff from pipenv
+Pipfile*
+.DS_Store
+.vscode/settings.json
