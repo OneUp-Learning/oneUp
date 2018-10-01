@@ -44,3 +44,5 @@ media/studentActivities/*
 Pipfile*
 
 .vscode/*
+
+.DS_Store
