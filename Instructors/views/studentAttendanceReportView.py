@@ -44,8 +44,10 @@ def getRollByDate(request, context_dict):
     student_Names = []
     student_Avatars = []
     student_ID = []
+    datesPostion = {} #Used to keep track of the number of falses (days a studnet was missing) 
     
-    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID'])
+    
+    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name')
     for entry in studentCourse:
         user = User.objects.get(username=entry.studentID)
         studentID = Student.objects.get(user=user)
@@ -65,21 +67,32 @@ def getRollByDate(request, context_dict):
     dates = list(context_dict["selectedDates"])
     for id in student_ID:
         studentPresenceOnDatesList = []
+        position = 0 # helps with the dates positon in the list 
         for date in dates:
             student = StudentAttendance.objects.filter(courseID = request.session['currentCourseID'], timestamp=date, studentID=id)
+
+            if not position in datesPostion.keys(): # helps with adding new keys to the dictionary 
+                datesPostion[position] = 0
+
             if not student:
                 studentPresenceOnDatesList.append("false")
+                datesPostion[position] += 1 
             else:
                 student = list(student)
                 if student[0].isPresent == True:
                     studentPresenceOnDatesList.append("true")
                 else:
                     studentPresenceOnDatesList.append("false")
+                    datesPostion[position] += 1
+
+            position+=1
                     
-        isPresent.append(studentPresenceOnDatesList) 
-        
-    context_dict["class"] = zip(student_ID, student_Avatars, student_Names, isPresent)
-    context_dict["Dates"] = generateDatesList(context_dict["firstDateParsed"], context_dict["secondDateParsed"])
+        isPresent.append(studentPresenceOnDatesList)
+    
+    isPresent = removeDatesWithNoAttendance(isPresent,datesPostion, len(student_Names))
+    print(context_dict["firstDateParsed"])
+    context_dict["class"] = list(zip(student_ID, student_Avatars, student_Names, isPresent))
+    context_dict["Dates"] = generateDatesList(context_dict["firstDateParsed"], context_dict["secondDateParsed"], isPresent)
     return context_dict
 
 #what is used to iterate over the dates
@@ -93,10 +106,22 @@ def generateDatesListForIteration(startDate, endDate):
     return dates
 
 ##what is used to display the dates on the page
-def generateDatesList(startDate, endDate):
+def generateDatesList(startDate, endDate, isPresent):
     dates = []
+    count = 0
     step = timedelta(days=1)
     while startDate <= endDate:
-        dates.append(str(startDate.month) +"/"+str(startDate.day))
+        if(isPresent[0][count] != "clear"):
+            dates.append(str(startDate.month) +"/"+str(startDate.day))
+        
+        count += 1
         startDate += step 
     return dates
+
+def removeDatesWithNoAttendance(isPresent, datesPostion, numStudents):
+    for postion, falses in datesPostion.items():
+        if falses == numStudents: #if at the postion we have enough false remove the date 
+            for attendacne in isPresent:
+                attendacne[postion] = "clear"
+
+    return isPresent
