@@ -16,6 +16,7 @@ from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet,
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 from locale import currency
+from django.db.models.functions.window import Lead
 
 def makeSerializableCopyOfDjangoObjectDictionary(obj):
     dict = obj.__dict__.copy()
@@ -155,31 +156,68 @@ def ChallengeSetup(request):
                             #tokenizer characters ☃ and ¬
                             solution_string = re.sub("\n", "\n¬☃", solution_string)
                             solution_string = re.sub("^[ ]+?", "☃", solution_string)
+                            print("Solution StringF", solution_string)
                             
                             #we turn the student solution into a list
                             solution_string = [x.strip() for x in solution_string.split('¬')]
-                            
-                            #get how many spces there are in the first line
-                            print("solution_string[0]",solution_string[0])
-                            solution_string[0] = re.sub("☃"," ",solution_string[0])
-                            leadingSpacesCount = len(solution_string[0]) - len(solution_string[0].lstrip(' '))
-                            print("leading spaces", leadingSpacesCount)
+                            print("solutionString", solution_string)
                             
                             #give each string the new line
                             tabedSolution_string = []
-                            for index, line in enumerate(solution_string):
+                            
+                            #indentation flag allows checking to see if next line should be indented
+                            indentationFlag = 0
+                            pattern = re.compile("##")
+                            for line in solution_string:
+                                originalLine= line
+                                #we need the original line to match against when we find the next element
                                 line = re.sub("☃", "", line)
-                                line = re.sub("^[ ]{" + str(leadingSpacesCount) + "}", "", line)
+                                if(indentationFlag == 1):
+                                    #if indentation flag is 1 then we know that on this line we must indent
+                                    indentationFlag = 0
+                                    line = re.sub("^ *", '&nbsp;'+ ' '* 4, line)
+                                leadingSpacesCount = len(line) - len(line.lstrip(' '))
+                                if(pattern.search(line) != None):
+                                    #get the net line, find out its spaces count
+                                    nextelem =solution_string[solution_string.index(originalLine) +1]
+                                    nextelem = re.sub("☃", "", nextelem)
+                                    leadingSpacesCountNextLine = len(nextelem) - len(nextelem.lstrip(' '))
+                                    
+                                    #we use the difference to calculate whether we must indent and where 
+                                    difference = leadingSpacesCount - leadingSpacesCountNextLine
+                                    print("Difference", difference)
+                                    if(difference == -4):
+                                        #if indentation is after the line
+                                        #ex:
+                                        #data++;
+                                        #   index++;
+                                        indentationFlag = 1
+                                    if(difference == 4):
+                                        #if indentation is before the line
+                                        #ex:
+                                        #   data++;
+                                        #index++;
+                                        modifier = int(leadingSpacesCount / 2)
+                                        if(modifier > 1 and leadingSpacesCount == 8):
+                                            #this modifier multiplies by the spaces count, if 8 then 4 in front, 4 after nbsp
+                                            #this is a quirk of parsons.js
+                                            line = re.sub("^ *", ' '* modifier + '&nbsp;'+ ' '* 5, line)
+                                        else:
+                                            line = re.sub("^ *", '&nbsp;'+ ' '* 4, line)
                                 line = line +"\n"
                                 tabedSolution_string.append(line)
                             
+
                             solution_string = ""
                             solution_string = solution_string.join(tabedSolution_string)
+                            print("tabbedSol String", tabedSolution_string)
+                            print("joinedSolString", solution_string)
                             
                             solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
                             
                             
                             questdict['model_solution']=repr(solution_string).strip('\'')
+                            print("questdict['model_solution']", questdict['model_solution'])
                                             
                         #getting the matching questions of the challenge from database
                         matchlist = []

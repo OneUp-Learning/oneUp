@@ -83,8 +83,8 @@
                            <tbody>
                               <tr>
                                  <td>
-                                    {% for i,studentBadgeID,studentID,badgeID,badgeImage,avatarImage, user in badgesInfo %}    
-                                    <img src="/{{badgeImage}}" alt="Badge Image" width="70px" height="70px"/>
+                                    {% for i,studentBadgeID,studentID,badgeID, badgeName, badgeImage,avatarImage, user in badgesInfo %}    
+                                    <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="70px" height="70px"data-tooltip="{{badgeName}}" />
                                     <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
                                     &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                                     {% empty %}
