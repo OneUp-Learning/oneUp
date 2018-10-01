@@ -824,6 +824,33 @@
             </div>
         </div>
         
+        <!-- GGM your badges Bar moved right after progress bar -->
+        {% if are_Badges_Displayed|lower %}
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Your Badges</span>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {% for i,badgeId,badgeName,badgeImage in badgesInfo %}
+                                        <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="100px" height="100px" data-tooltip="{{badgeName}}"/>
+                                        {% empty %} 
+                                        <i>No badges earned</i> 
+                                        <!-- moved the endfor to the bottom for easier reading GGM -->
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
         <!-- GGM added a switch to display class skills if the student toggles it on -->
         {% comment %}
         class skills displayed is the instructor toggle
@@ -941,31 +968,6 @@
         </div>
 
 {% endif %}
-        {% if are_Badges_Displayed|lower %}
-        <div class="row">
-            <div class="col s12 m10 offset-m1">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Badges</span>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        {% for i,badgeId,badgeName,badgeImage in badgesInfo %}
-                                        <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="100px" height="100px" data-tooltip="{{badgeName}}"/>
-                                        {% empty %} 
-                                        <i>No badges earned</i> 
-                                        <!-- moved the endfor to the bottom for easier reading GGM -->
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
