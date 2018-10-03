@@ -19,13 +19,15 @@ logger = logging.getLogger(__name__)
 def process_file(filename):
     ls = []
     fp = open(filename)
+    lineCount = 0 # Used to keep count of the lines we have to skip the first two interations of the loop
     
     for line in fp:
-        #line = line.replace('"', '')
-        names = line.split(',')
-        print(names)
-        ls.append((names[1], names[0],  names[2].lstrip(), names[3], names[4]))
-    print(ls)    
+        if(lineCount >= 2):
+            # #line = line.replace('"', '')
+            names = line.split(',')
+            ls.append((names[1].lstrip("\""), names[0].lstrip("\""),  names[3].lstrip(), names[4]))
+        lineCount += 1
+    print(ls)
     return ls
 
 @login_required
@@ -53,10 +55,12 @@ def importStudents(request):
     students = process_file(upfile.uploadedFile.name)
     
     for studentData in students:
+        print("#####")
+        print(studentData)
 
-        uname = studentData[3]       
-        email = studentData[2]
-        pword = studentData[4]  # Student Banner/University ID
+        uname = studentData[3] # The sutdnt username without @rams
+        email = studentData[3] + "@rams.wssu.edu"
+        pword = studentData[2]  # The SIS User ID found in the canvas csv file
         
         # Check if student is in the system already
         users = User.objects.filter(email = email)
@@ -68,7 +72,7 @@ def importStudents(request):
         else:
         # the student is not in the system, create a user/student       
             user = User.objects.create_user(uname, email, pword)
-            user.first_name = studentData[0]
+            user.first_name = studentData[0][1:-1]
             user.last_name = studentData[1]
             user.save()
             
