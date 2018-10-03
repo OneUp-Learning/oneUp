@@ -55,9 +55,6 @@ def importStudents(request):
     students = process_file(upfile.uploadedFile.name)
     
     for studentData in students:
-        print("#####")
-        print(studentData)
-
         uname = studentData[3] # The sutdnt username without @rams
         email = studentData[3] + "@rams.wssu.edu"
         pword = studentData[2]  # The SIS User ID found in the canvas csv file
@@ -82,21 +79,22 @@ def importStudents(request):
             student.save()
         
         # register the student for this course
-        studentRegisteredCourses = StudentRegisteredCourses()
-        studentRegisteredCourses.studentID = student
-        studentRegisteredCourses.courseID = currentCourse
-        studentRegisteredCourses.avatarImage = anonymous_avatar
-        if ccparams.virtualCurrencyAdded:
-            studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
-        studentRegisteredCourses.save()
-        
-        logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
+        if not StudentRegisteredCourses.objects.filter(courseID=currentCourse,studentID=student): # keeps us from registering the same students over and over
+            studentRegisteredCourses = StudentRegisteredCourses()
+            studentRegisteredCourses.studentID = student
+            studentRegisteredCourses.courseID = currentCourse
+            studentRegisteredCourses.avatarImage = anonymous_avatar
+            if ccparams.virtualCurrencyAdded:
+                studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
+            studentRegisteredCourses.save()
+            
+            logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
 
-        # Create new Config Parameters
-        scparams = StudentConfigParams()
-        scparams.courseID = currentCourse
-        scparams.studentID = student
-        scparams.save()
+            # Create new Config Parameters
+            scparams = StudentConfigParams()
+            scparams.courseID = currentCourse
+            scparams.studentID = student
+            scparams.save()
         
     return redirect('createStudentListView')
             
