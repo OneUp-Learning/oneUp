@@ -7,7 +7,7 @@ Created on Sept 4, 2018
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, Topics
+from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, CoursesTopics
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import default_time_str
 from Instructors.views.instructorCourseHomeView import studentXP
@@ -39,7 +39,7 @@ def debugSysVars(request):
     sysVars = SystemVariable.systemVariables #enum of system vars
     sysVarsName = []
     
-    
+    #Help display all system vars
     for var in sysVars:
         print(sysVars[var]["name"])
         sysVarsName.append(sysVars[var]["name"])
@@ -112,8 +112,6 @@ def debugSysVars(request):
                     else:
                         varIndex = var
                     
-                    print("########")
-                    print(obj)
                     
                     displayData.extend(getSysValues(studentID,varIndex,obj,currentCourse))
         
@@ -121,8 +119,8 @@ def debugSysVars(request):
                     
     # Used to fill values for the three drop down menus
     context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Avatar, )))
-    context_dict['sysVars'] = sorted(list(zip(range(1,len(sysVars)+1), sysVars, sysVarsName, )))
-    context_dict['objects'] = sorted(list(zip(range(1,len(objectType)+1), objectType, objectTypeNames, )))
+    context_dict['sysVars'] = sorted(list(zip(range(1,len(sysVars)+1), sysVars, sysVarsName, )), key= lambda x:x[2])
+    context_dict['objects'] = sorted(list(zip(range(1,len(objectType)+1), objectType, objectTypeNames, )), key= lambda x:x[2])
     
         # context_dict['debugTable'] = list(zip(range(1,len(allDebugEvents)+1), displayStudents, displayEvents, displayObject, disaplyTimeStamp))
 
@@ -200,15 +198,13 @@ def getSysValues(student,sysVar,objectType,currentCourse):
            val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['name']))
 
-    # elif objString == 'question':
-    #     print('###########  question')
-    #     #questions = Questions.objects.filter()
-    #     #ASK ABOUT HOW TO GET QUESTON FROM THE COURSE
-
-    # elif objString == 'topic':
-    #     print('###########  topic')
-    #     #ASK ABOUT HOW TO GET A TOPIC 
-
+    elif objString == 'topic':
+        #ASK ABOUT HOW TO GET A TOPIC 
+        coruseTopcis = CoursesTopics.objects.filter(courseID = currentCourse)
+        for x in coruseTopcis:
+           val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x.pk)
+           disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x.topicID.topicName))
+           
     elif objString == 'global':
         val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),0)
         disaplyData.append(prepForDisplay(student,sysVar,objectType,val,0))
@@ -217,10 +213,11 @@ def getSysValues(student,sysVar,objectType,currentCourse):
 
 def prepForDisplay(student, sysVar, object, value,assignment):
     name = student.user.first_name + " " + student.user.last_name
+    avatarImage = checkIfAvatarExist(StudentRegisteredCourses.objects.get(studentID=student))
     objectName = ObjectTypes.objectTypes[int(object)]
     sysVarName = SystemVariable.systemVariables[int(sysVar)]['name']
     if objectName == 'global':
         assignment = "N/A"
     if type(value) == str and "Error" in value:
         value = "No value available "
-    return (name, assignment, objectName, sysVarName, value)
+    return (name, assignment, objectName, sysVarName, value, avatarImage)
