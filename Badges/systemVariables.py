@@ -423,22 +423,24 @@ def getActivitiesCompleted(course,student):
 def getNumDaysSubmissionLateActivity(course, student , activity):
     '''Return the number of days an activity submitted after due date'''
     from Students.models import StudentActivities
-    
+   
+    print("numb days submissionsssss late")
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
 
     if not studentActivity:
-        return "Activity not submitted yet"
+        return (float('inf'))
     else: 
         print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
-        return getDaysDifferenceActity(activity,studentActivity[0])
+        return (-1 *getDaysDifferenceActity(activity,studentActivity[0]))
     
 def getNumDaysSubmissionEarlyActivity(course, student , activity):
     '''Return the number of days an activity submitted before due date'''
     from Students.models import StudentActivities
     
+    print("numb days submissionsssss early")
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    if(not studentActivity):
-        return "Activity not submitted yet"
+    if not studentActivity:
+        return (-1*float('inf'))
     else:
         print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
         return getDaysDifferenceActity(activity,studentActivity[0])
@@ -446,7 +448,8 @@ def getNumDaysSubmissionEarlyActivity(course, student , activity):
 # utility function return difference in days between the submission and due date
 def getDaysDifferenceActity(activity, studentActivity):
     deadline = activity.deadLine
-    submission = studentActivity.timestamp
+    submission = studentActivity.submissionTimestamp
+    print("getDaysDifferenceActity")
     print("Deadline ", deadline)
     print("submission", submission)
     numDays = str(deadline - submission)
@@ -455,7 +458,7 @@ def getDaysDifferenceActity(activity, studentActivity):
         i=0
         for x in numDays:
             if x==" ":
-                return int(numDays[1:i])
+                return -1 * int(numDays[1:i])
             i+=1
     i=0
     for x in numDays:
@@ -1071,7 +1074,7 @@ class SystemVariable():
             'description':'The number of days a submission is turned in earlier than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge,],
-                ObjectTypes.activity: [Event.participationNoted, Event.instructorAction, Event.studentUpload],
+                ObjectTypes.activity: [Event.activitySubmission],
             },
             'type':'int',
             'functions':{
@@ -1086,7 +1089,7 @@ class SystemVariable():
             'description':'The number of days a submission is turned in later than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge,],
-                ObjectTypes.activity: [Event.participationNoted,Event.instructorAction, Event.studentUpload],
+                ObjectTypes.activity: [Event.activitySubmission],
             },
             'type':'int',
             'functions':{
