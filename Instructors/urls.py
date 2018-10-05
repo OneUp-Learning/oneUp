@@ -23,6 +23,10 @@ from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSe
 from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 
+from Instructors.views.debugStudentEventLog import debugEventVars
+from Instructors.views.debugSysVars import debugSysVars
+from Instructors.views.debugSysVars import getObjsForSysVar
+
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 
