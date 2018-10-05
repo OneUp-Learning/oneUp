@@ -110,18 +110,15 @@
                 <th>Student Name</th>
                 <th>Assignment</th> 
                 <th>Object Type</th>
-                <th>System Variable</th>
                 <th>Value</th>
               </thead>
               <tbody>
                 {% for data in debugData %}
                 <tr>
-                  <!--    <td><img class="circle" alt="Avatar Image" width="36" height="36" src="{{user_Avatar}}"></td> -->
-                  <td> </td>
+                  <td><img class="circle" alt="Avatar Image" width="36" height="36" src="{{data.5}}"></td>
                   <td>{{data.0}}</td>
                   <td>{{data.1}}</td>
                   <td>{{data.2}}</td>
-                  <td>{{data.3}}</td>
                   <td>{{data.4}}</td>
                 </tr>
                 {% empty %}
