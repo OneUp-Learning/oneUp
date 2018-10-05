@@ -167,6 +167,9 @@ def register_event_actual(eventID, minireq, studentpk=None, objectId=None):
     if(eventID == Event.examExemption):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
+    if(eventID == Event.activitySubmission):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
         
         
         
