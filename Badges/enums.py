@@ -144,6 +144,7 @@ class Event():
 #    chooseBackgroundForYourName = 866 # ?
     
     classAttendance = 870
+    activitySubmission = 870
     
     events = {
               startChallenge: {
@@ -386,6 +387,13 @@ class Event():
                         'displayName':'adjustment',
                         'description':'when teacher adjust a student challenge grade.',
                         'isVirtualCurrencySpendRule':False
+                        },
+              activitySubmission: {
+                        'index': activitySubmission,
+                        'name':'activitySubmission',
+                        'displayName':'activitySubmission',
+                        'description':'when a student submits an activity',
+                        'isVirtualCurrencySpendRule':True
                         },
 #               seeClassAverage: {
 #                         'index': seeClassAverage,
