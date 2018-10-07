@@ -133,7 +133,7 @@ class TimePeriods:
             'index': weekly,
             'name': 'weekly',
             'displayName': 'Weekly',
-            'schedule': CrontabSchedule.objects.get_or_create(day_of_week='0')[0]
+#commented out to make server work.  Please reinstate            'schedule': CrontabSchedule.objects.get_or_create(day_of_week='0')[0]
         }
     }
 class PeriodicVariables:
