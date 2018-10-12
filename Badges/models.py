@@ -279,8 +279,9 @@ class LeaderboardsConfig(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     leaderboardName = models.CharField(max_length=300) # e.g. test score, number of attempts 
     leaderboardDescription = models.CharField(max_length=10000)
-    leaderboardUsed = models.BooleanField(default=False)              ##
-    numStudentsDisplayed = models.IntegerField(default=0)             ## This is used to display the number of students in the leaderboard dashboard html table
+    leaderboardUsed = models.BooleanField(default=False)
+    numStudentsDisplayed = models.IntegerField(default=0) 
+    periodicVariable = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
     timePeriodUpdateInterval = models.IntegerField(default=1500)                  # The Time Period index set for updating this leaderboard
     leaderboardDisplayPage = models.BooleanField(default=False)       # true=display on course home page; false=display on leaderbordas page 
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##

@@ -69,10 +69,6 @@ def preferencesView(request):
     
         
         ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
-        ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
-        ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
-        ccparams.xpWeightSP = request.POST.get('xpWeightSP')
-        ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
         ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
         ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
         ccparams.save()
@@ -101,10 +97,6 @@ def preferencesView(request):
             context_dict["classAverageUsed"]=ccparams.classAverageUsed
             context_dict["studCanChangeclassAverageVis"]=ccparams.studCanChangeclassAverageVis
             context_dict["leaderboardUpdateFreq"]=ccparams.leaderboardUpdateFreq
-            context_dict["xpWeightSChallenge"]=ccparams.xpWeightSChallenge
-            context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
-            context_dict["xpWeightSP"]=ccparams.xpWeightSP
-            context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
             context_dict["thresholdToLevelMedium"]=ccparams.thresholdToLevelMedium
             context_dict["thresholdToLevelDifficulty"]=ccparams.thresholdToLevelDifficulty
  
