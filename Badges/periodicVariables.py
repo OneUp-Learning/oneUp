@@ -402,6 +402,19 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, unique_warmups)
 
+def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
+    schedules = CrontabSchedule.objects.filter(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
+    if schedules.exists():
+        if len(schedules) > 1:
+            schedule_keep = schedule.first()
+            CrontabSchedule.objects.exclude(pk__in=schedule_keep).delete()
+            return schedule_keep
+        else:
+            return schedules.first()
+    else:
+        schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
+        return schedule
+
 class TimePeriods:
     from django.utils import timezone
     from datetime import timedelta
@@ -416,32 +429,32 @@ class TimePeriods:
             'index': daily_test,
             'name': 'daily_test',
             'displayName': 'Every 2 Minutes (For Testing)',
-            'schedule': CrontabSchedule.objects.get_or_create(
+            'schedule': get_or_create_schedule(
                         minute='*/2', hour='*', day_of_week='*', 
-                        day_of_month='*', month_of_year='*')[0],
+                        day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2))
         },
         daily:{
             'index': daily,
             'name': 'daily',
             'displayName': 'Daily at Midnight',
-            'schedule': CrontabSchedule.objects.get_or_create(
+            'schedule': get_or_create_schedule(
                         minute='0', hour='0', day_of_week='*', 
-                        day_of_month='*', month_of_year='*')[0],
+                        day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=1))
         },
         weekly:{
             'index': weekly,
             'name': 'weekly',
             'displayName': 'Weekly on Sundays at Midnight',
-            'schedule': CrontabSchedule.objects.get_or_create(minute="0", hour="0", day_of_week='0')[0],
+            'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
             'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=7))
         },
         beginning_of_time:{
             'index': beginning_of_time,
             'name': 'beginning_of_time',
             'displayName': 'Only once at Midnight',
-            'schedule': CrontabSchedule.objects.get_or_create(minute="0", hour="0")[0],
+            'schedule': get_or_create_schedule(minute="0", hour="0"),
             'datetime': lambda: None
         }
     }
