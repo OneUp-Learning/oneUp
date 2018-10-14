@@ -171,14 +171,13 @@ class PeriodicBadges(BadgesInfo):
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
-
+    periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
+    
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the badge.'''
-        periodic_variable = PeriodicVariables.periodicVariables[self.periodicVariableID]
-        unique_str = str(self.badgeID)+"_badge"
-        PeriodicTask.objects.filter(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(self.courseID.courseID)).delete()
-
+        self.periodicTask.delete()
         super().delete(*args, **kwargs)
+
     def __str__(self):
         return "Badge #{} : {}".format(self.badgeID, self.badgeName)
 
@@ -212,12 +211,11 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
-   
+    periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
+
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the rule.'''
-        periodic_variable = PeriodicVariables.periodicVariables[self.periodicVariableID]
-        unique_str = str(self.vcRuleID)+"_vc"
-        PeriodicTask.objects.filter(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(self.courseID.courseID)).delete()
+        self.periodicTask.delete()
         super().delete(*args, **kwargs)
 
     def __str__(self):
