@@ -37,7 +37,6 @@ def preferencesView(request):
         ccparams.leaderboardUsed = "leaderboardUsed" in request.POST
         if ccparams.leaderboardUsed == True:    
             ccparams.studCanChangeLeaderboardVis = "studCanChangeLeaderboardVis" in request.POST
-            ccparams.numStudentsDisplayed = request.POST.get('numStudentsDisplayed')
         else:
             ccparams.studCanChangeLeaderboardVis =False
             ccparams.numStudentsDisplayed = 0
@@ -68,7 +67,7 @@ def preferencesView(request):
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
     
         
-        ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
+        
         ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
         ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
         ccparams.save()

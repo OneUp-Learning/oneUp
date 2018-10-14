@@ -184,6 +184,7 @@ def dynamicLeaderboardView(request):
         ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
         ccparams.xpWeightSP = request.POST.get('xpWeightSP')
         ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
+        ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
         ccparams.save()
         
 
