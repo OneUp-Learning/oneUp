@@ -192,7 +192,7 @@ def dynamicLeaderboardView(request):
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")    
 ## we must delete and recreate the periodic event or it will break       
-def createPeriodic(objID, variableID, currentCourse, timeperiodID, numStudentsDisplayed, None, None, None, None, None, deleteBool):
+def createPeriodic(objID, variableID, currentCourse, timeperiodID, numberOfStudents, threshold, opType, random, badgeId, vcCurrency,  deleteBool):
     if deleteBool:##if we get the delete bool, then we must only delete, not reset
         delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="vc", course=currentCourse)
     else:
