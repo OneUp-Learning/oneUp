@@ -11,8 +11,11 @@ def setup_periodic_variable(unique_id, variable_index, course, time_period, numb
     unique_str = str(unique_id)
     if badge_id:
         unique_str += "_badge"
-    if virtual_currency_amount:
+    elif virtual_currency_amount:
         unique_str += "_vc"
+    else:#if its not a badge id, or a VC, then its a leaderboard
+        unique_str += "_leaderboard"
+
 
     PeriodicTask.objects.get_or_create(
         name=periodic_variable['name']+'_'+unique_str,
@@ -34,8 +37,8 @@ def setup_periodic_variable(unique_id, variable_index, course, time_period, numb
 def delete_periodic_task(unique_id, variable_index, award_type, course):
     ''' Deletes Periodic Task when rule or badge is deleted'''
 
-    if award_type != "badge" and award_type != "vc":
-        logger.error("Cannot delete Periodic Task Object: award_type is not 'badge' or 'vc'!!")
+    if award_type != "badge" and award_type != "vc" and award_type !="leaderboard":
+        logger.error("Cannot delete Periodic Task Object: award_type is not 'badge' or 'vc' or 'leaderboard'!!")
 
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     unique_str = str(unique_id)+"_"+award_type
@@ -48,7 +51,7 @@ def get_course(course_id):
     return course
 
 
-@app.task(ignore_result=True)
+@app.task(ignore_result=True)     
 def periodic_task(unique_id, variable_index, course_id, time_period, number_of_top_students, threshold, operator_type, is_random, badge_id=None, virtual_currency_amount=None): 
     ''' Celery task which runs based on the time period (weekly, daily, etc). This task either does one of the following
         with the results given by the periodic variable function:

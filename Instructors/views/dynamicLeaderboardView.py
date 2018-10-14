@@ -170,7 +170,7 @@ def dynamicLeaderboardView(request):
                 deleteBool = False
             
             if leaderboard.timePeriodUpdateInterval != 000: 
-                createPeriodic(leaderboard.leaderboardID, leaderboard.periodicVariable, leaderboard.timePeriodUpdateInterval, currentCourse,deleteBool)
+                createPeriodic(leaderboard.leaderboardID, leaderboard.periodicVariable, currentCourse,leaderboard.timePeriodUpdateInterval, leaderboard.numStudentsDisplayed,None, None, None, None, None,deleteBool)
             index= index + 1
             
         if request.POST['ccpID']:
@@ -192,7 +192,7 @@ def dynamicLeaderboardView(request):
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")    
 ## we must delete and recreate the periodic event or it will break       
-def createPeriodic(objID, variableID, timeperiodID,currentCourse, deleteBool):
+def createPeriodic(objID, variableID, currentCourse, timeperiodID, numStudentsDisplayed, None, None, None, None, None, deleteBool):
     if deleteBool:##if we get the delete bool, then we must only delete, not reset
         delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="vc", course=currentCourse)
     else:
