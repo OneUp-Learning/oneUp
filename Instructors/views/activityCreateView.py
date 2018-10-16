@@ -36,12 +36,17 @@ def activityCreateView(request):
         
         activity.courseID = currentCourse
         
+        print(ActivitiesCategory.objects.filter(courseID=currentCourse))
+        
         if request.POST['actCat']:           
             if ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse):
                 activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
             else:
-                activity.categrory = ActivitiesCategory.objects.filter(name="Uncategorized", courseID=currentCourse).first()
-        
+                activity.category = ActivitiesCategory.objects.filter(name="Uncategorized", courseID=currentCourse).first()
+        else:
+            activity.category = ActivitiesCategory.objects.filter(name="Uncategorized", courseID=currentCourse).first()
+            
+                    
         if 'isGraded' in request.POST:
             activity.isGraded = True
         else:
@@ -90,6 +95,8 @@ def activityCreateView(request):
             activity.author = ""
             
         activity.save();  #Writes to database.
+        print('activity')
+        print(activity)
         
         
         print('Starting Files' + str(len(request.FILES)))
