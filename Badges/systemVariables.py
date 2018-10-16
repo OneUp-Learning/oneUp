@@ -426,7 +426,6 @@ def getNumDaysSubmissionLateActivity(course, student , activity):
    
     print("numb days submissionsssss late")
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-
     if not studentActivity:
         return (float('inf'))
     else: 

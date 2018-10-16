@@ -83,11 +83,14 @@ def timeBasedBadgeView(request):
 
             # Recreate the Periodic Task based on the type
             if selectors == "TopN":
-                setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, time_period=int(periodic_badge.timePeriodID), number_of_top_students=int(periodic_badge.numberOfAwards), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
+                periodic_badge.periodicTask = setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), number_of_top_students=int(periodic_badge.numberOfAwards), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
             elif selectors == "Random":
-                setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, time_period=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, is_random=periodic_badge.isRandom, badge_id=int(periodic_badge.badgeID))
+                periodic_badge.periodicTask = setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, is_random=periodic_badge.isRandom, badge_id=int(periodic_badge.badgeID))
             else:
-                setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, time_period=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
+                periodic_badge.periodicTask = setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
+            
+            periodic_badge.save()
+            
         else:
             # Create the badge
             periodic_badge = PeriodicBadges()
@@ -118,12 +121,14 @@ def timeBasedBadgeView(request):
 
             # Create the Periodic Task based on the type
             if selectors == "TopN":
-                setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, time_period=int(periodic_badge.timePeriodID), number_of_top_students=int(periodic_badge.numberOfAwards), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
+                periodic_badge.periodicTask = setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), number_of_top_students=int(periodic_badge.numberOfAwards), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
             elif selectors == "Random":
-                setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, time_period=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, is_random=periodic_badge.isRandom, badge_id=int(periodic_badge.badgeID))
+                periodic_badge.periodicTask = setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, is_random=periodic_badge.isRandom, badge_id=int(periodic_badge.badgeID))
             else:
-                setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, time_period=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
-        
+                periodic_badge.periodicTask = setup_periodic_variable(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, badge_id=int(periodic_badge.badgeID))
+            
+            periodic_badge.save()
+
         return redirect('PeriodicBadges.html')
         
 
