@@ -670,7 +670,7 @@ def getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, t
         # If topic is assigned to the warmup challenge then find percentage
         challengeTopics = ChallengesTopics.objects.filter(topicID=topic, challengeID = challenge.challengeID)
         if challengeTopics.exists():
-            percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge.challengeID)
+            percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
             if percentage > 75.0:
                 challengesGreaterThan += 1
     logger.debug("Number of unqiue warmup challenges with specific topic > 75%: " + str(challengesGreaterThan))
