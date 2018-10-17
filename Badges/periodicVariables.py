@@ -117,6 +117,9 @@ def calculate_student_earnings(course, student, periodic_variable):
     return (student, total)
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
+    from django.conf import settings
+    if settings.CURRENTLY_MIGRATING:
+        return None
     schedules = CrontabSchedule.objects.filter(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
     if schedules.exists():
         if len(schedules) > 1:
