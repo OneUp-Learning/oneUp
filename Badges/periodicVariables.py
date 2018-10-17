@@ -406,7 +406,7 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
     schedules = CrontabSchedule.objects.filter(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
     if schedules.exists():
         if len(schedules) > 1:
-            schedule_keep = schedule.first()
+            schedule_keep = schedules.first()
             CrontabSchedule.objects.exclude(pk__in=schedule_keep).delete()
             return schedule_keep
         else:
