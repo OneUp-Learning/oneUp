@@ -5,6 +5,8 @@ import random
 import logging
 logger = logging.getLogger(__name__)
 
+from django.conf import settings
+
 def setup_periodic_variable(unique_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None, badge_id=None, virtual_currency_amount=None):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
