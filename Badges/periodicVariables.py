@@ -7,14 +7,24 @@ logger = logging.getLogger(__name__)
 
 from django.conf import settings
 
-def setup_periodic_variable(unique_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None, badge_id=None, virtual_currency_amount=None):
+def setup_periodic_badge(unique_id, badge_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None):
+    ''' unique_id should be the created id for periodic badge object. badge_id is the id of the badge to award students'''
+    unique_str = str(unique_id)+"_badge"
+    return setup_periodic_variable(unique_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, badge_id=badge_id)
+
+def setup_periodic_vc(unique_id, virtual_currency_amount, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None):
+    ''' unique_id should be the created id for periodic vc object. virtual_currency_amount is the amount to award students.'''
+    unique_str = str(unique_id)+"_vc"
+    return setup_periodic_variable(unique_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, virtual_currency_amount=virtual_currency_amount)
+    
+def setup_periodic_leaderboard(leaderboard_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None):
+    ''' leaderboard_id should be the created if for periodic learderboard object'''
+    unique_str = str(leaderboard_id)+"_leaderboard"
+    return setup_periodic_variable(leaderboard_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, is_leaderboard=True, save_results=True)
+
+def setup_periodic_variable(unique_id, unique_str, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None,  is_leaderboard=False, badge_id=None, virtual_currency_amount=None, save_results=False):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
-    unique_str = str(unique_id)
-    if badge_id:
-        unique_str += "_badge"
-    if virtual_currency_amount:
-        unique_str += "_vc"
 
     periodic_task, _ = PeriodicTask.objects.get_or_create(
         name=periodic_variable['name']+'_'+unique_str,
@@ -27,8 +37,10 @@ def setup_periodic_variable(unique_id, variable_index, course, period_index, num
             'threshold': threshold,
             'operator_type': operator_type,
             'is_random': is_random,
+            'is_leaderboard': is_leaderboard,
             'badge_id': badge_id,
-            'virtual_currency_amount': virtual_currency_amount
+            'virtual_currency_amount': virtual_currency_amount,
+            'save_results': save_results
         }),
         task='Badges.periodicVariables.periodic_task',
         crontab=TimePeriods.timePeriods[period_index]['schedule'],
@@ -73,7 +85,7 @@ def get_course(course_id):
 
 
 @app.task(ignore_result=True)
-def periodic_task(unique_id, variable_index, course_id, period_index, number_of_top_students, threshold, operator_type, is_random, badge_id=None, virtual_currency_amount=None): 
+def periodic_task(unique_id, variable_index, course_id, period_index, number_of_top_students, threshold, operator_type, is_random, is_leaderboard=False, badge_id=None, virtual_currency_amount=None, save_results=False): 
     ''' Celery task which runs based on the time period (weekly, daily, etc). This task either does one of the following
         with the results given by the periodic variable function:
             1. Takes the top number of students specified by number_of_top_students variable above a threshold
@@ -102,6 +114,8 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
         award_type += "badge"
     if virtual_currency_amount:
         award_type += "vc"
+    if is_leaderboard:
+        award_type += "leaderboard"
 
     # Handle beginning of time period
     if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
@@ -126,10 +140,22 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
 
     print("Results: {}".format(rank))
     # Filter out students based on periodic badge/vc rule settings
-    rank = filter_students(rank, number_of_top_students, threshold, operator_type, is_random)
-    print("Filtered: {}".format(rank))
-    # Give award to students
-    award_students(rank, course, badge_id, virtual_currency_amount)
+    if not is_leaderboard and not save_results:
+        rank = filter_students(rank, number_of_top_students, threshold, operator_type, is_random)
+        print("Filtered: {}".format(rank))
+        # Give award to students
+        award_students(rank, course, badge_id, virtual_currency_amount)
+    elif save_results:
+        if is_leaderboard:
+            # Sort the students
+            rank.sort(key=lambda tup: tup[1])
+            # Check if what we want is greater than the number of students
+            if len(rank) >= number_of_top_students:
+                # Only select the top number of students
+                rank = rank[:number_of_top_students]
+        # save results (leaderboard_id == unique_id)
+        
+
 
 def filter_students(students, number_of_top_students, threshold, operator_type, is_random):
     ''' Filters out students based on parameters if they are not None.
