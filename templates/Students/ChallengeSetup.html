@@ -102,11 +102,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 	border-style: solid;
 	border-color: #ccc;
 	border-width: 0;
-}
-
-.ck-view .cke_contents_ltr blockquote
-{
-	padding-left: 20px;
+    padding-left: 20px;
 	padding-right: 8px;
 	border-left-width: 5px;
 }
@@ -122,7 +118,10 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 {
 	color: #0782C1;
 }
-
+.ck-view ul,
+.ck-view ul > li {
+    list-style-type: disc;
+}
 .ck-view ol, .ck-view ul, .ck-view dl
 {
 	/* IE7: reset rtl list margin. (#7334) */
@@ -308,7 +307,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
                               {% for j,answer in question.answers_with_count %}
                               <div class="row">
                                  <input name="{{i}}-ans" type="radio" id="{{i}}ans-{{j}}" value="{{j}}" />
-                                 <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
+                                 <label for="{{i}}ans-{{j}}"><div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div></label>
                               </div>
                               {% endfor %}
                            </div>
@@ -319,7 +318,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
                               {% for j,answer in question.answers_with_count %}
                               <div class="row">
                                  <input name="{{i}}-ans" type="checkbox" id="{{i}}ans-{{j}}" value="{{j}}"/>
-                                 <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
+                                 <label for="{{i}}ans-{{j}}"><div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div></label>
                               </div>
                               {% endfor %}
                            </div>

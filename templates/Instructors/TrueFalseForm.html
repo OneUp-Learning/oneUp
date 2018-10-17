@@ -83,11 +83,7 @@
                            {% for i,ansValue,ansPK,ansChecked in answer_range %}
                            <div class="col s12">
                               <input name="correctAnswer" type="radio" id="answer_{{i}}" value="{{i}}" {%if view%}disabled{%else%}required{%endif%} {% if ansChecked %} checked {% endif %}/>
-                              {% if i == 1 %}
-                              <label for="answer_{{i}}">True</label>
-                              {% else %}
-                              <label for="answer_{{i}}">False</label>
-                              {% endif %}
+                              <label for="answer_{{i}}">{{ansValue}}</label>
                               <input type="hidden" name="ansPK{{i}}" value="{{ansPK}}">
                            </div>
                            {% endfor %}

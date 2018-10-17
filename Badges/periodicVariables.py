@@ -116,28 +116,64 @@ def calculate_student_earnings(course, student, periodic_variable):
     print("Total Earnings: {}".format(total))
     return (student, total)
 
-class TimePeriods:
-    ''' TimePeriods enum starting at 1500.'''
-    daily = 1500
-    weekly = 1501
+def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
+    from django.conf import settings
     if settings.CURRENTLY_MIGRATING:
-        timePeriods = {}
+        return None
+    schedules = CrontabSchedule.objects.filter(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
+    if schedules.exists():
+        if len(schedules) > 1:
+            schedule_keep = schedules.first()
+            CrontabSchedule.objects.exclude(pk__in=schedule_keep).delete()
+            return schedule_keep
+        else:
+            return schedules.first()
     else:
-        timePeriods = {
-            daily:{
-                'index': daily,
-                'name': 'daily',
-                'displayName': 'Daily',
-                'schedule': CrontabSchedule.objects.get_or_create(
-                             minute='*/2', hour='*', day_of_week='*', 
-                             day_of_month='*', month_of_year='*')[0]
-            },
-            weekly:{
-                'index': weekly,
-                'name': 'weekly',
-                'displayName': 'Weekly',
-                'schedule': CrontabSchedule.objects.get_or_create(day_of_week='0')[0]
-            }
+        schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
+        return schedule
+
+class TimePeriods:
+    from django.utils import timezone
+    from datetime import timedelta
+
+    ''' TimePeriods enum starting at 1500.'''
+    daily = 1500 # Runs every day at midnight
+    weekly = 1501 # Runs every Sunday at midnight
+    beginning_of_time = 1502 # Runs only once
+    daily_test = 1599
+    timePeriods = {
+        daily_test:{
+            'index': daily_test,
+            'name': 'daily_test',
+            'displayName': 'Every 2 Minutes (For Testing)',
+            'schedule': get_or_create_schedule(
+                        minute='*/2', hour='*', day_of_week='*', 
+                        day_of_month='*', month_of_year='*'),
+            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2))
+        },
+        daily:{
+            'index': daily,
+            'name': 'daily',
+            'displayName': 'Daily at Midnight',
+            'schedule': get_or_create_schedule(
+                        minute='0', hour='0', day_of_week='*', 
+                        day_of_month='*', month_of_year='*'),
+            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=1))
+        },
+        weekly:{
+            'index': weekly,
+            'name': 'weekly',
+            'displayName': 'Weekly on Sundays at Midnight',
+            'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
+            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=7))
+        },
+        beginning_of_time:{
+            'index': beginning_of_time,
+            'name': 'beginning_of_time',
+            'displayName': 'Only once at Midnight',
+            'schedule': get_or_create_schedule(minute="0", hour="0"),
+            'datetime': lambda: None
+        }
     }
 class PeriodicVariables:
     '''PeriodicVariables enum starting at 1400.'''
