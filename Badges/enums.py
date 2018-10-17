@@ -144,7 +144,7 @@ class Event():
 #    chooseBackgroundForYourName = 866 # ?
     
     classAttendance = 870
-    activitySubmission = 870
+    activitySubmission = 871
     
     events = {
               startChallenge: {

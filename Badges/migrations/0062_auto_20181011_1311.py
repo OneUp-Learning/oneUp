@@ -7,7 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_celery_beat', '0009_auto_20180830_1459'),
         ('Badges', '0061_auto_20181001_1523'),
     ]
 
