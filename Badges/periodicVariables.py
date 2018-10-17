@@ -1,7 +1,7 @@
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from Badges.tasks import app
 import json
-
+from django.conf import settings
 
 def setup_periodic_variable(variable_index, course, time_period, number_of_top_students=3, badge_id=None, virtual_currency_amount=None):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''

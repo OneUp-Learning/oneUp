@@ -10,20 +10,23 @@ import django.views.static
 
 admin.autodiscover()
 
-urlpatterns = [
-    # Examples:
-    #url(r'^$', 'oneUp.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
+if settings.CURRENTLY_MIGRATING:
+    urlpatterns = []
+else:
+    urlpatterns = [
+        # Examples:
+        #url(r'^$', 'oneUp.views.home', name='home'),
+        # url(r'^blog/', include('blog.urls')),
 
-    path('admin/', admin.site.urls),
-    url(r'^oneUp/instructors/', include('Instructors.urls')),
-    url(r'^oneUp/students/', include('Students.urls')),
-    url(r'^oneUp/badges/', include('Badges.urls')),
-    url(r'^oneUp/administrators/',include('Administrators.urls')),
-    url(r'^oneUp/',include('Administrators.urls')),
-    url(r'^login$', login, {'template_name':'home.html'}),
-    url(r'^notifications/', include('notify.urls', 'notifications')),
-]
+        path('admin/', admin.site.urls),
+        url(r'^oneUp/instructors/', include('Instructors.urls')),
+        url(r'^oneUp/students/', include('Students.urls')),
+        url(r'^oneUp/badges/', include('Badges.urls')),
+        url(r'^oneUp/administrators/',include('Administrators.urls')),
+        url(r'^oneUp/',include('Administrators.urls')),
+        url(r'^login$', login, {'template_name':'home.html'}),
+        url(r'^notifications/', include('notify.urls', 'notifications')),
+    ]
 
 
 # if settings.DEBUG:
