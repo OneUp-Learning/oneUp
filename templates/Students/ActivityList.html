@@ -36,28 +36,42 @@
 				</div>
 			</form>
 			</div>
-            
-            
-               <div class="card">
-                  <div class="card-content">
-                     <table class="responsive-table">
-                        <thead>
-                           <th>Name</th>
-                           <th>Possible Points</th>
-                           <th>Grade</th>
-                           <th></th>
-                        </thead>
-                        <tbody>
-                           {% for i,instructorActivites , studentActivities, points in activity_range %}
+               
+            </div>
+         </div>
+      
+        
+      	    <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  
+                  <ul class="collapsible" data-collapsible="expandable">
+                     {% for category, category_name in categories_range %}
+                     <li>
+                        <div class="collapsible-header"><i class="material-icons">layers</i>{{category_name}}&nbsp;&nbsp;
+                        
+                        </div>
+                        <div class="collapsible-body">
+                           <ul class="collection">
+                           <table class="responsive-table">
+                           
+                           <tbody>
+                              {% for activity,point,activity_point, submit_status,activity_date_status in category %}
+                        	
                            <tr>
-                              <td>{{instructorActivites.activityName}}</td>
-                              <td>{{instructorActivites.points}}</td>
-                              <td>{{points}}</td>
+                              <td>{{activity.activityName}}</td>
+                              <td>{{point}}/{{activity_point}} points</td>
+                              {% if submit_status == "Submitted" %}
+                              	<td style="color:green;">{{submit_status}}</td>
+                              {% else %}
+                              	<td style="color:red;">{{submit_status}}</td>
+                              {% endif %}
+                              <td>{{activity_date_status}}</td>
                               <td class="secondary-content">
                                  {% if is_teacher %}    
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>        
                                  {% else %}
-                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ActivityDescription?activityID={{instructorActivites.activityID}}"><i class="material-icons left">visibility</i>View</a>
+                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ActivityDescription?activityID={{activity.activityID}}"><i class="material-icons left">visibility</i>View</a>
                                  {% endif %}
                               </td>
                            </tr>
@@ -68,18 +82,27 @@
                            {% endfor %}
                         </tbody>
                      </table>
-                  </div>
-                  <div class="card-action right-align">
+                      </ul>
+               </div>
+              
+               
+               {% endfor %}
+               </ul>
+               <div class="card-action right-align">
                      {% if is_teacher %}    
                      <a class="waves-effect waves-light btn" href="/oneUp/instructors/studentChallengesCompleted?userID={{user}}"><i class="material-icons left">navigate_before</i>Back</a>
                      {% else %}
                      <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome"><i class="material-icons left">navigate_before</i>Back</a> 
                      {% endif %}
                   </div>
-               </div>
             </div>
+            
          </div>
+         </div>
+         
+         
       </main>
+      
       {% include 'footer.html' %}
    </body>
 </html>
