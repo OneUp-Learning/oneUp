@@ -196,3 +196,4 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # oneUp code which uses "if CELERY_ENABLED:" statements
 CELERY_ENABLED = True
 
+CURRENTLY_MIGRATING = False

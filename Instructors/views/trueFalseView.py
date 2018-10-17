@@ -183,15 +183,31 @@ def trueFalseNewForm(request):
             answers = Answers.objects.filter(questionID=question)
             # Count them
             num_answers = len(answers)
+
+            # We're going to go through the list twice.  Hopefully we only have two answers,
+            # but, just in case, we've still got a list.
+            # The first time we'll add the true answer (or answers) to the list
+            # The second time, the false answer (or answers).
             for answer in answers:
-                # Set up the arrays
-                ansValue.append(answer.answerText)
-                ansPK.append(answer.answerID)
-                checked = False #element must be completely omitted for not checked
-                for correctAnswer in correctAnswers:
-                    if correctAnswer.answerID == answer:
-                        checked = True
-                ansChecked.append(checked)
+                if answer.answerText == "true":
+                    # Set up the arrays
+                    ansValue.append(answer.answerText.capitalize())
+                    ansPK.append(answer.answerID)
+                    checked = False #element must be completely omitted for not checked
+                    for correctAnswer in correctAnswers:
+                        if correctAnswer.answerID == answer:
+                            checked = True
+                    ansChecked.append(checked)
+            for answer in answers:
+                if answer.answerText != "true":  # Hopefully this will just be false, but who knows.
+                    # Set up the arrays
+                    ansValue.append(answer.answerText.capitalize())
+                    ansPK.append(answer.answerID)
+                    checked = False #element must be completely omitted for not checked
+                    for correctAnswer in correctAnswers:
+                        if correctAnswer.answerID == answer:
+                            checked = True
+                    ansChecked.append(checked)
             answersSet = True
 
             # Extract the tags from DB            
@@ -214,10 +230,12 @@ def trueFalseNewForm(request):
     # in order for the template stuff to be happy with us.  Doing that requires that
     # all the lists have the same length
         if not answersSet:
-            for i in range(0,num_answers):
-                ansValue.append("")
-                ansPK.append("")
-                ansChecked.append(False)
+            ansValue.append("True")
+            ansPK.append("")
+            ansChecked.append(True)
+            ansValue.append("False")
+            ansPK.append("")
+            ansChecked.append(False)
     
         context_dict['num_answers'] = num_answers
         # The range part is the index numbers.

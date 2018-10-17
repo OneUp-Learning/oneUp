@@ -1,7 +1,7 @@
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from Badges.tasks import app
 import json
-
+from django.conf import settings
 
 def setup_periodic_variable(variable_index, course, time_period, number_of_top_students=3, badge_id=None, virtual_currency_amount=None):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
@@ -120,21 +120,24 @@ class TimePeriods:
     ''' TimePeriods enum starting at 1500.'''
     daily = 1500
     weekly = 1501
-    timePeriods = {
-        daily:{
-            'index': daily,
-            'name': 'daily',
-            'displayName': 'Daily',
-            'schedule': CrontabSchedule.objects.get_or_create(
-                        minute='*/2', hour='*', day_of_week='*', 
-                        day_of_month='*', month_of_year='*')[0]
-        },
-        weekly:{
-            'index': weekly,
-            'name': 'weekly',
-            'displayName': 'Weekly',
-            'schedule': CrontabSchedule.objects.get_or_create(day_of_week='0')[0]
-        }
+    if settings.CURRENTLY_MIGRATING:
+        timePeriods = {}
+    else:
+        timePeriods = {
+            daily:{
+                'index': daily,
+                'name': 'daily',
+                'displayName': 'Daily',
+                'schedule': CrontabSchedule.objects.get_or_create(
+                             minute='*/2', hour='*', day_of_week='*', 
+                             day_of_month='*', month_of_year='*')[0]
+            },
+            weekly:{
+                'index': weekly,
+                'name': 'weekly',
+                'displayName': 'Weekly',
+                'schedule': CrontabSchedule.objects.get_or_create(day_of_week='0')[0]
+            }
     }
 class PeriodicVariables:
     '''PeriodicVariables enum starting at 1400.'''
