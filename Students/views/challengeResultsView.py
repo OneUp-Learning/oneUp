@@ -363,7 +363,9 @@ def ChallengeResults(request):
                                 studentSolution = re.sub(r"ℊ ","\n", studentSolution)
                                 
                                 print("Student Solution", studentSolution);
-                                question['student_solution'] = studentSolution    
+                                question['student_solution'] = studentSolution
+                                
+                                studentSolution = 'IndentationArray:'+ str(lineIndent)+ ";" +studentSolution
                                 
                                 ##if no errors happened give them full credit
                                 if(errorDescriptions == ""):
@@ -423,7 +425,7 @@ def ChallengeResults(request):
                                         question['user_points'] = question['total_points']
                                         print("Correct answer full points", question['user_points'])
                                     else:
-                                        question['user_points'] = round(float(studentGrade),2)
+                                        question['user_points'] = round(Decimal(studentGrade),2)
                             print("Final User Grade: ", question['user_points'])
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']            
@@ -440,7 +442,7 @@ def ChallengeResults(request):
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
                         studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
-                        studentChallengeAnswers.studentAnswer = 'IndentationArray:'+ str(lineIndent)+ ";" + studentAnswer
+                        studentChallengeAnswers.studentAnswer = studentAnswer
                         studentChallengeAnswers.save()
 
                 # The sort on the next line should be unnecessary, but better safe than sorry
