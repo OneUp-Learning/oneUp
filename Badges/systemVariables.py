@@ -652,7 +652,7 @@ def getConsecutiveScoresDifference(course, student, challenge):
     if studentLastChallenge.exists():
         # Get both challenges highest test score
         latestScore = challengeScore(course,student, studentLastChallengeEvent.objectID)
-        previousScore = challengeScore(course, student, challenge.challengeID)
+        previousScore = challengeScore(course, student, challenge)
         logger.debug(latestScore)
         logger.debug(previousScore)
         
@@ -681,7 +681,7 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student):
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     for challenge in challenges:
         # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge.challengeID)
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
         if percentage > 75.0:
             challengesGreaterThan += 1
     logger.debug("Number of unqiue warmup challenges > 75%: " + str(challengesGreaterThan))
@@ -692,7 +692,7 @@ def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     for challenge in challenges:
         # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge.challengeID)
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
         if percentage > 30.0:
             challengesGreaterThan += 1
     logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
@@ -704,7 +704,7 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, stu
     for challenge in challenges:
         allScores = getTestScores(course,student,challenge)
         if len(allScores)==1:
-            percentage = getScorePercentage(course, student, challenge.challengeID)
+            percentage = getScorePercentage(course, student, challenge)
             if percentage > 75:
                 numberOfChall += 1
     print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
