@@ -229,8 +229,8 @@ def get_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Retrieves the last time a periodic task has ran. 
         Returns None if it is has not ran yet.
     '''
-    if not "badge" in award_type  and not "vc" in award_type:
-        logger.error("Cannot find Periodic Task Object: award_type is not 'badge' or 'vc'!!")
+    if not "badge" in award_type  and not "vc" in award_type and not "leaderboard" in award_type:
+        logger.error("Cannot find Periodic Task Object: award_type is not 'badge' or 'vc' or 'leaderboard'!!")
 
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     unique_str = str(unique_id)+"_"+award_type
@@ -240,8 +240,8 @@ def get_last_ran(unique_id, variable_index, award_type, course_id):
 def set_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Sets periodic task last time ran datefield. It is not updated accurately by itself.'''
     from Instructors.views.utils import utcDate
-    if not "badge" in award_type  and not "vc" in award_type:
-        logger.error("Cannot find Periodic Task Object: award_type is not 'badge' or 'vc'!!")
+    if not "badge" in award_type  and not "vc" in award_type and not "leaderboard" in award_type:
+        logger.error("Cannot find Periodic Task Object: award_type is not 'badge' or 'vc' or 'leaderboard'!!")
 
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     unique_str = str(unique_id)+"_"+award_type
@@ -281,7 +281,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
             earnings = earnings.filter(timestamp__gte=periodic_badge.lastModified)
         elif award_type == 'vc':
             periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
-            earnings = earnings.filter(timestamp__gte=periodicVC.lastModified)
+            earnings = earnings.filter(timestamp__gte=periodicVC.lastModified)            
     
     # Get the total earnings only if they have earned more than 0
     total = sum([int(earn.value) for earn in earnings if earn.value > 0])
