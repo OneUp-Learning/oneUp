@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, LeaderboardsConfig
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -241,6 +241,16 @@ class StudentConfigParams(models.Model):
         +str(self.displayClassAverage) +","                     
         +str(self.displayClassRanking)    
 
+class PeriodicallyUpdatedleaderboards(models.Model):
+    periodicLeaderboardID = models.AutoField(primary_key=True)
+    leaderboardID = models.ForeignKey(LeaderboardsConfig, on_delete=models.CASCADE, verbose_name="the related leaderboard configuration object", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    studentPoints = models.IntegerField(default=0)
+    studentPosition = models.IntegerField(default=0)
+      
+    def __str__(self):              
+        return str(self.id)+", LeaderboardID: "+str(self.leaderboardID) + ", StudentID: "+str(self.studentID)+", Points: "+str(self.studentPoints)+", Position: "+str(self.studentPosition)
+    
 
 class StudentLeaderboardHistory(models.Model):
     id = models.AutoField(primary_key=True)

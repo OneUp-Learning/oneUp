@@ -283,6 +283,8 @@ class LeaderboardsConfig(models.Model):
     timePeriodUpdateInterval = models.IntegerField(default=1500)                  # The Time Period index set for updating this leaderboard
     leaderboardDisplayPage = models.BooleanField(default=False)       # true=display on course home page; false=display on leaderbordas page 
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
+    lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
 
     def __str__(self):              
         return "Leaderboard#"+str(self.leaderboardID)+":"+str(self.leaderboardName)   

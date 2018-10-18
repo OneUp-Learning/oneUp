@@ -70,7 +70,7 @@ def get_periodic_variable_results(variable_index, period_index, course_id):
 def delete_periodic_task(unique_id, variable_index, award_type, course):
     ''' Deletes Periodic Task when rule or badge is deleted'''
 
-    if award_type != "badge" and award_type != "vc":
+    if award_type != "badge" and award_type != "vc" and award_type != "leaderboard":
         logger.error("Cannot delete Periodic Task Object: award_type is not 'badge' or 'vc'!!")
 
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
@@ -102,7 +102,7 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
         Note: operator_type is string and is_random is a boolean. Everything else should be an integer
         None: if number_of_top_students and is_random is null then all is assumed (see number 4)
     '''
-    from Students.models import StudentRegisteredCourses
+    from Students.models import StudentRegisteredCourses, PeriodicallyUpdatedleaderboards
 
     # Get the periodic variable and time period
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
@@ -166,9 +166,16 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
             if len(rank) >= number_of_top_students:
                 # Only select the top number of students
                 rank = rank[:number_of_top_students]
-        # save results (leaderboard_id == unique_id)
-        
-
+                # save results (leaderboard_id == unique_id)
+                index = 1
+                for student, xp in rank:
+                    leaderboard = PeriodicallyUpdatedleaderboards()
+                    leaderboard.leaderboardID = unique_id
+                    leaderboard.studentID = student
+                    leaderboard.studentPoints = xp
+                    leaderboard.studentPosition = index
+                    leaderboard.save()
+                    index = index + 1
 
 def filter_students(students, number_of_top_students, threshold, operator_type, is_random):
     ''' Filters out students based on parameters if they are not None.
@@ -443,6 +450,23 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, unique_warmups)
 
+def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    last_ran(unique_id, periodic_variable, award_type, course)
+    print("XP Val")
+    return studentXP(studentId, course)
+    
+def calculate_warmup_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    last_ran(unique_id, course)
+    return studentXP(studentId, course, warmup=True, serious=False, seriousPlusActivity=False)
+    
+def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    last_ran(unique_id, course)
+    return studentXP(studentId, course, warmup=False, serious=True, seriousPlusActivity=False)
+    
+def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    last_ran(unique_id, course)
+    return studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivity=True)
+
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
     if settings.CURRENTLY_MIGRATING:
@@ -458,6 +482,115 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
     else:
         schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
         return schedule
+    
+def last_ran(unique_id, periodic_variable, award_type, course):
+    from Badges.models import LeaderboardsConfig
+    # If this is first time running, set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous challenges from beginning of time
+    last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID) 
+    if not last_ran:
+            periodic_badge =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            last_ran = periodic_badge.lastModified
+                
+def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivity=False):
+    
+    from Badges.models import CourseConfigParams
+    from Instructors.models import Challenges
+
+    xp = 0  
+    xpWeightSP = 0
+    xpWeightSChallenge = 0
+    xpWeightWChallenge = 0
+    xpWeightAPoints = 0
+    ccparamsList = CourseConfigParams.objects.filter(courseID=course)
+    if len(ccparamsList) >0:
+        cparams = ccparamsList[0]
+        xpWeightSP=cparams.xpWeightSP
+        xpWeightSChallenge=cparams.xpWeightSChallenge
+        xpWeightWChallenge=cparams.xpWeightWChallenge
+        xpWeightAPoints=cparams.xpWeightAPoints
+       
+    # get the serious challenges for this course
+    earnedScorePoints = 0 
+    totalScorePoints = 0    
+    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True, isVisible=True)
+    
+    for challenge in courseChallenges:
+        seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
+
+        gradeID  = []                            
+        for serious in seriousChallenge:
+            gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment
+                                
+        if(gradeID):
+            earnedScorePoints += max(gradeID)
+            totalScorePoints += challenge.totalScore
+            
+    totalScorePointsSeriousChallenge = earnedScorePoints * xpWeightSChallenge / 100      # max grade for this challenge
+    
+    # get the warm up challenges for this course
+    earnedScorePoints = 0 
+    totalScorePoints = 0   
+    
+    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False, isVisible=True)
+    for challenge in courseChallenges:
+        warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
+
+        gradeID  = []                            
+        for warmup in warmupChallenge:
+            gradeID.append(int(warmup.testScore)) 
+                               
+        if(gradeID):
+            earnedScorePoints += max(gradeID)
+            totalScorePoints += challenge.totalScore
+            
+    totalScorePointsWarmupChallenge = earnedScorePoints * xpWeightWChallenge / 100      # max grade for this challenge
+                        
+    # get the activity points for this course
+    earnedActivityPoints = 0
+    totalActivityPoints = 0
+
+    courseActivities = Activities.objects.filter(courseID=course)
+    for activity in courseActivities:
+
+        sa = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
+
+        gradeID  = []                            
+        for a in sa:
+            gradeID.append(int(a.getScoreWithBonus())) 
+                               
+        if(gradeID):
+            earnedActivityPoints += max(gradeID)
+            totalActivityPoints += a.activityID.points
+            
+    totalScorePointsActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
+            
+    # get the skill points for this course
+    totalScoreSkillPoints = 0
+    cskills = CoursesSkills.objects.filter(courseID=course)
+    for sk in cskills:
+        skill = Skills.objects.get(skillID=sk.skillID.skillID)
+        
+        sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+        #print ("Skill Points Records", sp)
+        gradeID = []
+        
+        for p in sp:
+            gradeID.append(int(p.skillPoints))
+            #print("skillPoints", p.skillPoints)
+        if (gradeID):
+            totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
+    
+    if warmup==False and serious==False and seriousPlusActivity==False:
+        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScoreSkillPoints),0)
+    elif warmup==True:
+        xp = round(totalScorePointsWarmupChallenge,0)
+    elif serious == True:
+        xp = round(totalScorePointsSeriousChallenge,0)
+    elif seriousPlusActivity == True:
+        xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
+        
+    print("Leaderboard created!", (studentId,xp))
+    return (studentId,xp)
 
 class TimePeriods:
     from django.utils import timezone
@@ -508,6 +641,11 @@ class PeriodicVariables:
     highest_earner = 1400
     student_warmup_pratice = 1401
     unique_warmups = 1402
+    xp_ranking = 1403
+    warmup_challenges = 1404
+    serious_challenge = 1405
+    serious_challenges_and_activities = 1406
+    
 
     periodicVariables = {
         highest_earner: {
@@ -532,6 +670,38 @@ class PeriodicVariables:
             'displayName': 'Student Unique Warm-up Challenges Completed with a Score > 60%',
             'description': 'Retrieves the amount of unique Warm-up Challenges completed by students with a score greater than 60%',
             'function': calculate_unique_warmups,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        xp_ranking: {
+            'index': xp_ranking,
+            'name': 'xp_ranking',
+            'displayName': 'Student Rankings via XP',
+            'description': 'Retrieves the Xp for all students in a class',
+            'function': calculate_student_xp_rankings,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        warmup_challenges: {
+            'index': warmup_challenges,
+            'name': 'warmup_challenges',
+            'displayName': 'Student Rankings via Warmup Challenges',
+            'description': 'Retrieves the warmup_challenges and creates a ranking for all students in a class',
+            'function': calculate_warmup_rankings,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        serious_challenge: {
+            'index': serious_challenge,
+            'name': 'serious_challenge',
+            'displayName': 'Student Rankings via Serious Challenges',
+            'description': 'Retrieves the Serious Challenges and creates a ranking for all students in a class',
+            'function': calculate_serious_challenge_rankings,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        serious_challenges_and_activities: {
+            'index': serious_challenges_and_activities,
+            'name': 'serious_challenges_and_activities',
+            'displayName': 'Student Rankings via Serious Challenges and Activities',
+            'description': 'Retrieves the Serious Challenges and Activities and creates a ranking for all students in a class',
+            'function': calculate_serious_challenge_and_activity_rankings,
             'task_type': 'Badges.periodicVariables.periodic_task',
         }
     }

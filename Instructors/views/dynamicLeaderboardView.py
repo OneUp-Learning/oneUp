@@ -9,7 +9,7 @@ from Instructors.views.utils import initialContextDict
 from django.shortcuts import redirect
 from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_variable,\
+from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_leaderboard,\
     delete_periodic_task
 import Students
 from Students.models import Student
@@ -163,15 +163,14 @@ def dynamicLeaderboardView(request):
             #the way this is built, unfortunately we have to create the data and then later destroy it
             if delete[index] == 'true':
                 print("Deleted", leaderboard)
-                leaderboard.delete()
-                deleteBool = True
-            else:   
-                leaderboard.save()
-                deleteBool = False
-            
-            if leaderboard.timePeriodUpdateInterval != 000: 
-                createPeriodic(leaderboard.leaderboardID, leaderboard.periodicVariable, currentCourse,leaderboard.timePeriodUpdateInterval, leaderboard.numStudentsDisplayed,None, None, None, None, None,deleteBool)
+                leaderboard.periodicTask=createPeriodic(leaderboard.leaderboardID, leaderboard.periodicVariable, currentCourse,leaderboard.timePeriodUpdateInterval, leaderboard.numStudentsDisplayed,None, None, None, None, None,True)
+                leaderboard.delete()  
+            else:
+                if leaderboard.timePeriodUpdateInterval != 000: 
+                    leaderboard.periodicTask=createPeriodic(leaderboard.leaderboardID, leaderboard.periodicVariable, currentCourse,leaderboard.timePeriodUpdateInterval, leaderboard.numStudentsDisplayed,None, None, None, None, None,False)
+                    leaderboard.save()
             index= index + 1
+            
             
         if request.POST['ccpID']:
             ccparams = CourseConfigParams.objects.get(pk=int(request.POST['ccpID']))
@@ -184,7 +183,7 @@ def dynamicLeaderboardView(request):
         ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
         ccparams.xpWeightSP = request.POST.get('xpWeightSP')
         ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
-        ccparams.leaderboardUpdateFreq = request.POST.get('leaderboardUpdateFreq')
+        ccparams.leaderboardUpdateFreq =1 
         ccparams.save()
         
 
@@ -195,10 +194,10 @@ def str2bool(v):
 ## we must delete and recreate the periodic event or it will break       
 def createPeriodic(objID, variableID, currentCourse, timeperiodID, numberOfStudents, threshold, opType, random, badgeId, vcCurrency,  deleteBool):
     if deleteBool:##if we get the delete bool, then we must only delete, not reset
-        delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="vc", course=currentCourse)
+        delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="leaderboard", course=currentCourse)
     else:
-        delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="vc", course=currentCourse)
-        setup_periodic_variable(unique_id=objID, variable_index=variableID, course=currentCourse, time_period=timeperiodID)
+        delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="leaderboard", course=currentCourse)
+        return setup_periodic_leaderboard(leaderboard_id=objID, variable_index=variableID, course=currentCourse, period_index=timeperiodID,  number_of_top_students=numberOfStudents, threshold=1, operator_type='>', is_random=None)
 def createTimePeriodContext(context_dict):
 
     context_dict['periodicVariables'] = [variable for _, variable in PeriodicVariables.periodicVariables.items()]
