@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+   <script>
+      /* Should always hold the number of answers displayed. */
+      var numLeaderTables = {{num_tables}};
+      var numberOfItems = 0;
+      
+      
+      /* Adds a new blank answer */
+      function addAnswer() {
+      
+        /* If there are only two answers, we've hidden the remove button
+           now we're adding a new answer, so we show it again. */
+        if(numLeaderTables == 2) {
+          document.getElementById('removeLeaderboard').classList.remove('disabled');
+        }
+      
+        /* Increment the javascript variable */
+        numLeaderTables++;
+      
+        /* Update the number which will be returned to python */
+        document.getElementById('numLeaderTables').value=numLeaderTables;
+      
+        /* Construct a new answer blank. */
+        
+        var id = numLeaderTables;
+        var newElement =  "<div name='leaderboard' id='leaderboard_"+id+"'>\n"+
+    	"<input type='hidden' name='leaderboardID[]' value='none'>\n"+
+    	"<input name='delete[]' type='hidden' value='false'>\n"+
+        "<div class='row'>\n"+
+           "<div class='col s12 m10 offset-m1'>\n"+
+              "<div class='card'>\n"+
+                 "<div class='card-content'>\n"+
+                    "<div class='row'>\n"+
+                       "<div class='input-field col s12'>\n"+
+                          "<input id='leaderboardName_"+id+"' value='' name='leaderboardName[]' type='text' class='validate'>\n"+
+                          "<label for='leaderboardName_"+id+"' >Leaderboard Name</label>\n"+
+                       "</div>\n"+
+                       "<div class='input-field col s12'>\n"+
+                          "<textarea id='leaderboardDescription_"+id+"' name='leaderboardDescription[]' class='materialize-textarea' type='text' class='validate'></textarea>\n"+
+                          "<label for='leaderboardDescription_"+id+"' >Leaderboard Description</label>\n"+
+                       "</div>\n"+
+                       "</div>\n"+
+                    "<div class = 'row'>\n"+
+                    "<div class='input-field col s6'>\n"+
+                    "<input id='studentsShown_"+id+"' value='' name='studentsShown[]' type='text' class='validate'>\n"+
+                    "<label for='studentsShown_"+id+"' >Number of Students Shown</label>\n"+
+                    "</div>\n"+
+                          "<div class='col s6'>\n"+
+                          "<input name='checkbox' class='checkbox' type='checkbox' id='home_"+id+"'>\n"+
+                          "<label for='home_"+id+"'>Display on Home Page</label>\n"+
+                          "<input name='home[]' type='hidden' id='home_"+id+"_hidden'>\n"+
+                          "</div>\n"+
+                       
+                          "</div>\n"+
+
+                          "<div class = 'row'>\n"+
+                            "<div class='col s12 offset-m1'>\n"+
+                             "<p>Frequency of Leaderboard Update:</p>\n"+
+                             "</div>\n"+
+                             "</div>\n"+
+                    "<div class = 'row'>\n"+
+                    "<div class='col s2'>\n"+
+                       "<input name='checkbox' class='checkbox' type='checkbox' id='cont_"+id+"'>\n"+
+                       "<label for='cont_"+id+"'>Continous</label>\n"+
+                       "<input name='cont[]' type='hidden' id='cont_"+id+"_hidden'>\n"+
+                       "</div>\n"+
+                    "<div class='col s1'>\n"+
+                    "<p>OR</p>\n"+
+                    "</div>\n"+
+                       "<div class='col s3'>\n"+
+                          "<label for='timePeriodSelected_"+id+"'>Leaderboard Update:</label>\n"+
+                          "<select id='timePeriodSelected_"+id+"' name='timePeriodSelected[]'>\n"+
+                          {% for timePeriod in timePeriods %}
+                          "<option value='{{timePeriod.index}}' {% if timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>\n"+
+                          {% endfor %}
+                          "</select>\n"+
+                          "</div>\n"+
+                          "<div class='col s6'>\n"+
+                          "<label>Periodic Variable:</label>\n"+
+                          "<select id='periodicVariableSelected_"+id+"' name='periodicVariableSelected[]'>\n"+
+                          {% for periodicVariable in periodicVariables %}
+                          "<option value='{{periodicVariable.index}}' {% if periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>\n"+
+                          {% endfor %}
+                          "</select>\n"+
+                       "</div>\n"+
+                       "</div>\n"+
+                       "</div>\n"+
+                       "</div>\n"+
+                       "</div>\n"+
+                       "</div>\n"+
+                       "</div>\n";
+                
+        /* And put it in place. */
+        var node = document.createTextNode(newElement);
+        var previous = document.getElementById('leaderboard_'+(numLeaderTables-1));
+        previous.insertAdjacentHTML('afterEnd',newElement);
+        
+        console.log(numLeaderTables)
+        $('select').material_select();
+      }
+      
+      /* Removes the bottom answer */
+      function removeAnswer() {
+        /* Remove last answer blank. */
+        var lastAnswer = document.getElementById("leaderboard_"+(numLeaderTables));
+        lastAnswer.parentElement.removeChild(lastAnswer);
+      
+        /* Decrement js variable */
+        numLeaderTables--;
+      
+        /* Update the number which will be returned to python */ 
+        document.getElementById('numLeaderTables').value = numLeaderTables;
+      
+        /* If we're down to just two answers, hide the button which
+           removes answers */
+        if (numLeaderTables == 2) {
+          document.getElementById('removeLeaderboard').classList.add('disabled');
+        }
+        console.log(numLeaderTables);
+        $('select').material_select();
+      }
+      
+      function getNumTables(){
+    	createCheckBoxData();
+      	var leaderboards = document.getElementsByName( 'leaderboard' );
+      	document.getElementById('numLeaderTables').value = leaderboards.length;
+      }
+      
+      function createCheckBoxData(){
+    	  var checkBoxes = document.getElementsByName('checkbox');
+              for (var i = 0; i < checkBoxes.length; i++) {
+             	 var id = checkBoxes[i].id;
+                  if ( checkBoxes[i].checked ==  true) {
+                 	 document.getElementById(id+"_hidden").value = true;
+                  }else{
+                 	 document.getElementById(id+"_hidden").value = false;
+                  }
+              }
+              console.log("ran");
+          }
+      
+   </script>
+   <head>{% include 'scripts.html' %}</head>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Dynamic Leaderboards</h3>
+            </div>
+         </div>
+         <form name="question" id="actForm" enctype="multipart/form-data"
+            action="/oneUp/instructors/dynamicLeaderboard" method="POST">
+            {% csrf_token %} 
+            <input type="hidden" name="numLeaderTables" id="numLeaderTables" value="">
+            <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
+            <input type="hidden" name="leaderboardID" value="{{leaderboardID}}">     
+            <div name="leaderboard" id="leaderboard_1">
+               <!-- Leaderboard container -->
+               <div class="row">
+                  <div class="col s8 m5 offset-m1">
+                     <div class="card">
+                        <div class="card-content">
+                           <span class="card-title">XP Leaderboard</span>
+                           <div class="row">
+                              <div class="input-field col s12">
+                                 <input id="leaderboardDescription_1" value="{{leaderboardDescription}}"
+                                    name="leaderboardDescription" type="text" class="validate">
+                                 <label for="leaderboardDescription"
+                                    >Leaderboard Description</label>
+                              </div>
+                           </div>
+                           <div class="row">
+                              <div class="input-field col s12">
+                                 <input id="studentsShown" value="{{numStudentsDisplayed}}" name="studentsShown" type="text" class="validate">
+                                 <label for="studentsShown" >Number of Students Shown</label>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col s12 m5">
+                     <div class="card">
+                        <div class="card-content">
+                           <span class="card-title">Calculating Total XP Points</span>
+                           <div class="row">
+                              <div class="input-field col s12">
+                                 <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge" id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
+                                 <label for="s_challenge_weight">Weight of <i>serious challenge points (in % )</i></label>
+                              </div>
+                           </div>
+                           <div class="row">
+                              <div class="input-field col s12">
+                                 <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge" id="w_challenge_weight" maxlength="3" type="number"  min="0" max="100">
+                                 <label for="w_challenge_weight">Weight of <i>warmup challenge points (in % )</i></label>
+                              </div>
+                           </div>
+                           <div class="row">
+                              <div class="input-field col s12">
+                                 <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight" maxlength="3" type="number" class="validate" min="0" max="100">
+                                 <label for="s_points_weight">Weight of <i>skill points (in % )</i></label>
+                              </div>
+                           </div>
+                           <div class="row">
+                              <div class="input-field col s12">
+                                 <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight" maxlength="3" type="number" min="0" max="100">
+                                 <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            {% for i, leaderboardID, checkedDynamic, displayOnHomePage,leaderboardName,leaderboardDescription, timePeriodID,  periodicVariableID, numStudentsDisplayed in leaderboard %}            
+            <div name='leaderboard' id='leaderboard_{{i}}'>
+            	<input type="hidden" name="leaderboardID[]" value="{{leaderboardID}}">
+               <div class='row'>
+                  <div class='col s12 m10 offset-m1'>
+                     <div class='card'>
+                        <div class='card-content'>
+                        
+                              <div class ='row'>
+                              <div class='col s5 offset-m10'>
+                                 <input name='checkbox' class='checkbox' type='checkbox' id='delete_{{i}}'>
+                                 <label for='delete_{{i}}'>Delete Leaderboard</label>
+                                 <input name='delete[]' type='hidden' id='delete_{{i}}_hidden' >
+                              </div>
+                              </div>
+                           <div class='row'>
+                              <div class='input-field col s12'>
+                                 <input id='leaderboardName_{{i}}' value='{{leaderboardName}}' name='leaderboardName[]' type='text' class='validate'>
+                                 <label for='leaderboardName_{{i}}' >Leaderboard Name</label>
+                              </div>
+                              <div class='input-field col s12'>
+                                 <textarea id='leaderboardDescription_{{i}}' class="materialize-textarea" name='leaderboardDescription[]' class='validate'>{{leaderboardDescription}}</textarea>
+                                 <label for='leaderboardDescription_{{i}}' >Leaderboard Description</label>
+                              </div>
+                           </div>
+                           
+                              
+                           <div class = 'row'>
+                           <div class='input-field col s6'>
+                                 <input id='studentsShown_{{i}}' value='{{numStudentsDisplayed}}' name='studentsShown[]' type='text' class='validate'>
+                                 <label for='studentsShown_{{i}}' >Number of Students Shown</label>
+                              </div>
+                              <div class='col s3'>
+                                 <input name='checkbox' class='checkbox' type='checkbox' id='home_{{i}}' {{displayOnHomePage}}>
+                                 <label for='home_{{i}}'>Display On Home Page</label>
+                                 <input name='home[]' type='hidden' id='home_{{i}}_hidden' >
+                              </div>
+                              
+                           </div>
+                           <div class = 'row'>
+                              <div class='col s12 offset-m1'>
+                              <p>Frequency of Leaderboard Update:</p>
+                              </div>
+                              </div>
+                           <div class = 'row'>
+                              <div class='col s2'>
+                              
+                                 <input name='checkbox' class='checkbox' type='checkbox' id='cont_{{i}}' {{checkedDynamic}}>
+                                 <label for='cont_{{i}}'>Continous</label>
+                                 <input name='cont[]' value="" type='hidden' id='cont_{{i}}_hidden'>
+                              </div>
+                              <div class='col s1'>
+                              <p>OR</p>
+                              </div>
+                              <div class='col s3'>
+                                 <label for='timePeriodSelected_{{i}}'>Select Time Period:</label>
+                                 <select id='timePeriodSelected_{{i}}' name='timePeriodSelected[]'>
+                                 {% for timePeriod in timePeriods %}
+                                 <option value='{{timePeriod.index}}' {% if timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>
+                                 {% endfor %}
+                                 </select>
+                              
+                              </div>
+                              <div class='col s6'>
+                                 <label>Periodic Variable:</label>
+                                 <select id='periodicVariableSelected_{{i}}' name='periodicVariableSelected[]'>
+                                 {% for periodicVariable in periodicVariables %}
+                                 "<option value='{{periodicVariable.index}}' {% if periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
+                                 {% endfor %}
+                                 "</select>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            {% endfor %}
+            <div class="row">
+               <div class="col s12 m10 offset-m1"></div>
+               <div class="right-align col s12 m10 offset-m1">
+                  <a id="removeLeaderboard" class="waves-effect waves-light btn"
+                     onclick="removeAnswer();"><i class="material-icons left">remove</i>Remove
+                  Leaderboard</a> 
+                  <a id="addLeaderboard" class="waves-effect waves-light btn" onclick="addAnswer();">
+                     <i class="material-icons left">toys</i>Add Leaderboard</a>
+                  <button class="btn waves-effect waves-light" type="submit"
+                     onclick="getNumTables();" name="submit">
+                  Submit<i class="material-icons right">send</i>
+                  </button>
+               </div>
+            </div>
+         </form>
+         <script>
+            if (numLeaderTables == 1) {
+                document.getElementById('removeLeaderboard').classList.add('disabled');
+              }
+         </script> 
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

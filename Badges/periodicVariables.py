@@ -130,6 +130,19 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     # Get the course
     course = get_course(course_id)
 
+    # Handle beginning of time period
+    if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
+        unique_str = str(unique_id)+"_"+award_type
+        periodic_task = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id))
+        total_runs = periodic_task.total_run_count
+        if total_runs >= 1:
+            periodic_task.enabled = False
+            periodic_task.save()
+            return
+
+    # Get the course
+    course = get_course(course_id)
+
     # Get all the students in this course
     students = StudentRegisteredCourses.objects.filter(courseID=course)
     rank = []

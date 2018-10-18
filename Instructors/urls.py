@@ -78,6 +78,7 @@ from Instructors.views.studentAttendanceReportView import studentAttendanceRepor
 
 from Instructors.views.switchToStudentView import switchToStudentView
 from Instructors.views.resetTestStudentData import resetTestStudent
+from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 
 admin.autodiscover()
 
@@ -169,6 +170,6 @@ urlpatterns = [
     url(r'^studentAttendanceReport',studentAttendanceReportView,name='studentAttendanceReportView'),
     url(r'^studentAttendance',studentAttendance,name='studentAttendance'),
     url(r'^switchView', switchToStudentView, name='swtichView'),
-    url(r'^resetTestStudent', resetTestStudent, name='resetTestStudent')
-
+    url(r'^resetTestStudent', resetTestStudent, name='resetTestStudent'),
+    url(r'^dynamicLeaderboard', dynamicLeaderboardView, name='dynamicLeaderboardView'),
 ]
