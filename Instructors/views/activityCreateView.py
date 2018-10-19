@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.utils import utcDate, initialContextDict
+from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
+from Badges.views.progressiveUnlocking import createProgressiveUnlocking
 from Instructors.constants import default_time_str
 from datetime import datetime
 
@@ -16,6 +18,7 @@ def activityCreateView(request):
     # The context contains information such as the client's machine details, for example.
  
     context_dict, currentCourse = initialContextDict(request)
+    context_dict = setUpContextDictForConditions(context_dict,currentCourse,None)
     string_attributes = ['activityName','description','points','instructorNotes'];
     actCats = ActivitiesCategory.objects.filter(courseID=currentCourse)
     context_dict['categories'] = actCats

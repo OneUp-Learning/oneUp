@@ -370,3 +370,9 @@ class ActivityCategorySet(models.Model):
     category = models.ForeignKey(ActivitiesCategory,verbose_name="the category included in the set",db_index=True,on_delete=models.CASCADE)
     def __str__(self):
         return "ActivityCategorySet for Condition: "+str(self.condition)+" includes Category: "+str(self.category)
+
+class ProgressiveUnlocking(models.Model):
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
+    name = models.CharField(max_length=300) # e.g. test score, number of attempts 
+    description = models.CharField(max_length=10000)
+    ruleID = models.ForeignKey(Rules,  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the related rule", db_index=True)

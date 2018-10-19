@@ -33,6 +33,8 @@
       </script>
       <script>
          $( document ).ready(function(){
+          $("#collapsible-custom-content").css('display', 'none');
+
         	{% if view %}
 	        	var tags = JSON.parse('{{ tags | escapejs }}')
 				var topics = JSON.parse('{{ topics | escapejs }}')
@@ -366,7 +368,10 @@
                                  	
                                  {% endfor %}
                                 {% endif %}
-                     </div>
+                        
+                      {% include "Badges/ProgessiveUnlocking.html" %}
+                      </div>
+                     
                      <div class="card-action right-align">
                      	{% if view == False %}
                         <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i>
