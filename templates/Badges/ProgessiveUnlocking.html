@@ -1,0 +1,34 @@
+<script>
+        function expand(){
+          if($("#collapsible-custom-content").is(":hidden")){
+             $("#collapsible-custom-content").fadeToggle();
+             if($("#collapsible-custom-content").is(":visible")) {
+               $("#unlockingDescript").prop('required',true);
+               if($('#unlockingInput').length == 0){
+                 $("#collapsible-custom-content").append("<input id='unlockingInput' type=hidden value=true name=unlockingInput />");
+               }
+            }
+          }
+          else {
+            $("#collapsible-custom-content").fadeToggle();
+            $("#unlockingDescript").removeAttr('required');
+            $("#unlockingInput").remove();
+        }
+       }
+</script>
+
+<div class="row">
+        <h5 class="col s11">Progressive Unlocking </h5>
+        <input type="checkbox" id="unlockingCheck" onClick="expand();" class="right-align" />
+        <label for="unlockingCheck"></label>
+    </div>
+
+    <div id="collapsible-custom-content" style="display : none">
+        <div class="row">
+            <div class="input-field col s12">
+               <input placeholder="Description" value="{{unlockingDescript}}" name="unlockingDescript" type="text" id="unlockingDescript">
+               <label for="unlockingDescript"><span class= "red-text">*</span>Unlocking Rule Description</label>
+            </div>
+         </div>
+      {% include "Badges/unlockingConditionInterface.html" %}
+    </div>
