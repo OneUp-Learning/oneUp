@@ -549,6 +549,7 @@ def ChallengeResults(request):
                     questdict['matches']=matchlist
                     if q.type == QuestionTypes.parsons:
                         answer = Answers.objects.filter(questionID=q.questionID)
+                        studentChallengeQuestion = StudentChallengeQuestions.objects.get(studentChallengeID=studentChallengeId, questionID=q.questionID)
                         answer = answer[0].answerText
                         print("Model Solution: ", answer)
                         
@@ -617,6 +618,8 @@ def ChallengeResults(request):
                         studentAnswer = studentAnswer.join(IndentedStudentSolution)
                         
                         questSessionDict['student_solution'] = studentAnswer
+                        ##GGM added user points
+                        questSessionDict['user_points'] = studentChallengeQuestion.questionScore
                     
                     if q.type == QuestionTypes.multipleChoice:
                         correctAnswer = CorrectAnswers.objects.get(questionID=q.questionID).answerID
