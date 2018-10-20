@@ -249,7 +249,7 @@ class PeriodicallyUpdatedleaderboards(models.Model):
     studentPosition = models.IntegerField(default=0)
       
     def __str__(self):              
-        return str(self.id)+", LeaderboardID: "+str(self.leaderboardID) + ", StudentID: "+str(self.studentID)+", Points: "+str(self.studentPoints)+", Position: "+str(self.studentPosition)
+        return str(self.periodicLeaderboardID)+", LeaderboardID: "+str(self.leaderboardID) + ", StudentID: "+str(self.studentID)+", Points: "+str(self.studentPoints)+", Position: "+str(self.studentPosition)
     
 
 class StudentLeaderboardHistory(models.Model):

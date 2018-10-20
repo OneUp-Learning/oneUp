@@ -233,7 +233,6 @@ def courseLeaderboard(currentCourse, context_dict):
                         studentUser.append(student.user)
                     else:
                         studentUser.append(student.user.first_name +" " + student.user.last_name)
-            
             context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints, studentUser)                 
                        
         else:

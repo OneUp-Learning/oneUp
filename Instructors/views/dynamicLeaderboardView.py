@@ -103,7 +103,9 @@ def dynamicLeaderboardView(request):
     
     
     if request.method == 'POST':
-        numLeaderTables = int(request.POST['numLeaderTables'])
+        
+        if request.POST['numLeaderTables']:
+            numLeaderTables = int(request.POST['numLeaderTables'])
         
         #if we have an id for the first leaderboaard(XP leaderboard), then get the id
         if request.POST['leaderboardID']:
@@ -113,12 +115,12 @@ def dynamicLeaderboardView(request):
         
         #regardless of what happens we still need to get the data for the xp table    
         leaderboard.leaderboardDescription = request.POST['leaderboardDescription']
-        leaderboard.numStudentsDisplayed = int(request.POST['studentsShown'])
+        ccpStudentsShown = leaderboard.numStudentsDisplayed = int(request.POST['studentsShown'])
         leaderboard.timePeriodUpdateInterval = 000
         leaderboard.save()
         
         #now we need to cyle though the data for the dynamically generated tables
-        delete = request.POST.getlist('delete[]')
+        deleteLeaderboards = request.POST.getlist('delete[]')
         home = request.POST.getlist('home[]')
         leaderboardID = request.POST.getlist('leaderboardID[]')
         periodicVariableSelected = request.POST.getlist('periodicVariableSelected[]')
@@ -128,7 +130,7 @@ def dynamicLeaderboardView(request):
         leaderboardName= request.POST.getlist('leaderboardName[]')
         cont= request.POST.getlist('cont[]')
         
-        print(delete)
+        print(deleteLeaderboards)
         print(home)
         print(periodicVariableSelected)
         print(studentsShown)
@@ -141,6 +143,7 @@ def dynamicLeaderboardView(request):
         ##first we need to iterate over the ids and find out if it has an object already, thus its an edit
         index = 0
         for id in leaderboardID:
+            
             if id != 'none':    
                 leaderboard = LeaderboardsConfig.objects.get(leaderboardID=int(id))
             else:#therwise dont get the id, its a new object
@@ -159,19 +162,12 @@ def dynamicLeaderboardView(request):
                 leaderboard.timePeriodUpdateInterval = 000
             else:
                 leaderboard.timePeriodUpdateInterval = int(timePeriodSelected[index])
-                
-            #the way this is built, unfortunately we have to create the data and then later destroy it
-            if delete[index] == 'true':
-                print("Deleted", leaderboard)
-                leaderboard.periodicTask=createPeriodic(leaderboard.leaderboardID, leaderboard.periodicVariable, currentCourse,leaderboard.timePeriodUpdateInterval, leaderboard.numStudentsDisplayed,None, None, None, None, None,True)
-                leaderboard.delete()  
-            else:
-                if leaderboard.timePeriodUpdateInterval != 000: 
-                    leaderboard.periodicTask=createPeriodic(leaderboard.leaderboardID, leaderboard.periodicVariable, currentCourse,leaderboard.timePeriodUpdateInterval, leaderboard.numStudentsDisplayed,None, None, None, None, None,False)
-                    leaderboard.save()
+            leaderboard.save()
+            leaderboardObjects.append(leaderboard)
             index= index + 1
-            
-            
+        
+        createPeriodicTasksForObjects(leaderboardObjects)
+        deleteLeaderboardConfigObjects(deleteLeaderboards)   
         if request.POST['ccpID']:
             ccparams = CourseConfigParams.objects.get(pk=int(request.POST['ccpID']))
         else:
@@ -183,7 +179,8 @@ def dynamicLeaderboardView(request):
         ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
         ccparams.xpWeightSP = request.POST.get('xpWeightSP')
         ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
-        ccparams.leaderboardUpdateFreq =1 
+        ccparams.leaderboardUpdateFreq = 1
+        ccparams.numStudentsDisplayed = ccpStudentsShown
         ccparams.save()
         
 
@@ -191,13 +188,18 @@ def dynamicLeaderboardView(request):
     
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")    
-## we must delete and recreate the periodic event or it will break       
-def createPeriodic(objID, variableID, currentCourse, timeperiodID, numberOfStudents, threshold, opType, random, badgeId, vcCurrency,  deleteBool):
-    if deleteBool:##if we get the delete bool, then we must only delete, not reset
-        delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="leaderboard", course=currentCourse)
-    else:
-        delete_periodic_task(unique_id=objID, variable_index=variableID, award_type="leaderboard", course=currentCourse)
-        return setup_periodic_leaderboard(leaderboard_id=objID, variable_index=variableID, course=currentCourse, period_index=timeperiodID,  number_of_top_students=numberOfStudents, threshold=1, operator_type='>', is_random=None)
+## we must delete and recreate the periodic event or it will break
+def createPeriodicTasksForObjects(leaderboards):
+    for leaderboard in leaderboards:
+        delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
+        leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
+        leaderboard.save()
+
+def deleteLeaderboardConfigObjects(leaderboards):
+    for leaderboardObjID in leaderboards:
+        leaderboard = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardObjID))
+        delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
+        leaderboard.delete()
 def createTimePeriodContext(context_dict):
 
     context_dict['periodicVariables'] = [variable for _, variable in PeriodicVariables.periodicVariables.items()]

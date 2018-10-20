@@ -26,7 +26,6 @@
         var id = numLeaderTables;
         var newElement =  "<div name='leaderboard' id='leaderboard_"+id+"'>\n"+
     	"<input type='hidden' name='leaderboardID[]' value='none'>\n"+
-    	"<input name='delete[]' type='hidden' value='false'>\n"+
         "<div class='row'>\n"+
            "<div class='col s12 m10 offset-m1'>\n"+
               "<div class='card'>\n"+
@@ -43,7 +42,7 @@
                        "</div>\n"+
                     "<div class = 'row'>\n"+
                     "<div class='input-field col s6'>\n"+
-                    "<input id='studentsShown_"+id+"' value='' name='studentsShown[]' type='text' class='validate'>\n"+
+                    "<input id='studentsShown_"+id+"' value='' name='studentsShown[]' type='number' class='validate'>\n"+
                     "<label for='studentsShown_"+id+"' >Number of Students Shown</label>\n"+
                     "</div>\n"+
                           "<div class='col s6'>\n"+
@@ -223,9 +222,8 @@
                         
                               <div class ='row'>
                               <div class='col s5 offset-m10'>
-                                 <input name='checkbox' class='checkbox' type='checkbox' id='delete_{{i}}'>
-                                 <label for='delete_{{i}}'>Delete Leaderboard</label>
-                                 <input name='delete[]' type='hidden' id='delete_{{i}}_hidden' >
+                              <button class="btn waves-effect waves-light" type="submit" value="{{leaderboardID}}" name="delete[]">
+                  				<i class="material-icons">clear</i></button>
                               </div>
                               </div>
                            <div class='row'>
@@ -242,7 +240,7 @@
                               
                            <div class = 'row'>
                            <div class='input-field col s6'>
-                                 <input id='studentsShown_{{i}}' value='{{numStudentsDisplayed}}' name='studentsShown[]' type='text' class='validate'>
+                                 <input id='studentsShown_{{i}}' value='{{numStudentsDisplayed}}' name='studentsShown[]' type='number' class='validate'>
                                  <label for='studentsShown_{{i}}' >Number of Students Shown</label>
                               </div>
                               <div class='col s3'>

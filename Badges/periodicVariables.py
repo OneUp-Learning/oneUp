@@ -167,15 +167,9 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
                 # Only select the top number of students
                 rank = rank[:number_of_top_students]
                 # save results (leaderboard_id == unique_id)
-                index = 1
-                for student, xp in rank:
-                    leaderboard = PeriodicallyUpdatedleaderboards()
-                    leaderboard.leaderboardID = unique_id
-                    leaderboard.studentID = student
-                    leaderboard.studentPoints = xp
-                    leaderboard.studentPosition = index
-                    leaderboard.save()
-                    index = index + 1
+                savePeriodicLeaderboardResults(rank,unique_id, course)
+            else:
+                savePeriodicLeaderboardResults(rank,unique_id, course)
 
 def filter_students(students, number_of_top_students, threshold, operator_type, is_random):
     ''' Filters out students based on parameters if they are not None.
@@ -205,7 +199,64 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             random.shuffle(students)
             students = random.sample(students, 1)
     return students
+def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
+    from Students.models import PeriodicallyUpdatedleaderboards
+    from Badges.models import LeaderboardsConfig
+  
+    #get all the periodicaly updated leaderboard objects for the course
+    leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID)).order_by('studentPosition')
+    leaderboardConfigObj = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
+    
+    #then dump all the records
+    for leaderboardRecord in leaderboardRecords:
+        leaderboardRecord.delete()
+    
+    #reset all the new records with fresh data
+    index = 1
+    for student in rank:
+        leaderboardConfigID = leaderboardConfigObj
+        leaderboard = PeriodicallyUpdatedleaderboards()
+        leaderboard.leaderboardID = leaderboardConfigID
+        leaderboard.studentID = student[0]
+        leaderboard.studentPoints = student[1]
+        leaderboard.studentPosition = index 
+        leaderboard.save()
+        index = index + 1
+    
+#ultra efficient code
+#     leaderboardConfigID = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
+#     leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID)).order_by('studentPosition')
+#     
+#     index = 1
+#     for student in rank:
+#         
+#         if index <= leaderboardConfigID.numStudentsDisplayed:
+#             try:
+#                 leaderboard = leaderboardRecords[index]
+#             except:
+#                 lederboard = None
+#             leaderboardRecord = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student.studentID)
+#             if leaderboardRecord:
+#                 leaderboard.studentID = student[0]
+#                 leaderboard.studentPoints = student[1]
+#                 leaderboard.studentPosition = index
+#             else:
+#                 leaderboard = PeriodicallyUpdatedleaderboards()
+#                 leaderboard.leaderboardID = leaderboardConfigID
+#                 leaderboard.studentID = student[0]
+#                 leaderboard.studentPoints = student[1]
+#                 leaderboard.studentPosition = index
+#             leaderboard.save()
+#             index = index + 1
+#         
+#     if index <= len(leaderboardRecords):
+#         for leaderboard in leaderboardRecords[index:]:
+#             
+#             leaderboard.studentPosition = 0
+#             leaderboard.save()
 
+        
+    
 def award_students(students, course, badge_id=None, virtual_currency_amount=None):
     ''' Awards students a badge or virtual currency or both.'''
 
@@ -301,7 +352,10 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
             earnings = earnings.filter(timestamp__gte=periodic_badge.lastModified)
         elif award_type == 'vc':
             periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
-            earnings = earnings.filter(timestamp__gte=periodicVC.lastModified)            
+            earnings = earnings.filter(timestamp__gte=periodicVC.lastModified)
+        elif award_type == 'leaderboard':
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            earnings = earnings.filter(timestamp__gte=periodic_leaderboard.lastModified)
     
     # Get the total earnings only if they have earned more than 0
     total = sum([int(earn.value) for earn in earnings if earn.value > 0])
@@ -350,6 +404,9 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
         elif award_type == 'vc':
             periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
             last_ran = periodicVC.lastModified
+        elif award_type == 'leaderboard':
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            last_ran = periodic_leaderboard.lastModified
         elif result_only:
             date_time = time_period['datetime']
             if date_time:
@@ -410,6 +467,9 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
         elif award_type == 'vc':
             periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
             last_ran = periodicVC.lastModified
+        elif award_type == 'leaderboard':
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            last_ran = periodic_leaderboard.lastModified
         elif result_only:
             date_time = time_period['datetime']
             if date_time:
@@ -451,21 +511,17 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     return (student, unique_warmups)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    last_ran(unique_id, periodic_variable, award_type, course)
     print("XP Val")
-    return studentXP(studentId, course)
+    return studentXP(student, course)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    last_ran(unique_id, course)
-    return studentXP(studentId, course, warmup=True, serious=False, seriousPlusActivity=False)
+    return studentXP(student, course, warmup=True, serious=False, seriousPlusActivity=False)
     
 def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    last_ran(unique_id, course)
-    return studentXP(studentId, course, warmup=False, serious=True, seriousPlusActivity=False)
+    return studentXP(student, course, warmup=False, serious=True, seriousPlusActivity=False)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    last_ran(unique_id, course)
-    return studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivity=True)
+    return studentXP(student, course, warmup=False, serious=False, seriousPlusActivity=True)
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
@@ -483,7 +539,7 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
         schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
         return schedule
     
-def last_ran(unique_id, periodic_variable, award_type, course):
+def last_ran_leaderboard(unique_id, periodic_variable, award_type, course):
     from Badges.models import LeaderboardsConfig
     # If this is first time running, set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous challenges from beginning of time
     last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID) 
@@ -494,8 +550,9 @@ def last_ran(unique_id, periodic_variable, award_type, course):
 def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivity=False):
     
     from Badges.models import CourseConfigParams
-    from Instructors.models import Challenges
-
+    from Instructors.models import Challenges, Activities, CoursesSkills, Skills
+    from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
+    print('studentid',studentId.id)
     xp = 0  
     xpWeightSP = 0
     xpWeightSChallenge = 0
@@ -580,14 +637,16 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
         if (gradeID):
             totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
     
-    if warmup==False and serious==False and seriousPlusActivity==False:
-        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScoreSkillPoints),0)
-    elif warmup==True:
+    
+    if warmup==True:
         xp = round(totalScorePointsWarmupChallenge,0)
     elif serious == True:
         xp = round(totalScorePointsSeriousChallenge,0)
     elif seriousPlusActivity == True:
         xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
+    else:
+        print("this is the xp calc")
+        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScoreSkillPoints),0)
         
     print("Leaderboard created!", (studentId,xp))
     return (studentId,xp)
@@ -607,7 +666,7 @@ class TimePeriods:
             'name': 'daily_test',
             'displayName': 'Every 2 Minutes (For Testing)',
             'schedule': get_or_create_schedule(
-                        minute='*/2', hour='*', day_of_week='*', 
+                        minute='*', hour='*', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2))
         },
