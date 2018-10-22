@@ -179,7 +179,7 @@ def ChallengeResults(request):
                             numAnswersIncorrect = len([x for x in userAnswerIds if x not in correctAnswerIds])                            
                             numAnswersMissing = len([x for x in correctAnswerIds if x not in userAnswerIds])
                         
-                            question['user_points'] = question['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
+                            question['user_points'] = round(question['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing), 2)
                             question['user_answers'] = [{'answerNumber':x,'answerText':question['answers'][x-1]['answerText']} for x in userAnswerIndexes]
                         
                         print('question[user_points] = ', question['user_points'])
@@ -549,6 +549,7 @@ def ChallengeResults(request):
                     questdict['matches']=matchlist
                     if q.type == QuestionTypes.parsons:
                         answer = Answers.objects.filter(questionID=q.questionID)
+                        studentChallengeQuestion = StudentChallengeQuestions.objects.get(studentChallengeID=studentChallengeId, questionID=q.questionID)
                         answer = answer[0].answerText
                         print("Model Solution: ", answer)
                         
@@ -617,6 +618,8 @@ def ChallengeResults(request):
                         studentAnswer = studentAnswer.join(IndentedStudentSolution)
                         
                         questSessionDict['student_solution'] = studentAnswer
+                        ##GGM added user points
+                        questSessionDict['user_points'] = studentChallengeQuestion.questionScore
                     
                     if q.type == QuestionTypes.multipleChoice:
                         correctAnswer = CorrectAnswers.objects.get(questionID=q.questionID).answerID
@@ -662,7 +665,7 @@ def ChallengeResults(request):
                             
                         valuePerAnswer = questSessionDict['total_points']/len(questSessionDict['answers'])
                         
-                        questSessionDict['user_points'] = questSessionDict['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing)
+                        questSessionDict['user_points'] = round(questSessionDict['total_points']-valuePerAnswer*(numAnswersIncorrect+numAnswersMissing), 2)
                         questSessionDict['user_answers'] = [{'answerNumber':i,'answerText':x['answerText']} for i, x in userAnswers]
                     elif q.type == QuestionTypes.trueFalse:
                         correctAnswerValue = CorrectAnswers.objects.get(questionID=q.questionID).answerID.answerText == "true"
