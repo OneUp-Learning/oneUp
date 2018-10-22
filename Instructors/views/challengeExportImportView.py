@@ -36,8 +36,10 @@ def exportChallenges(request):
         for challenge in challenges:
             chall_name.append(challenge.challengeName)
             chall_ID.append(challenge.challengeID)
-
-        context_dict['challenge_range'] = zip(range(1, len(chall_name) + 1), chall_ID, chall_name)            
+        
+        zipped = zip(range(1, len(chall_name) + 1), chall_ID, chall_name)
+        ##GGM sort the item alphabetically
+        context_dict['challenge_range'] = sorted(zipped, key=lambda x: x[2])
         return render(request,'Instructors/ChallengeExport.html', context_dict)
 
     if request.method == 'POST':        
