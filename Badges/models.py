@@ -328,31 +328,26 @@ class CourseConfigParams(models.Model):
     thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
 
     def __str__(self):
-        return str(self.ccpID)  +","
-        +str(self.courseID) +","
-        +str(self.badgesUsed) +","
-        +str(self.studCanChangeBadgeVis) +","
-        +str(self.numBadgesDisplayed) +","
-        +str(self.levelingUsed) +","
-        +str(self.leaderboardUsed) +","
-        +str(self.studCanChangeLeaderBoardVis) +","
-        +str(self.numStudentsDisplayed) +","
-        +str(self.classSkillsDisplayed) +","
-        +str(self.studCanChangeClassSkillsVis) +","
-        +str(self.numStudentBestSkillsDisplayed) +","
-        +str(self.virtualCurrencyUsed) +","
-        +str(self.avatarUsed) +","
-        +str(self.classAverageUsed) +","
-        +str(self.studCanChangeclassAverageVis) +","
-        +str(self.courseStartDate) +","
-        +str(self.courseEndDate) +","
-        +str(self.leaderboardUpdateFreq) +","
-        +str(self.xpWeightSP) +","
-        +str(self.xpWeightSChallenge) +","
-        +str(self.xpWeightWChallenge) +","
-        +str(self.xpWeightAPoints) +","
-        +str(self.thresholdsToLevelMedium) +","
-        +str(self.thresholdsToLevelDifficulty)
+        return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
+        +str(self.studCanChangeBadgeVis) +"," \
+        +str(self.numBadgesDisplayed) +"," \
+        +str(self.levelingUsed) +"," \
+        +str(self.leaderboardUsed) +"," \
+        +str(self.numStudentsDisplayed) +"," \
+        +str(self.classSkillsDisplayed) +"," \
+        +str(self.studCanChangeClassSkillsVis) +"," \
+        +str(self.numStudentBestSkillsDisplayed) +"," \
+        +str(self.virtualCurrencyUsed) +"," \
+        +str(self.avatarUsed) +"," \
+        +str(self.classAverageUsed) +"," \
+        +str(self.studCanChangeclassAverageVis) +"," \
+        +str(self.courseStartDate) +"," \
+        +str(self.courseEndDate) +"," \
+        +str(self.leaderboardUpdateFreq) +"," \
+        +str(self.xpWeightSP) +"," \
+        +str(self.xpWeightSChallenge) +"," \
+        +str(self.xpWeightWChallenge) +"," \
+        +str(self.xpWeightAPoints) +"," 
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
