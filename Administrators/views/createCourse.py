@@ -153,10 +153,10 @@ def courseCreateView(request):
                 course.save()
                 
                 if 'instructorName' in request.POST:
-                    user = User.objects.get(username=instructor_username)
+                    instructor = User.objects.get(username=instructor_username)
                     
                     irc = InstructorRegisteredCourses()
-                    irc.instructorID = user
+                    irc.instructorID = instructor
                     irc.courseID = course
                     irc.save()
                     
