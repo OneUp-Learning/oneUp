@@ -12,7 +12,7 @@ from Badges.models import CourseConfigParams
 import logging
 logger = logging.getLogger(__name__)
 
-students_per_page = 4
+students_per_page = 20
 usernameprefix = 'adduser-'
 
 @login_required
