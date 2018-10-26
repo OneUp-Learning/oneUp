@@ -36,7 +36,7 @@
 							{% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
 							<input type="hidden" name="topicID" value="{{topic_ID}}">
 							<li>
-								<div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
+								<div class="collapsible-header {% if forloop.first %}active{% endif %}"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
 									{% if all_challenges != '0' and challenges_count > 0 %}
 									<span class="badge">{{challenges_count}}</span>
 									{% else %}
@@ -87,6 +87,7 @@
 													<div id="modal_delete-{{i}}-{{j}}" class="modal">
 														<div class="modal-content">
 															<h5>Are you sure you want to delete?</h5>
+															<p>Problems will not be deleted</p>
 														</div>
 														<div class="modal-footer">
 															<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
@@ -157,6 +158,7 @@
 			},
 			success: function () {
 				console.log("Deleted");
+				location.reload();
 			}
 		});
 	}
