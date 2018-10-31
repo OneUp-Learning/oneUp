@@ -29,7 +29,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
         defaultCat.save() 
       
     if request.method == "GET" or request.POST.get('actCat') == "all" or request.POST.get('actCat') == None:
-        activities = Activities.objects.filter(courseID=currentCourse)
+        activities = Activities.objects.filter(courseID=currentCourse).order_by('deadLine')
         for activity in activities:
             activity_ID.append(activity.activityID) #pk
             activity_Name.append(activity.activityName)
@@ -50,6 +50,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
 
                     
     # The range part is the index numbers.
+    
     context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
     context_dict['activitesForCats'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
     
