@@ -62,7 +62,7 @@ def challengesForTopic(topic, student, currentCourse):
         chall_position.append(0)
 
     #return sorted(list(zip(challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
-    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position)), key=lambda tup: -tup[4])
+    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position)), key=lambda tup: tup[5])
     
     
 @login_required
