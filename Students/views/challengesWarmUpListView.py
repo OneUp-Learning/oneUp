@@ -19,7 +19,7 @@ def challengesForTopic(topic, student, currentCourse):
     score = []
     chall_position = []
 
-    challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
+    challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition")
     if challenge_topics:           
         for ct in challenge_topics:
             if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
