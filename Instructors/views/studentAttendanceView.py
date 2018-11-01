@@ -41,7 +41,8 @@ def studentAttendance(request):
 #loads in the student objects if any, in studentattendance table
 #and get the data of the student if they were here or not
 def getRollByDate(request, context_dict):
-    student_Names = []
+    student_First_Name = []
+    student_Last_Name = []
     student_Avatars = []
     student_ID = []
     
@@ -51,10 +52,11 @@ def getRollByDate(request, context_dict):
         studentID = Student.objects.get(user=user)
         student_ID.append(studentID)
         student_Avatars.append(entry.avatarImage)
-        student_Names.append((entry.studentID).user.get_full_name())
+        student_First_Name.append((entry.studentID).user.first_name)
+        student_Last_Name.append((entry.studentID).user.last_name)
     isPresent = [] 
     
-    context_dict["students"] = student_ID
+    context_dict["students"] = sorted(student_ID, key = lambda p: p.user.last_name)
     for studentId in student_ID:
         studentAttendance = StudentAttendance.objects.filter(courseID = request.session['currentCourseID'], timestamp=context_dict["rollDate"], studentID=studentId).first()
         if not studentAttendance:
@@ -64,8 +66,8 @@ def getRollByDate(request, context_dict):
                 isPresent.append('true')
             else:
                 isPresent.append('false')
-        
-    context_dict["class"] = sorted(zip(student_ID, student_Avatars, student_Names, isPresent),key=lambda student: student[2])
+    zipped = zip(student_ID, student_Avatars, student_First_Name, student_Last_Name, isPresent)
+    context_dict["class"] = sorted(zipped, key=lambda x: x[3])  
     return context_dict
     
 #create the attendance record if they dont have a record    

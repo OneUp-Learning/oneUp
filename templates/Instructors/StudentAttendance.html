@@ -84,7 +84,7 @@
                         </tr>
                      </thead>
                      <tbody>
-                        {% for student_ID, student_Avatars, student_Names, isPresent in class %}
+                        {% for student_ID, student_Avatars, first_name, last_name, isPresent in class %}
                         <tr>
                            <td><a><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></a></td>
                            <td>
@@ -97,7 +97,8 @@
                            <label for="{{student_ID}}"></label>
                                <input class="hidden" type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
                            </td>
-                           <td>{{student_Names}}</td>
+                           <td>{{first_name}}</td>
+                           <td>{{last_name}}</td>
                         </tr>
                         {% empty %}
                         <tr>
