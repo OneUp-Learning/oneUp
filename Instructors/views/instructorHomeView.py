@@ -7,6 +7,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 from Instructors.models import Courses, InstructorRegisteredCourses, Announcements, Challenges
 from time import strftime
+from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -43,20 +44,28 @@ def instructorHome(request):
     currentTime = strftime("%Y-%m-%d %H:%M:%S")
     # get only the courses of the logged in user        
     reg_crs = InstructorRegisteredCourses.objects.filter(instructorID=request.user)
+    
     for item in reg_crs:
         course_ID.append(item.courseID.courseID) 
         course_Name.append(item.courseID.courseName)
         course_announcements = Announcements.objects.filter(courseID=item.courseID).order_by('-startTimestamp')
         course_challenges = Challenges.objects.filter(courseID=item.courseID, isGraded=True).order_by('endTimestamp')
-        if not course_announcements.count()==0:    
+
+        ccp = CourseConfigParams.objects.get(courseID = item.courseID.courseID)
+        courseEndDate=ccp.courseEndDate.strftime("%Y-%m-%d %H:%M:%S")
+        
+        if not course_announcements.count()==0:
             last_course_announc= course_announcements[0]
-            announcement_ID.append(last_course_announc.announcementID)       
-            announcement_course.append(item.courseID.courseName)         
-            start_timestamp.append(last_course_announc.startTimestamp)
-            subject.append(last_course_announc.subject[:25])
-            message.append(last_course_announc.message[:300])
-            num_announcements = num_announcements+1
-        if not course_challenges.count() == 0:
+            #if our current time is smaller than the course expiry date, we want to add the announcements
+            if currentTime < courseEndDate:
+                
+                announcement_ID.append(last_course_announc.announcementID)       
+                announcement_course.append(item.courseID.courseName)         
+                start_timestamp.append(last_course_announc.startTimestamp)
+                subject.append(last_course_announc.subject[:25])
+                message.append(last_course_announc.message[:300])
+                num_announcements = num_announcements+1
+    if not course_challenges.count() == 0:
             for c in course_challenges:
                 if c.isVisible: # Showing only visible challenges
                     # Check if current time is within the start and end time of the challenge

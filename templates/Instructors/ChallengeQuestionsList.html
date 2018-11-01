@@ -152,7 +152,7 @@
                                        </div>
                                        <div class="modal-footer">
                                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                                          <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" {% if challenge %}onclick="deleteQuestion({{q_ID}},{{challengeID}})" {%else%}onclick="deleteQuestion({{q_ID}}, 0)" {%endif%}value="Delete">Delete
+                                          <button class="modal-action modal-close waves-effect waves-light btn-flat" type="button" {% if challenge %}onclick="deleteQuestion({{q_ID}},{{challengeID}})" {%else%}onclick="deleteQuestion({{q_ID}}, 0)" {%endif%}value="Delete">Delete
                                           </button>                                        
                                        </div>
                                     </div>
@@ -193,6 +193,9 @@
                             	  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                             	  xhttp.send("questionId="+questionID+"&csrfmiddlewaretoken={{csrf_token}}");
                             	  {% endif %}
+                                  xhttp.onload = function(){
+                                      location.reload();
+                                  }
                             	}
                               </script>
    </body>
