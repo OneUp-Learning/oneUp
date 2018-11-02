@@ -98,6 +98,7 @@ def createProgressiveUnlocking(request,obj,objType):
                     studentPUnlocking =  StudentProgressiveUnlocking()
                     studentPUnlocking.studentID = student
                     studentPUnlocking.pUnlockingRuleID = unlocking
+                    studentPUnlocking.courseID = current_course
                     studentPUnlocking.objectID = obj.pk
                     if(objType == "challenge"):
                         studentPUnlocking.objectType = ObjectTypes.challenge

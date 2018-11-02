@@ -1,10 +1,10 @@
 from Badges.models import Rules, ActionArguments, Conditions, BadgesInfo, Badges,\
     ActivitySet, VirtualCurrencyRuleInfo, RuleEvents
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet
+from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet, ProgressiveUnlocking
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     AwardFrequency
 from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
-    StudentRegisteredCourses, StudentVirtualCurrency
+    StudentRegisteredCourses, StudentVirtualCurrency, StudentProgressiveUnlocking
 from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
 from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
@@ -39,7 +39,7 @@ def register_event(eventID, request, student=None, objectId=None):
     else:
         studentpk = student.pk
 
-    # Create event log entry and fill in details.
+    # Create event entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
     eventEntry.timestamp = utcDate()
@@ -427,11 +427,16 @@ def fire_action(rule,courseID,studentID,objID):
         # Allow for the content to be unlocked
         ruleIdArg = args.get(sequenceNumber=1)
         # Get unlocking object for the rule
-        ruleIdString = ruleIdArg.argumentValue
-        unlockingID = int(ruleIdString)
-        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
-
-
+        unlockingID = int (ruleIdArg.argumentValue)
+        pUnlockingRule = ProgressiveUnlocking.objects.get(pk=unlockingID)
+        objectID = pUnlockingRule.objectID
+        objectType = pUnlockingRule.objectType
+        #student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+        StudnetPUnlockingRule = StudentProgressiveUnlocking.objects.get(studentID = studentID, courseID=courseID, objectID= objectID,objectType = objectType)
+        StudnetPUnlockingRule.isFullfilled = True
+        StudentProgressiveUnlocking.save()
+        print("Student " + str(studentID) + " just unlocked " + pUnlockingRule.name + " with argument " + str(ruleIdArg))
+        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You have unlocked an'+ ObjectTypes.objectTypes.get(objectType), nf_type='progressiveUnlocking')        
 
         return
     
