@@ -39,62 +39,82 @@
             New Activity</a>
       </div>
     </div>
-    <div class="row right-align">
-      <div class="col s12 m10 offset-m1">
-        <div class="card-panel">
-          <table>
-            <thead>
-              <tr>
-                <th>Activity Name</th>
-                <th>Description</th>
-                <th>Possible Points</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for i,activity_ID,activity_Name,description, points in activity_range %}
-              <tr>
-                <td>{{activity_Name}}</td>
-                <td>{{description}}</td>
-                <td>{{points}}</td>
-                <td>
-                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-                    data-beloworigin="true" data-activates='activity{{i}}' data-position="right" data-delay="50"
-                    data-tooltip="Options"><i class="material-icons">more_vert</i></a>
-                  <form action="/oneUp/instructors/deleteActivity" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="activityID" value="{{activity_ID}}">
-                    <ul id='activity{{i}}' class='dropdown-content'>
-                      <li><a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons">edit</i>Edit</a></li>
-                      <li><a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons">playlist_add</i>Assign
-                          Points</a></li>
-                      <li class="divider"></li>
-                      <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
-                    </ul>
-                    <div id="modal_delete{{i}}" class="modal">
-                      <div class="modal-content">
-                        <h5>Are you sure you want to delete?</h5>
-                      </div>
-                      <div class="modal-footer">
-                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
-                          value="Delete">Delete
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td class="center-align" colspan="4"><i>No Activities Created</i></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    </div>
+    
+    <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  
+                  <ul class="collapsible" data-collapsible="expandable">
+                     {% for category, category_name in categories_range %}
+                     <li>
+                        <div class="collapsible-header"><i class="material-icons">layers</i>{{category_name}}&nbsp;&nbsp;
+                        
+                        </div>
+                        <div class="collapsible-body">
+                           <ul class="collection">
+                           <table class="responsive-table" style="width:100%">
+                           
+                           <tbody>
+			              {% for i, activity_ID,activity_Name,description, points in category %}
+			              <tr>
+			                <td>{{activity_Name}}</td>
+			                <td>{{description}}</td>
+			                <td>{{points}} Points</td>
+			                <td >
+			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+			                    data-beloworigin="true" data-activates='activity{{i}}' data-position="right" data-delay="50"
+			                    data-tooltip="Options"><i class="material-icons">more_vert</i></a>
+			                  <form action="/oneUp/instructors/deleteActivity" method="POST">
+			                    {% csrf_token %}
+			                    <input type="hidden" name="activityID" value="{{activity_ID}}">
+			                    <ul id='activity{{i}}' class='dropdown-content'>
+			                      <li><a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons">edit</i>Edit</a></li>
+			                      <li><a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons">playlist_add</i>Assign
+			                          Points</a></li>
+			                      <li class="divider"></li>
+			                      <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+			                    </ul>
+			                    <div id="modal_delete{{i}}" class="modal">
+			                      <div class="modal-content">
+			                        <h5>Are you sure you want to delete?</h5>
+			                      </div>
+			                      <div class="modal-footer">
+			                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+			                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
+			                          value="Delete">Delete
+			                        </button>
+			                      </div>
+			                    </div>
+			                  </form>
+			                </td>
+			                <td width="12%">
+			                </td>
+			              </tr>
+			              
+			              {% empty %}
+			              <tr>
+			                <td class="center-align" colspan="4"><i>No Activities Created</i></td>
+			              </tr>
+			              {% endfor %}
+			              <tr>
+			                <td height="138"></td>
+			              </tr>
+			            </tbody>
+                     </table>
+                      </ul>
+               </div>
+              
+               
+               {% endfor %}
+               </ul>
+               <div class="card-action right-align">   
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome?userID={{user}}"><i class="material-icons left">navigate_before</i>Back</a>
+                     
+               </div>
+            </div>
+            
+         </div>
+         </div>
   </main>
   {% include 'footer.html' %}
 </body>
