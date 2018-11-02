@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -251,3 +251,10 @@ class StudentLeaderboardHistory(models.Model):
     def __str__(self):              
         return str(self.id)+", "+str(self.studentID)+", Position: "+str(self.leaderboardPosition)+", Start Timestamp: "+str(self.startTimestamp)+", End Timestamp: "+str(self.endTimestamp)                             
            
+class StudentProgressiveUnlocking(models.Model):
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    pUnlockingRuleID = models.ForeignKey(ProgressiveUnlocking, on_delete=models.CASCADE, verbose_name="the progressive unlocking rule", db_index=True)
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
+    objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
+    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
+    isFullfilled = models.BooleanField(verbose_name='Did the student fullfill the unlocking rule', default=False)

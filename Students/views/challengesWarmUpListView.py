@@ -7,8 +7,9 @@ Created on Oct 1, 2015
 from django.shortcuts import render
 from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges, ChallengesQuestions
 from Instructors.constants import  unspecified_topic_name
-from Students.models import StudentChallenges
+from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
+from Badges.enums import ObjectTypes
 
 from django.contrib.auth.decorators import login_required
 
@@ -18,6 +19,7 @@ def challengesForTopic(topic, student, currentCourse):
     challenge_Name = [] 
     score = []
     chall_position = []
+    isUnlocked = []
 
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
     if challenge_topics:           
@@ -25,6 +27,7 @@ def challengesForTopic(topic, student, currentCourse):
             if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
                 
                 challQuestions = ChallengesQuestions.objects.filter(challengeID=ct.challengeID.challengeID)
+                studentPUnlocking = StudentProgressiveUnlocking.objects.filter(studentID=student,objectID=ct.challengeID.challengeID,objectType=ObjectTypes.challenge).first()
                 
                 if challQuestions:
                     challID = ct.challengeID.challengeID
@@ -54,6 +57,12 @@ def challengesForTopic(topic, student, currentCourse):
                             score.append(5)
                     else:
                         score.append(2)  # no attempt
+                    
+                    # pUnlocking check if not object then we assume there is no pUnlocking rule in place
+                    if studentPUnlocking:
+                        isUnlocked.append(studentPUnlocking.isFullfilled)
+                    else:
+                        isUnlocked.append(True)
     else:
         challenge_ID.append('')
         isWarmup.append(True)
@@ -62,7 +71,7 @@ def challengesForTopic(topic, student, currentCourse):
         chall_position.append(0)
 
     #return sorted(list(zip(challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
-    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position)), key=lambda tup: -tup[4])
+    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position,isUnlocked)), key=lambda tup: -tup[4])
     
     
 @login_required

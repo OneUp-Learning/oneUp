@@ -24,7 +24,13 @@
     </div>
 
     <div id="collapsible-custom-content" style="display : none">
-        <div class="row">
+      <div class="row">
+        <div class="input-field col s12">
+           <input placeholder="Rule Name" value="{{unlockingName}}" name="unlockingName" type="text" id="unlockingName">
+           <label for="unlockingName"><span class= "red-text">*</span>Unlocking Rule Name</label>
+        </div>
+     </div> 
+      <div class="row">
             <div class="input-field col s12">
                <input placeholder="Description" value="{{unlockingDescript}}" name="unlockingDescript" type="text" id="unlockingDescript">
                <label for="unlockingDescript"><span class= "red-text">*</span>Unlocking Rule Description</label>

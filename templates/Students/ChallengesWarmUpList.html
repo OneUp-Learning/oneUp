@@ -22,6 +22,7 @@
                     <i class="fa fa-square" style="color:green;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> You've got it!</font>&nbsp;&nbsp;
                     <i class="fa fa-square" style="color:blue;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Getting there</font>&nbsp;&nbsp;
                     <i class="fa fa-square" style="color:red;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Needs improvement</font>&nbsp;&nbsp;
+                    <i class="fa fa-square" style="color:grey;" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Locked</font>&nbsp;&nbsp;
                     <i class="fa fa-square-o" aria-hidden="true"></i><font style="font-size:.8em;font-weight:600;"> Not attempted</font>
                   </div>
                   <p><span style="color: red; font-weight: bolder;">*</span>Click the bullet symbol <i class="fa fa-square" aria-hidden="true"></i>
@@ -33,7 +34,7 @@
                      <input type="hidden" name="topicID" value="{{topic_ID}}">
                      <li>
                         <div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
-                        {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position in all_challenges %}
+                        {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position,isUnlocked in all_challenges %}
                         			{% if score == 2 %}  <!-- If score have not been taken -->
                                     <i class="fa fa-square-o" style="margin-right:0;font-size:18px; width:1.3rem;margin-top:2px;"aria-hidden="true"></i>
                                     {% elif score == 3 %} <!-- If score equals Above Average -->
@@ -49,21 +50,24 @@
                         </div>
                         <div class="collapsible-body">
                            <ul class="collection">
-                              {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position in all_challenges %}
+                              {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position, isUnlocked in all_challenges %}
                               <input type="hidden" name="score" value="{{score}}">
                               <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
                               <li class="collection-item">
                                  <div>
-                                    {% if not is_teacher %}
+                                    {% if not is_teacher and isUnlocked %}
                                     <a class="tooltipped" data-position="down" data-delay="50" data-tooltip="Take Challenge" href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}&isWarmup={{isWarmup}}" >
                                     {{challenge_Name}}
                                     </a>
                                     {% else %}
-                                    {{challenge_Name}}
+                                    <a class="tooltipped"data-position="down" data-delay="100" data-tooltip="Insert description for unlocking rule" style="color:grey;"><i class="fa fa-lock"></i> {{challenge_Name}} </a>
                                     {% endif %}
-                                    {% if score == 2 %}  <!-- If score have not been taken -->
+                                    {% if score == 2 and isUnlocked %}  <!-- If score have not been taken and is not locked -->
                                     <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}&isWarmup={{isWarmup}}" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
                                     <i class="fa fa-square-o" aria-hidden="true"></i></a>
+                                    {% elif score == 2 and not isUnlocked %}  <!-- If score have not been taken and is locked -->
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
+                                    <i class="fa fa-square" style="color:grey;" aria-hidden="true"></i></a>
                                     {% elif score == 3 %} <!-- If score equals Above Average -->
                                     <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="You've got it!" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
                                     <i class="fa fa-square" style="color:green;" aria-hidden="true"></i></a>

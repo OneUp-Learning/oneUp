@@ -376,3 +376,6 @@ class ProgressiveUnlocking(models.Model):
     name = models.CharField(max_length=300) # e.g. test score, number of attempts 
     description = models.CharField(max_length=10000)
     ruleID = models.ForeignKey(Rules,  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the related rule", db_index=True)
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
+    objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
+

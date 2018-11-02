@@ -5,6 +5,7 @@ from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
+from Badges.views.progressiveUnlocking import createProgressiveUnlocking
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
@@ -172,9 +173,16 @@ def challengeCreateView(request):
             else:
                 timeLimit = int(request.POST.get("timeLimit", 45))
                 challenge.timeLimit = timeLimit
+                
         print("challenge")
         print(challenge)                      
         challenge.save()  #Save challenge to database
+        
+        # Progressive Unlocking
+        if('unlockingInput' in request.POST):
+            print("Got the P Unlocking")
+            createProgressiveUnlocking(request,challenge,"challenge")
+
         # check if course was selected
         addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic, currentCourse)                 
         # Processing and saving tags in DB

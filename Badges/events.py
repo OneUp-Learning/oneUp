@@ -423,6 +423,18 @@ def fire_action(rule,courseID,studentID,objID):
         
         return
     
+    if(actionID == Action.unlockedProgressive):
+        # Allow for the content to be unlocked
+        ruleIdArg = args.get(sequenceNumber=1)
+        # Get unlocking object for the rule
+        ruleIdString = ruleIdArg.argumentValue
+        unlockingID = int(ruleIdString)
+        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+
+
+
+        return
+    
     if (actionID == Action.createNotification):
         print("In notifications ")
 
