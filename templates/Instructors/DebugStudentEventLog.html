@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  {% include 'scripts.html' %}
+
+  <!-- JQuery lib for searching select box -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('.js-example-basic-single').select2();
+      console.log("TEST");
+    });
+  </script>
+</head>
+
+<body>
+
+  {% include 'heading.html' %}
+
+  <main>
+    <div class="row center-align">
+      <div class="col s12">
+        <h3>System Variables Debug</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m10 offset-m1">
+
+        <form name="debugForm" id="debugForm" enctype="multipart/form-data" action="/oneUp/instructors/debugEventLog"
+          method="POST">
+          {% csrf_token %}
+          <div class="input-field col s4" id="student">
+            <select name="student" form="debugForm" id="studentSelect" onchange="this.form.submit()">
+              <option value="all" name="student" selected>All</option>
+              {% for i,userID,first_Name,last_Name,user_Avatar in user_range %}
+              {% if userID == currentStudet %}
+              <option value={{userID}} name="student" selected>{{first_Name}} {{last_Name}}</option>
+              {% else %}
+              <option value={{userID}} name="student">{{first_Name}} {{last_Name}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            <label for="studentDebug">Filter by Student Names</label>
+          </div>
+
+
+          <div class="input-field col s4" id="eventSelector">
+            <select name="events" form="debugForm" id="events" onchange="this.form.submit()">
+              <option value="all" name="events" selected>All</option>
+              {% for i, eventNumber, eventNames in events %}
+              {% if eventNumber == currentEvent %}
+              <option value={{eventNumber}} name="events" selected>{{eventNames}}</option>
+              {% else %}
+              <option value={{eventNumber}} name="events">{{eventNames}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            <label for="studentDebug">Filter by System Variable</label>
+          </div>
+
+          <div class="input-field col s4" id="student">
+            <select name="objectType" form="debugForm" id="objects" onchange="this.form.submit()">
+              <option value="all" name="objectType" selected>All</option>
+              {% for i, obj, objName in objects %}
+              {% if obj == currentObj %}
+              <option value={{obj}} name="objectType" selected>{{objName}}</option>
+              {% else %}
+              <option value={{obj}} name="objectType">{{objName}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            <label for="studentDebug">Filter by Object Type</label>
+          </div>
+        </form>
+
+
+        <br />
+        <br />
+        <br />
+        <br />
+        <div class="card">
+          <div class="card-content">
+            <table>
+              <thead>
+                <th></th>
+                <th>Student Name</th>
+                <th>Event</th>
+                <th>Object Type</th>
+                <th>Timestamp</th>
+              </thead>
+              <tbody>
+                {% for i,name,event,object,timestamp in debugTable %}
+                <tr>
+                  <!--    <td><img class="circle" alt="Avatar Image" width="36" height="36" src="{{user_Avatar}}"></td> -->
+                  <td>
+                  <td>{{name}}</td>
+                  <td>{{event}}</td>
+                  <td>{{object}}</td>
+                  <td>{{timestamp}}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td class="center-align" colspan="8"><i>No students debug data available</i></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  {% include 'footer.html' %}
+</body>
+
+</html>

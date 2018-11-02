@@ -123,7 +123,7 @@ def studentXP(studentId, courseId):
 def courseLeaderboard(currentCourse, context_dict):
     
     # Check if there are students in this course
-    st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+    st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
 
     if st_crs:
         if currentCourse:
