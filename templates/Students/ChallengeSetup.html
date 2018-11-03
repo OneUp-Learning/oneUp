@@ -45,7 +45,9 @@
 Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
-
+.ck-view {
+    overflow: overlay;
+}
 .ck-view img:not([width]) {
     width: 100%;
 }
@@ -58,7 +60,9 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
     border: 1px solid #ccc;
     width: initial;
 }
-.ck-view table td {
+.ck-view table td,
+.ck-view table th,
+.ck-view table thead {
     border: 1px solid black;
 }
 .ck-view .ck-compact-table {
@@ -307,7 +311,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
                               {% for j,answer in question.answers_with_count %}
                               <div class="row">
                                  <input name="{{i}}-ans" type="radio" id="{{i}}ans-{{j}}" value="{{j}}" />
-                                 <label for="{{i}}ans-{{j}}"><div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div></label>
+                                 <label for="{{i}}ans-{{j}}"  style="width: -webkit-fill-available;"><div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div></label>
                               </div>
                               {% endfor %}
                            </div>
@@ -318,7 +322,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
                               {% for j,answer in question.answers_with_count %}
                               <div class="row">
                                  <input name="{{i}}-ans" type="checkbox" id="{{i}}ans-{{j}}" value="{{j}}"/>
-                                 <label for="{{i}}ans-{{j}}"><div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div></label>
+                                 <label for="{{i}}ans-{{j}}" style="width: -webkit-fill-available;"><div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div></label>
                               </div>
                               {% endfor %}
                            </div>

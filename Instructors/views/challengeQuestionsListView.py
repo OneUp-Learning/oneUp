@@ -27,7 +27,7 @@ def makeContextDictForSearch(context_dict, currentCourse):
     # Get challenges from the DB
     challenges = Challenges.objects.filter(courseID=currentCourse)
     for challenge in challenges:
-        if challenge.challengeName != "Unassigned Problems":
+        if challenge.challengeName != unassigned_problems_challenge_name:
             qchallenge.append(challenge.challengeName)
     
     

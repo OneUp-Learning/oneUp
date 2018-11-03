@@ -40,7 +40,13 @@ def createStudentViewUnchecked(request):
         
         if 'userID' in request.POST: # Update student information
             # username cannot be changed; if needed, the studnet must be deleted and a new student created
-            student = students[0]
+            if students:
+                student = students[0]
+            else:
+                students = User.objects.filter(username=request.POST['userID'])
+                student = students[0]
+                student.username = uname
+
             student.first_name = firstname
             student.last_name = lastname
             student.email = email
@@ -48,6 +54,8 @@ def createStudentViewUnchecked(request):
             if not pword.startswith('bcrypt'):
                 student.set_password(pword)
             student.save()
+
+
         else:
             students = User.objects.filter(username=uname)
             if students:
