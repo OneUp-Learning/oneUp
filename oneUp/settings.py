@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 import oneUp
 import psycopg2.extensions
+import getpass
 from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
     SESSION_SERIALIZER
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -189,7 +190,10 @@ LOGIN_URL='/oneUp/permission_error'
 SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
 
 # Celery Settings
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+rabbitmq_username = getpass.getuser()
+with open('oneUp/rabbitmq_password') as f:
+    rabbitmq_password = f.read().strip()
+CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/'+rabbitmq_username
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_IMPORTS = ['Badges.periodicVariables']
