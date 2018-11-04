@@ -1,9 +1,3 @@
-'''
-Created on Nov 3, 2014
-Last updated Dec 21, 2016
-
-@author: Swapna
-'''
 from django.shortcuts import redirect
 
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
@@ -72,8 +66,20 @@ def SaveVirtualCurrencySpendRule(request):
             else:
                 if eventI in selectedSpendRulesEvents:
                     vcRuleInfo = VirtualCurrencyRuleInfo()  
-                    
-                    gameRule = checkRuleExist(currentCourse)
+                 
+                    # KI: As far as I can see, the following line (which I'm
+                    # now commenting out) does this: since there is not rule
+                    # for this rule check if any other virtual currency
+                    # spending rule exists for this course and use that.
+                    # Now, where this seems to break is that it means that
+                    # we create extra RuleEvents and ActionArguments items
+                    # for an existing rule which both fails to create a new
+                    # rule and breaks things since at another place in the 
+                    # code we assume that only one exists.
+                    # For the moment, I'm just going to remove it and force
+                    # things to the other case.
+                    #gameRule = checkRuleExist(currentCourse)
+                    gameRule = False
                     if not gameRule:
                         newCondition = Conditions()
                         newCondition.courseID = currentCourse
