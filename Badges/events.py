@@ -16,6 +16,11 @@ import json
 from oneUp.settings import CELERY_ENABLED
 from Badges.tasks import process_event_offline
 
+from django.db import transaction, OperationalError
+from psycopg2.extensions import TransactionRollbackError
+
+transaction_retry_count = 10
+
 # Method to register events with the database and also to
 # trigger appropriate action.
 # Event should be an integer representing an event from the Event enum.
@@ -397,26 +402,36 @@ def fire_action(rule,courseID,studentID,objID):
         
         #Make sure the student hasn't already been awarded this badge
         #If the student has already received this badge, they will not be awarded again
-        studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
-        if rule.awardFrequency != AwardFrequency.justOnce:
-            studentBadges = studentBadges.filter(objectID = objID)
-        for existingBadge in studentBadges:
-            badgeInfo = Badges.objects.get(badgeID = existingBadge.badgeID.badgeID)
-            if(not badgeInfo.manual):
-                autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
-                if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
-                #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
-                    print("Student " + str(studentID) + " has already earned badge " + str(badge))
-                    return
-            
-        #If the badge has not already been earned, then award it    
-        studentBadge = StudentBadges()
-        studentBadge.studentID = studentID
-        studentBadge.badgeID = badge
-        studentBadge.objectID = objID
-        studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
-        studentBadge.save()
-        print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
+        for retries in range(0,transaction_retry_count):
+            try:
+                with transaction.atomic():
+                    studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
+                    if rule.awardFrequency != AwardFrequency.justOnce:
+                        studentBadges = studentBadges.filter(objectID = objID)
+                    for existingBadge in studentBadges:
+                        badgeInfo = Badges.objects.get(badgeID = existingBadge.badgeID.badgeID)
+                        if(not badgeInfo.manual):
+                            autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
+                            if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
+                            #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
+                                print("Student " + str(studentID) + " has already earned badge " + str(badge))
+                                return
+                        
+                    #If the badge has not already been earned, then award it    
+                    studentBadge = StudentBadges()
+                    studentBadge.studentID = studentID
+                    studentBadge.badgeID = badge
+                    studentBadge.objectID = objID
+                    studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
+                    studentBadge.save()
+                    print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
+            except OperationalError as e:
+                if e.__cause__.__class__ == TransactionRollbackError:
+                    continue
+                else:
+                    raise
+            else:
+                break
         
         #Test to make notifications 
         notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge')
@@ -442,41 +457,73 @@ def fire_action(rule,courseID,studentID,objID):
 
         vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
         
-        if actionID == Action.increaseVirtualCurrency:
-            previousAwards = StudentVirtualCurrency.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
-            if rule.awardFrequency != AwardFrequency.justOnce:
-                previousAwards = previousAwards.filter(objectID = objID)
-            if previousAwards.exists():
-                # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
-                return
-                        
-        studVCRec = StudentVirtualCurrency()
-        studVCRec.studentID = student.studentID
-        if rule.awardFrequency == AwardFrequency.justOnce:
-            studVCRec.objectID = 0
-        else:
-            studVCRec.objectID = objID
-        studVCRec.vcRuleID = vcRule
-        studVCRec.save()
+        for retries in range(0,transaction_retry_count):
+            try:
+                with transaction.atomic(): 
+                    if actionID == Action.increaseVirtualCurrency:
+                        previousAwards = StudentVirtualCurrency.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
+                        if rule.awardFrequency != AwardFrequency.justOnce:
+                            previousAwards = previousAwards.filter(objectID = objID)
+                        if previousAwards.exists():
+                            # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
+                            return
+                                    
+                    studVCRec = StudentVirtualCurrency()
+                    studVCRec.studentID = student.studentID
+                    if rule.awardFrequency == AwardFrequency.justOnce:
+                        studVCRec.objectID = 0
+                    else:
+                        studVCRec.objectID = objID
+                    studVCRec.vcRuleID = vcRule
+                    studVCRec.save()
+            except OperationalError as e:
+                if e.__cause__.__class__ == TransactionRollbackError:
+                    continue
+                else:
+                    raise
+            else:
+                break
         
         if actionID == Action.increaseVirtualCurrency:
             # Increase the student virtual currency amount
-            student.virtualCurrencyAmount += vcRuleAmount
-            student.save()
-            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' virtual bucks', nf_type='Increase VirtualCurrency')
+            for retries in range(0,transaction_retry_count):
+                try:
+                    with transaction.atomic():
+                        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+                        student.virtualCurrencyAmount += vcRuleAmount
+                        student.save()
+                    notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' virtual bucks', nf_type='Increase VirtualCurrency')
+                except OperationalError as e:
+                    if e.__cause__.__class__ == TransactionRollbackError:
+                        continue
+                    else:
+                        raise
+                else:
+                    break
             return
-    
+            
         if actionID == Action.decreaseVirtualCurrency:
             # Decrease the student virtual currency amount
-            if student.virtualCurrencyAmount >= vcRuleAmount:
-                student.virtualCurrencyAmount -= vcRuleAmount 
-                instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
-                instructor = instructorCourse.instructorID
-                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency')
-            else:
-                #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
-                print('this purchase did not go through')
-            student.save()
+            for retries in range(0,transaction_retry_count):
+                try:
+                    with transaction.atomic():
+                        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+                        if student.virtualCurrencyAmount >= vcRuleAmount:
+                            student.virtualCurrencyAmount -= vcRuleAmount 
+                            instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
+                            instructor = instructorCourse.instructorID
+                            notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency')
+                        else:
+                            #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
+                            print('this purchase did not go through')
+                        student.save()
+                except OperationalError as e:
+                    if e.__cause__.__class__ == TransactionRollbackError:
+                        continue
+                    else:
+                        raise
+                else:
+                    break
             return
 
 chosenObjectSpecifierFields = {
