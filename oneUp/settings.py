@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import oneUp
+import psycopg2.extensions
 from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
     SESSION_SERIALIZER
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -113,6 +114,9 @@ with open('/var/www/wsgi-projects/oneUp/oneUp/prodDBpassword.txt') as f:
             'PASSWORD': f.read().strip(),
             'HOST': 'localhost',
             'PORT': '',
+            'OPTIONS': {
+                'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
+            }
         }
     }
 
