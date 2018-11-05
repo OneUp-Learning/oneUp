@@ -430,11 +430,13 @@ def fire_action(rule,courseID,studentID,objID):
         unlockingID = int (ruleIdArg.argumentValue)
         pUnlockingRule = ProgressiveUnlocking.objects.get(pk=unlockingID)
         objectID = pUnlockingRule.objectID
+        print(objectID)
         objectType = pUnlockingRule.objectType
+        print(objectType)
         #student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
         StudnetPUnlockingRule = StudentProgressiveUnlocking.objects.get(studentID = studentID, courseID=courseID, objectID= objectID,objectType = objectType)
         StudnetPUnlockingRule.isFullfilled = True
-        StudentProgressiveUnlocking.save()
+        StudnetPUnlockingRule.save()
         print("Student " + str(studentID) + " just unlocked " + pUnlockingRule.name + " with argument " + str(ruleIdArg))
         notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You have unlocked an'+ ObjectTypes.objectTypes.get(objectType), nf_type='progressiveUnlocking')        
 
