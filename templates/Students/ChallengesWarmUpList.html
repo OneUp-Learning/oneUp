@@ -34,7 +34,7 @@
                      <input type="hidden" name="topicID" value="{{topic_ID}}">
                      <li>
                         <div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
-                        {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position,isUnlocked in all_challenges %}
+                        {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position,isUnlocked, ulockingDescript in all_challenges %}
                         			{% if score == 2 %}  <!-- If score have not been taken -->
                                     <i class="fa fa-square-o" style="margin-right:0;font-size:18px; width:1.3rem;margin-top:2px;"aria-hidden="true"></i>
                                     {% elif score == 3 %} <!-- If score equals Above Average -->
@@ -50,7 +50,7 @@
                         </div>
                         <div class="collapsible-body">
                            <ul class="collection">
-                              {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position, isUnlocked in all_challenges %}
+                              {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position, isUnlocked, ulockingDescript in all_challenges %}
                               <input type="hidden" name="score" value="{{score}}">
                               <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
                               <li class="collection-item">
@@ -61,7 +61,7 @@
                                       {{challenge_Name}}
                                     </a>
                                     {% else %}
-                                    <a class="tooltipped"data-position="down" data-delay="100" data-tooltip="Insert description for unlocking rule" style="color:grey;"><i class="fa fa-lock"></i>&nbsp; {{challenge_Name}} </a>
+                                    <a class="tooltipped"data-position="down" data-delay="100" data-tooltip="{{ulockingDescript}}" style="color:grey;"><i class="fa fa-lock"></i>&nbsp; {{challenge_Name}} </a>
                                     {% endif %}
                                     {% if score == 2 and isUnlocked %}  <!-- If score have not been taken and is not locked -->
                                     <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}&isWarmup={{isWarmup}}" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
