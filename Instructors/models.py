@@ -159,7 +159,11 @@ class Challenges(models.Model):
     def __str__(self):              
         return str(self.challengeID)+","+self.challengeName       
     def getCombinedScore(self):
-        return self.totalScore + self.manuallyGradedScore    
+        score = self.totalScore + self.manuallyGradedScore 
+        if score > 0:
+            return score
+        else:
+            return 1
       
 class Skills(models.Model):
     skillID = models.AutoField(primary_key=True)

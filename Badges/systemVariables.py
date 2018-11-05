@@ -183,6 +183,8 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
         combinedScore = score.getScore()
         if combinedScore > maxScore:
             maxScore = combinedScore
+    
+    challenge = Challenges.objects.get(pk=challenge)
         
     return float(maxScore)/float(challenge.getCombinedScore()) * 100
     

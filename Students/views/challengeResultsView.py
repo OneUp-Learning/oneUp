@@ -440,7 +440,10 @@ def ChallengeResults(request):
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
                         studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
-                        studentChallengeAnswers.studentAnswer = 'IndentationArray:'+ str(lineIndent)+ ";" + studentAnswer
+                        if questionType == QuestionTypes.parsons:
+                            studentChallengeAnswers.studentAnswer = 'IndentationArray:'+ str(lineIndent)+ ";" + studentAnswer
+                        else:
+                            studentChallengeAnswers.studentAnswer = studentAnswer
                         studentChallengeAnswers.save()
 
                 # The sort on the next line should be unnecessary, but better safe than sorry
