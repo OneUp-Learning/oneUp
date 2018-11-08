@@ -38,6 +38,7 @@ media/Instructors/instructorActivityFiles/*
 oneUp/secret.key
 oneUp/prodDBpassword.txt
 oneUpVenv/*
+oneUp/rabbitmqpassword
 
 media/studentActivities/*
 /.metadata/
