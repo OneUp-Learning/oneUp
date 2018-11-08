@@ -179,8 +179,11 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
         combinedScore = score.getScore()
         if combinedScore > maxScore:
             maxScore = combinedScore
-        
-    return float(maxScore)/float(challenge.getCombinedScore()) * 100
+    
+    challengeScore = challenge.getCombinedScore()
+    if challengeScore == 0:
+        return 0
+    return float(maxScore)/float(challengeScore) * 100
     
 def getAverageTestScore(course, student, challenge):    
     #return the average score of the a challenge
