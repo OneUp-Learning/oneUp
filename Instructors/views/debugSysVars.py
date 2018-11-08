@@ -184,36 +184,36 @@ def getSysValues(student,sysVar,objectType,currentCourse):
         chall = Challenges.objects.filter(courseID=currentCourse).values('pk', 'challengeName')
         for x in chall:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
-            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['challengeName']))
+            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['challengeName'],currentCourse))
 
     elif objString == 'activity':
         acts = Activities.objects.filter(courseID=currentCourse).values('pk', 'activityName')
         for x in acts:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
-            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['activityName']))
+            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['activityName'],currentCourse))
     
     elif objString == 'activityCategory':
         actCats = ActivitiesCategory.objects.filter(courseID=currentCourse).values('pk', 'name')
         for x in actCats:
            val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
-           disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['name']))
+           disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['name'],currentCourse))
 
     elif objString == 'topic':
         #ASK ABOUT HOW TO GET A TOPIC 
         coruseTopcis = CoursesTopics.objects.filter(courseID = currentCourse)
         for x in coruseTopcis:
            val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x.pk)
-           disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x.topicID.topicName))
+           disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x.topicID.topicName,currentCourse))
            
     elif objString == 'global':
         val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),0)
-        disaplyData.append(prepForDisplay(student,sysVar,objectType,val,0))
+        disaplyData.append(prepForDisplay(student,sysVar,objectType,val,0,currentCourse))
 
     return disaplyData
 
-def prepForDisplay(student, sysVar, object, value,assignment):
+def prepForDisplay(student, sysVar, object, value,assignment,currentCourse):
     name = student.user.first_name + " " + student.user.last_name
-    avatarImage = checkIfAvatarExist(StudentRegisteredCourses.objects.get(studentID=student))
+    avatarImage = checkIfAvatarExist(StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse))
     objectName = ObjectTypes.objectTypes[int(object)]
     sysVarName = SystemVariable.systemVariables[int(sysVar)]['name']
     if objectName == 'global':

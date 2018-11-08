@@ -69,8 +69,8 @@ def virtualCurrencyShopView(request):
             if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
                 defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
                 currentTime = utcDate()
-                challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
-                activites = Activities.objects.filter(courseID=currentCourse).filter(Q(deadLine__gt=currentTime) | Q(deadLine=defaultTime)).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+                challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+                activites = Activities.objects.filter(courseID=currentCourse).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
                 
                 for challenge in challenges:
                     studentChallenges = StudentChallenges.objects.filter(studentID=student, courseID=currentCourse,challengeID=challenge)
