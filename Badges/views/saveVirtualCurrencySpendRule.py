@@ -78,24 +78,26 @@ def SaveVirtualCurrencySpendRule(request):
                     # code we assume that only one exists.
                     # For the moment, I'm just going to remove it and force
                     # things to the other case.
-                    #gameRule = checkRuleExist(currentCourse)
-                    gameRule = False
-                    if not gameRule:
-                        newCondition = Conditions()
-                        newCondition.courseID = currentCourse
-                        newCondition.operation = '='
-                        newCondition.operand1Type = OperandTypes.immediateInteger
-                        newCondition.operand1Value = 1
-                        newCondition.operand2Type = OperandTypes.immediateInteger
-                        newCondition.operand2Value = 1
-                        newCondition.save()
+                    #gameRule = False
+
+                    # The code now will create seperate rules, rules events, and 
+                    # conditions for each new vc rule.
+                    
+                    condition = Conditions()
+                    condition.courseID = currentCourse
+                    condition.operation = '='
+                    condition.operand1Type = OperandTypes.immediateInteger
+                    condition.operand1Value = 1
+                    condition.operand2Type = OperandTypes.immediateInteger
+                    condition.operand2Value = 1
+                    condition.save()
                                                     
-                        # Save game rule to the Rules table
-                        gameRule = Rules()
-                        gameRule.conditionID = newCondition
-                        gameRule.actionID = Action.decreaseVirtualCurrency
-                        gameRule.courseID = currentCourse
-                        gameRule.save()
+                    # Save game rule to the Rules table
+                    gameRule = Rules()
+                    gameRule.conditionID = condition
+                    gameRule.actionID = Action.decreaseVirtualCurrency
+                    gameRule.courseID = currentCourse
+                    gameRule.save()
                     
                     ruleEvent = RuleEvents()
                     ruleEvent.rule = gameRule
@@ -118,10 +120,3 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo.save()
                 
     return redirect("/oneUp/badges/VirtualCurrencySpendRuleList")
-    
-def checkRuleExist(current_course):
-    conditions = Conditions.objects.filter(courseID = current_course, operation='=', operand1Type=OperandTypes.immediateInteger, operand1Value=1,operand2Type=OperandTypes.immediateInteger, operand2Value=1,)
-    rule = Rules.objects.filter(conditionID=conditions[0], courseID=current_course)
-    if rule:
-        return rule[0]
-    return None
