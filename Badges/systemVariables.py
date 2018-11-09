@@ -1301,7 +1301,7 @@ class SystemVariable():
             'displayName':'Averaged Score Difference From Previous Activities By Activity Category',
             'description':'Averaged score difference from previous activities based on the activity category.',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.activity: [Event.endChallenge],
+                ObjectTypes.activity: [Event.participationNoted],
             },
             'type':'int',
             'functions':{
