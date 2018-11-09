@@ -193,7 +193,11 @@ class StudentEventLog(models.Model):
     objectID = models.IntegerField(verbose_name="index into the appropriate table")
     
     def __str__(self):
-        return 'Event '+str(self.event)+ ' at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
+        if self.event in Event.events:
+            eventName = Event.events[self.event]["name"]
+        else:
+            eventName = "Unknown Event"
+        return 'Event '+eventName+'('+str(self.event)+') at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
     
 class StudentVirtualCurrencyTransactions(models.Model):
     transactionID = models.AutoField(primary_key=True)
