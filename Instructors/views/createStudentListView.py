@@ -34,6 +34,7 @@ def createStudentListView(request):
         last_action = StudentEventLog.objects.filter(course=currentCourse, student = s, event__in = studentEvents).order_by('-timestamp').first()
         
         userID.append(s.user)
+        print(s)
         first_Name.append(s.user.first_name)
         last_Name.append(s.user.last_name)
         user_Email.append(s.user.email)

@@ -35,7 +35,7 @@ def VirtualCurrencyDisplay(request):
             
     #Displaying the list of rules from database
     #vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse)
-    vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse)  # 01/18/18 DD
+    vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')  # 01/18/18 DD
     for rule in vcRules:
         if rule.vcRuleType:
         #if rule.ruleID.actionID == Action.increaseVirtualCurrency:

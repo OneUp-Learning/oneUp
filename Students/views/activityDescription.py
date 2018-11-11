@@ -12,17 +12,20 @@ from django.shortcuts import render, redirect
 from Instructors.models import Activities, UploadedFiles, UploadedActivityFiles
 from Students.models import StudentActivities, Student, StudentFile
 from Students.views.utils import studentInitialContextDict
+from Instructors.views.utils import utcDate
 from datetime import datetime, date
 from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import activityScore
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from Instructors.views.utils import utcDate
+from Badges.events import register_event
+from Badges.enums import Event
 #from requests.api import request
 
 @login_required
 def ActivityDetail(request):
-    
+   
     context_dict,currentCourse = studentInitialContextDict(request)
  
     if 'currentCourseID' in request.session:         
@@ -30,14 +33,21 @@ def ActivityDetail(request):
         #studentId = Student.objects.filter(user=request.user)
         studentId = context_dict['student']
         
+        
         if 'activityID' in request.GET: #get the activtiy for the student
             context_dict['activityID'] = request.GET['activityID']
-            context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
-            studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
+            #context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
+            #studentActivities = None
+            #if StudentActivities.objects.filter(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID']):
+                #stuentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.GET['activityID'])
             
             #If the act has files add them to the webpage
-            act = studentActivities.activityID
-            instructorActFiles = UploadedActivityFiles.objects.filter(activity=act, latest=True )
+            act =  request.GET['activityID']
+            activity = Activities.objects.get(activityID=act)
+            context_dict['activity']=activity
+            
+            instructorActFiles = UploadedActivityFiles.objects.filter(activity=activity, latest=True )
+            #print(instructorActFiles)
             instructFiles = []
             
             if(instructorActFiles):
@@ -49,54 +59,88 @@ def ActivityDetail(request):
             else:
                 context_dict['instructorHasFiles'] = False
                 
-            timeCheck = checkTimes(studentActivities.activityID.endTimestamp, studentActivities.activityID.deadLine)
-            studentFile = StudentFile.objects.filter(studentID=studentId, activity=studentActivities, latest=True)
-       
-            #we are allowed to upload files 
-            if(studentActivities.activityID.isFileAllowed == True and timeCheck):                                 
-                if(studentActivities.graded):
-                    context_dict['canUpload'] = False                         
-                else:    
-                    #uploaded a file but can still add more files    
-                    if studentFile and studentActivities.numOfUploads >= studentActivities.activityID.uploadAttempts:
-                        context_dict['canUpload'] = False                         
-                             
-                    #You haven't uploaded enough attempts file
-                    else:
-                        context_dict['canUpload'] = True
+            #timeCheck = checkTimes(studentActivities.activityID.endTimestamp, studentActivities.activityID.deadLine)
+            if StudentActivities.objects.filter(studentID=studentId, activityID=activity):
+                student_activity = StudentActivities.objects.get(studentID=studentId, activityID=activity)
                 
-                fileName = getUploadedFileNames(studentFile)   
-                context_dict['fileName'] = fileName 
-                
-            else: #not allowed to upload files 
-                context_dict['canUpload'] = False
-                fileName = getUploadedFileNames(studentFile)   
-                context_dict['fileName'] = fileName
+                studentFile = StudentFile.objects.filter(studentID=studentId, activity=student_activity, latest=True)
+                context_dict['comment']= student_activity.comment
+                context_dict['isSubmitted'] = True
+                context_dict['submissionTime']=student_activity.submissionTimestamp
+                context_dict['score']=student_activity.activityScore
+                context_dict['feedback']=student_activity.instructorFeedback
+                #we are allowed to upload files 
+                if(activity.isFileAllowed == True and isDisplayTimePassed(activity.endTimestamp)):                                 
+                    if(student_activity.graded):
+                        context_dict['canUpload'] = False 
+                        context_dict['isGraded'] = True  
+                                        
+                    else:    
+                        #uploaded a file but can still add more files    
+                        if studentFile and student_activity.numOfUploads >= activity.uploadAttempts:
+                            context_dict['canUpload'] = False   
 
-                
-                  
+                        #You haven't uploaded enough attempts file
+                        else:
+                            context_dict['canUpload'] = True
+                            
+                    fileName = getUploadedFileNames(studentFile)   
+                    context_dict['fileName'] = fileName 
+                    
+                else: #not allowed to upload files 
+                    context_dict['canUpload'] = False
+                    fileName = getUploadedFileNames(studentFile)   
+                    context_dict['fileName'] = fileName 
+            else:
+                if(activity.isFileAllowed == True and isDisplayTimePassed(activity.endTimestamp)): 
+                    context_dict['canUpload'] = True
+                else:
+                    context_dict['canUpload'] = False
         
-        if request.POST and len(request.FILES) > 0 : #means that we are tryng to upload some files 
+        if request.POST:# and len(request.FILES) > 0 : #means that we are tryng to upload some files 
             #print(len(request.FILES.getlist('actFile')))
-            
+        
             files = []
             
             for currentFile in request.FILES.getlist('actFile'):
                     #print(currentFile.name)
                     files.append(currentFile)
-                          
-            studentActivities = StudentActivities.objects.get(studentID=studentId, courseID=currentCourse, studentActivityID = request.POST['studentActivity'])
-            fileName = makeFileObjects(studentId, currentCourse, files, studentActivities)
             
+            activity = Activities.objects.get(activityID=request.POST['activityID'],courseID=currentCourse)
+            if StudentActivities.objects.filter(activityID=activity, studentID=studentId, courseID=currentCourse):
+                student_activity = StudentActivities.objects.get(activityID=activity, studentID=studentId, courseID=currentCourse)
+                student_activity.comment = request.POST['comment']
+                student_activity.submissionTimestamp = utcDate()
+                context_dict['isGraded'] = student_activity.graded
+                
+                if files:
+                    student_activity.numOfUploads += 1
+                
+                student_activity.save()
             
-            print(studentActivities.numOfUploads)
-            studentActivities.numOfUploads = studentActivities.numOfUploads + 1
-            studentActivities.save()
-            print(studentActivities.numOfUploads)
-
+            else:
+                student_activity = StudentActivities()
+                student_activity.studentID=studentId
+                student_activity.activityID = activity
+                student_activity.courseID = currentCourse
+                student_activity.activityScore = -1
+                student_activity.submissionTimestamp = utcDate()
+                student_activity.comment = request.POST['comment']
+                if files:
+                    student_activity.numOfUploads = 1
+                else:
+                    student_activity.numOfUploads = 0
+                student_activity.save()
+            
+            if files:
+                fileName = makeFileObjects(studentId, currentCourse, files, student_activity)
+                
+            context_dict['isSubmitted'] = True
             
             context_dict['files'] = files
-                    
+            
+            register_event(Event.activitySubmission, request, studentId, activity.activityID)
+                
             return redirect('/oneUp/students/ActivityList', context_dict)
             
         return render(request,'Students/ActivityDescription.html', context_dict)
@@ -174,9 +218,15 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
             
         return fileNames
 
+def isDisplayTimePassed(endTimeStamp):
+    utcNow = utcDate(datetime.now().strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    if endTimeStamp < utcNow:
+        return False
+    else:
+        return True
+    
 def checkTimes(endTimestamp, deadLine):
-    print("End" + str(endTimestamp))
-    print("dead" + str(deadLine))
+   
     utcNow = utcDate(datetime.now().strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
     print("Utc" + str(utcNow))
     endMax = max((endTimestamp, utcNow))
@@ -194,7 +244,6 @@ def getUploadedFileNames(studentFile):
         name = os.path.basename(path)
         #if zip file get all the files inside the zip
         if(zipfile.is_zipfile(path)):
-            print('HERE')
             with ZipFile(path, 'r') as zip:
                 zipNames = zip.namelist()
                 for z in zipNames:

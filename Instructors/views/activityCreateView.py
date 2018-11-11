@@ -9,6 +9,7 @@ from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCate
 from Instructors.views.utils import utcDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime
+import os
 
 @login_required
 def activityCreateView(request):
@@ -35,9 +36,17 @@ def activityCreateView(request):
         
         activity.courseID = currentCourse
         
-        if request.POST['actCat']:           
-            activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
+        print(ActivitiesCategory.objects.filter(courseID=currentCourse))
         
+        if request.POST['actCat']:           
+            if ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse):
+                activity.category = ActivitiesCategory.objects.filter(pk=request.POST['actCat'], courseID=currentCourse).first()
+            else:
+                activity.category = ActivitiesCategory.objects.filter(name="Uncategorized", courseID=currentCourse).first()
+        else:
+            activity.category = ActivitiesCategory.objects.filter(name="Uncategorized", courseID=currentCourse).first()
+            
+                    
         if 'isGraded' in request.POST:
             activity.isGraded = True
         else:
@@ -86,6 +95,8 @@ def activityCreateView(request):
             activity.author = ""
             
         activity.save();  #Writes to database.
+        print('activity')
+        print(activity)
         
         
         print('Starting Files' + str(len(request.FILES)))
@@ -163,12 +174,13 @@ def makeFilesObjects(instructorID, files, activity):
     #oldActFile = UploadedActivityFiles.objects.filter(activityFileCreator=instructorID, activity=activity)
 
     for i in range(0, len(files)): #make student files so we can save files to hardrive
-        print('Makeing file object' + str(files[i].name))
+        print('Makeing file object ' + str(files[i].name))
         actFile = UploadedActivityFiles()
         actFile.activity = activity
         actFile.activityFile = files[i]
-        actFile.activityFileName = files[i].name
         actFile.activityFileCreator = instructorID
+        actFile.save()
+        actFile.activityFileName = os.path.basename(actFile.activityFile.name) 
         actFile.save()
         
 def removeFileFromActivty(request):
