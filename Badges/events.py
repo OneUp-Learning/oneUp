@@ -185,7 +185,7 @@ def register_event(eventID, request, student=None, objectId=None):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId  
     
-    logger.debug('eventEntry: '+str(eventEntry))  
+    print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
 
     if CELERY_ENABLED:
@@ -207,14 +207,14 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     eventEntry = StudentEventLog.objects.get(pk=eventID)
     
     timestampstr = str(eventEntry.timestamp)
-    logger.debug("Processing Event with timestamp: "+timestampstr)
+    print("Processing Event with timestamp: "+timestampstr)
 
     # check for rules which are triggered by this event
     matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventEntry.event)
     matchingRuleWithContext = dict()
-    logger.debug("Event with timestamp: "+timestampstr+" has "+str(len(matchingRuleEvents))+" matching RuleEvent entries.")
+    print("Event with timestamp: "+timestampstr+" has "+str(len(matchingRuleEvents))+" matching RuleEvent entries.")
     for ruleEvent in matchingRuleEvents:
-        logger.debug("Event with timestamp: "+timestampstr+" matches with rule "+str(ruleEvent.rule.ruleID))
+        print("Event with timestamp: "+timestampstr+" matches with rule "+str(ruleEvent.rule.ruleID))
         if ruleEvent.rule in matchingRuleWithContext:
             matchingRuleWithContext[ruleEvent.rule] = matchingRuleWithContext[ruleEvent.rule] or ruleEvent.inGlobalContext
         else:
@@ -272,12 +272,12 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if condition in ht:
         return False
     
-    logger.debug("In Event w/timestamp: "+timestampstr+" Evaluating condition:"+str(condition))
+    print("In Event w/timestamp: "+timestampstr+" Evaluating condition:"+str(condition))
     
     # Fetch operands
     operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition, timestampstr)
     
-    logger.debug("In Event w/timestamp: "+timestampstr+" Operand 1 = "+str(operand1))
+    print("In Event w/timestamp: "+timestampstr+" Operand 1 = "+str(operand1))
 
     # NOT is our only unary operation.  If we have one, there's no
     # need to do anything with a second operand.
@@ -328,7 +328,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
         return andor_helper(True)
 
     operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition, timestampstr)
-    logger.debug("In Event w/timestamp: "+timestampstr+" Operand 2 = "+str(operand2))
+    print("In Event w/timestamp: "+timestampstr+" Operand 2 = "+str(operand2))
     
     if (condition.operation == '='):
         return operand1==operand2
@@ -421,7 +421,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
                             if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
                             #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
-                                logger.debug("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " has already earned badge " + str(badge))
+                                print("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " has already earned badge " + str(badge))
                                 return
                         
                     #If the badge has not already been earned, then award it    
@@ -431,7 +431,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                     studentBadge.objectID = objID
                     studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
                     studentBadge.save()
-                    logger.debug("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
+                    print("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
             except OperationalError as e:
                 if e.__cause__.__class__ == TransactionRollbackError:
                     continue
@@ -446,7 +446,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         return
     
     if (actionID == Action.createNotification):
-        logger.debug("In Event w/timestamp: "+timestampstr+" In notifications ")
+        print("In Event w/timestamp: "+timestampstr+" In notifications ")
 
         #Create a notification.
         return
@@ -473,7 +473,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             previousAwards = previousAwards.filter(objectID = objID)
                         if previousAwards.exists():
                             # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
-                            logger.debug("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
+                            print("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
                             return
                                     
                     studVCRec = StudentVirtualCurrency()
@@ -523,7 +523,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency')
                         else:
                             #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
-                            logger.debug("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
+                            print("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
                         student.save()
                 except OperationalError as e:
                     if e.__cause__.__class__ == TransactionRollbackError:
