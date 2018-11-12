@@ -8,7 +8,6 @@ from django.http import HttpResponse
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.utils import utcDate, initialContextDict
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
-from Badges.views.progressiveUnlocking import createProgressiveUnlocking
 from Instructors.constants import default_time_str
 from datetime import datetime
 
