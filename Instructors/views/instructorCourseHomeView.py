@@ -10,6 +10,7 @@ from Badges.models import CourseConfigParams
 from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses,StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
+from Instructors.views.dynamicLeaderboardView import generateLeaderboards
 from Instructors.views.utils import initialContextDict
 from Students.views.avatarView import checkIfAvatarExist
 
@@ -129,111 +130,8 @@ def courseLeaderboard(currentCourse, context_dict):
         if currentCourse:
             ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
                 
-            if len(ccparamsList) > 0:
-                ccparams = ccparamsList[0] 
-                context_dict["gamificationUsed"] = ccparams.gamificationUsed
-                context_dict["badgesUsed"]=ccparams.badgesUsed
-                context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
-                context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
-                context_dict["numStudentsDisplayed"]=ccparams.numStudentsDisplayed
-                context_dict["numStudentBestSkillsDisplayed"] = ccparams.numStudentBestSkillsDisplayed
-                context_dict["numBadgesDisplayed"]=ccparams.numBadgesDisplayed
-                
-            badgeId = [] 
-            studentBadgeID=[]
-            studentID=[]
-            badgeID=[]
-            badgeName=[]
-            badgeImage = []
-            avatarImage =[]
-            studentUser = []
-            N = 7
             
-            date_N_days_ago = datetime.now() - timedelta(days=N)
-
-            students = []                                         
-            for st_c in st_crs:
-                students.append(st_c.studentID)     # all students in the course
-            
-            #Displaying the list of challenges from database
-            badges = StudentBadges.objects.all().order_by('-timestamp')
-            print("badges")
-            print(badges)
-            for badge in badges:
-                if (badge.studentID in students) and (badge.badgeID.courseID == currentCourse):
-                    studentBadgeID.append(badge.studentBadgeID)
-                    studentID.append(badge.studentID)
-                    badgeID.append(badge.badgeID)
-                    badgeName.append(badge.badgeID.badgeName)
-                    badgeImage.append(badge.badgeID.badgeImage)
-                    st_crs = StudentRegisteredCourses.objects.get(studentID=badge.studentID,courseID=currentCourse)       
-                    avatarImage.append(checkIfAvatarExist(st_crs)) 
-                    student = badge.studentID
-                    if not (student.user.first_name and student.user.last_name):
-                        studentUser.append(student.user)
-                    else:
-                        studentUser.append(student.user.first_name +" " + student.user.last_name)
-                  
-                              
-            print("cparams")
-            print(ccparams.numBadgesDisplayed+1)                    
-            context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID, badgeName, badgeImage,avatarImage, studentUser)
-    
-            # Skill Ranking          
-            context_dict['skills'] = []
-            cskills = CoursesSkills.objects.filter(courseID=currentCourse)
-            for sk in cskills:
-                skill = Skills.objects.get(skillID=sk.skillID.skillID)
-    
-                usersInfo=[] 
-                                                 
-                for u in students:
-                    skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
-                    skillPoints =0 
-                                                         
-                    for sRecord in skillRecords:
-                        skillPoints += sRecord.skillPoints
-
-                    if skillPoints > 0:
-                        st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
-                        uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
-                        logger.debug('[GET] ' + str(uSkillInfo))
-                        usersInfo.append(uSkillInfo)
-                        
-                usersInfo = sorted(usersInfo, key=lambda k: k['skillPoints'], reverse=True)
-                         
-                if len(usersInfo) != 0:
-                    skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentBestSkillsDisplayed]} 
-                    context_dict['skills'].append(skillInfo)
-              
-            # XP Points       
-            # Dictionary student - XP
-            studentXP_dict = {}
-            
-            for s in students:
-                sXP = studentXP(s, currentCourse)
-                st_crs = StudentRegisteredCourses.objects.get(studentID=s,courseID=currentCourse)
-                studentXP_dict[st_crs] = sXP 
-                
-                
-            # sort the dictionary by its values; the result is a list of pairs (key, value)
-            xp_pairs = sorted(studentXP_dict.items(), key=lambda x: x[1], reverse=True)
-            xp_pairs = xp_pairs[:ccparams.numStudentsDisplayed]
-            
-            avatarImage = []
-            xpoints = []
-            studentUser = []
-            for item in xp_pairs:
-                if item[1] > 0:         # don't append if 0 XP points
-                    #avatarImage.append(item[0])
-                    avatarImage.append(item[0].avatarImage)
-                    xpoints.append(item[1])
-                    student = item[0].studentID
-                    if not (student.user.first_name and student.user.last_name):
-                        studentUser.append(student.user)
-                    else:
-                        studentUser.append(student.user.first_name +" " + student.user.last_name)
-            context_dict['user_range'] = zip(range(1,ccparams.numStudentsDisplayed+1),avatarImage, xpoints, studentUser)                 
+            context_dict = generateLeaderboards(currentCourse)                
                        
         else:
             context_dict['course_Name'] = 'Not Selected'

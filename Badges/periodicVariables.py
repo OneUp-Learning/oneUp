@@ -143,7 +143,7 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     # Get the course
     course = get_course(course_id)
 
-    # Get all the students in this course
+    # Get all the students in this course, exclude test student
     students = StudentRegisteredCourses.objects.filter(courseID=course)
     rank = []
     # Evaluate each student based on periodic variable function
@@ -161,11 +161,12 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     elif save_results:
         if is_leaderboard:
             # Sort the students
-            rank.sort(key=lambda tup: tup[1])
+            rank.sort(key=lambda tup: tup[1], reverse=True)
             # Check if what we want is greater than the number of students
             if len(rank) >= number_of_top_students:
                 # Only select the top number of students
                 rank = rank[:number_of_top_students]
+                
                 # save results (leaderboard_id == unique_id)
                 savePeriodicLeaderboardResults(rank,unique_id, course)
             else:
@@ -200,60 +201,49 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             students = random.sample(students, 1)
     return students
 def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
+    print("saving results", rank, leaderboardConfigID, course)
     from Students.models import PeriodicallyUpdatedleaderboards
     from Badges.models import LeaderboardsConfig
   
-    #get all the periodicaly updated leaderboard objects for the course
-    leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID)).order_by('studentPosition')
-    leaderboardConfigObj = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
-    
-    #then dump all the records
-    for leaderboardRecord in leaderboardRecords:
-        leaderboardRecord.delete()
-    
-    #reset all the new records with fresh data
-    index = 1
+    leaderboardConfigID = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
+    print("leaderboardConfigID", leaderboardConfigID)
+    print("rank", rank)
+   
+    #we must filter out the test student
+    studentsPlusScores = []
     for student in rank:
-        leaderboardConfigID = leaderboardConfigObj
-        leaderboard = PeriodicallyUpdatedleaderboards()
-        leaderboard.leaderboardID = leaderboardConfigID
-        leaderboard.studentID = student[0]
-        leaderboard.studentPoints = student[1]
-        leaderboard.studentPosition = index 
+        if not student[0].isTestStudent:
+            studentsPlusScores.append(student)
+    index = 1
+    
+    #iterate over the list of studentsplusscores and make the records or update existing records
+    for student in studentsPlusScores:
+        print("currentStudent", student,"index" ,index)
+        leaderboardRecord = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])
+        print("leaderboard", leaderboardRecord)
+        
+        if leaderboardRecord:
+            print("we have a record so we should update", leaderboardRecord[0])
+            leaderboard = leaderboardRecord[0]
+            leaderboard.studentID = student[0]
+            leaderboard.studentPoints = student[1]
+            leaderboard.studentPosition = index
+        else:
+            print("creating a new one since we dont have a record for", student)
+            leaderboard = PeriodicallyUpdatedleaderboards()
+            leaderboard.leaderboardID = leaderboardConfigID
+            leaderboard.studentID = student[0]
+            leaderboard.studentPoints = student[1]
+            leaderboard.studentPosition = index
         leaderboard.save()
         index = index + 1
-    
-#ultra efficient code
-#     leaderboardConfigID = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
-#     leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID)).order_by('studentPosition')
-#     
-#     index = 1
-#     for student in rank:
-#         
-#         if index <= leaderboardConfigID.numStudentsDisplayed:
-#             try:
-#                 leaderboard = leaderboardRecords[index]
-#             except:
-#                 lederboard = None
-#             leaderboardRecord = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student.studentID)
-#             if leaderboardRecord:
-#                 leaderboard.studentID = student[0]
-#                 leaderboard.studentPoints = student[1]
-#                 leaderboard.studentPosition = index
-#             else:
-#                 leaderboard = PeriodicallyUpdatedleaderboards()
-#                 leaderboard.leaderboardID = leaderboardConfigID
-#                 leaderboard.studentID = student[0]
-#                 leaderboard.studentPoints = student[1]
-#                 leaderboard.studentPosition = index
-#             leaderboard.save()
-#             index = index + 1
-#         
-#     if index <= len(leaderboardRecords):
-#         for leaderboard in leaderboardRecords[index:]:
-#             
-#             leaderboard.studentPosition = 0
-#             leaderboard.save()
+    #remaining records should be set to zero   
+    leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])  
+    if index <= len(leaderboardRecords):
+        for leaderboard in leaderboardRecords[index:]:
+            print("setting -1 to records after our index, no student can be -1")
+            leaderboard.studentPosition = -1
+            leaderboard.save()
 
         
     
@@ -328,7 +318,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
     
     print("Calculating Highest Earner") 
     from Students.models import StudentVirtualCurrency
-    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
 
     # Get the last time this periodic variable has ran if not getting results only (leaderboards)
     if not result_only:
@@ -511,7 +501,6 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     return (student, unique_warmups)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    print("XP Val")
     return studentXP(student, course)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
@@ -552,7 +541,6 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
     from Badges.models import CourseConfigParams
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
     from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
-    print('studentid',studentId.id)
     xp = 0  
     xpWeightSP = 0
     xpWeightSChallenge = 0
@@ -645,10 +633,8 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
     elif seriousPlusActivity == True:
         xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
     else:
-        print("this is the xp calc")
         xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScoreSkillPoints),0)
         
-    print("Leaderboard created!", (studentId,xp))
     return (studentId,xp)
 
 class TimePeriods:
@@ -737,7 +723,7 @@ class PeriodicVariables:
             'displayName': 'Student Rankings via XP',
             'description': 'Retrieves the Xp for all students in a class',
             'function': calculate_student_xp_rankings,
-            'task_type': 'Badges.periodicVariables.periodic_task',
+            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
         warmup_challenges: {
             'index': warmup_challenges,
@@ -745,7 +731,7 @@ class PeriodicVariables:
             'displayName': 'Student Rankings via Warmup Challenges',
             'description': 'Retrieves the warmup_challenges and creates a ranking for all students in a class',
             'function': calculate_warmup_rankings,
-            'task_type': 'Badges.periodicVariables.periodic_task',
+            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
         serious_challenge: {
             'index': serious_challenge,
@@ -753,7 +739,7 @@ class PeriodicVariables:
             'displayName': 'Student Rankings via Serious Challenges',
             'description': 'Retrieves the Serious Challenges and creates a ranking for all students in a class',
             'function': calculate_serious_challenge_rankings,
-            'task_type': 'Badges.periodicVariables.periodic_task',
+            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
         serious_challenges_and_activities: {
             'index': serious_challenges_and_activities,
@@ -761,7 +747,7 @@ class PeriodicVariables:
             'displayName': 'Student Rankings via Serious Challenges and Activities',
             'description': 'Retrieves the Serious Challenges and Activities and creates a ranking for all students in a class',
             'function': calculate_serious_challenge_and_activity_rankings,
-            'task_type': 'Badges.periodicVariables.periodic_task',
+            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         }
     }
 

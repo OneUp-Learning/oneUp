@@ -41,12 +41,12 @@
                        "</div>\n"+
                        "</div>\n"+
                     "<div class = 'row'>\n"+
-                    "<div class='input-field col s6'>\n"+
+                    "<div class='input-field col s3'>\n"+
                     "<input id='studentsShown_"+id+"' value='' name='studentsShown[]' type='number' class='validate'>\n"+
                     "<label for='studentsShown_"+id+"' >Number of Students Shown</label>\n"+
                     "</div>\n"+
                           "<div class='col s6'>\n"+
-                          "<input name='checkbox' class='checkbox' type='checkbox' id='home_"+id+"'>\n"+
+                          "<input name='homePagecheckbox' class='checkbox' type='checkbox' id='home_"+id+"'>\n"+
                           "<label for='home_"+id+"'>Display on Home Page</label>\n"+
                           "<input name='home[]' type='hidden' id='home_"+id+"_hidden'>\n"+
                           "</div>\n"+
@@ -54,19 +54,11 @@
                           "</div>\n"+
 
                           "<div class = 'row'>\n"+
-                            "<div class='col s12 offset-m1'>\n"+
+                            "<div class='col s12'>\n"+
                              "<p>Frequency of Leaderboard Update:</p>\n"+
                              "</div>\n"+
                              "</div>\n"+
                     "<div class = 'row'>\n"+
-                    "<div class='col s2'>\n"+
-                       "<input name='checkbox' class='checkbox' type='checkbox' id='cont_"+id+"'>\n"+
-                       "<label for='cont_"+id+"'>Continous</label>\n"+
-                       "<input name='cont[]' type='hidden' id='cont_"+id+"_hidden'>\n"+
-                       "</div>\n"+
-                    "<div class='col s1'>\n"+
-                    "<p>OR</p>\n"+
-                    "</div>\n"+
                        "<div class='col s3'>\n"+
                           "<label for='timePeriodSelected_"+id+"'>Leaderboard Update:</label>\n"+
                           "<select id='timePeriodSelected_"+id+"' name='timePeriodSelected[]'>\n"+
@@ -94,6 +86,7 @@
         var node = document.createTextNode(newElement);
         var previous = document.getElementById('leaderboard_'+(numLeaderTables-1));
         previous.insertAdjacentHTML('afterEnd',newElement);
+        
         
         console.log(numLeaderTables)
         $('select').material_select();
@@ -127,18 +120,98 @@
       }
       
       function createCheckBoxData(){
-    	  var checkBoxes = document.getElementsByName('checkbox');
-              for (var i = 0; i < checkBoxes.length; i++) {
-             	 var id = checkBoxes[i].id;
-                  if ( checkBoxes[i].checked ==  true) {
-                 	 document.getElementById(id+"_hidden").value = true;
-                  }else{
-                 	 document.getElementById(id+"_hidden").value = false;
-                  }
-              }
-              console.log("ran");
-          }
+    	setHiddenDataForCheckbox('homePagecheckbox');
+      	console.log("ran");
+      }
       
+     function setHiddenDataForCheckbox(checkboxName){
+   	  var checkBoxes = document.getElementsByName(checkboxName);
+             for (var i = 0; i < checkBoxes.length; i++) {
+            	 var id = checkBoxes[i].id;
+                 if ( checkBoxes[i].checked ==  true) {
+                	 document.getElementById(id+"_hidden").value = true;
+                 }else{
+                	 document.getElementById(id+"_hidden").value = false;
+                 }
+             }
+     }
+     
+     function makeSureTheresOnlyOneTimeBackSelector(selectedItem,whereIsContinuousSelect){
+ 		var continousTimePeriodSelect = "<div id='continuousTimePeriodSelectedDiv_"+numLeaderTables+"' class='col s3'>\n"+
+         "<label for='continuousTimePeriodSelected_"+numLeaderTables+"'>How Far Back Time Period for Continous:</label>\n"+
+         "<select id='continuousTimePeriodSelected_"+numLeaderTables+"' name='continuousTimePeriodSelected_[]'>\n"+
+         "<option value='1500' >Day</option>\n"+
+         "<option value='1501' >Week</option>\n"+
+         "<option value='1502' >Once</option>\n"+
+         "</select>\n"+
+         "</div>\n";
+         
+         var weeklyTimePeriodSelect = "<div id='weeklyTimePeriodSelectedDiv_"+numLeaderTables+"' class='col s3'>\n"+
+         "<label for='weeklyTimePeriodSelected_"+numLeaderTables+"'>Leaderboard Update:</label>\n"+
+         "<select id='weeklyTimePeriodSelected_"+numLeaderTables+"' name='continuousTimePeriodSelected_[]'>\n"+
+         "<option value='1501' >Weekly on Sundays at Midnight</option>\n"+
+         "<option value='1502' >Only once at Midnight</option>\n"+
+         "</select>\n"+
+         "</div>\n";
+ 		
+ 		//we are enabling the continous, so check if its already there to avoid enabling
+ 		//if theres the one for weekly, disable it a
+ 		if(selectedItem == "continous"){
+ 			
+ 			//if weekly is present, remove it
+ 			if (document.getElementById("weeklyTimePeriodSelected_"+numLeaderTables) != null){
+ 				weeklySelect = document.getElementById("weeklyTimePeriodSelected_"+numLeaderTables);
+       			whereIsContinuousSelect.parentElement.removeChild(weeklySelect);
+ 			}
+ 			
+ 			//then check if continous is not there, if it is not there add it
+ 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables) == null){
+ 				whereIsContinuousSelect.insertAdjacentHTML('afterEnd',continousTimePeriodSelect);
+ 			}
+ 		}
+ 		
+ 		
+ 		if(selectedItem == "weekly"){
+ 
+ 			//if continous is present, remove it
+ 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables) != null ){
+ 				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables);
+ 	 			whereIsContinuousSelect.parentElement.removeChild(continousSelect);
+ 			}
+ 			
+ 			//check if weekly is not here, if it is not here add it
+ 			if (document.getElementById("weeklyTimePeriodSelected_"+numLeaderTables) == null){
+ 				whereIsContinuousSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
+ 			}
+ 		}
+ 		
+ 		//the default case is where we have switched anything else and we must remove it
+ 		if(selectedItem == "default"){
+ 			weeklySelect = document.getElementById("weeklyTimePeriodSelected_"+numLeaderTables);
+   			whereIsContinuousSelect.parentElement.removeChild(weeklySelect);
+   			continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables);
+	 		whereIsContinuousSelect.parentElement.removeChild(continousSelect);
+ 		}
+ 		
+ 		$('select').material_select();
+      }
+     
+     //check if continous for weekly has been selected
+     function checkIfContinousSelected(selectID, whereIsContinuousSelect){
+        
+    	 //switch on the value of the select
+        switch($(selectID).val()){
+        	case "0":
+        		makeSureTheresOnlyOneTimeBackSelector("continous", whereIsContinuousSelect);
+        		break;
+        	case "1501":
+        		makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect);
+        		break;
+        	default:
+        		makeSureTheresOnlyOneTimeBackSelector("default",whereIsContinuousSelect);
+        		break;
+        }
+     }
    </script>
    <head>{% include 'scripts.html' %}</head>
    <body>
@@ -154,7 +227,7 @@
             {% csrf_token %} 
             <input type="hidden" name="numLeaderTables" id="numLeaderTables" value="">
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
-            <input type="hidden" name="leaderboardID" value="{{leaderboardID}}">     
+            <input type="hidden" name="xpLeaderboardID" value="{{xpLeaderboardID}}">     
             <div name="leaderboard" id="leaderboard_1">
                <!-- Leaderboard container -->
                <div class="row">
@@ -172,7 +245,7 @@
                            </div>
                            <div class="row">
                               <div class="input-field col s12">
-                                 <input id="studentsShown" value="{{numStudentsDisplayed}}" name="studentsShown" type="text" class="validate">
+                                 <input id="studentsShown" value="{{numStudentsDisplayed}}" name="studentsShown" type="text" required>
                                  <label for="studentsShown" >Number of Students Shown</label>
                               </div>
                            </div>
@@ -212,7 +285,7 @@
                   </div>
                </div>
             </div>
-            {% for i, leaderboardID, checkedDynamic, displayOnHomePage,leaderboardName,leaderboardDescription, timePeriodID,  periodicVariableID, numStudentsDisplayed in leaderboard %}            
+            {% for i, leaderboardID, isContinous, displayOnHomePage,leaderboardName,leaderboardDescription, timePeriodID,  periodicVariableID, numStudentsDisplayed in leaderboard %}            
             <div name='leaderboard' id='leaderboard_{{i}}'>
             	<input type="hidden" name="leaderboardID[]" value="{{leaderboardID}}">
                <div class='row'>
@@ -239,40 +312,30 @@
                            
                               
                            <div class = 'row'>
-                           <div class='input-field col s6'>
+                           <div class='input-field col s3'>
                                  <input id='studentsShown_{{i}}' value='{{numStudentsDisplayed}}' name='studentsShown[]' type='number' class='validate'>
                                  <label for='studentsShown_{{i}}' >Number of Students Shown</label>
                               </div>
                               <div class='col s3'>
-                                 <input name='checkbox' class='checkbox' type='checkbox' id='home_{{i}}' {{displayOnHomePage}}>
+                                 <input name='homePagecheckbox' class='checkbox' type='checkbox' id='home_{{i}}' {{displayOnHomePage}}>
                                  <label for='home_{{i}}'>Display On Home Page</label>
                                  <input name='home[]' type='hidden' id='home_{{i}}_hidden' >
                               </div>
                               
                            </div>
                            <div class = 'row'>
-                              <div class='col s12 offset-m1'>
+                              <div class='col s12'>
                               <p>Frequency of Leaderboard Update:</p>
                               </div>
                               </div>
-                           <div class = 'row'>
-                              <div class='col s2'>
-                              
-                                 <input name='checkbox' class='checkbox' type='checkbox' id='cont_{{i}}' {{checkedDynamic}}>
-                                 <label for='cont_{{i}}'>Continous</label>
-                                 <input name='cont[]' value="" type='hidden' id='cont_{{i}}_hidden'>
-                              </div>
-                              <div class='col s1'>
-                              <p>OR</p>
-                              </div>
-                              <div class='col s3'>
+                           <div id="selectors_{{i}}" class = 'row'>
+                              <div id='timePeriod_{{i}}' class='col s3'>
                                  <label for='timePeriodSelected_{{i}}'>Select Time Period:</label>
-                                 <select id='timePeriodSelected_{{i}}' name='timePeriodSelected[]'>
+                                 <select id='timePeriodSelected_{{i}}' onchange="checkIfContinousSelected(timePeriodSelected_{{i}}, timePeriod_{{i}})" name='timePeriodSelected[]'>
                                  {% for timePeriod in timePeriods %}
                                  <option value='{{timePeriod.index}}' {% if timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>
                                  {% endfor %}
                                  </select>
-                              
                               </div>
                               <div class='col s6'>
                                  <label>Periodic Variable:</label>
