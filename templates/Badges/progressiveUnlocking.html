@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include 'scripts.html' %}
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Progressive Unlocking</h3>
+            </div>
+        </div>
+            {% csrf_token %}
+            <div class="row right-align">
+                <form name="filterRules" action="/oneUp/badges/ProgressiveUnlocking" method="POST">
+                    <div class="input-field col s3 offset-s1" id="student">
+                            <select name="objType" form="filterRules" id="objTypeSelector" onchange="this.form.submit()">
+                              <option value="all" name="objType">All</option>
+                              {% for i,userID,first_Name,last_Name,user_Avatar in user_range %}
+                              {% if userID == currentStudet %}
+                              <option value={{userID}} name="student" selected>{{first_Name}} {{last_Name}}</option>
+                              {% else %}
+                              <option value={{userID}} name="student">{{first_Name}} {{last_Name}}</option>
+                              {% endif %}
+                              {% endfor %}
+                            </select>
+                            <label for="studentDebug">Filter by Student Names</label>
+                    </div>
+                </form>
+                <div class="col s7">
+                    <a class=" dropdown-button waves-effect waves-light btn secondary-content" href="#!"
+                        data-beloworigin="true" data-activates='dropdownObjTypes' data-position="right" data-delay="50">
+                        <i class="material-icons left">add_circle</i>Create New Rule</a>
+
+                        <ul id='dropdownObjTypes' class='dropdown-content'>
+                            <li>
+                                <!-- <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a> -->
+                                <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=challenge&warmUp=True"> WarmUp Challenge</a>
+                            </li>
+                            <li>
+                                    <!-- <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a> -->
+                                    <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=challenge&warmUp=False"> Serious Challenge</a>
+                            </li>
+                            <li>
+                                    <!-- <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a> -->
+                                    <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=activity"> Activities</a> 
+                            </li>
+                        </ul>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card">
+                        <div class="card-content">
+                            <table>
+                                <thead>
+                                    <th>Rule Name</th>
+                                    <th>Rule Object Type</th>
+                                    <th>Rule Description</th>
+                                    <th><span class="badge">{{numBadges}}</span></th>
+                                </thead>
+                                <tbody>
+                                    {% for rule in rules %}
+                                    <tr>
+                                        
+                                        <td>{{rule.rule.name}}</td>
+                                        <td>{{rule.type}}</td>
+                                        <td>{{rule.rule.description}}</td>
+                                        <!-- <td class="right-align">
+                                            <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}">
+                                                <div class="hide-on-med-and-down" style="display:inline;">
+                                                <i class="material-icons left">edit</i>
+                                                </div>Modify</a>
+                                        </td> -->
+                                        <td>
+                                            <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+                                             data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50"
+                                             data-tooltip="Options">
+                                                <i class="material-icons">more_vert</i>
+                                            </a>
+                                            <ul id='dropdown-{{i}}-{{j}}' class='dropdown-content'>
+                                                <li>
+                                                    <!-- <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a> -->
+                                                    <a href="/oneUp/badges/ProgressiveUnlocking?ruleID={{rule.rule.pk}}&editRule=True">Edit</a>
+                                                </li>
+                                                <li class="divider"></li>
+                                                <li>
+                                                    <a class="modal-trigger" href="#modal_delete-{{i}}-{{j}}">Delete</a>
+                                                </li>
+                                            </ul>
+                                            <div id="modal_delete-{{i}}-{{j}}" class="modal">
+                                                <div class="modal-content">
+                                                    <h5>Are you sure you want to delete?</h5>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                                    <!-- <button class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteChallenge('{{chall_ID}}')">Delete
+                                                    </button> -->
+
+                                                    <a href="/oneUp/badges/ProgressiveUnlocking?ruleID={{rule.rule.pk}}&delete=True" class="modal-action modal-close waves-effect waves-light btn-flat" style="color:red">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td class="center-align" colspan="4">
+                                            <i>No Rules created</i>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
+</html>

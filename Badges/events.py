@@ -424,6 +424,7 @@ def fire_action(rule,courseID,studentID,objID):
         return
     
     if(actionID == Action.unlockedProgressive):
+        print(args)
         # Allow for the content to be unlocked
         ruleIdArg = args.get(sequenceNumber=1)
         # Get unlocking object for the rule
