@@ -44,10 +44,11 @@ def ProgressiveUnlockingRules(request):
     # Code for when making a rule
     elif request.POST:
         print("We are in post")
-        print(request.POST)
         if 'whatWeAreDoing' in request.POST:
             if request.POST['whatWeAreDoing'] == 'create':
                return createRule(request,current_course,context_dict)
+            # elif request.POST['whatWeAreDoing'] == 'filter':
+            #     filterRules(request,current_course,context_dict)
     
     return listRules(request,current_course,context_dict)
 
@@ -55,14 +56,33 @@ def ProgressiveUnlockingRules(request):
 
 # Returns the code for displays the list view with all rules
 def listRules(request,current_course,context_dict):
-    rules = ProgressiveUnlocking.objects.filter(courseID = current_course)
+    # This handles filtering
+    if 'objTypeFilter' in request.POST:
+        ruleType = request.POST['objTypeFilter']
+        if ruleType == 'all':
+            rules = ProgressiveUnlocking.objects.filter(courseID = current_course)
+            ruleType = 1
+        else:
+            rules = ProgressiveUnlocking.objects.filter(courseID = current_course,objectType=ruleType)
+    else:
+        rules = ProgressiveUnlocking.objects.filter(courseID = current_course)
+        ruleType = 1
+    
     objs = [] # have to covert rule ints into strings for front end
+    objTypes = []
 
     for rule in rules:
         objectString =  ObjectTypes.objectTypes[rule.objectType]
         objs.append({'rule': rule, 'type' : objectString})
 
     context_dict['rules'] = objs
+
+    # Code for selector
+    objTypes.append( {'id' : ObjectTypes.activity, 'string' : 'Activity'} ) 
+    objTypes.append( {'id' : ObjectTypes.challenge, 'string' : 'Challenge' } )
+    context_dict['filter'] = objTypes
+    context_dict['currentFilter'] = int(ruleType)
+
     return render(request,'Badges/progressiveUnlocking.html', context_dict)
 
 def createRule(request,current_course,context_dict):
@@ -154,14 +174,8 @@ def createRule(request,current_course,context_dict):
         
     return redirect('/oneUp/badges/ProgressiveUnlocking') #(request,'Badges/progressiveUnlocking.html', context_dict)
 
-    
-
-
 def editRule():
     pass
 
 def deleteRule():
-    pass
-
-def filterRules():
     pass

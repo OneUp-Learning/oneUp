@@ -13,22 +13,26 @@
                 <h3>Progressive Unlocking</h3>
             </div>
         </div>
-            {% csrf_token %}
             <div class="row right-align">
-                <form name="filterRules" action="/oneUp/badges/ProgressiveUnlocking" method="POST">
+                <form name="filterRules" action="/oneUp/badges/ProgressiveUnlocking" id="filterRules" method="POST">
+                    {% csrf_token %}
                     <div class="input-field col s3 offset-s1" id="student">
-                            <select name="objType" form="filterRules" id="objTypeSelector" onchange="this.form.submit()">
-                              <option value="all" name="objType">All</option>
-                              {% for i,userID,first_Name,last_Name,user_Avatar in user_range %}
-                              {% if userID == currentStudet %}
-                              <option value={{userID}} name="student" selected>{{first_Name}} {{last_Name}}</option>
+                            <select name="objTypeFilter" form="filterRules" id="objTypeSelector" onchange="this.form.submit();">
+                                {% if currentFilter == 1 %}
+                                    <option value="all" name="objTypeFilter">All</option>
+                                {% endif %}
+                                {% for node in filter %}
+                              {% if currentFilter == node.id %}
+                                <option value={{node.id}} name="objTypeFilter" selected>{{node.string}}</option>
+                                <option value="all" name="objTypeFilter">All</option>
                               {% else %}
-                              <option value={{userID}} name="student">{{first_Name}} {{last_Name}}</option>
+                                <option value={{node.id}} name="objTypeFilter" >{{node.string}}</option>
                               {% endif %}
                               {% endfor %}
                             </select>
-                            <label for="studentDebug">Filter by Student Names</label>
+                            <label for="objTypeFilter">Filter by Object Type</label>
                     </div>
+                    <input type="hidden" name="whatWeAreDoing" value='filter'>
                 </form>
                 <div class="col s7">
                     <a class=" dropdown-button waves-effect waves-light btn secondary-content" href="#!"
