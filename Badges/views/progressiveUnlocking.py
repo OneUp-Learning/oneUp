@@ -27,7 +27,7 @@ def DeleteProgressionRule(badge):
 def ProgressiveUnlockingRules(request):
     
     context_dict,current_course = initialContextDict(request)
-    #Returns the page for editing a rule         
+    # Returns the page for editing a rule         
     if request.GET:   
         if 'editRule' in request.GET and  request.GET['editRule'] == "True":
             print("we want to edit the rule")
@@ -35,7 +35,7 @@ def ProgressiveUnlockingRules(request):
 
         elif 'delete' in request.GET and request.GET['delete'] == "True":
             print("we want to delete the rule")
-            deleteRule(request)
+            deleteRule(request,current_course,context_dict)
 
         # Preps webpage for making a rule. The actual function that makes it is below
         elif 'create' in request.GET and request.GET['create'] == "True":
@@ -47,8 +47,6 @@ def ProgressiveUnlockingRules(request):
         if 'whatWeAreDoing' in request.POST:
             if request.POST['whatWeAreDoing'] == 'create':
                return createRule(request,current_course,context_dict)
-            # elif request.POST['whatWeAreDoing'] == 'filter':
-            #     filterRules(request,current_course,context_dict)
     
     return listRules(request,current_course,context_dict)
 
@@ -177,5 +175,17 @@ def createRule(request,current_course,context_dict):
 def editRule():
     pass
 
-def deleteRule():
-    pass
+def deleteRule(request,current_course,context_dict):
+    if "ruleID" in request.GET:
+        rID = request.GET['ruleID']
+        try:
+            rule = ProgressiveUnlocking.objects.get(pk=rID)
+            rule.ruleID.delete_related()
+            rule.ruleID.delete()
+            rule.delete()   
+        except:
+            logger.debug("Rule was not found when trying to delete")
+    else:
+        logger.debug("Nothing to delete no id found") 
+
+    return redirect('/oneUp/badges/ProgressiveUnlocking')    
