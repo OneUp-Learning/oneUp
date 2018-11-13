@@ -30,7 +30,7 @@ def BadgesDisplay(request):
     badgeDescription = []
         
     #Displaying the list of challenges from database
-    badges = BadgesInfo.objects.filter(courseID=currentCourse)
+    badges = BadgesInfo.objects.filter(courseID=currentCourse).order_by("badgePosition")
     for badge in badges:
         badgeId.append(badge.badgeID)
         badgeName.append(badge.badgeName)

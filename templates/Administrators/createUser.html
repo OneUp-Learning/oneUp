@@ -6,8 +6,10 @@
 
    		
       function validateOnSubmit(){
+    	  status = false;
     	  var form = $('#createStudentForm')
     	  form.on('submit', function(ev){
+    		  
     		  ev.preventDefault();
     		  $.ajax({
     		  	url: "/oneUp/instructors/validateCreateStudent",
@@ -15,18 +17,23 @@
     		  	type: 'POST',
    		        data: form.serialize(),
    		        success: function(msg){
+   		        	//alert(status)
    		        	if(msg.errorMessages.length > 0){
    		        		for(var i = 0; i < msg.errorMessages.length; i++){
    		        			Materialize.toast(msg.errorMessages[i], 4000);
    		        		}
    		        		console.log("false submit clicked");
    		        		alert("Bad submit");
+   		        		status = false;
    		        		return false;
    		        	}
-    	  return true;
+   		        status = true;
+    	  		return true;
       		  }
         	  });
           });
+    	  
+
       }
       </script>
    </head>

@@ -46,8 +46,8 @@
                            <div class="col s12">
                               {% for j,answer in q.answers_with_count %}
                               <p>
-                                 <input name="{{q.question.questionID}}" type="radio" id="ans-{{q.question.questionID}}" {% if q.user_answer.answerNumber == j %}checked{% else %} disabled {% endif %}/>
-                                 <label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}} {% endautoescape %}</label>
+                                 <input name="{{q.question.questionID}}" type="radio" id="ans-{{q.question.questionID}}-{{j}}" {% if q.user_answer.answerNumber == j %}checked{% else %} disabled {% endif %}/>
+                                 <label for="ans-{{q.question.questionID}}-{{j}}">{% autoescape off %}{{answer.answerText|striptags}} {% endautoescape %}</label>
                               </p>
                               {% endfor %}
                            </div>
@@ -66,8 +66,8 @@
                            <div class="col s12">
                               {% for j,answer in q.answers_with_count %}
                               <p>
-                                 <input name="{{q.question.questionID}}" class="filled-in" type="checkbox" id="ans-{{q.question.questionID}}" {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %} disabled/>
-                                 <label for="ans-{{q.question.questionID}}">{% autoescape off %}{{answer.answerText|striptags}}{% endautoescape %}</label>
+                                 <input name="{{q.question.questionID}}" class="filled-in" type="checkbox" id="ans-{{q.question.questionID}}={{j}}" {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %} disabled/>
+                                 <label for="ans-{{q.question.questionID}}-{{j}}">{% autoescape off %}{{answer.answerText|striptags}}{% endautoescape %}</label>
                               </p>
                               {% endfor %}
                            </div>

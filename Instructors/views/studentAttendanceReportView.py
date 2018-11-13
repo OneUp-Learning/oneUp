@@ -47,7 +47,7 @@ def getRollByDate(request, context_dict):
     datesPostion = {} #Used to keep track of the number of falses (days a studnet was missing) 
     
     
-    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name')
+    studentCourse = StudentRegisteredCourses.objects.filter(courseID = request.session['currentCourseID']).order_by('studentID__user__last_name').exclude(studentID__isTestStudent=True)
     for entry in studentCourse:
         user = User.objects.get(username=entry.studentID)
         studentID = Student.objects.get(user=user)

@@ -18,6 +18,7 @@ from Badges.systemVariables import logger
 
 @login_required
 def ActivityList(request):
+    
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
@@ -30,90 +31,100 @@ def ActivityList(request):
         optionSelected = 0
 
     if 'currentCourseID' in request.session:                
-        currentCourse = request.session['currentCourseID']
-        instructorActivites = []
-        studentActivities = []
-        points = []
-        attempts = []
-                
+        current_course = request.session['currentCourseID']
+                      
+        categories_list = []
+        cats = []
+        categories_names = []
+          
         studentId = context_dict['student'] #get student
-        
-        categories = ActivitiesCategory.objects.filter(courseID=currentCourse)
-        context_dict['categories'] =  categories
+        categories = ActivitiesCategory.objects.filter(courseID=current_course)
+        for cat in categories:
+            cats.append(cat)
+    
         
         #Displaying the list of challenges from database   
         if request.method == "GET" or request.POST.get('actCat') == "all":      
-            activities = Activities.objects.filter(courseID=currentCourse)
             context_dict['currentCat'] = "all"
+            
         elif request.method == "POST":
             filterCategory = request.POST.get('actCat')
             if filterCategory is not None:
-                category = ActivitiesCategory.objects.get(pk=filterCategory, courseID=currentCourse)
-                activities = Activities.objects.filter(category=category, courseID=currentCourse)
-                context_dict['currentCat'] = category
+                categories = ActivitiesCategory.objects.filter(pk=filterCategory, courseID=current_course)
+                context_dict['currentCat'] = categories
             else:
-                activities = Activities.objects.filter(courseID=currentCourse)
                 context_dict['currentCat'] = "all"
-
             
-
+        for category in categories:
+            print("cat name")
+            print(category.name)
+            cat_activities = category_activities(category, studentId, current_course)
             
-
-
-            
-        
-        
-        if request.method == "POST":
-            print("HERE")  
+            if cat_activities:
+                categories_list.append(cat_activities)
+                categories_names.append(category.name)
+                
+        context_dict["categories"]=cats
+        context_dict["categories_range"]=zip(categories_list,categories_names)
         
         #make the student activities
-        for act in activities:
-            
-            # if today is after the data it was assigninged display it 
-            #logger.debug(act.startTimestamp)
-            #logger.debug(utcDate())
-            if act.startTimestamp <= utcDate():
-                instructorActivites.append(act) # add the activities to the list so we can display
-            else: #Today is before the day it is assigend
-                continue
-
-                
-            
-            # get the activity record for this student
-            try:
-                currentActivity =  StudentActivities.objects.get(studentID = studentId, activityID=act)
-                print('Made an ACT')
-            except ObjectDoesNotExist:
-                currentActivity = None
-                print('Not ACT') 
-                 
-            if(currentActivity): #if we got the student activity add it to the list
-                studentActivities.append(currentActivity)
+        #categories={}
+        #activity_categories = ActivitiesCategory.objects.filter( courseID=currentCourse)
+        #for act_cat in activity_categories:
         
-                
-                if(currentActivity.activityScore == 0 and currentActivity.graded == False):
-                    points.append("-")
-                else:
-                    points.append(str(currentActivity.activityScore))
-                
-            else: #make the student activity and add it to he list 
-                print('Makeing the activity ' + str(act))
-                currentActivity = StudentActivities()
-                currentActivity.studentID = studentId
-                currentActivity.courseID = act.courseID
-                currentActivity.activityID = act
-                currentActivity.timestamp = utcDate()
-                currentActivity.activityScore = 0 
-                currentActivity.save()
-                
-                studentActivities.append(currentActivity)
-                if(currentActivity.activityScore == 0 and currentActivity.graded == False):
-                    points.append("-")
-                else:
-                    points.append(str(currentActivity.activityScore))
-                
-         # The range part is the index numbers.
-        context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points)
+        
+        
+            
+        # The range part is the index numbers.
+        #context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points)
         return render(request,'Students/ActivityList.html', context_dict)
 
     return render(request,'Students/ActivityList.html', context_dict)
+
+def category_activities(category, studentId, current_course):
+    
+    
+    activites = []
+    points = []
+    activity_points = []
+    submit_status=[]
+    activity_date_status=[]
+    
+    activity_objects = Activities.objects.filter(category=category, courseID=current_course)
+    print(activity_objects)
+    for act in activity_objects:
+        # if today is after the data it was assigninged display it 
+        #logger.debug(act.startTimestamp)
+        #logger.debug(utcDate())
+        if act.startTimestamp <= utcDate():
+            activites.append(act) # add the activities to the list so we can display
+        else: #Today is before the day it is assigend
+            continue
+
+        activity_points.append(round(act.points))
+        if act.deadLine == None:
+            activity_date_status.append("Undated Activity")
+        elif act.deadLine < utcDate():
+            activity_date_status.append("Past Activity")
+        else:
+            activity_date_status.append("Upcoming Activity")
+        # get the activity record for this student
+        if StudentActivities.objects.filter(studentID = studentId, activityID=act):
+            student_act = StudentActivities.objects.get(studentID = studentId, activityID=act)
+            if student_act.activityScore == -1:
+                points.append("-")
+            else:
+                points.append(str(round(student_act.activityScore)))
+            submit_status.append("Submitted")
+            
+        else:
+            
+            points.append("-")
+            submit_status.append("Missing")
+            
+            
+    return zip(activites,points,activity_points,submit_status,activity_date_status)
+
+    
+    
+    
