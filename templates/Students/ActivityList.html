@@ -48,19 +48,35 @@
                            <th></th>
                         </thead>
                         <tbody>
-                           {% for i,instructorActivites , studentActivities, points in activity_range %}
-                           <tr>
-                              <td>{{instructorActivites.activityName}}</td>
-                              <td>{{instructorActivites.points}}</td>
-                              <td>{{points}}</td>
-                              <td class="secondary-content">
-                                 {% if is_teacher %}    
-                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>        
-                                 {% else %}
-                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ActivityDescription?activityID={{studentActivities.studentActivityID}}"><i class="material-icons left">visibility</i>View</a>
-                                 {% endif %}
-                              </td>
-                           </tr>
+                           {% for i,instructorActivites , studentActivities, points, isUnlocked, unlockDescript in activity_range %}
+                           {% if isUnlocked %}
+                              <tr>
+                                  <td><i class="fa fa-unlock-alt"></i>&nbsp; {{instructorActivites.activityName}}</td>
+                                  <td>{{instructorActivites.points}}</td>
+                                  <td>{{points}}</td>
+                                  <td class="secondary-content">
+                                    {% if is_teacher %}    
+                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>        
+                                    {% else %}
+                                    <a class="waves-effect waves-light btn tooltipped" href="/oneUp/students/ActivityDescription?activityID={{studentActivities.studentActivityID}}" data-tooltip="Take Activity"
+                                    data-position="bottom" data-delay="50"><i class="material-icons left">visibility</i>View</a>
+                                    {% endif %}
+                                  </td>
+                              </tr>
+                           {% else %} 
+                              <tr>
+                                  <td><i class="fa fa-lock"></i>&nbsp;{{instructorActivites.activityName}}</td>
+                                  <td>{{instructorActivites.points}}</td>
+                                  <td>{{points}}</td>
+                                  <td class="secondary-content">
+                                    {% if is_teacher %}    
+                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>        
+                                    {% else %}
+                                    <a class="waves-effect grey waves-light btn tooltipped" href="#!" data-tooltip="{{unlockDescript}}" data-position="bottom" data-delay="100"><i class="material-icons left">visibility</i>View</a>
+                                    {% endif %}
+                                  </td>
+                              </tr>
+                            {% endif %}
                            {% empty %}
                            <tr>
                               <td class="center-align" colspan="4"><i>No Activities</i></td>

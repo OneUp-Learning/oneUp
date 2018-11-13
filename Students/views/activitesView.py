@@ -4,7 +4,7 @@ Created on Aug 28, 2017
 @author: jevans116
 '''
 from django.shortcuts import render
-from Students.models import StudentActivities
+from Students.models import StudentActivities, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Activities, ActivitiesCategory
 from Instructors.views.utils import utcDate
@@ -15,6 +15,8 @@ from django.db.models import Q
 
 from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import logger
+from Badges.enums import ObjectTypes
+from Badges.models import ProgressiveUnlocking
 
 @login_required
 def ActivityList(request):
@@ -35,6 +37,8 @@ def ActivityList(request):
         studentActivities = []
         points = []
         attempts = []
+        isUnlocked = []
+        unlockDescript = []
                 
         studentId = context_dict['student'] #get student
         
@@ -54,13 +58,6 @@ def ActivityList(request):
             else:
                 activities = Activities.objects.filter(courseID=currentCourse)
                 context_dict['currentCat'] = "all"
-
-            
-
-            
-
-
-            
         
         
         if request.method == "POST":
@@ -89,7 +86,6 @@ def ActivityList(request):
                  
             if(currentActivity): #if we got the student activity add it to the list
                 studentActivities.append(currentActivity)
-        
                 
                 if(currentActivity.activityScore == 0 and currentActivity.graded == False):
                     points.append("-")
@@ -111,9 +107,23 @@ def ActivityList(request):
                     points.append("-")
                 else:
                     points.append(str(currentActivity.activityScore))
+            
+            # Progessive Unlocking
+            try:
+                oType = ObjectTypes.activity
+                studentUnlocking = StudentProgressiveUnlocking.objects.get(studentID=studentId,courseID=currentCourse,objectType=oType,objectID=act.pk)
+                unlockingRule = ProgressiveUnlocking.objects.get(courseID=currentCourse,objectType=oType,objectID=act.pk)
+                isUnlocked.append(studentUnlocking.isFullfilled)
+                unlockDescript.append(unlockingRule.description)
+                print(unlockingRule)
+            except ObjectDoesNotExist:
+                isUnlocked.append(True)
+                unlockDescript.append('hi')
+            
+            print(unlockDescript)
                 
          # The range part is the index numbers.
-        context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points)
+        context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points,isUnlocked,unlockDescript)
         return render(request,'Students/ActivityList.html', context_dict)
 
     return render(request,'Students/ActivityList.html', context_dict)
