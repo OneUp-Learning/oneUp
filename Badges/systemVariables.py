@@ -894,9 +894,9 @@ class SystemVariable():
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
-    totalScoreForWarmupChallenges = 941
     totalScoreForSeriousChallenges = 942
-    
+    totalScoreForWarmupChallenges = 943    
+
     systemVariables = {
         numAttempts:{
             'index': numAttempts,
