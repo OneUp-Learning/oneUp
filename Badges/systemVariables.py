@@ -791,10 +791,10 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
     return 0
 
     
-def getTotalScoreForWarmupChallenges(course,student,challenge):
+def getTotalScoreForWarmupChallenges(course,student):
     return getAllChallenges(course, student, False)
 
-def getTotalScoreForSeriousChallenges(course,student,challenge):
+def getTotalScoreForSeriousChallenges(course,student):
     return getAllChallenges(course, student, True)
 
 def getAllChallenges(course,student, isGraded):
@@ -855,7 +855,9 @@ def firstAttemptStatic(questionID):
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
-    percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
+    #KI: I'm commenting this entry out because the corresponding structure
+    # has been commented out.  I'm not clear why it has.
+    #percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
     maxTestScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
     minTestScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
     dateOfFirstAttempt = 906 # The date on which the student has attempted a particular challenge for the first time.
@@ -863,7 +865,8 @@ class SystemVariable():
     timeSpentOnQuestions = 908 # Time spent on a particular question. 
     consecutiveDaysLoggedIn = 909 # The number of consecutive days a student logs in to the One Up website
     activitiesCompleted = 910 # The number of activities a student has completed for a particular course
-    challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
+    #KI: Someone added this and never implemented it.
+    #challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
     numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier
     numDaysSubmissionLate = 913 #Number of days an assignment is submitted late
     averageTestScore = 914  # Average Test Score
@@ -881,8 +884,10 @@ class SystemVariable():
     minActivityScore = 926 # Lowest activity score of the course 
     maxActivityScore = 927 # highest activity score of the course 
     averageActivityScore = 928 # average activity score of the course 
-    numDaysActivitySubmissionLate = 929 # Difference of days between submission and due date
-    numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date
+# KI: Commented out next two because they functionally already exists and no dictionary entry was
+# made for it.
+#    numDaysActivitySubmissionLate = 929 # Difference of days between submission and due date
+#    numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date  
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
     isWarmUp = 932 # is a warm-up challenge
     activityScoreDifferenceByCategory = 941
@@ -894,9 +899,9 @@ class SystemVariable():
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
-    totalScoreForWarmupChallenges = 941
     totalScoreForSeriousChallenges = 942
-    
+    totalScoreForWarmupChallenges = 943    
+
     systemVariables = {
         numAttempts:{
             'index': numAttempts,
@@ -1396,7 +1401,7 @@ class SystemVariable():
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge:getTotalScoreForWarmupChallenges
+                ObjectTypes.none:getTotalScoreForWarmupChallenges
             },
         },
         totalScoreForSeriousChallenges:{
@@ -1409,8 +1414,31 @@ class SystemVariable():
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge:getTotalScoreForSeriousChallenges
+                ObjectTypes.none:getTotalScoreForSeriousChallenges
             },
         },
                                                                        
     }
+
+if __debug__:
+    # Check for mistakes in the systemVariables enum, such as duplicate
+    # id numbers or mismatches between eventsWhichCanChangeThis and functions
+    expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions']
+    
+    sysVarNames = [sv for sv in SystemVariable.__dict__ if sv[:1] != '_' and sv != 'systemVariables']
+    sysVarNumSet = set()
+    for sysVarName in sysVarNames:
+        sysVarNum = SystemVariable.__dict__[sysVarName]
+        sysVarNumSet.add(sysVarNum)
+        assert sysVarNum in SystemVariable.systemVariables, "System variable number created without corresponding structure in systemVariables dictionary.  %s = %i " % (sysVarName,sysVarNum)
+        dictEntry = SystemVariable.systemVariables[sysVarNum]
+        for field in expectedFieldsInSysVarStruct:
+            assert field in dictEntry, "System variable structure missing expected field.  %s missing %s" % (sysVarName,field)
+        eventsList = list(dictEntry['eventsWhichCanChangeThis'])
+        functionsList = list(dictEntry['functions'])
+        assert len([obj for obj in eventsList if obj not in functionsList]) == 0, "System variable structure has an event entry for an object type for which it has no function. %s " % sysVarName
+        assert len([obj for obj in functionsList if obj not in eventsList]) == 0, "System variable structure has a functions entry for an object type for which it has no events entry. %s " % sysVarName
+        if ObjectTypes.none in eventsList:
+            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the globabl scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
+
+    assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."
