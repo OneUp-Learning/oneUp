@@ -71,7 +71,10 @@ def listRules(request,current_course,context_dict):
 
     for rule in rules:
         objectString =  ObjectTypes.objectTypes[rule.objectType]
-        objs.append({'rule': rule, 'type' : objectString})
+        if objectString == 'activity':
+            objs.append({'rule': rule, 'type' : 'Activity'})
+        elif objectString == 'challenge':
+            objs.append({'rule': rule, 'type' : 'Challenge'})
 
     context_dict['rules'] = objs
 

@@ -51,7 +51,7 @@
                            {% for i,instructorActivites , studentActivities, points, isUnlocked, unlockDescript in activity_range %}
                            {% if isUnlocked %}
                               <tr>
-                                  <td><i class="fa fa-unlock-alt"></i>&nbsp; {{instructorActivites.activityName}}</td>
+                                  <td>{{instructorActivites.activityName}}</td>
                                   <td>{{instructorActivites.points}}</td>
                                   <td>{{points}}</td>
                                   <td class="secondary-content">
@@ -65,14 +65,14 @@
                               </tr>
                            {% else %} 
                               <tr>
-                                  <td><i class="fa fa-lock"></i>&nbsp;{{instructorActivites.activityName}}</td>
+                                  <td>{{instructorActivites.activityName}}</td>
                                   <td>{{instructorActivites.points}}</td>
                                   <td>{{points}}</td>
                                   <td class="secondary-content">
                                     {% if is_teacher %}    
-                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>        
+                                    <a class="waves-effect waves-light btn" href="#!"><i class="fa fa-lock"></i>visibility</i>View</a>        
                                     {% else %}
-                                    <a class="waves-effect grey waves-light btn tooltipped" href="#!" data-tooltip="{{unlockDescript}}" data-position="bottom" data-delay="100"><i class="material-icons left">visibility</i>View</a>
+                                    <a class="waves-effect grey waves-light btn tooltipped" href="#!" data-tooltip="{{unlockDescript}}" data-position="bottom" data-delay="100"><i class="material-icons left fa fa-lock"></i>&nbsp; View</a>
                                     {% endif %}
                                   </td>
                               </tr>
