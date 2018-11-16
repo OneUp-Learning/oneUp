@@ -33,10 +33,10 @@ def classAchievements(request):
         optionSelected = 0
                 
     #Displaying the list of challenges from database
-    challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True,  isVisible=True)
-    num_challs = challenges.count()
+    challenges = list(Challenges.objects.filter(courseID=currentCourse, isGraded=True,  isVisible=True).exclude(endTimestamp="2999-12-31 18:59:00").order_by('endTimestamp'))
+    num_challs = len(challenges)
     
-    activities = Activities.objects.filter(courseID=currentCourse, isGraded=True)
+    activities = Activities.objects.filter(courseID=currentCourse, isGraded=True).exclude(endTimestamp="2999-12-31 18:59:00").order_by('deadLine')
     
     users = [] 
     #Displaying the list of students from the current class
@@ -147,7 +147,7 @@ def classAchievements(request):
     for activity in activities:
         chall_Name.append(activity.activityName)
 
-    context_dict['challenge_range'] = zip(range(1,challenges.count()+activities.count()+1),chall_Name)
+    context_dict['challenge_range'] = zip(range(1,num_challs+activities.count()+1),chall_Name)
     #context_dict['activityGrade_range'] = zip(range(0,len(allActivityGrade)),allActivityGrade)
     context_dict['user_range'] = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)), key=lambda tup: tup[2])
 
