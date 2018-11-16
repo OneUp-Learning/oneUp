@@ -16,6 +16,9 @@ import json
 from oneUp.settings import CELERY_ENABLED
 from Badges.tasks import process_event_offline
 
+import logging
+logger = logging.getLogger(__name__)
+
 # Method to register events with the database and also to
 # trigger appropriate action.
 # Event should be an integer representing an event from the Event enum.
@@ -155,6 +158,9 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.examExemption):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
+    if(eventID == Event.activitySubmission):
+        eventEntry.objectType = ObjectTypes.form
+        eventEntry.objectID = objectId
         
         
         
@@ -177,7 +183,7 @@ def register_event(eventID, request, student=None, objectId=None):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId  
     
-    print('eventEntry: '+str(eventEntry))  
+    logger.debug('eventEntry: '+str(eventEntry))  
     eventEntry.save()
 
     if CELERY_ENABLED:
@@ -197,51 +203,59 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     courseId = Courses.objects.get(pk=courseIDint)
     
     eventEntry = StudentEventLog.objects.get(pk=eventID)
+    
+    timestampstr = str(eventEntry.timestamp)
+    logger.debug("Processing Event with timestamp: "+timestampstr)
 
     # check for rules which are triggered by this event
     matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventEntry.event)
     matchingRuleWithContext = dict()
+    logger.debug("Event with timestamp: "+timestampstr+" has "+str(len(matchingRuleEvents))+" matching RuleEvent entries.")
     for ruleEvent in matchingRuleEvents:
+        logger.debug("Event with timestamp: "+timestampstr+" matches with rule "+str(ruleEvent.rule.ruleID))
         if ruleEvent.rule in matchingRuleWithContext:
             matchingRuleWithContext[ruleEvent.rule] = matchingRuleWithContext[ruleEvent.rule] or ruleEvent.inGlobalContext
         else:
             matchingRuleWithContext[ruleEvent.rule] = ruleEvent.inGlobalContext
 
-    print("Found "+str(len(matchingRuleEvents))+" rules which match")
         
     for potential in matchingRuleWithContext:
-        condition = potential.conditionID
-        
-        # First we check if there is an associated award frequency.  If there isn't, we can just check the 
-        # rule as is.  That's the simple case because there's no local context.
-        if potential.awardFrequency == AwardFrequency.justOnce:
-            if check_condition(condition, courseId, student, eventEntry.objectType, eventEntry.objectID):
-                fire_action(potential,courseId,student,eventEntry.objectID)
-        else:            
-            objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
-            objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
+        try:
+            condition = potential.conditionID
             
-            if matchingRuleWithContext[potential]:
-                # The match is for a variable in a global context (either a global variable or a variable inside a for clause
-                objIDList = objSpecifier.getMatchingObjectIds(courseId)
-                objType = objSpecifier.objectType
-                result = True
-            else:
-                # The match is for a variable in a local context (a variable from the context of a specifier)
-                result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
-
-            if result:
-                for objID in objIDList:
-                    if check_condition(condition,courseId,student,objType,objID):
-                        fire_action(potential,courseId,student,objID)
+            # First we check if there is an associated award frequency.  If there isn't, we can just check the 
+            # rule as is.  That's the simple case because there's no local context.
+            if potential.awardFrequency == AwardFrequency.justOnce:
+                if check_condition(condition, courseId, student, eventEntry.objectType, eventEntry.objectID, timestampstr):
+                    fire_action(potential,courseId,student,eventEntry.objectID, timestampstr)
+            else:            
+                objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
+                objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
+                
+                if matchingRuleWithContext[potential]:
+                    # The match is for a variable in a global context (either a global variable or a variable inside a for clause
+                    objIDList = objSpecifier.getMatchingObjectIds(courseId)
+                    objType = objSpecifier.objectType
+                    result = True
+                else:
+                    # The match is for a variable in a local context (a variable from the context of a specifier)
+                    result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
+    
+                if result:
+                    for objID in objIDList:
+                        if check_condition(condition,courseId,student,objType,objID,timestampstr):
+                            fire_action(potential,courseId,student,objID, timestampstr)
+        except Exception as e:
+            print('Problem evaluating Rule: '+str(potential)+'  '+str(e))
+            pass
             
     return eventEntry
 
 # This method checks whether or not a given condition is true
 # in the appropriate context.
-def check_condition(condition, course, student, objectType, objectID):
+def check_condition(condition, course, student, objectType, objectID, timestampstr):
     return check_condition_helper(condition, course, student, 
-                                  objectType,objectID, {})
+                                  objectType,objectID, {}, timestampstr)
 
 def operandSetTypeToObjectType(operandType):
     operandSetTypeToOjectTypeMap = {
@@ -256,16 +270,16 @@ def operandSetTypeToObjectType(operandType):
 
 # Helper function for the above.  Includes a hash table so that
 # it can avoid loops. (Circular Conditions)
-def check_condition_helper(condition, course, student, objectType, objectID, ht):
+def check_condition_helper(condition, course, student, objectType, objectID, ht, timestampstr):
     if condition in ht:
         return False
     
-    print("Evaluating condition:"+str(condition))
+    logger.debug("In Event w/timestamp: "+timestampstr+" Evaluating condition:"+str(condition))
     
     # Fetch operands
-    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition)
+    operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition, timestampstr)
     
-    print("Operand 1 = "+str(operand1))
+    logger.debug("In Event w/timestamp: "+timestampstr+" Operand 1 = "+str(operand1))
 
     # NOT is our only unary operation.  If we have one, there's no
     # need to do anything with a second operand.
@@ -274,7 +288,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     
     def forallforany_helper(forall):
         for obj in operand1:
-            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), obj, ht, condition):
+            if get_operand_value(condition.operand2Type, condition.operand2Value, course, student, operandSetTypeToObjectType(condition.operand1Type), obj, ht, condition, timestampstr):
                 if not forall:
                     return True
             else:
@@ -302,7 +316,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     
     def andor_helper(isAnd):
         for cond in operand1:
-            if check_condition_helper(cond, course, student, objectType, objectID, ht):
+            if check_condition_helper(cond, course, student, objectType, objectID, ht, timestampstr):
                 if not isAnd:
                     return True
             else:
@@ -315,8 +329,8 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
     if (condition.operation == 'OR') and (condition.operand1Type == OperandTypes.conditionSet):
         return andor_helper(True)
 
-    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition)
-    print("Operand 2 = "+str(operand2))
+    operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition, timestampstr)
+    logger.debug("In Event w/timestamp: "+timestampstr+" Operand 2 = "+str(operand2))
     
     if (condition.operation == '='):
         return operand1==operand2
@@ -337,14 +351,14 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht)
 
 # Takes and operand type and value and finds the appropriate
 # value for it.
-def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition):
+def get_operand_value(operandType,operandValue,course,student,objectType,objectID,ht, condition, timestampstr):
     if (operandType == OperandTypes.immediateInteger):
         return operandValue
     elif (operandType == OperandTypes.boolean):
         return operandValue == 1
     elif (operandType == OperandTypes.condition):
         inner_condition = Conditions.objects.get(pk=operandValue)
-        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht)
+        return check_condition_helper(inner_condition, course, student, objectType, objectID,ht, timestampstr)
     elif (operandType == OperandTypes.floatConstant):
         return FloatConstants.objects.get(pk=operandValue)
     elif (operandType == OperandTypes.stringConstant):
@@ -382,8 +396,8 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     else:
         return "Bad operand type value"
 
-def fire_action(rule,courseID,studentID,objID):
-    print("In fire_action ")
+def fire_action(rule,courseID,studentID,objID,timestampstr):
+    print("In Event w/timestamp: "+timestampstr+" In fire_action for rule "+str(rule))
     actionID = rule.actionID
     args = ActionArguments.objects.filter(ruleID = rule)
     if (actionID == Action.giveBadge):
@@ -392,7 +406,7 @@ def fire_action(rule,courseID,studentID,objID):
         badgeIdString = badgeIdArg.argumentValue
         badgeId = int(badgeIdString)
         ##badge = Badges.objects.get(pk=badgeId)
-        print("This is the badge we pick ", badgeId)
+        print("In Event w/timestamp: "+timestampstr+" This is the badge we pick ", badgeId)
         badge = BadgesInfo.objects.get(pk=badgeId)
         
         #Make sure the student hasn't already been awarded this badge
@@ -406,7 +420,7 @@ def fire_action(rule,courseID,studentID,objID):
                 autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
                 if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
                 #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
-                    print("Student " + str(studentID) + " has already earned badge " + str(badge))
+                    logger.debug("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " has already earned badge " + str(badge))
                     return
             
         #If the badge has not already been earned, then award it    
@@ -416,7 +430,7 @@ def fire_action(rule,courseID,studentID,objID):
         studentBadge.objectID = objID
         studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
         studentBadge.save()
-        print("Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
+        logger.debug("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         
         #Test to make notifications 
         notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge')
@@ -424,7 +438,7 @@ def fire_action(rule,courseID,studentID,objID):
         return
     
     if (actionID == Action.createNotification):
-        print("In notifications ")
+        logger.debug("In Event w/timestamp: "+timestampstr+" In notifications ")
 
         #Create a notification.
         return
@@ -448,7 +462,8 @@ def fire_action(rule,courseID,studentID,objID):
                 previousAwards = previousAwards.filter(objectID = objID)
             if previousAwards.exists():
                 # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
-                return
+                logger.debug("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
+                return 
                         
         studVCRec = StudentVirtualCurrency()
         studVCRec.studentID = student.studentID
@@ -457,6 +472,7 @@ def fire_action(rule,courseID,studentID,objID):
         else:
             studVCRec.objectID = objID
         studVCRec.vcRuleID = vcRule
+        studVCRec.value = vcRuleAmount
         studVCRec.save()
         
         if actionID == Action.increaseVirtualCurrency:
@@ -475,7 +491,7 @@ def fire_action(rule,courseID,studentID,objID):
                 notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency')
             else:
                 #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
-                print('this purchase did not go through')
+                logger.debug("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
             student.save()
             return
 

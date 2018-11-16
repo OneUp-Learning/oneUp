@@ -65,11 +65,11 @@
 												</td>
 												<td>
 													<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-													 data-beloworigin="true" data-activates='dropdown{{i}}-{{j}}' data-position="right" data-delay="50"
+													 data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50"
 													 data-tooltip="Options">
 														<i class="material-icons">more_vert</i>
 													</a>
-													<ul id='dropdown{{i}}-{{j}}' class='dropdown-content'>
+													<ul id='dropdown-{{i}}-{{j}}' class='dropdown-content'>
 														<li>
 															<a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a>
 														</li>
@@ -81,10 +81,10 @@
 														</li>
 														<li class="divider"></li>
 														<li>
-															<a class="modal-trigger" href="#modal_delete{{i}}-{{j}}">Delete</a>
+															<a class="modal-trigger" href="#modal_delete-{{i}}-{{j}}">Delete</a>
 														</li>
 													</ul>
-													<div id="modal_delete{{i}}-{{j}}" class="modal">
+													<div id="modal_delete-{{i}}-{{j}}" class="modal">
 														<div class="modal-content">
 															<h5>Are you sure you want to delete?</h5>
 															<p>Problems will not be deleted</p>

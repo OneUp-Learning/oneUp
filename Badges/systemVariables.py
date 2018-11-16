@@ -5,6 +5,8 @@ from Instructors.models import Challenges, Activities, Questions, Topics,\
     ActivitiesCategory
 from django.utils import timezone
 import logging
+from billiard.connection import CHALLENGE
+from django.conf.urls.static import static
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -18,10 +20,11 @@ objectTypeToObjectClass = {
 # This is where we evaluate the system variables in their appropriate
 # context.
 def calculate_system_variable(varIndex,course,student,objectType,objectID):
-    print("VarIndex: " + str(varIndex))
+    print("VarIndex: " + str(varIndex))    
     
     systemVar = SystemVariable.systemVariables[varIndex]
     functions = systemVar["functions"]
+
     if ObjectTypes.none in functions:
         return functions[ObjectTypes.none](course,student)
     else:
@@ -120,8 +123,9 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
     for question in questionIds:
         studentQuestion = StudentChallengeQuestions.objects.filter(studentChallengeID=studentChallenge,questionID=question)
         
-        if studentQuestion[0].questionTotal == studentQuestion[0].questionScore:
-            correctlyAnsweredQuestions +=1
+        if studentQuestion:
+            if studentQuestion[0].questionTotal == studentQuestion[0].questionScore:
+                correctlyAnsweredQuestions +=1
     
     if correctlyAnsweredQuestions != 0 and totalQuestions != 0:
         return round((float(correctlyAnsweredQuestions)/float(totalQuestions))*100)
@@ -179,8 +183,11 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
         combinedScore = score.getScore()
         if combinedScore > maxScore:
             maxScore = combinedScore
-        
-    return float(maxScore)/float(challenge.getCombinedScore()) * 100
+    
+    challengeScore = challenge.getCombinedScore()
+    if challengeScore == 0:
+        return 0
+    return float(maxScore)/float(challengeScore) * 100
     
 def getAverageTestScore(course, student, challenge):    
     #return the average score of the a challenge
@@ -211,7 +218,7 @@ def getMinTestScore(course,student,challenge):
 def getDateOfFirstAttempt(course,student,challenge):
     from Students.models import StudentEventLog
     #return the oldest date from the event log with matching object ID (looking at only the endChallenge event trigger 802)
-    attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
+    attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge.challengeID,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
     if len(attemptObjectsByDate) > 0:
         return attemptObjectsByDate[0].timestamp
     else:
@@ -240,8 +247,13 @@ def totalTimeSpentOnQuestions(course,student):
     # Also if a student starts a challenge and then abandons it, the counts will not be equal and then this code
     # will always return None for that student in that course.
     
-    questionStartTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.startQuestion)
-    questionEndTimes = StudentEventLog.objects.filter(courseID = course,studentID = student, event = Event.endQuestion)
+    if(type(course) != int):
+        course = course.pk
+        print(course)
+
+    
+    questionStartTimes = StudentEventLog.objects.filter(course = course,student = student, event = Event.startQuestion)
+    questionEndTimes = StudentEventLog.objects.filter(course = course,student = student, event = Event.endQuestion)
     #assert that the two are of equal size
 
     if (questionStartTimes.count() == questionEndTimes.count()):
@@ -414,26 +426,47 @@ def getActivitiesCompleted(course,student):
 def getNumDaysSubmissionLateActivity(course, student , activity):
     '''Return the number of days an activity submitted after due date'''
     from Students.models import StudentActivities
-    
+   
+    print("numb days submissionsssss late")
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
-    return (-1 * getDaysDifferenceActity(activity,studentActivity[0]))
+    if not studentActivity:
+        return (float('inf'))
+    else: 
+        print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
+        return (-1 *getDaysDifferenceActity(activity,studentActivity[0]))
     
 def getNumDaysSubmissionEarlyActivity(course, student , activity):
     '''Return the number of days an activity submitted before due date'''
     from Students.models import StudentActivities
     
+    print("numb days submissionsssss early")
     studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
-    return getDaysDifferenceActity(activity,studentActivity[0])
+    if not studentActivity:
+        return (-1*float('inf'))
+    else:
+        print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
+        return getDaysDifferenceActity(activity,studentActivity[0])
 
 # utility function return difference in days between the submission and due date
 def getDaysDifferenceActity(activity, studentActivity):
     deadline = activity.deadLine
-    submission = studentActivity.timestamp
+    submission = studentActivity.submissionTimestamp
+    print("getDaysDifferenceActity")
     print("Deadline ", deadline)
     print("submission", submission)
-    return deadline - submission
+    numDays = str(deadline - submission)
+    print(numDays)
+    if numDays[0]== "-":
+        i=0
+        for x in numDays:
+            if x==" ":
+                return -1 * int(numDays[1:i])
+            i+=1
+    i=0
+    for x in numDays:
+        if x==" ":
+            return int(numDays[0:i])
+        i+=1
     
 def getScoreDifferenceFromPreviousActivity(course, student, activity):
     '''Returns the the difference of score between this activity and the previous one.'''
@@ -647,18 +680,20 @@ def getConsecutiveScoresDifference(course, student, challenge):
     difference = 0
     logger.debug(challenge)
     # Get the last challenge the student has taken whether it's a warmpup or serious challenge
-    studentLastChallengeEvent = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, event = Event.endChallenge).exclude(objectID = challenge.challengeID).latest('timestamp')
-    studentLastChallenge = StudentChallenges.objects.filter(courseID = course, studentID=student, challengeID = studentLastChallengeEvent.objectID)
-    if studentLastChallenge.exists():
-        # Get both challenges highest test score
-        latestScore = challengeScore(course,student, studentLastChallengeEvent.objectID)
-        previousScore = challengeScore(course, student, challenge)
-        logger.debug(latestScore)
-        logger.debug(previousScore)
-        
-        difference = abs(previousScore - latestScore)
-        logger.debug("Difference between last challenge score: " + str(difference))
-        return difference
+    studentLastChallengeEvent = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, event = Event.endChallenge).exclude(objectID = challenge.challengeID).order_by('-timestamp')
+    if studentLastChallengeEvent:
+        studentLastChallengeEvent = studentLastChallengeEvent[0]
+        studentLastChallenge = StudentChallenges.objects.filter(courseID = course, studentID=student, challengeID = studentLastChallengeEvent.objectID)
+        if studentLastChallenge.exists():
+            # Get both challenges highest test score
+            latestScore = challengeScore(course,student, studentLastChallengeEvent.objectID)
+            previousScore = challengeScore(course, student, challenge)
+            logger.debug(latestScore)
+            logger.debug(previousScore)
+            
+            difference = abs(previousScore - latestScore)
+            logger.debug("Difference between last challenge score: " + str(difference))
+            return difference
             
     return difference
             
@@ -755,11 +790,74 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
 
     return 0
 
+    
+def getTotalScoreForWarmupChallenges(course,student):
+    return getAllChallenges(course, student, False)
 
+def getTotalScoreForSeriousChallenges(course,student):
+    return getAllChallenges(course, student, True)
+
+def getAllChallenges(course,student, isGraded):
+    #isGraded true means serious, false warmup
+    #utility function to get all the challenges for a course, student
+    from Students.models import StudentChallenges
+    from Instructors.models import ChallengesQuestions
+    challengeQuestions = []
+    #get all the challenges for the course, and depending on isGraded(serious=true,warmup=false)
+    challenges = StudentChallenges.objects.filter(courseID=course, studentID=student)
+    
+    for challenge in challenges:
+        challengeQuestions.append(list(ChallengesQuestions.objects.filter(challengeID=challenge.challengeID)))
+      
+    staticList = []
+    dynamicList = [] 
+    for challengeItem in challengeQuestions:
+        for item in challengeItem:
+            if item.challengeID.isGraded == isGraded:
+                if item.questionID.type == 6 or item.questionID.type == 7:
+                    if item.questionID not in dynamicList:
+                        dynamicList.append(item.questionID)
+                else:
+                    if item.questionID not in staticList:
+                        staticList.append(item.questionID)
+              
+    totalScore = 0
+    for static in staticList:
+        totalScore += firstAttemptStatic(static)
+        
+    for dynamic in dynamicList:
+        totalScore += dynamicQuestionMax(dynamic)
+            
+    return totalScore
+
+def dynamicQuestionMax(questionID):
+    #find the max score for the dynamic problem, dynamics are 6 or 7
+    from Students.models import StudentChallengeQuestions
+    questions = StudentChallengeQuestions.objects.filter(questionID = questionID)
+    
+    scores = []
+    
+    #for each question find the max by finding the scores for each question
+    for question in questions:
+        scores.append(question.questionScore)
+    return max(scores)
+    
+    
+def firstAttemptStatic(questionID):
+    #find the first attempt for the questions, and sum the static problem scores
+    from Students.models import StudentChallengeQuestions
+    question = StudentChallengeQuestions.objects.filter(questionID=questionID).first()
+    
+    if question == None:
+        return 0
+    else:
+        return question.questionScore
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
-    percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
+    #KI: I'm commenting this entry out because the corresponding structure
+    # has been commented out.  I'm not clear why it has.
+    #percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
     maxTestScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
     minTestScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
     dateOfFirstAttempt = 906 # The date on which the student has attempted a particular challenge for the first time.
@@ -767,7 +865,8 @@ class SystemVariable():
     timeSpentOnQuestions = 908 # Time spent on a particular question. 
     consecutiveDaysLoggedIn = 909 # The number of consecutive days a student logs in to the One Up website
     activitiesCompleted = 910 # The number of activities a student has completed for a particular course
-    challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
+    #KI: Someone added this and never implemented it.
+    #challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
     numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier
     numDaysSubmissionLate = 913 #Number of days an assignment is submitted late
     averageTestScore = 914  # Average Test Score
@@ -785,8 +884,10 @@ class SystemVariable():
     minActivityScore = 926 # Lowest activity score of the course 
     maxActivityScore = 927 # highest activity score of the course 
     averageActivityScore = 928 # average activity score of the course 
-    numDaysActivitySubmissionLate = 929 # Difference of days between submission and due date
-    numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date
+# KI: Commented out next two because they functionally already exists and no dictionary entry was
+# made for it.
+#    numDaysActivitySubmissionLate = 929 # Difference of days between submission and due date
+#    numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date  
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
     isWarmUp = 932 # is a warm-up challenge
     activityScoreDifferenceByCategory = 941
@@ -798,7 +899,9 @@ class SystemVariable():
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
-    
+    totalScoreForSeriousChallenges = 942
+    totalScoreForWarmupChallenges = 943    
+
     systemVariables = {
         numAttempts:{
             'index': numAttempts,
@@ -978,7 +1081,7 @@ class SystemVariable():
             'description':'The number of days a submission is turned in earlier than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge,],
-                ObjectTypes.activity: [Event.participationNoted, Event.instructorAction, Event.studentUpload],
+                ObjectTypes.activity: [Event.activitySubmission],
             },
             'type':'int',
             'functions':{
@@ -993,7 +1096,7 @@ class SystemVariable():
             'description':'The number of days a submission is turned in later than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge,],
-                ObjectTypes.activity: [Event.instructorAction, Event.studentUpload],
+                ObjectTypes.activity: [Event.activitySubmission],
             },
             'type':'int',
             'functions':{
@@ -1203,7 +1306,7 @@ class SystemVariable():
             'displayName':'Averaged Score Difference From Previous Activities By Activity Category',
             'description':'Averaged score difference from previous activities based on the activity category.',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.activity: [Event.endChallenge],
+                ObjectTypes.activity: [Event.participationNoted],
             },
             'type':'int',
             'functions':{
@@ -1287,5 +1390,55 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
             },
-        },                                                               
+        },
+        totalScoreForWarmupChallenges:{
+            'index': totalScoreForWarmupChallenges,
+            'name':'totalScoreForWarmupChallenges',
+            'displayName':'Warmup Challenge Total Score',
+            'description':'Total Score For Warmup Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getTotalScoreForWarmupChallenges
+            },
+        },
+        totalScoreForSeriousChallenges:{
+            'index': totalScoreForSeriousChallenges,
+            'name':'totalScoreForSeriousChallenges',
+            'displayName':'Serious Challenge Total Score',
+            'description':'Total Score For Serious Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getTotalScoreForSeriousChallenges
+            },
+        },
+                                                                       
     }
+
+if __debug__:
+    # Check for mistakes in the systemVariables enum, such as duplicate
+    # id numbers or mismatches between eventsWhichCanChangeThis and functions
+    expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions']
+    
+    sysVarNames = [sv for sv in SystemVariable.__dict__ if sv[:1] != '_' and sv != 'systemVariables']
+    sysVarNumSet = set()
+    for sysVarName in sysVarNames:
+        sysVarNum = SystemVariable.__dict__[sysVarName]
+        sysVarNumSet.add(sysVarNum)
+        assert sysVarNum in SystemVariable.systemVariables, "System variable number created without corresponding structure in systemVariables dictionary.  %s = %i " % (sysVarName,sysVarNum)
+        dictEntry = SystemVariable.systemVariables[sysVarNum]
+        for field in expectedFieldsInSysVarStruct:
+            assert field in dictEntry, "System variable structure missing expected field.  %s missing %s" % (sysVarName,field)
+        eventsList = list(dictEntry['eventsWhichCanChangeThis'])
+        functionsList = list(dictEntry['functions'])
+        assert len([obj for obj in eventsList if obj not in functionsList]) == 0, "System variable structure has an event entry for an object type for which it has no function. %s " % sysVarName
+        assert len([obj for obj in functionsList if obj not in eventsList]) == 0, "System variable structure has a functions entry for an object type for which it has no events entry. %s " % sysVarName
+        if ObjectTypes.none in eventsList:
+            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the globabl scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
+
+    assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."
