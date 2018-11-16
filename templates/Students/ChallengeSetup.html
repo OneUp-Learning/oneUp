@@ -384,8 +384,8 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
                               <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{question.questionID}}_feedBackButtonClickCount" value="">
                               <div style="clear:both;"></div>
                               <p>
+                              {% if warmUp == 1%}
                                  <a href="#{{question.questionID}}" id="newInstanceLink_{{question.questionID}}">New instance</a>
-                                 {% if warmUp == 1%}
                                  <a href="#{{question.questionID}}" id="feedbackLink_{{question.questionID}}">Get feedback</a>
                                  {% endif %}
                               </p>
