@@ -171,6 +171,7 @@
                                     var editor = ace.edit("editor");
                                     editor.setTheme("ace/theme/chrome");
                                     editor.session.setMode("ace/mode/java");
+                                    {%if view%}editor.setReadOnly(true);{%endif%}
                                 </script>
                                 <input type="hidden" name="setupCode" style="display: none;" />
                             </div>
