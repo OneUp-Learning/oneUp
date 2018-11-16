@@ -35,6 +35,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
         cats.append(cat)
             
     if request.method == "GET" or request.POST.get('actCat') == "all" or request.POST.get('actCat') == None:
+
         categories = ActivitiesCategory.objects.filter(courseID=currentCourse)
         
         count = 1 #
@@ -115,7 +116,7 @@ def category_activities(count,category, current_course):
     descriptions = []
     points = []
     
-    activity_objects = Activities.objects.filter(category=category, courseID=current_course)
+    activity_objects = Activities.objects.filter(category=category, courseID=current_course).order_by('deadLine')
     print(activity_objects)
     for activity in activity_objects:
         activity_IDs.append(activity.activityID) #pk
