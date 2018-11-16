@@ -105,30 +105,17 @@ def deleteChallenge(request):
                 challenge = Challenges.objects.get(pk=int(request.POST['challengeID']))            
                 message = "Challenge #"+str(challenge.challengeID)+ " "+challenge.challengeName+" successfully deleted"
                 
-                #Get the ID for Unassigned Problems challenge
+                #Get the Unassigned Problems challenge
                 currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-                uChallenge=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
-                for challID in uChallenge:
-                    uChallengeID = challID.challengeID
-                cID = Challenges.objects.get(pk=int(uChallengeID))
+                unassignedChallenge = Challenges.objects.get(challengeName=unassigned_problems_challenge_name, courseID=currentCourse)
                 
-                #Get the ID and point for the questions associated with the challenge that we want to delete
-                challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID'])
-                for cq in challenge_question:
-                    qId = cq.questionID
-                    qPoint = cq.points
-                    
-                    #Counts how many times, the questions of the challenge that we want to delete, are associate in any challenges
-                    #The count also counts the challenge that we want to delete
-                    countCQ=ChallengesQuestions.objects.filter(questionID = cq.questionID.questionID)
-                    num_challenges = countCQ.count()
+                # Unassign all the questions from the challenge to delete by setting it under the unassign challenge object (which holds unassigned problems)
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID'])
+                for question in challenge_questions:
+                    question.challengeID = unassignedChallenge
+                    question.save()
 
-                    #If the count is equal to one (meaning that is only associate with the challenge that we want to delete)
-                    #Then we want to save the question at Unassign Question challenge
-                    if num_challenges == 1:
-                        ChallengesQuestions.addQuestionToChallenge(qId, cID,qPoint,0)
-
-                #Now that we check the question associate with this challenge, we can delete it
+                #Now that we unassigned questions associate with this challenge, we can delete it
                 challenge.delete()
                 
         except Challenges.DoesNotExist:

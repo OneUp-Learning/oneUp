@@ -19,14 +19,14 @@ def challengesForTopic(topic, student, currentCourse):
     score = []
     chall_position = []
 
-    challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
+    challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition")
     if challenge_topics:           
         for ct in challenge_topics:
             if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
                 
-                challQuestions = ChallengesQuestions.objects.filter(challengeID=ct.challengeID.challengeID)
+                challQuestionsExist = ChallengesQuestions.objects.filter(challengeID=ct.challengeID.challengeID).exists()
                 
-                if challQuestions:
+                if challQuestionsExist:
                     challID = ct.challengeID.challengeID
                     challenge_ID.append(challID)
                     isWarmup.append(True)
@@ -62,7 +62,7 @@ def challengesForTopic(topic, student, currentCourse):
         chall_position.append(0)
 
     #return sorted(list(zip(challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
-    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position)), key=lambda tup: tup[4])
+    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position)), key=lambda tup: tup[5])
     
     
 @login_required
@@ -88,7 +88,7 @@ def ChallengesWarmUpList(request):
             
             tID = ct.topicID.topicID
             tName = Topics.objects.get(pk=tID).topicName
-            if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
+            if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last    
                 topic_ID.append(tID)
                 topic_Name.append(tName)
                 topic_Pos.append(str(ct.topicPos))   

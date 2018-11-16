@@ -147,6 +147,8 @@ class StudentActivities(models.Model):
     bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
+    comment = models.CharField(max_length=500, default="") #Comment submitted by student
+    submissionTimestamp = models.DateTimeField(default= datetime.now)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
     def getScoreWithBonus(self):
@@ -193,7 +195,11 @@ class StudentEventLog(models.Model):
     objectID = models.IntegerField(verbose_name="index into the appropriate table")
     
     def __str__(self):
-        return 'Event '+str(self.event)+ ' at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
+        if self.event in Event.events:
+            eventName = Event.events[self.event]["name"]
+        else:
+            eventName = "Unknown Event"
+        return 'Event '+eventName+'('+str(self.event)+') at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
     
 class StudentVirtualCurrencyTransactions(models.Model):
     transactionID = models.AutoField(primary_key=True)

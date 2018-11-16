@@ -16,43 +16,73 @@ def createContextForActivityList(request, context_dict, currentCourse):
        
     activity_ID = []      
     activity_Name = []         
-    description = []
-    points = []
+
      
     student_ID = []    
     student_Name = []  
+    categories_list = []
+    cats = []
+    categories_names = []
     
     if(ActivitiesCategory.objects.filter(name=uncategorized_activity).first() == None):
         defaultCat = ActivitiesCategory()
         defaultCat.name = uncategorized_activity
         defaultCat.courseID = currentCourse
         defaultCat.save() 
-      
+    
+    categories = ActivitiesCategory.objects.filter(courseID=currentCourse)
+    for cat in categories:
+        cats.append(cat)
+            
     if request.method == "GET" or request.POST.get('actCat') == "all" or request.POST.get('actCat') == None:
+
         activities = Activities.objects.filter(courseID=currentCourse).order_by('deadLine')
         for activity in activities:
             activity_ID.append(activity.activityID) #pk
             activity_Name.append(activity.activityName)
             description.append(activity.description[:100])
             points.append(activity.points)
+
+        categories = ActivitiesCategory.objects.filter(courseID=currentCourse)
+        
+        count = 1 #
+        for cat in categories:
+            cat_activities = category_activities(count, cat, currentCourse)
+            categories_names.append(cat.name)
+            categories_list.append(cat_activities)
+            count += Activities.objects.filter(category=cat, courseID=currentCourse).count()
+            
+            
+            
+#         for activity in activities:
+#             activity_ID.append(activity.activityID) #pk
+#             activity_Name.append(activity.activityName)
+#             description.append(activity.description[:100])
+#             points.append(activity.points)
         context_dict['currentCat'] = "all"
     elif request.method == "POST":
         filterCategory = request.POST.get('actCat')
         if filterCategory is not None:
-            category = ActivitiesCategory.objects.get(pk=filterCategory, courseID=currentCourse)
-            activities = Activities.objects.filter(category=category, courseID=currentCourse)
-            for activity in activities:
-                activity_ID.append(activity.activityID) #pk
-                activity_Name.append(activity.activityName)
-                description.append(activity.description[:100])
-                points.append(activity.points)
-            context_dict['currentCat'] = category
+            count = 1
+            cat = ActivitiesCategory.objects.get(pk=filterCategory, courseID=currentCourse)
+            cat_activities = category_activities(count, cat, currentCourse)
+            categories_list.append(cat_activities)
+            categories_names.append(cat.name)
+#             activities = Activities.objects.filter(category=category, courseID=currentCourse)
+#             for activity in activities:
+#                 activity_ID.append(activity.activityID) #pk
+#                 activity_Name.append(activity.activityName)
+#                 description.append(activity.description[:100])
+#                 points.append(activity.points)
+            context_dict['currentCat'] = cat
 
-                    
+     
+    context_dict["categories"]=cats
+    context_dict["categories_range"]=zip(categories_list,categories_names)
+                       
     # The range part is the index numbers.
-    
-    context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
-    context_dict['activitesForCats'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
+    #context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
+    #context_dict['activitesForCats'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
     
     #Get StudentID and StudentName for every student in the current course
     #This context_dict is used to populate the scrollable check list for student names
@@ -77,6 +107,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
         assignment_Name.append(assignment.activityID.activityName)
         assignment_Recipient.append(assignment.studentID)
         assignment_Points.append(assignment.activityScore)
+        
     context_dict['assignment_history_range'] = zip(range(1,assignments.count()+1),assignment_Name,assignment_Recipient,assignment_Points, assignment_ID)
     
     categories = ActivitiesCategory.objects.filter(courseID=currentCourse)
@@ -84,6 +115,23 @@ def createContextForActivityList(request, context_dict, currentCourse):
 
     return context_dict
 
+def category_activities(count,category, current_course):
+    
+    
+    activity_IDs = []      
+    activity_Names = []         
+    descriptions = []
+    points = []
+    
+    activity_objects = Activities.objects.filter(category=category, courseID=current_course)
+    print(activity_objects)
+    for activity in activity_objects:
+        activity_IDs.append(activity.activityID) #pk
+        activity_Names.append(activity.activityName)
+        descriptions.append(activity.description[:100])
+        points.append(round(activity.points))
+    last = count + len(activity_IDs)    
+    return zip(range(count,last), activity_IDs,activity_Names,descriptions, points)
     
 @login_required
 def activityList(request):
