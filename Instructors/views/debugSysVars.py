@@ -42,7 +42,7 @@ def debugSysVars(request):
     #Help display all system vars
     for var in sysVars:
         print(sysVars[var]["name"])
-        sysVarsName.append(sysVars[var]["name"])
+        sysVarsName.append(sysVars[var]["displayName"])
         
     for o in objectType:
         objectTypeNames.append(objectType[o])
