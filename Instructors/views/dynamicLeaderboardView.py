@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_leaderboard,\
     delete_periodic_task, get_periodic_variable_results
 import Students
-from Students.models import Student, PeriodicallyUpdatedleaderboards
+from Students.models import Student, PeriodicallyUpdatedleaderboards,StudentRegisteredCourses
 
 
 
@@ -53,6 +53,8 @@ def dynamicLeaderboardView(request):
             timePeriodUpdateInterval = []
             displayOnHomePage = []
             isContinous = []
+            howFarBack = []
+            
             print("leaderboardsConfigs", leaderboardsConfigs)
             leaderboardCount = leaderboardsConfigs.count()
             
@@ -65,13 +67,13 @@ def dynamicLeaderboardView(request):
                 numStudentsDisplayed.append(leaderboard.numStudentsDisplayed)
                 periodicVariable.append(leaderboard.periodicVariable)
                 timePeriodUpdateInterval.append(leaderboard.timePeriodUpdateInterval)
-                
+                howFarBack.append(leaderboard.howFarBack)
                 
                 displayOnHomePage.append(leaderboard.leaderboardDisplayPage)
                 if leaderboard.isContinous:
-                    isContinous.append('checked')
+                    isContinous.append(True)
                 else:
-                    isContinous.append('false')
+                    isContinous.append(False)
             
             #obtain the checkboxes for the homePageDisplayed    
             homePageCheckboxes = []
@@ -82,7 +84,7 @@ def dynamicLeaderboardView(request):
                     homePageCheckboxes.append('false')
             
             context_dict['num_tables'] = leaderboardCount    
-            context_dict['leaderboard'] = zip(range(2,leaderboardCount+1),leaderboardID ,isContinous , homePageCheckboxes,leaderboardName,leaderboardDescription, timePeriodUpdateInterval, periodicVariable, numStudentsDisplayed )   
+            context_dict['leaderboard'] = zip(range(2,leaderboardCount+1),leaderboardID ,isContinous, howFarBack,homePageCheckboxes,leaderboardName,leaderboardDescription, timePeriodUpdateInterval, periodicVariable, numStudentsDisplayed )   
 
         ccparams = context_dict['ccparams']
         
@@ -120,6 +122,7 @@ def dynamicLeaderboardView(request):
         leaderboardDescription= request.POST.getlist('leaderboardDescription[]')
         timePeriodSelected= request.POST.getlist('timePeriodSelected[]')
         leaderboardName= request.POST.getlist('leaderboardName[]')
+        howFarBackTimePeriodSelected = request.POST.getlist('howFarBackTimePeriodSelected_[]')
         
         print(deleteLeaderboards)
         print(home)
@@ -128,6 +131,7 @@ def dynamicLeaderboardView(request):
         print(leaderboardDescription)
         print(timePeriodSelected)
         print(leaderboardName)
+        print(howFarBackTimePeriodSelected)
         
         leaderboardObjects = []
         index = 0
@@ -137,10 +141,12 @@ def dynamicLeaderboardView(request):
             if id != 'none':    
                 leaderboard = LeaderboardsConfig.objects.get(leaderboardID=int(id))
                 
+                didStudentsShownChange = (leaderboard.numStudentsDisplayed == int(studentsShown[index]))
+                didLeaderboardChange = (leaderboard.timePeriodUpdateInterval == int(timePeriodSelected[index]))
+                didPeriodicVariableChange = (leaderboard.periodicVariable == int(periodicVariableSelected[index]))
+                
                 #if they are all the same as the ones in the current leaderboard, dont make a new task
-                if (leaderboard.numStudentsDisplayed == int(studentsShown[index]) and
-                leaderboard.timePeriodUpdateInterval == int(timePeriodSelected[index]) 
-                and leaderboard.periodicVariable == int(periodicVariableSelected[index])):
+                if (didStudentsShownChange and didLeaderboardChange and didPeriodicVariableChange):
                     resetPeriodicTask = False
             else:
                 leaderboard = LeaderboardsConfig()
@@ -153,10 +159,13 @@ def dynamicLeaderboardView(request):
             leaderboard.numStudentsDisplayed = int(studentsShown[index])
             leaderboard.periodicVariable = int(periodicVariableSelected[index])
             leaderboard.leaderboardDisplayPage = str2bool(home[index])
+            
             if timePeriodSelected[index] == '0':
                 leaderboard.isContinous = True
+                leaderboard.howFarBack = howFarBackTimePeriodSelected[index]
             else:
                 leaderboard.timePeriodUpdateInterval = int(timePeriodSelected[index])
+                
             leaderboard.save()
             
             #if we must append because there was a change NOT in name or description
@@ -209,6 +218,8 @@ def createXPLeaderboard(currentCourse):
     xpLeaderboard.isXpLeaderboard = True
     xpLeaderboard.numStudentsDisplayed = 0
     xpLeaderboard.leaderboardDisplayPage = True
+    xpLeaderboard.howFarBack = 1500
+    xpLeaderboard.periodicVariable = 1403
     xpLeaderboard.save()
 def getContinousLeaderboardData(periodicVariable, timePeriodBack, courseID):
     ''' This function will get any periodic variable results without the use of celery.
@@ -217,36 +228,40 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, courseID):
         
         Returns list of tuples: [(student, value), (student, value),...]
     '''
-    return get_periodic_variable_results(periodicVariable, timePeriodBack, courseID)
-def generateLeaderboards(currentCourse):
+    return get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
+def generateLeaderboards(currentCourse, displayHomePage, context_dict):
     
-    leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse)
+    if displayHomePage:
+        leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, leaderboardDisplayPage=True)
+    else:
+        leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, leaderboardDisplayPage=False)
     leaderboardNames = []
     leaderboardDescriptions = []
     leaderboardRankings = []
     for leaderboard in leaderboardsConfigs:
         points = []
-        studentUsers = []
+        studentFirstNameLastName = []
         avatarImages = []
         
         leaderboardNames.append(leaderboard.leaderboardName)
         leaderboardDescriptions.append(leaderboard.leaderboardDescription)
         if leaderboard.isContinous:
-            results = getContinousLeaderboardData(leaderboard.periodicVariable, leaderboard.timePeriodUpdateInterval, currentCourse)
+            results = getContinousLeaderboardData(leaderboard.periodicVariable, leaderboard.howFarBack, currentCourse)
             for result in results:#result[0] is student object, result[1] is points
-                points.append(result[1].avatarImage)
-                studentUsers.append(result[0].user.first_name +" " + result[0].user.last_name)
-                avatarImages.append(result[0].avatarImage)
+                points.append(result[1])
+                studentFirstNameLastName.append(result[0].user.first_name +" " + result[0].user.last_name)
+                studentRegisteredCourses = StudentRegisteredCourses.objects.get(studentID=result[0],courseID=currentCourse)
+                avatarImages.append(studentRegisteredCourses.avatarImage)
         else:#if its not continuous we must get the data from the database
             leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=leaderboard).order_by('studentPosition')
             for leaderboardRecord in leaderboardRecords:
                 points.append(leaderboardRecord.studentPoints)
-                studentUsers.append(leaderboardRecord.studentID.user.first_name +" " + leaderboardRecord.studentID.user.last_name)
+                studentFirstNameLastName.append(leaderboardRecord.studentID.user.first_name +" " + leaderboardRecord.studentID.user.last_name)
                 avatarImages.append(leaderboardRecord.studentID.user.avatarImage)
                   
-        leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentUsers))
+        leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
         
-    context_dict['user_range'] = zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)  
+    return zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)  
 def createTimePeriodContext(context_dict):
     context_dict['periodicVariables'] = [variable for _, variable in PeriodicVariables.periodicVariables.items()]
     timePeriods = [timePeriod for _, timePeriod in TimePeriods.timePeriods.items()]   

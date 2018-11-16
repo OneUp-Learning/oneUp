@@ -130,8 +130,9 @@ def courseLeaderboard(currentCourse, context_dict):
         if currentCourse:
             ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
                 
-            
-            context_dict = generateLeaderboards(currentCourse)                
+            #user range here is comprised of zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)
+            #leaderboard rankings is also a zip #GGM
+            context_dict['leaderboard_range'] = generateLeaderboards(currentCourse, True, context_dict)                
                        
         else:
             context_dict['course_Name'] = 'Not Selected'
