@@ -39,7 +39,7 @@ def dynamicLeaderboardView(request):
                 context_dict["numStudentsDisplayed"]= xpLeaderboard.numStudentsDisplayed
                 context_dict['timePeriodUpdateInterval'] = xpLeaderboard.timePeriodUpdateInterval
                 context_dict['periodicVariable'] = xpLeaderboard.periodicVariable
-                context_dict['leaderboardDisplayPage'] = xpLeaderboard.leaderboardDisplayPage
+                context_dict['displayOnCourseHomePage'] = xpLeaderboard.displayOnCourseHomePage
             else:#something horrific happened to our xpLeaderboard so we must recreate it
                 createXPLeaderboard(currentCourse)
                 
@@ -69,7 +69,7 @@ def dynamicLeaderboardView(request):
                 timePeriodUpdateInterval.append(leaderboard.timePeriodUpdateInterval)
                 howFarBack.append(leaderboard.howFarBack)
                 
-                displayOnHomePage.append(leaderboard.leaderboardDisplayPage)
+                displayOnHomePage.append(leaderboard.displayOnCourseHomePage)
                 if leaderboard.isContinous:
                     isContinous.append(True)
                 else:
@@ -108,7 +108,7 @@ def dynamicLeaderboardView(request):
             leaderboard.leaderboardDescription = request.POST['leaderboardDescription']
             leaderboard.numStudentsDisplayed = int(request.POST['studentsShown'])
             leaderboard.isXpLeaderboard = True
-            leaderboard.leaderboardDisplayPage = True
+            leaderboard.displayOnCourseHomePage = True
             leaderboard.courseID = currentCourse
             print("xp board", leaderboard)
             leaderboard.save()
@@ -158,7 +158,7 @@ def dynamicLeaderboardView(request):
             leaderboard.leaderboardDescription = leaderboardDescription[index]
             leaderboard.numStudentsDisplayed = int(studentsShown[index])
             leaderboard.periodicVariable = int(periodicVariableSelected[index])
-            leaderboard.leaderboardDisplayPage = str2bool(home[index])
+            leaderboard.displayOnCourseHomePage = str2bool(home[index])
             
             if timePeriodSelected[index] == '0':
                 leaderboard.isContinous = True
@@ -217,24 +217,27 @@ def createXPLeaderboard(currentCourse):
     xpLeaderboard.isContinous = True
     xpLeaderboard.isXpLeaderboard = True
     xpLeaderboard.numStudentsDisplayed = 0
-    xpLeaderboard.leaderboardDisplayPage = True
+    xpLeaderboard.displayOnCourseHomePage = True
     xpLeaderboard.howFarBack = 1500
     xpLeaderboard.periodicVariable = 1403
     xpLeaderboard.save()
-def getContinousLeaderboardData(periodicVariable, timePeriodBack, courseID):
+def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDisplayedNum, courseID):
     ''' This function will get any periodic variable results without the use of celery.
         The timeperiod is used for how many days/minutes to go back from now.
         Ex. Time Period: Weekly - Return results within 7 days ago
         
-        Returns list of tuples: [(student, value), (student, value),...]
-    '''
-    return get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
+        Returns list of tuples: [(student, value), (student, value),...]'''
+    results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
+    results.sort(key=lambda tup: tup[1], reverse=True)
+    results = results[:studentsDisplayedNum]
+    results = [(name, score) for name, score in results if score != 0.0 or score != 0]
+    return results
 def generateLeaderboards(currentCourse, displayHomePage, context_dict):
     
     if displayHomePage:
-        leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, leaderboardDisplayPage=True)
+        leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=True)
     else:
-        leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, leaderboardDisplayPage=False)
+        leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=False)
     leaderboardNames = []
     leaderboardDescriptions = []
     leaderboardRankings = []
@@ -246,7 +249,7 @@ def generateLeaderboards(currentCourse, displayHomePage, context_dict):
         leaderboardNames.append(leaderboard.leaderboardName)
         leaderboardDescriptions.append(leaderboard.leaderboardDescription)
         if leaderboard.isContinous:
-            results = getContinousLeaderboardData(leaderboard.periodicVariable, leaderboard.howFarBack, currentCourse)
+            results = getContinousLeaderboardData(leaderboard.periodicVariable, leaderboard.howFarBack, leaderboard.numStudentsDisplayed, currentCourse)
             for result in results:#result[0] is student object, result[1] is points
                 points.append(result[1])
                 studentFirstNameLastName.append(result[0].user.first_name +" " + result[0].user.last_name)

@@ -77,7 +77,7 @@
                     <tbody>
                         {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
                         <tr>
-                            <td><img class="tooltipped" data-position="top" data-delay="50" data-tooltip="{{studentFirstNameLastName}}" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td><img class="tooltipped" data-position="top" data-delay="50" data-tooltip="{{studentUsers}}" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
                             <td>{{points}}</td>
                         </tr>
                         {% empty %}
@@ -90,8 +90,6 @@
                   {% endfor %}
                   </div>
                 </div>
-            
-            <!-- old -->
             <div class="row">
                 {% if classSkillsDisplayed and gamificationUsed %}                
                 <div class="col s12 m6">

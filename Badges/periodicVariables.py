@@ -1,5 +1,7 @@
 from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTasks
 from Badges.tasks import app
+from django.utils import timezone
+from datetime import timedelta
 import json
 import random
 import logging
@@ -638,9 +640,6 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
     return (studentId,xp)
 
 class TimePeriods:
-    from django.utils import timezone
-    from datetime import timedelta
-
     ''' TimePeriods enum starting at 1500.'''
     daily = 1500 # Runs every day at midnight
     weekly = 1501 # Runs every Sunday at midnight
@@ -654,7 +653,7 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='*', hour='*', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2))
+            'datetime': lambda: timezone.now() - timedelta(minutes=2)
         },
         daily:{
             'index': daily,
@@ -663,14 +662,14 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='0', hour='0', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=1))
+            'datetime': lambda: timezone.now() - timedelta(days=1)
         },
         weekly:{
             'index': weekly,
             'name': 'weekly',
             'displayName': 'Weekly on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=7))
+            'datetime': lambda: timezone.now() - timedelta(days=7)
         },
         beginning_of_time:{
             'index': beginning_of_time,

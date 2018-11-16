@@ -6,8 +6,8 @@ from django.shortcuts import render
 from Instructors.models import Courses
 from Students.models import StudentConfigParams,Student,StudentRegisteredCourses, StudentBadges
 from Instructors.views.announcementListView import createContextForAnnouncementList
-from Instructors.views.instructorCourseHomeView import courseLeaderboard
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
+from Instructors.views.dynamicLeaderboardView import generateLeaderboards
 
 from Badges.enums import Event
 from Badges.models import  CourseConfigParams
@@ -52,7 +52,7 @@ def StudentCourseHome(request):
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
         context_dict['avatar'] =  st_crs.avatarImage    
                       
-        context_dict = courseLeaderboard(currentCourse, context_dict)
+        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True, context_dict)  
         context_dict['courseId']=currentCourse.courseID
            
         scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)   
@@ -70,7 +70,6 @@ def StudentCourseHome(request):
             
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
-        print("Xp")
         studentObkj = Student.objects.get(id=19)
            
     #Trigger Student login event here so that it can be associated with a particular Course

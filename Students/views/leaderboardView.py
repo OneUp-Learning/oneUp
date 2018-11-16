@@ -8,6 +8,7 @@ from Students.models import StudentConfigParams,Student,StudentRegisteredCourses
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.instructorCourseHomeView import courseLeaderboard
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
+from Instructors.views.dynamicLeaderboardView import generateLeaderboards
 from Students.views.avatarView import checkIfAvatarExist
 
 from Badges.enums import Event
@@ -44,7 +45,7 @@ def LeaderboardView(request):
    
         context_dict['is_test_student'] = sID.isTestStudent
                       
-        context_dict = courseLeaderboard(currentCourse, context_dict)
+        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, False, context_dict)  
         
         
            
@@ -60,6 +61,8 @@ def LeaderboardView(request):
         context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
         print("class skills")
         context_dict["displayClassSkills"]= studentConfigParams.displayClassSkills
+        
+        
            
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.visitedLeaderboardPage, request, sID, None)
