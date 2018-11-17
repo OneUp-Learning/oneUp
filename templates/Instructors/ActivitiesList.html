@@ -34,20 +34,30 @@
         </form>
         <br />
       </div>
-      <div class="right-align col s12 m10 offset-m1">
-          <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity"><i class="material-icons left">toys</i>Add
-            New Activity</a>
-      </div>
+      
     </div>
+    <form name="activityOrder" action="/oneUp/instructors/reorderActivities" method="POST">
+    <div class="row right-align">
+				<div class="col s12 m10 offset-m1">
+          <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity"><i class="material-icons left">toys</i>Add
+            New Activity</a> 
+            <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Activities
+						<i class="material-icons right">reorder</i>
+			</button>
+   	</div>
+   	</div>
     
+    	{% csrf_token %}
+    	<input type="hidden" name="courseID" value="{{courseID}}" id="courseID">
+			
     <div class="row">
             <div class="col s12 m10 offset-m1">
                <div class="card-panel">
                   
                   <ul class="collapsible" data-collapsible="expandable">
-                     {% for category, category_name in categories_range %}
+                     {% for activities, categoryName in categories_range %}
                      <li>
-                        <div class="collapsible-header"><i class="material-icons">layers</i>{{category_name}}&nbsp;&nbsp;
+                        <div class="collapsible-header"><i class="material-icons">layers</i>{{categoryName}}&nbsp;&nbsp;
                         
                         </div>
                         <div class="collapsible-body">
@@ -55,11 +65,19 @@
                            <table class="responsive-table" style="width:100%">
                            
                            <tbody>
-			              {% for i, activity_ID,activity_Name,description, points in category %}
+			              {% for i, activity_ID, activityName, description, points, activityPosition in activities %}
 			              <tr>
-			                <td>{{activity_Name}}</td>
+			                <td>{{activityName}}</td>
 			                <td>{{description}}</td>
 			                <td>{{points}} Points</td>
+			                <td>
+								<div class="input-field col s12">
+									<input placeholder="Position" value="{{activityPosition}}" name="activityPosition[]" id="activity_position" maxlength="4"
+									type="number" class="validate" min="0" required>
+									<input type="hidden" value="{{activity_ID}}" name="activityID[]" id="activity_position" maxlength="4"
+									type="number" class="validate" min="0" required>
+								</div>
+							</td>
 			                <td >
 			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 			                    data-beloworigin="true" data-activates='activity{{i}}' data-position="right" data-delay="50"
@@ -115,6 +133,7 @@
             
          </div>
          </div>
+         </form>
   </main>
   {% include 'footer.html' %}
 </body>
