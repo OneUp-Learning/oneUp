@@ -70,7 +70,7 @@
 												</div>
 												<div class="modal-footer">
 													<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-													<button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
+													<button class="modal-action modal-close waves-effect waves-light btn-flat" type="button" name="submit"
 													 value="Delete" onclick="deleteRule('{{vcRuleID}}', '{{isRuleCustom}}')">Delete
 													</button>
 												</div>
@@ -134,6 +134,7 @@
 			},
 			success: function () {
 				console.log("Deleted");
+				location.reload();
 			}
 		});
 	}
