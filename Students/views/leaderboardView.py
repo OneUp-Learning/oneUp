@@ -8,13 +8,14 @@ from Students.models import StudentConfigParams,Student,StudentRegisteredCourses
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.instructorCourseHomeView import courseLeaderboard
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
-from Instructors.views.dynamicLeaderboardView import generateLeaderboards
+from Instructors.views.dynamicLeaderboardView import generateLeaderboards, generateSkillTable
 from Students.views.avatarView import checkIfAvatarExist
 
 from Badges.enums import Event
 from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
+from Instructors.models import CoursesSkills, Skills
 
 
 @login_required
@@ -45,10 +46,11 @@ def LeaderboardView(request):
    
         context_dict['is_test_student'] = sID.isTestStudent
                       
-        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, False, context_dict)  
+        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, False)  
         
-        
-           
+        generateSkillTable(currentCourse, context_dict)
+               
+                  
         scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)    
         context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
         context_dict["displayBadges"]=scparams.displayBadges
@@ -59,9 +61,7 @@ def LeaderboardView(request):
         ##GGM determine if student has leaderboard enabled
         studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
         context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
-        print("class skills")
-        context_dict["displayClassSkills"]= studentConfigParams.displayClassSkills
-        
+        context_dict["classSkillsDisplayed"]= studentConfigParams.displayClassSkills
         
            
     #Trigger Student login event here so that it can be associated with a particular Course

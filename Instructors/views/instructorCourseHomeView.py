@@ -10,7 +10,7 @@ from Badges.models import CourseConfigParams
 from Students.models import StudentBadges,StudentChallenges, StudentCourseSkills, StudentRegisteredCourses,StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
-from Instructors.views.dynamicLeaderboardView import generateLeaderboards
+from Instructors.views.dynamicLeaderboardView import generateLeaderboards, generateSkillTable
 from Instructors.views.utils import initialContextDict
 from Students.views.avatarView import checkIfAvatarExist
 
@@ -178,39 +178,11 @@ def courseLeaderboard(currentCourse, context_dict):
             print("cparams")
             print(ccparams.numBadgesDisplayed+1)                    
             context_dict['badgesInfo'] = zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID, badgeName, badgeImage,avatarImage, studentUser)
-    
-            # Skill Ranking          
-            context_dict['skills'] = []
-            cskills = CoursesSkills.objects.filter(courseID=currentCourse)
-            for sk in cskills:
-                skill = Skills.objects.get(skillID=sk.skillID.skillID)
-    
-                usersInfo=[] 
-                                                 
-                for u in students:
-                    skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
-                    skillPoints =0 
-                                                         
-                    for sRecord in skillRecords:
-                        skillPoints += sRecord.skillPoints
-
-                    if skillPoints > 0:
-                        st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
-                        uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
-                        logger.debug('[GET] ' + str(uSkillInfo))
-                        usersInfo.append(uSkillInfo)
-                        
-                usersInfo = sorted(usersInfo, key=lambda k: k['skillPoints'], reverse=True)
-                         
-                if len(usersInfo) != 0:
-                    skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentBestSkillsDisplayed]} 
-                    context_dict['skills'].append(skillInfo)
-
-            print("ccparamsList", ccparamsList)
                 
             #user range here is comprised of zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)
             #leaderboard rankings is also a zip #GGM
-            context_dict['leaderboard_range'] = generateLeaderboards(currentCourse, True, context_dict)                
+            context_dict['leaderboard_range'] = generateLeaderboards(currentCourse, True)   
+            generateSkillTable(currentCourse, context_dict)            
                        
         else:
             context_dict['course_Name'] = 'Not Selected'

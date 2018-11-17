@@ -52,7 +52,7 @@ def StudentCourseHome(request):
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
         context_dict['avatar'] =  st_crs.avatarImage    
                       
-        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True, context_dict)  
+        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True)  
         context_dict['courseId']=currentCourse.courseID
            
         scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)   

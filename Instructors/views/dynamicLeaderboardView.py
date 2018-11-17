@@ -6,15 +6,18 @@ Created on Sep 10, 2018
 from django.shortcuts import render
 from Instructors.models import Courses
 from Badges.models import LeaderboardsConfig
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, CoursesSkills, Skills
 from django.shortcuts import redirect
 from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required
 from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_leaderboard,\
     delete_periodic_task, get_periodic_variable_results
 import Students
-from Students.models import Student, PeriodicallyUpdatedleaderboards,StudentRegisteredCourses
+from Students.models import Student, PeriodicallyUpdatedleaderboards,StudentRegisteredCourses,StudentCourseSkills
 
+import inspect
+import logging
+logger = logging.getLogger(__name__)
 
 
 
@@ -232,7 +235,46 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDispla
     results = results[:studentsDisplayedNum]
     results = [(name, score) for name, score in results if score != 0.0 or score != 0]
     return results
-def generateLeaderboards(currentCourse, displayHomePage, context_dict):
+def generateSkillTable(currentCourse, context_dict):
+    ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
+    if len(ccparamsList) > 0:
+        ccparams = ccparamsList[0] 
+    st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
+    if st_crs:
+        if currentCourse: 
+           students = []                                         
+           for st_c in st_crs:
+               students.append(st_c.studentID)     # all students in the course 
+               
+               
+    # Skill Ranking          
+        context_dict['skills'] = []
+        cskills = CoursesSkills.objects.filter(courseID=currentCourse)
+        for sk in cskills:
+            skill = Skills.objects.get(skillID=sk.skillID.skillID)
+
+            usersInfo=[] 
+                                             
+        for u in students:
+            skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
+            skillPoints =0 
+                                                 
+            for sRecord in skillRecords:
+                skillPoints += sRecord.skillPoints
+
+            if skillPoints > 0:
+                st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
+                uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
+                logger.debug('[GET] ' + str(uSkillInfo))
+                usersInfo.append(uSkillInfo)
+                
+        usersInfo = sorted(usersInfo, key=lambda k: k['skillPoints'], reverse=True)
+                 
+        if len(usersInfo) != 0:
+            skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentBestSkillsDisplayed]} 
+            context_dict['skills'].append(skillInfo) 
+        
+def generateLeaderboards(currentCourse, displayHomePage):
     
     if displayHomePage:
         leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=True)
