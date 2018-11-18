@@ -11,7 +11,7 @@
       
         /* If there are only two answers, we've hidden the remove button
            now we're adding a new answer, so we show it again. */
-        if(numLeaderTables == 2) {
+        if(numLeaderTables >= 1) {
           document.getElementById('removeLeaderboard').classList.remove('disabled');
         }
       
@@ -61,15 +61,15 @@
                     "<div class = 'row'>\n"+
                        "<div  id='timePeriod_"+id+"' class='col s3'>\n"+
                           "<label for='timePeriodSelected_"+id+"'>Leaderboard Update:</label>\n"+
-                          "<select id='timePeriodSelected_"+id+"' onchange='checkIfContinousSelected(timePeriodSelected_"+id+", timePeriod_"+id+")' name='timePeriodSelected[]'>\n"+
+                          "<select id='timePeriodSelected_"+id+"' onchange='checkIfContinousSelected(timePeriodSelected_"+id+", timePeriod_"+id+", "+id+")' name='timePeriodSelected[]'>\n"+
                           {% for timePeriod in timePeriods %}
                           "<option value='{{timePeriod.index}}' {% if timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>\n"+
                           {% endfor %}
                           "</select>\n"+
                           "</div>\n"+
-                          "<div id='continuousTimePeriodSelectedDiv_"+numLeaderTables+"' class='col s3'>\n"+
-                          "<label for='continuousTimePeriodSelected_"+numLeaderTables+"'>How Far Back Time Period for Continous:</label>\n"+
-                          "<select id='continuousTimePeriodSelected_"+numLeaderTables+"' name='howFarBackTimePeriodSelected_[]'>\n"+
+                          "<div id='continuousTimePeriodSelectedDiv_"+id+"' class='col s3'>\n"+
+                          "<label for='continuousTimePeriodSelected_"+id+"'>How Far Back Time Period for Continous:</label>\n"+
+                          "<select id='continuousTimePeriodSelected_"+id+"' name='howFarBackTimePeriodSelected_[]'>\n"+
                           "<option value='1500' >Day</option>\n"+
                           "<option value='1501' >Week</option>\n"+
                           "<option value='1502' >Once</option>\n"+
@@ -114,7 +114,7 @@
       
         /* If we're down to just two answers, hide the button which
            removes answers */
-        if (numLeaderTables == 2) {
+        if (numLeaderTables <= {{num_tables}}) {
           document.getElementById('removeLeaderboard').classList.add('disabled');
         }
         console.log(numLeaderTables);
@@ -144,19 +144,19 @@
              }
      }
      
-     function makeSureTheresOnlyOneTimeBackSelector(selectedItem,whereIsSelect){
- 		var continousTimePeriodSelect = "<div id='continuousTimePeriodSelectedDiv_"+numLeaderTables+"' class='col s3'>\n"+
-         "<label for='continuousTimePeriodSelected_"+numLeaderTables+"'>How Far Back Time Period for Continous:</label>\n"+
-         "<select id='continuousTimePeriodSelected_"+numLeaderTables+"' name='continuousTimePeriodSelected_[]'>\n"+
+     function makeSureTheresOnlyOneTimeBackSelector(selectedItem,whereIsSelect, currentID){
+ 		var continousTimePeriodSelect = "<div id='continuousTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
+         "<label for='continuousTimePeriodSelected_"+currentID+"'>How Far Back Time Period for Continous:</label>\n"+
+         "<select id='continuousTimePeriodSelected_"+currentID+"' name='continuousTimePeriodSelected_[]'>\n"+
          "<option value='1500' >Day</option>\n"+
          "<option value='1501' >Week</option>\n"+
          "<option value='1502' >Once</option>\n"+
          "</select>\n"+
          "</div>\n";
          
-         var weeklyTimePeriodSelect = "<div id='weeklyTimePeriodSelectedDiv_"+numLeaderTables+"' class='col s3'>\n"+
-         "<label for='weeklyTimePeriodSelected_"+numLeaderTables+"'>Leaderboard Update:</label>\n"+
-         "<select id='weeklyTimePeriodSelected_"+numLeaderTables+"' name='continuousTimePeriodSelected_[]'>\n"+
+         var weeklyTimePeriodSelect = "<div id='weeklyTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
+         "<label for='weeklyTimePeriodSelected_"+currentID+"'>Leaderboard Update:</label>\n"+
+         "<select id='weeklyTimePeriodSelected_"+currentID+"' name='continuousTimePeriodSelected_[]'>\n"+
          "<option value='1501' >Weekly on Sundays at Midnight</option>\n"+
          "<option value='1502' >Only once at Midnight</option>\n"+
          "</select>\n"+
@@ -167,13 +167,13 @@
  		if(selectedItem == "continous"){
  			
  			//if weekly is present, remove it
- 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+numLeaderTables) != null){
- 				weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+numLeaderTables);
+ 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+ 				weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
        			whereIsSelect.parentElement.removeChild(weeklySelect);
  			}
  			
  			//then check if continous is not there, if it is not there add it
- 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables) == null){
+ 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) == null){
  				whereIsSelect.insertAdjacentHTML('afterEnd',continousTimePeriodSelect);
  			}
  		}
@@ -182,13 +182,13 @@
  		if(selectedItem == "weekly"){
  
  			//if continous is present, remove it
- 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables) != null ){
- 				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables);
+ 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
+ 				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
  				whereIsSelect.parentElement.removeChild(continousSelect);
  			}
  			
  			//check if weekly is not here, if it is not here add it
- 			if (document.getElementById("weeklyTimePeriodSelected_"+numLeaderTables) == null){
+ 			if (document.getElementById("weeklyTimePeriodSelected_"+currentID) == null){
  				whereIsSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
  			}
  			
@@ -196,14 +196,14 @@
  		
  		//the default case is where we have switched anything else and we must remove it
  		if(selectedItem == "default"){
- 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+numLeaderTables) != null){
- 			weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+numLeaderTables);
+ 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+ 			weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
  			console.log(weeklySelect);
  			console.log(whereIsSelect.parentElement);
  			whereIsSelect.parentElement.removeChild(weeklySelect);
  			}
- 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables) != null ){
-   			continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+numLeaderTables);
+ 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
+   			continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
    			whereIsSelect.parentElement.removeChild(continousSelect);
  			}
  		}
@@ -212,20 +212,20 @@
       }
      
      //check if continous for weekly has been selected
-     function checkIfContinousSelected(selectID, whereIsContinuousSelect){
+     function checkIfContinousSelected(selectID, whereIsContinuousSelect, currentID){
         
     	 //switch on the value of the select
         switch($(selectID).val()){
         	case "0":
         		console.log("case 0");
-        		makeSureTheresOnlyOneTimeBackSelector("continous", whereIsContinuousSelect);
+        		makeSureTheresOnlyOneTimeBackSelector("continous", whereIsContinuousSelect, currentID);
         		break;
         	case "1501":
         		console.log("case weekly");
-        		makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect);
+        		makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect, currentID);
         		break;
         	default:
-        		makeSureTheresOnlyOneTimeBackSelector("default",whereIsContinuousSelect);
+        		makeSureTheresOnlyOneTimeBackSelector("default",whereIsContinuousSelect, currentID);
         		break;
         }
      }
@@ -348,7 +348,7 @@
                            <div id="selectors_{{i}}" class = 'row'>
                               <div  id='timePeriod_{{i}}'class='col s3'>
                                  <label for='timePeriodSelected_{{i}}'>Select Time Period:</label>
-                                 <select id='timePeriodSelected_{{i}}' onchange="checkIfContinousSelected(timePeriodSelected_{{i}}, timePeriod_{{i}})" name='timePeriodSelected[]'>
+                                 <select id='timePeriodSelected_{{i}}' onchange="checkIfContinousSelected(timePeriodSelected_{{i}}, timePeriod_{{i}}, {{i}})" name='timePeriodSelected[]'>
                                  {% for timePeriod in timePeriods %}
                                  <option value='{{timePeriod.index}}' {% if timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>
                                  {% endfor %}
@@ -356,7 +356,7 @@
                               </div>
                               {% if isContinous %}
 								<div id='continuousTimePeriodSelectedDiv_{{i}}' class='col s3'>
-									<label for='continuousTimePeriodSelected__{{i}}'>How Far Back Time Period for Continous:</label> 
+									<label for='continuousTimePeriodSelected_{{i}}'>How Far Back Time Period for Continous:</label> 
 									<select	id='continuousTimePeriodSelected_{{i}}' value='{{continousHowFarBack}}'name='howFarBackTimePeriodSelected_[]'>
 										<option id='1500_{{i}}' value='1500'>Day</option>
 										<option id='1501_{{i}}'value='1501'>Week</option>
@@ -403,9 +403,9 @@
             </div>
          </form>
          <script>
-            if (numLeaderTables == 1) {
-                document.getElementById('removeLeaderboard').classList.add('disabled');
-              }
+         if (numLeaderTables == {{num_tables}}) {
+             document.getElementById('removeLeaderboard').classList.add('disabled');
+           }
          </script> 
       </main>
       {% include 'footer.html' %}
