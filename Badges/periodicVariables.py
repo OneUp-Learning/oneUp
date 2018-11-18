@@ -322,6 +322,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
     from Students.models import StudentVirtualCurrency
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
 
+    print("result only", result_only)
     # Get the last time this periodic variable has ran if not getting results only (leaderboards)
     if not result_only:
         last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
@@ -370,12 +371,13 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
             Warm-up Challenge B: practice 2 times
             Total practiced: 12 times
     '''
-
+    
     print("Calculating Student Practice") 
     from Instructors.models import Challenges
     from Students.models import StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
 
+    last_ran = None
     # Get the last time this periodic variable has ran
     if not result_only:
         last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
@@ -437,8 +439,7 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     from Students.models import StudentChallenges
     from decimal import Decimal
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
-
-
+    last_ran = None
     # Get the last time this periodic variable has ran
     if not result_only:
         last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
@@ -529,14 +530,6 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
     else:
         schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
         return schedule
-    
-def last_ran_leaderboard(unique_id, periodic_variable, award_type, course):
-    from Badges.models import LeaderboardsConfig
-    # If this is first time running, set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous challenges from beginning of time
-    last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID) 
-    if not last_ran:
-            periodic_badge =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
-            last_ran = periodic_badge.lastModified
                 
 def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivity=False):
     
