@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-navbutton-color" content="#3f51b5">
+    <meta name="theme-color" content="#3f51b5">
+
+    <link rel="stylesheet" href="/static/chat/theme/react-md.indigo-cyan.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>OneUp Chat</title>
+</head>
+
+<body style="margin: 0;">
+    <script src="https://unpkg.com/react-md@1.9.0/dist/react-md.min.js"></script>
+    <div id="app"><!-- React --></div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
+<script src="/static/chat/frontend/chat-app.js"></script>
+<script>
+    if('serviceWorker' in navigator && 'PushManager' in window) {
+        navigator.serviceWorker
+            .register("{% url "service-worker.js" %}", {scope: '/'})
+            .then(function() { console.log("Service Worker Registered"); });
+        
+        Notification.requestPermission(function(status) {
+            console.log('Notification permission status:', status);
+        });
+    }
+</script>
+</html>

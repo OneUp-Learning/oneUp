@@ -72,9 +72,12 @@ INSTALLED_APPS = (
     'Students',
     'Badges',
     'Administrators',
+    'Chat',
     'notify',
     'easy_timezones',
-    'django_celery_beat'
+    'django_celery_beat',
+    'rest_framework',
+    'channels'
 )
 
 MIDDLEWARE = [
@@ -127,6 +130,7 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATIC_URL = '/OneUp/' # You may find this is already defined as such.
 
 STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, '/static/'),
 )
 
 # Internationalization
@@ -183,3 +187,24 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_ENABLED = False
 
 CURRENTLY_MIGRATING = False
+
+# Websockets (Django Channels)
+ASGI_APPLICATION = 'oneUp.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)], # This should be actual redis url for production
+        },
+    },
+}
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}

@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.views import login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.generic import TemplateView
 import django.views.static
 
 admin.autodiscover()
@@ -19,6 +20,7 @@ else:
         # url(r'^blog/', include('blog.urls')),
 
         path('admin/', admin.site.urls),
+        path('oneUp/chat/', include('Chat.urls')),
         url(r'^oneUp/instructors/', include('Instructors.urls')),
         url(r'^oneUp/students/', include('Students.urls')),
         url(r'^oneUp/badges/', include('Badges.urls')),
@@ -26,6 +28,10 @@ else:
         url(r'^oneUp/',include('Administrators.urls')),
         url(r'^login$', login, {'template_name':'home.html'}),
         url(r'^notifications/', include('notify.urls', 'notifications')),
+
+         path('service-worker.js',(TemplateView.as_view(
+            template_name="service-worker.js",
+            content_type='application/javascript')), name='service-worker.js'),
     ]
 
 
