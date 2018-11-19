@@ -68,11 +68,11 @@
                           "</select>\n"+
                           "</div>\n"+
                           "<div id='continuousTimePeriodSelectedDiv_"+id+"' class='col s3'>\n"+
-                          "<label for='continuousTimePeriodSelected_"+id+"'>How Far Back Time Period for Continous:</label>\n"+
+                          "<label for='continuousTimePeriodSelected_"+id+"'>Time Period Back:</label>\n"+
                           "<select id='continuousTimePeriodSelected_"+id+"' name='howFarBackTimePeriodSelected_[]'>\n"+
                           "<option value='1500' >Day</option>\n"+
                           "<option value='1501' >Week</option>\n"+
-                          "<option value='1502' >Once</option>\n"+
+                          "<option value='1502' >From Start of Semester</option>\n"+
                           "</select>\n"+
                           "</div>\n"+
                           "<div class='col s6'>\n"+
@@ -146,11 +146,11 @@
      
      function makeSureTheresOnlyOneTimeBackSelector(selectedItem,whereIsSelect, currentID){
  		var continousTimePeriodSelect = "<div id='continuousTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
-         "<label for='continuousTimePeriodSelected_"+currentID+"'>How Far Back Time Period for Continous:</label>\n"+
+         "<label for='continuousTimePeriodSelected_"+currentID+"'>Time Period Back:</label>\n"+
          "<select id='continuousTimePeriodSelected_"+currentID+"' name='continuousTimePeriodSelected_[]'>\n"+
          "<option value='1500' >Day</option>\n"+
          "<option value='1501' >Week</option>\n"+
-         "<option value='1502' >Once</option>\n"+
+         "<option value='1502' >From Start of Semester</option>\n"+
          "</select>\n"+
          "</div>\n";
          
@@ -356,11 +356,11 @@
                               </div>
                               {% if isContinous %}
 								<div id='continuousTimePeriodSelectedDiv_{{i}}' class='col s3'>
-									<label for='continuousTimePeriodSelected_{{i}}'>How Far Back Time Period for Continous:</label> 
+									<label for='continuousTimePeriodSelected_{{i}}'>Time Period Back:</label> 
 									<select	id='continuousTimePeriodSelected_{{i}}' value='{{continousHowFarBack}}'name='howFarBackTimePeriodSelected_[]'>
 										<option id='1500_{{i}}' value='1500'>Day</option>
 										<option id='1501_{{i}}'value='1501'>Week</option>
-										<option id='1502_{{i}}'value='1502'>Once</option>
+										<option id='1502_{{i}}'value='1502'>From Start of Semester</option>
 									</select>
 								</div>
 								<script  type="text/javascript"> 

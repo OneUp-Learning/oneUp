@@ -168,6 +168,9 @@ def dynamicLeaderboardView(request):
                 leaderboard.howFarBack = howFarBackTimePeriodSelected[index]
             else:
                 leaderboard.timePeriodUpdateInterval = int(timePeriodSelected[index])
+                leaderboard.isContinous = False
+                #setting this back to 0000 for the default since its no longer continuous
+                leaderboard.howFarBack = 0000 
                 
             leaderboard.save()
             
@@ -313,8 +316,8 @@ def createTimePeriodContext(context_dict):
     timePeriods = [timePeriod for _, timePeriod in TimePeriods.timePeriods.items()]   
     timePeriods.append({
             'index': 0000,
-            'name': 'Continous',
-            'displayName': 'Continous',
+            'name': 'Continuous',
+            'displayName': 'Continuous',
             'schedule': lambda: None,
             'datetime': lambda: None
         })
