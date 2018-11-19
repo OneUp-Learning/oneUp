@@ -58,7 +58,7 @@ def activityCreateView(request):
             activity.isFileAllowed = False
             
         #Set the number of attempts
-        if (request.POST['attempts']==""):
+        if (request.POST['attempts']==''):
             activity.uploadAttempts = 9999
         else: 
             activity.uploadAttempts = request.POST['attempts']
@@ -129,8 +129,11 @@ def activityCreateView(request):
                 context_dict['currentCat'] = activity.category
                 context_dict['categories'] = ActivitiesCategory.objects.filter(courseID=currentCourse)
         
-                
-                context_dict['uploadAttempts']= activity.uploadAttempts
+                #ggm upload attempts infinite
+                if activity.uploadAttempts == 9999:
+                    context_dict['uploadAttempts'] = ''
+                else:
+                    context_dict['uploadAttempts']= activity.uploadAttempts
                 context_dict['isFileUpload'] = activity.isFileAllowed
                 context_dict['isGraded'] = activity.isGraded
 #                 context_dict['startTimestamp']= activity.startTimestamp
