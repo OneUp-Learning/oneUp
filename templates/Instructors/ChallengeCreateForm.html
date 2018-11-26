@@ -235,8 +235,7 @@
                               <label for="unl_time">Unlimited Time</label>
                            </div>
                         </div>
-                        <!-- GGM added password confirm for serious challenge -->
-                        {% if not warmUp %}
+                        <!-- GGM added password confirm for challenges -->
                         <div class="row">
                            <div class="input-field col s12">
                               <input name="challengePassword" id="password" type="password" value="{{challengePassword}}" class="validate" autocomplete="new-password" {%if view%}readonly{%endif%}>
@@ -247,14 +246,6 @@
                               <label for="passwordConfirm" data-error="incorrect">Confirm Password</label>
                            </div>
                         </div>
-                        {% else %}
-                        <div class="row">
-                           <div class="input-field col s12">
-                              <input name="challengePassword" id="password" type="password" value="{{challengePassword}}" class="validate" autocomplete="new-password" {%if view%}readonly{%endif%}>
-                              <label for="password" data-error="incorrect">Password</label>
-                           </div>
-                        </div>
-                        {% endif %}
                         <div class="row">
                             <div class="input-field col s12">
 
