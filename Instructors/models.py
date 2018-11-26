@@ -244,6 +244,7 @@ class Activities(models.Model):
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True )
     deadLine = models.DateTimeField(default=datetime.now, blank=True)
     category = models.ForeignKey(ActivitiesCategory,on_delete=models.CASCADE, verbose_name = "Activities Category", db_index=True, default = 1)
+    activityPosition = models.IntegerField(default = 0)
     def __str__(self):              
         return str(self.activityID)+","+self.activityName  
         
