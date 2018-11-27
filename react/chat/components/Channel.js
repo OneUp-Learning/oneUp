@@ -10,6 +10,8 @@ import Toolbar from 'react-md/lib/Toolbars/Toolbar';
 import ReactResizeDetector from 'react-resize-detector';
 
 import './socket.js';
+import '../css/spinner.css';
+
 
 class Channel extends Component {
 
@@ -25,6 +27,7 @@ class Channel extends Component {
       scrollBoxHeight: 'calc(100vh - 144px)',
       messageBoxHeight: '72px',
       prevScrollHeight: null,
+      loadedAllMessages: false,
     }
     this.scroll = React.createRef();
   }
@@ -38,76 +41,7 @@ class Channel extends Component {
     leaveCallback: PropTypes.func.isRequired
   };
 
-  onResize(width, height){
-    this.setState({scrollBoxHeight: "calc(100vh - "+(height)+"px)", messageBoxHeight: height+'px'});
-  }
-  loadMoreMessages = () => {
-    return fetch(this.props.endpoint+""+this.state.page).then(response => {
-      return response.json();
-    }).then(messages =>{
-      //console.log(messages);
-      if(Object.keys(messages).length != 0){
-      this.setState(prevState => ({
-        data: prevState.data.concat(messages),
-        page: prevState.page + 1
-      }))
-    };
-    })
-  }
-  getCurrentNotification(registration) {
-        return registration.getNotifications()
-        .then(notifications => {
-          let currentNotification = null;
-    
-          for(let i = 0; i < notifications.length; i++) {
-            if (notifications[i].data && 
-                notifications[i].tag === this.props.channel.channel_name &&
-              notifications[i].data.user !== this.props.user.username) {
-              currentNotification = notifications[i];
-              //console.log(currentNotification);
-              return currentNotification;
-            }
-          }
-    
-          return currentNotification;
-        })
-}
-
-notify(message){
-    if (Notification.permission == 'granted') {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-          if(!document.hasFocus()){
-            this.getCurrentNotification(reg).then((currentNotification) => {
-              var options = {
-                tag: this.props.channel.channel_name,
-                body: message.message.message,
-                icon: 'https://avatars.io/instagram/'+message.user.username,
-                badge: '/static/images/ic_stat_chat.png',
-                timestamp: Date.now(),
-                renotify: true,
-                actions: [
-                    {action: 'message', title: 'Reply', type:'text',
-                      },
-
-                  ],
-                data: {
-                    options: {
-                        action: 'message',
-                        close: 'true',
-                        url: document.location.toString(),
-                        user: this.props.user.username
-                    },
-                }
-              };
-        
-              let title = '#'+message.message.channel.channel_name+' ' +message.user.username;
-              return reg.showNotification(title, options);
-            });
-          }
-        });
-        
-    }
-}
+  
   componentDidMount() {
     chat_socket.onopen = function(){
       //console.log("Connected to chat socket: ");
@@ -203,13 +137,27 @@ notify(message){
         this.scrollToElement();
       });
   }
+  loadMoreMessages = () => {
+    return fetch(this.props.endpoint+""+this.state.page).then(response => {
+      return response.json();
+    }).then(messages =>{
+      if(Object.keys(messages).length != 0){
+        this.setState(prevState => ({
+          data: prevState.data.concat(messages),
+          page: prevState.page + 1
+        }));
+      } else {
+        this.setState({loadedAllMessages: true});
+      }
+    })
+  }
   scrollToElement(){
     if(this.scroll){
       this.scroll.scrollTo(0, this.scroll.scrollHeight);
     }
   }
   handleScroll(e){
-    if(e.target.scrollTop <= 0){
+    if(e.target.scrollTop <= 0 && this.state.loadedAllMessages == false){
       this.setState({prevScrollHeight: e.target.scrollHeight}, () => {
         this.loadMoreMessages().then(data => {
           this.scroll.scrollTo(0, this.scroll.scrollHeight - this.state.prevScrollHeight);
@@ -217,6 +165,63 @@ notify(message){
       });
       
     }
+  }
+  onResize(width, height){
+    this.setState({scrollBoxHeight: "calc(100vh - "+(height)+"px)", messageBoxHeight: height+'px'});
+  }
+  getCurrentNotification(registration) {
+        return registration.getNotifications()
+        .then(notifications => {
+          let currentNotification = null;
+    
+          for(let i = 0; i < notifications.length; i++) {
+            if (notifications[i].data && 
+                notifications[i].tag === this.props.channel.channel_name &&
+              notifications[i].data.user !== this.props.user.username) {
+              currentNotification = notifications[i];
+              //console.log(currentNotification);
+              return currentNotification;
+            }
+          }
+    
+          return currentNotification;
+        })
+  }
+  notify(message){
+      if (Notification.permission == 'granted') {
+        navigator.serviceWorker.getRegistration().then((reg) => {
+            if(!document.hasFocus()){
+              //console.log("Notify");
+              this.getCurrentNotification(reg).then((currentNotification) => {
+                var options = {
+                  tag: this.props.channel.channel_name,
+                  body: message.message.message,
+                  icon: 'https://avatars.io/instagram/'+message.user.username,
+                  badge: '/static/images/ic_stat_chat.png',
+                  timestamp: Date.now(),
+                  renotify: true,
+                  actions: [
+                      {action: 'message', title: 'Reply', type:'text',
+                        },
+
+                    ],
+                  data: {
+                      options: {
+                          action: 'message',
+                          close: 'true',
+                          url: document.location.toString(),
+                          user: this.props.user.username
+                      },
+                  }
+                };
+          
+                let title = message.user.username + ' • #' + message.message.channel.channel_name;
+                return reg.showNotification(title, options);
+              });
+            }
+          });
+          
+      }
   }
   render() {
     const { data, loaded, placeholder, channel, channelAccess, scrollBoxHeight, messageBoxHeight } = this.state;
@@ -254,7 +259,11 @@ notify(message){
         <ReactResizeDetector handleHeight resizableElementId={'2'} onResize={(width, height) => this.onResize(width, height)}/>
         <Toolbar id={'2'} fixed={true} style={messageBox} themed={true} title={<Form className={'md-title md-title--toolbar '+this.props.mediaClass} mediaClass={this.props.mediaClass} disable={!channelAccess} channel={channel} user={this.props.user} scrollCallback={() => this.scrollToElement()} />} />
       </div>
-      ) : ( <p>{placeholder}</p>);
+      ) : ( <div className={"loader"}>
+      <svg viewBox="0 0 32 32" width="32" height="32">
+        <circle id="spinner" cx="16" cy="16" r="14" fill="none"></circle>
+      </svg>
+    </div>);
   }
 }
 export default Channel;

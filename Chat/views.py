@@ -93,7 +93,7 @@ class ChannelView(APIView):
             if Channel.objects.filter(channel_name=data['channel_name']):
                 return Response({'success': False, 'type':'name_error', 'reason': 'Channel already exists!'})
             if len(data['channel_topic']) > 40:
-                return Response({'success': False, 'type':'topic_error', 'reason': 'Topic must be less than 41 characters!'})
+                return Response({'success': False, 'type':'topic_error', 'reason': 'Topic must be at most 40 characters!'})
             if not re.match(r'^[a-zA-Z\d\-_. ]+$', data['channel_name']):
                 return Response({'success': False, 'type':'name_error', 'reason': 'Must contain only these special characters: underscores, hyphens, and periods'})
 
@@ -107,7 +107,7 @@ class ChannelView(APIView):
             return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': new_channel.channel_url})
         elif data['type'] == 'change_topic':
             if len(data['channel_topic']) > 40:
-                return Response({'success': False, 'type':'topic_error', 'reason': 'Topic must be less than 41 characters!'})
+                return Response({'success': False, 'type':'topic_error', 'reason': 'Topic must be at most 40 characters!'})
 
             channel = Channel.objects.get(channel_name=data['channel_name'])
             if channel.topic == data['channel_topic']:
@@ -128,9 +128,9 @@ class MessageView(APIView):
         Return a list of all messages.
         """
         channel, created = Channel.objects.get_or_create(channel_url=channel_url)
-        # We want to show the last 50 messages, ordered most-recent-last
+        # We want to show the last 25 messages, ordered most-recent-last
         messages = Message.objects.filter(channel=channel).order_by('-timestamp')
-        paginator = Paginator(messages, 10)
+        paginator = Paginator(messages, 25)
         page = int(request.GET.get('page', 1))
 
         if page >= paginator.num_pages+1:

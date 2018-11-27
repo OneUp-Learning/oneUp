@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "webpack --config dev.config.js --progress --colors --mode development",
     "watch": "webpack --config dev.config.js --watch --mode development",
-    "build": "webpack --mode production ./chat/chat-app.js --output ../static/chat/frontend/chat-app.js",
+    "build": "webpack --mode production --config dev.config.js",
     "postinstall": "npm run build"
   },
   "keywords": [],
