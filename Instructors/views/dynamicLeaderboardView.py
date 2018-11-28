@@ -14,7 +14,7 @@ from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_perio
     delete_periodic_task, get_periodic_variable_results
 import Students
 from Students.models import Student, PeriodicallyUpdatedleaderboards,StudentRegisteredCourses,StudentCourseSkills
-
+from Students.views.avatarView import checkIfAvatarExist
 import inspect
 import logging
 logger = logging.getLogger(__name__)
@@ -169,6 +169,7 @@ def dynamicLeaderboardView(request):
             else:
                 leaderboard.timePeriodUpdateInterval = int(timePeriodSelected[index])
                 leaderboard.isContinous = False
+                leaderboardObjects.append(leaderboard)
                 #setting this back to 0000 for the default since its no longer continuous
                 leaderboard.howFarBack = 0000 
                 
@@ -302,11 +303,18 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 studentRegisteredCourses = StudentRegisteredCourses.objects.get(studentID=result[0],courseID=currentCourse)
                 avatarImages.append(studentRegisteredCourses.avatarImage)
         else:#if its not continuous we must get the data from the database
-            leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=leaderboard).order_by('studentPosition')
+            leaderboardRecordObjects = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=leaderboard).order_by('studentPosition')
+            leaderboardRecordObjects = leaderboardRecordObjects[:leaderboard.numStudentsDisplayed]
+            leaderboardRecords = []
+            for leaderboardRecord in leaderboardRecordObjects:
+                if leaderboardRecord.studentPoints != 0 or leaderboardRecord.studentPoints != 0.0:
+                    leaderboardRecords.append(leaderboardRecord)
+                    
             for leaderboardRecord in leaderboardRecords:
                 points.append(leaderboardRecord.studentPoints)
                 studentFirstNameLastName.append(leaderboardRecord.studentID.user.first_name +" " + leaderboardRecord.studentID.user.last_name)
-                avatarImages.append(leaderboardRecord.studentID.user.avatarImage)
+                studentRegisteredCoursesObject = StudentRegisteredCourses.objects.get(studentID=leaderboardRecord.studentID, courseID=currentCourse)
+                avatarImages.append(studentRegisteredCoursesObject.avatarImage)
                   
         leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
         

@@ -55,9 +55,9 @@
                   </div>
                </div>
                {% if displayLeaderBoard %}
-                  <div class="col s12 m9">
+                  <div class="col s12 m12">
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
-                  <div class="col s12 m4">
+                  <div class="col s6 m3">
                   <div class="card-panel">
                   <table>
                     <caption><h5>{{leaderboardNames}}</h5></caption>
@@ -73,7 +73,7 @@
                             <td>{{points}}</td>
                         </tr>
                         {% empty %}
-                        <tr><td class="center-align" colspan="2"><i>No students with XP</i></td></tr>
+                        <tr><td class="center-align" colspan="2"><i>No students with enough results to place on leaderboard</i></td></tr>
                         {% endfor %}
                     </tbody>
                   </table>

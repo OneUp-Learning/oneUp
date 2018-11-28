@@ -165,9 +165,9 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
             # Sort the students
             rank.sort(key=lambda tup: tup[1], reverse=True)
             # Check if what we want is greater than the number of students
-            if len(rank) >= number_of_top_students:
+            if len(rank) >= number_of_top_students+1:
                 # Only select the top number of students
-                rank = rank[:number_of_top_students]
+                rank = rank[:number_of_top_students+1]
                 
                 # save results (leaderboard_id == unique_id)
                 savePeriodicLeaderboardResults(rank,unique_id, course)
@@ -203,13 +203,13 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             students = random.sample(students, 1)
     return students
 def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
-    print("saving results", rank, leaderboardConfigID, course)
+    #"saving results", rank, leaderboardConfigID, course)
     from Students.models import PeriodicallyUpdatedleaderboards
     from Badges.models import LeaderboardsConfig
   
     leaderboardConfigID = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
-    print("leaderboardConfigID", leaderboardConfigID)
-    print("rank", rank)
+    #"leaderboardConfigID", leaderboardConfigID)
+    #"rank", rank)
    
     #we must filter out the test student
     studentsPlusScores = []
@@ -220,18 +220,18 @@ def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
     
     #iterate over the list of studentsplusscores and make the records or update existing records
     for student in studentsPlusScores:
-        print("currentStudent", student,"index" ,index)
+        #"currentStudent", student,"index" ,index)
         leaderboardRecord = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])
-        print("leaderboard", leaderboardRecord)
+        #"leaderboard", leaderboardRecord)
         
         if leaderboardRecord:
-            print("we have a record so we should update", leaderboardRecord[0])
+            #we have a record so we should update", leaderboardRecord[0])
             leaderboard = leaderboardRecord[0]
             leaderboard.studentID = student[0]
             leaderboard.studentPoints = student[1]
             leaderboard.studentPosition = index
         else:
-            print("creating a new one since we dont have a record for", student)
+            #"creating a new one since we dont have a record for"
             leaderboard = PeriodicallyUpdatedleaderboards()
             leaderboard.leaderboardID = leaderboardConfigID
             leaderboard.studentID = student[0]
@@ -243,7 +243,7 @@ def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
     leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])  
     if index <= len(leaderboardRecords):
         for leaderboard in leaderboardRecords[index:]:
-            print("setting -1 to records after our index, no student can be -1")
+            #"setting -1 to records after our index, no student can be -1")
             leaderboard.studentPosition = -1
             leaderboard.save()
 
