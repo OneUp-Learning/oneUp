@@ -53,7 +53,7 @@
                               <input type="hidden" name="score" value="{{score}}">
                               <input type="hidden" name="challenge_ID" value="{{challenge_ID}}">
                               <li class="collection-item">
-                                 <div>
+                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     {% if not is_teacher %}
                                     <a class="tooltipped" data-position="down" data-delay="50" data-tooltip="Take Challenge" href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}&isWarmup={{isWarmup}}" >
                                     {{challenge_Name}}

@@ -55,7 +55,7 @@
 											{% for j, chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
 											<input type="hidden" name="challengeID" value="{{chall_ID}}">
 											<tr>
-												<td>{{chall_Name}}</td>
+												<td style="max-width: 60vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
 												<td>{{chall_visible}}</td>
 												<td>
 													<div class="input-field col s12">
