@@ -67,7 +67,7 @@
                            <tbody>
 			              {% for i, activity_ID, activityName, description, points, activityPosition in activities %}
 			              <tr>
-			                <td>{{activityName}}</td>
+			                <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activityName}}</td>
 			                <td>{{description}}</td>
 			                <td>{{points}} Points</td>
 			                <td>

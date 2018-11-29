@@ -39,7 +39,7 @@
                         <tbody>
                            {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate in challenge_range %}
                            <tr>
-                                <td>{{chall_Name}}</td>	
+                                <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
                                 <td>{{challDueDate}}</td>
                                 <td>{{grade}}</td>
                                 {% if numberOfAttempts == '0' %}
