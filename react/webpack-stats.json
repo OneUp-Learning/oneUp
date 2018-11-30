@@ -1,0 +1,1 @@
+{"status":"error","chunks":{"chat-app":[{"name":"chat-app.js","path":"/home/austin/.virtualenvs/oneup/project/oneUp/static/chat/frontend/chat-app.js"}]},"error":"ModuleBuildError","message":"Module build failed (from ./node_modules/babel-loader/lib/index.js):\nError: ENOENT: no such file or directory, open '/home/austin/.virtualenvs/oneup/project/oneUp/react/chat/chat-app.js'"}
