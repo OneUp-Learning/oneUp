@@ -5,6 +5,7 @@ from Instructors.models import Instructors
 def instructorsCheck(user):
     instruct = Instructors.objects.filter(user=user)
     if instruct:
+        print("We are a teacher")
         return True
 
     return False
