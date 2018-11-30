@@ -43,6 +43,7 @@ class App extends Component{
             channelAccess: false,
             activeChannel: null,
             user: null,
+            avatar: null,
             isLoading: true,
             showCreateChannelDialog: false,
             showDeleteChannelDialog: false,
@@ -158,7 +159,7 @@ class App extends Component{
                     key: 'user', 
                     primaryText: this.state.user.username,
                     secondaryText: this.state.user.first_name + ' ' + this.state.user.last_name,
-                    leftAvatar: <Avatar style={{border: 'none', borderRadius: '10%'}} src={'https://avatars.io/instagram/'+this.state.user.username} />,
+                    leftAvatar: <Avatar style={{border: 'none', borderRadius: '10%'}} src={this.state.avatar} />,
                 })
             }
             
@@ -194,7 +195,7 @@ class App extends Component{
         })
         .then(data => {
             //console.log(data);
-            this.setState({user: data}); 
+            this.setState({user: data['user'], avatar: data['avatar']}); 
         });
     }
     onLogOut(e){
@@ -470,7 +471,7 @@ class App extends Component{
           </div> : (
             <NavigationDrawer
               drawerId="main-navigation"
-              drawerTitle="Let's Talk About It"
+              drawerTitle="OneUp Chat"
               toolbarId="main-toolbar"
               tabletDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
               toolbarTitle={channelSelected && activeChannel != null ? '# '+activeChannel.channel_name +(activeChannel.topic != null && activeChannel.topic != '' ? " Topic: " + activeChannel.topic : "") : "Select a Channel or"}

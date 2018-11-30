@@ -2,16 +2,18 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
+from Instructors.models import Courses
 import random
 # Create your models here.
 class Channel(models.Model):
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     channel_name = models.TextField(unique=True, db_index=True)
     channel_url = models.SlugField(unique=True, db_index=True, null=True, blank=True)
     topic = models.TextField(max_length=40, blank=True, null=True)
     users = models.ManyToManyField(User, blank=True, related_name='subscribers')
     creator = models.ForeignKey(User, null=True, blank=True, related_name='creator', on_delete=models.CASCADE)
     def __str__(self):
-        return "Channel ID: {} - Slug: {} - Topic: {} - Users: {} - Creator: {}".format(self.channel_name, self.channel_url, self.topic, self.users, self.creator)
+        return "Course: {} - Channel ID: {} - Slug: {} - Topic: {} - Users: {} - Creator: {}".format(self.course, self.channel_name, self.channel_url, self.topic, self.users, self.creator)
     
     def save(self, *args, **kwargs):
         if not self.id:

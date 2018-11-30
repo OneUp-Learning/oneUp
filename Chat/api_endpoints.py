@@ -11,16 +11,21 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 import json, re
 
+from Students.views.utils import studentInitialContextDict
+
+
 class UserView(APIView):
     renderer_classes = (JSONRenderer, )
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
         ''' Returns active signin user as json'''
-        user = request.user
+        context_dict,currentCourse = studentInitialContextDict(request)
+        user = context_dict['student'].user
 
         user_serializer = UserSerializer(user)
-        return Response(user_serializer.data)
+        response = {'user': user_serializer.data, 'avatar': context_dict['avatar']}
+        return Response(response)
 
 class ChannelView(APIView):
     renderer_classes = (JSONRenderer, )
@@ -31,8 +36,8 @@ class ChannelView(APIView):
         Return a list of all channels.
         """
         channels = Channel.objects.all()
-        user = request.user
-
+        context_dict,currentCourse = studentInitialContextDict(request)
+        user = context_dict['student'].user
         subscribed_channels = Channel.objects.filter(users=user)
         # print("Sub Channels: {}".format(subscribed_channels))
         # print("All Channels: {}".format(channels))
