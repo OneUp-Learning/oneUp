@@ -9,7 +9,7 @@
       {% else %}
       {% include 'stheading.html' %}
       {% endif %}
-      <main>
+      <main>s
          <div class="row center-align">
             <div class="col s12">
                <h3>Serious Challenges</h3>
@@ -37,7 +37,7 @@
                            </th>
                         </thead>
                         <tbody>
-                           {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate in challenge_range %}
+                           {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate, isUnlocked in challenge_range %}
                            <tr>
                                 <td>{{chall_Name}}</td>	
                                 <td>{{challDueDate}}</td>
@@ -48,6 +48,7 @@
                                 <td>{{numberOfAttempts}}</td>
                                 {% endif %}		
                                 <td>{{adjusmentReason}}</td>
+                              {% if isUnlocked.isFullfilled %}
                               <td class="right-align">
                                  {% if is_teacher %} 
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>   
@@ -56,6 +57,12 @@
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}"><i class="material-icons left">visibility</i>View</a>   
                                  {% endif %}
                               </td>
+                              {% else %}
+                              <td class="right-align">
+                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
+                              </td>   
+                              {% endif %}
                            </tr>
                            {% empty %}
                            <tr>
