@@ -6,7 +6,7 @@ Created on Oct 3, 2018
 from django.shortcuts import redirect, render
 
 from Instructors.views.utils import initialContextDict
-from Instructors.models import Challenges, Activities
+from Instructors.models import Challenges, Activities, CoursesTopics
 from Students.models import Student, StudentRegisteredCourses, StudentProgressiveUnlocking
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Badges.models import ActionArguments, Rules, ProgressiveUnlocking, RuleEvents
@@ -16,14 +16,7 @@ from Badges.conditions_util import get_events_for_condition,\
 
 from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import logger
-
-def DeleteProgressionRule(badge):
-        
-    # The next line deletes the conditions and everything else related to the rule
-    badge.ruleID.delete_related()
-    # Then we delete the rule itself
-    badge.ruleID.delete()                 
-
+               
 def ProgressiveUnlockingRules(request):
     
     context_dict,current_course = initialContextDict(request)
@@ -75,12 +68,17 @@ def listRules(request,current_course,context_dict):
             objs.append({'rule': rule, 'type' : 'Activity'})
         elif objectString == 'challenge':
             objs.append({'rule': rule, 'type' : 'Challenge'})
+        elif objectString == 'topic':
+            objs.append({'rule': rule, 'type' : 'Topic'})
+
+
 
     context_dict['rules'] = objs
 
     # Code for selector
     objTypes.append( {'id' : ObjectTypes.activity, 'string' : 'Activity'} ) 
     objTypes.append( {'id' : ObjectTypes.challenge, 'string' : 'Challenge' } )
+    objTypes.append( {'id' : ObjectTypes.topic, 'string' : 'Topic' } )
     context_dict['filter'] = objTypes
     context_dict['currentFilter'] = int(ruleType)
 
@@ -102,6 +100,10 @@ def createRule(request,current_course,context_dict):
             elif request.GET['ruleType'] == 'activity':
                 ruleType = ObjectTypes.activity
                 objs = Activities.objects.filter(courseID=current_course)
+            
+            elif request.GET['ruleType'] == 'topic':
+                ruleType = ObjectTypes.topic
+                objs = CoursesTopics.objects.filter(courseID=current_course)
 
             context_dict['ruleType'] = ruleType
             context_dict['objs'] = objs

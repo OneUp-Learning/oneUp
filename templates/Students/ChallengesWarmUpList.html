@@ -30,8 +30,9 @@
                      <span style="color: red; font-weight: bolder;">*</span>
                   </p>
                   <ul class="collapsible" data-collapsible="expandable">
-                     {% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
+                     {% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges, isTopicUnlocked in topic_range %}
                      <input type="hidden" name="topicID" value="{{topic_ID}}">
+                     {% if isTopicUnlocked.isFullfilled %}
                      <li>
                         <div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
                         {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position,isUnlocked, ulockingDescript in all_challenges %}
@@ -86,13 +87,18 @@
                         </div>
                         {% else %}
                         <span class="badge">0</span>
+                        {% endif %}
+                     </li>
+                     {% else %}
+                     <li>
+                        <div class="collapsible-header tooltipped" data-position="bottom" data-delay="100" data-tooltip="{{isTopicUnlocked.descript}}"><i class="fa fa-lock"></i>{{topic_Name}}&nbsp;&nbsp;</div>
+                     </li>
+                     {% endif %}
+                  {% empty %}
+                  <li>No topics</li>
+                  {% endfor %}
+                  </ul>
                </div>
-               {% endif %}
-               </li>
-               {% empty %}
-               <li>No topics</li>
-               {% endfor %}
-               </ul>
             </div>
          </div>
          </div>

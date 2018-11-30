@@ -37,11 +37,13 @@
                                     <option value={{obj.pk}}>{{obj.challengeName}}</option>
                                   {% elif ruleType == 1302 %}
                                     <option value={{obj.pk}} >{{obj.activityName}}</option>
+                                  {% elif ruleType == 1306 %}
+                                    <option value={{obj.pk}} >{{obj.topicID.topicName}}</option>
                                   {% endif %}
                                 {% empty %}
                                 {% endfor %}
                               </select>
-                           <label for="ruleTargetObject"><span class= "red-text">*</span>Unlocking Rule Name</label>
+                           <label for="ruleTargetObject"><span class= "red-text">*</span>Object Selection</label>
                         </div>
                      </div>
                     <input type="hidden" name="ruleObjectType" value={{ruleType}}>

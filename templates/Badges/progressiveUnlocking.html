@@ -16,7 +16,7 @@
             <div class="row right-align">
                 <form name="filterRules" action="/oneUp/badges/ProgressiveUnlocking" id="filterRules" method="POST">
                     {% csrf_token %}
-                    <div class="input-field col s3 offset-s1" id="student">
+                    <div class="input-field col s3 offset-s1">
                             <select name="objTypeFilter" form="filterRules" id="objTypeSelector" onchange="this.form.submit();">
                                 {% if currentFilter == 1 %}
                                     <option value="all" name="objTypeFilter">All</option>
@@ -52,6 +52,10 @@
                                     <!-- <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a> -->
                                     <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=activity"> Activities</a> 
                             </li>
+                            <li>
+                                <!-- <a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a> -->
+                                <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=topic"> Topics</a> 
+                        </li>
                         </ul>
                 </div>
             </div>
