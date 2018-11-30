@@ -158,6 +158,7 @@ def getObjsForSysVarLocal(sysVar):
     return objIndex, objNames
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def getObjsForSysVar(request):
     objectTypes = ObjectTypes.objectTypes #enum of system objects
     sysVars = SystemVariable.systemVariables #enums of system vars

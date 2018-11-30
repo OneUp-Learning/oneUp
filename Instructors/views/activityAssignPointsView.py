@@ -5,7 +5,7 @@
 from datetime import datetime, timezone
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
 from Instructors.views.utils import utcDate, initialContextDict
@@ -16,11 +16,12 @@ from Instructors.views.activityListView import createContextForActivityList
 from django.template.context_processors import request
 from notify.signals import notify
 from decimal import Decimal
-
+from oneUp.decorators import instructorsCheck  
 
 default_student_points = -1
 default_student_bonus = 0
 
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def activityAssignPointsView(request):   
     context_dict, currentCourse = initialContextDict(request)
 
@@ -180,6 +181,7 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     return context_dict
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def assignedPointsList(request):
     context_dict, currentCourse = initialContextDict(request)
 

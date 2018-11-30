@@ -5,12 +5,13 @@ Created on March 11, 2015
 '''
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Activities, ActivitiesCategory
 from Students.models import StudentRegisteredCourses, StudentActivities
 from Instructors.views.utils import initialContextDict
 from Instructors.constants import uncategorized_activity
 from django.shortcuts import redirect
+from oneUp.decorators import instructorsCheck  
 
 @login_required
 def createContextForActivityList(request, context_dict, currentCourse):
@@ -129,7 +130,8 @@ def category_activities(count,category, current_course):
     last = count + len(activity_IDs)    
     return zip(range(count,last), activity_IDs,activity_Names,descriptions, points, activityPositions)
     
-@login_required
+@login_required  
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def activityList(request):
 
     context_dict, currentCourse = initialContextDict(request)
@@ -141,6 +143,7 @@ def activityList(request):
 
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def reorderActivities(request):
     context_dict, currentCourse = initialContextDict(request)
     if request.POST: 

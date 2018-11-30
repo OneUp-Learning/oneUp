@@ -9,4 +9,9 @@ def instructorsCheck(user):
 
     return False
     
-        
+#from django.contrib.auth.decorators import login_required, user_passes_test
+#from oneUp.decorators import instructorsCheck     
+#@login_required
+#@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
+
+  

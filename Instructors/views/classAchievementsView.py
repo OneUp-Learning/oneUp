@@ -4,13 +4,14 @@ Created on August 25, 2015
 @author: Alex 
 '''
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, Activities
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentChallenges, StudentRegisteredCourses, StudentActivities
-
+from oneUp.decorators import instructorsCheck  
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def classAchievements(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.

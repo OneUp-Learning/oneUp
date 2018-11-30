@@ -5,7 +5,7 @@ Created on Sept 4, 2018
 '''
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from Instructors.models import Challenges, Activities, ActivitiesCategory
 from Instructors.views.utils import initialContextDict, utcDate
@@ -19,8 +19,10 @@ from lib2to3.fixes.fix_input import context
 from django.contrib.auth.models import User
 
 import collections
+from oneUp.decorators import instructorsCheck 
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def debugEventVars(request):
     
     context_dict, currentCourse = initialContextDict(request)

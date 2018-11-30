@@ -10,11 +10,12 @@ from django.shortcuts import render
 
 from oneUp.auth import createStudents, checkPermBeforeView
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.utils import initialContextDict
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+from oneUp.decorators import instructorsCheck  
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ def createStudentView(request):
     checkPermBeforeView(createStudents,request,createStudentViewUnchecked)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def createStudentViewUnchecked(request):
  
     context_dict, currentCourse = initialContextDict(request)
