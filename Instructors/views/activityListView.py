@@ -6,12 +6,12 @@ Created on March 11, 2015
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck  
 from Instructors.models import Activities, ActivitiesCategory
 from Students.models import StudentRegisteredCourses, StudentActivities
 from Instructors.views.utils import initialContextDict
 from Instructors.constants import uncategorized_activity
 from django.shortcuts import redirect
-from oneUp.decorators import instructorsCheck  
 
 @login_required
 def createContextForActivityList(request, context_dict, currentCourse):
