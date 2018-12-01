@@ -448,25 +448,31 @@ def importChallenges(uploadedFileName, currentCourse):
                 question.code = el_dynamicQuestion.find('code').text    
                 
                 question.save()                        
-                print('dynamicQuestion.code: ', question.code)  
+                #print('dynamicQuestion.code: ', question.code)  
                    
                 if q_type == 7:      
                 # TemplateDynamicQuestions
                     el_templateDynamicQuestion = el_dynamicQuestion.find("TemplateDynamicQuestion")
                      
-                    temptext = el_templateDynamicQuestion.find('templateText')
-                    if not temptext is None:                            
-                        text = temptext.text
-                    if not text:
+                    el_templateText = el_templateDynamicQuestion.find('templateText')
+                    if not el_templateText is None:                            
+                        text = el_templateText.text
+                        if not text:
+                            question.templateText = ""
+                        else:
+                            question.templateText = text
+                    else:
                         question.templateText = ""
-                    else:
-                        question.templateText = text
-                    code = el_templateDynamicQuestion.find('setupCode')
-                    if not code is None:                            
-                        question.setupCode = code.text
-                    else:
+                    el_setupCode = el_templateDynamicQuestion.find('setupCode')
+                    if not el_setupCode is None:  
+                        scode =  el_setupCode.text  
+                        if not scode is None:                       
+                            question.setupCode = scode
+                        else:
+                            question.setupCode = ""
+                    else: 
                         question.setupCode = ""
-    
+                    
                     question.save()    
                                    
                     # TemplateTextParts
