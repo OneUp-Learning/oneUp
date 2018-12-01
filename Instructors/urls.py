@@ -80,6 +80,8 @@ from Instructors.views.switchToStudentView import switchToStudentView
 from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.addExistingStudentView import addStudentListView, addExistingStudent
 
+from Instructors.views.activityListView import reorderActivities
+
 admin.autodiscover()
 
 urlpatterns = [
@@ -173,5 +175,5 @@ urlpatterns = [
     url(r'^resetTestStudent', resetTestStudent, name='resetTestStudent'),
     url(r'^addStudentListView', addStudentListView, name='addStudentListView'),
     url(r'^addExistingStudent', addExistingStudent, name="addExistingStudent"),
-
+    url(r'^reorderActivities', reorderActivities, name="addExistingStudent"),
 ]
