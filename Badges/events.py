@@ -225,30 +225,34 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
 
         
     for potential in matchingRuleWithContext:
-        condition = potential.conditionID
-        
-        # First we check if there is an associated award frequency.  If there isn't, we can just check the 
-        # rule as is.  That's the simple case because there's no local context.
-        if potential.awardFrequency == AwardFrequency.justOnce:
-            if check_condition(condition, courseId, student, eventEntry.objectType, eventEntry.objectID, timestampstr):
-                fire_action(potential,courseId,student,eventEntry.objectID, timestampstr)
-        else:            
-            objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
-            objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
+        try:
+            condition = potential.conditionID
             
-            if matchingRuleWithContext[potential]:
-                # The match is for a variable in a global context (either a global variable or a variable inside a for clause
-                objIDList = objSpecifier.getMatchingObjectIds(courseId)
-                objType = objSpecifier.objectType
-                result = True
-            else:
-                # The match is for a variable in a local context (a variable from the context of a specifier)
-                result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
-
-            if result:
-                for objID in objIDList:
-                    if check_condition(condition,courseId,student,objType,objID,timestampstr):
-                        fire_action(potential,courseId,student,objID, timestampstr)
+            # First we check if there is an associated award frequency.  If there isn't, we can just check the 
+            # rule as is.  That's the simple case because there's no local context.
+            if potential.awardFrequency == AwardFrequency.justOnce:
+                if check_condition(condition, courseId, student, eventEntry.objectType, eventEntry.objectID, timestampstr):
+                    fire_action(potential,courseId,student,eventEntry.objectID, timestampstr)
+            else:            
+                objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
+                objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
+                
+                if matchingRuleWithContext[potential]:
+                    # The match is for a variable in a global context (either a global variable or a variable inside a for clause
+                    objIDList = objSpecifier.getMatchingObjectIds(courseId)
+                    objType = objSpecifier.objectType
+                    result = True
+                else:
+                    # The match is for a variable in a local context (a variable from the context of a specifier)
+                    result, objType, objIDList = objSpecifier.checkAgainst(eventEntry.objectType,eventEntry.objectID)
+    
+                if result:
+                    for objID in objIDList:
+                        if check_condition(condition,courseId,student,objType,objID,timestampstr):
+                            fire_action(potential,courseId,student,objID, timestampstr)
+        except Exception as e:
+            print('Problem evaluating Rule: '+str(potential)+'  '+str(e))
+            pass
             
     return eventEntry
 
