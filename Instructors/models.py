@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.template.defaultfilters import default
 from datetime import datetime
-from Instructors.constants import uncategorized_activity
+from Instructors.constants import uncategorized_activity, default_time_str
 
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
@@ -156,11 +156,12 @@ class Challenges(models.Model):
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     challengePassword = models.CharField(default='',max_length=30) # Empty string represents no password required.
     challengePosition = models.IntegerField(default = 0)
+    dueDate = models.DateTimeField(blank=True)
+    
     def __str__(self):              
         return str(self.challengeID)+","+self.challengeName       
     def getCombinedScore(self):
         return self.totalScore + self.manuallyGradedScore    
-      
 class Skills(models.Model):
     skillID = models.AutoField(primary_key=True)
     skillName = models.CharField(max_length=100)

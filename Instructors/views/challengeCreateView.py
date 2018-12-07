@@ -147,6 +147,11 @@ def challengeCreateView(request):
             else:
                 challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         
+        if request.POST['dueDate'] == "":
+            challenge.dueDate = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        else:
+            challenge.dueDate = localizedDate(request, request.POST['dueDate'], "%m/%d/%Y %I:%M %p")
+
         # Number of attempts
         if('unlimitedAttempts' in request.POST):
             challenge.numberAttempts = 99999   # unlimited attempts
@@ -232,7 +237,11 @@ def challengeCreateView(request):
                 context_dict['endTimestamp']= endTime
             else:
                 context_dict['endTimestamp']= ""
-
+            dueDate = challenge.dueDate.strftime("%m/%d/%Y %I:%M %p")
+            if dueDate != default_time_str:
+                context_dict['dueDate'] = dueDate
+            else:
+                context_dict['dueDate'] = ""
     
             if challenge.isGraded:
                 context_dict['isGraded']=True

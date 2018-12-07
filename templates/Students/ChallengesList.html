@@ -2,6 +2,7 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      {% load instructors_tags %}
    </head>
    <body>
       {% if is_teacher %}    
@@ -22,7 +23,7 @@
                      <table class="responsive-table">
                         <thead>
                            <th>Name</th>
-                           <th>End Date</th>
+                           <th>Due Date</th>
                            <th>Score</th>
                            <th>Number of Attempts</th>
                            <th>Adjustment Reason</th>
@@ -40,7 +41,7 @@
                            {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate in challenge_range %}
                            <tr>
                                 <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
-                                <td>{{challDueDate}}</td>
+                                <td>{{challDueDate|default_date}}</td>
                                 <td>{{grade}}</td>
                                 {% if numberOfAttempts == '0' %}
                                 <td>Unlimited</td>

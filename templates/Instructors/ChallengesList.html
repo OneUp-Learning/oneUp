@@ -3,6 +3,7 @@
 
 <head>
 	{% include 'scripts.html' %}
+	{% load instructors_tags %}
 </head>
 
 <body>
@@ -36,17 +37,19 @@
 									<th>Status</th>
 									<th>Display From</th>
 									<th>Display Until</th>
+									<th>Due Date</th>
 									<th>Position</th>
 								</tr>
 							</thead>
 							<tbody>
-								{% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp, chall_position in challenge_range %}
+								{% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp, due_date, chall_position in challenge_range %}
 								<input type="hidden" name="challengeID" value="{{chall_ID}}">
 								<tr>
 									<td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
 									<td>{{chall_visible}}</td>
 									<td>{{start_Timestamp}}</td>
 									<td>{{end_Timestamp}}</td>
+									<td>{{due_date|default_date}}</td>
 									<td>
 										<div class="input-field col s12">
 											<input placeholder="Position" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4"
