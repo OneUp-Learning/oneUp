@@ -3,6 +3,7 @@ from Badges.enums import Event, ObjectTypes
 from datetime import datetime
 from Instructors.models import Challenges, Activities, Questions, Topics,\
     ActivitiesCategory
+from Instructors.constants import default_time_str
 from django.utils import timezone
 import logging
 from billiard.connection import CHALLENGE
@@ -852,6 +853,11 @@ def firstAttemptStatic(questionID):
         return 0
     else:
         return question.questionScore
+def sc_has_due_date(course, student, serious_challenge):
+    if not serious_challenge.isGraded:
+        return False
+    return serious_challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") != default_time_str
+
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -901,6 +907,7 @@ class SystemVariable():
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
+    hasDueDateForSeriousChallenges = 944 # Returns true if the serious challenge has a due date assigned
 
     systemVariables = {
         numAttempts:{
@@ -1415,6 +1422,19 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none:getTotalScoreForSeriousChallenges
+            },
+        },
+        hasDueDateForSeriousChallenges:{
+            'index': hasDueDateForSeriousChallenges,
+            'name': 'hasDueDateForSeriousChallenges',
+            'displayName': 'Serious Challenge has Due Date',
+            'description': 'The Serious Challenges have due dates assigned',
+            'eventsWhichCanChangeThis': {
+                ObjectTypes.challenge: [Event.endChallenge],
+            },
+            'type': 'boolean',
+            'functions': {
+                ObjectTypes.challenge: sc_has_due_date
             },
         },
                                                                        
