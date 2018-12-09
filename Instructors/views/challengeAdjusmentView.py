@@ -5,7 +5,7 @@ Created on Feb 17, 2018
 '''
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, Courses
 from Students.models import StudentRegisteredCourses, StudentChallenges
 from Instructors.views.utils import utcDate, initialContextDict
@@ -13,8 +13,10 @@ from Badges.events import register_event
 from Badges.enums import Event
 from notify.signals import notify
 from Badges.event_utils import updateLeaderboard
+from oneUp.decorators import instructorsCheck
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def challengeAdjustmentView(request):
     
     if request.method == 'POST':
@@ -84,6 +86,7 @@ def challengeAdjustmentView(request):
     
                 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def adjustmentList(request):
     
     context_dict, currentCourse = initialContextDict(request)

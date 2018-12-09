@@ -21,6 +21,7 @@ from oneUp.decorators import instructorsCheck
 default_student_points = -1
 default_student_bonus = 0
 
+@login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def activityAssignPointsView(request):   
     context_dict, currentCourse = initialContextDict(request)

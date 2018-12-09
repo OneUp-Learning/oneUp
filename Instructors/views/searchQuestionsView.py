@@ -9,9 +9,10 @@ from Instructors.models import Challenges, CoursesSkills, CoursesTopics
 from Instructors.views.utils import initialContextDict
 from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
 
-from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.decorators import login_required,  user_passes_test
+from oneUp.decorators import instructorsCheck  
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def searchQuestions(request):
 
     context_dict, currentCourse = initialContextDict(request);  

@@ -1,9 +1,11 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Topics, CoursesTopics
 from Instructors.views import utils
+from oneUp.decorators import instructorsCheck
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def topicsCreateView(request):
     
     context_dict,currentCourse = utils.initialContextDict(request)

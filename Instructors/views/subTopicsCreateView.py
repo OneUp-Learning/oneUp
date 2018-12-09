@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Topics, CoursesSubTopics
 from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate, initialContextDict
+from oneUp.decorators import instructorsCheck  
 
 from datetime import datetime
 from inspect import currentframe
@@ -14,6 +15,7 @@ def get_linenumber():
 
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def subTopicsCreateView(request):
     context_dict, currentCourse = initialContextDict(request)
                    

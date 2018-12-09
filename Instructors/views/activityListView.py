@@ -14,6 +14,7 @@ from Instructors.constants import uncategorized_activity
 from django.shortcuts import redirect
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def createContextForActivityList(request, context_dict, currentCourse):
        
     activity_ID = []      

@@ -19,7 +19,8 @@ from oneUp.decorators import instructorsCheck
 import logging
 
 logger = logging.getLogger(__name__)
-
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def createStudentView(request):
     checkPermBeforeView(createStudents,request,createStudentViewUnchecked)
 
@@ -121,7 +122,9 @@ def createStudentViewUnchecked(request):
             context_dict['email'] = studentID.email
             
         return render(request,"Administrators/createUser.html", context_dict)
-
+    
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def validateCreateStudent(request):
     from django.http import JsonResponse
 

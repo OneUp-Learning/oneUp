@@ -5,7 +5,7 @@ Created on Feb 12, 2018
 '''
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from Instructors.models import Challenges, Activities
 from Instructors.views.utils import initialContextDict, utcDate
@@ -14,8 +14,10 @@ from Instructors.views.instructorCourseHomeView import studentXP
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog
 from Badges.enums import Event
 from Students.views.avatarView import checkIfAvatarExist
-    
+from oneUp.decorators import instructorsCheck 
+
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def studentSummary(request):
     
     context_dict, currentCourse = initialContextDict(request)
