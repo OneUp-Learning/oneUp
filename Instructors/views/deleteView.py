@@ -13,6 +13,7 @@ from Students.models import Student, StudentRegisteredCourses
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.views.utils import initialContextDict
+from Badges.models import VirtualCurrencyCustomRuleInfo
 
 @login_required
 def deleteQuestion(request):
@@ -306,3 +307,19 @@ def deleteMilestone(request):
         context_dict['message']=message
         
     return redirect('/oneUp/instructors/milestonesList', context_dict)
+
+@login_required
+def deleteManualSpendRule(request):
+    context_dict, currentCourse = initialContextDict(request)
+    if request.method == 'POST':
+        try:
+            if request.POST['vcRuleID']:
+                # Delete the Virtual Currency Rule 
+                deleteVC = VirtualCurrencyCustomRuleInfo.objects.get(pk=int(request.POST['vcRuleID']), courseID=currentCourse)
+                message = "VC Spend Rule #" + str(deleteVC.vcRuleID) + " - " + str(deleteVC.vcRuleName) + " was successfully deleted"
+                deleteVC.delete()
+
+        except VirtualCurrencyCustomRuleInfo.DoesNotExist:
+            message = "There was a problem deleting VC Spend Rule #"+str(request.POST['vcRuleID'])
+        context_dict['message'] = message
+    return redirect('/oneUp/badges/VirtualCurrencySpendRuleList', context_dict)
