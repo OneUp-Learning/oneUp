@@ -1,9 +1,3 @@
-'''
-Created on Nov 3, 2014
-Last updated Dec 21, 2016
-
-@author: Swapna
-'''
 from django.shortcuts import redirect
 
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo
@@ -72,24 +66,38 @@ def SaveVirtualCurrencySpendRule(request):
             else:
                 if eventI in selectedSpendRulesEvents:
                     vcRuleInfo = VirtualCurrencyRuleInfo()  
+                 
+                    # KI: As far as I can see, the following line (which I'm
+                    # now commenting out) does this: since there is not rule
+                    # for this rule check if any other virtual currency
+                    # spending rule exists for this course and use that.
+                    # Now, where this seems to break is that it means that
+                    # we create extra RuleEvents and ActionArguments items
+                    # for an existing rule which both fails to create a new
+                    # rule and breaks things since at another place in the 
+                    # code we assume that only one exists.
+                    # For the moment, I'm just going to remove it and force
+                    # things to the other case.
+                    #gameRule = False
+
+                    # The code now will create seperate rules, rules events, and 
+                    # conditions for each new vc rule.
                     
-                    gameRule = checkRuleExist(currentCourse)
-                    if not gameRule:
-                        newCondition = Conditions()
-                        newCondition.courseID = currentCourse
-                        newCondition.operation = '='
-                        newCondition.operand1Type = OperandTypes.immediateInteger
-                        newCondition.operand1Value = 1
-                        newCondition.operand2Type = OperandTypes.immediateInteger
-                        newCondition.operand2Value = 1
-                        newCondition.save()
+                    condition = Conditions()
+                    condition.courseID = currentCourse
+                    condition.operation = '='
+                    condition.operand1Type = OperandTypes.immediateInteger
+                    condition.operand1Value = 1
+                    condition.operand2Type = OperandTypes.immediateInteger
+                    condition.operand2Value = 1
+                    condition.save()
                                                     
-                        # Save game rule to the Rules table
-                        gameRule = Rules()
-                        gameRule.conditionID = newCondition
-                        gameRule.actionID = Action.decreaseVirtualCurrency
-                        gameRule.courseID = currentCourse
-                        gameRule.save()
+                    # Save game rule to the Rules table
+                    gameRule = Rules()
+                    gameRule.conditionID = condition
+                    gameRule.actionID = Action.decreaseVirtualCurrency
+                    gameRule.courseID = currentCourse
+                    gameRule.save()
                     
                     ruleEvent = RuleEvents()
                     ruleEvent.rule = gameRule
@@ -112,10 +120,3 @@ def SaveVirtualCurrencySpendRule(request):
                     vcRuleInfo.save()
                 
     return redirect("/oneUp/badges/VirtualCurrencySpendRuleList")
-    
-def checkRuleExist(current_course):
-    conditions = Conditions.objects.filter(courseID = current_course, operation='=', operand1Type=OperandTypes.immediateInteger, operand1Value=1,operand2Type=OperandTypes.immediateInteger, operand2Value=1,)
-    rule = Rules.objects.filter(conditionID=conditions[0], courseID=current_course)
-    if rule:
-        return rule[0]
-    return None

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentVirtualCurrencyTransactions
 from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo
-from Badges.enums import Event
+from Badges.enums import Event, dict_dict_to_zipped_list
 from datetime import datetime
 import logging
 
@@ -45,10 +45,13 @@ def virtualCurrencyTransactions(request):
                 return (False, 0, None)
             else:
                 return (True, getAmountFromBuyRule(buyRule), buyRule)
+
+        def getVCEvents():
+            events = dict_dict_to_zipped_list(Event.events,['index','displayName', 'description','isVirtualCurrencySpendRule'])  
+            return [id for id, _, _, is_vc in events if is_vc]
             
         # Get all student transactions by course and with status 'In Progress' or 'Requested' and send it to the webpage
-        transactions = StudentVirtualCurrencyTransactions.objects.filter(course = course, status__in=["In Progress", "Requested"]).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.getDifferentProblem,
-                                Event.getSurpriseAward, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getCreditForOneTestProblem, Event.buyMissedLab, Event.changeHWWeights, Event.examExemption]).order_by('-studentEvent__timestamp')
+        transactions = StudentVirtualCurrencyTransactions.objects.filter(course = course, status__in=["In Progress", "Requested"]).filter(studentEvent__event__in=getVCEvents()).order_by('-studentEvent__timestamp')
                                    
         logger.debug(transactions)
         name = []

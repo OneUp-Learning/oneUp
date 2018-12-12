@@ -59,7 +59,7 @@
                               {% for activity,point,activity_point, submit_status,activity_date_status in category %}
                         	
                            <tr>
-                              <td>{{activity.activityName}}</td>
+                              <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activity.activityName}}</td>
                               <td>{{point}}/{{activity_point}} points</td>
                               {% if submit_status == "Submitted" %}
                               	<td style="color:green;">{{submit_status}}</td>

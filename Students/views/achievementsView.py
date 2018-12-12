@@ -69,7 +69,7 @@ def achievements(request):
     # SERIOUS CHALLENGES  
     # We display information about all serious challenges for this course that should have been taken by the student,
     # not only for those taken by the student
-    courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True)
+    courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).order_by('challengePosition')
     for challenge in courseChallenges:
         sc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge)
         
@@ -77,7 +77,7 @@ def achievements(request):
             chall_Name.append(challenge.challengeName)    
             score.append(0)                           
             total.append(0)                      
-            challavg.append(classResults.classAverChallengeScore(currentCourse,challenge.challengeID))                       
+            challavg.append(classResults.classAverChallengeScore(currentCourse,challenge.challengeID))
         else:    
             # find the max score for this challenge if there are several attempts                
             gradeID  = []
@@ -91,7 +91,6 @@ def achievements(request):
             maxC = max(gradeID)  
             maxB = max(gradeWithBonus)                
             earnedPointsSeriousChallenges += maxB
-            
             score.append(maxC)
             chall_Name.append(challenge.challengeName)               
             total.append(s_testTotal)  
@@ -117,7 +116,7 @@ def achievements(request):
     totalScorePointsWC = 0     # for calculating student XP points
     courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)
     for challenge in courseChallenges:
-         wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge)
+         wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge).order_by('-endTimestamp')
          print(wc)
          
          if wc:          # if the challenge was taken           
@@ -260,7 +259,7 @@ def achievements(request):
     studentCourseBadges = []
         
     #Displaying the list of Badges from database
-    studentBadges = StudentBadges.objects.filter(studentID=studentId)
+    studentBadges = StudentBadges.objects.filter(studentID=studentId).order_by('timestamp')
     for stud_badge in studentBadges:
         #print('stud_badge.badgeID.courseID'+str(stud_badge.badgeID.courseID))
         if stud_badge.badgeID.courseID == currentCourse:
