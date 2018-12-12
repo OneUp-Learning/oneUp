@@ -22,12 +22,10 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 def start_duel_challenge(duel_id, course_id):
     ''' This function starts a duel called automatically'''
 
-    print("staaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarting  duel challenge")
     course = Courses.objects.get(courseID=course_id)
     duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=course)
     duel_challenge.hasStarted = True
     duel_challenge.save()
-    print('finish celeryyyyyyyyyyyyyyyyyyyyyyyyyy')
 
 @app.task
 def automatic_evaluator(duel_id, course_id):
@@ -478,7 +476,7 @@ def validate_duel_challenge_creation(request):
         
         return JsonResponse(context_dict)
     
-    return render(request,'Students/DuelChallengeCreateForm.html', c_d)
+    return redirect('/oneUp/students/Callouts')
 
 def convert_time_to_hh_mm(time):
     '''convert_time_to_hh_mm converts int time into hh:mm format'''
@@ -631,22 +629,23 @@ def duel_challenge_accept(request):
         challengee = duel_challenge.challengee
         challengee_reg_crs = StudentRegisteredCourses.objects.get(studentID=challengee, courseID=duel_challenge.courseID)
         # Check if vc amount can be taken from challengee's account
-        '''if challengee_reg_crs.virtualCurrencyAmount < duel_challenge.vcBet:
-            context_dict['name'] = duel_challenge.duelChallengeName
-            context_dict['message'] = 'Your amount of virtual currency is insufficient. Duel can not be taken and will be deleted'
-            context_dict['your_vc'] = challengee_reg_crs.virtualCurrencyAmount
-            context_dict['duel_vc'] = duel_challenge.vcBet
+        if duel_challenge.isBetting:
+            if challengee_reg_crs.virtualCurrencyAmount < duel_challenge.vcBet:
+                context_dict['name'] = duel_challenge.duelChallengeName
+                context_dict['message'] = 'Your amount of virtual currency is insufficient. Duel can not be taken and will be deleted'
+                context_dict['your_vc'] = challengee_reg_crs.virtualCurrencyAmount
+                context_dict['duel_vc'] = duel_challenge.vcBet
 
-            challenger_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challenger, courseID=duel_challenge.courseID)
-            challenger_vc = challenger_reg_crs.virtualCurrencyAmount
-            challenger_reg_crs.virtualCurrencyAmount = challenger_vc + duel_challenge.vcBet
-            duel_challenge.delete()
-            
-            notify.send(None, recipient=duel_challenge.challenger.user, actor=challengee.user,
-                                    verb= "Your opponent does not have enough virtual currency to take the duel ' + duel_challenge.duelChallengeName +' at this moment.\n The duel has been deleted and you are reimbursed an amount of '+str(duel_challenge.vcBet)+' virtual currency.', nf_type='Insufficient Virtual Currency')
-            
-            return  render(request,'Students/DuelChallengeInsufficientVCForm.html', context_dict)
-        '''
+                challenger_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challenger, courseID=duel_challenge.courseID)
+                challenger_vc = challenger_reg_crs.virtualCurrencyAmount
+                challenger_reg_crs.virtualCurrencyAmount = challenger_vc + duel_challenge.vcBet
+                duel_challenge.delete()
+                
+                notify.send(None, recipient=duel_challenge.challenger.user, actor=challengee.user,
+                                        verb= "Your opponent does not have enough virtual currency to take the duel " + duel_challenge.duelChallengeName +' at this moment.\n The duel has been deleted and you are reimbursed an amount of '+str(duel_challenge.vcBet)+' virtual currency.', nf_type='Insufficient Virtual Currency')
+                
+                return  render(request,'Students/DuelChallengeInsufficientVCForm.html', context_dict)
+        
         # if student has sufficient amount of vc then take it and put at stake
         challengee_vc = challengee_reg_crs.virtualCurrencyAmount
         challengee_reg_crs.virtualCurrencyAmount = challengee_vc-duel_challenge.vcBet
@@ -673,7 +672,7 @@ def duel_challenge_accept(request):
         # get database start time and subtract 20 seconds from it to be consistent with network latency 
         start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
         print("start time ", start_time)
-        start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), countdown=40)
+        start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
         print("start duel celery")
         ##################################################################################################################################################
 
@@ -682,7 +681,7 @@ def duel_challenge_accept(request):
         # get database start time and add a munite to it to be consistent with network latency 
         evaluation_time = utcDate() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(minutes=1)
         print("evaluation time ", evaluation_time )
-        automatic_evaluator.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
+        automatic_evaluator.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=evaluation_time)
         print("automatic evaluation duel celery")
         ##################################################################################################################################################
 
@@ -739,12 +738,12 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             start_and_limit_time = duel_challenge.startTime + duel_challenge.timeLimit
             
             # get utc time now and add 15 seconds for network latency and items in queue that may make a delay
-            date_now = utcDate() #+ timedelta(seconds=15) 
+            date_now = utcDate() + timedelta(seconds=15) 
 
             # get the time when duel was accpeted and add start_and_limit_time to time
             duel_allowed_time = duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time) 
             
-            if duel_allowed_time > date_now:
+            if duel_allowed_time < date_now:
                 
                 # Challenge is expired
                 context_dict['isExpired']=True
@@ -817,10 +816,10 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             winner.save()
 
             # Notify winner
-            notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
+            notify.send(None, recipient=winner_s.user, actor=challengee_challenge.studentID.user,
                                     verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement')
             # Notify student about their lost
-            notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.user,
+            notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner_s.user,
                                     verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement')
           
 

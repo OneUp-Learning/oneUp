@@ -142,10 +142,10 @@
                         		<span>{{requested_duel_challenge.startTime}} minute(s)</span>
                             </li>
                             {% else %}
-                            <li>
+                            <!--<li>
                                 <span><b>Duel will finish in: </b></span>
                                 <span>{{start_time}}</span>
-                            </li>
+                            </li>-->
                             {% endif %}
                             {% if requested_duel_challenge.isBetting %}
                             <li>
@@ -187,8 +187,16 @@
                             
                                 <div id="modal_decline" class="modal">
                                         <div class="modal-content">
+                                        <h5>Please select a reason for declanation</h5>
+                                        <!--
+                                        <input type="radio" name="reason1" id="reason1" value="Not Interested"> Not Interest<br>
+                                        <input type="radio" name="reason2" id="reason2" value="Duel requires too much time"> Duel requires too much time<br>
+                                        <input type="radio" name="reason3" id="reason3" value="Duel requires much less time"> Duel requires much less time<br>
+                                        <input type="radio" name="reason4" id="reason4" value="Duel requires too much virtual currency"> Duel requires too much virtual currency<br>  
+                                        <input type="radio" name="reason5" id="reason5" value="Preferred not to say"> Preferred not to say<br>
+                                        -->
                                         <h5>Are you sure you want to decline?</h5>
-                                        <p>If you declined, the duel will be deleted and you will not able to Accept it.</p>
+                                        <p>If you declined, the duel will be deleted and this action is revertible.</p>
                                         </div>
                                         <div class="modal-footer">
                                         <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>

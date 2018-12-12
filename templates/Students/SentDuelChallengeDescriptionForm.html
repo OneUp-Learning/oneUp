@@ -45,11 +45,12 @@
                                 <p>{{message}}</p>
                             </div>
                             <ul style="font-size: 16px;">
-                                    {% if hasExpired %}
                                     <li>
                                             <span><b>Opponent Avatar: </b></span>
                                             <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
                                         </li>
+                                    {% if hasExpired %}
+                                        
                                         <li >
                                                 <span><b>Status: </b></span>
                                                 <span>Expired</span>
@@ -124,7 +125,7 @@
                                     <li>
                                             <span><b>Opponent Avatar: </b></span>
                                             <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
-                                        </li>
+                                    </li>
                                 <li>
                                     <span><b>Acceptance Status: </b></span>
                                     <span>{{acceptance_status}}</span>
@@ -139,10 +140,10 @@
                                     <span>{{sent_duel_challenge.startTime}} minute(s)</span>
                                 </li>
                                 {% else %}
-                                <li>
+                                <!--<li>
                                     <span><b>Duel will finish in: </b></span>
                                     <span>{{startTime}}</span>
-                                </li>
+                                </li>-->
                             {% endif %}
                             {% if sent_duel_challenge.isBetting %}
                             <li>
