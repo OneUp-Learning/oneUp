@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 import random 
 from datetime import datetime
+import sys
 
 ##GMM import Regular Expression, re
 import re,string
@@ -243,7 +244,7 @@ def ChallengeSetup(request):
                         if not lupa_available:
                             questdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
                         else:
-                            seed = random.random()
+                            seed = random.randint(0,sys.maxsize)
                             questSessionDict['seed'] = seed
                             
                             code = [CodeSegment.new(CodeSegment.raw_lua,dynamicQuestion.code,"")]
