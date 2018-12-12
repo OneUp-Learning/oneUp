@@ -14,10 +14,9 @@ from Instructors.views.instructorCourseHomeView import studentXP
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog, Student
 from Badges.enums import Event, ObjectTypes
 from Students.views.avatarView import checkIfAvatarExist
-from termios import CRPRNT
+#from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
 from django.contrib.auth.models import User
-
 import collections
     
 @login_required
