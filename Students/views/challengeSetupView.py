@@ -244,7 +244,7 @@ def ChallengeSetup(request):
                         if not lupa_available:
                             questdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
                         else:
-                            seed = random.randint(0,sys.maxsize)
+                            seed = random.randint(-2147483647,2147483646)
                             questSessionDict['seed'] = seed
                             
                             code = [CodeSegment.new(CodeSegment.raw_lua,dynamicQuestion.code,"")]
