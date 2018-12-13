@@ -13,7 +13,7 @@ from Badges.enums import QuestionTypes, ObjectTypes
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 
 from oneUp.logger import logger
@@ -21,8 +21,10 @@ import re
 from django.templatetags.i18n import language
 from sqlparse.utils import indent
 from django.template.defaultfilters import length
+from oneUp.decorators import instructorsCheck   
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def parsonsForm(request):
     context_dict, currentCourse = initialContextDict(request)
 

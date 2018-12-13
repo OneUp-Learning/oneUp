@@ -6,10 +6,11 @@ Modified 09/27/2016
 @author: Dillon Perry
 '''
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Announcements
 from Instructors.views.utils import utcDate, initialContextDict
 from datetime import datetime
+from oneUp.decorators import instructorsCheck     
 
 
 def createContextForAnnouncementList(currentCourse, context_dict):
@@ -39,6 +40,7 @@ def createContextForAnnouncementList(currentCourse, context_dict):
 
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def allAnnouncements(request):
 
     context_dict, currentCourse = initialContextDict(request)

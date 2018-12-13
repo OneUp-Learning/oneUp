@@ -1,6 +1,6 @@
 from django.template import RequestContext
 from django.shortcuts import render,redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, Courses, CoursesSkills
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Instructors.views.searchResultsView import searchResults
@@ -11,6 +11,7 @@ from Instructors.constants import unassigned_problems_challenge_name
 from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
 
 import logging
+from oneUp.decorators import instructorsCheck
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,7 @@ def makeContextDictForSearch(context_dict, currentCourse):
     return context_dict
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def challengeQuestionsListView(request):
  
     context_dict, currentCourse = initialContextDict(request)

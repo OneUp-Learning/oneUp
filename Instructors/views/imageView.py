@@ -10,11 +10,11 @@ from django.shortcuts import render, redirect
 from Instructors.models import Courses, UploadedImages 
 from Instructors.views.utils import initialContextDict
 from django.conf.global_settings import MEDIA_URL
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck   
 
 @login_required
-
-
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def imageUpload(request):
     context_dict, currentCourse = initialContextDict(request)
         
@@ -30,7 +30,8 @@ def imageUpload(request):
         imageObject.save()
         
     return redirect('/oneUp/instructors/imageList', context_dict)
-    
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')      
 def imageDelete(request):
     context_dict, currentCourse = initialContextDict(request)
         
@@ -43,6 +44,7 @@ def imageDelete(request):
     
        
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def imageList(request):
  
     context_dict, currentCourse = initialContextDict(request)

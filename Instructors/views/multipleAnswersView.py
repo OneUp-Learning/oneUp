@@ -15,10 +15,12 @@ from decimal import Decimal
 
 from Instructors.constants import default_time_str, unassigned_problems_challenge_name
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.logger import logger
+from oneUp.decorators import instructorsCheck   
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def multipleAnswersForm(request):
     context_dict, currentCourse = initialContextDict(request)
 

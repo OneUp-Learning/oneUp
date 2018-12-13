@@ -5,12 +5,14 @@ Created on Sep 6, 2018
 '''
 
 from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Instructors.models import InstructorRegisteredCourses
 from Instructors.constants import anonymous_avatar
+from oneUp.decorators import instructorsCheck     
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def resetTestStudent(request):
     context_dict = { }
     

@@ -6,14 +6,16 @@ Created on Oct 1, 2015
 from django.shortcuts import render
 from Instructors.models import Topics,CoursesSubTopics
 from Instructors.views.utils import initialContextDict
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from inspect import currentframe
+from oneUp.decorators import instructorsCheck
 
 def get_linenumber():
     cf = currentframe()
     return cf.f_back.f_lineno
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def subTopicsListView(request):
     context_dict, currentCourse = initialContextDict(request)
       

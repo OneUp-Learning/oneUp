@@ -17,15 +17,16 @@ from Badges.enums import QuestionTypes
 from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
 import os
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.settings import MEDIA_ROOT
-
+from oneUp.decorators import instructorsCheck  
 
 
 def str2bool(value):
     return value in ('True', 'true') 
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def exportChallenges(request):   
     context_dict, currentCourse = initialContextDict(request)
        
@@ -237,7 +238,8 @@ def exportChallenges(request):
         tree.write(f, encoding="unicode")        
         return render(request,'Instructors/ChallengeExportSave.html', context_dict)
 
-       
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')         
 def saveExportedChallenges(request):
 
     f = open('media/textfiles/xmlfiles/challenges.xml', 'r') 
@@ -246,7 +248,8 @@ def saveExportedChallenges(request):
 
     return response
 
-
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def uploadChallenges(request):
     context_dict, currentCourse = initialContextDict(request)
         
@@ -283,7 +286,8 @@ def findWithAlt(ele, name1, name2):
     
     return result
        
-   
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
 def importChallenges(uploadedFileName, currentCourse):
          
     fname = uploadedFileName
