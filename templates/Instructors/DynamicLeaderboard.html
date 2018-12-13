@@ -147,7 +147,7 @@
      function makeSureTheresOnlyOneTimeBackSelector(selectedItem,whereIsSelect, currentID){
  		var continousTimePeriodSelect = "<div id='continuousTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
          "<label for='continuousTimePeriodSelected_"+currentID+"'>Time Period Back:</label>\n"+
-         "<select id='continuousTimePeriodSelected_"+currentID+"' name='continuousTimePeriodSelected_[]'>\n"+
+         "<select id='continuousTimePeriodSelected_"+currentID+"' name='howFarBackTimePeriodSelected_[]'>\n"+
          "<option value='1500' >Day</option>\n"+
          "<option value='1501' >Week</option>\n"+
          "<option value='1502' >From Start of Semester</option>\n"+
@@ -368,6 +368,7 @@
                                  	document.getElementById("{{continousHowFarBack}}_{{i}}").selected = "true";
                                  }
                               </script>
+                              
                               	{% else %}
 								<input type='hidden' value='empty' name='howFarBackTimePeriodSelected_[]'></input>
 								{% endif %}
@@ -391,7 +392,7 @@
                <div class="col s12 m10 offset-m1"></div>
                <div class="right-align col s12 m10 offset-m1">
                   <a id="removeLeaderboard" class="waves-effect waves-light btn"
-                     onclick="removeAnswer();"><i class="material-icons left">remove</i>Remove
+                     onclick="removeAnswer();"><i class="material-icons left">remove</i>Remove Last
                   Leaderboard</a> 
                   <a id="addLeaderboard" class="waves-effect waves-light btn" onclick="addAnswer();">
                      <i class="material-icons left">toys</i>Add Leaderboard</a>

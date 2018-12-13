@@ -134,7 +134,6 @@ def dynamicLeaderboardView(request):
         print(leaderboardDescription)
         print(timePeriodSelected)
         print(leaderboardName)
-        print(howFarBackTimePeriodSelected)
         
         leaderboardObjects = []
         index = 0
@@ -165,6 +164,8 @@ def dynamicLeaderboardView(request):
             
             if timePeriodSelected[index] == '0':
                 leaderboard.isContinous = True
+                print("index", index)
+                print("howfar back all", howFarBackTimePeriodSelected)
                 leaderboard.howFarBack = howFarBackTimePeriodSelected[index]
             else:
                 leaderboard.timePeriodUpdateInterval = int(timePeriodSelected[index])
