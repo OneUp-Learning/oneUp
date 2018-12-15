@@ -7,9 +7,9 @@ from Instructors.views.utils import localizedDate, utcDate, initialContextDict, 
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
-
+from Badges.tasks import create_due_date_process
 from Badges.enums import ObjectTypes
-
+from django.utils.timezone import make_naive
 from time import time
 from datetime import datetime
 
@@ -181,7 +181,7 @@ def challengeCreateView(request):
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)
         
-
+        create_due_date_process(request, challenge.challengeID, challenge.dueDate, request.session['django_timezone'])
         
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
@@ -226,19 +226,20 @@ def challengeCreateView(request):
                 context_dict['unlimitedTime']=False 
             
 
-            startTime = challenge.startTimestamp.strftime("%m/%d/%Y %I:%M %p")
-            if startTime != default_time_str:
+            startTime = localizedDate(request, str(make_naive(challenge.startTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if challenge.startTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['startTimestamp']= startTime
             else:
                 context_dict['startTimestamp']= ""
 
-            endTime = challenge.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
-            if endTime != default_time_str: 
+            endTime = localizedDate(request, str(make_naive(challenge.endTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if challenge.endTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
                 context_dict['endTimestamp']= endTime
             else:
                 context_dict['endTimestamp']= ""
-            dueDate = challenge.dueDate.strftime("%m/%d/%Y %I:%M %p")
-            if dueDate != default_time_str:
+            # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
+            dueDate = localizedDate(request, str(make_naive(challenge.dueDate)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['dueDate'] = dueDate
             else:
                 context_dict['dueDate'] = ""

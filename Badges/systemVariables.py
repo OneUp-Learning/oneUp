@@ -853,11 +853,11 @@ def firstAttemptStatic(questionID):
         return 0
     else:
         return question.questionScore
-def sc_has_due_date(course, student, serious_challenge):
+def sc_reached_due_date(course, student, serious_challenge):
+    # Returns true if the due date for serious challenge has been reached or if due date is the same as default date
     if not serious_challenge.isGraded:
         return False
-    return serious_challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") != default_time_str
-
+    return serious_challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -907,7 +907,7 @@ class SystemVariable():
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
-    hasDueDateForSeriousChallenges = 944 # Returns true if the serious challenge has a due date assigned
+    seriousChallengeReachedDueDate = 944 # Returns true if the current time is past a serious challenge due date
 
     systemVariables = {
         numAttempts:{
@@ -1424,17 +1424,17 @@ class SystemVariable():
                 ObjectTypes.none:getTotalScoreForSeriousChallenges
             },
         },
-        hasDueDateForSeriousChallenges:{
-            'index': hasDueDateForSeriousChallenges,
-            'name': 'hasDueDateForSeriousChallenges',
-            'displayName': 'Serious Challenge has Due Date',
-            'description': 'The Serious Challenges have due dates assigned',
+        seriousChallengeReachedDueDate:{
+            'index': seriousChallengeReachedDueDate,
+            'name': 'seriousChallengeReachedDueDate',
+            'displayName': 'Serious Challenge Reached Due Date',
+            'description': 'The serious challenge due date has past or reached based on the current moment',
             'eventsWhichCanChangeThis': {
-                ObjectTypes.challenge: [Event.endChallenge],
+                ObjectTypes.challenge: [Event.challengeExpiration],
             },
             'type': 'boolean',
             'functions': {
-                ObjectTypes.challenge: sc_has_due_date
+                ObjectTypes.challenge: sc_reached_due_date
             },
         },
                                                                        
