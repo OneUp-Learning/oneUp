@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Skills, Courses, CoursesSkills
 from Instructors.views.utils import initialContextDict
@@ -38,7 +38,7 @@ def skillsCreateView(request):
             courseSkill.save()
 
 
-                
+        return redirect('/oneUp/instructors/skillsList')
     #################################
     #  get request
     else:
