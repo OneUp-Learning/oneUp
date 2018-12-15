@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions
 from Students.views.utils import studentInitialContextDict
 
-from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo
+from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, Event
 from datetime import datetime
 #import logging
@@ -21,16 +21,18 @@ def transactionNotesView(request):
     currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount         
      
     # Code from virtual currency shop view
+    # RULE BASED VC NOT USED
     def getRulesForEvent(event):
         return VirtualCurrencyRuleInfo.objects.filter(vcRuleType=False, ruleID__ruleevents__event=event, courseID=course)
 
     # We assume that if a rule decreases virtual currency, it is a
     # buy rule.  This function assumes that virtual currency penalty
     # rules have already been screened out.  A more robust test
-    # would be needed if used in a different context.        
+    # would be needed if used in a different context.   
+    # RULE BASED VC NOT USED     
     def checkIfRuleIsBuyRule(rule):
         return rule.ruleID.actionID == Action.decreaseVirtualCurrency
-    
+    # RULE BASED VC NOT USED
     def getAmountFromBuyRule(rule):
         if ActionArguments.objects.filter(ruleID=rule.ruleID,sequenceNumber=1).exists:
             return int(ActionArguments.objects.get(ruleID=rule.ruleID, sequenceNumber=1).argumentValue)
@@ -39,12 +41,13 @@ def transactionNotesView(request):
     
     # We just find the first one.  This should generally be fine
     # since there should be at most one.
+    # RULE BASED VC NOT USED
     def getFirstBuyRule(ruleList):
         for rule in ruleList:
             if checkIfRuleIsBuyRule(rule):
                 return rule
         return None
-    
+    # RULE BASED VC NOT USED
     def getBuyAmountForEvent(event):
         rules = getRulesForEvent(event)
         buyRule = getFirstBuyRule(rules)
@@ -55,16 +58,21 @@ def transactionNotesView(request):
         
     transaction = StudentVirtualCurrencyTransactions.objects.get(pk=int(request.GET['transactionID']))
     
-    event = Event.events[transaction.studentEvent.event]
-    _, total, rule = getBuyAmountForEvent(transaction.studentEvent.event)
-    if rule:
-        context_dict['name'] = rule.vcRuleName
-        context_dict['description'] = rule.vcRuleDescription
-    else:
-        context_dict['name'] = event['displayName']
-        context_dict['description'] = event['description']
+    # RULE BASED VC NOT USED
+    # event = Event.events[transaction.studentEvent.event]
+    # _, total, rule = getBuyAmountForEvent(transaction.studentEvent.event)
+    # if rule:
+    #     context_dict['name'] = rule.vcRuleName
+    #     context_dict['description'] = rule.vcRuleDescription
+    # else:
+    #     context_dict['name'] = event['displayName']
+    #     context_dict['description'] = event['description']
+
+    rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.objectID).first()
+    context_dict['name'] = rule.vcRuleName
+    context_dict['description'] = rule.vcRuleDescription
     context_dict['purchaseDate'] = transaction.studentEvent.timestamp
-    context_dict['total'] = total
+    context_dict['total'] = rule.vcRuleAmount
     context_dict['status'] = transaction.status
     context_dict['noteForStudent'] = transaction.noteForStudent
     

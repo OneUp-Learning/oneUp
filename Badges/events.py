@@ -97,6 +97,9 @@ def register_event(eventID, request, student=None, objectId=None):
     if(eventID == Event.classAttendance):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = 0
+    if(eventID == Event.spendingVirtualCurrency):
+        eventEntry.objectType = ObjectTypes.virtualCurrencySpendRule
+        eventEntry.objectID = objectId
         
     # Visited Pages Events    
     if(eventID == Event.visitedDashboard):

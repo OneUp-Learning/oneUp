@@ -33,6 +33,7 @@ def SaveVirtualCurrencySpendRule(request):
                 vcRuleInfo = VirtualCurrencyCustomRuleInfo.objects.get(vcRuleID=request.POST['vcRuleID'], courseID= currentCourse)
             else:
                 vcRuleInfo = VirtualCurrencyCustomRuleInfo()
+                logger.debug("New Spend Rule")
             
             vcRuleInfo.vcRuleName = request.POST["ruleName"]
             vcRuleInfo.vcRuleDescription = request.POST["ruleDescription"]
@@ -43,6 +44,7 @@ def SaveVirtualCurrencySpendRule(request):
             vcRuleInfo.save()
         else:
             pass
+
             eventIndex = []
             eventName = []
             eventDescription = []

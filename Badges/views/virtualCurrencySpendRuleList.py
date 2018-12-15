@@ -20,6 +20,7 @@ def virtualCurrencySpendRuleList(request):
     vcsRuleID = [] 
     vcsRuleName = []
     vcsAmount = [] 
+    vcsLimit = []
     position = []
     
     vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=currentCourse).order_by('vcRulePosition')
@@ -29,8 +30,9 @@ def virtualCurrencySpendRuleList(request):
         vcsRuleName.append(rule.vcRuleName)
         position.append(rule.vcRulePosition)
         vcsAmount.append(rule.vcRuleAmount or 0)
+        vcsLimit.append(rule.vcRuleLimit)
                     
-    context_dict['vcsRuleInfo'] = zip(range(1,len(vcsRuleID)+1),vcsRuleID,vcsRuleName,vcsAmount, position)
+    context_dict['vcsRuleInfo'] = zip(range(1,len(vcsRuleID)+1),vcsRuleID,vcsRuleName,vcsAmount, vcsLimit, position)
 
     return render(request,'Badges/VirtualCurrencySpendRuleList.html', context_dict)
 
