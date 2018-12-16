@@ -10,6 +10,7 @@ def process_event_offline(eventpk, minireq, student, objectId):
 @app.task(ignore_result=True)
 def process_expired_serious_challenges(course_id, user_id, challenge_id, due_date, timezone):
     from Instructors.models import Challenges, Courses
+    from Instructors.views.utils import localizedDate
     from Students.models import StudentRegisteredCourses
     from Badges.events import register_event_simple
     from Badges.enums import Event
@@ -17,7 +18,7 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
     from datetime import datetime
 
     course = Courses.objects.get(pk=int(course_id))
-    currentTime = date_with_tz(timezone, str(datetime.utcnow().replace(microsecond=0)))
+    currentTime = localizedDate(None, str(datetime.utcnow().replace(microsecond=0)), "%Y-%m-%d %H:%M:%S", timezone)
 
     challenge = Challenges.objects.filter(courseID=course, challengeID=challenge_id).first()
     # If the challenge is deleted don't calculate the send event
@@ -38,20 +39,12 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
                 register_event_simple(Event.challengeExpiration, mini_req, student, challenge.challengeID)
                 print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
 
-
-def date_with_tz(timezone, value):
-    ''' Converts string datetime to localize datetime we use all over oneup'''
-    import pytz
-    from datetime import datetime
-    tz = pytz.timezone(timezone)
-    eta = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
-    return tz.localize(eta)
-
 def create_due_date_process(request, challenge_id, due_date, tz_info):
     ''' This will register a task to be called when a due date has been reach for a particular challenge'''
 
     from datetime import timedelta
     from django.utils.timezone import make_naive
+    from Instructors.views.utils import localizedDate
     # Make date naive since celery eta accepts only naive datetimes
     due_date = make_naive(due_date)
 
@@ -61,9 +54,9 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
     process_expired_serious_challenges.apply_async(kwargs={'course_id': request.session['currentCourseID'],
             'user_id': request.user.id,
             'challenge_id': challenge_id,
-            'due_date': date_with_tz(timezone, str(due_date)),
+            'due_date': localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone),
             'timezone': timezone,
-            }, eta=date_with_tz(timezone, str(due_date)), expires=date_with_tz(timezone, str(due_date)) + timedelta(minutes=1), serializer='pickle')
+            }, eta=localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone), expires=localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone) + timedelta(minutes=1), serializer='pickle')
 
             
 
