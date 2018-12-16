@@ -65,7 +65,7 @@ def virtualCurrencyShopView(request):
             from Instructors.constants import default_time_str
             from Instructors.views.utils import utcDate
             from django.db.models import Q
-
+            
             
             challenges_id = []
             challenges_name = []
@@ -97,19 +97,21 @@ def virtualCurrencyShopView(request):
                 return 0
 
         # Gets all the serious challenges and graded activities
-        def getChallengesForShop():
+        def getChallengesForShop(request):
             from Instructors.models import Challenges , ChallengesQuestions, Activities
             from Instructors.constants import default_time_str
-            from Instructors.views.utils import utcDate
+            from Instructors.views.utils import utcDate, localizedDate
             from django.db.models import Q
-
+            from datetime import datetime
             
+
+
             challenges_id = []
             challenges_name = []
 
-            defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
             print("Default Time: {}".format(defaultTime))
-            currentTime = utcDate()
+            currentTime = localizedDate(request, str(datetime.utcnow().replace(microsecond=0)), "%Y-%m-%d %H:%M:%S")
             print("Current Time: {}".format(currentTime))
             challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
             activites = Activities.objects.filter(courseID=currentCourse, isGraded=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
@@ -156,7 +158,7 @@ def virtualCurrencyShopView(request):
             #     index += 1
 
             vc_rules = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID = currentCourse)
-            challenges = getChallengesForShop()
+            challenges = getChallengesForShop(request)
             for rule in vc_rules:
                 buyOptions.append({'id':rule.vcRuleID, 'cost': rule.vcRuleAmount, 'name': rule.vcRuleName, 'displayName': rule.vcRuleName, 
                 'description': rule.vcRuleDescription, 'challenges': copy.deepcopy(challenges), 'limit': rule.vcRuleLimit, 'remaining': 0})
