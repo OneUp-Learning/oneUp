@@ -8,6 +8,7 @@ from Badges.models import VirtualCurrencyRuleInfo, ActionArguments, RuleEvents, 
 from Badges.enums import Action, Event, ObjectTypes, dict_dict_to_zipped_list
 from Badges.events import register_event
 import logging
+import copy
 
 @login_required
 def virtualCurrencyShopView(request):
@@ -94,7 +95,41 @@ def virtualCurrencyShopView(request):
                 return zip(challenges_id, challenges_name) 
             else:
                 return 0
-                   
+
+        # Gets all the serious challenges and graded activities
+        def getChallengesForShop():
+            from Instructors.models import Challenges , ChallengesQuestions, Activities
+            from Instructors.constants import default_time_str
+            from Instructors.views.utils import utcDate
+            from django.db.models import Q
+
+            
+            challenges_id = []
+            challenges_name = []
+
+            defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            print("Default Time: {}".format(defaultTime))
+            currentTime = utcDate()
+            print("Current Time: {}".format(currentTime))
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+            activites = Activities.objects.filter(courseID=currentCourse, isGraded=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+            
+            for challenge in challenges:
+                challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
+                # Only pick challenges that have questions assigned to them
+                if challQuestions:
+                    challenges_id.append(challenge.challengeID)
+                    challenges_name.append(challenge.challengeName)
+            for activity in activites:
+                #studentActivities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse,activityID=activity)
+                # Only pick activities that are graded
+
+                challenges_id.append(activity.activityID)
+                challenges_name.append(activity.activityName)
+                
+            if len(challenges_id) == 0:
+                return None
+            return zip(challenges_id, challenges_name)   
         
         if request.method == "GET":
             buyOptions = []
@@ -121,13 +156,14 @@ def virtualCurrencyShopView(request):
             #     index += 1
 
             vc_rules = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID = currentCourse)
+            challenges = getChallengesForShop()
             for rule in vc_rules:
                 buyOptions.append({'id':rule.vcRuleID, 'cost': rule.vcRuleAmount, 'name': rule.vcRuleName, 'displayName': rule.vcRuleName, 
-                'description': rule.vcRuleDescription, 'challenges': None, 'limit': rule.vcRuleLimit, 'remaining': 0})
+                'description': rule.vcRuleDescription, 'challenges': copy.deepcopy(challenges), 'limit': rule.vcRuleLimit, 'remaining': 0})
 
             # filter out the potential buy options if the student has went over the limit by looking at their transactions
             for buyOption in buyOptions:
-                studentTransactions = StudentVirtualCurrencyTransactions.objects.filter(course = currentCourse, student = student, status__in = ['Requested', 'In Progress', 'Complete'], studentEvent__event = Event.spendingVirtualCurrency, objectID=buyOption['id'])
+                studentTransactions = StudentVirtualCurrencyTransactions.objects.filter(course = currentCourse, student = student, status__in = ['Requested', 'In Progress', 'Complete'], studentEvent__event = Event.spendingVirtualCurrency, studentEvent__objectID=buyOption['id'])
                 if buyOption['limit'] == 0:
                     continue
                 elif len(studentTransactions) >= buyOption['limit']:
@@ -165,9 +201,16 @@ def virtualCurrencyShopView(request):
                     #     studentVCTransaction.status = 'Requested'
                     #     studentVCTransaction.save()
                     # else:
+                    
                     studentVCTransaction.studentEvent = register_event(Event.spendingVirtualCurrency, request, student, buyOption['id'])
-                    studentVCTransaction.objectType = ObjectTypes.virtualCurrencySpendRule
-                    studentVCTransaction.objectID = buyOption['id']
+                    print(request.POST['challengeFor'+rule.vcRuleName])
+                    print(request.POST)
+                    if request.POST['challengeFor'+rule.vcRuleName] == "none":
+                        studentVCTransaction.objectType = ObjectTypes.virtualCurrencySpendRule
+                        studentVCTransaction.objectID = buyOption['id']
+                    else:
+                        studentVCTransaction.objectType = ObjectTypes.challenge
+                        studentVCTransaction.objectID = int(request.POST['challengeFor'+rule.vcRuleName])
                     studentVCTransaction.status = 'Requested'
                     studentVCTransaction.save()
             st_crs.virtualCurrencyAmount -= total

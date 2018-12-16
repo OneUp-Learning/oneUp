@@ -40,6 +40,7 @@
                                  <td>
                                     {% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
                                     <select name="challengeFor{{buyOpt.name}}">
+                                       <option value="none">None</option>
                                     {% for id, name in buyOpt.challenges %}
                                         <option value="{{id}}">{{name}}</option>
                                     {% endfor %}

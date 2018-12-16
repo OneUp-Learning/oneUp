@@ -91,7 +91,7 @@ def transactionsView(request):
         # else:
         #     name.append(event['displayName'])
         #     description.append(event['description'])
-        rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.objectID).first()
+        rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
         name.append(rule.vcRuleName)
         description.append(rule.vcRuleDescription)
         purchaseDate.append(transaction.studentEvent.timestamp)
@@ -100,9 +100,9 @@ def transactionsView(request):
         transactionID.append(transaction.transactionID)
         # Show what challenge the transaction was for
         if transaction.objectType == ObjectTypes.challenge:
-            challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID)
+            challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
             if challenge:
-                challenges.append(challenge[0].challengeName)
+                challenges.append(challenge.challengeName)
             else:
                 challenges.append(None)
         else:

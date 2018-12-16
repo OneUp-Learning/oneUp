@@ -3,8 +3,9 @@ from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentVirtualCurrencyTransactions, StudentRegisteredCourses
 from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
-from Badges.enums import Event
+from Badges.enums import Event, ObjectTypes
 from datetime import datetime
+from Instructors.models import Challenges
 #import logging
 
 @login_required
@@ -64,7 +65,7 @@ def updateVirtualCurrencyTransaction(request):
                 #     context_dict['name'] = event['displayName']
                 #     context_dict['description'] = event['description']
 
-                rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.objectID).first()
+                rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
                 context_dict['name'] = rule.vcRuleName
                 context_dict['description'] = rule.vcRuleDescription
                 context_dict['purchaseDate'] = transaction.studentEvent.timestamp
@@ -74,6 +75,14 @@ def updateVirtualCurrencyTransaction(request):
                 context_dict['instructorNote'] = transaction.instructorNote
                 context_dict['noteForStudent'] = transaction.noteForStudent
                 context_dict['transactionID'] = request.GET['transactionID']
+                if transaction.objectType == ObjectTypes.challenge:
+                    challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
+                    if challenge:
+                        context_dict['challenge'] = challenge.challengeName
+                    else:
+                        context_dict['challenge'] = None
+                else:
+                    context_dict['challenge'] = None
                 #logger.debug(context_dict)
                 
             return render(request, 'Badges/UpdateVirtualCurrencyTransaction.html', context_dict)
@@ -82,7 +91,7 @@ def updateVirtualCurrencyTransaction(request):
                 transaction = StudentVirtualCurrencyTransactions.objects.get(pk=int(request.POST['transactionID']))
                 if request.POST['updateStatus'] == 'Reverted' and transaction.status != 'Reverted':
                     student = StudentRegisteredCourses.objects.get(courseID = course, studentID = transaction.student)
-                    rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.objectID).first()
+                    rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
                     student.virtualCurrencyAmount += rule.vcRuleAmount
                     student.save()
                     

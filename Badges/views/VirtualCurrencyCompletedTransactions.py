@@ -75,7 +75,7 @@ def virtualCurrencyCompletedTransactions(request):
             # else:
             #     name.append(event['displayName'])
             #     description.append(event['description'])
-            rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.objectID).first()
+            rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
             name.append(rule.vcRuleName)
             description.append(rule.vcRuleDescription)
             purchaseDate.append(transaction.studentEvent.timestamp)
