@@ -47,7 +47,7 @@
                                           <tbody>
                                                 {% for i,vcsRuleID,vcsRuleName,vcsAmount, limit, position in vcsRuleInfo %}
                                                 <tr>
-                                                      <td>{{vcsRuleName}}</td>
+                                                      <td style="max-width: 80vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{vcsRuleName}}</td>
                                                       <td>{{vcsAmount}}</td>
                                                       <td>{{limit}}</td>
                                                       <td>
@@ -68,7 +68,7 @@
                                                             <div id="modal_delete-{{i}}" class="modal">
                                                                   <div class="modal-content">
                                                                         <h5>Are you sure you want to delete?</h5>
-                                                                        <p>Problems will not be deleted</p>
+                                                                        <p>Corresponding transactions will be deleted</p>
                                                                   </div>
                                                                   <div class="modal-footer">
                                                                         <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>

@@ -5,7 +5,7 @@ from Students.models import StudentVirtualCurrencyTransactions, StudentRegistere
 from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Event, ObjectTypes
 from datetime import datetime
-from Instructors.models import Challenges
+from Instructors.models import Challenges, Activities
 #import logging
 
 @login_required
@@ -78,11 +78,15 @@ def updateVirtualCurrencyTransaction(request):
                 if transaction.objectType == ObjectTypes.challenge:
                     challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
                     if challenge:
-                        context_dict['challenge'] = challenge.challengeName
+                        context_dict['assignment'] = challenge.challengeName
                     else:
-                        context_dict['challenge'] = None
+                        activity = Activities.objects.filter(courseID = course, activityID = transaction.objectID).first()
+                        if activity:
+                            context_dict['assignment'] = activity.activityName
+                        else:
+                            context_dict['assignment'] = None
                 else:
-                    context_dict['challenge'] = None
+                    context_dict['assignment'] = None
                 #logger.debug(context_dict)
                 
             return render(request, 'Badges/UpdateVirtualCurrencyTransaction.html', context_dict)

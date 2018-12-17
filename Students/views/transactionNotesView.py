@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions
 from Students.views.utils import studentInitialContextDict
-from Instructors.models import Challenges
+from Instructors.models import Challenges, Activities
 from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, Event, ObjectTypes
 from datetime import datetime
@@ -79,11 +79,15 @@ def transactionNotesView(request):
     if transaction.objectType == ObjectTypes.challenge:
         challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
         if challenge:
-            context_dict['challenge'] = challenge.challengeName
+            context_dict['assignment'] = challenge.challengeName
         else:
-            context_dict['challenge'] = None
+            activity = Activities.objects.filter(courseID = course, activityID = transaction.objectID).first()
+            if activity:
+                context_dict['assignment'] = activity.activityName
+            else:
+                context_dict['assignment'] = None
     else:
-        context_dict['challenge'] = None
+        context_dict['assignment'] = None
     
     #logger.debug(context_dict)
 

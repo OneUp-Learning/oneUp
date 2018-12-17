@@ -187,34 +187,35 @@ def virtualCurrencyShopView(request):
             for buyOption in enabledBuyOptions:
                 quantity = request.POST['buyOptionQuantity'+str(buyOption['id'])]
                 rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=currentCourse, vcRuleID=buyOption['id']).first()
-                total += int(quantity) * int(rule.vcRuleAmount)
-                for j in range(0, int(quantity)):
-                    studentVCTransaction = StudentVirtualCurrencyTransactions()
-                    studentVCTransaction.student = student
-                    studentVCTransaction.course = currentCourse
-                    
-                    # RULE BASED VC NOT USED
-                    # Object ID is challenge ID for certain events
-                    # if buyOption['eventID'] in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
-                    #     event = Event.events[buyOption['eventID']]
-                    #     studentVCTransaction.studentEvent = register_event(buyOption['eventID'], request, student, int(request.POST['challengeFor'+event['displayName']]))
-                    #     studentVCTransaction.objectType = ObjectTypes.challenge
-                    #     studentVCTransaction.objectID = int(request.POST['challengeFor'+event['displayName']])
-                    #     studentVCTransaction.status = 'Requested'
-                    #     studentVCTransaction.save()
-                    # else:
-                    
-                    studentVCTransaction.studentEvent = register_event(Event.spendingVirtualCurrency, request, student, buyOption['id'])
-                    print(request.POST['challengeFor'+rule.vcRuleName])
-                    print(request.POST)
-                    if request.POST['challengeFor'+rule.vcRuleName] == "none":
-                        studentVCTransaction.objectType = ObjectTypes.virtualCurrencySpendRule
-                        studentVCTransaction.objectID = buyOption['id']
-                    else:
-                        studentVCTransaction.objectType = ObjectTypes.challenge
-                        studentVCTransaction.objectID = int(request.POST['challengeFor'+rule.vcRuleName])
-                    studentVCTransaction.status = 'Requested'
-                    studentVCTransaction.save()
+                if rule:
+                    total += int(quantity) * int(rule.vcRuleAmount)
+                    for j in range(0, int(quantity)):
+                        studentVCTransaction = StudentVirtualCurrencyTransactions()
+                        studentVCTransaction.student = student
+                        studentVCTransaction.course = currentCourse
+                        
+                        # RULE BASED VC NOT USED
+                        # Object ID is challenge ID for certain events
+                        # if buyOption['eventID'] in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
+                        #     event = Event.events[buyOption['eventID']]
+                        #     studentVCTransaction.studentEvent = register_event(buyOption['eventID'], request, student, int(request.POST['challengeFor'+event['displayName']]))
+                        #     studentVCTransaction.objectType = ObjectTypes.challenge
+                        #     studentVCTransaction.objectID = int(request.POST['challengeFor'+event['displayName']])
+                        #     studentVCTransaction.status = 'Requested'
+                        #     studentVCTransaction.save()
+                        # else:
+                        
+                        studentVCTransaction.studentEvent = register_event(Event.spendingVirtualCurrency, request, student, buyOption['id'])
+                        print(request.POST['challengeFor'+rule.vcRuleName])
+                        print(request.POST)
+                        if request.POST['challengeFor'+rule.vcRuleName] == "none":
+                            studentVCTransaction.objectType = ObjectTypes.virtualCurrencySpendRule
+                            studentVCTransaction.objectID = buyOption['id']
+                        else:
+                            studentVCTransaction.objectType = ObjectTypes.challenge
+                            studentVCTransaction.objectID = int(request.POST['challengeFor'+rule.vcRuleName])
+                        studentVCTransaction.status = 'Requested'
+                        studentVCTransaction.save()
             st_crs.virtualCurrencyAmount -= total
             st_crs.save()
             return redirect("/oneUp/students/Transactions.html")
