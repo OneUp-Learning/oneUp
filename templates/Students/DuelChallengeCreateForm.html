@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <script>
+         $( document ).ready(function(){
+             var endDate = $('#endTime').bootstrapMaterialDatePicker({
+               weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+             });
+             
+             var deadLine = $('#deadLine').bootstrapMaterialDatePicker({
+                 weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+               });
+           
+            /* var startDate = $('#startTime').bootstrapMaterialDatePicker({
+               weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
+             }).on('change', function(e, date) {
+               $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
+               $('#deadLine').bootstrapMaterialDatePicker('setMinDate', date);
+             });*/
+             
+             
+             {% if isBetting %}
+             $('#vcBetting').attr("disabled", false);
+             {% else %}
+             $('#vcBetting').attr("disabled", true);
+             {% endif %}
+             $('#isBetting').change(function(){
+                if(this.checked){
+                  $('#vcBetting').attr("disabled", false);
+                }
+                else
+                {
+                  $('#vcBetting').attr("disabled", true);
+                }
+             });
+         });
+      </script>
+
+   </head>
+   <body>
+    {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Create Duel</h3>
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
+               <p id='header_error' name ='header_error' class="red-text"></p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <form name="duelChallForm" id="duelChallForm"  action="/oneUp/students/DuelChallengeCreate" method="POST">
+                  {% csrf_token %}
+                  {% if DuelChallengeID %}
+                  <input type="hidden" name="duelChallID" id="duelChallID" value="{{duelChallID}}">
+                  {% endif %}
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Name" value="{{duelChallName}}" name="duelChallName" id="duelChallName" type="text" class="validate" pattern=".*\S+.*" required>
+                              <label for="duelChallName"><span class= "red-text">*</span> Duel Name</label>
+                           </div>
+                        </div>
+                        <div class="row">
+
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s18 m6">
+                              <label for="startTime"><span class= "red-text">*</span> Minute(s) The Challenge starts After Acceptance</label> 
+                              <input placeholder="minutes (minimum 5)" value="{{startTime}}" name="startTime" id="startTime" maxlength="6" type="number" class="validate" min="1" step="any" required>
+                              <!--<input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">-->
+                           </div>
+                           <div class="input-field col s18 m6">
+                              <label for="timeLimit"><span class= "red-text">*</span> Time Limit</label>
+                              <input placeholder="minutes (minimum 5)" value="{{timeLimit}}" name="timeLimit" id="timeLimit" maxlength="6" type="number" class="validate" min="1" step="any" required> 
+                              <!--<input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime">-->
+                           </div>
+
+                        </div>
+                        <div class="row">
+                             <div class="input-field col s12" id="challengee_id">
+                              <select class="icons" name="challengee_id" form="duelChallForm" required>
+                                <!--<option value="{{currentStudent}}" selected>{{currentAvatar}}</option>
+                                <table>
+                                 <tbody>-->
+                                {% for i, challengee_id, avatar, challengee in challengees_range %}
+                                    <!--{% if avatar != currentAvatar %}-->
+                                       <!--<option value={{challengee_id}} id="challengee_id" name="challengee_id"> <li><p class="center-align"><img class="circle" width="100" height="100" src="{{avatar}}"></p></li>
+                                       </option>
+                                       
+                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id" > {{challengee.studentID.user.first_name}}</option>-->
+                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id"  data-icon="{{avatar}}"  class="circle">{{challengee.studentID.user.first_name}}</option>>
+                     
+                                       <!--<label for="a{{i}}"><img alt="Avatar Image" width="76px" height="76px" src="/{{avatar}}"></label>        
+                                                     <option img alt="Avatar Image" class="circle" width="35" height="35" src="{{avatar}}" {{challengee.studentID.user.first_name}}</option>
+                                    {% endif %}-->
+                                 
+                                {% endfor %}
+                              
+                              
+                              </select>
+                              <label for="challengee_id"><span class= "red-text">*</span> Select Challengee</label>
+                          </div>
+                        </div>
+                        <div class="row">
+
+                                <div class="input-field col s16 m6" id="topic">
+                                        <select name="topic" form="duelChallForm">
+                                          <!--<option value="{{currentStudent}}" selected>{{currentAvatar}}</option>-->
+                                          {%if course_topics%}
+                                          <option name= "topic" value="Any" >Any</option>
+                                          {%endif%}
+                                          {% for topic in course_topics %}
+                                                  <!--{% if avatar != currentAvatar %}-->
+                                                  <option value={{topic.topicID.topicID}} name="topic"> {{topic.topicID.topicName}}</option>
+                                                 
+                                                 <!-- <option img alt="Avatar Image" class="circle" width="35" height="35" src="{{avatar}}"</option>
+                                                  {% endif %}-->
+                                          {% endfor %}
+                                        </select>
+                                          <label for="topic"><span class= "red-text"></span> Select Topic</label>
+                                          <p id="random_chall_error" name="random_chall_error" class= "red-text"></p>
+                                 
+                                </div>
+
+                                <div class="input-field col s16 m6">
+                                   <select name="difficulty" {%if view%}readonly{%endif%}>
+                                      <!--<option value="" disabled selected>Choose Difficulty</option>-->
+                                      <option id= "Any" value="Any" {%if view%}disabled{%endif%}>Any</option>
+                                      <option id= "Easy" value="Easy" {%if view%}disabled{%endif%}>Easy</option>
+                                      <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
+                                      <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
+                                   </select>
+                                   <label>Select Difficulty</label>
+                                 </div>
+                             </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <input name="isBetting" type="checkbox" id="isBetting" {% if isBetting %} checked {% endif %}/>
+                              <label for="isBetting">Bet An Amount of Virtual Currency</label>
+                           </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="input-field col s12">
+                               <input placeholder="Amount" value="{{vcBetting}}" name="vcBetting" id="vcBetting" maxlength="4" type="number" class="validate" min="0" step="any" required>
+                               <label for="vcBetting"><span class= "red-text">*</span> Virtual Currency Amount</label>
+                               <p id="challenger_vc_error" name="challenger_vc_error" class= "red-text"></p>
+                               <p id="challengee_vc_error" name="challengee_vc_error" class= "red-text"></p>
+                              </div>
+                         </div>
+                     </div>
+                     <div class="card-action right-align">
+                           
+                        <button  class="waves-effect waves-light btn modal-trigger" href="#modal_confirm" type="submit" name="submit" id="submit" >Confirm
+                        <i class="material-icons right">send</i>
+                        </button>
+                        <div id="modal_confirm" class="modal">
+                            <div class="modal-content">
+                              <P>Upon submission, if bet of virtual currency is checked, you are agreeing the specified amount of 
+                                  Vitual Currency will be withdrawn from your account and put at stake. 
+                                  In case of a tie or request denial, your Virtual Currency will be reimbursed. 
+                                  The system will randomly select a challenge that was not completed by you nor 
+                                  your opponent based on specified topic and difficulty. To win the Duel, 
+                                  you must solve the problem(s) the same as or better than your opponent. In 
+                                  case of a tie, you and your opponent are both considered winners.
+                                  Are sure you want to submit?</P>
+                            </div>
+                            <div class="modal-footer">
+                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                              <!--class="modal-action modal-close waves-effect waves-light btn"-->
+                              <button href="#!" class="modal-action modal-close waves-effect waves-light btn" type="submit" name="submit"
+                                value="Submit">Submit
+                            </button>
+                            </div>
+                          </div>
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/Callouts"><i class="material-icons left">close</i>Cancel</a>                                                                  
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+   <script>
+   $("#duelChallForm").on('submit', function(e){
+      $('#header_error').html("");
+      $('#random_chall_error').html("");
+      $('#challengee_vc_error').html("");
+      $('#challenger_vc_error').html("");
+
+      $.ajax({
+    		  	url: "/oneUp/students/ValidateDuelChallengeCreate", 
+    		  	dataType: 'json',
+            async: false,
+    		  	type: 'POST',
+   		        data: $("#duelChallForm").serialize(),
+   		        success: function(error){
+                    let status = true;
+   		        	if(error.random_chall_error.length > 0){
+                       e.preventDefault();
+   		        		status = false ;
+   		        		$('#random_chall_error').html(error.random_chall_error[0]);
+   		        	}
+   		        
+                  if(error.challengee_vc_error.length > 0){
+                     e.preventDefault();
+                     status = false;
+                     $('#challengee_vc_error').html(error.challengee_vc_error[0])
+                  }
+
+                  if(error.challenger_vc_error.length > 0){
+                     e.preventDefault();
+                     status = false;
+                     $('#challenger_vc_error').html(error.challenger_vc_error[0]);
+                  }
+
+                  if(!status){
+                     e.preventDefault();
+                     $('#header_error').html('Please correct errors');
+                  }
+                  
+      		  }
+        	  });
+             
+   });
+   </script>
+</html>

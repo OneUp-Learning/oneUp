@@ -5,15 +5,17 @@ Created on Aprial 27, 2018
 '''
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,  user_passes_test
 from Instructors.models import Activities, Courses, ActivitiesCategory
 from Students.models import StudentRegisteredCourses, StudentActivities
 from Instructors.views.utils import initialContextDict
 from Instructors.constants import uncategorized_activity
 from django.template.defaultfilters import default
 from django.template.context_processors import request
+from oneUp.decorators import instructorsCheck
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def activityCatList(request):
     context_dict, currentCourse = initialContextDict(request)   
     categories = ActivitiesCategory.objects.filter(courseID=currentCourse).exclude(name=uncategorized_activity)
@@ -22,6 +24,7 @@ def activityCatList(request):
     return render(request,'Instructors/ActivityCategories.html', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def activityCatCreate(request):
     context_dict, currentCourse = initialContextDict(request)
     
@@ -50,6 +53,7 @@ def activityCatCreate(request):
     return render(request, 'Instructors/ActivityCategoryCreateForm.html', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def activityCatDelete(request):
     if request.POST:
         cat = ActivitiesCategory.objects.filter(pk=request.POST['catID']).first()

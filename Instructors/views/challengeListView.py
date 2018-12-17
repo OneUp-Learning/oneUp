@@ -9,7 +9,8 @@ from django.shortcuts import render
 from Instructors.models import Courses, Challenges, ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
 from Instructors.constants import  unspecified_topic_name
 from Instructors.views.utils import initialContextDict
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck
 from Badges.events import register_event
 from Badges.enums import Event, QuestionTypes
 from Students.models import StudentRegisteredCourses
@@ -108,6 +109,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
 
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def challengesList(request):
     
     context_dict, currentCourse = initialContextDict(request)
@@ -155,6 +157,7 @@ def challengesForTopic(topic, currentCourse):
     return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,chall_position)), key=lambda tup: tup[4])
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def warmUpChallengeList(request):
     
     # Warm challenged will be grouped by course topics

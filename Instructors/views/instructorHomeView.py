@@ -8,10 +8,11 @@ from django.shortcuts import render
 from Instructors.models import Courses, InstructorRegisteredCourses, Announcements, Challenges
 from time import strftime
 from Badges.models import CourseConfigParams
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck     
 
 @login_required
-
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def instructorHome(request):
  
     context_dict = { }

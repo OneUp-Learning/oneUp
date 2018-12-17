@@ -12,9 +12,10 @@ from Instructors.views.utils import initialContextDict
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Instructors.constants import unassigned_problems_challenge_name
 
-from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck   
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def challengeSaveSelectedQuestions(request):
 
     context_dict, currentCourse = initialContextDict(request)

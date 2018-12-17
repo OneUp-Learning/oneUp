@@ -5,15 +5,17 @@ Created on 8/23/18
 '''
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Students.models import StudentRegisteredCourses, StudentAttendance, Student
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.models import User
 import datetime
 from Instructors.views.challengeExportImportView import str2bool
 from django.utils.timezone import localtime, now
+from oneUp.decorators import instructorsCheck     
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def studentAttendance(request):
     context_dict, currentCourse = initialContextDict(request)
     #if we have request get, get the roll by the current date(today)

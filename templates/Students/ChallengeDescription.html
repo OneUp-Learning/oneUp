@@ -16,18 +16,32 @@
                <div class="card">
                   <form name="ChallengeDescription" action="/oneUp/students/ChallengeSetup" method="POST">
                      {% csrf_token %}
-                     <input type="hidden" name="challengeId" value="{{challengeID}}">					
+                     <input type="hidden" name="challengeId" value="{{challengeID}}">
+                     {% if isDuel %}	
+                        <input type="hidden" name="duelID" value="{{duelID}}">
+                        <input type="hidden" name="isDuel" value="{{isDuel}}">	
+                     {% endif %}			
                      <div class="card-content">
-                        {% if unAvailable %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
+                        {% if unAvailable and isDuel %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
                         <h5>{{unAvailable}}</h5>
-                        <p>Please Try other challenges</p>
-                        {%  elif no_attempt %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
+                            <p>Sorry, the Duel is unavailable</p>
+                        {% elif unAvailable %}
+                            <p>Please Try other challenges</p>
+                        {%  elif no_attempt and isDuel %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
                         <h5>{{no_attempt}}</h5>
-                        <p>You can not take this challenge anymore. Try other challenges</p>
+                            <p>Sorry, You can not take this challenge anymore</p>
+                        {% elif no_attempt %}
+                            <p>You can not take this challenge anymore. Try other challenges</p>
                         {% else %}
                         <p class="flow-text">Difficulty: <b>{{challengeDifficulty}}</b></p>
                         <p class="flow-text">Time Limit (Minutes): <b>{{timeLimit}}</b></p>
-                        <p class="flow-text">Remaining Attempts: <b>{{more_attempts}}</b></p>
+                        {% if isDuel %}	
+                        <p class="flow-text">Remaining Attempts: <b>1</b></p>
+                        <p>This is your only attempt!!!</p>
+                        {% else %}
+                        <p class="flow-text">Remaining Attempts: <b>{{more_attempts}}</b></p>	
+                        {% endif %}
+                        
                         {% if last_attempt %}<!--if student has only 1 attempt left, then this message is displayed-->
                         <p>{{last_attempt}}</p>
                         {% endif %}
@@ -49,14 +63,17 @@
                      </div>
                      <div class="card-action right-align">
                         {% if unAvailable or no_attempt %}
-                            {% if isWarmup %}
+                            {% if isDuel %}
+                                <a class="waves-effect waves-light btn" href="/oneUp/students/Callouts"><i class="material-icons left">done</i>Ok</a>
+                            {% elif isWarmup %}
                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList"><i class="material-icons left">done</i>Ok</a>
                             {% else %}
                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList"><i class="material-icons left">done</i>Ok</a>
                             {% endif %}
                         {% else %}
-                        
-							{% if isWarmup %}
+                            {% if isDuel %}
+                                <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{duelID}}"><i class="material-icons left">done</i>Ok</a>
+							{% elif isWarmup %}
                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList"><i class="material-icons left">navigate_before</i>Back</a>
                             {% else %}
                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList"><i class="material-icons left">navigate_before</i>Back</a>
