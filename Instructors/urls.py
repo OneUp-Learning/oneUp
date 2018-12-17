@@ -81,7 +81,7 @@ from Instructors.views.resetTestStudentData import resetTestStudent
 
 from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 
-from Instructors.views.addExistingStudentView import addStudentListView, addExistingStuden
+from Instructors.views.addExistingStudentView import addStudentListView, addExistingStudent
 from Instructors.views.activityListView import reorderActivities
 
 admin.autodiscover()
