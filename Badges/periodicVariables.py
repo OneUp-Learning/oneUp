@@ -504,16 +504,16 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     return (student, unique_warmups)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentXP(student, course)
+    return studentScore(student, course, time_period, result_only,  gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentXP(student, course, warmup=True, serious=False, seriousPlusActivity=False)
+    return studentScore(student, course, time_period, result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False)
     
 def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentXP(student, course, warmup=False, serious=True, seriousPlusActivity=False)
+    return studentScore(student, course, time_period, result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentXP(student, course, warmup=False, serious=False, seriousPlusActivity=True)
+    return studentScore(student, course, time_period, result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
@@ -531,7 +531,7 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
         schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
         return schedule
                 
-def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivity=False):
+def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False):
     
     from Badges.models import CourseConfigParams
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
@@ -542,6 +542,14 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
     xpWeightWChallenge = 0
     xpWeightAPoints = 0
     ccparamsList = CourseConfigParams.objects.filter(courseID=course)
+    
+    if result_only:
+        date_time = time_period['datetime']
+        if date_time:
+            date_time = date_time()
+    if date_time == None:#setting it back to false so that it grabs from start of records for student
+        result_only = False
+            
     if len(ccparamsList) >0:
         cparams = ccparamsList[0]
         xpWeightSP=cparams.xpWeightSP
@@ -554,9 +562,12 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
     totalScorePoints = 0    
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True, isVisible=True)
     
+    
+    
     for challenge in courseChallenges:
         seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-
+        if result_only:
+            seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
         gradeID  = []                            
         for serious in seriousChallenge:
             gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment
@@ -574,7 +585,8 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False, isVisible=True)
     for challenge in courseChallenges:
         warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-
+        if result_only:
+            warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
         gradeID  = []                            
         for warmup in warmupChallenge:
             gradeID.append(int(warmup.testScore)) 
@@ -591,16 +603,18 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
 
     courseActivities = Activities.objects.filter(courseID=course)
     for activity in courseActivities:
-
-        sa = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
-
+        studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
+        
+        if result_only:
+            studentActivities = studentActivities.filter(submissionTimestamp=date_time)
+            
         gradeID  = []                            
-        for a in sa:
-            gradeID.append(int(a.getScoreWithBonus())) 
+        for studentActivity in studentActivities:
+            gradeID.append(int(studentActivity.getScoreWithBonus())) 
                                
         if(gradeID):
             earnedActivityPoints += max(gradeID)
-            totalActivityPoints += a.activityID.points
+            totalActivityPoints += studentActivity.activityID.points
             
     totalScorePointsActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
             
@@ -621,15 +635,18 @@ def studentXP(studentId, course, warmup=False, serious=False, seriousPlusActivit
             totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
     
     
-    if warmup==True:
+    if gradeWarmup:
         xp = round(totalScorePointsWarmupChallenge,0)
-    elif serious == True:
+        print("warmup ran")
+    elif gradeSerious:
         xp = round(totalScorePointsSeriousChallenge,0)
-    elif seriousPlusActivity == True:
+        print("serious ran")
+    elif seriousPlusActivity:
         xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
+        print("serious plus activity ran")
     else:
         xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScoreSkillPoints),0)
-        
+        print("xp has ran")
     return (studentId,xp)
 
 class TimePeriods:

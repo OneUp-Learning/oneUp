@@ -267,7 +267,7 @@ def createXPLeaderboard(currentCourse):
     xpLeaderboard.isXpLeaderboard = True
     xpLeaderboard.numStudentsDisplayed = 0
     xpLeaderboard.displayOnCourseHomePage = True
-    xpLeaderboard.howFarBack = 1500
+    xpLeaderboard.howFarBack = 1502
     xpLeaderboard.periodicVariable = 1403
     xpLeaderboard.save()
 def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDisplayedNum, courseID):
@@ -352,7 +352,6 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 studentRegisteredCourses = StudentRegisteredCourses.objects.get(studentID=result[0],courseID=currentCourse)
                 avatarImages.append(studentRegisteredCourses.avatarImage)
                 
-            print("points", "FNLN", "RC", "Img", points, studentFirstNameLastName, studentRegisteredCourses, avatarImages)
             
         else:#if its not continuous we must get the data from the database
             print("periodic")

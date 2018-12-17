@@ -365,16 +365,14 @@
                               {% if isContinous %}
 								<div id='continuousTimePeriodSelectedDiv_{{i}}' class='col s3'>
 									<label for='continuousTimePeriodSelected_{{i}}'>Time Period Back:</label> 
-									<select	id='continuousTimePeriodSelected_{{i}}' value='{{continousHowFarBack}}'name='howFarBackTimePeriodSelected_[]'>
+									<select	id='continuousTimePeriodSelected_{{i}}' value="34" name='howFarBackTimePeriodSelected_[]'>
 										<option id='1500_{{i}}' value='1500'>Day</option>
 										<option id='1501_{{i}}'value='1501'>Week</option>
 										<option id='1502_{{i}}'value='1502'>From Start of Semester</option>
 									</select>
 								</div>
 								<script  type="text/javascript"> 
-                                 window.onload = function() {
-                                 	document.getElementById("{{continousHowFarBack}}_{{i}}").selected = "true";
-                                 }
+                                 	document.getElementById("{{continousHowFarBack}}_{{i}}").selected = true;
                               </script>
                               
                               	{% else %}
