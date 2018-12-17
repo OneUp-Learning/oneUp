@@ -60,10 +60,12 @@ def activityCreateView(request):
             activity.isFileAllowed = False
             
         #Set the number of attempts
-        if (request.POST['attempts']==''):
-            activity.uploadAttempts = 9999
-        else: 
-            activity.uploadAttempts = request.POST['attempts']
+        if 'attempts' in request.POST:
+            attempts = request.POST['attempts']
+            if attempts == '':
+                activity.uploadAttempts = 9999
+            else: 
+                activity.uploadAttempts = request.POST['attempts']
             
         #Set the start date and end data to show the activity
         if(request.POST['startTime'] == ""):
