@@ -114,7 +114,7 @@ def achievements(request):
     warmUpSumPossibleScore = []   
     
     totalScorePointsWC = 0     # for calculating student XP points
-    courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)
+    courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True).order_by("challengeName")
     for challenge in courseChallenges:
          wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge).order_by('-endTimestamp')
          print(wc)
