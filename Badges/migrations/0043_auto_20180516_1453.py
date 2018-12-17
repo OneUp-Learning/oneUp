@@ -6,7 +6,7 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
+    atomic=False
     dependencies = [
         ('Badges', '0042_auto_20180516_1450'),
     ]

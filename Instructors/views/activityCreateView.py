@@ -3,15 +3,17 @@
 # DD
 #
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.utils import utcDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime
 import os
+from oneUp.decorators import instructorsCheck
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def activityCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -58,8 +60,9 @@ def activityCreateView(request):
             activity.isFileAllowed = False
             
         #Set the number of attempts
-        if 'attempts' in request.POST:
-            print(request.POST['attempts'])
+        if (request.POST['attempts']==''):
+            activity.uploadAttempts = 9999
+        else: 
             activity.uploadAttempts = request.POST['attempts']
             
         #Set the start date and end data to show the activity
@@ -128,8 +131,11 @@ def activityCreateView(request):
                 context_dict['currentCat'] = activity.category
                 context_dict['categories'] = ActivitiesCategory.objects.filter(courseID=currentCourse)
         
-                
-                context_dict['uploadAttempts']= activity.uploadAttempts
+                #ggm upload attempts infinite
+                if activity.uploadAttempts == 9999:
+                    context_dict['uploadAttempts'] = ''
+                else:
+                    context_dict['uploadAttempts']= activity.uploadAttempts
                 context_dict['isFileUpload'] = activity.isFileAllowed
                 context_dict['isGraded'] = activity.isGraded
 #                 context_dict['startTimestamp']= activity.startTimestamp
@@ -182,7 +188,8 @@ def makeFilesObjects(instructorID, files, activity):
         actFile.save()
         actFile.activityFileName = os.path.basename(actFile.activityFile.name) 
         actFile.save()
-        
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def removeFileFromActivty(request):
     if request.user.is_authenticated:
         print('IS A USER')

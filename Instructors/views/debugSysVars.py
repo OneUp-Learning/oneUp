@@ -5,7 +5,8 @@ Created on Sept 4, 2018
 '''
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck
 
 from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, CoursesTopics
 from Instructors.views.utils import initialContextDict, utcDate
@@ -15,13 +16,14 @@ from Students.models import StudentRegisteredCourses, StudentChallenges, Student
 from Badges.enums import Event, ObjectTypes
 from Badges.systemVariables import SystemVariable, calculate_system_variable
 from Students.views.avatarView import checkIfAvatarExist
-from termios import CRPRNT
+#from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
 from django.contrib.auth.models import User
 
 from django.http import JsonResponse
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def debugSysVars(request):
     
     context_dict, currentCourse = initialContextDict(request)
@@ -156,6 +158,7 @@ def getObjsForSysVarLocal(sysVar):
     return objIndex, objNames
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def getObjsForSysVar(request):
     objectTypes = ObjectTypes.objectTypes #enum of system objects
     sysVars = SystemVariable.systemVariables #enums of system vars

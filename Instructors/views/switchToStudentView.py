@@ -5,9 +5,12 @@ Created on Sep 2, 2018
 '''
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck   
+  
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def switchToStudentView(request):
     context_dict = { }
     

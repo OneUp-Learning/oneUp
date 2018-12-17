@@ -5,12 +5,14 @@ Created on November 09, 2017
 '''
 
 from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,  user_passes_test
 from Instructors.models import ChallengesQuestions
 from Instructors.views.utils import initialContextDict
 from Instructors.lupaQuestion import lupa_available 
+from oneUp.decorators import instructorsCheck     
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def reorderChallengeSaveQuestions(request):
  
     context_dict, currentCourse = initialContextDict(request)

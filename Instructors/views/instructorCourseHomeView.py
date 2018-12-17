@@ -16,8 +16,8 @@ from Students.views.avatarView import checkIfAvatarExist
 
 from datetime import datetime
 from datetime import timedelta
-from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck  
 import inspect
 import logging
 logger = logging.getLogger(__name__)
@@ -190,6 +190,7 @@ def courseLeaderboard(currentCourse, context_dict):
     return context_dict
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def instructorCourseHome(request):
     
     context_dict, currentCourse = initialContextDict(request)

@@ -5,13 +5,16 @@ Created on March 11, 2015
 '''
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck  
 from Instructors.models import Activities, ActivitiesCategory
 from Students.models import StudentRegisteredCourses, StudentActivities
 from Instructors.views.utils import initialContextDict
 from Instructors.constants import uncategorized_activity
+from django.shortcuts import redirect
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def createContextForActivityList(request, context_dict, currentCourse):
        
     activity_ID = []      
@@ -20,9 +23,9 @@ def createContextForActivityList(request, context_dict, currentCourse):
      
     student_ID = []    
     student_Name = []  
-    categories_list = []
+    activitiesInCategory = []
     cats = []
-    categories_names = []
+    categoryNames = []
     
     if(ActivitiesCategory.objects.filter(name=uncategorized_activity).first() == None):
         defaultCat = ActivitiesCategory()
@@ -41,8 +44,8 @@ def createContextForActivityList(request, context_dict, currentCourse):
         count = 1 #
         for cat in categories:
             cat_activities = category_activities(count, cat, currentCourse)
-            categories_names.append(cat.name)
-            categories_list.append(cat_activities)
+            categoryNames.append(cat.name)
+            activitiesInCategory.append(cat_activities)
             count += Activities.objects.filter(category=cat, courseID=currentCourse).count()
             
             
@@ -59,8 +62,8 @@ def createContextForActivityList(request, context_dict, currentCourse):
             count = 1
             cat = ActivitiesCategory.objects.get(pk=filterCategory, courseID=currentCourse)
             cat_activities = category_activities(count, cat, currentCourse)
-            categories_list.append(cat_activities)
-            categories_names.append(cat.name)
+            activitiesInCategory.append(cat_activities)
+            categoryNames.append(cat.name)
 #             activities = Activities.objects.filter(category=category, courseID=currentCourse)
 #             for activity in activities:
 #                 activity_ID.append(activity.activityID) #pk
@@ -71,7 +74,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
 
      
     context_dict["categories"]=cats
-    context_dict["categories_range"]=zip(categories_list,categories_names)
+    context_dict["categories_range"]=zip(activitiesInCategory,categoryNames)
                        
     # The range part is the index numbers.
     #context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
@@ -115,18 +118,21 @@ def category_activities(count,category, current_course):
     activity_Names = []         
     descriptions = []
     points = []
+    activityPositions = []
     
-    activity_objects = Activities.objects.filter(category=category, courseID=current_course).order_by('deadLine')
+    activity_objects = Activities.objects.filter(category=category, courseID=current_course).order_by('activityPosition')
     print(activity_objects)
     for activity in activity_objects:
         activity_IDs.append(activity.activityID) #pk
         activity_Names.append(activity.activityName)
         descriptions.append(activity.description[:100])
         points.append(round(activity.points))
+        activityPositions.append(activity.activityPosition)
     last = count + len(activity_IDs)    
-    return zip(range(count,last), activity_IDs,activity_Names,descriptions, points)
+    return zip(range(count,last), activity_IDs,activity_Names,descriptions, points, activityPositions)
     
-@login_required
+@login_required  
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def activityList(request):
 
     context_dict, currentCourse = initialContextDict(request)
@@ -135,3 +141,21 @@ def activityList(request):
         
     
     return render(request,'Instructors/ActivitiesList.html', context_dict)
+
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
+def reorderActivities(request):
+    context_dict, currentCourse = initialContextDict(request)
+    if request.POST: 
+        
+        activityPositions = request.POST.getlist('activityPosition[]')
+        activityIDs = request.POST.getlist('activityID[]')
+        activityIDsAndPositions = zip(activityIDs,activityPositions)
+        
+        for activity, position in activityIDsAndPositions:
+            activity = Activities.objects.get(activityID=activity)
+            activity.activityPosition = position
+            activity.save()
+    
+    return redirect('/oneUp/instructors/activitiesList')

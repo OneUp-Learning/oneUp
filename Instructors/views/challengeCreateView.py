@@ -5,7 +5,7 @@ from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Instructors.constants import unspecified_topic_name, default_time_str
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 
 from Badges.enums import ObjectTypes
@@ -15,9 +15,12 @@ from datetime import datetime
 
 from oneUp.logger import logger
 
+from oneUp.decorators import instructorsCheck     
+
 import re
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def challengeCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.

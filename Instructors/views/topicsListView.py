@@ -8,10 +8,12 @@ from django.shortcuts import render
 from Instructors.models import Topics, CoursesTopics
 from Instructors.constants import  unspecified_topic_name
 from Instructors.views import utils
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck
 
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def topicsListView(request):
   
     context_dict,currentCourse = utils.initialContextDict(request)   

@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.views.utils import initialContextDict
 from Instructors.constants import anonymous_avatar
 
 from django.contrib.auth.models import User
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Badges.models import CourseConfigParams
+from oneUp.decorators import instructorsCheck 
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,6 +17,7 @@ students_per_page = 20
 usernameprefix = 'adduser-'
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def addStudentListView(request):
 
     context_dict, currentCourse = initialContextDict(request)
@@ -45,6 +47,7 @@ def addStudentListView(request):
     return render(request,'Instructors/AddStudentListView.html', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def addExistingStudent(request):
     
     context_dict, currentCourse = initialContextDict(request)

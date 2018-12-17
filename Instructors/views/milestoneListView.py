@@ -4,9 +4,10 @@ Created on October, 2015
 @author: Dillon Perry
 '''
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Milestones
 from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck     
 
 
 def createContextForMilestoneList(request, context_dict, currentCourse):
@@ -28,6 +29,7 @@ def createContextForMilestoneList(request, context_dict, currentCourse):
 
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def milestoneList(request):
     context_dict, currentCourse = initialContextDict(request)
     context_dict = createContextForMilestoneList(request, context_dict, currentCourse)

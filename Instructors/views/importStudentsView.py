@@ -11,7 +11,8 @@ from Instructors.views.utils import initialContextDict
 from Instructors.models import UploadedFiles
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck  
 
 import logging
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ def process_file(filename):
     return ls
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def importStudents(request):
     
     # IMPORTANT: We presume that since the instructor is getting the file from a university system, 

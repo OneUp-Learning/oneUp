@@ -6,9 +6,11 @@ Created on Apr 7, 2014
 from django.shortcuts import render
 from Instructors.models import Skills, CoursesSkills 
 from Instructors.views.utils import initialContextDict
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck   
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def skillsListView(request):
     context_dict, currentCourse = initialContextDict(request)
 
