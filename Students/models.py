@@ -257,3 +257,29 @@ class StudentLeaderboardHistory(models.Model):
     def __str__(self):              
         return str(self.id)+", "+str(self.studentID)+", Position: "+str(self.leaderboardPosition)+", Start Timestamp: "+str(self.startTimestamp)+", End Timestamp: "+str(self.endTimestamp)                             
            
+# Duel challenge related tables
+class DuelChallenges(models.Model): 
+    duelChallengeID = models.AutoField(primary_key=True)
+    duelChallengeName = models.CharField(max_length=100)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    challengeID = models.ForeignKey(Challenges, on_delete=models.CASCADE, verbose_name="the related challenge", db_index=True)
+    isBetting = models.BooleanField(default=False) # Indicates betting with virtual currency
+    vcBet = models.IntegerField(default=0) # the amount of virtual currency being bet
+    challenger = models.ForeignKey(Student, related_name='challenger',on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    challengee = models.ForeignKey(Student, related_name='challengee',on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    sendTime = models.DateTimeField(auto_now_add=True, verbose_name="Send Timestamp", db_index=True)
+    acceptTime = models.DateTimeField(auto_now_add=True, verbose_name="Accept Timestamp", db_index=True)
+    startTime = models.IntegerField(default=1440) # time in minutes, Default 24 hours
+    timeLimit = models.IntegerField(default=120)  # time in minutes, Default 1 hour
+    customMessage = models.CharField(max_length=600, default='')
+    status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
+    hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
+    hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
+     
+# This table considers a tie as a win, it stores winners and those in ties
+class Winners(models.Model):
+    DuelChallengeID = models.ForeignKey(DuelChallenges, on_delete=models.CASCADE, verbose_name="the related Duel", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    
+    

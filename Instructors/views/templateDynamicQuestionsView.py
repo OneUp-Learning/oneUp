@@ -16,10 +16,12 @@ from Instructors.constants import unassigned_problems_challenge_name, default_ti
 from Badges.enums import QuestionTypes, ObjectTypes
 
 import re
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
+from oneUp.decorators import instructorsCheck     
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def templateDynamicQuestionForm(request):
     context_dict, currentCourse = utils.initialContextDict(request)
 

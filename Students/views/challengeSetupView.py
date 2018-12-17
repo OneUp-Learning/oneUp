@@ -8,6 +8,7 @@ import re,string
 
 from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
+from Students.models import DuelChallenges
 from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
@@ -32,7 +33,8 @@ def ChallengeSetup(request):
     if 'currentCourseID' in request.session:    
 
         questionObjects= []
-                
+        sessionDict = {}  
+        attemptId=''      
         if request.POST:        
             if request.POST['challengeId']: 
                 
@@ -41,14 +43,28 @@ def ChallengeSetup(request):
                 challengeId = request.POST['challengeId']
                 context_dict['challengeID']= challengeId
                 challenge = Challenges.objects.get(pk=int(request.POST['challengeId']))
-                context_dict['challengeName'] = challenge.challengeName
-                context_dict['testDuration'] = challenge.timeLimit
+
+                if "duelID" in request.POST:
+                    duel_id = request.POST['duelID']
+                    duel_challenge = DuelChallenges.objects.get(pk=int(duel_id))
+                    context_dict['challengeName'] = duel_challenge.duelChallengeName
+                    context_dict['isduration'] = True
+                    context_dict['testDuration'] = duel_challenge.timeLimit
+                    context_dict['isDuel'] = True
+                    context_dict['duelID'] = duel_id
+                else:
+                    context_dict['challengeName'] = challenge.challengeName
+                    if challenge.timeLimit == 99999:
+                        context_dict['isduration'] = False
+                    else:
+                        context_dict['isduration'] = True
+                    context_dict['testDuration'] = challenge.timeLimit
+                    context_dict['isDuel'] = False
 
                 starttime = utcDate()
                 context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
                 attemptId = 'challenge:'+challengeId + '@' + starttime.strftime("%m/%d/%Y %I:%M:%S %p")
                 
-                sessionDict = {}
                 sessionDict['challengeId']=challengeId
                 
                 if not challenge.isGraded:
@@ -79,6 +95,7 @@ def ChallengeSetup(request):
                     questionObjects.append(challenge_question.questionID)
                 
                 #getting all the question of the challenge except the matching question
+
                 qlist = []
                 sessionDict['questions'] = []
                 for i in range(0,len(questionObjects)):

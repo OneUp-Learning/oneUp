@@ -3,15 +3,17 @@
 # DD
 #
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.utils import utcDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime
 import os
+from oneUp.decorators import instructorsCheck
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def activityCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -186,7 +188,8 @@ def makeFilesObjects(instructorID, files, activity):
         actFile.save()
         actFile.activityFileName = os.path.basename(actFile.activityFile.name) 
         actFile.save()
-        
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def removeFileFromActivty(request):
     if request.user.is_authenticated:
         print('IS A USER')

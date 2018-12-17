@@ -13,11 +13,13 @@ from Instructors.constants import unassigned_problems_challenge_name, default_ti
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
 from Badges.enums import QuestionTypes, ObjectTypes
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.logger import logger
 from decimal import Decimal
+from oneUp.decorators import instructorsCheck  
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def matchingForm(request):
     context_dict, currentCourse = initialContextDict(request)
 

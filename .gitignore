@@ -46,4 +46,4 @@ media/studentActivities/*
 # Stuff from pipenv
 Pipfile*
 .DS_Store
-.vscode/settings.json
+.vscode/*

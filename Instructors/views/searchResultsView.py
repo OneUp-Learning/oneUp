@@ -12,10 +12,12 @@ from Instructors.models import ChallengesQuestions, ChallengesTopics, Challenges
 from Instructors.views.utils import initialContextDict
 from Badges.enums import QuestionTypes
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import instructorsCheck     
 import json
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def searchResults(request):
         
     context_dict, currentCourse = initialContextDict(request);        

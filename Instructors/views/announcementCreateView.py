@@ -3,7 +3,7 @@
 # Dillon Perry
 #
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from Instructors.models import Announcements, Courses
 from Instructors.views.announcementListView import createContextForAnnouncementList
@@ -12,8 +12,10 @@ from Instructors.constants import default_time_str
 from datetime import datetime
 from notify.signals import notify
 from Students.models import StudentRegisteredCourses
+from oneUp.decorators import instructorsCheck
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def announcementCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.

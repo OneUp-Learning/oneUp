@@ -5,12 +5,14 @@ Created on Sep 15, 2016
 '''
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from Badges.models import CourseConfigParams
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import default_time_str
 from Badges.systemVariables import logger
+from oneUp.decorators import instructorsCheck     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def courseConfigurationView(request):
 
     context_dict, currentCourse = initialContextDict(request)
