@@ -165,43 +165,46 @@
  		//we are enabling the continous, so check if its already there to avoid enabling
  		//if theres the one for weekly, disable it a
  		if(selectedItem == "continous"){
- 			
  			//if weekly is present, remove it
- 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
- 				weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
-       			whereIsSelect.parentElement.removeChild(weeklySelect);
- 			}
+//  			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+//  				weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+//        			whereIsSelect.parentElement.removeChild(weeklySelect);
+//  			}
  			
  			//then check if continous is not there, if it is not there add it
  			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) == null){
  				whereIsSelect.insertAdjacentHTML('afterEnd',continousTimePeriodSelect);
  			}
+ 			if(document.getElementById("emptyHowFarBack_" + currentID) != null){
+ 				emptyHowFarBack = document.getElementById("emptyHowFarBack_" + currentID);
+ 				emptyHowFarBack.parentNode.removeChild(emptyHowFarBack);
+ 			}
  		}
  		
  		
- 		if(selectedItem == "weekly"){
+//  		if(selectedItem == "weekly"){
  
- 			//if continous is present, remove it
- 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
- 				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
- 				whereIsSelect.parentElement.removeChild(continousSelect);
- 			}
+//  			//if continous is present, remove it
+//  			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
+//  				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
+//  				whereIsSelect.parentElement.removeChild(continousSelect);
+//  			}
  			
- 			//check if weekly is not here, if it is not here add it
- 			if (document.getElementById("weeklyTimePeriodSelected_"+currentID) == null){
- 				whereIsSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
- 			}
+// //  			//check if weekly is not here, if it is not here add it
+// //  			if (document.getElementById("weeklyTimePeriodSelected_"+currentID) == null){
+// //  				whereIsSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
+// //  			}
  			
- 		}
+//  		}
  		
  		//the default case is where we have switched anything else and we must remove it
  		if(selectedItem == "default"){
- 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
- 			weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
- 			console.log(weeklySelect);
- 			console.log(whereIsSelect.parentElement);
- 			whereIsSelect.parentElement.removeChild(weeklySelect);
- 			}
+//  			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+//  			weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+//  			console.log(weeklySelect);
+//  			console.log(whereIsSelect.parentElement);
+//  			whereIsSelect.parentElement.removeChild(weeklySelect);
+//  			}
  			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
    			continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
    			whereIsSelect.parentElement.removeChild(continousSelect);
@@ -220,14 +223,19 @@
         		console.log("case 0");
         		makeSureTheresOnlyOneTimeBackSelector("continous", whereIsContinuousSelect, currentID);
         		break;
-        	case "1501":
-        		console.log("case weekly");
-        		makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect, currentID);
-        		break;
+        	//case "1501":
+        		//console.log("case weekly");
+        		//makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect, currentID);
+        		//break;
         	default:
         		makeSureTheresOnlyOneTimeBackSelector("default",whereIsContinuousSelect, currentID);
         		break;
         }
+     }
+     
+     function deleteButton(id){
+    	 document.getElementById("deleteInput").value = id;
+    	 document.getElementById("deleteForm").submit();
      }
    </script>
    <head>{% include 'scripts.html' %}</head>
@@ -312,7 +320,7 @@
                         
                               <div class ='row'>
                               <div class='col s5 offset-m10'>
-                              <button class="btn waves-effect waves-light" type="submit" value="{{leaderboardID}}" name="delete[]">
+                              <button type="button" id="deleteButton_{{i}}" onclick="deleteButton({{leaderboardID}});" class="btn waves-effect waves-light">
                   				<i class="material-icons">clear</i></button>
                               </div>
                               </div>
@@ -370,7 +378,7 @@
                               </script>
                               
                               	{% else %}
-								<input type='hidden' value='empty' name='howFarBackTimePeriodSelected_[]'></input>
+								<input id='emptyHowFarBack_{{i}}' type='hidden' value='empty' name='howFarBackTimePeriodSelected_[]'></input>
 								{% endif %}
 								
 								<div class='col s6'>
@@ -403,6 +411,10 @@
                </div>
             </div>
          </form>
+         <form method="post" id="deleteForm"> 
+          {% csrf_token %}    
+   			<input id="deleteInput" type="hidden" name="delete[]" value="" />
+		</form>
          <script>
          if (numLeaderTables == {{num_tables}}) {
              document.getElementById('removeLeaderboard').classList.add('disabled');
