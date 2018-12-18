@@ -26,7 +26,7 @@
                                  <th>Price</th>
                                  <th>Quantity</th>
                                  <th>For Assignment</th>
-                                 <th>Remaining</th>
+                                 <th class="center-align">Remaining</th>
                                  <th>Cost</th>
                               </tr>
                            </thead>
@@ -36,10 +36,11 @@
                                  <td>{{buyOpt.displayName}}</td>
                                  <td>{{buyOpt.description}}</td>
                                  <td>{{buyOpt.cost}}</td>
-                                 <td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0" {% if buyOpt.challenges == None %}readonly{% endif %}></td>
+                                 <td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0"></td>
                                  <td>
                                     {% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
                                     <select name="challengeFor{{buyOpt.name}}">
+                                       <option value="none">None</option>
                                     {% for id, name in buyOpt.challenges %}
                                         <option value="{{id}}">{{name}}</option>
                                     {% endfor %}

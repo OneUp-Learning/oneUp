@@ -246,6 +246,13 @@ class Event():
                         'description':'The time allowed for students to take a challenge expires.',
                         'isVirtualCurrencySpendRule':False
                         },
+              spendingVirtualCurrency: {
+                        'index': spendingVirtualCurrency,
+                        'name': 'spendingVirtualCurrency',
+                        'displayName': 'Spending Virtual Currency',
+                        'description': 'A student has spent virtual currency',
+                        'isVirtualCurrencySpendRule': True,
+                        },
               visitedDashboard: {
                         'index': visitedDashboard,
                         'name': 'visitedDashboard',
@@ -460,6 +467,7 @@ class ObjectTypes():
                 # rather than the context of any particular object in circumstances where that is needed.
     topic=1306
     activityCategory=1307
+    virtualCurrencySpendRule=1308 # Used for manual virtual currency rules/transactions
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
@@ -468,6 +476,7 @@ class ObjectTypes():
         none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
         topic:"topic",
         activityCategory:"activityCategory",
+        virtualCurrencySpendRule:"virtualCurrencySpendRule",
     }
 
 class OperandTypes():

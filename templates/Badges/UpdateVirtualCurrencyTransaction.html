@@ -14,11 +14,12 @@
          <div class="row">
             <div class="col s12 m10 offset-m1">
                <div class="card-panel">
-                  <table>
+                  <table class="responsive-table">
                      <thead>
                         <th>Student</th>
                         <th>Item Name</th>
                         <th>Item Description</th>
+                        <th>For Challenge</th>
                         <th>Date Purchased</th>
                         <th>Item Cost</th>
                         <th>Current Status</th>
@@ -28,6 +29,7 @@
                            <td>{{student}}</td>
                            <td>{{name}}</td>
                            <td>{{description}}</td>
+                           <td style="max-width: 20vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{assignment}}</td>
                            <td>{{purchaseDate}}</td>
                            <td>{{total}}</td>
                            <td><b>{{status}}</b></td>
