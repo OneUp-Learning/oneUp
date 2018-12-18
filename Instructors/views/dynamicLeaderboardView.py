@@ -30,7 +30,7 @@ def dynamicLeaderboardView(request):
     
     if request.method == 'GET':
         leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse)
-        print(leaderboardsConfigs)
+        #print(leaderboardsConfigs)
         #if we dont have any leaderboard configs, make a default xp leaderboard
         if leaderboardsConfigs == None:
             createXPLeaderboard(currentCourse)
@@ -59,7 +59,7 @@ def dynamicLeaderboardView(request):
             isContinous = []
             howFarBack = []
             
-            print("leaderboardsConfigs", leaderboardsConfigs)
+            #print("leaderboardsConfigs", leaderboardsConfigs)
             leaderboardCount = leaderboardsConfigs.count()
             
             leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse).exclude(isXpLeaderboard=True)
@@ -108,7 +108,7 @@ def dynamicLeaderboardView(request):
         
         if 'delete[]' in request.POST:
             deleteLeaderboards = request.POST.getlist('delete[]')
-            print("deleteLeaderboards",deleteLeaderboards)
+            #print("deleteLeaderboards",deleteLeaderboards)
             deleteLeaderboardConfigObjects(deleteLeaderboards)   
         
         #id of the xp table
@@ -119,7 +119,7 @@ def dynamicLeaderboardView(request):
             leaderboard.isXpLeaderboard = True
             leaderboard.displayOnCourseHomePage = True
             leaderboard.courseID = currentCourse
-            print("xp board", leaderboard)
+            #print("xp board", leaderboard)
             leaderboard.save()
         
             #now we need to cyle though the data for the dynamically generated tables
@@ -134,14 +134,14 @@ def dynamicLeaderboardView(request):
             howFarBackTimePeriodSelected = request.POST.getlist('howFarBackTimePeriodSelected_[]')
             
     
-            print("home", home)
-            print("leaderboardID", leaderboardID)
-            print("periodicVariableSelected", periodicVariableSelected)
-            print("studentsShown", studentsShown)
-            print("leaderboardDescription", leaderboardDescription)
-            print("timePeriodSelected", timePeriodSelected)
-            print("leaderboardName", leaderboardName)
-            print("howFarBackTimePeriodSelected", howFarBackTimePeriodSelected)
+#             print("home", home)
+#             print("leaderboardID", leaderboardID)
+#             print("periodicVariableSelected", periodicVariableSelected)
+#             print("studentsShown", studentsShown)
+#             print("leaderboardDescription", leaderboardDescription)
+#             print("timePeriodSelected", timePeriodSelected)
+#             print("leaderboardName", leaderboardName)
+#             print("howFarBackTimePeriodSelected", howFarBackTimePeriodSelected)
             
             
             leaderboardObjects = []
@@ -158,7 +158,6 @@ def dynamicLeaderboardView(request):
                     
                     #if they are all the same as the ones in the current leaderboard, dont make a new task
                     if (didStudentsShownChange and didTimePeriodUpdateChange and didPeriodicVariableChange):
-                        print("did not change")
                         resetPeriodicTask = False
                 else:
                     leaderboard = LeaderboardsConfig()
@@ -177,19 +176,16 @@ def dynamicLeaderboardView(request):
                     leaderboard.howFarBack = howFarBackTimePeriodSelected[index]
                     leaderboard.timePeriodUpdateInterval = 0000
                     resetPeriodicTask = False
-                    print("periodicTask set to false!")
                     
                     if leaderboard.periodicTask:
                         leaderboard.periodicTask = None
                         delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)  
                     leaderboard.periodicVariable = int(periodicVariableSelected[index])
                 else:
-                    print("periodic object!")
                     leaderboard.isContinous = False
                     leaderboard.howFarBack = 0000   
                     leaderboard.timePeriodUpdateInterval = int(timePeriodSelected[index]) 
                     
-                    print("leaderboard.periodicVariable != 0 and resetPeriodicTask", leaderboard.periodicVariable, resetPeriodicTask)
                     if leaderboard.periodicVariable != 0 and resetPeriodicTask:
                         oldPeriodicVariableForLeaderboard.append(leaderboard.periodicVariable)
                     leaderboard.periodicVariable = int(periodicVariableSelected[index])
@@ -237,19 +233,13 @@ def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboar
     else:
         leaderboardObjects = leaderboards
          
-    print("leaderboardToOldPeriodicVariableDict", leaderboardToOldPeriodicVariableDict)
-    print("boolNoOldVariable", boolNoOldVariable)
-    print("leaderboardObjects", leaderboardObjects)
     for leaderboard in leaderboardObjects:
         if not leaderboard.isContinous:
             if not boolNoOldVariable:
-                print("deleted variable task:", leaderboard.periodicVariable)
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
             else:
-                print("deleted variable task:", leaderboardToOldPeriodicVariableDict[leaderboard])
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboardToOldPeriodicVariableDict[leaderboard], award_type="leaderboard", course=leaderboard.courseID)
             leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
-            print("leaderboard.periodicTask", leaderboard.periodicTask)
             leaderboard.save()
 
 def deleteLeaderboardConfigObjects(leaderboards):
@@ -277,7 +267,6 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDispla
         
         Returns list of tuples: [(student, value), (student, value),...]'''
     results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
-    print("results from periodic variable", results,"periodicVariable", periodicVariable)
     results.sort(key=lambda tup: tup[1], reverse=True)
     results = results[:studentsDisplayedNum]
     results = [(name, score) for name, score in results if score != 0.0 or score != 0]
@@ -339,11 +328,8 @@ def generateLeaderboards(currentCourse, displayHomePage):
         hasRecords = False
         
         
-        print("leaderboard", leaderboard)
         if leaderboard.isContinous:
-            print("continous")
             results = getContinousLeaderboardData(leaderboard.periodicVariable, leaderboard.howFarBack, leaderboard.numStudentsDisplayed, currentCourse)
-            print("results", results)
             if results:
                 hasRecords = True
             for result in results:#result[0] is student object, result[1] is points
@@ -354,28 +340,24 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 
             
         else:#if its not continuous we must get the data from the database
-            print("periodic")
             leaderboardRecordObjects = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=leaderboard).order_by('studentPosition')
             leaderboardRecordObjects = leaderboardRecordObjects[:leaderboard.numStudentsDisplayed+1]
             leaderboardRecords = []
-            print("leaderboardRecordObjects", leaderboardRecordObjects)
             
             if leaderboardRecordObjects:
                 hasRecords = True
             for leaderboardRecordObject in leaderboardRecordObjects:
                 if leaderboardRecordObject.studentPoints != 0 or leaderboardRecordObject.studentPoints != 0.0:
                     leaderboardRecords.append(leaderboardRecordObject)
-            
-            print("leaderboardRecords", leaderboardRecords)        
+                   
             for leaderboardRecord in leaderboardRecords:
                 points.append(leaderboardRecord.studentPoints)
                 studentFirstNameLastName.append(leaderboardRecord.studentID.user.first_name +" " + leaderboardRecord.studentID.user.last_name)
                 studentRegisteredCoursesObject = StudentRegisteredCourses.objects.get(studentID=leaderboardRecord.studentID, courseID=currentCourse)
                 avatarImages.append(studentRegisteredCoursesObject.avatarImage)
                     
-            print("studentFirstNameLastName","studentRegisteredCoursesObject", "avatarImages")
-        leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
         if hasRecords:
+            leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
             leaderboardNames.append(leaderboard.leaderboardName)
             leaderboardDescriptions.append(leaderboard.leaderboardDescription)
     return zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)  

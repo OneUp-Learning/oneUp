@@ -5,6 +5,7 @@ from datetime import timedelta
 import json
 import random
 import logging
+from _datetime import date
 logger = logging.getLogger(__name__)
 
 from django.conf import settings
@@ -543,6 +544,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
     xpWeightAPoints = 0
     ccparamsList = CourseConfigParams.objects.filter(courseID=course)
     
+    date_time = None
     if result_only:
         date_time = time_period['datetime']
         if date_time:
