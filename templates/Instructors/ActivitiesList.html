@@ -54,21 +54,20 @@
             <div class="col s12 m10 offset-m1">
                <div class="card-panel">
                   
-                  <ul class="collapsible" data-collapsible="expandable">
+                  <ul class="collapsible"  data-collapsible="expandable">
                      {% for activities, categoryName in categories_range %}
                      <li>
-                        <div class="collapsible-header {% if forloop.first %}active{% endif %}"><i class="material-icons">layers</i>{{category_name}}&nbsp;&nbsp;
+                        <div class="collapsible-header {% if forloop.first %}active{% endif %}"><i class="material-icons">layers</i>{{categoryName}}&nbsp;&nbsp;
                         
                         </div>
                         <div class="collapsible-body">
-                           <ul class="collection">
-                           <table class="responsive-table" style="width:100%">
+                           <table class="responsive-table">
                            
                            <tbody>
 			              {% for i, activity_ID, activityName, description, points, activityPosition in activities %}
 			              <tr>
 			                <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activityName}}</td>
-			                <td>{{description}}</td>
+			                <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{description}}</td>
 			                <td>{{points}} Points</td>
 			                <td>
 			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
@@ -106,7 +105,6 @@
 			              {% endfor %}
 			            </tbody>
                      </table>
-                      </ul>
                </div>
               
                
