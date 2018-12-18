@@ -22,11 +22,11 @@
       {% include 'heading.html' %}
       <main>
          <div class="row center-align">
-            <div class="col s12">
+            <div class="col s12 m10 offset-m1">
                {% if unassign %}  
                <h3>Problems</h3>
                {% else %}
-               <h3>Problems for {{challengeName}}</h3>
+               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Problems for <br />{{challengeName}}</h3>
                {% endif %}
             </div>
          </div>
@@ -111,7 +111,7 @@
                         <tbody>
                            {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, q_position in question_range %}
                            <tr>
-                              <td>{{q_preview}}</td>
+                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{q_preview}}</td>
                               <td>{{q_type_displayName}}</td>                              
                               <td>
                               <div class="input-field col s12">

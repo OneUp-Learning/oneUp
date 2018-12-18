@@ -27,15 +27,7 @@ logger = logging.getLogger(__name__)
 # user in the http session, studentID may be omitted.
 # If not, such as when an instructor is the active user, it should
 # be included.
-def register_event(eventID, request, student=None, objectId=None):
-
-    def make_smaller_serializable_request(request):
-        # This should contain only the parts of request which actually get used by the register_event_actual method
-        minireq = {
-            'currentCourseID':request.session['currentCourseID'],
-            'user':request.user.username,
-        }
-        return minireq
+def register_event_simple(eventID, mini_req, student=None, objectId=None):
 
     if student is None:
         studentpk = None
@@ -46,11 +38,11 @@ def register_event(eventID, request, student=None, objectId=None):
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
     eventEntry.timestamp = utcDate()
-    courseIDint = int(request.session['currentCourseID'])
+    courseIDint = int(mini_req['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
     if studentpk is None:
-        student = Student.objects.get(user__username=request.user.username)
+        student = Student.objects.get(user__username=mini_req['user'])
     else:
         student = Student.objects.get(pk=studentpk)
     eventEntry.student = student
@@ -73,6 +65,9 @@ def register_event(eventID, request, student=None, objectId=None):
         eventEntry.objectType = ObjectTypes.challenge #consider doing something similar for specific questions also
         eventEntry.objectID = objectId
     if(eventID == Event.adjustment):
+        eventEntry.objectType = ObjectTypes.challenge
+        eventEntry.objectID = objectId
+    if(eventID == Event.challengeExpiration):
         eventEntry.objectType = ObjectTypes.challenge
         eventEntry.objectID = objectId
     #if(eventID == Event.valueChanged):
@@ -190,11 +185,23 @@ def register_event(eventID, request, student=None, objectId=None):
     eventEntry.save()
 
     if CELERY_ENABLED:
-        process_event_offline.delay(eventEntry.pk, make_smaller_serializable_request(request), studentpk, objectId)
+        process_event_offline.delay(eventEntry.pk, mini_req, studentpk, objectId)
     else:
-        process_event_actual(eventEntry.pk, make_smaller_serializable_request(request), studentpk, objectId)
+        process_event_actual(eventEntry.pk, mini_req, studentpk, objectId)
 
     return eventEntry
+
+def register_event(eventID, request, student=None, objectId=None):
+
+    def make_smaller_serializable_request(request):
+        # This should contain only the parts of request which actually get used by the register_event_actual method
+        minireq = {
+            'currentCourseID':request.session['currentCourseID'],
+            'user':request.user.username,
+        }
+        return minireq
+
+    return register_event_simple(eventID, make_smaller_serializable_request(request), student, objectId)
 
 def process_event_actual(eventID, minireq, studentpk, objectId):
     if studentpk is None:
@@ -214,6 +221,7 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventEntry.event)
     matchingRuleWithContext = dict()
     logger.debug("Event with timestamp: "+timestampstr+" has "+str(len(matchingRuleEvents))+" matching RuleEvent entries.")
+    
     for ruleEvent in matchingRuleEvents:
         logger.debug("Event with timestamp: "+timestampstr+" matches with rule "+str(ruleEvent.rule.ruleID))
         if ruleEvent.rule in matchingRuleWithContext:
@@ -221,7 +229,7 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
         else:
             matchingRuleWithContext[ruleEvent.rule] = ruleEvent.inGlobalContext
 
-        
+
     for potential in matchingRuleWithContext:
         try:
             condition = potential.conditionID
@@ -436,7 +444,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         logger.debug("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
         
         #Test to make notifications 
-        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge')
+        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge', extra=json.dumps({"course": str(courseID.courseID)}))
         
         return
     
@@ -482,7 +490,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
             # Increase the student virtual currency amount
             student.virtualCurrencyAmount += vcRuleAmount
             student.save()
-            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' virtual bucks', nf_type='Increase VirtualCurrency')
+            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' virtual bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
             return
     
         if actionID == Action.decreaseVirtualCurrency:
@@ -491,7 +499,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                 student.virtualCurrencyAmount -= vcRuleAmount 
                 instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
                 instructor = instructorCourse.instructorID
-                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency')
+                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
             else:
                 #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
                 logger.debug("In Event w/timestamp: "+timestampstr+' this purchase did not go through')

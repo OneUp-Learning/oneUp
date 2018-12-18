@@ -371,6 +371,7 @@ def initialContextDict(request):
         context_dict["username"] = request.user.username
         
     if 'currentCourseID' in request.session:
+        context_dict['course_id'] = request.session['currentCourseID']
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
     else:

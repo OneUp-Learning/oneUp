@@ -73,10 +73,11 @@ def ChallengesList(request):
                 
                 if challQuestions:
                     
-                    if challenge.endTimestamp.strftime("%Y") < ("2900"):
-                        challDueDate.append(challenge.endTimestamp)
-                    else:
-                        challDueDate.append("")
+                    # if challenge.endTimestamp.strftime("%Y") < ("2900"):
+                    #     challDueDate.append(challenge.endTimestamp)
+                    # else:
+                    #     challDueDate.append("")
+                    challDueDate.append(challenge.dueDate)
                   
                     chall_ID.append(challenge.challengeID) #pk
                     chall_Name.append(challenge.challengeName)
