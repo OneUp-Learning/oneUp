@@ -241,7 +241,7 @@ def challengeCreateView(request):
             else:
                 context_dict['endTimestamp']= ""
             # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
-            dueDate = localizedDate(request, str(make_naive(challenge.dueDate)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            dueDate = localizedDate(request, str(make_naive(challenge.dueDate.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
             if challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['dueDate'] = dueDate
             else:

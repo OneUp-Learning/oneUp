@@ -156,7 +156,7 @@ class Challenges(models.Model):
     endTimestamp = models.DateTimeField(default=datetime.now, blank=True)
     challengePassword = models.CharField(default='',max_length=30) # Empty string represents no password required.
     challengePosition = models.IntegerField(default = 0)
-    dueDate = models.DateTimeField(blank=True)
+    dueDate = models.DateTimeField(default=datetime.now, blank=True)
     
     def __str__(self):              
         return str(self.challengeID)+","+self.challengeName       
