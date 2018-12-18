@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include 'scripts.html' %}
+</head>
+
+<body>
+  {% include 'heading.html' %}
+  <main>
+    <div class="row center-align">
+      <div class="col s12">
+        <h3>Class Activities</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m10 offset-m1">
+        <form name="question" id="actForm" enctype="multipart/form-data" action="/oneUp/instructors/activitiesList"
+          method="POST">
+          {% csrf_token %}
+          <div class="input-field col s4" id="actCats">
+            <select name="actCat" form="actForm" onchange="this.form.submit()">
+              <option value="all" name="actCat" selected>All</option>
+              {% for cat in categories %}
+              {% if cat == currentCat%}
+              <option value={{cat.categoryID}} name="actCat" selected>{{cat.name}}</option>
+              {% else %}
+              <option value={{cat.categoryID}} name="actCat">{{cat.name}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            <label for="actCats">Filter by Activity Categories</label>
+          </div>
+        </form>
+        <br />
+      </div>
+      
+    </div>
+    <form name="activityOrder" action="/oneUp/instructors/reorderActivities" method="POST">
+    <div class="row right-align">
+				<div class="col s12 m10 offset-m1">
+          <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity"><i class="material-icons left">toys</i>Add
+            New Activity</a> 
+            <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Activities
+						<i class="material-icons right">reorder</i>
+			</button>
+   	</div>
+   	</div>
+    
+    	{% csrf_token %}
+    	<input type="hidden" name="courseID" value="{{courseID}}" id="courseID">
+			
+    <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  
+                  <ul class="collapsible" data-collapsible="expandable">
+                     {% for activities, categoryName in categories_range %}
+                     <li>
+                        <div class="collapsible-header {% if forloop.first %}active{% endif %}"><i class="material-icons">layers</i>{{category_name}}&nbsp;&nbsp;
+                        
+                        </div>
+                        <div class="collapsible-body">
+                           <ul class="collection">
+                           <table class="responsive-table" style="width:100%">
+                           
+                           <tbody>
+			              {% for i, activity_ID, activityName, description, points, activityPosition in activities %}
+			              <tr>
+			                <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activityName}}</td>
+			                <td>{{description}}</td>
+			                <td>{{points}} Points</td>
+			                <td>
+         
+			                <td >
+			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+			                    data-beloworigin="true" data-activates='activity{{i}}' data-position="right" data-delay="50"
+			                    data-tooltip="Options"><i class="material-icons">more_vert</i></a>
+			                  <form action="/oneUp/instructors/deleteActivity" method="POST">
+			                    {% csrf_token %}
+			                    <input type="hidden" name="activityID" value="{{activity_ID}}">
+			                    <ul id='activity{{i}}' class='dropdown-content'>
+			                      <li><a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons">edit</i>Edit</a></li>
+			                      <li><a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons">playlist_add</i>Assign
+			                          Points</a></li>
+			                      <li class="divider"></li>
+			                      <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+			                    </ul>
+			                    <div id="modal_delete{{i}}" class="modal">
+			                      <div class="modal-content">
+			                        <h5>Are you sure you want to delete?</h5>
+			                      </div>
+			                      <div class="modal-footer">
+			                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+			                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
+			                          value="Delete">Delete
+			                        </button>
+			                      </div>
+			                    </div>
+			                  </form>
+			                </td>
+			                <td width="12%">
+			                </td>
+			              </tr>
+			              
+			              {% empty %}
+			              <tr>
+			                <td class="center-align" colspan="4"><i>No Activities Created</i></td>
+			              </tr>
+			              {% endfor %}
+			              <tr>
+			                <td height="138"></td>
+			              </tr>
+			            </tbody>
+                     </table>
+                      </ul>
+               </div>
+              
+               
+               {% endfor %}
+               </ul>
+               <div class="card-action right-align">   
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome?userID={{user}}"><i class="material-icons left">navigate_before</i>Back</a>
+                     
+               </div>
+            </div>
+            
+         </div>
+         </div>
+         </form>
+  </main>
+  {% include 'footer.html' %}
+</body>
+
+</html>
