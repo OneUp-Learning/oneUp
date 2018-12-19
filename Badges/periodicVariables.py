@@ -6,6 +6,7 @@ import json
 import random
 import logging
 from _datetime import date
+from celery.bin.result import result
 logger = logging.getLogger(__name__)
 
 from django.conf import settings
@@ -376,7 +377,7 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
     print("Calculating Student Practice") 
     from Instructors.models import Challenges
     from Students.models import StudentChallenges
-    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
 
     last_ran = None
     # Get the last time this periodic variable has ran
@@ -505,16 +506,16 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     return (student, unique_warmups)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, time_period, result_only,  gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False)
+    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only,  gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, time_period, result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False)
+    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False)
     
 def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, time_period, result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False)
+    return studentScore(student, course, periodic_variable, time_period, unique_id,result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, time_period, result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
+    return studentScore(student, course, periodic_variable, time_period, result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
@@ -532,9 +533,9 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
         schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
         return schedule
                 
-def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False):
+def studentScore(studentId, course, periodic_variable, time_period, unique_id, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False):
     
-    from Badges.models import CourseConfigParams
+    from Badges.models import CourseConfigParams, LeaderboardsConfig
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
     from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
     xp = 0  
@@ -543,14 +544,23 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
     xpWeightWChallenge = 0
     xpWeightAPoints = 0
     ccparamsList = CourseConfigParams.objects.filter(courseID=course)
-    
-    date_time = None
+
     if result_only:
         date_time = time_period['datetime']
-        if date_time:
+        date_time = date_time()
+            
+    else:
+        date_time = get_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID) 
+        
+        if not date_time:
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course.courseID)
+            date_time = time_period['datetime']
             date_time = date_time()
-    if date_time == None:#setting it back to false so that it grabs from start of records for student
-        result_only = False
+            
+        set_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID)
+    startOfTime = False
+    if date_time == None:
+        startOfTime = True
             
     if len(ccparamsList) >0:
         cparams = ccparamsList[0]
@@ -568,7 +578,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
     
     for challenge in courseChallenges:
         seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-        if result_only:
+        if not startOfTime:
             seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
         gradeID  = []                            
         for serious in seriousChallenge:
@@ -579,6 +589,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
             totalScorePoints += challenge.totalScore
             
     totalScorePointsSeriousChallenge = earnedScorePoints * xpWeightSChallenge / 100      # max grade for this challenge
+    print("total score points serious", totalScorePointsSeriousChallenge)
     
     # get the warm up challenges for this course
     earnedScorePoints = 0 
@@ -587,7 +598,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False, isVisible=True)
     for challenge in courseChallenges:
         warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-        if result_only:
+        if not startOfTime:
             warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
         gradeID  = []                            
         for warmup in warmupChallenge:
@@ -598,7 +609,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
             totalScorePoints += challenge.totalScore
             
     totalScorePointsWarmupChallenge = earnedScorePoints * xpWeightWChallenge / 100      # max grade for this challenge
-                        
+    print("points warmup chal", totalScorePointsWarmupChallenge) 
     # get the activity points for this course
     earnedActivityPoints = 0
     totalActivityPoints = 0
@@ -606,8 +617,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
     courseActivities = Activities.objects.filter(courseID=course)
     for activity in courseActivities:
         studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
-        
-        if result_only:
+        if not startOfTime:
             studentActivities = studentActivities.filter(submissionTimestamp=date_time)
             
         gradeID  = []                            
@@ -619,7 +629,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
             totalActivityPoints += studentActivity.activityID.points
             
     totalScorePointsActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
-            
+    print("activity points total", totalScorePointsActivityPoints)
     # get the skill points for this course
     totalScoreSkillPoints = 0
     cskills = CoursesSkills.objects.filter(courseID=course)
@@ -635,7 +645,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
             #print("skillPoints", p.skillPoints)
         if (gradeID):
             totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
-    
+    print("total score skill points", totalScoreSkillPoints)
     
     if gradeWarmup:
         xp = round(totalScorePointsWarmupChallenge,0)
@@ -649,6 +659,7 @@ def studentScore(studentId, course, time_period, result_only=False,gradeWarmup=F
     else:
         xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScoreSkillPoints),0)
         print("xp has ran")
+    
     return (studentId,xp)
 
 class TimePeriods:
