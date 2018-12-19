@@ -114,7 +114,19 @@ def achievements(request):
     warmUpSumPossibleScore = []   
     
     totalScorePointsWC = 0     # for calculating student XP points
-    courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True).order_by("challengeName")
+    
+    #GGM finding the order by taking for the challenges
+    challengesOrderedByTaking = []
+    allCourseChallenge = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)
+    for courseChallenge in allCourseChallenge:
+        if courseChallenge.challengeName != "Unassigned Problems":
+            studentWarmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=courseChallenge).order_by('endTimestamp')
+            challengesOrderedByTaking.append((courseChallenge,studentWarmupChallenge[0].endTimestamp))
+            
+    courseChallenges = []
+    for challengesOrdered in challengesOrderedByTaking:
+        courseChallenges.append(challengesOrdered[0])
+    
     for challenge in courseChallenges:
          wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge).order_by('-endTimestamp')
          print(wc)
