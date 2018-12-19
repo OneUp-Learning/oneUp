@@ -27,7 +27,7 @@ def SaveBadge(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
  
-    context_dict,current_course = initialContextDict(request);
+    context_dict,current_course = initialContextDict(request)
     
     if request.method == "POST": 
 
@@ -35,26 +35,25 @@ def SaveBadge(request):
             # Check if creating a new badge or edit an existing one
             # If editing an existent one, we need to delete it first before saving the updated information in the database            
                 if 'badgeId' in request.POST:   #edit or delete badge 
-                    badge = BadgesInfo.objects.get(pk=int(request.POST['badgeId']))
-                                            
+                    badge = BadgesInfo.objects.get(pk=int(request.POST['badgeId']))   
+                    if 'delete' in request.POST:
+                        badge.delete()  
+                        return redirect("/oneUp/badges/Badges")              
                 else:
                     badge = BadgesInfo()  # create new badge             
-                if 'edit' in request.POST:
+          
                 # Get badge info and the first condition
-                    badgeName = request.POST['badgeName'] # The entered Badge Name
-                    badgeImage = request.POST['badgeImage'] # The Chosen Badge Image Name
-                    badgeDescription = request.POST['badgeDescription'] # The entered Badge Description
+                badgeName = request.POST['badgeName'] # The entered Badge Name
+                badgeImage = request.POST['badgeImage'] # The Chosen Badge Image Name
+                badgeDescription = request.POST['badgeDescription'] # The entered Badge Description
 
-                    # Save badge information to the Badges Table
-                    badge.courseID = current_course
-                    badge.badgeName = badgeName
-                    badge.badgeDescription = badgeDescription
-                    badge.badgeImage = badgeImage
-                    badge.manual = True;
-                    badge.save()
-                else:
-                    print("manualBadge")
-                    badge.delete()
+                # Save badge information to the Badges Table
+                badge.courseID = current_course
+                badge.badgeName = badgeName
+                badge.badgeDescription = badgeDescription
+                badge.badgeImage = badgeImage
+                badge.manual = True
+                badge.save()
             
         else:
             
@@ -62,21 +61,21 @@ def SaveBadge(request):
             # If editing an existent one, we need to delete it first before saving the updated information in the database            
             if 'badgeId' in request.POST:   #edit or delete badge 
                 badge = Badges.objects.get(pk=int(request.POST['badgeId']))
-                oldRuleToDelete = badge.ruleID
+                DeleteBadgeRule(badge)
             else:
-                badge = Badges()  # create new badge             
-            if 'edit' in request.POST:
-                # Get badge info and the first condition
-                badgeName = request.POST['badgeName'] # The entered Badge Name
-                logger.debug("badge name: "+str(badgeName))
-                badgeDescription = request.POST['badgeDescription'] # The entered Badge Description
-                logger.debug("badge description: "+str(badgeDescription))
-                badgeImage = request.POST['badgeImage'] # The Chosen Badge Image Name
-                logger.debug("badge image: "+str(badgeImage))
-                    
-                badgeCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,current_course)
-                logger.debug(badgeCondition)
-                    
+                badge = Badges()  # create new badge   
+
+            # Get badge info and the first condition
+            badgeName = request.POST['badgeName'] # The entered Badge Name
+            logger.debug("badge name: "+str(badgeName))
+            badgeDescription = request.POST['badgeDescription'] # The entered Badge Description
+            logger.debug("badge description: "+str(badgeDescription))
+            badgeImage = request.POST['badgeImage'] # The Chosen Badge Image Name
+            logger.debug("badge image: "+str(badgeImage))
+            badgeCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,current_course)
+            logger.debug(badgeCondition)
+
+            if 'edit' in request.POST or 'create' in request.POST:
                 # Save game rule to the Rules table
                 gameRule = Rules()
                 gameRule.conditionID = badgeCondition
@@ -85,8 +84,8 @@ def SaveBadge(request):
                 
                 awardFreq = int(request.POST['awardFrequency'])
                 gameRule.awardFrequency = awardFreq
-                print("CHOSEN OBJECT SPECIFIER STRING : "+request.POST['chosenObjectSpecifierString']);
-                gameRule.objectSpecifier = request.POST['chosenObjectSpecifierString'];
+                print("CHOSEN OBJECT SPECIFIER STRING : "+request.POST['chosenObjectSpecifierString'])
+                gameRule.objectSpecifier = request.POST['chosenObjectSpecifierString']
                 gameRule.save()
     
                 # We get all of the related events.
@@ -105,7 +104,7 @@ def SaveBadge(request):
                 badge.badgeName = badgeName
                 badge.badgeDescription = badgeDescription
                 badge.badgeImage = badgeImage
-                badge.manual = False;
+                badge.manual = False
                 badge.save()
                 
                 badgeId = badge
@@ -116,16 +115,10 @@ def SaveBadge(request):
                     actionArgument.ruleID = gameRule
                     actionArgument.sequenceNumber = 1
                     actionArgument.argumentValue =  badgeId.badgeID
-                    actionArgument.save()
-
-                if 'badgeId' in request.POST:
-                    oldRuleToDelete.delete_related()
-                    oldRuleToDelete.delete()  
+                    actionArgument.save() 
                             
-            else:
-                print("other")
-                badge.ruleID.delete_related()
-                badge.ruleID.delete()
+            elif 'delete' in request.POST:
+                print("delete")
                 badge.delete()
 
 
