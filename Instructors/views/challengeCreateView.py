@@ -134,26 +134,29 @@ def challengeCreateView(request):
         challenge.displayIncorrectAnswerFeedback = bool(displayIncorrectAnswerFeedback)
         context_dict = challengeListView.makeContextDictForChallengeList(context_dict, currentCourse, challenge.displayIncorrectAnswerFeedback)
         
-        
+        default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         if(request.POST['startTime'] == ""):
-            challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        else:
+            challenge.startTimestamp = default_date
+        elif datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p"):
             challenge.startTimestamp = localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")
+        else:
+            challenge.startTimestamp = default_date
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            challenge.endTimestamp = default_date
+        elif datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
+            challenge.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")                
         else:
-            if datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
-                challenge.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")                
-            else:
-                challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            challenge.endTimestamp = default_date
         
         if request.POST['dueDate'] == "":
-            challenge.dueDate = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        else:
+            challenge.dueDate = default_date
+        elif datetime.strptime(request.POST['dueDate'], "%m/%d/%Y %I:%M %p"):
             challenge.dueDate = localizedDate(request, request.POST['dueDate'], "%m/%d/%Y %I:%M %p")
+        else:
+            challenge.dueDate = default_date
 
         # Number of attempts
         if('unlimitedAttempts' in request.POST):

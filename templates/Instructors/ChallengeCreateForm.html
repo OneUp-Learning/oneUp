@@ -180,7 +180,7 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select name="challengeDifficulty" {%if view%}readonly{%endif%}>
+                              <select id="difficulty" name="challengeDifficulty" {%if view%}readonly{%endif%}>
                                  <option value="" disabled selected>Choose Difficulty</option>
                                  <option id= "Easy" value="Easy" {%if view%}disabled{%endif%}>Easy</option>
                                  <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
@@ -190,7 +190,8 @@
                               <script  type="text/javascript"> 
                                  window.onload = function() {
                                  	if ("{{challengeDifficulty}}" != '')  {
-                                 	document.getElementById("{{challengeDifficulty}}").selected = "true";
+                                 	document.getElementById("{{challengeDifficulty}}").selected = true;
+                                    $("#difficulty").material_select();
                                  	} 
                                  }
                               </script> 

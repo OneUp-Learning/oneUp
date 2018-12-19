@@ -81,7 +81,7 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select name="instructorName" {%if view%}readonly{%endif%}>
+                              <select id="instructors" name="instructorName" {%if view%}readonly{%endif%}>
                               <option value="" disabled selected>Choose Instructor</option>
                               {% for instructor in instructors %}
                               <option id="{{instructor.username}}" value="{{instructor}}">{{instructor}}</option>
@@ -90,8 +90,9 @@
                               <label>Instructor</label>
                               <script  type="text/javascript"> 
                                  window.onload = function() {
-                                 	if ("{{instructorName}}" != '')  {
-                                 	document.getElementById("{{instructorName}}").selected = "true";
+                                 	if ("{{instructorName}}" !== "")  {
+                                 	document.getElementById("{{instructorName}}").selected = true;
+                                    $("#instructors").material_select();
                                  	} 
                                  }
                               </script> 

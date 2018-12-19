@@ -60,7 +60,7 @@
                      </div>
                      <div class="row">
                         <div class="input-field col s12">
-                           <select name="updateStatus" {%if view%}readonly{%endif%}>
+                           <select id="updateStatus" name="updateStatus" {%if view%}readonly{%endif%}>
                            <option value="" disabled selected>Choose Status</option>
                            <option id="Requested" value="Requested">Requested</option>
                            <option id="In Progress" value="In Progress">In Progress</option>
@@ -71,7 +71,8 @@
                            <script  type="text/javascript"> 
                               window.onload = function() {
                               	if ("{{status}}" != '')  {
-                              	document.getElementById("{{status}}").selected = "true";
+                              	document.getElementById("{{status}}").selected = true;
+                                 $("#updateStatus").material_select();
                               	} 
                               }
                            </script> 
