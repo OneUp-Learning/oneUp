@@ -15,6 +15,7 @@ from Badges.conditions_util import get_events_for_condition,\
     stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from Badges.systemVariables import logger
                
 def ProgressiveUnlockingRules(request):
@@ -110,19 +111,31 @@ def createRule(request,current_course,context_dict):
                 ruleType = ObjectTypes.challenge
                 if 'warmUp' in request.GET and request.GET['warmUp'] == 'True':
                     objs = Challenges.objects.filter(courseID = current_course,isGraded=False)
+                    context_dict['ruleTypeString'] = ' WarmUp Challenge'
                 else:
                     objs = Challenges.objects.filter(courseID = current_course,isGraded=True)
+                    context_dict['ruleTypeString'] = ' Serious Challenge'
 
             elif request.GET['ruleType'] == 'activity':
                 ruleType = ObjectTypes.activity
                 objs = Activities.objects.filter(courseID=current_course)
+                context_dict['ruleTypeString'] = 'Activity'
             
             elif request.GET['ruleType'] == 'topic':
                 ruleType = ObjectTypes.topic
                 objs = CoursesTopics.objects.filter(courseID=current_course)
+                context_dict['ruleTypeString'] = 'Topic'
 
             context_dict['ruleType'] = ruleType
             context_dict['objs'] = objs
+        
+        # Code for object type selector
+        objTypes = []
+        objTypes.append( {'id' : ObjectTypes.activity, 'string' : 'Activity'} ) 
+        objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' WarmUp Challenge' } )
+        objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' Serious Challenge' } )
+        objTypes.append( {'id' : ObjectTypes.topic, 'string' : 'Topic' } )
+        context_dict['filter'] = objTypes
 
         return render(request, 'Badges/AddProgressiveUnlocking.html', context_dict)
         
@@ -221,3 +234,30 @@ def deleteRule(request,current_course,context_dict):
         logger.debug("Nothing to delete no id found") 
 
     return redirect('/oneUp/badges/ProgressiveUnlocking')    
+
+def getObjs(request):
+    context_dict,current_course = initialContextDict(request)
+    objs = {'objs': []}
+
+    if 'typeIndex' in request.POST:
+        if request.POST['typeIndex'] == 'WarmUp':
+             challs = Challenges.objects.filter(courseID = current_course,isGraded=False)
+             for c in challs:
+                 objs['objs'].append({'id': c.pk, 'name': c.challengeName})
+
+        elif request.POST['typeIndex'] == 'Serious':
+            challs = Challenges.objects.filter(courseID = current_course,isGraded=True)
+            for c in challs:
+                 objs['objs'].append({'id': c.pk, 'name': c.challengeName})
+
+        elif request.POST['typeIndex'] == 'Activity':
+            acts = Activities.objects.filter(courseID=current_course)
+            for a in acts:
+                objs['objs'].append({'id': a.pk, 'name': a.activityName})
+
+        elif request.POST['typeIndex'] == 'Topic':
+                topics = CoursesTopics.objects.filter(courseID=current_course)
+                for t in topics:
+                    objs['objs'].append({'id': t.pk, 'name': t.topicID.topicName})
+
+    return JsonResponse(objs)

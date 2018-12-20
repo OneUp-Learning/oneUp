@@ -2,6 +2,24 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %} 
+      <script>
+         function getObjects(){
+            var ruleType = $('#ruleTypes').find(":selected").val();
+            $('#objects').material_select();
+            $("#objects").empty().html(' ');
+
+            $.post( "/oneUp/badges/getObjsForPunlocking", {typeIndex : ruleType} ,function( data ) {
+               for (obj in data.objs) {
+                  info = data.objs[obj];
+                  pk = info.id
+                  objName = info.name;
+
+                  $('#objects').append('<option value='+pk+'>'+objName+'</option>');
+                  $("#objects").material_select('update');
+               }
+           });
+         }
+      </script>
    </head>
    <body>
       {% include 'heading.html' %}
@@ -38,6 +56,20 @@
                              <label for="unlockingDescript"><span class= "red-text">*</span>Unlocking Rule Description</label>
                           </div>
                     </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <select name="ruleObjType" id="ruleTypes" onchange="getObjects()">
+                                {% for type in filter %}
+                                    {% if type.string == ruleTypeString %}
+                                       <option value={{type.string}} selected>{{type.string}}</option>
+                                    {% else %}
+                                       <option value={{type.string}}>{{type.string}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                              </select>
+                           <label for="ruleObjType"><span class= "red-text">*</span>Object Type</label>
+                        </div>
+                     </div>
                     <div class="row">
                         <div class="input-field col s12">
                             <select name="ruleTargetObject" id="objects">
@@ -85,21 +117,3 @@
       {% include 'footer.html' %}
    </body>
 </html>
-<!-- <script>
-        function expand(){
-          if($("#collapsible-custom-content").is(":hidden")){
-             $("#collapsible-custom-content").fadeToggle();
-             if($("#collapsible-custom-content").is(":visible")) {
-               $("#unlockingDescript").prop('required',true);
-               if($('#unlockingInput').length == 0){
-                 $("#collapsible-custom-content").append("<input id='unlockingInput' type=hidden value=true name=unlockingInput />");
-               }
-            }
-          }
-          else {
-            $("#collapsible-custom-content").fadeToggle();
-            $("#unlockingDescript").removeAttr('required');
-            $("#unlockingInput").remove();
-        }
-       }
-</script> -->
