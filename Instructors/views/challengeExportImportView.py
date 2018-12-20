@@ -13,6 +13,7 @@ from Instructors.views.utils import initialContextDict
 from decimal import Decimal
 
 from Badges.enums import QuestionTypes
+from Badges.models import CourseConfigParams
 
 from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
@@ -286,8 +287,8 @@ def findWithAlt(ele, name1, name2):
     
     return result
        
-@login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
+#@login_required
+#@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
 def importChallenges(uploadedFileName, currentCourse):
          
     fname = uploadedFileName
@@ -322,8 +323,15 @@ def importChallenges(uploadedFileName, currentCourse):
             challenge.displayIncorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
             challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
             challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
+            challenge.isVisible = False
             if not challenge.challengeDifficulty:
                 challenge.challengeDifficulty = 'Easy'
+                
+            # get the course start and end date and make them the challenge' start and end dates
+            ccp = CourseConfigParams.objects.get(courseID = currentCourse)            
+            challenge.startTimestamp = ccp.courseStartDate
+            challenge.endTimestamp = ccp.courseEndDate
+            challenge.dueDate = ccp.courseEndDate
             
             pssd = el_challenge.find('challengePassword') # Empty string represents no password required.
             if pssd:
