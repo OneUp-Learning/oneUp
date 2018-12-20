@@ -109,7 +109,7 @@
          function checkTotal(){
          	var total = document.getElementById("total").innerHTML;
          	total = total.slice(7);	//GGM get number out of string
-         	if ( {{studentVirtualCurrency}} - parseInt(total) <= 0 ) {	
+         	if ( {{studentVirtualCurrency}} - parseInt(total) < 0 ) {	
               alert("You do not have enough money ");
               return false;
            	}
