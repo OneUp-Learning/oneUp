@@ -133,6 +133,10 @@ def dynamicLeaderboardView(request):
             leaderboardName= request.POST.getlist('leaderboardName[]')
             howFarBackTimePeriodSelected = request.POST.getlist('howFarBackTimePeriodSelected_[]')
             
+            #weekly may or may not exist if its there at all
+            if 'weeklyTimePeriodSelected_[]' in request.POST:
+                weeklyTimePeriodSelected = request.POST.getlist('weeklyTimePeriodSelected_[]')
+                print("weeklyTimePeriodSelected", weeklyTimePeriodSelected)
     
 #             print("home", home)
 #             print("leaderboardID", leaderboardID)
@@ -185,6 +189,9 @@ def dynamicLeaderboardView(request):
                     leaderboard.isContinous = False
                     leaderboard.howFarBack = 0000   
                     leaderboard.timePeriodUpdateInterval = int(timePeriodSelected[index]) 
+                    timePeriodIndex = 0
+                    if int(timePeriodSelected[index]) == 1501:
+                        leaderboard.howFarBack = weeklyTimePeriodSelected[timePeriodIndex]
                     
                     if leaderboard.periodicVariable != 0 and resetPeriodicTask:
                         oldPeriodicVariableForLeaderboard.append(leaderboard.periodicVariable)

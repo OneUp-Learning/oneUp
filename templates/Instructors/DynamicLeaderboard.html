@@ -156,7 +156,7 @@
          
          var weeklyTimePeriodSelect = "<div id='weeklyTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
          "<label for='weeklyTimePeriodSelected_"+currentID+"'>Leaderboard Update:</label>\n"+
-         "<select id='weeklyTimePeriodSelected_"+currentID+"' name='continuousTimePeriodSelected_[]'>\n"+
+         "<select id='weeklyTimePeriodSelected_"+currentID+"' name='weeklyTimePeriodSelected_[]'>\n"+
          "<option value='1501' >Weekly on Sundays at Midnight</option>\n"+
          "<option value='1502' >Only once at Midnight</option>\n"+
          "</select>\n"+
@@ -166,10 +166,10 @@
  		//if theres the one for weekly, disable it a
  		if(selectedItem == "continous"){
  			//if weekly is present, remove it
-//  			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
-//  				weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
-//        			whereIsSelect.parentElement.removeChild(weeklySelect);
-//  			}
+ 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+ 				weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+       			whereIsSelect.parentElement.removeChild(weeklySelect);
+ 			}
  			
  			//then check if continous is not there, if it is not there add it
  			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) == null){
@@ -182,29 +182,33 @@
  		}
  		
  		
-//  		if(selectedItem == "weekly"){
+ 		if(selectedItem == "weekly"){
  
-//  			//if continous is present, remove it
-//  			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
-//  				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
-//  				whereIsSelect.parentElement.removeChild(continousSelect);
-//  			}
+ 			//if continous is present, remove it
+ 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null ){
+ 				continousSelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+ 				whereIsSelect.parentElement.removeChild(continousSelect);
+ 			}
  			
-// //  			//check if weekly is not here, if it is not here add it
-// //  			if (document.getElementById("weeklyTimePeriodSelected_"+currentID) == null){
-// //  				whereIsSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
-// //  			}
+ 			//check if weekly is not here, if it is not here add it
+ 			if (document.getElementById("weeklyTimePeriodSelected_"+currentID) == null){
+ 				whereIsSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
+ 			}
+ 			if(document.getElementById("emptyHowFarBack_" + currentID) != null){
+ 				emptyHowFarBack = document.getElementById("emptyHowFarBack_" + currentID);
+ 				emptyHowFarBack.parentNode.removeChild(emptyHowFarBack);
+ 			}
  			
-//  		}
+ 		}
  		
  		//the default case is where we have switched anything else and we must remove it
  		if(selectedItem == "default"){
-//  			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
-//  			weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
-//  			console.log(weeklySelect);
-//  			console.log(whereIsSelect.parentElement);
-//  			whereIsSelect.parentElement.removeChild(weeklySelect);
-//  			}
+ 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+ 			weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+ 			console.log(weeklySelect);
+ 			console.log(whereIsSelect.parentElement);
+ 			whereIsSelect.parentElement.removeChild(weeklySelect);
+ 			}
  			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
    			continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
    			whereIsSelect.parentElement.removeChild(continousSelect);
@@ -223,10 +227,10 @@
         		console.log("case 0");
         		makeSureTheresOnlyOneTimeBackSelector("continous", whereIsContinuousSelect, currentID);
         		break;
-        	//case "1501":
-        		//console.log("case weekly");
-        		//makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect, currentID);
-        		//break;
+        	case "1501":
+        		console.log("case weekly");
+        		makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect, currentID);
+        		break;
         	default:
         		makeSureTheresOnlyOneTimeBackSelector("default",whereIsContinuousSelect, currentID);
         		break;
@@ -350,7 +354,7 @@
                            </div>
                            <div class = 'row'>
                               <div class='col s12'>
-                              <p>Frequency of Leaderboard Update: {{isContinous}}</p>
+                              <p>Frequency of Leaderboard Update: </p>
                               </div>
                               </div>
                            <div id="selectors_{{i}}" class = 'row'>
@@ -365,7 +369,7 @@
                               {% if isContinous %}
 								<div id='continuousTimePeriodSelectedDiv_{{i}}' class='col s3'>
 									<label for='continuousTimePeriodSelected_{{i}}'>Time Period Back:</label> 
-									<select	id='continuousTimePeriodSelected_{{i}}' value="34" name='howFarBackTimePeriodSelected_[]'>
+									<select	id='continuousTimePeriodSelected_{{i}}' name='howFarBackTimePeriodSelected_[]'>
 										<option id='1500_{{i}}' value='1500'>Day</option>
 										<option id='1501_{{i}}'value='1501'>Week</option>
 										<option id='1502_{{i}}'value='1502'>From Start of Semester</option>
@@ -376,8 +380,21 @@
                               </script>
                               
                               	{% else %}
+                              	{%if continousHowFarBack == 1501 or continousHowFarBack == 1502 %}
+                              		<div id='weeklyTimePeriodSelectedDiv_{{i}}' class='col s3'>
+									<label for='continuousTimePeriodSelected_{{i}}'>Time Period Back:</label>
+									<select id='continuousTimePeriodSelected_{{i}}'name='weeklyTimePeriodSelected_[]'>
+										<option id='1501_{{i}}' value='1501'>Weekly</option>
+										<option  id='1502_{{i}}' value='1502'>From Start of Semester</option>
+									</select>
+								</div>
+								<script  type="text/javascript"> 
+                                 	document.getElementById("{{continousHowFarBack}}_{{i}}").selected = true;
+                              </script>
+                              	{%else%}
 								<input id='emptyHowFarBack_{{i}}' type='hidden' value='empty' name='howFarBackTimePeriodSelected_[]'></input>
 								{% endif %}
+								{%endif%}
 								
 								<div class='col s6'>
                                  <label>Periodic Variable:</label>

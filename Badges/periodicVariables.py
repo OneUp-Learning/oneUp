@@ -7,6 +7,7 @@ import random
 import logging
 from _datetime import date
 from celery.bin.result import result
+import _cffi_backend
 logger = logging.getLogger(__name__)
 
 from django.conf import settings
@@ -220,6 +221,13 @@ def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
             studentsPlusScores.append(student)
     index = 1
     
+    studentsWithoutZeroes = []
+    #filter out the zero point scores if any
+    for student in studentsPlusScores:
+        if student[1] != 0 or student[1] != 0.0:
+            studentsWithoutZeroes.append(student)
+    
+    studentsPlusScores = studentsWithoutZeroes
     #iterate over the list of studentsplusscores and make the records or update existing records
     for student in studentsPlusScores:
         #"currentStudent", student,"index" ,index)
@@ -544,6 +552,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     xpWeightWChallenge = 0
     xpWeightAPoints = 0
     ccparamsList = CourseConfigParams.objects.filter(courseID=course)
+    
 
     if result_only:
         date_time = time_period['datetime']
@@ -554,14 +563,28 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         
         if not date_time:
             periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course.courseID)
-            date_time = time_period['datetime']
-            date_time = date_time()
+            backwardsTime = periodic_leaderboard.howFarBack
+            
+            if backwardsTime == 1500:
+                date_time = date.today() - timedelta(1)
+                
+            elif backwardsTime == 1501:
+                date_time = date.today() - timedelta(7)
+                
+            else:
+                date_time = None
             
         set_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID)
     startOfTime = False
     if date_time == None:
         startOfTime = True
-            
+    
+    
+    print("Course: {}".format(course))
+    print("Student: {}".format(studentId))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(date_time))
+    
     if len(ccparamsList) >0:
         cparams = ccparamsList[0]
         xpWeightSP=cparams.xpWeightSP
@@ -630,22 +653,22 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
             
     totalScorePointsActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
     print("activity points total", totalScorePointsActivityPoints)
-    # get the skill points for this course
-    totalScoreSkillPoints = 0
-    cskills = CoursesSkills.objects.filter(courseID=course)
-    for sk in cskills:
-        skill = Skills.objects.get(skillID=sk.skillID.skillID)
-        
-        sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
-        #print ("Skill Points Records", sp)
-        gradeID = []
-        
-        for p in sp:
-            gradeID.append(int(p.skillPoints))
-            #print("skillPoints", p.skillPoints)
-        if (gradeID):
-            totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
-    print("total score skill points", totalScoreSkillPoints)
+#     # get the skill points for this course
+#     totalScoreSkillPoints = 0
+#     cskills = CoursesSkills.objects.filter(courseID=course)
+#     for sk in cskills:
+#         skill = Skills.objects.get(skillID=sk.skillID.skillID)
+#         
+#         sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+#         #print ("Skill Points Records", sp)
+#         gradeID = []
+#         
+#         for p in sp:
+#             gradeID.append(int(p.skillPoints))
+#             #print("skillPoints", p.skillPoints)
+#         if (gradeID):
+#             totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
+#     print("total score skill points", totalScoreSkillPoints)
     
     if gradeWarmup:
         xp = round(totalScorePointsWarmupChallenge,0)
@@ -657,7 +680,8 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
         print("serious plus activity ran")
     else:
-        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScoreSkillPoints),0)
+        #
+        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints),0)
         print("xp has ran")
     
     return (studentId,xp)
