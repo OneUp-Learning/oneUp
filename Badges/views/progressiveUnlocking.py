@@ -24,7 +24,9 @@ def ProgressiveUnlockingRules(request):
     if request.GET:   
         if 'editRule' in request.GET and  request.GET['editRule'] == "True":
             print("we want to edit the rule")
-            return editRule(request,current_course,context_dict)
+            #return editRule(request,current_course,context_dict)
+            return createRule(request,current_course,context_dict)
+
 
         elif 'delete' in request.GET and request.GET['delete'] == "True":
             print("we want to delete the rule")
@@ -65,19 +67,19 @@ def listRules(request,current_course,context_dict):
     for rule in rules:
         objectString =  ObjectTypes.objectTypes[rule.objectType]
         if objectString == 'activity':
-            objs.append({'rule': rule, 'type' : 'Activity'})
+            objs.append({'rule': rule, 'type' : 'Activity', 'typeString': 'activity'})
         elif objectString == 'challenge':
             chall = Challenges.objects.get(pk=rule.objectID)
             if(chall.isGraded): # It is a serious chall
-                objs.append({'rule': rule, 'type' : 'Serious Challenge'})
+                objs.append({'rule': rule, 'type' : 'Serious Challenge','typeString': 'challenge'})
             else:
-                objs.append({'rule': rule, 'type' : 'WarmUp Challenge'})
+                objs.append({'rule': rule, 'type' : 'WarmUp Challenge','typeString': 'challenge'})
         elif objectString == 'topic':
-            objs.append({'rule': rule, 'type' : 'Topic'})
+            objs.append({'rule': rule, 'type' : 'Topic','typeString': "topic"})
 
 
 
-    context_dict['rules'] = objs
+    context_dict['rules'] = zip(range(1,len(objs)+1), objs) # had to zip this in order to make the tool tip work
 
     # Code for selector
     objTypes.append( {'id' : ObjectTypes.activity, 'string' : 'Activity'} ) 
@@ -91,9 +93,18 @@ def listRules(request,current_course,context_dict):
 
 def createRule(request,current_course,context_dict):
     print("we want to make a new rule")
-    if request.GET:
-        context_dict = setUpContextDictForConditions(context_dict,current_course,None)
-        
+    if request.GET: 
+        if 'editRule' in request.GET and request.GET['editRule'] == "True":
+            print("Edit")
+            pk = request.GET['ruleID']
+            rule = ProgressiveUnlocking.objects.filter(pk=pk).first()
+            print(rule.name)
+            context_dict['pRule'] = rule
+            context_dict = setUpContextDictForConditions(context_dict,current_course,rule.ruleID)
+        else:
+            context_dict = setUpContextDictForConditions(context_dict,current_course,None)
+
+        # Code for the object selector
         if 'ruleType' in request.GET:
             if request.GET['ruleType'] == 'challenge':
                 ruleType = ObjectTypes.challenge
@@ -113,12 +124,18 @@ def createRule(request,current_course,context_dict):
             context_dict['ruleType'] = ruleType
             context_dict['objs'] = objs
 
-            return render(request, 'Badges/AddProgressiveUnlocking.html', context_dict)
+        return render(request, 'Badges/AddProgressiveUnlocking.html', context_dict)
+        
 
     if request.POST:
         print("We are in post for making a rule")
-        print(request.POST)
-        unlocking = ProgressiveUnlocking()  # create new unlocking rule  
+        
+        if 'editRule' in request.POST:
+            pk = request.POST['editRule']
+            unlocking = ProgressiveUnlocking.objects.filter(pk=pk).first()
+            unlocking.ruleID.delete()
+        else:
+            unlocking = ProgressiveUnlocking()  # create new unlocking rule  
 
         # Get unlocking info and the first condition
         name = request.POST['unlockingName'] # The entered Badge Name
@@ -168,32 +185,27 @@ def createRule(request,current_course,context_dict):
             actionArgument.argumentValue =  unlocking.pk
             actionArgument.save()
         
-        # Make Student objects for the pUnlocking Rule
-        studentsInCourse = StudentRegisteredCourses.objects.filter(courseID=current_course)
-        for sCourse in studentsInCourse:
-            student = sCourse.studentID
-            studentPUnlocking =  StudentProgressiveUnlocking()
-            studentPUnlocking.studentID = student
-            studentPUnlocking.pUnlockingRuleID = unlocking
-            studentPUnlocking.courseID = current_course
-            studentPUnlocking.objectID = request.POST['ruleTargetObject']
-            studentPUnlocking.objectType = request.POST['ruleObjectType']
-            studentPUnlocking.save()
+        if 'editRule' in request.POST:
+            sRules = StudentProgressiveUnlocking.objects.filter(courseID=current_course,pUnlockingRuleID=pk)
+            for studentRule in sRules:
+                studentRule.pUnlockingRuleID = unlocking
+                studentRule.objectID = request.POST['ruleTargetObject']
+                studentRule.objectType = request.POST['ruleObjectType']
+                studentRule.save()
+        else:
+            # Make Student objects for the pUnlocking Rule
+            studentsInCourse = StudentRegisteredCourses.objects.filter(courseID=current_course)
+            for sCourse in studentsInCourse:
+                student = sCourse.studentID
+                studentPUnlocking =  StudentProgressiveUnlocking()
+                studentPUnlocking.studentID = student
+                studentPUnlocking.pUnlockingRuleID = unlocking
+                studentPUnlocking.courseID = current_course
+                studentPUnlocking.objectID = request.POST['ruleTargetObject']
+                studentPUnlocking.objectType = request.POST['ruleObjectType']
+                studentPUnlocking.save()
         
     return redirect('/oneUp/badges/ProgressiveUnlocking') #(request,'Badges/progressiveUnlocking.html', context_dict)
-
-def editRule(request,current_course,context_dict):
-    if request.GET:
-        context_dict = setUpContextDictForConditions(context_dict,current_course,None)
-
-        if 'ruleID' in request.GET:
-            ruleID = request.GET['ruleID']
-            rule = ProgressiveUnlocking.objects.filter(pk=ruleID)
-
-
-
-    return render(request, 'Badges/AddProgressiveUnlocking.html', context_dict)
-    pass
 
 def deleteRule(request,current_course,context_dict):
     if "ruleID" in request.GET:

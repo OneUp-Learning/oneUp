@@ -19,13 +19,22 @@
             
                     <div class="row">
                       <div class="input-field col s12">
-                         <input placeholder="Rule Name" value="{{unlockingName}}" name="unlockingName" type="text" id="unlockingName">
-                         <label for="unlockingName"><span class= "red-text">*</span>Unlocking Rule Name</label>
+                         {% if pRule %}                        
+                           <input placeholder="{{pRule.name}}" value="{{pRule.name}}" name="unlockingName" type="text" id="unlockingName">
+                           <input hidden value="{{pRule.pk}}" name="editRule">
+                         {%else%}
+                           <input placeholder="Rule Name" name="unlockingName" type="text" id="unlockingName">
+                         {% endif %}
+                           <label for="unlockingName"><span class= "red-text">*</span>Unlocking Rule Name</label>
                       </div>
                    </div> 
                     <div class="row">
                           <div class="input-field col s12">
-                             <input placeholder="Description" value="{{unlockingDescript}}" name="unlockingDescript" type="text" id="unlockingDescript">
+                             {% if pRule %}
+                                 <input placeholder="{{pRule.description}}" value="{{pRule.description}}" name="unlockingDescript" type="text" id="unlockingDescript">
+                              {% else %}
+                                 <input placeholder="Description" name="unlockingDescript" type="text" id="unlockingDescript">
+                             {%endif%}
                              <label for="unlockingDescript"><span class= "red-text">*</span>Unlocking Rule Description</label>
                           </div>
                     </div>
@@ -34,11 +43,19 @@
                             <select name="ruleTargetObject" id="objects">
                                 {% for obj in objs %}
                                   {% if ruleType == 1301 %}
-                                    <option value={{obj.pk}}>{{obj.challengeName}}</option>
+                                    {% if pRule.objectID == obj.pk %}
+                                       <option value={{obj.pk}} selected>{{obj.challengeName}}</option>
+                                    {% else %}
+                                       <option value={{obj.pk}}>{{obj.challengeName}}</option>
+                                    {% endif %}
                                   {% elif ruleType == 1302 %}
-                                    <option value={{obj.pk}} >{{obj.activityName}}</option>
+                                    {% if pRule.objectID == obj.pk %}
+                                       <option selected value={{obj.pk}} >{{obj.activityName}}</option>
+                                    {%else%}
+                                       <option value={{obj.pk}} >{{obj.activityName}}</option>
+                                    {%endif%}
                                   {% elif ruleType == 1306 %}
-                                    <option value={{obj.pk}} >{{obj.topicID.topicName}}</option>
+                                    <option selected value={{obj.pk}} >{{obj.topicID.topicName}}</option>}
                                   {% endif %}
                                 {% empty %}
                                 {% endfor %}
@@ -57,7 +74,7 @@
                            {% if edit %}
                            <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i class="material-icons right">close</i></a>
                            {% endif %}
-                           <a class="waves-effect waves-light btn" href="/oneUp/badges/Badges">											
+                           <a class="waves-effect waves-light btn" href="/oneUp/badges/ProgressiveUnlocking">											
                            <i class="material-icons left">navigate_before</i>Back</a>                                                                  									
                         </div>            
                </div>
