@@ -58,7 +58,7 @@
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
-                            <select name="ruleObjType" id="ruleTypes" onchange="getObjects()">
+                            <select name="ruleObjectType" id="ruleTypes" onchange="getObjects()">
                                 {% for type in filter %}
                                     {% if type.string == ruleTypeString %}
                                        <option value={{type.string}} selected>{{type.string}}</option>
@@ -95,7 +95,6 @@
                            <label for="ruleTargetObject"><span class= "red-text">*</span>Object Selection</label>
                         </div>
                      </div>
-                    <input type="hidden" name="ruleObjectType" value={{ruleType}}>
                     <input type="hidden" name="whatWeAreDoing" value='create'>
 
                     {% include "Badges/unlockingConditionInterface.html" %}  

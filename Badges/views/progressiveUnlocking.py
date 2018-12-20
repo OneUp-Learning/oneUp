@@ -187,7 +187,13 @@ def createRule(request,current_course,context_dict):
         unlocking.name = name
         unlocking.description = description
         unlocking.objectID = request.POST['ruleTargetObject']
-        unlocking.objectType = request.POST['ruleObjectType']
+        oType = request.POST['ruleObjectType']
+        if oType == 'Activity':
+            unlocking.objectType = ObjectTypes.activity
+        elif oType == 'WarmUp' or oType == 'Serious':
+            unlocking.objectType = ObjectTypes.challenge
+        elif oType == 'Topic':
+            unlocking.objectType = ObjectTypes.topic
         unlocking.save()
         
         if not (ActionArguments.objects.filter(ruleID = gameRule, sequenceNumber = 1, argumentValue=str(unlocking.pk)).exists()):
@@ -203,7 +209,12 @@ def createRule(request,current_course,context_dict):
             for studentRule in sRules:
                 studentRule.pUnlockingRuleID = unlocking
                 studentRule.objectID = request.POST['ruleTargetObject']
-                studentRule.objectType = request.POST['ruleObjectType']
+                if oType == 'Activity':
+                    studentRule.objectType = ObjectTypes.activity
+                elif oType == 'WarmUp' or oType == 'Serious':
+                    studentRule.objectType = ObjectTypes.challenge
+                elif oType == 'Topic':
+                    studentRule.objectType = ObjectTypes.topic
                 studentRule.save()
         else:
             # Make Student objects for the pUnlocking Rule
@@ -215,7 +226,12 @@ def createRule(request,current_course,context_dict):
                 studentPUnlocking.pUnlockingRuleID = unlocking
                 studentPUnlocking.courseID = current_course
                 studentPUnlocking.objectID = request.POST['ruleTargetObject']
-                studentPUnlocking.objectType = request.POST['ruleObjectType']
+                if oType == 'Activity':
+                    studentPUnlocking.objectType = ObjectTypes.activity
+                elif oType == 'WarmUp' or oType == 'Serious':
+                    studentPUnlocking.objectType = ObjectTypes.challenge
+                elif oType == 'Topic':
+                    studentPUnlocking.objectType = ObjectTypes.topic
                 studentPUnlocking.save()
         
     return redirect('/oneUp/badges/ProgressiveUnlocking') #(request,'Badges/progressiveUnlocking.html', context_dict)
