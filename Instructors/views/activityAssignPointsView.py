@@ -5,7 +5,7 @@
 from datetime import datetime, timezone
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
 from Instructors.views.utils import utcDate, initialContextDict
@@ -16,11 +16,14 @@ from Instructors.views.activityListView import createContextForActivityList
 from django.template.context_processors import request
 from notify.signals import notify
 from decimal import Decimal
-
+from oneUp.decorators import instructorsCheck
+import json  
 
 default_student_points = -1
 default_student_bonus = 0
 
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def activityAssignPointsView(request):   
     context_dict, currentCourse = initialContextDict(request)
 
@@ -60,8 +63,7 @@ def activityAssignPointsView(request):
                         changesNeedSaving = True
                         activityGradedNow[studentRC.studentID] = True
 
-                        notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                    verb= activity.activityName+' has been graded', nf_type='Activity Graded')
+                        
                     
                     if studentBonus != stud_activity.bonusPointsAwarded:
                         # The bonus has changed.
@@ -69,40 +71,30 @@ def activityAssignPointsView(request):
                         changesNeedSaving = True
 
                     if changesNeedSaving:
+                        notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                    verb= activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID)}))
                         stud_activity.save()
+                # Create new assigned activity object for the student if there are points entered to be assigned (AH)
+            elif not studentPoints == default_student_points or not studentBonus == default_student_bonus:
+                stud_activity = StudentActivities()
+                stud_activity.activityID = activity
+                stud_activity.studentID = studentRC.studentID
 
+                if not studentPoints == default_student_points:
+                    stud_activity.activityScore = studentPoints
+                    stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
+                else:
+                    stud_activity.activityScore = 0
+                    stud_activity.instructorFeedback =  ""
+                
+                stud_activity.bonusPointsAwarded = studentBonus
                 stud_activity.timestamp = utcDate()
+                stud_activity.courseID = currentCourse
                 stud_activity.graded = True
                 stud_activity.save()
-                activityGradedNow[studentRC.studentID] = True
-    
-                actName = activity.activityName
-                    
+                                        
                 notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                            verb= actName+' was graded', nf_type='Activity Graded')
-            
-            else:
-                # Create new assigned activity object for the student if there are points entered to be assigned (AH)
-                if not studentPoints == default_student_points or not studentBonus == default_student_bonus:
-                    stud_activity = StudentActivities()
-                    stud_activity.activityID = activity
-                    stud_activity.studentID = studentRC.studentID
-
-                    if not studentPoints == default_student_points:
-                        stud_activity.activityScore = studentPoints
-                        stud_activity.instructorFeedback =  request.POST['student_Feedback' + str(studentRC.studentID.id)]
-                    else:
-                        stud_activity.activityScore = 0
-                        stud_activity.instructorFeedback =  ""
-                    
-                    stud_activity.bonusPointsAwarded = studentBonus
-                    stud_activity.timestamp = utcDate()
-                    stud_activity.courseID = currentCourse
-                    stud_activity.graded = True
-                    stud_activity.save()
-                                            
-                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb= activity.activityName+' has been graded', nf_type='Activity Graded')
+                            verb= activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID)}))
 
                 activityGradedNow[studentRC.studentID] = True
        
@@ -180,6 +172,7 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     return context_dict
     
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def assignedPointsList(request):
     context_dict, currentCourse = initialContextDict(request)
 

@@ -6,15 +6,19 @@ Updated 02/28/2015
 '''
 
 from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 
 from Students.models import Student, StudentRegisteredCourses
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck  
+from Badges.models import VirtualCurrencyCustomRuleInfo
+
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteQuestion(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -36,6 +40,7 @@ def deleteQuestion(request):
         
     return redirect('/oneUp/instructors/challengeQuestionsList?problems', context_dict)
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteQuestionFromChallenge(request):                 
  
     context_dict, currentCourse = initialContextDict(request)
@@ -94,6 +99,7 @@ def deleteQuestionFromChallenge(request):
     else:
         return redirect('/oneUp/instructors/challengeQuestionsList?challengeID=' + challengeID, context_dict)
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteChallenge(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -129,6 +135,7 @@ def deleteChallenge(request):
         return redirect('/oneUp/instructors/challengesList', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteSkill(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -147,6 +154,7 @@ def deleteSkill(request):
     return redirect('/oneUp/instructors/skillsList', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteStudent(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -186,6 +194,7 @@ def deleteStudent(request):
     return redirect('/oneUp/instructors/createStudentListView', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteUser(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
@@ -214,6 +223,7 @@ def deleteUser(request):
     return redirect('/oneUp/instructors/createStudentListView', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteTopic(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -233,6 +243,7 @@ def deleteTopic(request):
     return redirect('/oneUp/instructors/topicsList', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteSubTopic(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -252,7 +263,8 @@ def deleteSubTopic(request):
     response = redirect('/oneUp/instructors/subTopicsListView', context_dict)
     response['Location'] +='?topicID=' + str(subTopic.topicID.topicID)
     return response   
-
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def deleteActivity(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -271,6 +283,7 @@ def deleteActivity(request):
     return redirect('/oneUp/instructors/activitiesList', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteAnnouncement(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -290,6 +303,7 @@ def deleteAnnouncement(request):
     return redirect('/oneUp/instructors/announcementList', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def deleteMilestone(request):
  
     context_dict, currentCourse = initialContextDict(request)
@@ -306,3 +320,19 @@ def deleteMilestone(request):
         context_dict['message']=message
         
     return redirect('/oneUp/instructors/milestonesList', context_dict)
+
+@login_required
+def deleteManualSpendRule(request):
+    context_dict, currentCourse = initialContextDict(request)
+    if request.method == 'POST':
+        try:
+            if request.POST['vcRuleID']:
+                # Delete the Virtual Currency Rule 
+                deleteVC = VirtualCurrencyCustomRuleInfo.objects.get(pk=int(request.POST['vcRuleID']), courseID=currentCourse)
+                message = "VC Spend Rule #" + str(deleteVC.vcRuleID) + " - " + str(deleteVC.vcRuleName) + " was successfully deleted"
+                deleteVC.delete()
+
+        except VirtualCurrencyCustomRuleInfo.DoesNotExist:
+            message = "There was a problem deleting VC Spend Rule #"+str(request.POST['vcRuleID'])
+        context_dict['message'] = message
+    return redirect('/oneUp/badges/VirtualCurrencySpendRuleList', context_dict)

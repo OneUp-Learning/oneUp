@@ -26,7 +26,7 @@
                         <tbody>
                            {% for i,assignmentID,assignmentName,assignmentType, assignmentTime,assignmentGrade, assignmentGradeTotal, assignmentFeedback, isExpired in challenge_range %}
                            <tr>
-                              <td>{{assignmentName}}</td>
+                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{assignmentName}}</td>
                               <td>{{assignmentType}}</td>
                               <td>{{assignmentTime}}</td>
                               <td>{{assignmentGrade}} / {{assignmentGradeTotal}}</td>

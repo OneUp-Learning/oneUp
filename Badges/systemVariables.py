@@ -3,6 +3,7 @@ from Badges.enums import Event, ObjectTypes
 from datetime import datetime
 from Instructors.models import Challenges, Activities, Questions, Topics,\
     ActivitiesCategory
+from Instructors.constants import default_time_str
 from django.utils import timezone
 import logging
 from billiard.connection import CHALLENGE
@@ -852,6 +853,11 @@ def firstAttemptStatic(questionID):
         return 0
     else:
         return question.questionScore
+def sc_reached_due_date(course, student, serious_challenge):
+    # Returns true if the due date for serious challenge has been reached or if due date is the same as default date
+    if not serious_challenge.isGraded:
+        return False
+    return serious_challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -901,6 +907,7 @@ class SystemVariable():
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
+    seriousChallengeReachedDueDate = 944 # Returns true if the current time is past a serious challenge due date
 
     systemVariables = {
         numAttempts:{
@@ -1415,6 +1422,19 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none:getTotalScoreForSeriousChallenges
+            },
+        },
+        seriousChallengeReachedDueDate:{
+            'index': seriousChallengeReachedDueDate,
+            'name': 'seriousChallengeReachedDueDate',
+            'displayName': 'Serious Challenge Reached Due Date',
+            'description': 'The serious challenge due date has past or reached based on the current moment',
+            'eventsWhichCanChangeThis': {
+                ObjectTypes.challenge: [Event.challengeExpiration],
+            },
+            'type': 'boolean',
+            'functions': {
+                ObjectTypes.challenge: sc_reached_due_date
             },
         },
                                                                        

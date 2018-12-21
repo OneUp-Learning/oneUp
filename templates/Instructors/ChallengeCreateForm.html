@@ -30,6 +30,17 @@
             inputbox[0].disabled = checkbox.checked;
            
          }
+       	 //GGM created validation for passwords
+         function validatePasswords(){
+         	  validated = false;
+         	  if (document.getElementById("passwordConfirm").value == document.getElementById("password").value){
+         		  validated = true;
+         	  }
+         	  else{
+         		 window.alert("Passwords do not match!");
+         	  }
+         	  return validated;
+           }
       </script>
       <script>
          $( document ).ready(function(){
@@ -47,14 +58,19 @@
 					$('#topics').append($(topicDOM));
 				}
         	{% else %}
+        	
           var endDate = $('#endTime').bootstrapMaterialDatePicker({
             weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
           });
+          var dueDate = $('#dueDate').bootstrapMaterialDatePicker({
+                 weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+               });
           
           var startDate = $('#startTime').bootstrapMaterialDatePicker({
             weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
           }).on('change', function(e, date) {
             $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
+            $('#dueDate').bootstrapMaterialDatePicker('setMinDate', date);
           });
           
           $('.chips').material_chip();
@@ -119,6 +135,7 @@
             console.log($('.chips-tags').material_chip('data'));
             console.log($('.chips-topics-autocomplete').material_chip('data'));
           });
+          
           {% endif %}
          });
       </script>
@@ -163,7 +180,7 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select name="challengeDifficulty" {%if view%}readonly{%endif%}>
+                              <select id="difficulty" name="challengeDifficulty" {%if view%}readonly{%endif%}>
                                  <option value="" disabled selected>Choose Difficulty</option>
                                  <option id= "Easy" value="Easy" {%if view%}disabled{%endif%}>Easy</option>
                                  <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
@@ -173,7 +190,8 @@
                               <script  type="text/javascript"> 
                                  window.onload = function() {
                                  	if ("{{challengeDifficulty}}" != '')  {
-                                 	document.getElementById("{{challengeDifficulty}}").selected = "true";
+                                 	document.getElementById("{{challengeDifficulty}}").selected = true;
+                                    $("#difficulty").material_select();
                                  	} 
                                  }
                               </script> 
@@ -193,14 +211,18 @@
                            </div>
                         </div>
                         <div class="row">
-                           <div class="col s12 m6">
+                           <div class="col s12 m4">
                               <label for="startTime">Display From:</label> 
                               <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime" {%if view%}readonly{%endif%}>
                            </div>
-                           <div class="col s12 m6">
+                           <div class="col s12 m4">
                               <label for="endTime">Display Until:</label> 
                               <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime" {%if view%}readonly{%endif%}>
                            </div>
+                           <div class="col s12 m4">
+                        		<label for="dueDate">Due Date:</label>
+                        		<input type="text" class="datepicker-until" name="dueDate" id="dueDate" value="{{dueDate}}">
+                        	</div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
@@ -222,10 +244,15 @@
                               <label for="unl_time">Unlimited Time</label>
                            </div>
                         </div>
+                        <!-- GGM added password confirm for challenges -->
                         <div class="row">
                            <div class="input-field col s12">
                               <input name="challengePassword" id="password" type="password" value="{{challengePassword}}" class="validate" autocomplete="new-password" {%if view%}readonly{%endif%}>
                               <label for="password" data-error="incorrect">Password</label>
+                           </div>
+                           <div class="input-field col s12">
+                              <input name="challengePasswordConfirm" id="passwordConfirm" type="password" value="{{challengePassword}}" class="validate" {%if view%}readonly{%endif%}>
+                              <label for="passwordConfirm" data-error="incorrect">Confirm Password</label>
                            </div>
                         </div>
                         <div class="row">
@@ -369,7 +396,8 @@
                      </div>
                      <div class="card-action right-align">
                      	{% if view == False %}
-                        <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i>
+                     	<!-- GGM added validation for passwords -->
+                        <button class="btn waves-effect waves-light" onclick="return validatePasswords()" type="submit" name="submit">Save<i class="material-icons right">send</i>
                         </button>
                         {% endif %}
                         {% if warmUp %}									

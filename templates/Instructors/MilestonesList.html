@@ -30,7 +30,7 @@
                      <tbody>
                         {% for i,milestone_ID,milestone_Name,description, points in milestone_range %}
                         <tr>
-                           <td>{{milestone_Name}}</td>
+                           <td style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{milestone_Name}}</td>
                            <td>{{points}}</td>
                            <td>{{description}}</td>
                            <td>

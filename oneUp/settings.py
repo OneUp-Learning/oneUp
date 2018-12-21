@@ -198,6 +198,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_IMPORTS = ['Badges.periodicVariables']
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 # Turns celery on or off in oneUp code.
 # Note that this is not automatic, but enabled by statements in our
 # code which check its value.  Turning it on or off will only effect

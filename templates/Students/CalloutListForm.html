@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include 'scripts.html' %}
+  <script>
+    $(document).ready(function(){
+        $('#create').on('click', function(){
+            var val = $('#create-type').find(':selected').val();
+            if (val){
+                top.location.href = val;
+            }
+        });
+    
+        $('.chips').material_chip();
+        $('.chips-tags').material_chip({
+            placeholder: 'Enter a tag'
+        });
+    });
+ </script>
+</head>
+
+<body>
+  {% include 'stheading.html' %}
+  <main>
+    <div class="row center-align">
+      <div class="col s12">
+        <h3>Challenge Classmates</h3>
+      </div>
+    </div>
+
+    <div class="row right-align">
+        <div class="col s12 m10 offset-m1">
+            <a class="modal-trigger waves-effect waves-light btn" href="#modal-create"><i class="material-icons left">extension</i>Create Challenge</a>  
+            <div id="modal-create" class="modal modal-fixed-footer">
+               <div class="modal-content">
+                  <div class="row center-align">
+                     <div class="col s12 m10 offset-m1">
+                        <h4>Select Challenge Type</h4>
+                      </div>
+                  </div>
+                  
+                  <div class="row">
+                     <div class="input-field col s12 m10 offset-m1">
+                        <select id="create-type">
+                           <option value="" disabled selected>Select Challenge Type</option>
+                           <option value="/oneUp/students/DuelChallengeCreate">Duel</option>
+                           <!--<option value="/oneUp/students/IndividualChallengeCreate">Individual Call out</option>
+                           <option value="/oneUp/students/ClassChallengeCreate">Class Call out</option>-->
+                        </select>
+                    </div>
+                  </div>
+                </div>
+                  
+                  <div class="modal-footer">
+                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn" id="create">Create Challenge</a>
+                </div>
+              
+            </div>
+          </div>
+          
+    </div>
+
+    <div class="row right-align">
+				<div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                
+                  <ul class="collapsible" data-collapsible="expandable">
+                    
+                     <li>
+                        <div class="collapsible-header active"><i class="material-icons">layers</i>Sent Duels&nbsp;&nbsp;
+                        </div>
+                        <div class="collapsible-body">
+                           <ul class="collection">
+                           <table class="responsive-table" style="width:100%">
+                           
+                    <tbody>
+			              {% for i, sent_chall, is_editable, vcBet, status, challengee_avatar, challenger_avatar in sent_duel_challenges %}
+			              <tr>
+			                <td>{{sent_chall.duelChallengeName}}</td>
+                      <td>{{status}}</td>
+                      {% if sent_chall.hasEnded %}
+                      <td>Completed</td>
+                      {% elif sent_chall.hasStarted %}
+                      <td>Started</td>
+                      {% else %}
+                      <td>Not Started</td>
+                      {% endif %}
+                      <!--<td>{{vcBet}} VC</td>-->
+
+                      <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}"> - <img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}"></td>
+                      
+                      <td>
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{sent_chall.duelChallengeID}}"><i class="material-icons left">visibility</i>View</a>        
+                      </td>
+			              </tr>
+			              
+			              {% empty %}
+			              <tr>
+			                <td class="center-align" colspan="4"><i>No Sent duel challenges</i></td>
+			              </tr>
+			              {% endfor %}
+			            </tbody>
+                     </table>
+                      </ul>
+               </div>
+              
+               
+                    
+                  <li>
+                     <div class="collapsible-header"><i class="material-icons">layers</i>Requested Duels&nbsp;&nbsp;
+                     </div>
+                     <div class="collapsible-body">
+                        <ul class="collection">
+                        <table class="responsive-table" style="width:100%">
+                        
+                 <tbody>
+                 {% for i, requested_chall, vcBet, status, has_accepted, challengee_avatar, challenger_avatar in requested_duel_challenges %}
+                 <tr>
+                   <td>{{requested_chall.duelChallengeName}}</td>
+                   <td>{{status}}</td>
+                   {% if requested_chall.hasEnded %}
+                   <td>Completed</td>
+                   {% elif requested_chall.hasStarted %}
+                   <td>Started</td>
+                   {% else %}
+                   <td>Not Started</td>
+                   {% endif %}
+
+                   <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}"> - <img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}"></td>
+                            
+                   <td>
+                    <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{requested_chall.duelChallengeID}}"><i class="material-icons left">visibility</i>View</a>        
+                   </td>
+                  
+                   
+                 </tr>
+                 
+                 {% empty %}
+                 <tr>
+                   <td class="center-align" colspan="4"><i>No requested duel challenges</i></td>
+                 </tr>
+                 {% endfor %}
+               </tbody>
+                  </table>
+                   </ul>
+            </div>
+           
+            </ul>
+               <div class="card-action right-align">   
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome?userID={{user}}&courseID={{course_id}}"><i class="material-icons left">navigate_before</i>Back</a>
+                     
+               </div>
+            </div>
+            
+         </div>
+         </div>
+  </main>
+  {% include 'footer.html' %}
+</body>
+
+</html>

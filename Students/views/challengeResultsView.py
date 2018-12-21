@@ -10,8 +10,9 @@ from datetime import datetime
 from Instructors.views.utils import utcDate
 from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
     ChallengesQuestions
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers
+from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges
 from Students.views.utils import studentInitialContextDict
+from Students.views.calloutsView import duel_challenge_evaluate
 from Badges.events import register_event
 from Badges.event_utils import updateLeaderboard
 from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet, staticQuestionTypesSet
@@ -61,7 +62,7 @@ def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instru
 @login_required
 def ChallengeResults(request):
   
-    context_dict,currentCourse = studentInitialContextDict(request)                 
+    context_dict,currentCourse = studentInitialContextDict(request)  
 
     if 'currentCourseID' in request.session:
          #Intially by default its saved none.. Updated after instructor's evaluation
@@ -75,6 +76,9 @@ def ChallengeResults(request):
                 # Challenge without questions
                 print('here')
                 print(request.POST['challengeId'])
+                if 'duelID' in request.POST:
+                    duel_id = request.POST['duelID']
+                    return redirect('/oneUp/students/DuelChallengeDescription?duelChallengeID='+duel_id)
                 return redirect('/oneUp/students/ChallengesList')
             
             else: 
@@ -85,7 +89,16 @@ def ChallengeResults(request):
                 challengeId = request.POST['challengeId']
                 course = Courses.objects.get(pk=currentCourse.courseID)
                 challenge = Challenges.objects.get(pk=challengeId)
+                is_duel = False
                 context_dict['challengeName'] = challenge.challengeName
+                if 'duelID' in request.POST:
+                    duel_id = request.POST['duelID']
+                    is_duel = True
+                    duel_challenge = DuelChallenges.objects.get(pk=int(duel_id))
+                    context_dict['duelID'] = duel_id
+                    context_dict['isDuel'] = True
+                    context_dict['challengeName'] = duel_challenge.duelChallengeName
+
                 #context_dict['instructorFeedback'] = challenge.instructorFeedback
                 
                 
@@ -463,6 +476,9 @@ def ChallengeResults(request):
                 
                 print("studentChallege ", studentChallenge)
                 print("studentId ", studentId)
+
+                if is_duel:
+                    context_dict = duel_challenge_evaluate(studentId, currentCourse, duel_challenge,context_dict )
                 
         if request.GET:      
             
@@ -474,6 +490,9 @@ def ChallengeResults(request):
                 context_dict['classAchievements'] = True
             if 'view' in request.GET:
                 context_dict['view'] = True
+            if 'duelID' in request.GET:
+                context_dict['isDuel'] = True
+                context_dict['duelID'] = request.GET['duelID']
                 
             if 'studentChallengeID' in request.GET:
                 studentChallengeId = request.GET['studentChallengeID']

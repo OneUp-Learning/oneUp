@@ -21,7 +21,7 @@
 							   {% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
 								<tr>
 									<td>{{announcement_course}}: </td>
-									<td>{{subject}}</td>
+									<td style="max-width:24vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{subject}}</td>
 									<td>{{start_timestamp}}</td>
 								</tr>
 								{% empty %}
@@ -71,11 +71,11 @@
 								
 							</thead>
 							<tbody>
-								{% for i,chall_ID,chall_course,chall_Name,start_Timestamp,end_Timestamp in challenge_range %}
+								{% for i,chall_ID,chall_course,chall_Name,start_Timestamp,due_date in challenge_range %}
 								<tr>
 									<td>{{chall_course}}: </td>
-									<td>{{chall_Name}}</td>
-									<td>{{end_Timestamp}}</td>
+									<td style="max-width:24vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
+									<td>{{due_date}}</td>
 								</tr>
 								{% empty %}
 								<tr>

@@ -32,7 +32,7 @@
                         <tbody>
                            {% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total in challenge_range %}
                            <tr>
-                              <td>{{chall_Name}}</td>
+                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
                               <td>{{dateTaken}}</td>
                               <td>{{score}}</td>
                               <td>{{total}}</td>
