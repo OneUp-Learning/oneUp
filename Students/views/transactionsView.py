@@ -8,7 +8,7 @@ from Instructors.models import Challenges
 from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo
 from Badges.enums import Action, ObjectTypes
 from Badges.events import register_event
-from Badges.enums import Event
+from Badges.enums import Event, dict_dict_to_zipped_list
 
 from datetime import datetime
 #import logging
@@ -26,13 +26,15 @@ def transactionsView(request):
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=course)  
                 
     currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount         
-     
+    def getVCEvents():
+        events = dict_dict_to_zipped_list(Event.events,['index','displayName', 'description','isVirtualCurrencySpendRule'])  
+        return [id for id, _, _, is_vc in events if is_vc]
+
     # Get all transactions for the student and send it to the webpage
 #     transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadline, Event.dropLowestAssignGrade, Event.getDifferentProblem,
 #                                                                                                         Event.seeClassAverage, Event.chooseLabPartner, Event.chooseProjectPartner, Event.uploadOwnAvatar, Event.chooseDashboardBackground,
 #                                                                                                         Event.getSurpriseAward, Event.chooseBackgroundForYourName, Event.buyExtraCreditPoints]).order_by('-studentEvent__timestamp')
-    transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event__in=[Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab,Event.replaceLowestAssignGrade, Event.getDifferentProblem,
-                                Event.getSurpriseAward, Event.buyExtraCreditPoints, Event.buyTestTime, Event.getCreditForOneTestProblem, Event.buyMissedLab, Event.changeHWWeights, Event.examExemption]).order_by('-studentEvent__timestamp')
+    transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event__in=getVCEvents()).order_by('-studentEvent__timestamp')
 
     # Code from virtual currency shop view
     def getRulesForEvent(event):
