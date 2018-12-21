@@ -46,7 +46,8 @@
                <div class="card-panel">
                   
                   <ul class="collapsible" data-collapsible="expandable">
-                     {% for category, category_name in categories_range %}
+                     {% for category, category_name,isUnlocked,ulockingDescript in categories_range %}
+                     {% if isUnlocked %}
                      <li>
                         <div class="collapsible-header {% if forloop.first %}active{% endif %}"><i class="material-icons">layers</i>{{category_name}}&nbsp;&nbsp;
                         
@@ -85,7 +86,15 @@
                            {% endfor %}
                         </tbody>
                      </table>
-               </div>
+                     </div>
+                     </li>
+                     {% else %}
+                     <li>
+                           <div class="collapsible-header {% if forloop.first %}active{% endif %}  tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{ulockingDescript}}">
+                              <i class="material-icons">lock</i>{{category_name}}&nbsp;&nbsp;
+                           </div>
+                     </li>
+                     {% endif %}
               
                
                {% endfor %}

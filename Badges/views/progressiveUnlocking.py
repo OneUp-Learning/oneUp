@@ -6,7 +6,7 @@ Created on Oct 3, 2018
 from django.shortcuts import redirect, render
 
 from Instructors.views.utils import initialContextDict
-from Instructors.models import Challenges, Activities, CoursesTopics
+from Instructors.models import Challenges, Activities, CoursesTopics, ActivitiesCategory
 from Students.models import Student, StudentRegisteredCourses, StudentProgressiveUnlocking
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Badges.models import ActionArguments, Rules, ProgressiveUnlocking, RuleEvents
@@ -67,6 +67,8 @@ def listRules(request,current_course,context_dict):
 
     for rule in rules:
         objectString =  ObjectTypes.objectTypes[rule.objectType]
+        print("####")
+        print(objectString)
         if objectString == 'activity':
             objs.append({'rule': rule, 'type' : 'Activity', 'typeString': 'activity'})
         elif objectString == 'challenge':
@@ -77,7 +79,9 @@ def listRules(request,current_course,context_dict):
                 objs.append({'rule': rule, 'type' : 'WarmUp Challenge','typeString': 'challenge'})
         elif objectString == 'topic':
             objs.append({'rule': rule, 'type' : 'Topic','typeString': "topic"})
-
+        elif objectString == 'activityCategory':
+            print("hi")
+            objs.append({'rule': rule, 'type' : 'Activity Category','typeString': "activityCategory"})
 
 
     context_dict['rules'] = zip(range(1,len(objs)+1), objs) # had to zip this in order to make the tool tip work
@@ -87,6 +91,7 @@ def listRules(request,current_course,context_dict):
     objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' WarmUp Challenge' } )
     objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' Serious Challenge' } )
     objTypes.append( {'id' : ObjectTypes.topic, 'string' : 'Topic' } )
+    objTypes.append( {'id' : ObjectTypes.activityCategory, 'string' : 'Activity Category' } )
     context_dict['filter'] = objTypes
     context_dict['currentFilter'] = int(ruleType)
 
@@ -125,6 +130,12 @@ def createRule(request,current_course,context_dict):
                 ruleType = ObjectTypes.topic
                 objs = CoursesTopics.objects.filter(courseID=current_course)
                 context_dict['ruleTypeString'] = 'Topic'
+            
+            elif request.GET['ruleType'] == 'activityCategory':
+                print("######## CATS")
+                ruleType = ObjectTypes.activityCategory
+                objs = ActivitiesCategory.objects.filter(courseID=current_course)
+                context_dict['ruleTypeString'] = 'Activity Category'
 
             context_dict['ruleType'] = ruleType
             context_dict['objs'] = objs
@@ -135,6 +146,7 @@ def createRule(request,current_course,context_dict):
         objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' WarmUp Challenge' } )
         objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' Serious Challenge' } )
         objTypes.append( {'id' : ObjectTypes.topic, 'string' : 'Topic' } )
+        objTypes.append( {'id' : ObjectTypes.activityCategory, 'string' : 'ActivityCategory' } )
         context_dict['filter'] = objTypes
 
         return render(request, 'Badges/AddProgressiveUnlocking.html', context_dict)
@@ -194,6 +206,8 @@ def createRule(request,current_course,context_dict):
             unlocking.objectType = ObjectTypes.challenge
         elif oType == 'Topic':
             unlocking.objectType = ObjectTypes.topic
+        elif oType == 'ActivityCategory':
+            unlocking.objectType = ObjectTypes.activityCategory
         unlocking.save()
         
         if not (ActionArguments.objects.filter(ruleID = gameRule, sequenceNumber = 1, argumentValue=str(unlocking.pk)).exists()):
@@ -215,6 +229,8 @@ def createRule(request,current_course,context_dict):
                     studentRule.objectType = ObjectTypes.challenge
                 elif oType == 'Topic':
                     studentRule.objectType = ObjectTypes.topic
+                elif oType == 'ActivityCategory':
+                    studentRule.objectType = ObjectTypes.activityCategory
                 studentRule.save()
         else:
             # Make Student objects for the pUnlocking Rule
@@ -232,6 +248,8 @@ def createRule(request,current_course,context_dict):
                     studentPUnlocking.objectType = ObjectTypes.challenge
                 elif oType == 'Topic':
                     studentPUnlocking.objectType = ObjectTypes.topic
+                elif oType == 'ActivityCategory':
+                    studentPUnlocking.objectType = ObjectTypes.activityCategory
                 studentPUnlocking.save()
         
     return redirect('/oneUp/badges/ProgressiveUnlocking') #(request,'Badges/progressiveUnlocking.html', context_dict)
@@ -275,5 +293,10 @@ def getObjs(request):
                 topics = CoursesTopics.objects.filter(courseID=current_course)
                 for t in topics:
                     objs['objs'].append({'id': t.pk, 'name': t.topicID.topicName})
+        
+        elif request.POST['typeIndex'] == 'ActivityCategory':
+                actCats = ActivitiesCategory.objects.filter(courseID=current_course)
+                for cat in actCats:
+                    objs['objs'].append({'id': cat.pk, 'name': cat.name})
 
     return JsonResponse(objs)

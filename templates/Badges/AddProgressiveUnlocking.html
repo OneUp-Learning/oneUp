@@ -60,7 +60,7 @@
                         <div class="input-field col s12">
                             <select name="ruleObjectType" id="ruleTypes" onchange="getObjects()">
                                 {% for type in filter %}
-                                    {% if type.string == ruleTypeString %}
+                                    {% if type.string == ruleTypeString or type.string == 'ActivityCategory' %}
                                        <option value={{type.string}} selected>{{type.string}}</option>
                                     {% else %}
                                        <option value={{type.string}}>{{type.string}}</option>
@@ -88,6 +88,12 @@
                                     {%endif%}
                                   {% elif ruleType == 1306 %}
                                     <option selected value={{obj.pk}} >{{obj.topicID.topicName}}</option>}
+                                  {% elif ruleType == 1307 %}
+                                     {% if pRule.objectID == obj.pk %}
+                                       <option selected value={{obj.pk}} >{{obj.name}}</option>}
+                                     {% else %}
+                                       <option value={{obj.pk}} >{{obj.name}}</option>
+                                     {% endif %}
                                   {% endif %}
                                 {% empty %}
                                 {% endfor %}

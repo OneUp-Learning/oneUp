@@ -38,6 +38,8 @@ def ActivityList(request):
         categories_list = []
         cats = []
         categories_names = []
+        isUnlocked = []
+        ulockingDescript = []
           
         studentId = context_dict['student'] #get student
         categories = ActivitiesCategory.objects.filter(courseID=current_course)
@@ -65,9 +67,18 @@ def ActivityList(request):
             if cat_activities:
                 categories_list.append(cat_activities)
                 categories_names.append(category.name)
+            
+            # Progressvie Unlocking
+            studentPUnlocking = StudentProgressiveUnlocking.objects.filter(studentID=studentId,objectID=category.pk,objectType=ObjectTypes.activityCategory,courseID=currentCourse).first()
+            if studentPUnlocking:
+                isUnlocked.append(studentPUnlocking.isFullfilled)
+                ulockingDescript.append(studentPUnlocking.pUnlockingRuleID.description)
+            else:
+                isUnlocked.append(True)
+                ulockingDescript.append('')
                 
         context_dict["categories"]=cats
-        context_dict["categories_range"]=zip(categories_list,categories_names)
+        context_dict["categories_range"]=zip(categories_list,categories_names,isUnlocked,ulockingDescript)
         
         #make the student activities
         #categories={}
