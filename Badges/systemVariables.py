@@ -450,8 +450,10 @@ def getNumDaysSubmissionEarlyActivity(course, student , activity):
 
 # utility function return difference in days between the submission and due date
 def getDaysDifferenceActity(activity, studentActivity):
+    from Students.models import StudentFile
+
     deadline = activity.deadLine
-    submission = studentActivity.submissionTimestamp
+    submission = StudentFile.objects.all.filter(activity = studentActivity).latest("timestamp").timestamp
     print("getDaysDifferenceActity")
     print("Deadline ", deadline)
     print("submission", submission)

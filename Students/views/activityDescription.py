@@ -110,7 +110,6 @@ def ActivityDetail(request):
             if StudentActivities.objects.filter(activityID=activity, studentID=studentId, courseID=currentCourse):
                 student_activity = StudentActivities.objects.get(activityID=activity, studentID=studentId, courseID=currentCourse)
                 student_activity.comment = request.POST['comment']
-                student_activity.submissionTimestamp = utcDate()
                 context_dict['isGraded'] = student_activity.graded
                 
                 if files:
@@ -124,7 +123,6 @@ def ActivityDetail(request):
                 student_activity.activityID = activity
                 student_activity.courseID = currentCourse
                 student_activity.activityScore = -1
-                student_activity.submissionTimestamp = utcDate()
                 student_activity.comment = request.POST['comment']
                 if files:
                     student_activity.numOfUploads = 1
