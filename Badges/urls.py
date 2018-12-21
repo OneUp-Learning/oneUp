@@ -29,6 +29,7 @@ from Badges.views.addBadgeManuallyView import addBadgeManuallyView
 from Badges.views.timeBasedBadgeView import timeBasedBadgeView
 from Badges.views.timeBasedVirtualCurrencyView import timeBasedVirtualCurrencyView
 from Badges.views.periodicBadgeView import PeriodicBadgeView
+from Badges.views.progressiveUnlocking import ProgressiveUnlockingRules, getObjs
 from Badges.views.periodicVirtualCurrencyEarnRuleList import periodicVirtualCurrencyEarnRuleList
 admin.autodiscover()
 
@@ -57,5 +58,7 @@ urlpatterns = [
     url(r'^TimeBasedBadge',timeBasedBadgeView, name="Periodic Badges"),
     url(r'^TimeBasedVirtualCurrency',timeBasedVirtualCurrencyView, name="Periodic Virtual Currency"),
     url(r'^PeriodicBadges',PeriodicBadgeView, name="Periodic Badges"),
-    url(r'^PeriodicVirtualCurrencyEarnRuleList',periodicVirtualCurrencyEarnRuleList, name="Periodic Virtual Currency Earn Rule List")
+    url(r'^PeriodicVirtualCurrencyEarnRuleList',periodicVirtualCurrencyEarnRuleList, name="Periodic Virtual Currency Earn Rule List"),
+    url(r'^ProgressiveUnlocking',ProgressiveUnlockingRules, name="Progressive Unlocking Rules"),
+    url(r'^getObjsForPunlocking',getObjs, name="Progressive Unlocking Obj getter"),
 ]

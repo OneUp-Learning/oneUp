@@ -4,6 +4,7 @@ from Instructors.models import Challenges, CoursesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
+from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.constants import unspecified_topic_name, default_time_str
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
@@ -25,6 +26,9 @@ def challengeCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
     context_dict, currentCourse = initialContextDict(request)
+
+    context_dict = setUpContextDictForConditions(context_dict,currentCourse,None)
+
                    
     questionObjects= []
     qlist = []
@@ -179,9 +183,11 @@ def challengeCreateView(request):
             else:
                 timeLimit = int(request.POST.get("timeLimit", 45))
                 challenge.timeLimit = timeLimit
+                
         print("challenge")
         print(challenge)                      
         challenge.save()  #Save challenge to database
+        
         # check if course was selected
         addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic, currentCourse)                 
         # Processing and saving tags in DB

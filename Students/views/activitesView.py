@@ -4,7 +4,7 @@ Created on Aug 28, 2017
 @author: jevans116
 '''
 from django.shortcuts import render
-from Students.models import StudentActivities
+from Students.models import StudentActivities, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Activities, ActivitiesCategory
 from Instructors.views.utils import utcDate
@@ -15,6 +15,8 @@ from django.db.models import Q
 
 from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import logger
+from Badges.enums import ObjectTypes
+from Badges.models import ProgressiveUnlocking
 
 @login_required
 def ActivityList(request):
@@ -36,6 +38,8 @@ def ActivityList(request):
         categories_list = []
         cats = []
         categories_names = []
+        isUnlocked = []
+        ulockingDescript = []
           
         studentId = context_dict['student'] #get student
         categories = ActivitiesCategory.objects.filter(courseID=current_course)
@@ -63,9 +67,18 @@ def ActivityList(request):
             if cat_activities:
                 categories_list.append(cat_activities)
                 categories_names.append(category.name)
+            
+            # Progressvie Unlocking
+            studentPUnlocking = StudentProgressiveUnlocking.objects.filter(studentID=studentId,objectID=category.pk,objectType=ObjectTypes.activityCategory,courseID=currentCourse).first()
+            if studentPUnlocking:
+                isUnlocked.append(studentPUnlocking.isFullfilled)
+                ulockingDescript.append(studentPUnlocking.pUnlockingRuleID.description)
+            else:
+                isUnlocked.append(True)
+                ulockingDescript.append('')
                 
         context_dict["categories"]=cats
-        context_dict["categories_range"]=zip(categories_list,categories_names)
+        context_dict["categories_range"]=zip(categories_list,categories_names,isUnlocked,ulockingDescript)
         
         #make the student activities
         #categories={}
@@ -89,6 +102,8 @@ def category_activities(category, studentId, current_course):
     activity_points = []
     submit_status=[]
     activity_date_status=[]
+    isUnlocked = []
+    unlockDescript = []
     
     activity_objects = Activities.objects.filter(category=category, courseID=current_course)
     print(activity_objects)
@@ -121,9 +136,21 @@ def category_activities(category, studentId, current_course):
             
             points.append("-")
             submit_status.append("Missing")
+        
+        # Progessive Unlocking
+        try:
+            oType = ObjectTypes.activity
+            studentUnlocking = StudentProgressiveUnlocking.objects.get(studentID=studentId,courseID=current_course,objectType=oType,objectID=act.pk)
+            unlockingRule = ProgressiveUnlocking.objects.get(courseID=current_course,objectType=oType,objectID=act.pk)
+            isUnlocked.append(studentUnlocking.isFullfilled)
+            unlockDescript.append(unlockingRule.description)
+            print(unlockingRule)
+        except ObjectDoesNotExist:
+            isUnlocked.append(True)
+            unlockDescript.append('hi')
             
             
-    return zip(activites,points,activity_points,submit_status,activity_date_status)
+    return zip(activites,points,activity_points,submit_status,activity_date_status,isUnlocked,unlockDescript)
 
     
     
