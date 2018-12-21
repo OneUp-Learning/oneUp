@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include 'scripts.html' %}
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Progressive Unlocking</h3>
+            </div>
+        </div>
+            <div class="row right-align">
+                <form name="filterRules" action="/oneUp/badges/ProgressiveUnlocking" id="filterRules" method="POST">
+                    {% csrf_token %}
+                    <div class="input-field col s3 offset-s1">
+                            <select name="objTypeFilter" form="filterRules" id="objTypeSelector" onchange="this.form.submit();">
+                                {% if currentFilter == 1 %}
+                                    <option value="all" name="objTypeFilter">All</option>
+                                {% endif %}
+                                {% for node in filter %}
+                              {% if currentFilter == node.id %}
+                                <option value={{node.id}} name="objTypeFilter" selected>{{node.string}}</option>
+                                <option value="all" name="objTypeFilter">All</option>
+                              {% else %}
+                                <option value={{node.id}} name="objTypeFilter" >{{node.string}}</option>
+                              {% endif %}
+                              {% endfor %}
+                            </select>
+                            <label for="objTypeFilter">Filter by Object Type</label>
+                    </div>
+                    <input type="hidden" name="whatWeAreDoing" value='filter'>
+                </form>
+                <div class="col s7">
+                    <a class=" dropdown-button waves-effect waves-light btn secondary-content" href="#!"
+                        data-beloworigin="true" data-activates='dropdownObjTypes' data-position="right" data-delay="50">
+                        <i class="material-icons left">add_circle</i>Create New Rule</a>
+
+                        <ul id='dropdownObjTypes' class='dropdown-content'>
+                            <li>
+                                <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=challenge&warmUp=True"> WarmUp Challenge</a>
+                            </li>
+                            <li>
+                                    <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=challenge&warmUp=False"> Serious Challenge</a>
+                            </li>
+                            <li>
+                                    <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=activity"> Activities</a> 
+                            </li>
+                            <li>
+                                <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=topic"> Topics</a> 
+                        </li>
+                        </ul>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card">
+                        <div class="card-content">
+                            <table>
+                                <thead>
+                                    <th>Rule Name</th>
+                                    <th>Rule Object Type</th>
+                                    <th>Rule Description</th>
+                                    <th><span class="badge">{{numBadges}}</span></th>
+                                </thead>
+                                <tbody>
+                                    {% for j,rule in rules %}
+                                    <tr>
+                                        
+                                        <td>{{rule.rule.name}}</td>
+                                        <td>{{rule.type}}</td>
+                                        <td>{{rule.rule.description}}</td>
+
+                                        <td>
+                                            <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+                                             data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50"
+                                             data-tooltip="Options">
+                                                <i class="material-icons">more_vert</i>
+                                            </a>
+                                            <ul id='dropdown-{{i}}-{{j}}' class='dropdown-content'>
+                                                <li>
+                                                    {% if rule.type == 'WarmUp Challenge' %}
+                                                        <a href="/oneUp/badges/ProgressiveUnlocking?ruleID={{rule.rule.pk}}&editRule=True&ruleType={{rule.typeString}}&warmUp=True">Edit</a>
+                                                    {% else %}
+                                                        <a href="/oneUp/badges/ProgressiveUnlocking?ruleID={{rule.rule.pk}}&editRule=True&ruleType={{rule.typeString}}">Edit</a>
+                                                    {% endif %}
+                                                </li>
+                                                <li class="divider"></li>
+                                                <li>
+                                                    <a class="modal-trigger" href="#modal_delete-{{i}}-{{j}}">Delete</a>
+                                                </li>
+                                            </ul>
+                                            <div id="modal_delete-{{i}}-{{j}}" class="modal">
+                                                <div class="modal-content">
+                                                    <h5>Are you sure you want to delete?</h5>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+
+                                                    <a href="/oneUp/badges/ProgressiveUnlocking?ruleID={{rule.rule.pk}}&delete=True" class="modal-action modal-close waves-effect waves-light btn-flat" style="color:red">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td class="center-align" colspan="4">
+                                            <i>No Rules created</i>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
+</html>

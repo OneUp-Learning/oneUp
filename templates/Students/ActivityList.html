@@ -55,7 +55,7 @@
                            <table class="responsive-table">
                            
                            <tbody>
-                              {% for activity,point,activity_point, submit_status,activity_date_status in category %}
+                              {% for activity,point,activity_point, submit_status,activity_date_status,isUnlocked,unlockDescript in category %}
                         	
                            <tr>
                               <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activity.activityName}}</td>
@@ -67,11 +67,15 @@
                               {% endif %}
                               <td>{{activity_date_status}}</td>
                               <td class="secondary-content">
+                              {% if isUnlocked %}
                                  {% if is_teacher %}    
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>        
                                  {% else %}
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ActivityDescription?activityID={{activity.activityID}}"><i class="material-icons left">visibility</i>View</a>
                                  {% endif %}
+                              {% else %}
+                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{unlockDescript}}" href=""><i class="material-icons left">lock</i>View</a>
+                              {% endif %}
                               </td>
                            </tr>
                            {% empty %}

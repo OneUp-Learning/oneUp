@@ -15,6 +15,7 @@ class Action():
     unlock = 704 # Unknown.  In the fixture it said "When an instructor enters some information for a particular activity"
     setValue = 705 # Change the value of a variable
     addSkillPoints = 706 # Add skill points
+    unlockedProgressive = 707 # when a student is able to unlock a challenge activity or somethin else progressively
     
     increaseVirtualCurrency = 710 # Increases virtual currency (CourseBucks)
     decreaseVirtualCurrency = 711 # Decreases virtual currency (CourseBucks)
@@ -54,6 +55,12 @@ class Action():
                 'name': 'addSkillPoints',
                 'displayName': 'Add Skill Points',
                 'description': 'Add skill points'
+                },
+            unlockedProgressive:{
+                'index':unlockedProgressive,
+                'name': 'unlockedProgressive',
+                'displayName': 'Unlocked Progressively',
+                'description': 'When a student is able to unlock a challenge activity or somethin else progressively'
                 },
            increaseVirtualCurrency:{
                 'index':increaseVirtualCurrency,

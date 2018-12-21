@@ -44,6 +44,8 @@
       </script>
       <script>
          $( document ).ready(function(){
+          $("#collapsible-custom-content").css('display', 'none');
+
         	{% if view %}
 	        	var tags = JSON.parse('{{ tags | escapejs }}')
 				var topics = JSON.parse('{{ topics | escapejs }}')
@@ -134,6 +136,7 @@
             $('#form').append($(topics));
             console.log($('.chips-tags').material_chip('data'));
             console.log($('.chips-topics-autocomplete').material_chip('data'));
+            condOnSubmit();
           });
           
           {% endif %}
@@ -393,7 +396,9 @@
                                  	
                                  {% endfor %}
                                 {% endif %}
-                     </div>
+                        
+                      </div>
+                     
                      <div class="card-action right-align">
                      	{% if view == False %}
                      	<!-- GGM added validation for passwords -->

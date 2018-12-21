@@ -188,8 +188,8 @@ def warmUpChallengeList(request):
             all_challenges_for_topic.append(topic_challenges)
         else:
             unspecified_topic = ct.topicID 
-            hasUnspecified_topic=True           
-                
+            hasUnspecified_topic=True  
+           
     # Add the challenges with unspecified topic at the end
     if hasUnspecified_topic:
         topic_ID.append(unspecified_topic.topicID)

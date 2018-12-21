@@ -1,19 +1,5 @@
-<!-- // NOTE To use this selector you must add this function at the very bottom to onsubmit-->
-<div class="row">
-	<div class="input-field col s12">
-    	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
-        {% for dummy,awardFrequencyOption in awardFrequencyStruct.awardFrequency.items %}
-            <option value="{{awardFrequencyOption.index}}" {% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}>{{awardFrequencyOption.name}}</option>
-        {% endfor %}
-		</select>
-    	<label for="awardFrequencySelect">Award Frequency</label>
-    </div>
-</div>
-<div class="row" id="objectSpecifierLabel">
-	<div class="input-field col s12">
-		<h5><span class= "red-text">*</span> Specify Which Objects </h5>
-	</div>
-</div>
+<!-- Had to use a dummy value for this otherwise other functions won't work -->
+<input hidden name="awardFrequency" value="1100" id="awardFrequencySelect" />
 <div class="row" id="objectSpecifier">
 	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
 	<div class="cond-specify-object-section" id="cond-{{specifiedObjectTypeNum}}-specifier-section" hidden>
@@ -55,9 +41,6 @@
 <div class="row">
    <div class="col s12">
       <h5><span class= "red-text">*</span> Rule Conditions</h5>
-      <p>Note: For rules that require firing once serious challenges due date has been reached, it is
-          reconmended to add 'Serious Challenge Reached Due Date' condition to the challenges forall block.
-      </p>
    </div>
 </div>
 <div class="row">
@@ -138,9 +121,8 @@
 	}
 	.cond-and-label {
 		font-size: 0.6em;
-		color: rgb(46, 46, 46);
+		color: silver;
 		text-align: center;
-        font-weight: 500;
 	}
 	.cond-atom-option-group {
 	}
@@ -309,15 +291,15 @@
 					<div class="col s12 m6 cond-{{objectType.name}}-list" >
 						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select browser-default" 
                             onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;"
-                            style="width: 200px;">
+                            style="width: auto;">
 							<option disabled selected value="0">select {{objectType.plural}} to add</option>
 							{% for object in objectType.objects %}
 							<option value="{{object.id}}">{{object.name}}</option>
 							{% endfor %}
 						</select>
 					</div>
-					<div class="col s12 m6" style="width: 200px">
-					    or<input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
+					<div class="col s12 m6">
+						or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
 						<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
 					</div>
 			</div>
@@ -391,7 +373,6 @@ function condIsInFor(element) {
 	return false;
 }	 
 
-var condOldAwardFreq = document.getElementById("awardFrequencySelect").value;
 
 var condSpecifierDivs = {
 	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
@@ -399,52 +380,6 @@ var condSpecifierDivs = {
 	{% endfor %}
 }
 
-function condChangeAwardFreq(select) {
-	var newAwardFreq = select.value;
-	var oldType = condAwardFrequencyToThingieTypeName[condOldAwardFreq];
-	var oldTypeNum = condAwardFrequencyToThingieType[condOldAwardFreq];
-	var oldLabel = oldType + ":scope";
-	var newType = condAwardFrequencyToThingieTypeName[newAwardFreq];
-	var newTypeNum = condAwardFrequencyToThingieType[newAwardFreq];
-	var newLabel = newType + ":scope";
-
-	var conditionDiv = document.getElementById("cond-container");
-	var subDivs = conditionDiv.getElementsByTagName("DIV");
-	[].forEach.call(subDivs, function(subDiv) {
-		if (subDiv.dataset.condInsideQualifier == "none" || subDiv.dataset.condInsideQualifier == oldLabel) {
-			subDiv.dataset.condInsideQualifier = newLabel;
-	    }
-	});
-	condUpdateAtomSelectForContext(conditionDiv, newLabel, true);
-	
-	condOldAwardFreq = newAwardFreq;
-	
-	var objectSpecifierDiv = document.getElementById("objectSpecifier");
-	var objectSpecifierLabelDiv = document.getElementById("objectSpecifierLabel");
-	
-	if (newType == "none") {
-		objectSpecifierDiv.hidden = "true";
-		objectSpecifierDiv.style.display = "none";
-		objectSpecifierLabelDiv.hidden = "true";
-		objectSpecifierLabelDiv.style.display = "none";
-	} else {
-		objectSpecifierDiv.removeAttribute("hidden");
-		objectSpecifierDiv.style.display = "block";
-		objectSpecifierLabelDiv.removeAttribute("hidden");
-		objectSpecifierLabelDiv.style.display = "block";
-	}
-	
-    if (oldType != "none") {
-    	condSpecifierDivs[oldTypeNum].hidden = "true";
-    	condSpecifierDivs[oldTypeNum].style.display = "none";
-    }
-    if (newType != "none") {
-    	condSpecifierDivs[newTypeNum].removeAttribute("hidden");
-    	condSpecifierDivs[newTypeNum].style.display = "block";
-    }
-}
-
-condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
 
 function condChangeSpecifier(select) {
 	var objectTypeNum = select.dataset.condObjectTypeNum;
@@ -742,11 +677,9 @@ function condAddThingieToListByNameAndId(list, name, id) {
     //itemDiv.onclick = function(e){condRemoveThingie(this)};
     var icon = document.createElement("i");
     icon.className = "close material-icons";
-    icon.style = "position: absolute; right: 4px;";
     icon.appendChild(document.createTextNode("close"));
     itemDiv.dataset.id = id;
     itemDiv.className = "chip cond-for-list-item orange";
-    itemDiv.style = "text-overflow: ellipsis; max-width: 200px; white-space: nowrap; position: relative; overflow: hidden; padding-inline-end: 18px;";
     var name_text = document.createTextNode(name);
     itemDiv.appendChild(name_text);
     itemDiv.appendChild(icon);
@@ -1486,7 +1419,6 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
     }
 }
 
-// NOTE To use this selector you must add this function to onSubmit
 function condOnSubmit() {
 	condFillSpecifierString();
     condFillCondString();
