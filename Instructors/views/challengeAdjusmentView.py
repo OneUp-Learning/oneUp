@@ -5,7 +5,7 @@ Created on Feb 17, 2018
 '''
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, Courses
 from Students.models import StudentRegisteredCourses, StudentChallenges
 from Instructors.views.utils import utcDate, initialContextDict
@@ -13,8 +13,12 @@ from Badges.events import register_event
 from Badges.enums import Event
 from notify.signals import notify
 from Badges.event_utils import updateLeaderboard
+from oneUp.decorators import instructorsCheck
+from decimal import Decimal
+import json
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def challengeAdjustmentView(request):
     
     if request.method == 'POST':
@@ -26,8 +30,8 @@ def challengeAdjustmentView(request):
 
         for studentRC in studentRCs:
             studentID = studentRC.studentID.id
-            adjustmentScore = request.POST['student_AdjustmentScore' + str(studentID)]
-            bonusScore = request.POST['student_BonusScore' + str(studentID)]
+            adjustmentScore = Decimal(request.POST['student_AdjustmentScore' + str(studentID)])
+            bonusScore = Decimal(request.POST['student_BonusScore' + str(studentID)])
                 
             if (StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID)).exists():
                 studentChallenge = StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID).latest('testScore')
@@ -40,12 +44,12 @@ def challengeAdjustmentView(request):
                     register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
 
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment')
+                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
                 if studentChallenge.bonusPointsAwarded != bonusScore:
                     studentChallenge.bonusPointsAwarded = bonusScore
                     studentChallenge.save()
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
+                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
             else:
                 if not adjustmentScore == "0" or not bonusScore == "0":
                     studentChallenge = StudentChallenges()
@@ -57,26 +61,24 @@ def challengeAdjustmentView(request):
                         register_event(Event.adjustment,request,studentRC.studentID,challengeId)
                         register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
                         notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment')
+                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
                 
                     else:
                         studentChallenge.scoreAdjustment = "0"
                         studentChallenge.adjustmentReason = ""
+
                     if not bonusScore == "0":
                         studentChallenge.bonusPointsAwarded = bonusScore
                         notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment')
-                
+                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
                     else:
                         studentChallenge.bonusPointsAwarded = "0"
-                    studentChallenge.courseID = Courses.objects.get(pk=int(request.session['currentCourseID']))
+
+                    studentChallenge.courseID = course
                     studentChallenge.startTimestamp = utcDate()
                     studentChallenge.endTimestamp = utcDate()
                     studentChallenge.testScore = 0
                     studentChallenge.save()
-                    
-                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment')
 
         updateLeaderboard(course)
         
@@ -84,6 +86,7 @@ def challengeAdjustmentView(request):
     
                 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def adjustmentList(request):
     
     context_dict, currentCourse = initialContextDict(request)

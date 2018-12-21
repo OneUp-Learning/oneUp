@@ -21,9 +21,9 @@
       {% include 'heading.html' %}
       <main>
          <div class="row center-align">
-            <div class="col s12">
+            <div class="col s12 m10 offset-m1">
                {% if challenge %}
-               <h3>Search Problems for {{challengeName}}</h3>
+               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Search Problems for <br /> {{challengeName}}</h3>
                {% else %}      
                <h3>Search Problems</h3>
                {% endif %}

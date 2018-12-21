@@ -13,19 +13,21 @@ from Instructors.views.utils import initialContextDict
 from decimal import Decimal
 
 from Badges.enums import QuestionTypes
+from Badges.models import CourseConfigParams
 
 from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
 import os
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.settings import MEDIA_ROOT
-
+from oneUp.decorators import instructorsCheck  
 
 
 def str2bool(value):
     return value in ('True', 'true') 
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def exportChallenges(request):   
     context_dict, currentCourse = initialContextDict(request)
        
@@ -237,7 +239,8 @@ def exportChallenges(request):
         tree.write(f, encoding="unicode")        
         return render(request,'Instructors/ChallengeExportSave.html', context_dict)
 
-       
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')         
 def saveExportedChallenges(request):
 
     f = open('media/textfiles/xmlfiles/challenges.xml', 'r') 
@@ -246,7 +249,8 @@ def saveExportedChallenges(request):
 
     return response
 
-
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def uploadChallenges(request):
     context_dict, currentCourse = initialContextDict(request)
         
@@ -283,7 +287,8 @@ def findWithAlt(ele, name1, name2):
     
     return result
        
-   
+#@login_required
+#@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
 def importChallenges(uploadedFileName, currentCourse):
          
     fname = uploadedFileName
@@ -318,8 +323,15 @@ def importChallenges(uploadedFileName, currentCourse):
             challenge.displayIncorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
             challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
             challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
+            challenge.isVisible = False
             if not challenge.challengeDifficulty:
                 challenge.challengeDifficulty = 'Easy'
+                
+            # get the course start and end date and make them the challenge' start and end dates
+            ccp = CourseConfigParams.objects.get(courseID = currentCourse)            
+            challenge.startTimestamp = ccp.courseStartDate
+            challenge.endTimestamp = ccp.courseEndDate
+            challenge.dueDate = ccp.courseEndDate
             
             pssd = el_challenge.find('challengePassword') # Empty string represents no password required.
             if pssd:

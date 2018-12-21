@@ -14,11 +14,12 @@ from Instructors.views.utils import saveTags, extractTags, utcDate, initialConte
 from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 from Badges.enums import QuestionTypes, ObjectTypes
-
-from django.contrib.auth.decorators import login_required
+from oneUp.decorators import instructorsCheck     
+from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def dynamicQuestionForm(request):
     context_dict, currentCourse = initialContextDict(request)
     
@@ -193,6 +194,7 @@ def makeLibs(dynamicQuestion):
     return [lib.library.libraryName for lib in libs]
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def dynamicQuestionPartAJAX(request):
     context_dict, currentCourse = initialContextDict(request)
     if not lupa_available:

@@ -19,8 +19,7 @@ def studentInitialContextDict(request):
       
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
     context_dict['student'] = student
-    print('context_dict')
-    print(context_dict['student'])
+    print(context_dict)
     
     context_dict['avatar'] = checkIfAvatarExist(st_crs)
     

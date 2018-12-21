@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <script type="text/javascript"> 
+
+        
+        var duration = {{startTime}}; //time limit in minutes from database
+        if(duration > 0)
+        {
+            var now = new Date();
+            var milli = now.getMilliseconds(); //current time in milliseconds
+            var limit = milli + (duration * 1000 * 60); // start time in milliseconds (current time + time limit in milliseconds)
+            
+            setTimeout("formSubmit()", limit); //if the start time limit has reached, the page will be refreshed automatically and take button will appear
+            
+            function formSubmit() {
+                document.getElementById('submit_hidden').click()
+            };
+        }
+        
+     </script>
+   </head>
+   <body>
+      {% include 'stheading.html' %}
+      <form id="refresh" name="refresh" action="/oneUp/students/DuelChallengeDescription" method="GET">
+        <input type="hidden" name="duelChallengeID" id="duelChallengeID" value ="{{requested_duel_challenge.duelChallengeID}}">
+        <!--<input type="hidden" name="accept" id="accept" value="True">-->
+        <input type="submit" id="submit_hidden" name="submit_hidden" style="display:none;">
+      </form>
+      <main>
+         <div class="row center-align">
+            <div class="col s12 m10 offset-m1">
+               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{sent_duel_challenge.duelChallengeName}}</h3>
+            </div>
+         </div> 
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  {% csrf_token %}        
+                     <div class="card-content">
+                    {% if hasEnded %}
+                            <div class="section">
+                                <h5><b>Duel Details</b></h5>
+                                <p>{{message}}</p>
+                            </div>
+                            <ul style="font-size: 16px;">
+                                    <li>
+                                            <span><b>Opponent Avatar: </b></span>
+                                            <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
+                                        </li>
+                                    {% if hasExpired %}
+                                        
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Expired</span>
+                                        </li>
+                                    {% else %}
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Completed</span>
+                                        </li>
+                                    {% endif %}
+                                    <li >
+                                        <span><b>Time Limit: </b></span>
+                                        <span>{{sent_duel_challenge.timeLimit}} minute(s)</span>
+                                    </li>
+                                    {% if sent_duel_challenge.isBetting %}
+                                    <li>
+                                        <span><b>Betting: </b></span>
+                                        <span>Yes</span>
+                                    </li>
+                                    <li>
+                                        <span><b>Betting Amount: </b></span>
+                                        <span>{{sent_duel_challenge.vcBet}}</span>
+                                    </li>
+                                    {% endif %}
+                                    {% if isTaken %}
+                                    <li>
+                                        <span><b>Score: </b></span>
+                                        <span>{{sChall.testScore}} / {{sChall.challengeID.totalScore}} pts</span>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                        {% elif isTaken %}
+                        <div class="section">
+                            <h5><b>Duel Details</b></h5>
+                            <p>Duel has not ended yet. Duel is still in progress. Your opponent has not finished yet. Check back later to see the duel's winner(s).</p>
+                        </div>
+                        <ul style="font-size: 16px;">
+                                <li>
+                                        <span><b>Opponent Avatar: </b></span>
+                                        <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
+                                    </li>
+                                <li >
+                                        <span><b>Status: </b></span>
+                                        <span>Taken</span>
+                                </li>
+                                <li >
+                                    <span><b>Time Limit: </b></span>
+                                    <span>{{sent_duel_challenge.timeLimit}} minute(s)</span>
+                                </li>
+                                {% if sent_duel_challenge.isBetting %}
+                                <li>
+                                    <span><b>Betting: </b></span>
+                                    <span>Yes</span>
+                                </li>
+                                <li>
+                                    <span><b>Betting Amount: </b></span>
+                                    <span>{{sent_duel_challenge.vcBet}}</span>
+                                </li>
+                                {% endif %}
+                                <li>
+                                    <span><b>Score: </b></span>
+                                    <span>{{sChall.testScore}} / {{sChall.challengeID.totalScore}} pts</span>
+                                </li>
+                            </ul>
+                        {% else %}
+                            <div class="section">
+                            <h5>Duel Detail</h5>
+                            <p>{{sent_duel_challenge.customMessage}}</p>
+                            </div>
+                            <div>
+                            <ul style="font-size: 16px;">
+                                    <li>
+                                            <span><b>Opponent Avatar: </b></span>
+                                            <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
+                                    </li>
+                                <li>
+                                    <span><b>Acceptance Status: </b></span>
+                                    <span>{{acceptance_status}}</span>
+                                </li>
+                                <li >
+                                    <span><b>Time Limit: </b></span>
+                                    <span>{{sent_duel_challenge.timeLimit}} minute(s)</span>
+                                </li>
+                                {% if not sent_duel_challenge.hasStarted %}
+                                <li>
+                                    <span><b>Time duel will start After Acceptance: </b></span>
+                                    <span>{{sent_duel_challenge.startTime}} minute(s)</span>
+                                </li>
+                                {% else %}
+                                <!--<li>
+                                    <span><b>Duel will finish in: </b></span>
+                                    <span>{{startTime}}</span>
+                                </li>-->
+                            {% endif %}
+                            {% if sent_duel_challenge.isBetting %}
+                            <li>
+                                <span><b>Betting: </b></span>
+                                <span>Yes</span>
+                            </li>
+                            <li>
+                                <span><b>Betting Amount: </b></span>
+                                <span>{{sent_duel_challenge.vcBet}}</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        </div>
+                       {% endif %}
+                   <div class="card-action">
+                        <div class="row right-align">
+                            <!--  <a class="btn waves-effect waves-light add_more">Add More Files</a>   -->
+                            {% if not hasEnded %}
+                                {% if sent_duel_challenge.hasStarted %}
+                                    {% if not isTaken %}
+                                        <a class="btn waves-effect waves-light" href="/oneUp/students/ChallengeDescription?challengeID={{sent_duel_challenge.challengeID.challengeID}}&isWarmup={{isWarmup}}&isDuel=True&duelID={{sent_duel_challenge.duelChallengeID}}">
+                                        <i class="material-icons right">send</i>Take</a>
+                                    {% endif %}
+                                {% elif not isAccepted %}
+                                    {% if not isTaken %}
+                                        <a class="waves-effect waves-light btn modal-trigger" tyle="color: #00bcd4" href="#modal_delete">
+                                        <i class="material-icons left">close</i>Cancel Request</a>
+                                        <!--<a class="btn waves-effect waves-light" href="/oneUp/students/DuelChallengeCreate?duelChallengeID={{sent_duel_challenge.duelChallengeID}}">
+                                        <i class="material-icons left">create</i>Edit</a>-->
+                                    {% endif %}
+                                {% else %}
+                                    {% if not isTaken %}
+                                        <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete" >
+                                        <i class="material-icons right">close</i>Cancel Request</a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                            
+                            <div id="modal_delete" class="modal">
+                                    <div class="modal-content">
+                                      <h5>This operation will cancel and delete your request. Are you sure you want to delete?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                     <!-- <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
+                                        value="Delete">Delete
+                                      </button>-->
+                                      <a class="modal-action modal-close waves-effect waves-light btn-flat" href="/oneUp/students/DuelChallengeDelete?duelChallengeID={{sent_duel_challenge.duelChallengeID}}">Delete
+                                   </a>
+                                    </div>
+                            </div>
+                            <a class="btn waves-effect waves-light" href="/oneUp/students/Callouts"><i class="material-icons left">navigate_before</i>Back</a> 										  						
+                        </div>
+                    </div>
+                 
+               </div>
+            </div>
+         </div>
+        
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

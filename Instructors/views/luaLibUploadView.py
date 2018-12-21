@@ -16,16 +16,17 @@ from Instructors.views import utils
 from Badges.enums import QuestionTypes
 
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 import sys
 import re
 from difflib import context_diff
 from django.template.context_processors import request
 from django.template.library import Library
-
+from oneUp.decorators import instructorsCheck
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def luaLibUpload(request):
     context_dict,currentCourse = utils.initialContextDict(request)
 
@@ -66,6 +67,7 @@ def luaLibUpload(request):
     return render(request, 'Instructors/uploadLuaLibs.html', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def libDelete(request):
     context_dict,currentCourse = utils.initialContextDict(request)
         
@@ -128,6 +130,7 @@ def getDependencyLibraryNames(library):
     return names
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def libEdit(request):
     context_dict,currentCourse = utils.initialContextDict(request)
         
@@ -148,6 +151,7 @@ def libEdit(request):
     return render(request, 'Instructors/uploadLuaLibs.html', context_dict)
 
 @login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
 def libDeleteConfirmView(request):
     context_dict,currentCourse = utils.initialContextDict(request)
     

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+         
+          {% include 'scripts.html' %}
+         
+      </head>
+      <body>
+      <div id="page-wrapper">
+
+          {% include 'stheading.html' %}
+
+            <div class="frame" id="grad" align="center">
+         	<div class="container">
+         	<div class="row">
+         	<div class="12u">
+         		<h1>Duel can not be taken</h1>
+ 
+			</div></div>
+			<div class="row">
+			<div class="4u 1u(mobile)">&nbsp;</div>
+         	<div class="4u 10u(mobile)">
+                  <table class="bg" style="text-align:center">
+                  		
+						<tr><td>{{name}}
+                        <br>{{message}}</td></tr>
+                        <tr><td>Your virtual currency amount: {{your_vc}}</td></tr>
+                        <tr><td>Duel required virtual currency amount: {{duel_vc}}</td></tr>
+						
+                   </table>   
+         </div>
+         <div class="4u 1u(mobile)">&nbsp;</div>
+         </div></div>
+            </div>
+        <div class="card-action">
+            <div class="row right-align">
+                <a class="btn waves-effect waves-light" href="/oneUp/students/Callouts"><i class="material-icons left">navigate_before</i>OK</a> 
+            </div>
+        </div>
+        </div>
+         <!-- Footer -->
+
+        {% include 'footer.html' %}
+
+    
+      </body>
+   </html>

@@ -188,8 +188,8 @@
     {% include 'heading.html' %}
     <main>
         <div class="row center-align">
-            <div class="col s12">
-                <h3>{{challengeName}}</h3>
+            <div class="col s12 m10 offset-m1">
+                <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{challengeName}}</h3>
                 <h4>Create/Edit Dynamic Problems</h4>
                 <p><span class="red-text">*</span> Denotes Required Fields.</p>
             </div>
@@ -235,7 +235,7 @@
                             </div>
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <select name="difficulty" {%if view%}readonly{%endif%}>
+                                    <select id="difficulty" name="difficulty" {%if view%}readonly{%endif%}>
 										  <option id="Easy" value="Easy" {%if view%}disabled{%endif%} selected>Easy</option>
 										  <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
 										  <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
@@ -244,7 +244,8 @@
                                     <script type="text/javascript">
                                         window.onload = function() {
                                             if ("{{difficulty}}" != '') {
-                                                document.getElementById("{{difficulty}}").selected = "true";
+                                                document.getElementById("{{difficulty}}").selected = true;
+                                                $("#difficulty").material_select();
                                             }
                                             populateEditor();
                                         }

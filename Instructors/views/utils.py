@@ -371,6 +371,7 @@ def initialContextDict(request):
         context_dict["username"] = request.user.username
         
     if 'currentCourseID' in request.session:
+        context_dict['course_id'] = request.session['currentCourseID']
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
     else:
@@ -396,8 +397,11 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     print("Converted Time to UTC: " , dt.replace(tzinfo=timezone.utc))
     return dt.replace(tzinfo=timezone.utc)  
 
-def localizedDate(request, date_str, date_format):
-    tz = pytz.timezone(request.session['django_timezone'])
+def localizedDate(request, date_str, date_format, timezone=None):
+    if not timezone:
+        tz = pytz.timezone(request.session['django_timezone'])
+    else:
+        tz = pytz.timezone(timezone)
     
     return tz.localize(datetime.strptime(date_str, date_format))
 
