@@ -523,7 +523,7 @@ def calculate_serious_challenge_rankings(course, student, periodic_variable, tim
     return studentScore(student, course, periodic_variable, time_period, unique_id,result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
+    return studentScore(student, course, periodic_variable, time_period, unique_id ,result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings

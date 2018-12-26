@@ -156,7 +156,7 @@
          
          var weeklyTimePeriodSelect = "<div id='weeklyTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
          "<label for='weeklyTimePeriodSelected_"+currentID+"'>Leaderboard Update:</label>\n"+
-         "<select id='weeklyTimePeriodSelected_"+currentID+"' name='weeklyTimePeriodSelected_[]'>\n"+
+         "<select id='weeklyTimePeriodSelected_"+currentID+"' name='howFarBackTimePeriodSelected_[]'>\n"+
          "<option value='1501' >Weekly on Sundays at Midnight</option>\n"+
          "<option value='1502' >Only once at Midnight</option>\n"+
          "</select>\n"+
@@ -185,8 +185,8 @@
  		if(selectedItem == "weekly"){
  
  			//if continous is present, remove it
- 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null ){
- 				continousSelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+ 			if (document.getElementById("continuousTimePeriodSelectedDiv_{{i}}"+currentID) != null ){
+ 				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_{{i}}"+currentID);
  				whereIsSelect.parentElement.removeChild(continousSelect);
  			}
  			
@@ -383,7 +383,7 @@
                               	{%if continousHowFarBack == 1501 or continousHowFarBack == 1502 %}
                               		<div id='weeklyTimePeriodSelectedDiv_{{i}}' class='col s3'>
 									<label for='continuousTimePeriodSelected_{{i}}'>Time Period Back:</label>
-									<select id='continuousTimePeriodSelected_{{i}}'name='weeklyTimePeriodSelected_[]'>
+									<select id='continuousTimePeriodSelected_{{i}}'name='howFarBackTimePeriodSelected_[]'>
 										<option id='1501_{{i}}' value='1501'>Weekly</option>
 										<option  id='1502_{{i}}' value='1502'>From Start of Semester</option>
 									</select>
