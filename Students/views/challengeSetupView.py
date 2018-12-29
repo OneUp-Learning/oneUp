@@ -13,8 +13,8 @@ from Students.models import DuelChallenges
 from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
-from Badges.enums import Event, staticQuestionTypesSet, dynamicQuestionTypesSet,\
-    QuestionTypes
+from Badges.enums import Event
+from Instructors.questionTypes import QuestionTypes, staticQuestionTypesSet, dynamicQuestionTypesSet
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 from locale import currency

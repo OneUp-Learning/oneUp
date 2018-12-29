@@ -15,7 +15,8 @@ from Students.views.utils import studentInitialContextDict
 from Students.views.calloutsView import duel_challenge_evaluate
 from Badges.events import register_event
 from Badges.event_utils import updateLeaderboard
-from Badges.enums import Event, QuestionTypes, dynamicQuestionTypesSet, staticQuestionTypesSet
+from Badges.enums import Event
+from Instructors.questionTypes import QuestionTypes, dynamicQuestionTypesSet, staticQuestionTypesSet
 from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 from Badges.systemVariables import logger

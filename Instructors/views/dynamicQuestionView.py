@@ -13,7 +13,8 @@ from Instructors.views import utils
 from Instructors.views.utils import saveTags, extractTags, utcDate, initialContextDict
 from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
-from Badges.enums import QuestionTypes, ObjectTypes
+from Badges.enums import ObjectTypes
+from Instructors.questionTypes import QuestionTypes
 from oneUp.decorators import instructorsCheck     
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
