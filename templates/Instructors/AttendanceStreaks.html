@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <link href='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.min.css' rel='stylesheet' />
+   <link href='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+   <script src='/static/ThirdParty/fullcalendar-3.9.0/lib/moment.min.js'></script>
+   <script src='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.min.js'></script>
+   <script>
+      $(document).ready(function() {
+      
+        $('#calendar').fullCalendar({
+        	showNonCurrentDates: false,
+        	
+        	dayRender: function(date, cell) {
+        		calendarDaysSelected = {{eventCheckboxDays|safe}};
+        		calendarDaysUnSelected = {{eventCheckboxDaysUnselected|safe}};
+        		
+        		if (calendarDaysSelected.includes(date.format('YYYY-MM-DD'))) {
+        	    var checkbox = document.createElement('input');
+        	    checkbox.type = "checkbox";
+        	    checkbox.name = "dates[]";
+        	    checkbox.value = date.format('YYYY-MM-DD');
+        	    checkbox.id = date;
+        	    checkbox.checked = true;
+      
+        	    var label = document.createElement('label')
+        	    label.htmlFor = date;
+        	    label.appendChild(document.createTextNode(''));
+        	
+        	    cell.append(checkbox);
+        	    cell.append(label);
+        		}
+        		else{
+        			if (calendarDaysUnSelected.includes(date.format('YYYY-MM-DD'))) {
+                	    var checkbox = document.createElement('input');
+                	    checkbox.type = "checkbox";
+                	    checkbox.name = "dates[]";
+                	    checkbox.value = date.format('YYYY-MM-DD');
+                	    checkbox.id = date;
+                	    checkbox.checked = false;
+              
+                	    var label = document.createElement('label')
+                	    label.htmlFor = date;
+                	    label.appendChild(document.createTextNode(''));
+                	
+                	    cell.append(checkbox);
+                	    cell.append(label);
+        		}
+        		}
+        		
+        	  },
+        	  eventRender: function (event, element, view) {
+        		  document.getElementById(event.start).checked = true;
+        	  },
+          header: {
+            left: 'prev',
+            center: 'title, today',
+            right: 'next'
+          },
+          dayClick: function(date, jsEvent, view) {
+        	  if (document.getElementById(date).checked)
+        	  	document.getElementById(date).checked = false;
+        	  else
+        		document.getElementById(date).checked = true;
+        	  },
+          navLinks: false, // can click day/week names to navigate views
+          editable: true,
+          eventLimit: true, // allow "more" link when too many events
+          events:
+        	  {{event|safe}}
+        });
+      
+       	daysSelected = {{streak.daysofWeek|safe}}
+       	checkBoxes = document.getElementsByName("dayCheckbox");
+        for (var i = 0; i < checkBoxes.length; i++) {
+            if (daysSelected.includes(checkBoxes[i].value)) {
+            	checkBoxes[i].checked = true;
+            }
+        }
+        
+        
+        
+      });
+      
+      function validateDaysSelected(){
+       console.log("days");
+       checkBoxes = document.getElementsByName("dayCheckbox");
+         for (var i = 0; i < checkBoxes.length; i++) {
+             if (checkBoxes[i].checked) {
+             	document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
+             }
+         }
+       if (document.getElementById("streakLength").value != "")
+       		document.getElementById("daysOfWeekForm").submit();
+       else
+        alert("Please Enter Streak Length");
+      }
+      
+      function obtainCalendarInfo(){
+       console.log("calendar");
+       var daysCheckedList = [];
+       var daysUncheckedList = [];
+       calendarDates = document.getElementsByName("dates[]");
+       
+       for (var i = 0; i < calendarDates.length; i++) {
+           if (calendarDates[i].checked)
+        	   daysCheckedList.push(calendarDates[i].value);
+           else
+        	   daysUncheckedList.push(calendarDates[i].value);
+       }
+       document.getElementById("daysCheckedList").value = daysCheckedList;
+       document.getElementById("daysUncheckedList").value = daysUncheckedList;
+       document.getElementById("calendarForm").submit();
+      }
+   </script>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Student Attendance Streak Configuration</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s2 offset-m1">
+               <div class="card">
+                  <div class="card-content">
+                     <form id="daysOfWeekForm" action="/oneUp/instructors/attendanceStreaks" method="post">
+                        {% csrf_token %}
+                        <p>Class Days: </p>
+                        <input type="checkbox" name="dayCheckbox" value="0" id="monday" />
+                        <label id="badge" for="monday">Monday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="0" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="1" id="tuesday" />
+                        <label id="badge" for="tuesday">Tuesday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="1" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="2" id="wednesday" />
+                        <label id="badge" for="wednesday">Wednesday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="2" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="3" id="thursday" />
+                        <label id="badge" for="thursday">Thursday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="3" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="4" id="friday" />
+                        <label id="badge" for="friday">Friday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="4" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="5" id="saturday" />
+                        <label id="badge" for="saturday">Saturday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="5" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="6" id="sunday" />
+                        <label id="badge" for="sunday">Sunday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="6" />
+                        <br>
+                        <label for="streakLength"><span class= "red-text">*</span>Streak Length</label>
+                        <input value="{{streak.streakLength}}" name="streakLength" id="streakLength" min="0" type="number" required>
+                     </form>
+                     <br>
+                     <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>
+                  </div>
+               </div>
+            </div>
+            <div class="col s12 m8">
+               <div class="card">
+                  <div class="card-content">
+                     <form id="calendarForm" action="/oneUp/instructors/attendanceStreaks" method="post">
+                        {% csrf_token %}
+                        <div id='calendar'></div>
+                        <input type="hidden" name="calendarDaysCheckedList" value="" id="daysCheckedList" />
+                        <input type="hidden" name="calendarDaysUncheckedList" value="" id="daysUncheckedList" />
+                     </form>
+                  </div>
+                  <div class="card-action right-align">
+                     <a onclick="return obtainCalendarInfo()" class="waves-effect waves-light btn"><i class="material-icons left">send</i>Submit</a>                         
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

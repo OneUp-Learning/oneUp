@@ -392,6 +392,13 @@ class QuestionLibrary(models.Model):
     ID = models.AutoField(primary_key=True) 
     question = models.ForeignKey(Questions, on_delete=models.CASCADE)
     library = models.ForeignKey(LuaLibrary, on_delete=models.CASCADE)
-    
+class AttendanceStreak(models.Model):
+    attendanceStreakID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
+    streakLength = models.IntegerField(default = 0)
+    daysofWeek = models.CharField(max_length=75)
+    daysDeselected = models.CharField(max_length=20000)#the days that were removed from the streak
+    def __str__(self):              
+        return str(self.attendanceStreakID)+","+str(self.streakLength)+","+str(self.courseID)+","+str(self.daysofWeek)
 
     
