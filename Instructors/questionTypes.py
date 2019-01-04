@@ -271,6 +271,9 @@ def multipleChoiceAnswersAndGrades(qdict,studentAnswers):
     correctAnswer = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID
     correctAnswerText = correctAnswer.answerText
     qdict['correct_answer_text'] = correctAnswerText
+    if not studentAnswers:
+        qdict['user_points'] = 0
+        return qdict
     studentAnswerValue = studentAnswers[0]
     userSelection = 0
     userAnswer = {}
@@ -392,16 +395,17 @@ def trueFalseMakeAnswerList(qdict, POST):
     answerInputName = str(qdict['index'])+'-ans'
     correctAnswerValue = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID.answerText == "true"
     if answerInputName not in POST:
-        userAnswerValue = ""
+        return []
     else:
-        userAnswerValue = POST[answerInputName] == 't'
-    studentAnswerList = [str(userAnswerValue)]
-    return studentAnswerList
+        return [POST[answerInputName] == 't']
 
 def trueFalseAddAnswersAndGrades(qdict,studentAnswers):
     correctAnswerValue = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID.answerText == "true"    
     qdict['correctAnswerText'] = str(correctAnswerValue)
     
+    if not studentAnswers:
+        qdict['user_points'] = 0
+        return qdict
     studentAnswerValue = studentAnswers[0]
     qdict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':(studentAnswers[0] == 'True')}
     if studentAnswerValue == str(correctAnswerValue):
