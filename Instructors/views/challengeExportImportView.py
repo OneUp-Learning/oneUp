@@ -12,7 +12,7 @@ from Instructors.constants import unspecified_topic_name, unassigned_problems_ch
 from Instructors.views.utils import initialContextDict
 from decimal import Decimal
 
-from Badges.enums import QuestionTypes
+from Instructors.questionTypes import QuestionTypes
 from Badges.models import CourseConfigParams
 
 from xml.etree.ElementTree import Element, SubElement, parse

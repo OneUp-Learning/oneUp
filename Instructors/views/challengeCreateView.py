@@ -20,6 +20,8 @@ from oneUp.decorators import instructorsCheck
 
 import re
 
+from Instructors.questionTypes import questionTypeFunctions, QuestionTypes
+
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def challengeCreateView(request):
@@ -311,59 +313,15 @@ def challengeCreateView(request):
 #             context_dict['topics_str'] = topicNames
 #             context_dict['all_Topics'] = utils.getTopicsForChallenge(challenge)
 
-            # The following information is needed for the challenge 'view' option            
+            context_dict['questionTypes'] = QuestionTypes
+
+            # The following information is needed for the challenge 'view' option
+            i = 0
             for q in questionObjects:
-                
-                q_type = q.type
-                # 8 is parsons
-                if q_type in [1,2,3,4,8]:     # static problems
-                    
-                    questdict = q.__dict__
-                    
-                    answers = Answers.objects.filter(questionID = q.questionID)
-                    answer_range = range(1,len(answers)+1)
-                    questdict['answers_with_count'] = list(zip(answer_range,answers))
-                    questdict['match_with_count'] = zip(answer_range,answers) 
-                    
-                    staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
-                    questdict['questionText']=staticQuestion.questionText
-    
-                    questdict['typeID']=str(q.type)
-                    questdict['challengeID']= challengeId
-                    
-                    correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
-                    print(correct_answers)
-                    canswer_range = range(1,len(correct_answers)+1)
-                    questdict['correct_answers'] = list(zip(canswer_range,correct_answers))
-                    
-                    question_point = ChallengesQuestions.objects.get(challengeID=challengeId, questionID=q)
-                    questdict['point'] = question_point.points
-                    
-                    #getting the matching questions of the challenge from database
-                    matchlist = []
-                    for match in MatchingAnswers.objects.filter(questionID=q.questionID):
-                        matchdict = match.__dict__
-                        matchdict['answers_count'] = range(1,int(len(answers))+1)
-                        matchlist.append(matchdict)
-                    questdict['matches']=matchlist
-                    qlist.append(questdict)
-                    
-                    if q_type == 8:
-                        answers = Answers.objects.filter(questionID=q.questionID)
-                        if answers:
-                            answer = answers[0]
-                            print("Answer", repr(answer))
-                            answer = repr(answer)
-                            
-                            #regex the answer, swap out the numbers, add a newline after lang and indent\n
-                            answer = re.sub("^<Answers: \d{3},", "# ", answer)
-                            answer = re.sub("ue;", "ue;\n", answer)
-                            answer = re.sub("se;", "se;\n", answer)
-                            questdict['modelSolution'] = answer 
-                              
-                else:
-                    # TODO prepare information for displaying dynamic questions
-                    qlist = []
+                i += 1
+                qdict = questionTypeFunctions[q.type]['makeqdict'](q,i,challengeId,None)
+                qdict = questionTypeFunctions[q.type]['correctAnswers'](qdict)
+                qlist.append(qdict)
         else:
             context_dict['topics'] = []
             context_dict['tags'] = []

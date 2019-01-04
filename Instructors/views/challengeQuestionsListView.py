@@ -8,7 +8,8 @@ from Instructors.views.utils import initialContextDict
 from Instructors.lupaQuestion import lupa_available
 from Instructors.constants import unassigned_problems_challenge_name
 
-from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
+from Badges.enums import dict_dict_to_zipped_list
+from Instructors.questionTypes import QuestionTypes
 
 import logging
 from oneUp.decorators import instructorsCheck

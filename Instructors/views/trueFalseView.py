@@ -9,7 +9,8 @@ from Instructors.models import StaticQuestions, Answers, CorrectAnswers
 from Instructors.models import Challenges, ChallengesQuestions
 
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
-from Badges.enums import QuestionTypes, ObjectTypes
+from Badges.enums import ObjectTypes
+from Instructors.questionTypes import QuestionTypes
 from Instructors.constants import unassigned_problems_challenge_name, default_time_str
 
 
