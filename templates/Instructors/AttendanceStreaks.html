@@ -12,7 +12,7 @@
       
         $('#calendar').fullCalendar({
         	showNonCurrentDates: false,
-        	
+        	eventStartEditable: false,
         	dayRender: function(date, cell) {
         		calendarDaysSelected = {{eventCheckboxDays|safe}};
         		calendarDaysUnSelected = {{eventCheckboxDaysUnselected|safe}};
