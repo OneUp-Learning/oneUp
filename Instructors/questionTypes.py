@@ -6,9 +6,7 @@ from decimal import Decimal
 from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
-from Instructors.views.dynamicQuestionView import makeLibs
 from Students.models import StudentChallengeQuestions
-
 
 class QuestionTypes():
     multipleChoice=1
@@ -66,7 +64,7 @@ staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers
 dynamicQuestionTypesSet = { QuestionTypes.dynamic, QuestionTypes.templatedynamic }
 
 def makeSerializableCopyOfDjangoObjectqdictionary(obj):
-    qdict = obj.__qdict__.copy()
+    qdict = obj.__dict__.copy()
     # We remove the Django Status object from the qdictionary to prevent serialization problems
     qdict.pop("_state",None)
     return qdict
@@ -75,18 +73,19 @@ def basicqdict(question,i,challengeId,studChallQuest):
     qdict = makeSerializableCopyOfDjangoObjectqdictionary(question)
     qdict['id']=question.questionID
     qdict['index']=i
-    correct_answers = CorrectAnswers.objects.filter(questionID = question.questionID)
+    correct_answers = [makeSerializableCopyOfDjangoObjectqdictionary(ca) for ca in CorrectAnswers.objects.filter(questionID = question.questionID)]
     print(correct_answers)
     canswer_range = range(1,len(correct_answers)+1)
     qdict['correct_answers'] = list(zip(canswer_range,correct_answers))
     
     question_point = ChallengesQuestions.objects.get(challengeID=challengeId, questionID=question)
     qdict['point'] = question_point.points
+    qdict['total_points'] = qdict['point']
     return qdict
         
 def staticqdict(question,i,challengeId,studChallQuest):
     staticQuestion = StaticQuestions.objects.get(pk=question.questionID)
-    qdict = basicqdict(staticQuestion,i,challengeId)
+    qdict = basicqdict(staticQuestion,i,challengeId,studChallQuest)
     answers = [makeSerializableCopyOfDjangoObjectqdictionary(ans) for ans in Answers.objects.filter(questionID = question.questionID)]
     if question.type != QuestionTypes.trueFalse:
         random.shuffle(answers)
@@ -96,7 +95,7 @@ def staticqdict(question,i,challengeId,studChallQuest):
     return qdict
     
 def matchingqdict(question,i,challengeId,studChallQuest):
-    qdict = staticqdict(question,i,challengeId)
+    qdict = staticqdict(question,i,challengeId,studChallQuest)
     #getting the matching questions of the challenge from database
     matchlist = []
     for match in MatchingAnswers.objects.filter(questionID=question.questionID):
@@ -119,7 +118,7 @@ def matchingqdict(question,i,challengeId,studChallQuest):
     return qdict
 
 def parsonsqdict(question,i,challengeId,studChallQuest):
-    qdict = staticqdict(question,i,challengeId)
+    qdict = staticqdict(question,i,challengeId,studChallQuest)
     modelSolution = Answers.objects.filter(questionID=question)
     solution_string = modelSolution[0].answerText
                                 
@@ -225,7 +224,7 @@ def parsonsqdict(question,i,challengeId,studChallQuest):
 
 def dynamicqdict(question,i,challengeId,studChallQuest):
     dynamicQuestion = DynamicQuestions.objects.get(pk=question.questionID)
-    qdict = basicqdict(dynamicQuestion,i,challengeId)
+    qdict = basicqdict(dynamicQuestion,i,challengeId,studChallQuest)
     if not lupa_available:
         qdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
     else:
@@ -237,6 +236,7 @@ def dynamicqdict(question,i,challengeId,studChallQuest):
         
         code = [CodeSegment.new(CodeSegment.raw_lua,dynamicQuestion.code,"")]
         numParts = dynamicQuestion.numParts
+        from Instructors.views.dynamicQuestionView import makeLibs
         libs = makeLibs(dynamicQuestion)
         lupaQuest = LupaQuestion(code, libs, seed, str(i+1), numParts)
 
@@ -400,8 +400,8 @@ def trueFalseAddAnswersAndGrades(qdict,studentAnswers):
     correctAnswerValue = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID.answerText == "true"    
     qdict['correctAnswerText'] = str(correctAnswerValue)
     
-    studentAnswerValue = studentAnswers[0].studentAnswer
-    qdict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':(studentAnswers[0].studentAnswer == 'True')}
+    studentAnswerValue = studentAnswers[0]
+    qdict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':(studentAnswers[0] == 'True')}
     if studentAnswerValue == str(correctAnswerValue):
         qdict['user_points'] = qdict['total_points']
     else:

@@ -346,7 +346,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
                   <div class="card">
                      <div class="card-content">
                         {% for i,q in question_range %}
-							{% include "../question.html" with graded = False, instructorview = False, showcorrect = False %}
+							{% include "../question.html" with graded=False instructorview=False showcorrect=False %}
                         {% endfor %}
                      </div>
                      <div class="card-action right-align">

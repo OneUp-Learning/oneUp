@@ -101,7 +101,7 @@ def ChallengeSetup(request):
                 sessionDict['questions'] = []
                 for i in range(0,len(questionObjects)):
                     q = questionObjects[i]
-                    qdict = questionTypeFunctions[q.type]['makeqDict'](q,i+1,challengeId)
+                    qdict = questionTypeFunctions[q.type]['makeqdict'](q,i+1,challengeId,None)
                     qlist.append(qdict)
                     sessionDict['questions'].append(qdict)
 

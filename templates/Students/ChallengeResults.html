@@ -47,16 +47,7 @@
                               <h5>Your Answer:</h5>
                            </div>
                         </div>
-             					{% include "../question.html" with q=question, graded = True, showcorrect = True, instructorview = False %}
-                        </p>
-                        {% endfor %}
-                        {% endif %}
-                        <div class="row">
-                           <div class="col s12">
-                              <p>Total for this question, You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
-                           </div>
-                        </div>
-                        {% endif %}
+             				{% include "../question.html" with graded=True showcorrect=True instructorview=False %}
                         {% endfor %}
                      </div>
                      <div class="card-action right-align">

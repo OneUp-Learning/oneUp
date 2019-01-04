@@ -159,7 +159,7 @@ def ChallengeResults(request):
                         seed = question['seed']
                     else:
                         seed = 0
-                    studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question['question']['questionID'], question['user_points'], question['total_points'], "",seed)
+                    studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question['questionID'], question['user_points'], question['total_points'], "",seed)
 
                     # Award skills if the answer was correct.
                     if question['user_points'] == question['total_points']:
