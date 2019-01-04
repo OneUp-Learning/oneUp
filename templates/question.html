@@ -137,11 +137,11 @@
 	<div class="row">
 	   <div class="col s12">
 	      <p>
-	         <input name="{{i}}-ans" type="radio" id="{{i}}ans1" value="t" class="validate" {% if graded %} {% if q.user_answer.answerValue %}checked{% else %}disabled="disabled"{% endif %} {% endif %}/>
+	         <input name="{{i}}-ans" type="radio" id="{{i}}ans1" value="t" class="validate" {% if graded %} {% if q.user_answer.answerValue == True %}checked{% else %}disabled="disabled"{% endif %} {% endif %}/>
 	         <label for="{{i}}ans1">True</label>
 	      </p>
 	      <p> 
-	         <input name="{{i}}-ans" type="radio" id="{{i}}ans2" value="f" class="validate" {% if graded %} {% if q.user_answer.answerValue %}disabled="disabled"{% else %}checked{% endif %} {% endif %}/>
+	         <input name="{{i}}-ans" type="radio" id="{{i}}ans2" value="f" class="validate" {% if graded %} {% if q.user_answer.answerValue == False %}checked{% else %}disabled="disabled"{% endif %} {% endif %}/>
 	         <label for="{{i}}ans2">False</label>
 	      </p>
 	   </div>
