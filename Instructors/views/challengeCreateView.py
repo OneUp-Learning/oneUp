@@ -319,7 +319,7 @@ def challengeCreateView(request):
             i = 0
             for q in questionObjects:
                 i += 1
-                qdict = questionTypeFunctions[q.type]['makeqDict'](q,i,challengeId,None)
+                qdict = questionTypeFunctions[q.type]['makeqdict'](q,i,challengeId,None)
                 qdict = questionTypeFunctions[q.type]['correctAnswers'](qdict)
                 qlist.append(qdict)
         else:

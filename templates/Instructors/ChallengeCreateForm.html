@@ -304,19 +304,12 @@
                            </div>
                         </div>
                         {% if view %}
-                        <div class="divider"></div>
-                       
-                         {% for i,question in question_range %}
-                         
-                         <div class="row">
-                			<p>{% autoescape off %} {{i}}. {{q.questionText|safe}} {% endautoescape %}</p>
-                			<p> Total points: {{question.point|safe}}</p>
-             			</div>
-             					{% include "../question.html" with q=question, graded = False, showcorrect = True, instructorview = False %}
-
-                                 	
-                          {% endfor %}
-                         {% endif %}
+	                        <div class="divider"></div>
+	                       
+	                        {% for i,question in question_range %}
+	             				{% include "../question.html" with q=question graded=False showcorrect=True instructorview=True %}     	
+	                        {% endfor %}
+                        {% endif %}
                         
                       </div>
                      

@@ -70,7 +70,9 @@
 	             {{correct_answer_text|safe}} <br />
 	             {% endfor %}
 	          </blockquote>
-	          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+   	          {% if graded %}
+		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+		      {% endif %}
 	       </div>
 	    </div>	
 	{% endif %}
@@ -124,7 +126,9 @@
 	               {% endfor %}
 	            </div>
 	         </blockquote>
-	         <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+             {% if graded %}
+		         <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+		     {% endif %}
 	      </div>
 	   </div>
 	{% endif %}
@@ -149,7 +153,9 @@
 	             <blockquote>
 	                {{q.correctAnswerText}}
 	             </blockquote>
-	             <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+	             {% if graded %}
+		             <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+		         {% endif %}
 	     	</div>
 	    </div>
 	{% endif %} 
@@ -366,7 +372,7 @@
 		</div>
 	{% endif %}
 	
-{% elif q.question.type == questionTypes.dynamic or q.question.type == questionTypes.templatedynamic %}
+{% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}
 	{% if graded %}
 	    <div class="row">
 	        {% for answer_blank_name, user_answer_value in q.user_answers.items %}

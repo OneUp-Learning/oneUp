@@ -238,7 +238,7 @@ def dynamicqdict(question,i,challengeId,studChallQuest):
         numParts = dynamicQuestion.numParts
         from Instructors.views.dynamicQuestionView import makeLibs
         libs = makeLibs(dynamicQuestion)
-        lupaQuest = LupaQuestion(code, libs, seed, str(i+1), numParts)
+        lupaQuest = LupaQuestion(code, libs, seed, str(i), numParts)
 
 #                            if (lupaQuest.error):
 #                                context_qdict['error']=lupaQuest.error
@@ -271,7 +271,7 @@ def multipleChoiceAnswersAndGrades(qdict,studentAnswers):
     correctAnswer = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID
     correctAnswerText = correctAnswer.answerText
     qdict['correct_answer_text'] = correctAnswerText
-    studentAnswerValue = studentAnswers[0].studentAnswer
+    studentAnswerValue = studentAnswers[0]
     userSelection = 0
     userAnswer = {}
     # Loop through to find the student answer (AH)
@@ -288,6 +288,7 @@ def multipleChoiceAnswersAndGrades(qdict,studentAnswers):
         qdict['user_points'] = qdict['total_points']
     else:
         qdict['user_points'] = 0
+    return qdict
 
 def multipleChoiceCorrectAnswers(qdict):
     correctAnswer = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID
@@ -316,7 +317,7 @@ def multipleAnswerAddAnswersAndGrades(qdict,studentAnswers):
     userAnswers = []
     for stuAns in studentAnswers:
         for index, answer in qdict['answers_with_count']:
-            if answer['answerID'] == int(stuAns.studentAnswer):
+            if answer['answerID'] == int(stuAns):
                 userAnswerIndexes.append(index)
                 userAnswers.append((index, answer))
                 break
@@ -346,8 +347,9 @@ def matchingMakeAnswerList(qdict, POST):
     for match in qdict['matches']:
         if match is not None:            
             answerInputName = str(qdict['index'])+'-'+str(i)
-            userAnswerIndex = int(qdict.POST[answerInputName])
+            userAnswerIndex = int(POST[answerInputName])
             studentAnswerList.append(str(match['matchingAnswerID'])+":"+str(qdict['answers'][userAnswerIndex-1]['answerID']))
+        i = i + 1
 
     return studentAnswerList
 
@@ -369,7 +371,7 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
             # Find student answer that matches with the current match object (AH)
             for stuAns in studentAnswers:
                 userAnswerIndex = 0
-                matchAnswer = stuAns.studentAnswer
+                matchAnswer = stuAns
                 parts = matchAnswer.split(':')
             
                 for index,answer in qdict['answers_with_count']:
@@ -418,7 +420,7 @@ def dynamicMakeAnswerList(qdict,POST):
         answers = {}
         for value in POST:
             indexstring = str(qdict['index'])
-            if (value.startswith(indexstring+"-")): 
+            if value.startswith(indexstring+"-"): 
                 answers[value[len(indexstring)+1:]] = POST[value]
         studentAnswerList = [key+":"+answers[key] for key in answers.keys()]
     else:
@@ -429,11 +431,9 @@ def dynamicAnswersAndGrades(qdict,studentAnswers):
     if lupa_available:
         lupaQuestion = LupaQuestion.createFromDump(qdict['lupaquestion'])
         if qdict['numParts'] == 1:
-
-            qdict['questionText'] = lupaQuestion.getQuestionPart(1)
             answers = {}
             for ans in studentAnswers:
-                answerParts = ans.studentAnswer.split(":") 
+                answerParts = ans.split(":") 
                 answers[answerParts[0]] = answerParts[1]
             print(studentAnswers)
             qdict['user_answers'] = answers
@@ -563,8 +563,8 @@ def parsonsAddAnswersAndGrades(qdict,studentAnswers):
     
     wrongPositionLineNumberbers = studentAnswerDict['wrongPositionLineNumberbers']
     errorDescriptions = studentAnswerDict['errorDescriptions']
-    correctLineCount = studentAnswerDict['correctLineCount']
-    feedBackButtonClickCount = studentAnswerDict['feedBackButtonClickCount']
+    correctLineCount = int(studentAnswerDict['correctLineCount'])
+    feedBackButtonClickCount = int(studentAnswerDict['feedBackButtonClickCount'])
 
     if studentSolution == "":
         qdict['user_points'] = 0
