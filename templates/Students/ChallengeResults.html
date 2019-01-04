@@ -38,7 +38,7 @@
                      <div class="card-content">
                         <span class="card-title">You scored <b>{{total_user_points}}</b> points out of <b>{{total_possible_points}}</b> points in this challenge.</span>
                         {% for q in questions %}
-             				{% include "../question.html" with graded=True showcorrect=True instructorview=False %}
+             				{% include "../question.html" with graded=True showcorrect=True instructorview=False i=forloop.counter %}
                         {% endfor %}
                      </div>
                      <div class="card-action right-align">
