@@ -12,7 +12,8 @@ from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
 from Badges.events import register_event
-from Badges.enums import Event, QuestionTypes
+from Badges.enums import Event
+from Instructors.questionTypes import QuestionTypes
 from Students.models import StudentRegisteredCourses
 from time import strftime
 
