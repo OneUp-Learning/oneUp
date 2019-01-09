@@ -9,7 +9,8 @@ from django.shortcuts import redirect
 from Instructors.models import StaticQuestions, Answers, CorrectAnswers, Challenges, ChallengesQuestions
 
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
-from Badges.enums import QuestionTypes, ObjectTypes
+from Badges.enums import ObjectTypes
+from Instructors.questionTypes import QuestionTypes
 
 from decimal import Decimal
 
