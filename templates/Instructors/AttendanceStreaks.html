@@ -10,9 +10,12 @@
    <script>
       $(document).ready(function() {
       
-        $('#calendar').fullCalendar({
+        var calendar = $('#calendar').fullCalendar({
         	showNonCurrentDates: false,
         	eventStartEditable: false,
+        	viewRender:function(){
+        		$(".fc-disabled-day").html('');
+        	},
         	dayRender: function(date, cell) {
         		calendarDaysSelected = {{eventCheckboxDays|safe}};
         		calendarDaysUnSelected = {{eventCheckboxDaysUnselected|safe}};
@@ -55,9 +58,9 @@
         		  document.getElementById(event.start).checked = true;
         	  },
           header: {
-            left: 'prev',
-            center: 'title, today',
-            right: 'next'
+            left: '',
+            center: 'title',
+            right: ''
           },
           dayClick: function(date, jsEvent, view) {
         	  if (document.getElementById(date).checked)
@@ -79,7 +82,9 @@
             	checkBoxes[i].checked = true;
             }
         }
-        
+        calendar.find('.fc-today-button').click(function(){
+        	console.log("click");
+        });
         
         
       });
@@ -105,16 +110,71 @@
        calendarDates = document.getElementsByName("dates[]");
        
        for (var i = 0; i < calendarDates.length; i++) {
-           if (calendarDates[i].checked)
+           if (calendarDates[i].checked){
+        	   daysPreservedUncheckedList = removeDuplicateDates(daysPreservedUncheckedList, calendarDates[i].value);
         	   daysCheckedList.push(calendarDates[i].value);
-           else
+           }
+           else{
+        	   daysPreservedCheckedList = removeDuplicateDates(daysPreservedCheckedList, calendarDates[i].value);
         	   daysUncheckedList.push(calendarDates[i].value);
+           }
        }
+       daysUncheckedList.push(daysPreservedUncheckedList);
+       daysCheckedList.push(daysPreservedCheckedList);
+       
        document.getElementById("daysCheckedList").value = daysCheckedList;
        document.getElementById("daysUncheckedList").value = daysUncheckedList;
        document.getElementById("calendarForm").submit();
       }
+      
+      var daysPreservedCheckedList = [];
+      var daysPreservedUncheckedList = [];
+      function preserveCalendarData(){
+    	
+        calendarDates = document.getElementsByName("dates[]"); 
+        
+        for (var i = 0; i < calendarDates.length; i++) {
+        	 if(calendarDates[i].checked) {
+        		 daysPreservedCheckedList.push(calendarDates[i].value);
+        		 daysPreservedUncheckedList = removeDuplicateDates(daysPreservedUncheckedList, calendarDates[i].value);
+             } else {
+            	 daysPreservedCheckedList = removeDuplicateDates(daysPreservedCheckedList, calendarDates[i].value);
+            	 daysPreservedUncheckedList.push(calendarDates[i].value);
+             }
+        }
+      }
+  	
+      function saveEnteredDates(type){
+      	preserveCalendarData();
+      	
+    	switch(type){
+    	case "today":
+    		 $('#calendar').fullCalendar('today');
+    		break;
+    	case "prev":
+    		 $('#calendar').fullCalendar('prev');
+    		break;
+    	case "next":
+    		 $('#calendar').fullCalendar('next');
+    		break;
+    	}
+      		
+      }
+      
+      function removeDuplicateDates(array, element) {
+    	  var itemIndex = 0;
+    	  while ((itemIndex = array.indexOf(element, itemIndex)) > -1) {
+    		  array.splice(itemIndex, 1);
+    	  }
+    	  return array;
+      }
+
    </script>
+   <style>
+   td.fc-other-month {
+   visibility: hidden;
+}
+   </style>
    <body>
       {% include 'heading.html' %}
       <main>
@@ -171,6 +231,17 @@
                   <div class="card-content">
                      <form id="calendarForm" action="/oneUp/instructors/attendanceStreaks" method="post">
                         {% csrf_token %}
+                        <div class="row">
+                        <div class="col s5">
+                        <button name="navButton" type="button" onclick="saveEnteredDates('prev');" class="btn waves-effect waves-light"><i class="material-icons left">navigate_before</i></button>
+                        </div>
+                        <div class="col s3">
+                        <button name="navButton" type="button" onclick="saveEnteredDates('today');" class="btn waves-effect waves-light"><i class="material-icons left">today</i>Today</button>
+                        </div>
+                        <div class="col s1 offset-s2">
+                        <button name="navButton" type="button" onclick="saveEnteredDates('next');" class="btn waves-effect waves-light"><i class="material-icons left">navigate_next</i></button>
+                        </div>
+                        </div>
                         <div id='calendar'></div>
                         <input type="hidden" name="calendarDaysCheckedList" value="" id="daysCheckedList" />
                         <input type="hidden" name="calendarDaysUncheckedList" value="" id="daysUncheckedList" />

@@ -84,17 +84,21 @@ def createAttendanceRecords(presentStudents, context_dict, currentCourse):
 def createStudentAttendance(isPresent, currentCourse, context_dict, student):
     studentAttendance = StudentAttendance.objects.filter(courseID = currentCourse, timestamp=context_dict["rollDate"], studentID=student).first()
     if studentAttendance == None:
-        studentRecord = StudentAttendance()
-        user = User.objects.get(username=student)
-        studentID = Student.objects.get(user=user)
-        studentRecord.studentID = studentID
-        studentRecord.isPresent = isPresent
-        studentRecord.courseID = currentCourse
-        studentRecord.timestamp = context_dict["rollDate"]
-        studentRecord.save()
-    else:    
-        studentAttendance.isPresent = isPresent
-        studentAttendance.save();
+        if isPresent:
+            studentRecord = StudentAttendance()
+            user = User.objects.get(username=student)
+            studentID = Student.objects.get(user=user)
+            studentRecord.studentID = studentID
+            studentRecord.isPresent = isPresent
+            studentRecord.courseID = currentCourse
+            studentRecord.timestamp = context_dict["rollDate"]
+            studentRecord.save()
+    else:
+        if isPresent:    
+            studentAttendance.isPresent = isPresent
+            studentAttendance.save();
+        else:
+            studentAttendance.delete();
 #true or false from the page becomes boolean true or false        
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")    

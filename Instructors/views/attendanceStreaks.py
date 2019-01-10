@@ -18,11 +18,12 @@ import json, datetime, ast, re
 def attendanceStreaks(request):
     context_dict, currentCourse = studentInitialContextDict(request)
     
-    streak = AttendanceStreak.objects.filter(courseID=currentCourse)
-    if streak:
-        streak = streak[0]
+    if AttendanceStreak.objects.filter(courseID=currentCourse).exists():
+        streak = AttendanceStreak.objects.filter(courseID=currentCourse)[0]
     else:
-        streak = AttendanceStreak()   
+        streak = AttendanceStreak()
+        streak.courseID = currentCourse
+        streak.save()
         
     if request.method == 'GET':
         print("get")
@@ -44,17 +45,21 @@ def attendanceStreaks(request):
             d = ccparams.courseStartDate
             delta = datetime.timedelta(days=1)
             
-            streakDays = ast.literal_eval(streak.daysofWeek)
-            streakDays = [int(i) for i in streakDays]
-            
-            streak_calendar_days = []
-            while d <= ccparams.courseEndDate:
-                if d.weekday() in streakDays:
-                    streak_calendar_days.append(d.strftime("%Y-%m-%d"))
-                d += delta
-            daysForCalendar = generateEventsForStreakDates(streak_calendar_days, streak.daysDeselected)
-            context_dict['event'] = daysForCalendar[0]
-            context_dict['eventCheckboxDays'] = daysForCalendar[1]
+            if streak.daysofWeek:
+                streakDays = ast.literal_eval(streak.daysofWeek)
+                streakDays = [int(i) for i in streakDays]
+                streak_calendar_days = []
+                while d <= ccparams.courseEndDate:
+                    if d.weekday() in streakDays:
+                        streak_calendar_days.append(d.strftime("%Y-%m-%d"))
+                    d += delta
+                daysForCalendar = generateEventsForStreakDates(streak_calendar_days, streak.daysDeselected)
+                context_dict['event'] = daysForCalendar[0]
+                context_dict['eventCheckboxDays'] = daysForCalendar[1]
+            else:
+                streakDays = ""
+                context_dict['event'] = "[]"
+                context_dict['eventCheckboxDays'] = "[]"
             
             daysDeselected = datesUnSelectedFromDatabase(streak.daysDeselected)
             
@@ -84,11 +89,11 @@ def attendanceStreaks(request):
             print("datesfromcalendar", datesFromCalendar)
         
         if 'calendarDaysCheckedList' in request.POST:
-            checkedCalendarDays = request.POST.getlist('calendarDaysCheckedList')
+            checkedCalendarDays = filterOutDuplicatesFromCalendar(request.POST.getlist('calendarDaysCheckedList'))
             print("checkedcalendardays", str(checkedCalendarDays).split(","))
             
         if 'calendarDaysUncheckedList' in request.POST:
-            uncheckedCalendarDays = request.POST.getlist('calendarDaysUncheckedList')
+            uncheckedCalendarDays = filterOutDuplicatesFromCalendar(request.POST.getlist('calendarDaysUncheckedList'))
             print('calendarDaysUncheckedList', uncheckedCalendarDays)
             streak.daysDeselected = uncheckedCalendarDays
         streak.save()   
@@ -120,3 +125,8 @@ def datesUnSelectedFromDatabase(dates):
         daysDeselectedCleanedString.append( re.sub("(\['|'])","",dayDeselected))
     print("days deselected", daysDeselected)
     return daysDeselectedCleanedString
+
+def filterOutDuplicatesFromCalendar(datesList):
+    print("filtered")
+    print(list(dict.fromkeys(datesList)))
+    return list(dict.fromkeys(datesList))
