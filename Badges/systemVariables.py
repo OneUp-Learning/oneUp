@@ -8,6 +8,7 @@ from django.utils import timezone
 import logging
 from billiard.connection import CHALLENGE
 from django.conf.urls.static import static
+from dateutil.utils import today
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -858,6 +859,86 @@ def sc_reached_due_date(course, student, serious_challenge):
     if not serious_challenge.isGraded:
         return False
     return serious_challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
+
+
+def processStudentAttendanceStreaks(course, student):
+    from Instructors.models import AttendanceStreak
+    from Students.models import StudentRegisteredCourses, StudentAttendance
+    from datetime import datetime, timedelta
+    from django.utils.timezone import localtime, now
+    from Badges.models import CourseConfigParams
+    import re, ast, datetime
+    def obtainStudentAttendanceRecordsForDay(student, day, course, streakLength):
+        studentStreakLengthSoFar = 0
+        print("day", day)
+        if StudentAttendance.objects.filter(courseID=course, studentID=student, timestamp=day).exists():
+            attendanceRecord = StudentAttendance.objects.filter(courseID=course, studentID=student, timestamp=day)[0]
+            print("record",attendanceRecord)
+            studentStreakLengthSoFar += 1
+            if studentStreakLengthSoFar == streakLength:
+                return (0,studentStreakLengthSoFar)
+        else:
+            print("no record obtained")
+            return (1,day)
+    def findEffectiveClassDates(ccparams, excluded_Dates, daysOfWeek, studentStreakStartDate):
+        studentStreakStartDate = studentStreakStartDate.date()
+        delta = datetime.timedelta(days=1)
+        streakDays = ast.literal_eval(daysOfWeek)
+        streakDays = [int(i) for i in streakDays]
+        streak_calendar_days = []
+        while studentStreakStartDate <= ccparams.courseEndDate:
+            if studentStreakStartDate.weekday() in streakDays:
+                streak_calendar_days.append(studentStreakStartDate.strftime("%Y-%m-%d"))
+            studentStreakStartDate += delta
+        
+        filteredStreakDays = []
+        for date in streak_calendar_days:
+            if date not in excluded_Dates:
+                if date < datetime.datetime.now().strftime("%Y-%m-%d"):
+                    filteredStreakDays.append(date)
+        return filteredStreakDays
+    
+    
+    streakLength = 0
+    
+    streakStartDate = None
+    
+    if StudentRegisteredCourses.objects.filter(courseID=course, studentID=student).exists():
+        registeredCourse = StudentRegisteredCourses.objects.filter(courseID=course, studentID=student)[0]
+        streakStartDate = registeredCourse.attendanceStreakStartDate
+        
+    if AttendanceStreak.objects.filter(courseID=course).exists():
+        ccparams = CourseConfigParams.objects.get(courseID=course)
+        streak = AttendanceStreak.objects.filter(courseID=course)[0]
+        streakLength = streak.streakLength
+        effectiveClassDates = []
+        effectiveClassDates = findEffectiveClassDates(ccparams, streak.daysDeselected, streak.daysofWeek, streakStartDate)
+        
+    
+    
+    studentStreakLength = 0
+    if streakLength != 0:
+        streakLengthStatusTuple = ()
+        print("effectiveClassDates", effectiveClassDates)
+        for effectiveClassDate in effectiveClassDates:
+            streakLengthStatusTuple = obtainStudentAttendanceRecordsForDay(student, effectiveClassDate, course, streakLength)
+        if streakLengthStatusTuple[0] == 0:#0 means we have a streak of matching length
+            return streakLengthStatusTuple[1]
+            registeredCourse.attendanceStreakStartDate = datetime.datetime.now().strftime("%Y-%m-%d")
+            registeredCourse.save()
+            print("enough dates")
+        elif streakLengthStatusTuple[0] == 1:
+            #the streak number is less than, so we need to find where the streak breaks
+            registeredCourse.attendanceStreakStartDate = streakLengthStatusTuple[1]
+            registeredCourse.save()
+            print("not enough dates")
+            return studentStreakLength
+            
+    
+    
+
+   
+        
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -908,7 +989,7 @@ class SystemVariable():
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
     seriousChallengeReachedDueDate = 944 # Returns true if the current time is past a serious challenge due date
-
+    studentAttendanceEntered = 950 #studentAttendance for streaks
     systemVariables = {
         numAttempts:{
             'index': numAttempts,
@@ -1435,6 +1516,19 @@ class SystemVariable():
             'type': 'boolean',
             'functions': {
                 ObjectTypes.challenge: sc_reached_due_date
+            },
+        },
+        studentAttendanceEntered:{
+            'index': studentAttendanceEntered,
+            'name': 'studentAttendanceEntered',
+            'displayName': 'Student Attendance Streaks',
+            'description': 'Student Attendance Streaks',
+            'eventsWhichCanChangeThis': {
+                ObjectTypes.none: [Event.classAttendance],
+            },
+            'type': 'int',
+            'functions': {
+                ObjectTypes.none:processStudentAttendanceStreaks
             },
         },
                                                                        

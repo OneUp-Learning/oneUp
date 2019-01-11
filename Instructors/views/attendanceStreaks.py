@@ -10,7 +10,10 @@ from Badges.models import LeaderboardsConfig
 from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams 
 from Instructors.models import AttendanceStreak
+from Badges.models import Conditions, Rules, RuleEvents, ActionArguments, VirtualCurrencyRuleInfo
 import json, datetime, ast, re
+from argparse import Action
+from Students.models import StudentRegisteredCourses
 
 
 @login_required
@@ -24,7 +27,55 @@ def attendanceStreaks(request):
         streak = AttendanceStreak()
         streak.courseID = currentCourse
         streak.save()
+    
+    if Rules.objects.filter(courseID=currentCourse, awardFrequency=1100).exists():
+        rule = Rules.objects.filter(courseID=currentCourse)[0]
+    else:
+        condition = Conditions()
+        condition.operation =  '='
+        condition.courseID = currentCourse
+        condition.operand1Type = 1005
+        condition.operand1Value = 950
         
+        condition.operand2Type = 1001
+        condition.operand2Value = streak.streakLength
+        condition.save()
+        
+        rule = Rules()
+        rule.conditionID = condition
+        rule.courseID = currentCourse
+        rule.actionID =  710
+        rule.awardFrequency = 1100
+        rule.save()
+        
+        ruleEvent = RuleEvents()
+        ruleEvent.rule = rule
+        ruleEvent.event = 870
+        ruleEvent.save()
+        
+        actionArgument = ActionArguments()
+        actionArgument.ruleID = rule
+        actionArgument.sequenceNumber = 1
+        actionArgument.argumentValue = 5
+        actionArgument.save()
+        
+        vcRuleInfo = VirtualCurrencyRuleInfo()
+        vcRuleInfo.vcRuleName = "Attendance Streak"
+        vcRuleInfo.vcRuleDescription = "Streaks"
+        vcRuleInfo.vcRuleType = True  
+        vcRuleInfo.vcRuleAmount = 5
+        vcRuleInfo.courseID = currentCourse
+        vcRuleInfo.ruleID = rule
+        vcRuleInfo.save()
+        
+        ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
+        if StudentRegisteredCourses.objects.filter(courseID=currentCourse).exists():
+            studentRegisteredCoursesRecords = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+            for studentRegisteredCoursesRecord in studentRegisteredCoursesRecords:
+                studentRegisteredCoursesRecord.attendanceStreakStartDate = ccparams.courseStartDate
+                studentRegisteredCoursesRecord.save()
+        
+               
     if request.method == 'GET':
         print("get")
         ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
@@ -82,6 +133,11 @@ def attendanceStreaks(request):
             
         if 'streakLength' in request.POST:
             streak.streakLength = request.POST['streakLength']
+           
+            if Conditions.objects.filter(courseID=currentCourse, operand1Type=1005, operand1Value=950, operation="=").exists():
+                condition = Conditions.objects.filter(courseID=currentCourse, operand1Type=1005, operand1Value=950, operation="=")[0]
+                condition.operand2Value = streak.streakLength
+                condition.save()
             
         datesFromCalendarProcessed = []
         if 'dates[]' in request.POST:
@@ -108,7 +164,6 @@ def generateEventsForStreakDates(streak_dates, excluded_Dates):
     for date in streak_dates:
         if date not in excluded_Dates:
             filteredStreakDays.append(date)
-    print("filtered days", filteredStreakDays)
     for filtered_date in filteredStreakDays:
         event = {
             'title': 'Streak',

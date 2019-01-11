@@ -56,6 +56,7 @@ class StudentRegisteredCourses(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     avatarImage= models.CharField(max_length=200, default='')    
     virtualCurrencyAmount = models.IntegerField(default=0)
+    attendanceStreakStartDate = models.DateTimeField(default = datetime.now)
     def __str__(self):
         return str(self.studentID) + "," + str(self.courseID)
     

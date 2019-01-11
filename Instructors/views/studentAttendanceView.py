@@ -12,7 +12,9 @@ from django.contrib.auth.models import User
 import datetime
 from Instructors.views.challengeExportImportView import str2bool
 from django.utils.timezone import localtime, now
-from oneUp.decorators import instructorsCheck     
+from oneUp.decorators import instructorsCheck
+from Badges.events import register_event    
+from Badges.enums import Event 
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -30,7 +32,7 @@ def studentAttendance(request):
             context_dict['rollDate'] = request.POST['rollDate']
             context_dict['present[]'] = request.POST.getlist('present[]')
             context_dict = getRollByDate(request, context_dict)   
-            context_dict = createAttendanceRecords(context_dict['present[]'], context_dict ,currentCourse)
+            context_dict = createAttendanceRecords(context_dict['present[]'], context_dict ,currentCourse, request)
             return redirect('studentAttendance')   
         #if roll date is there, set it to the context dictionary and get the roll by date    
         if 'rollDate' in request.POST: 
@@ -73,10 +75,13 @@ def getRollByDate(request, context_dict):
     return context_dict
     
 #create the attendance record if they dont have a record    
-def createAttendanceRecords(presentStudents, context_dict, currentCourse):
+def createAttendanceRecords(presentStudents, context_dict, currentCourse, request):
     studentsAndPresentData = zip(context_dict["students"], presentStudents)
     for student, present in studentsAndPresentData:
         createStudentAttendance(str2bool(present), currentCourse, context_dict, student)
+        if present:
+            register_event(Event.classAttendance, request, student, None)
+        
     
     return context_dict
 #create the records if they do not exist
