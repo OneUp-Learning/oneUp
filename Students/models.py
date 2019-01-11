@@ -148,7 +148,6 @@ class StudentActivities(models.Model):
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
     comment = models.CharField(max_length=500, default="") #Comment submitted by student
-    submissionTimestamp = models.DateTimeField(default= datetime.now)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
     def getScoreWithBonus(self):
