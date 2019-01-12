@@ -45,18 +45,19 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
     from datetime import timedelta
     from django.utils.timezone import make_naive
     from Instructors.views.utils import localizedDate
-    # Make date naive since celery eta accepts only naive datetimes
+    # Make date naive since celery eta accepts only naive datetimes then localize it
     due_date = make_naive(due_date)
-
+    localized_due_date = localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone)
     # Setup the task and run at a later time (due_date)
     # Will delete itself after one minute once it has finished running
     timezone = request.session['django_timezone']
+
     process_expired_serious_challenges.apply_async(kwargs={'course_id': request.session['currentCourseID'],
             'user_id': request.user.id,
             'challenge_id': challenge_id,
-            'due_date': localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone),
+            'due_date': localized_due_date,
             'timezone': timezone,
-            }, eta=localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone), expires=localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone) + timedelta(minutes=1), serializer='pickle')
+            }, eta=localized_due_date, expires=localized_due_date + timedelta(minutes=1), serializer='pickle')
 
             
 

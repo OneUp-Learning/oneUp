@@ -33,7 +33,7 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
             author_ID.append(announcement.authorID)
             start_Timestamp.append(announcement.startTimestamp)
             # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-            endTime = announcement.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
+            endTime = announcement.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
             if endTime != default_time_str: 
                 end_Timestamp.append(announcement.endTimestamp)
             else:
@@ -75,7 +75,7 @@ def removeExpired():
     announcements = Announcements.objects.all()
     currentTime = utcDate().strftime("%m/%d/%Y %I:%M %p") 
     for announcement in announcements:
-        if (currentTime > datetime.strptime(str(announcement.endTimestamp), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")):
+        if (currentTime > datetime.strptime(str(announcement.endTimestamp.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")):
             announcement.delete()
             
     

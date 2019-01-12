@@ -3,7 +3,7 @@ from Badges.enums import Event, ObjectTypes
 from datetime import datetime
 from Instructors.models import Challenges, Activities, Questions, Topics,\
     ActivitiesCategory
-from Instructors.constants import default_time_str
+from Instructors.constants import default_time_str, unlimited_constant
 from django.utils import timezone
 import logging
 from billiard.connection import CHALLENGE
@@ -492,7 +492,7 @@ def getScoreDifferenceFromPreviousActivity(course, student, activity):
     if len(stud_assignments)==1 or len(stud_assignments)==0:
         return 0
     
-    previousActivityScore = 9999999999999  #Should never be used if code is correct
+    previousActivityScore = unlimited_constant  #Should never be used if code is correct
     numActivitiesVisited = 0
     
     for sa in stud_assignments:
@@ -542,7 +542,7 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
     if len(assignments)==1 or len(assignments)==0:
         return 0
      
-    previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+    previousActivityScorePercentage = unlimited_constant #Should never be used if code is correct
     numActivitiesVisited = 0
     
     for assign in assignments:
@@ -572,7 +572,7 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
 #     if len(activityObjects)==1 or len(activityObjects)==0:
 #         return 0
 #     
-#     previousActivityScorePercentage = 9999999 #Should never be used if code is correct
+#     previousActivityScorePercentage = unlimited_constant #Should never be used if code is correct
 #     numActivitiesVisited = 0
 #     for activityObject in activityObjects:
 #         numActivitiesVisited += 1
@@ -859,7 +859,7 @@ def sc_reached_due_date(course, student, serious_challenge):
     # Returns true if the due date for serious challenge has been reached or if due date is the same as default date
     if not serious_challenge.isGraded:
         return False
-    return serious_challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
+    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity

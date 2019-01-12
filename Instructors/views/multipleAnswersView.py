@@ -14,7 +14,7 @@ from Instructors.questionTypes import QuestionTypes
 
 from decimal import Decimal
 
-from Instructors.constants import default_time_str, unassigned_problems_challenge_name
+from Instructors.constants import default_time_str, unassigned_problems_challenge_name, unlimited_constant
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.logger import logger
@@ -152,8 +152,8 @@ def multipleAnswersForm(request):
         challenge.courseID = currentCourse
         challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        challenge.numberAttempts = 99999
-        challenge.timeLimit = 99999
+        challenge.numberAttempts = unlimited_constant
+        challenge.timeLimit = unlimited_constant
         challenge.save()
         ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
         

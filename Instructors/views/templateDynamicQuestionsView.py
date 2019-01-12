@@ -11,7 +11,7 @@ from Instructors.models import LuaLibrary, QuestionLibrary
 from Instructors.lupaQuestion import CodeSegment
 
 from Instructors.views import utils
-from Instructors.constants import unassigned_problems_challenge_name, default_time_str
+from Instructors.constants import unassigned_problems_challenge_name, default_time_str, unlimited_constant
 
 from Badges.enums import ObjectTypes
 from Instructors.questionTypes import QuestionTypes
@@ -125,8 +125,8 @@ def templateDynamicQuestionForm(request):
         challenge.courseID = currentCourse
         challenge.startTimestamp = utils.utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         challenge.endTimestamp = utils.utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        challenge.numberAttempts = 99999
-        challenge.timeLimit = 99999
+        challenge.numberAttempts = unlimited_constant
+        challenge.timeLimit = unlimited_constant
         challenge.save()
         ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
         
