@@ -34,10 +34,10 @@ def classAchievements(request):
         optionSelected = 0
                 
     #Displaying the list of challenges from database
-    challenges = list(Challenges.objects.filter(courseID=currentCourse, isGraded=True,  isVisible=True).exclude(endTimestamp="2999-12-31 18:59:00").order_by('endTimestamp'))
+    challenges = list(Challenges.objects.filter(courseID=currentCourse, isGraded=True,  isVisible=True).order_by('endTimestamp'))
     num_challs = len(challenges)
     
-    activities = Activities.objects.filter(courseID=currentCourse, isGraded=True).exclude(endTimestamp="2999-12-31 18:59:00").order_by('deadLine')
+    activities = Activities.objects.filter(courseID=currentCourse, isGraded=True).order_by('deadLine')
     
     users = [] 
     #Displaying the list of students from the current class

@@ -24,9 +24,14 @@
             var notification_box = $('#nMenu1');
             var notification_box2 = $('#nMenu2');
             var notifications = response.notifications;
+            var course_id = '{{course_id}}';
             $.each(notifications, function (i, notification) {
-                notification_box.prepend(notification.html);
-                notification_box2.prepend(notification.html);
+				let notification_data = JSON.parse(notification.data);
+				// console.log(notification_data);
+				if(notification_data['course'] == course_id){
+					notification_box.prepend(notification.html);
+					notification_box2.prepend(notification.html);
+				}
             });
             removeDuplicates();
             countNotifications();
@@ -38,8 +43,8 @@
             var notification_box2 = $('#nMenu2');
             var notification_id = $notification.attr("data-id");
             function removeAll(notification_box, id){
-                notification_box.children().children().children("i[data-id='"+id+"']").each(function(index){
-                    $(this).parent().parent().remove();
+                notification_box.children("li[data-nf-id='"+id+"']").each(function(index){
+                    $(this).remove();
                 });
             }
             removeAll(notification_box, notification_id);
@@ -292,6 +297,7 @@
                     <!--<li><a class="waves-effect" href="">Leveling</a></li> -->
                     <li><a class="waves-effect" href="/oneUp/instructors/dynamicLeaderboard">Course Leaderboard</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/debugSysVars">Debug System Variables</a></li>
+                    <li><a class="waves-effect" href="/oneUp/badges/ProgressiveUnlocking">Progressive Unlocking</a></li>
                     <li><a class="dropdown-button-vc" href="#!" data-activates="virtualcurrency" >Virtual Currency</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
                 </ul>
@@ -305,7 +311,7 @@
                 <a id='notification-count1' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
                     <i class='material-icons'>notifications</i> <!-- This needs to be linked to an actual notification page -->
                 </a>
-                <ul id="notifications" class="dropdown-content">
+                <ul id="notifications" class="dropdown-content" style="max-width: 36vw;">
                     <li><a class="notification-count-parent" href="#!">Notifications <span style="float:right;" class="badge notification-count">1</span></a></li>
                     <div id="nMenu1" class="notification-box-list">
                     {% user_notifications for box %}

@@ -9,8 +9,9 @@ from Instructors.models import StaticQuestions, Answers, CorrectAnswers
 from Instructors.models import Challenges, ChallengesQuestions
 
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
-from Badges.enums import QuestionTypes, ObjectTypes
-from Instructors.constants import unassigned_problems_challenge_name, default_time_str
+from Badges.enums import ObjectTypes
+from Instructors.questionTypes import QuestionTypes
+from Instructors.constants import unassigned_problems_challenge_name, default_time_str, unlimited_constant
 
 
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -148,8 +149,8 @@ def trueFalseNewForm(request):
         challenge.courseID = currentCourse
         challenge.startTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         challenge.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        challenge.numberAttempts = 99999
-        challenge.timeLimit = 99999
+        challenge.numberAttempts = unlimited_constant
+        challenge.timeLimit = unlimited_constant
         challenge.save()
         ChallengesQuestions.addQuestionToChallenge(question, challenge, 0, 0)
         

@@ -28,14 +28,14 @@ def StudentCourseHome(request):
 
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
-        context_dict['courseId']=request.POST['courseID']
+        context_dict['course_id']=request.POST['courseID']
         context_dict['is_test_student'] = sID.isTestStudent
         if sID.isTestStudent:
             context_dict["username"]="Test Student"
     
     if request.GET:
         request.session['currentCourseID'] = request.GET['courseID']
-        context_dict['courseId']=request.GET['courseID']
+        context_dict['course_id']=request.GET['courseID']
         context_dict['is_test_student'] = sID.isTestStudent
         if sID.isTestStudent:
             context_dict["username"]="Test Student"
@@ -48,10 +48,10 @@ def StudentCourseHome(request):
         context_dict['is_test_student'] = sID.isTestStudent
         if sID.isTestStudent:
             context_dict["username"]="Test Student"
-        context_dict['courseId'] = currentCourse.courseID
+        context_dict['course_id'] = currentCourse.courseID
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
         context_dict['avatar'] =  st_crs.avatarImage    
-                      
+        
         context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True)  
         context_dict['courseId']=currentCourse.courseID
            

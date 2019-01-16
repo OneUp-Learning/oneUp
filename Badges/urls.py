@@ -12,6 +12,7 @@ from Badges.views.badgesDisplayView import BadgesDisplay
 from Badges.views.badgesView import BadgesMain, reorderBadges
 
 from Badges.views.createVirtualCurrencyRuleView import CreateVcRule
+from Badges.views.createVirtualCurrencySpendRuleView import create_vc_spend_rule
 from Badges.views.editDeleteBadgeView import EditDeleteBadge
 from Badges.views.editVirtualCurrencyRuleView import EditVirtualCurrencyRule
 from Badges.views.selectVirtualCurrencySpendRuleView import SelectVirtualCurrencySpendRule
@@ -28,6 +29,7 @@ from Badges.views.addBadgeManuallyView import addBadgeManuallyView
 from Badges.views.timeBasedBadgeView import timeBasedBadgeView
 from Badges.views.timeBasedVirtualCurrencyView import timeBasedVirtualCurrencyView
 from Badges.views.periodicBadgeView import PeriodicBadgeView
+from Badges.views.progressiveUnlocking import ProgressiveUnlockingRules, getObjs
 from Badges.views.periodicVirtualCurrencyEarnRuleList import periodicVirtualCurrencyEarnRuleList
 admin.autodiscover()
 
@@ -35,6 +37,7 @@ urlpatterns = [
     url(r'^AddVirtualCurrency', addVirtualCurrencyForStudentWithRuleView, name='Add Virtual Currency to Students'),
     url(r'^Badges',BadgesMain, name='BadgesMain'),
     url(r'^CreateVirtualCurrencyRule',CreateVcRule, name='Create Virtual Currency Rule'),
+    url(r'^CreateVirtualCurrencySpendRule', create_vc_spend_rule, name='Create Virtual Currency Spend Rule'),
     url(r'^CourseBadges', BadgesDisplay, name='BadgeDisplay'),
     url(r'^EditDeleteBadge',EditDeleteBadge, name='EditDeleteBadge'),
     url(r'^EditVirtualCurrencyRule',EditVirtualCurrencyRule, name='Edit Virtual Currency Rule'),
@@ -55,5 +58,7 @@ urlpatterns = [
     url(r'^TimeBasedBadge',timeBasedBadgeView, name="Periodic Badges"),
     url(r'^TimeBasedVirtualCurrency',timeBasedVirtualCurrencyView, name="Periodic Virtual Currency"),
     url(r'^PeriodicBadges',PeriodicBadgeView, name="Periodic Badges"),
-    url(r'^PeriodicVirtualCurrencyEarnRuleList',periodicVirtualCurrencyEarnRuleList, name="Periodic Virtual Currency Earn Rule List")
+    url(r'^PeriodicVirtualCurrencyEarnRuleList',periodicVirtualCurrencyEarnRuleList, name="Periodic Virtual Currency Earn Rule List"),
+    url(r'^ProgressiveUnlocking',ProgressiveUnlockingRules, name="Progressive Unlocking Rules"),
+    url(r'^getObjsForPunlocking',getObjs, name="Progressive Unlocking Obj getter"),
 ]

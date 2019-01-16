@@ -12,7 +12,8 @@ from Instructors.constants import unspecified_topic_name, unassigned_problems_ch
 from Instructors.views.utils import initialContextDict
 from decimal import Decimal
 
-from Badges.enums import QuestionTypes
+from Instructors.questionTypes import QuestionTypes
+from Badges.models import CourseConfigParams
 
 from xml.etree.ElementTree import Element, SubElement, parse
 import xml.etree.ElementTree as eTree
@@ -286,8 +287,8 @@ def findWithAlt(ele, name1, name2):
     
     return result
        
-@login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
+#@login_required
+#@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
 def importChallenges(uploadedFileName, currentCourse):
          
     fname = uploadedFileName
@@ -322,8 +323,15 @@ def importChallenges(uploadedFileName, currentCourse):
             challenge.displayIncorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
             challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
             challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
+            challenge.isVisible = False
             if not challenge.challengeDifficulty:
                 challenge.challengeDifficulty = 'Easy'
+                
+            # get the course start and end date and make them the challenge' start and end dates
+            ccp = CourseConfigParams.objects.get(courseID = currentCourse)            
+            challenge.startTimestamp = ccp.courseStartDate
+            challenge.endTimestamp = ccp.courseEndDate
+            challenge.dueDate = ccp.courseEndDate
             
             pssd = el_challenge.find('challengePassword') # Empty string represents no password required.
             if pssd:
@@ -452,25 +460,31 @@ def importChallenges(uploadedFileName, currentCourse):
                 question.code = el_dynamicQuestion.find('code').text    
                 
                 question.save()                        
-                print('dynamicQuestion.code: ', question.code)  
+                #print('dynamicQuestion.code: ', question.code)  
                    
                 if q_type == 7:      
                 # TemplateDynamicQuestions
                     el_templateDynamicQuestion = el_dynamicQuestion.find("TemplateDynamicQuestion")
                      
-                    temptext = el_templateDynamicQuestion.find('templateText')
-                    if not temptext is None:                            
-                        text = temptext.text
-                    if not text:
+                    el_templateText = el_templateDynamicQuestion.find('templateText')
+                    if not el_templateText is None:                            
+                        text = el_templateText.text
+                        if not text:
+                            question.templateText = ""
+                        else:
+                            question.templateText = text
+                    else:
                         question.templateText = ""
-                    else:
-                        question.templateText = text
-                    code = el_templateDynamicQuestion.find('setupCode')
-                    if not code is None:                            
-                        question.setupCode = code.text
-                    else:
+                    el_setupCode = el_templateDynamicQuestion.find('setupCode')
+                    if not el_setupCode is None:  
+                        scode =  el_setupCode.text  
+                        if not scode is None:                       
+                            question.setupCode = scode
+                        else:
+                            question.setupCode = ""
+                    else: 
                         question.setupCode = ""
-    
+                    
                     question.save()    
                                    
                     # TemplateTextParts

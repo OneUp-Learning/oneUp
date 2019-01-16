@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %} 
+      <script>
+         function getObjects(){
+            var ruleType = $('#ruleTypes').find(":selected").val();
+            $('#objects').material_select();
+            $("#objects").empty().html(' ');
+
+            $.post( "/oneUp/badges/getObjsForPunlocking", {typeIndex : ruleType} ,function( data ) {
+               for (obj in data.objs) {
+                  info = data.objs[obj];
+                  pk = info.id
+                  objName = info.name;
+
+                  $('#objects').append('<option value='+pk+'>'+objName+'</option>');
+                  $("#objects").material_select('update');
+               }
+           });
+         }
+      </script>
+   </head>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Create New Progressive Unlocking Rule</h3>
+            </div>
+         </div>
+         <form name="addNewPRule" action="/oneUp/badges/ProgressiveUnlocking" method="POST" onsubmit=" return condOnSubmit();">
+          {% csrf_token %}
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+            
+                    <div class="row">
+                      <div class="input-field col s12">
+                         {% if pRule %}                        
+                           <input placeholder="{{pRule.name}}" value="{{pRule.name}}" name="unlockingName" type="text" id="unlockingName">
+                           <input hidden value="{{pRule.pk}}" name="editRule">
+                         {%else%}
+                           <input placeholder="Rule Name" name="unlockingName" type="text" id="unlockingName">
+                         {% endif %}
+                           <label for="unlockingName"><span class= "red-text">*</span>Unlocking Rule Name</label>
+                      </div>
+                   </div> 
+                    <div class="row">
+                          <div class="input-field col s12">
+                             {% if pRule %}
+                                 <input placeholder="{{pRule.description}}" value="{{pRule.description}}" name="unlockingDescript" type="text" id="unlockingDescript">
+                              {% else %}
+                                 <input placeholder="Description" name="unlockingDescript" type="text" id="unlockingDescript">
+                             {%endif%}
+                             <label for="unlockingDescript"><span class= "red-text">*</span>Unlocking Rule Description</label>
+                          </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <select name="ruleObjectType" id="ruleTypes" onchange="getObjects()">
+                                {% for type in filter %}
+                                    {% if type.string == ruleTypeString or type.string == 'ActivityCategory' %}
+                                       <option value={{type.string}} selected>{{type.string}}</option>
+                                    {% else %}
+                                       <option value={{type.string}}>{{type.string}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                              </select>
+                           <label for="ruleObjType"><span class= "red-text">*</span>Object Type</label>
+                        </div>
+                     </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <select name="ruleTargetObject" id="objects">
+                                {% for obj in objs %}
+                                  {% if ruleType == 1301 %}
+                                    {% if pRule.objectID == obj.pk %}
+                                       <option value={{obj.pk}} selected>{{obj.challengeName}}</option>
+                                    {% else %}
+                                       <option value={{obj.pk}}>{{obj.challengeName}}</option>
+                                    {% endif %}
+                                  {% elif ruleType == 1302 %}
+                                    {% if pRule.objectID == obj.pk %}
+                                       <option selected value={{obj.pk}} >{{obj.activityName}}</option>
+                                    {%else%}
+                                       <option value={{obj.pk}} >{{obj.activityName}}</option>
+                                    {%endif%}
+                                  {% elif ruleType == 1306 %}
+                                    <option selected value={{obj.pk}} >{{obj.topicID.topicName}}</option>}
+                                  {% elif ruleType == 1307 %}
+                                     {% if pRule.objectID == obj.pk %}
+                                       <option selected value={{obj.pk}} >{{obj.name}}</option>}
+                                     {% else %}
+                                       <option value={{obj.pk}} >{{obj.name}}</option>
+                                     {% endif %}
+                                  {% endif %}
+                                {% empty %}
+                                {% endfor %}
+                              </select>
+                           <label for="ruleTargetObject"><span class= "red-text">*</span>Object Selection</label>
+                        </div>
+                     </div>
+                    <input type="hidden" name="whatWeAreDoing" value='create'>
+
+                    {% include "Badges/unlockingConditionInterface.html" %}  
+                    <div class="card-action right-align">
+                        <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
+                          <button id="button" class="btn waves-effect waves-light" type="submit" name="edit">Save<i class="material-icons right">send</i>
+                           </button>
+                           {% if edit %}
+                           <a class="waves-effect waves-light btn modal-trigger" href="#modal_delete">Delete<i class="material-icons right">close</i></a>
+                           {% endif %}
+                           <a class="waves-effect waves-light btn" href="/oneUp/badges/ProgressiveUnlocking">											
+                           <i class="material-icons left">navigate_before</i>Back</a>                                                                  									
+                        </div>            
+               </div>
+            </div>
+         </div>
+         </form>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

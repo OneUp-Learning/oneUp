@@ -15,6 +15,7 @@ from Students.models import StudentConfigParams
 
 from Badges.events import register_event
 from Badges.enums import Event
+from audioop import reverse
 
 @login_required
 def achievements(request):
@@ -114,7 +115,23 @@ def achievements(request):
     warmUpSumPossibleScore = []   
     
     totalScorePointsWC = 0     # for calculating student XP points
-    courseChallenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)
+    
+    #GGM finding the order by taking for the challenges
+    challengesOrderedByTaking = []
+    allCourseChallenge = Challenges.objects.filter(courseID=currentCourse, isGraded=False, isVisible=True)
+    for courseChallenge in allCourseChallenge:
+        if courseChallenge.challengeName != "Unassigned Problems":
+            studentWarmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=courseChallenge).order_by('-endTimestamp')
+            if studentWarmupChallenge:
+                challengesOrderedByTaking.append((courseChallenge,studentWarmupChallenge[0].endTimestamp))
+     
+           
+    challengesOrderedByTaking = sorted(challengesOrderedByTaking, key=lambda tup: tup[1], reverse=True)
+    
+    courseChallenges = []
+    for challengesOrdered in challengesOrderedByTaking:
+        courseChallenges.append(challengesOrdered[0])
+    
     for challenge in courseChallenges:
          wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge).order_by('-endTimestamp')
          print(wc)

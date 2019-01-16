@@ -2,6 +2,7 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      {% load instructors_tags %}
    </head>
    <body>
       {% if is_teacher %}    
@@ -22,7 +23,7 @@
                      <table class="responsive-table">
                         <thead>
                            <th>Name</th>
-                           <th>End Date</th>
+                           <th>Due Date</th>
                            <th>Score</th>
                            <th>Number of Attempts</th>
                            <th>Adjustment Reason</th>
@@ -37,10 +38,10 @@
                            </th>
                         </thead>
                         <tbody>
-                           {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate in challenge_range %}
+                           {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate, isUnlocked in challenge_range %}
                            <tr>
                                 <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
-                                <td>{{challDueDate}}</td>
+                                <td>{{challDueDate|default_date}}</td>
                                 <td>{{grade}}</td>
                                 {% if numberOfAttempts == '0' %}
                                 <td>Unlimited</td>
@@ -48,14 +49,25 @@
                                 <td>{{numberOfAttempts}}</td>
                                 {% endif %}		
                                 <td>{{adjusmentReason}}</td>
+                              {% if isUnlocked.isFullfilled %}
                               <td class="right-align">
                                  {% if is_teacher %} 
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>   
                                  {% else %}
+                                 {% if challDueDate|passed_current_time %}
+                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                 {% else %}
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
+                                 {% endif %}
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}"><i class="material-icons left">visibility</i>View</a>   
                                  {% endif %}
                               </td>
+                              {% else %}
+                              <td class="right-align">
+                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
+                              </td>   
+                              {% endif %}
                            </tr>
                            {% empty %}
                            <tr>

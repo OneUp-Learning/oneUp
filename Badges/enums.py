@@ -15,6 +15,7 @@ class Action():
     unlock = 704 # Unknown.  In the fixture it said "When an instructor enters some information for a particular activity"
     setValue = 705 # Change the value of a variable
     addSkillPoints = 706 # Add skill points
+    unlockedProgressive = 707 # when a student is able to unlock a challenge activity or somethin else progressively
     
     increaseVirtualCurrency = 710 # Increases virtual currency (CourseBucks)
     decreaseVirtualCurrency = 711 # Decreases virtual currency (CourseBucks)
@@ -54,6 +55,12 @@ class Action():
                 'name': 'addSkillPoints',
                 'displayName': 'Add Skill Points',
                 'description': 'Add skill points'
+                },
+            unlockedProgressive:{
+                'index':unlockedProgressive,
+                'name': 'unlockedProgressive',
+                'displayName': 'Unlocked Progressively',
+                'description': 'When a student is able to unlock a challenge activity or somethin else progressively'
                 },
            increaseVirtualCurrency:{
                 'index':increaseVirtualCurrency,
@@ -245,6 +252,13 @@ class Event():
                         'displayName':'Challenge Expiration',
                         'description':'The time allowed for students to take a challenge expires.',
                         'isVirtualCurrencySpendRule':False
+                        },
+              spendingVirtualCurrency: {
+                        'index': spendingVirtualCurrency,
+                        'name': 'spendingVirtualCurrency',
+                        'displayName': 'Spending Virtual Currency',
+                        'description': 'A student has spent virtual currency',
+                        'isVirtualCurrencySpendRule': True,
                         },
               visitedDashboard: {
                         'index': visitedDashboard,
@@ -460,6 +474,7 @@ class ObjectTypes():
                 # rather than the context of any particular object in circumstances where that is needed.
     topic=1306
     activityCategory=1307
+    virtualCurrencySpendRule=1308 # Used for manual virtual currency rules/transactions
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
@@ -468,6 +483,7 @@ class ObjectTypes():
         none:"global", # We would actually have called this "global" to begin with, but it's a reserved word.
         topic:"topic",
         activityCategory:"activityCategory",
+        virtualCurrencySpendRule:"virtualCurrencySpendRule",
     }
 
 class OperandTypes():
@@ -496,61 +512,6 @@ class OperandTypes():
         conditionSet:'conditionSet',
         boolean:'boolean',
     }
-    
-class QuestionTypes():
-    multipleChoice=1
-    multipleAnswers=2
-    matching=3
-    trueFalse=4
-    essay=5
-    dynamic=6
-    templatedynamic=7
-    parsons=8
-    questionTypes={
-        multipleChoice:{
-           'index': multipleChoice,
-           'name':'multipleChoice',
-           'displayName':'Multiple Choice Questions',             
-        },
-        multipleAnswers:{
-           'index': multipleAnswers,
-           'name':'multipleAnswers',
-           'displayName':'Multiple Answer Questions',             
-        },            
-        matching:{
-           'index': matching,
-           'name':'matching',
-           'displayName':'Matching Questions',             
-        },
-        trueFalse:{
-           'index': trueFalse,
-           'name':'trueFalse',
-           'displayName':'True/False Questions',             
-        },
-        essay:{
-           'index': essay,
-           'name':'essay',
-           'displayName':'Essay Questions',             
-        },
-        dynamic:{
-           'index': dynamic,
-           'name':'dynamic',
-           'displayName':'Dynamic Questions (Raw Lua)',                         
-        },
-        templatedynamic:{
-           'index': templatedynamic,
-           'name':'templatedynamic',
-           'displayName':'Dynamic Questions (Template)',
-        },  
-        parsons:{
-           'index': parsons,
-           'name':'parsons',
-           'displayName':'Parsons Problems',
-        },                     
-    }   
-
-staticQuestionTypesSet = { QuestionTypes.matching, QuestionTypes.multipleAnswers, QuestionTypes.multipleChoice, QuestionTypes.trueFalse, QuestionTypes.parsons, QuestionTypes.essay }
-dynamicQuestionTypesSet = { QuestionTypes.dynamic, QuestionTypes.templatedynamic }
 
 class AwardFrequency:
     justOnce = 1100

@@ -7,12 +7,13 @@ Last updated 07/15/2017
 from django.shortcuts import render
 
 from Instructors.models import Courses, Challenges, ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
-from Instructors.constants import  unspecified_topic_name
+from Instructors.constants import  unspecified_topic_name, default_time_str
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
 from Badges.events import register_event
-from Badges.enums import Event, QuestionTypes
+from Badges.enums import Event
+from Instructors.questionTypes import QuestionTypes
 from Students.models import StudentRegisteredCourses
 from time import strftime
 
@@ -68,6 +69,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
     chall_visible = []
     start_Timestamp = []
     end_Timestamp = []
+    chall_due_date = []
     chall_Position = []
     UnassignID = 0
     
@@ -102,9 +104,11 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                 end_Timestamp.append(item.endTimestamp)
             else:
                 end_Timestamp.append("")
+
+            chall_due_date.append(item.dueDate)
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_Position)), key=lambda tup: tup[6])  ##,chall_Category
+    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[6])  ##,chall_Category
     return context_dict
 
 
@@ -185,8 +189,8 @@ def warmUpChallengeList(request):
             all_challenges_for_topic.append(topic_challenges)
         else:
             unspecified_topic = ct.topicID 
-            hasUnspecified_topic=True           
-                
+            hasUnspecified_topic=True  
+           
     # Add the challenges with unspecified topic at the end
     if hasUnspecified_topic:
         topic_ID.append(unspecified_topic.topicID)

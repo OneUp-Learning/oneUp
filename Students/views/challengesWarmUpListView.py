@@ -7,8 +7,10 @@ Created on Oct 1, 2015
 from django.shortcuts import render
 from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges, ChallengesQuestions
 from Instructors.constants import  unspecified_topic_name
-from Students.models import StudentChallenges
+from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
+from Badges.enums import ObjectTypes
+from Badges.models import ProgressiveUnlocking
 
 from django.contrib.auth.decorators import login_required
 
@@ -18,15 +20,17 @@ def challengesForTopic(topic, student, currentCourse):
     challenge_Name = [] 
     score = []
     chall_position = []
+    isUnlocked = []
+    ulockingDescript = []
 
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition")
     if challenge_topics:           
         for ct in challenge_topics:
             if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
                 
-                challQuestionsExist = ChallengesQuestions.objects.filter(challengeID=ct.challengeID.challengeID).exists()
-                
-                if challQuestionsExist:
+                challQuestions = ChallengesQuestions.objects.filter(challengeID=ct.challengeID.challengeID)
+
+                if challQuestions:
                     challID = ct.challengeID.challengeID
                     challenge_ID.append(challID)
                     isWarmup.append(True)
@@ -54,6 +58,15 @@ def challengesForTopic(topic, student, currentCourse):
                             score.append(5)
                     else:
                         score.append(2)  # no attempt
+                    
+                    # pUnlocking check if not object then we assume there is no pUnlocking rule in place
+                    studentPUnlocking = StudentProgressiveUnlocking.objects.filter(studentID=student,objectID=ct.challengeID.challengeID,objectType=ObjectTypes.challenge,courseID=currentCourse).first()
+                    if studentPUnlocking:
+                        isUnlocked.append(studentPUnlocking.isFullfilled)
+                        ulockingDescript.append(studentPUnlocking.pUnlockingRuleID.description)
+                    else:
+                        isUnlocked.append(True)
+                        ulockingDescript.append('')
     else:
         challenge_ID.append('')
         isWarmup.append(True)
@@ -62,7 +75,7 @@ def challengesForTopic(topic, student, currentCourse):
         chall_position.append(0)
 
     #return sorted(list(zip(challenge_Name,challenge_ID,score,chall_position)), key=lambda tup: tup[4])
-    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position)), key=lambda tup: tup[5])
+    return sorted(list(zip(range(1,challenge_topics.count()+1),challenge_Name,challenge_ID,isWarmup,score,chall_position,isUnlocked,ulockingDescript)), key=lambda tup: -tup[4])
     
     
 @login_required
@@ -80,6 +93,7 @@ def ChallengesWarmUpList(request):
         topic_Pos = []  
         challenges_count = []
         all_challenges_for_topic = []
+        isTopicUnlocked = []
         
         course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
         hasUnspecifiedTopic = False
@@ -95,6 +109,13 @@ def ChallengesWarmUpList(request):
                 topic_challenges = challengesForTopic(ct.topicID, student, currentCourse) 
                 challenges_count.append(len(list(topic_challenges)))
                 all_challenges_for_topic.append(topic_challenges)
+
+                #Progressive Unlocking for Topic
+                unlockedTopic = StudentProgressiveUnlocking.objects.filter(studentID=student,courseID=currentCourse,objectType=ObjectTypes.topic,objectID=ct.pk).first()
+                if unlockedTopic:
+                    isTopicUnlocked.append({'isFullfilled':unlockedTopic.isFullfilled,'descript': unlockedTopic.pUnlockingRuleID.description})
+                else:
+                    isTopicUnlocked.append({'isFullfilled':True,'descript': ''})
             else:
                 unspecified_topic = ct.topicID  
                 hasUnspecifiedTopic = True          
@@ -107,9 +128,10 @@ def ChallengesWarmUpList(request):
             topic_challenges = challengesForTopic(unspecified_topic, student, currentCourse)
             challenges_count.append(len(list(topic_challenges)))
             all_challenges_for_topic.append(topic_challenges)
+            isTopicUnlocked.append({'isFullfilled':True,'descript': ''})
 
         context_dict['isWarmup'] = True
    
-        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
+        context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic,isTopicUnlocked)),key=lambda tup: tup[3])
         
     return render(request,'Students/ChallengesWarmUpList.html', context_dict)

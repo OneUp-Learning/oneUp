@@ -40,7 +40,7 @@ def skillsCreateView(request):
             courseSkill.save()
 
 
-                
+        return redirect('/oneUp/instructors/skillsList')
     #################################
     #  get request
     else:

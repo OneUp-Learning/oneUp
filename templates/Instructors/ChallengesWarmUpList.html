@@ -36,7 +36,7 @@
 							{% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
 							<input type="hidden" name="topicID" value="{{topic_ID}}">
 							<li>
-								<div class="collapsible-header {% if forloop.first %}active{% endif %}"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
+								<div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
 									{% if all_challenges != '0' and challenges_count > 0 %}
 									<span class="badge">{{challenges_count}}</span>
 									{% else %}

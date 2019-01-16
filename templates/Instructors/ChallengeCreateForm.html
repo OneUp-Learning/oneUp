@@ -1,20 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
+   
    <!-- GGM added scripts to display model solution for parson -->
-      {% include 'scripts.html' %}
-         <style>
-                           .editor{
-                           position: relative;
-                           width: 100%;
-                           height: 170px;
-                           }
-                           .lineHighlight {
-                           position: absolute;
-                           background: rgba(100, 200, 100, 0.5);
-                           z-index: 20
-                           }
-                        </style>
+   {% include 'scripts.html' %}
+   <link rel="stylesheet" href="/static/assets/css/questionStyle.css">
    <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
    <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>  
       <script>
@@ -44,6 +34,8 @@
       </script>
       <script>
          $( document ).ready(function(){
+          $("#collapsible-custom-content").css('display', 'none');
+
         	{% if view %}
 	        	var tags = JSON.parse('{{ tags | escapejs }}')
 				var topics = JSON.parse('{{ topics | escapejs }}')
@@ -62,11 +54,15 @@
           var endDate = $('#endTime').bootstrapMaterialDatePicker({
             weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
           });
+          var dueDate = $('#dueDate').bootstrapMaterialDatePicker({
+                 weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
+               });
           
           var startDate = $('#startTime').bootstrapMaterialDatePicker({
             weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
           }).on('change', function(e, date) {
             $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
+            $('#dueDate').bootstrapMaterialDatePicker('setMinDate', date);
           });
           
           $('.chips').material_chip();
@@ -130,6 +126,7 @@
             $('#form').append($(topics));
             console.log($('.chips-tags').material_chip('data'));
             console.log($('.chips-topics-autocomplete').material_chip('data'));
+            condOnSubmit();
           });
           
           {% endif %}
@@ -176,7 +173,7 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select name="challengeDifficulty" {%if view%}readonly{%endif%}>
+                              <select id="difficulty" name="challengeDifficulty" {%if view%}readonly{%endif%}>
                                  <option value="" disabled selected>Choose Difficulty</option>
                                  <option id= "Easy" value="Easy" {%if view%}disabled{%endif%}>Easy</option>
                                  <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
@@ -186,7 +183,8 @@
                               <script  type="text/javascript"> 
                                  window.onload = function() {
                                  	if ("{{challengeDifficulty}}" != '')  {
-                                 	document.getElementById("{{challengeDifficulty}}").selected = "true";
+                                 	document.getElementById("{{challengeDifficulty}}").selected = true;
+                                    $("#difficulty").material_select();
                                  	} 
                                  }
                               </script> 
@@ -206,14 +204,18 @@
                            </div>
                         </div>
                         <div class="row">
-                           <div class="col s12 m6">
+                           <div class="col s12 m4">
                               <label for="startTime">Display From:</label> 
                               <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime" {%if view%}readonly{%endif%}>
                            </div>
-                           <div class="col s12 m6">
+                           <div class="col s12 m4">
                               <label for="endTime">Display Until:</label> 
                               <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime" {%if view%}readonly{%endif%}>
                            </div>
+                           <div class="col s12 m4">
+                        		<label for="dueDate">Due Date:</label>
+                        		<input type="text" class="datepicker-until" name="dueDate" id="dueDate" value="{{dueDate}}" {%if view%}readonly{%endif%}>
+                        	</div>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
@@ -292,99 +294,15 @@
                            </div>
                         </div>
                         {% if view %}
-                        <div class="divider"></div>
-                       
-                         {% for i,question in question_range %}
-                         
-                         <div class="row">
-                			<p>{% autoescape off %} {{i}}. {{question.questionText|safe}} {% endautoescape %}</p>
-                			<p> Total points: {{question.point|safe}}</p>
-             			</div>
-                                 {% if question.typeID == '1' %}
-                                 <!-- multiple choice question -->
-                                 {% for count,correct_answer in question.correct_answers %}<!-- use a for loop and display the answers in radio buttons -->						
-                             
-								<div class="row">
-		                           <div class="col s12">
-		                              {% for j,answer in question.answers_with_count %}
-		                              <div class="row">
-		                                 <input name="{{question.questionID}}" disabled type="radio" id="{{i}}ans-{{j}}" value="{{answer.answerText}}" {% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked{%endifequal%}/>
-		                                 <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
-		                              </div>
-		                              {% endfor %}
-		                           </div>
-		                        </div>
-								{% endfor %}									
-                                 {% elif question.typeID == '2' %}
-                                 <!-- multiple answer question -->
-                                 <div class="row">
-		                           <div class="col s12">
-		                              {% for j,answer in question.answers_with_count %}
-		                              <div class="row">
-		                                 <input name="{{question.questionID}}" disabled type="checkbox" id="{{i}}ans-{{j}}" value="{{answer.answerText}}"
-		                                 {% for k,correct_answer in question.correct_answers %}	
-                                       {% ifequal answer.answerText|stringformat:"s" correct_answer.answerID.answerText|stringformat:"s" %}checked
-                                       {% endifequal %}
-                                       {% endfor %}/>
-		                                 <label for="{{i}}ans-{{j}}">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</label>
-		                                 </div>
-		                              {% endfor %}
-		                           </div>
-		                        </div>
-                                 
-                                 {% elif question.typeID == '3' %}
-                                 <!-- matching question -->
-                                 <div class="row">
-		                           <div class="col s12 m6">
-		                              {% for match_count,match_answer in question.match_with_count %}
-		                              <p>{{match_count}} . {{match_answer.answerText}}</p>
-		                              {% endfor %}
-		                              </div>
-		                              <div class="col s12 m6">
-		                              {% for match in question.matches %}
-									<p>{{match.matchingAnswerText}}</p>	
-									{% endfor %}
-		                           </div>
-		                        </div>
-		                        <div class="row">
-		                           
-		                        </div>
-                                 {% elif question.typeID == '4' %}
-                                 <!-- true/false question -->
-                                 <div class="row">
-                        				<div class="col s12">
-                                 {% for count,correct_answer in question.correct_answers %}
-                                 <p>
-                              		<input name="{{question.questionID}}" disabled type="radio" id="True" value="True" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "true" %}checked{%endifequal%}/>
-                              		<label for="True">True</label>
-                           		</p>
-                           		<p>
-                              		<input name="{{question.questionID}}" disabled type="radio" id="False" value="False" {% ifequal correct_answer.answerID.answerText|stringformat:"s" "false" %}checked{%endifequal%}/>
-                              		<label for="False">False</label>
-                           		</p>
-								{% endfor %}
-								</div>
-								</div>
-								{% elif question.typeID == '8' %}
-                                 <!-- matching question -->
-                                 <div class="row">
-                           	<div class="col s18 l9 m6">
-                           	{% for count,correct_answer in question.correct_answers %}
-                              <div id="model_editor{{question.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{question.questionID}}" id="setupCode{{question.questionID}}">{{question.modelSolution}}</textarea></div>
-                              <script>
-                                 var editor = ace.edit("model_editor{{question.questionID}}");
-                                 editor.setTheme("ace/theme/chrome");
-                                 editor.session.setMode("ace/mode/java");
-                                 editor.setReadOnly(true);
-                              </script>
-                              {% endfor %}
-                           </div>
-                           </div>								
-                                 {% endif %}
-                                 	
-                                 {% endfor %}
-                                {% endif %}
-                     </div>
+	                        <div class="divider"></div>
+	                       
+	                        {% for i,question in question_range %}
+	             				{% include "../question.html" with q=question graded=False showcorrect=True instructorview=True %}     	
+	                        {% endfor %}
+                        {% endif %}
+                        
+                      </div>
+                     
                      <div class="card-action right-align">
                      	{% if view == False %}
                      	<!-- GGM added validation for passwords -->

@@ -7,7 +7,8 @@ from django.shortcuts import render
 
 from Instructors.models import Challenges, CoursesSkills, CoursesTopics
 from Instructors.views.utils import initialContextDict
-from Badges.enums import QuestionTypes, dict_dict_to_zipped_list
+from Badges.enums import dict_dict_to_zipped_list
+from Instructors.questionTypes import QuestionTypes
 
 from django.contrib.auth.decorators import login_required,  user_passes_test
 from oneUp.decorators import instructorsCheck  

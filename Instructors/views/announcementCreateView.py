@@ -13,6 +13,7 @@ from datetime import datetime
 from notify.signals import notify
 from Students.models import StudentRegisteredCourses
 from oneUp.decorators import instructorsCheck
+from django.utils.timezone import make_naive
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -85,8 +86,8 @@ def announcementCreateView(request):
                     context_dict[attr]=getattr(announcement,attr)
 
                 # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-                endTime = announcement.endTimestamp.strftime("%m/%d/%Y %I:%M %p")
-                if endTime != default_time_str: 
+                endTime = localizedDate(request, str(make_naive(announcement.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+                if announcement.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
                     context_dict['endTimestamp']= endTime
                 else:
                     context_dict['endTimestamp']= ""

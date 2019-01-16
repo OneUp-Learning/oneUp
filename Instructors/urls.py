@@ -35,7 +35,7 @@ from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents
@@ -122,6 +122,7 @@ urlpatterns = [
     url(r'^deleteQuestionFromChallenge',deleteQuestionFromChallenge, name='deleteQuestionFromChallenge'),
     url(r'^deleteQuestion',deleteQuestion, name='deleteQuestion'),
     url(r'^deleteSkill',deleteSkill, name='deleteSkill'),
+    url(r'^deleteManualSpendRule',deleteManualSpendRule, name='deleteManualSpendRule'),
     url(r'^deleteTopic',deleteTopic, name='deleteTopic'),
     url(r'^deleteSubTopic',deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent',deleteStudent, name='deleteStudent'),    

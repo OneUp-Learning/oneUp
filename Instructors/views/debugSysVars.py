@@ -184,19 +184,19 @@ def getSysValues(student,sysVar,objectType,currentCourse):
 
     #Get the objects from the db
     if objString == 'challenge':
-        chall = Challenges.objects.filter(courseID=currentCourse).values('pk', 'challengeName')
+        chall = Challenges.objects.filter(courseID=currentCourse).order_by('challengeName').values('pk', 'challengeName')
         for x in chall:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
             disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['challengeName'],currentCourse))
 
     elif objString == 'activity':
-        acts = Activities.objects.filter(courseID=currentCourse).values('pk', 'activityName')
+        acts = Activities.objects.filter(courseID=currentCourse).order_by('activityName').values('pk', 'activityName')
         for x in acts:
             val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
             disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['activityName'],currentCourse))
     
     elif objString == 'activityCategory':
-        actCats = ActivitiesCategory.objects.filter(courseID=currentCourse).values('pk', 'name')
+        actCats = ActivitiesCategory.objects.filter(courseID=currentCourse).order_by('name').values('pk', 'name')
         for x in actCats:
            val = calculate_system_variable(sysVar,currentCourse,student,int(objectType),x['pk'])
            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,x['name'],currentCourse))
