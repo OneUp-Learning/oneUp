@@ -406,8 +406,8 @@ def trueFalseAddAnswersAndGrades(qdict,studentAnswers):
     if not studentAnswers:
         qdict['user_points'] = 0
         return qdict
-    studentAnswerValue = studentAnswers[0]
-    qdict['user_answer'] = {'answerText':str(studentAnswerValue),'answerValue':(studentAnswers[0] == 'True')}
+    studentAnswerValue = str(studentAnswers[0])
+    qdict['user_answer'] = {'answerText':studentAnswerValue,'answerValue': studentAnswerValue == 'True'}
     if studentAnswerValue == str(correctAnswerValue):
         qdict['user_points'] = qdict['total_points']
     else:

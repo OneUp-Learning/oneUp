@@ -634,7 +634,7 @@ def getConsecutiveWeeksOnLeaderboard(course,student):
 
     return math.trunc(delta.days/7)
 
-def getNumberOfUniqueChallengesAttempted(course, student):
+def getNumberOfUniqueSeriousChallengesAttempted(course, student):
     ''' Get the number of unique serious challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=True)
     attempted = 0
@@ -714,6 +714,17 @@ def getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic > 75%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student):    
+    challengesGreaterThan = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in challenges:
+        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percentage > 90.0:
+            challengesGreaterThan += 1
+    logger.debug("Number of unqiue warmup challenges > 90%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
 def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student):    
     challengesGreaterThan = 0
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
@@ -747,6 +758,17 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, stu
                 numberOfChall += 1
     print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
     return numberOfChall
+
+def getNumberOfUniqueSeriousChallengesGreaterThan90Percent(course, student):    
+    challengesGreaterThan = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=True)
+    for challenge in challenges:
+        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percentage > 90.0:
+            challengesGreaterThan += 1
+    logger.debug("Number of unqiue serious challenges > 90%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
 
 def isWarmUpChallenge(course,student,challenge):
     return not challenge.isGraded
@@ -860,6 +882,14 @@ def sc_reached_due_date(course, student, serious_challenge):
     if not serious_challenge.isGraded:
         return False
     return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
+
+def time_of_challenge_submission(course, student, challenge):
+    # Returns the submission datetime (# of seconds from Jan. 1, 1970) of the first attempt of a serious/warmup challenge
+    from Students.models import StudentChallenges
+    student_attempt = StudentChallenges.objects.filter(studentID=student, challengeID=challenge, courseID=course).first().endTimestamp
+    return int(student_attempt.timestamp())
+        
+
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -883,7 +913,7 @@ class SystemVariable():
     consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
     percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
-    uniqueChallengesAttempted = 920 # The number of unique challenges completed by the student
+    uniqueSeriousChallengesAttempted = 920 # The number of unique serious challenges completed by the student
     uniqueWarmupChallengesGreaterThan30Percent = 921 # Number of warmup challenges with a score percentage greater than 30%
     uniqueWarmupChallengesGreaterThan75Percent = 922 # Number of warmup challenges with a score percentage greater than 75%
     uniqueWarmupChallengesGreaterThan75PercentForTopic = 923 # Number of warmup challenges with a score percentage greater than 75% for a particular topic
@@ -910,6 +940,8 @@ class SystemVariable():
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
     seriousChallengeReachedDueDate = 944 # Returns true if the current time is past a serious challenge due date
+    uniqueWarmupChallengesGreaterThan90Percent = 945 # Number of warmup challenges with a score percentage greater than 90%
+    uniqueSeriousChallengesGreaterThan90Percent = 946 # Number of serious challenges with a score percentage greater than 90%
 
     systemVariables = {
         numAttempts:{
@@ -1192,17 +1224,17 @@ class SystemVariable():
                 ObjectTypes.challenge:getAverageTestScore
             },
         },                        
-        uniqueChallengesAttempted:{
-            'index': uniqueChallengesAttempted,
-            'name':'uniqueChallengesAttempted',
-            'displayName':'Unique Challenges Attempted',
-            'description':'The number of unique challenges attempted by the student.',
+        uniqueSeriousChallengesAttempted:{
+            'index': uniqueSeriousChallengesAttempted,
+            'name':'uniqueSeriousChallengesAttempted',
+            'displayName':'Unique Serious Challenges Attempted',
+            'description':'The number of unique serious challenges attempted by the student.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none:getNumberOfUniqueChallengesAttempted
+                ObjectTypes.none:getNumberOfUniqueSeriousChallengesAttempted
             },
         },
         uniqueWarmupChallengesAttempted:{
@@ -1437,6 +1469,32 @@ class SystemVariable():
             'type': 'boolean',
             'functions': {
                 ObjectTypes.challenge: sc_reached_due_date
+            },
+        },
+        uniqueWarmupChallengesGreaterThan90Percent:{
+            'index': uniqueWarmupChallengesGreaterThan90Percent,
+            'name':'uniqueWarmupChallengesGreaterThan90Percent',
+            'displayName':'Warmup Challenges with Score > 90%',
+            'description':'The number of warmup challenges with a score greater than 90%',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan90Percent
+            },
+        },
+        uniqueSeriousChallengesGreaterThan90Percent:{
+            'index': uniqueSeriousChallengesGreaterThan90Percent,
+            'name':'uniqueSeriousChallengesGreaterThan90Percent',
+            'displayName':'Serious Challenges with Score > 90%',
+            'description':'The number of serious challenges with a score greater than 90%',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan90Percent
             },
         },
                                                                        
