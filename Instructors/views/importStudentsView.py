@@ -25,6 +25,7 @@ def process_file(filename):
     for line in fp:
         if(lineCount >= 2):
             # #line = line.replace('"', '')
+            line = line.strip()
             names = line.split(',')
             ls.append((names[1].lstrip("\""), names[0].lstrip("\""),  names[3].lstrip(), names[4]))
         lineCount += 1
@@ -60,6 +61,7 @@ def importStudents(request):
         uname = studentData[3] # The sutdnt username without @rams
         email = studentData[3] + "@rams.wssu.edu"
         pword = studentData[2]  # The SIS User ID found in the canvas csv file
+        print("psswd", pword)
         
         # Check if student is in the system already
         users = User.objects.filter(email = email)
