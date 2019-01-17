@@ -171,20 +171,12 @@ def deleteStudent(request):
                 student = Student.objects.get(user=u)    
                 studentCourses = StudentRegisteredCourses.objects.filter(studentID=student)
                 
-                if studentCourses.count() > 1:
-                    # student registered in other courses
-                    student_course = StudentRegisteredCourses.objects.get(studentID=student, courseID=int(request.session['currentCourseID']))
-                    student_course.delete()
-                    message = "Student "+str(u.first_name)+ " "+str(u.last_name)+" was successfully deleted from this course"
-                else:
-                    # delete user
-                    message = "User "+str(u.first_name)+ " "+str(u.last_name)+" was successfully deleted"
-                    u.delete()
-
-#                 studentEventLog = StudentEventLog.objects.filter(student = u)
-#                 for sEventLog in studentEventLog:
-#                     sEventLog.delete()
-#                 print 'delete student event log'   
+                # KI: Changed this so that the user is not actually deleted.  This is in order to make certain that we
+                # preserve the student data.  Once a student is in no courses, they should not be able to do anything in
+                # the system.
+                student_course = StudentRegisteredCourses.objects.get(studentID=student, courseID=int(request.session['currentCourseID']))
+                student_course.delete()
+                message = "Student "+str(u.first_name)+ " "+str(u.last_name)+" was successfully deleted from this course"
                         
         except User.DoesNotExist:
             message = "There was a problem deleting user #"
