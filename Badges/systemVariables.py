@@ -141,10 +141,10 @@ def getAveragePercentageScore(course, student, challenge):
     allScores = getTestScores(course, student, challenge)
     percentage = 0
     if allScores.exists():
-        testTotal = allScores[0].challengeID.totalScore
+        testTotal = allScores[0].challengeID.getCombinedScore()
         if testTotal == 0:
             return percentage
-        scoreList = allScores.values_list('testScore', flat=True)
+        scoreList = [c.getScore() for c in allScores]
         numberOfScores = len(scoreList)
         percentage = round(((sum(scoreList)/numberOfScores)/testTotal) * 100, 1)
         logger.debug("Challenge Average Percentage: " + str(percentage) + "%")
@@ -221,9 +221,9 @@ def getDateOfFirstAttempt(course,student,challenge):
     #return the oldest date from the event log with matching object ID (looking at only the endChallenge event trigger 802)
     attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge.challengeID,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
     if len(attemptObjectsByDate) > 0:
-        return attemptObjectsByDate[0].timestamp
+        return attemptObjectsByDate[0].timestamp.date()
     else:
-        return datetime(2000,1,1,0,0,0)
+        return datetime(2000,1,1,0,0,0).date()
 
 def totalTimeSpentOnChallenges(course,student):
     from Students.models import StudentChallenges
@@ -299,8 +299,8 @@ def getScorePercentage(course,student, challenge):
     entirePoints = 0.0
     earnedPoints = 0.0
     for studentChallenge in studentChallenges:
-        entirePoints = studentChallenge.challengeID.totalScore
-        earnedPoints = studentChallenge.testScore
+        entirePoints = studentChallenge.challengeID.getCombinedScore()
+        earnedPoints = studentChallenge.getScore()
                 
     if entirePoints != 0.0:
         return ((float(earnedPoints) / float(entirePoints)) * 100)
@@ -882,13 +882,6 @@ def sc_reached_due_date(course, student, serious_challenge):
     if not serious_challenge.isGraded:
         return False
     return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
-
-def time_of_challenge_submission(course, student, challenge):
-    # Returns the submission datetime (# of seconds from Jan. 1, 1970) of the first attempt of a serious/warmup challenge
-    from Students.models import StudentChallenges
-    student_attempt = StudentChallenges.objects.filter(studentID=student, challengeID=challenge, courseID=course).first().endTimestamp
-    return int(student_attempt.timestamp())
-        
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge

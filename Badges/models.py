@@ -25,6 +25,10 @@ class Conditions(models.Model):
                 return str(FloatConstants.objects.get(pk=value))
             elif (type == OperandTypes.stringConstant):
                 return str(StringConstants.objects.get(pk=value))
+            elif (type == OperandTypes.boolean):
+                return str(1 == value)
+            elif (type == OperandTypes.dateConstant):
+                return str(Dates.objects.get(pk=value))
             elif (type == OperandTypes.systemVariable): 
                 if value in SystemVariable.systemVariables:
                     if 'name' in SystemVariable.systemVariables[value]:
