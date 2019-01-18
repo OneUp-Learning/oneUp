@@ -882,6 +882,18 @@ def sc_reached_due_date(course, student, serious_challenge):
     if not serious_challenge.isGraded:
         return False
     return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
+def earliest_challenge_submission_in_class(course, student, challenge):
+    # Returns the datetime of the earliest submission of a challenge (serious or warmup) in a class
+    from Students.models import StudentChallenges
+    from Instructors.views.utils import localizedDate
+
+    earliest_submission = datetime(2000,1,1,0,0,0).date()
+    student_submissions = list(StudentChallenges.objects.filter(courseID=course, challengeID=challenge).exclude(endTimestamp__isnull=True).values_list('endTimestamp', flat=True))
+    if len(student_submissions) <= 0:
+        return earliest_submission
+    earliest_submission = min(student_submissions)
+    print("[DATE] {}".format(earliest_submission.date()))
+    return earliest_submission.date()
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
@@ -935,7 +947,7 @@ class SystemVariable():
     seriousChallengeReachedDueDate = 944 # Returns true if the current time is past a serious challenge due date
     uniqueWarmupChallengesGreaterThan90Percent = 945 # Number of warmup challenges with a score percentage greater than 90%
     uniqueSeriousChallengesGreaterThan90Percent = 946 # Number of serious challenges with a score percentage greater than 90%
-
+    earliestChallengeSubmissionInClass = 947 # Returns the date of the earliest challenge submission
     systemVariables = {
         numAttempts:{
             'index': numAttempts,
@@ -1488,6 +1500,19 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan90Percent
+            },
+        },
+        earliestChallengeSubmissionInClass:{
+            'index': earliestChallengeSubmissionInClass,
+            'name':'earliestChallengeSubmissionInClass',
+            'displayName':'Earliest Challenge Submission in Class',
+            'description':'The date of the earliest warmup or serious challenge submission',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[Event.endChallenge],
+            },
+            'type':'date',
+            'functions':{
+                ObjectTypes.challenge:earliest_challenge_submission_in_class
             },
         },
                                                                        
