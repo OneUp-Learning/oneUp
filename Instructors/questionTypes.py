@@ -393,11 +393,10 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
 
 def trueFalseMakeAnswerList(qdict, POST):
     answerInputName = str(qdict['index'])+'-ans'
-    correctAnswerValue = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID.answerText == "true"
     if answerInputName not in POST:
         return []
     else:
-        return [POST[answerInputName] == 't']
+        return [str(POST[answerInputName] == 't')]
 
 def trueFalseAddAnswersAndGrades(qdict,studentAnswers):
     correctAnswerValue = CorrectAnswers.objects.get(questionID=qdict['questionID']).answerID.answerText == "true"    
