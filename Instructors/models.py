@@ -398,6 +398,7 @@ class AttendanceStreak(models.Model):
     streakLength = models.IntegerField(default = 0)
     daysofWeek = models.CharField(max_length=75)
     daysDeselected = models.CharField(max_length=20000)#the days that were removed from the streak
+    virtualCurrencyAwarded = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.attendanceStreakID)+","+str(self.streakLength)+","+str(self.courseID)+","+str(self.daysofWeek)
 

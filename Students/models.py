@@ -282,5 +282,11 @@ class Winners(models.Model):
     DuelChallengeID = models.ForeignKey(DuelChallenges, on_delete=models.CASCADE, verbose_name="the related Duel", db_index=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
-    
+
+class StudentStreaks(models.Model):
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    streakStartDate = models.DateTimeField(null=True, blank=True, verbose_name="The date the streak reset on", db_index=True)
+    streakType = models.IntegerField(default=0)
+    completedStreakCount = models.IntegerField(default=0)
     

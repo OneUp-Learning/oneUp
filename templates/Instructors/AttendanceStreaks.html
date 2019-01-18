@@ -8,17 +8,16 @@
    <script src='/static/ThirdParty/fullcalendar-3.9.0/lib/moment.min.js'></script>
    <script src='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.min.js'></script>
    <script>
+  	 var calendarDaysSelected =  {{eventCheckboxDays|safe}};
+	  var calendarDaysUnSelected = {{eventCheckboxDaysUnselected|safe}};
       $(document).ready(function() {
-      
-        var calendar = $('#calendar').fullCalendar({
+          var calendar = $('#calendar').fullCalendar({
         	showNonCurrentDates: false,
         	eventStartEditable: false,
         	viewRender:function(){
         		$(".fc-disabled-day").html('');
         	},
         	dayRender: function(date, cell) {
-        		calendarDaysSelected = {{eventCheckboxDays|safe}};
-        		calendarDaysUnSelected = {{eventCheckboxDaysUnselected|safe}};
         		
         		if (calendarDaysSelected.includes(date.format('YYYY-MM-DD'))) {
         	    var checkbox = document.createElement('input');
@@ -27,7 +26,7 @@
         	    checkbox.value = date.format('YYYY-MM-DD');
         	    checkbox.id = date;
         	    checkbox.checked = true;
-      
+      			//console.log("re-rendered!");
         	    var label = document.createElement('label')
         	    label.htmlFor = date;
         	    label.appendChild(document.createTextNode(''));
@@ -82,66 +81,69 @@
             	checkBoxes[i].checked = true;
             }
         }
-        calendar.find('.fc-today-button').click(function(){
-        	console.log("click");
-        });
         
         
       });
       
       function validateDaysSelected(){
-       console.log("days");
-       checkBoxes = document.getElementsByName("dayCheckbox");
+         checkBoxes = document.getElementsByName("dayCheckbox");
          for (var i = 0; i < checkBoxes.length; i++) {
              if (checkBoxes[i].checked) {
              	document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
              }
          }
-       if (document.getElementById("streakLength").value != "")
+       if (document.getElementById("streakLength").value != "" && document.getElementById("currency").value != "")
        		document.getElementById("daysOfWeekForm").submit();
        else
-        alert("Please Enter Streak Length");
+        alert("Please Enter Streak Length or Currency Amount");
       }
       
       function obtainCalendarInfo(){
-       console.log("calendar");
        var daysCheckedList = [];
        var daysUncheckedList = [];
        calendarDates = document.getElementsByName("dates[]");
        
        for (var i = 0; i < calendarDates.length; i++) {
-           if (calendarDates[i].checked){
-        	   daysPreservedUncheckedList = removeDuplicateDates(daysPreservedUncheckedList, calendarDates[i].value);
-        	   daysCheckedList.push(calendarDates[i].value);
+           if (calendarDates[i].checked){calendarDaysUnSelected
+        	   calendarDaysUnSelected = removeDuplicateDates(calendarDaysUnSelected, calendarDates[i].value);
+           	   calendarDaysSelected.push(calendarDates[i].value);
            }
            else{
-        	   daysPreservedCheckedList = removeDuplicateDates(daysPreservedCheckedList, calendarDates[i].value);
-        	   daysUncheckedList.push(calendarDates[i].value);
+        	   calendarDaysSelected = removeDuplicateDates(calendarDaysSelected, calendarDates[i].value);
+        	   calendarDaysUnSelected.push(calendarDates[i].value);
            }
        }
-       daysUncheckedList.push(daysPreservedUncheckedList);
-       daysCheckedList.push(daysPreservedCheckedList);
        
        document.getElementById("daysCheckedList").value = daysCheckedList;
        document.getElementById("daysUncheckedList").value = daysUncheckedList;
+       
+//        console.log("days checked");
+//        console.log(calendarDaysSelected);
+//        console.log("days unchecked");
+//        console.log(calendarDaysUnSelected);
        document.getElementById("calendarForm").submit();
       }
       
-      var daysPreservedCheckedList = [];
-      var daysPreservedUncheckedList = [];
+      
       function preserveCalendarData(){
-    	
+    	  
         calendarDates = document.getElementsByName("dates[]"); 
         
         for (var i = 0; i < calendarDates.length; i++) {
         	 if(calendarDates[i].checked) {
-        		 daysPreservedCheckedList.push(calendarDates[i].value);
-        		 daysPreservedUncheckedList = removeDuplicateDates(daysPreservedUncheckedList, calendarDates[i].value);
+        		 calendarDaysSelected.push(calendarDates[i].value);
+        		 calendarDaysUnSelected = removeDuplicateDates(calendarDaysUnSelected, calendarDates[i].value);
              } else {
-            	 daysPreservedCheckedList = removeDuplicateDates(daysPreservedCheckedList, calendarDates[i].value);
-            	 daysPreservedUncheckedList.push(calendarDates[i].value);
+            	 calendarDaysUnSelected.push(calendarDates[i].value);
+            	 calendarDaysSelected = removeDuplicateDates(calendarDaysSelected, calendarDates[i].value);
+            	 
              }
         }
+        
+//         console.log("daysPreservedCheckedList");
+//         console.log(calendarDaysSelected);
+//         console.log("daysPreservedUncheckedList");
+//         console.log(calendarDaysUnSelected);
       }
   	
       function saveEnteredDates(type){
@@ -220,6 +222,8 @@
                         <br>
                         <label for="streakLength"><span class= "red-text">*</span>Streak Length</label>
                         <input value="{{streak.streakLength}}" name="streakLength" id="streakLength" min="0" type="number" required>
+                        <label for="currency"><span class= "red-text">*</span>Currency Amount</label>
+                        <input value="{{streak.virtualCurrencyAwarded}}" name="currency" id="currency" min="0" type="number" required>
                      </form>
                      <br>
                      <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>
