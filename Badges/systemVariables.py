@@ -216,7 +216,7 @@ def getMinTestScore(course,student,challenge):
     lowestTestScore = allTestScores.earliest('testScore') #.earliest() also gets the min for an integer value
     return lowestTestScore.getScore()
     
-def getDateOfFirstAttempt(course,student,challenge):
+def getDateOfFirstChallengeSubmission(course,student,challenge):
     from Students.models import StudentEventLog
     #return the oldest date from the event log with matching object ID (looking at only the endChallenge event trigger 802)
     attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge.challengeID,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
@@ -903,7 +903,7 @@ class SystemVariable():
     #percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
     maxTestScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
     minTestScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
-    dateOfFirstAttempt = 906 # The date on which the student has attempted a particular challenge for the first time.
+    dateOfFirstChallengeSubmission = 906 # The date on which the student has submitted a particular challenge for the first time.
     timeSpentOnChallenges = 907 # Time spent on a particular challenge.
     timeSpentOnQuestions = 908 # Time spent on a particular question. 
     consecutiveDaysLoggedIn = 909 # The number of consecutive days a student logs in to the One Up website
@@ -1016,17 +1016,17 @@ class SystemVariable():
                 ObjectTypes.challenge: getMinTestScore
             }
         },
-        dateOfFirstAttempt:{
-            'index': dateOfFirstAttempt,
-            'name':'dateOfFirstAttempt',
-            'displayName':'Date of First Attempt',
-            'description':'The date on which the student has attempted a particular challenge for the first time.',
+        dateOfFirstChallengeSubmission:{
+            'index': dateOfFirstChallengeSubmission,
+            'name':'dateOfFirstChallengeSubmission',
+            'displayName':'Date of First Challenge Submission',
+            'description':'The date on which the student has submitted a particular challenge for the first time',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.startChallenge],
             },
             'type':'date',
             'functions':{
-                ObjectTypes.challenge: getDateOfFirstAttempt
+                ObjectTypes.challenge: getDateOfFirstChallengeSubmission
             }
         },
         timeSpentOnChallenges:{
