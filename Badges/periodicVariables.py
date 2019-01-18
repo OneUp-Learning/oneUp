@@ -333,7 +333,8 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
         elif result_only:
             date_time = time_period['datetime']
             if date_time:
-                last_ran = date_time()
+                
+                p = date_time()
             else:
                 last_ran = None
 
@@ -523,3 +524,22 @@ class PeriodicVariables:
         }
     }
 
+if __debug__:
+    # Check for mistakes in the periodicVariables enum, such as duplicate id numbers
+    periodic_variable_fields = ['index','name','displayName','description','function','task_type']
+    
+    periodic_variable_names = [pv for pv in PeriodicVariables.__dict__ if pv[:1] != '_' and pv != 'periodicVariables']
+    periodic_variable_set = set()
+    for periodic_variable_name in periodic_variable_names:
+        periodic_variable_number = PeriodicVariables.__dict__[periodic_variable_name]
+        periodic_variable_set.add(periodic_variable_number)
+        
+        assert periodic_variable_number in PeriodicVariables.periodicVariables, "Periodic variable number created without corresponding structure in periodicVariables dictionary.  %s = %i " % (periodic_variable_name, periodic_variable_number)
+       
+        dictEntry = PeriodicVariables.periodicVariables[periodic_variable_number]
+        for field in periodic_variable_fields:
+            assert field in dictEntry, "Periodic variable structure missing expected field.  %s missing %s" % (periodic_variable_name,field)
+
+        assert periodic_variable_number == dictEntry['index'], "Periodic variable structure index field must match periodic variable number. %s -> %i != %i" % (periodic_variable_name, periodic_variable_number, dictEntry['index'])
+
+    assert len(periodic_variable_names) == len(periodic_variable_set), "Two periodic variables have the same number."

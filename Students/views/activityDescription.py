@@ -217,7 +217,7 @@ def makeFileObjects(studentId, currentCourse,files, studentActivities):
         return fileNames
 
 def isDisplayTimePassed(endTimeStamp):
-    utcNow = utcDate(datetime.now().strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    utcNow = utcDate(datetime.now().replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
     if endTimeStamp < utcNow:
         return False
     else:
@@ -225,7 +225,7 @@ def isDisplayTimePassed(endTimeStamp):
     
 def checkTimes(endTimestamp, deadLine):
    
-    utcNow = utcDate(datetime.now().strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    utcNow = utcDate(datetime.now().replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
     print("Utc" + str(utcNow))
     endMax = max((endTimestamp, utcNow))
     deadMax = max((deadLine, utcNow))

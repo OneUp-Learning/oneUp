@@ -45,8 +45,6 @@ def timeBasedVirtualCurrencyView(request):
         elif 'edit' in request.POST:
             # Edit badge
             periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=request.POST['vcRuleID'], courseID=current_course)
-            # Delete the Periodic Task then recreate it
-            delete_periodic_task(unique_id=int(periodicVC.vcRuleID), variable_index=int(periodicVC.periodicVariableID), award_type="vc", course=current_course)
         
             if request.POST['vcRuleName']:
                 periodicVC.vcRuleName = request.POST['vcRuleName']
@@ -75,6 +73,9 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC.numberOfAwards = None
 
             periodicVC.save()
+
+            # Delete the Periodic Task then recreate it
+            delete_periodic_task(unique_id=int(periodicVC.vcRuleID), variable_index=int(periodicVC.periodicVariableID), award_type="vc", course=current_course)
             
             # Recreate the Periodic Task based on the type
             if selectors == "TopN":

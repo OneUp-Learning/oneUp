@@ -5,7 +5,7 @@ from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
-from Instructors.constants import unspecified_topic_name, default_time_str
+from Instructors.constants import unspecified_topic_name, default_time_str, unlimited_constant
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 from Badges.tasks import create_due_date_process
@@ -166,22 +166,22 @@ def challengeCreateView(request):
 
         # Number of attempts
         if('unlimitedAttempts' in request.POST):
-            challenge.numberAttempts = 99999   # unlimited attempts
+            challenge.numberAttempts = unlimited_constant   # unlimited attempts
         else:
             num = request.POST['numberAttempts']  #empty string and number 0 evaluate to false
             if not num:
-                challenge.numberAttempts = 99999
+                challenge.numberAttempts = unlimited_constant
             else:
                 numberAttempts = int(request.POST.get("numberAttempts", 1))
                 challenge.numberAttempts = numberAttempts
 
         # Time to complete the challenge
         if('unlimitedTime' in request.POST):
-            challenge.timeLimit = 99999   # unlimited time
+            challenge.timeLimit = unlimited_constant   # unlimited time
         else:
             time = request.POST['timeLimit']    #empty string and number 0 evaluate to false
             if not time:
-                challenge.timeLimit = 99999
+                challenge.timeLimit = unlimited_constant
             else:
                 timeLimit = int(request.POST.get("timeLimit", 45))
                 challenge.timeLimit = timeLimit
@@ -224,36 +224,36 @@ def challengeCreateView(request):
             
             for attr in string_attributes:
                 data = getattr(challenge,attr)
-                if data == 99999:
+                if data == unlimited_constant:
                     context_dict[attr] = ""
                 else:
                     context_dict[attr]= data
                           
-            if challenge.numberAttempts == 99999:
+            if challenge.numberAttempts == unlimited_constant:
                 context_dict['unlimitedAttempts']=True
             else:
                 context_dict['unlimitedAttempts']=False 
             
-            if challenge.timeLimit == 99999:
+            if challenge.timeLimit == unlimited_constant:
                 context_dict['unlimitedTime']=True
             else:
                 context_dict['unlimitedTime']=False 
             
 
-            startTime = localizedDate(request, str(make_naive(challenge.startTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.startTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+            startTime = localizedDate(request, str(make_naive(challenge.startTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if challenge.startTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['startTimestamp']= startTime
             else:
                 context_dict['startTimestamp']= ""
 
-            endTime = localizedDate(request, str(make_naive(challenge.endTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.endTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
+            endTime = localizedDate(request, str(make_naive(challenge.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if challenge.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
                 context_dict['endTimestamp']= endTime
             else:
                 context_dict['endTimestamp']= ""
             # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
             dueDate = localizedDate(request, str(make_naive(challenge.dueDate.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+            if challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['dueDate'] = dueDate
             else:
                 context_dict['dueDate'] = ""

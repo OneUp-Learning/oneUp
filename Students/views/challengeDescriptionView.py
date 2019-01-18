@@ -2,7 +2,7 @@ import datetime
 from django.shortcuts import render
 from Instructors.models import Challenges 
 from Instructors.views.utils import utcDate
-from Instructors.constants import default_time_str
+from Instructors.constants import default_time_str, unlimited_constant
 from Students.models import Student, StudentChallenges, DuelChallenges
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
@@ -71,14 +71,14 @@ def ChallengeDescription(request):
                 data = getattr(challenge,'timeLimit')
                 if is_duel:
                     context_dict['timeLimit'] = duel_challenge.timeLimit
-                elif data == 99999:
+                elif data == unlimited_constant:
                     context_dict['timeLimit'] = "None"
                 else:
                     context_dict['timeLimit']= data
                     
                 data = getattr(challenge,'numberAttempts')
                 print(str(data))
-                if data == 99999:
+                if data == unlimited_constant:
                     context_dict['numberAttempts'] = "Unlimited"
                 else:
                     context_dict['numberAttempts']= data
@@ -92,7 +92,7 @@ def ChallengeDescription(request):
                     context_dict['challengeName'] = duel_challenge.duelChallengeName
 
                 total_attempts = challenge.numberAttempts
-                if data == 99999:
+                if data == unlimited_constant:
                     context_dict['more_attempts'] = "Unlimited"
                 else:                             
                     # getting the number of attempts to check if the student is out of attempts

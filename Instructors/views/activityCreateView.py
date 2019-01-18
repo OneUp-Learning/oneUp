@@ -141,21 +141,20 @@ def activityCreateView(request):
                 context_dict['isFileUpload'] = activity.isFileAllowed
                 context_dict['isGraded'] = activity.isGraded
 
-                startTime = localizedDate(request, str(make_naive(activity.startTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if activity.startTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+                startTime = localizedDate(request, str(make_naive(activity.startTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+                if activity.startTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                     context_dict['startTimestamp']= startTime
                 else:
                     context_dict['startTimestamp']= ""
 
-                endTime = localizedDate(request, str(make_naive(activity.endTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                print("End: {}".format(activity.endTimestamp.strftime("%m/%d/%Y %I:%M %p")))
-                if activity.endTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
+                endTime = localizedDate(request, str(make_naive(activity.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+                if activity.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
                     context_dict['endTimestamp']= endTime
                 else:
                     context_dict['endTimestamp']= ""
                 # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
                 deadLine = localizedDate(request, str(make_naive(activity.deadLine.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if activity.deadLine.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+                if activity.deadLine.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                     context_dict['deadLineTimestamp'] = deadLine
                 else:
                     context_dict['deadLineTimestamp'] = ""
