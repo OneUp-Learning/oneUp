@@ -6,13 +6,13 @@ register = template.Library()
 
 @register.filter
 def default_date(value):
-    if value.strftime("%m/%d/%Y %I:%M %p") == default_time_str:
+    if value.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str:
         return ""
     return value
 
 @register.filter
 def passed_current_time(value):
-    if value.strftime("%m/%d/%Y %I:%M %p") == default_time_str:
+    if value.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str:
         return False
     return timezone.now() >= value
 

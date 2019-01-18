@@ -75,7 +75,7 @@ def instructorHome(request):
                     if c.isVisible and currentTime < courseEndDate: # Showing only visible challenges
                         # Check if current time is within the start and end time of the challenge
                         if currentTime > c.startTimestamp:
-                            if currentTime < c.dueDate and not datetime.strptime(str(c.dueDate), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p") == default_time_str:
+                            if currentTime < c.dueDate and not datetime.strptime(str(c.dueDate.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p") == default_time_str:
                                 chall_ID.append(c.challengeID) #pk
                                 chall_course.append(c.courseID.courseName)
                                 chall_Name.append(c.challengeName)

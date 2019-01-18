@@ -12,7 +12,7 @@
 	<div class="divider"></div>
 {% endif %}
 <div class="row">
-    {{i}}. <div class="ck-view"> {{q.questionText|safe}} </div>
+    <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
 </div>
 {% if instructorview %}
     <p> Total points: {{question.point|safe}}</p>
@@ -40,8 +40,8 @@
 	    <div class="row">
 	       <div class="col s12">
 	          <h5>Correct Answer: </h5>
-	          <blockquote>
-	             {{q.correct_answer_text|safe}}
+	          <blockquote style="width: -webkit-fill-available;">
+						<div class="ck-view">{{q.correct_answer_text|safe}} </div>
 	          </blockquote>
 	          {% if graded %}
 		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
@@ -65,10 +65,12 @@
 	    <div class="row">
 	       <div class="col s12">
 	          <h5>Correct Answer(s): </h5>
-	          <blockquote>
+	          <blockquote style="width: -webkit-fill-available;">
+					<div class="ck-view">
 	             {% for correct_answer_text in q.correct_answer_texts %}
 	             {{correct_answer_text|safe}} <br />
-	             {% endfor %}
+					 {% endfor %}
+					</div>
 	          </blockquote>
    	          {% if graded %}
 		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>

@@ -1,20 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
+   
    <!-- GGM added scripts to display model solution for parson -->
-      {% include 'scripts.html' %}
-         <style>
-                           .editor{
-                           position: relative;
-                           width: 100%;
-                           height: 170px;
-                           }
-                           .lineHighlight {
-                           position: absolute;
-                           background: rgba(100, 200, 100, 0.5);
-                           z-index: 20
-                           }
-                        </style>
+   {% include 'scripts.html' %}
+   <link rel="stylesheet" href="/static/assets/css/questionStyle.css">
    <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script>
    <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>  
       <script>
@@ -224,7 +214,7 @@
                            </div>
                            <div class="col s12 m4">
                         		<label for="dueDate">Due Date:</label>
-                        		<input type="text" class="datepicker-until" name="dueDate" id="dueDate" value="{{dueDate}}">
+                        		<input type="text" class="datepicker-until" name="dueDate" id="dueDate" value="{{dueDate}}" {%if view%}readonly{%endif%}>
                         	</div>
                         </div>
                         <div class="row">

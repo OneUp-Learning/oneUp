@@ -11,6 +11,7 @@ from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Students.models import DuelChallenges
 from Instructors.views.utils import utcDate
+from Instructors.constants import unlimited_constant
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
@@ -55,7 +56,7 @@ def ChallengeSetup(request):
                     context_dict['duelID'] = duel_id
                 else:
                     context_dict['challengeName'] = challenge.challengeName
-                    if challenge.timeLimit == 99999:
+                    if challenge.timeLimit == unlimited_constant:
                         context_dict['isduration'] = False
                     else:
                         context_dict['isduration'] = True
