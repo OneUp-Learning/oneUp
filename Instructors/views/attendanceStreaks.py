@@ -140,18 +140,15 @@ def attendanceStreaks(request):
                 condition.save()
             
         datesFromCalendarProcessed = []
-        if 'dates[]' in request.POST:
-            datesFromCalendar = request.POST.getlist('dates[]')
-            print("datesfromcalendar", datesFromCalendar)
         
         if 'calendarDaysCheckedList' in request.POST:
             checkedCalendarDays = filterOutDuplicatesFromCalendar(request.POST.getlist('calendarDaysCheckedList'))
-            print("checkedcalendardays", str(checkedCalendarDays).split(","))
+            print("checkedcalendardays", request.POST.getlist('calendarDaysCheckedList'))
             
-        if 'currency' in request.POST:
-            currency = request.POST['currency']
-            print('currency', currency)
-            streak.virtualCurrencyAwarded = currency
+        if 'calendarDaysUncheckedList' in request.POST:
+            uncheckedCalendarDays = filterOutDuplicatesFromCalendar(request.POST.getlist('calendarDaysUncheckedList'))
+            print('calendarDaysUncheckedList', uncheckedCalendarDays)
+            streak.daysDeselected = uncheckedCalendarDays
         streak.save()   
 
         return redirect('attendanceStreaks')

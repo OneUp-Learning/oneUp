@@ -8,168 +8,133 @@
    <script src='/static/ThirdParty/fullcalendar-3.9.0/lib/moment.min.js'></script>
    <script src='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.min.js'></script>
    <script>
-  	 var calendarDaysSelected =  {{eventCheckboxDays|safe}};
-	  var calendarDaysUnSelected = {{eventCheckboxDaysUnselected|safe}};
-      $(document).ready(function() {
-          var calendar = $('#calendar').fullCalendar({
-        	showNonCurrentDates: false,
-        	eventStartEditable: false,
-        	viewRender:function(){
-        		$(".fc-disabled-day").html('');
-        	},
-        	dayRender: function(date, cell) {
-        		
-        		if (calendarDaysSelected.includes(date.format('YYYY-MM-DD'))) {
-        	    var checkbox = document.createElement('input');
-        	    checkbox.type = "checkbox";
-        	    checkbox.name = "dates[]";
-        	    checkbox.value = date.format('YYYY-MM-DD');
-        	    checkbox.id = date;
-        	    checkbox.checked = true;
-      			//console.log("re-rendered!");
-        	    var label = document.createElement('label')
-        	    label.htmlFor = date;
-        	    label.appendChild(document.createTextNode(''));
-        	
-        	    cell.append(checkbox);
-        	    cell.append(label);
-        		}
-        		else{
-        			if (calendarDaysUnSelected.includes(date.format('YYYY-MM-DD'))) {
-                	    var checkbox = document.createElement('input');
-                	    checkbox.type = "checkbox";
-                	    checkbox.name = "dates[]";
-                	    checkbox.value = date.format('YYYY-MM-DD');
-                	    checkbox.id = date;
-                	    checkbox.checked = false;
-              
-                	    var label = document.createElement('label')
-                	    label.htmlFor = date;
-                	    label.appendChild(document.createTextNode(''));
-                	
-                	    cell.append(checkbox);
-                	    cell.append(label);
-        		}
-        		}
-        		
-        	  },
-        	  eventRender: function (event, element, view) {
-        		  document.getElementById(event.start).checked = true;
-        	  },
-          header: {
-            left: '',
-            center: 'title',
-            right: ''
-          },
-          dayClick: function(date, jsEvent, view) {
-        	  if (document.getElementById(date).checked)
-        	  	document.getElementById(date).checked = false;
-        	  else
-        		document.getElementById(date).checked = true;
-        	  },
-          navLinks: false, // can click day/week names to navigate views
-          editable: true,
-          eventLimit: true, // allow "more" link when too many events
-          events:
-        	  {{event|safe}}
-        });
-      
-       	daysSelected = {{streak.daysofWeek|safe}}
-       	checkBoxes = document.getElementsByName("dayCheckbox");
-        for (var i = 0; i < checkBoxes.length; i++) {
-            if (daysSelected.includes(checkBoxes[i].value)) {
-            	checkBoxes[i].checked = true;
-            }
-        }
-        
-        
-      });
-      
-      function validateDaysSelected(){
-         checkBoxes = document.getElementsByName("dayCheckbox");
-         for (var i = 0; i < checkBoxes.length; i++) {
-             if (checkBoxes[i].checked) {
-             	document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
-             }
-         }
-       if (document.getElementById("streakLength").value != "" && document.getElementById("currency").value != "")
-       		document.getElementById("daysOfWeekForm").submit();
-       else
-        alert("Please Enter Streak Length or Currency Amount");
-      }
-      
-      function obtainCalendarInfo(){
-       var daysCheckedList = [];
-       var daysUncheckedList = [];
-       calendarDates = document.getElementsByName("dates[]");
-       
-       for (var i = 0; i < calendarDates.length; i++) {
-           if (calendarDates[i].checked){calendarDaysUnSelected
-        	   calendarDaysUnSelected = removeDuplicateDates(calendarDaysUnSelected, calendarDates[i].value);
-           	   calendarDaysSelected.push(calendarDates[i].value);
-           }
-           else{
-        	   calendarDaysSelected = removeDuplicateDates(calendarDaysSelected, calendarDates[i].value);
-        	   calendarDaysUnSelected.push(calendarDates[i].value);
-           }
-       }
-       
-       document.getElementById("daysCheckedList").value = daysCheckedList;
-       document.getElementById("daysUncheckedList").value = daysUncheckedList;
-       
-//        console.log("days checked");
-//        console.log(calendarDaysSelected);
-//        console.log("days unchecked");
-//        console.log(calendarDaysUnSelected);
-       document.getElementById("calendarForm").submit();
-      }
-      
-      
-      function preserveCalendarData(){
-    	  
-        calendarDates = document.getElementsByName("dates[]"); 
-        
-        for (var i = 0; i < calendarDates.length; i++) {
-        	 if(calendarDates[i].checked) {
-        		 calendarDaysSelected.push(calendarDates[i].value);
-        		 calendarDaysUnSelected = removeDuplicateDates(calendarDaysUnSelected, calendarDates[i].value);
-             } else {
-            	 calendarDaysUnSelected.push(calendarDates[i].value);
-            	 calendarDaysSelected = removeDuplicateDates(calendarDaysSelected, calendarDates[i].value);
-            	 
-             }
-        }
-        
-//         console.log("daysPreservedCheckedList");
-//         console.log(calendarDaysSelected);
-//         console.log("daysPreservedUncheckedList");
-//         console.log(calendarDaysUnSelected);
-      }
-  	
-      function saveEnteredDates(type){
-      	preserveCalendarData();
-      	
-    	switch(type){
-    	case "today":
-    		 $('#calendar').fullCalendar('today');
-    		break;
-    	case "prev":
-    		 $('#calendar').fullCalendar('prev');
-    		break;
-    	case "next":
-    		 $('#calendar').fullCalendar('next');
-    		break;
-    	}
-      		
-      }
-      
-      function removeDuplicateDates(array, element) {
-    	  var itemIndex = 0;
-    	  while ((itemIndex = array.indexOf(element, itemIndex)) > -1) {
-    		  array.splice(itemIndex, 1);
-    	  }
-    	  return array;
-      }
+   document.addEventListener("DOMContentLoaded", function(event) {
+	   var daysSelected = {{streak.daysofWeek | safe}};
+	  	checkBoxes = document.getElementsByName("dayCheckbox");
+	  	for (var i = 0; i < checkBoxes.length; i++) {
+	  		if (daysSelected.includes(checkBoxes[i].value)) {
+	  			checkBoxes[i].checked = true;
+	  		}
+	  	}
+	 });
+   
+	   var calendarDaysSelected = {{eventCheckboxDays | safe}};
+	   var calendarDaysUnSelected = {{eventCheckboxDaysUnselected | safe}};
+	   var daysOfCalendar = calendarDaysSelected.concat(calendarDaysUnSelected);
+	   
+	   $(document).ready(function () {
+	   	var calendar = $('#calendar').fullCalendar({
+	   		showNonCurrentDates: false,
+	   		eventStartEditable: false,
+	   		viewRender: function () {
+	   			$(".fc-disabled-day").html('');
+	   		},
+	   		dayRender: function (date, cell) {
+	   			 if (daysOfCalendar.includes(date.format('YYYY-MM-DD'))){
+	   			 var checkbox = document.createElement('input');
+   				 checkbox.type = "checkbox";
+   				 checkbox.name = "dates[]";
+   				 checkbox.value = date.format('YYYY-MM-DD');
+   				 checkbox.id = date.format('YYYY-MM-DD');
+   				 var label = document.createElement('label')
+   				 label.htmlFor = date.format('YYYY-MM-DD');
+   				 label.appendChild(document.createTextNode(''));
+				
+				 if (calendarDaysSelected.includes(date.format('YYYY-MM-DD')))
+					 checkbox.checked = true;
+	   			
+   				 cell.append(checkbox);
+   				 cell.append(label);
+	   			}
+	   			
+
+	   		},
+	   		eventRender: function (event, element, view) {
+	   		},
+	   		header: {
+	   			left: '',
+	   			center: 'title',
+	   			right: ''
+	   		},
+	   		dayClick: function (date, jsEvent, view) {
+	   			if (document.getElementById(date.format('YYYY-MM-DD')).checked)
+	   				document.getElementById(date.format('YYYY-MM-DD')).checked = false;
+	   			else
+	   				document.getElementById(date.format('YYYY-MM-DD')).checked = true;
+	   		},
+	   		navLinks: false, // can click day/week names to navigate views
+	   		editable: true,
+	   		eventLimit: true, // allow "more" link when too many events
+	   		events: {{event | safe}}
+	   	});
+	   });
+	   
+	   	
+	   function validateDaysSelected() {
+	   	checkBoxes = document.getElementsByName("dayCheckbox");
+	   	for (var i = 0; i < checkBoxes.length; i++) {
+	   		if (checkBoxes[i].checked) {
+	   			document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
+	   		}
+	   	}
+	   	if (document.getElementById("streakLength").value != "")
+	   		document.getElementById("daysOfWeekForm").submit();
+	   	else
+	   		alert("Please Enter Streak Length or Currency Amount");
+	   }
+
+	   function obtainCalendarInfo() {
+		 saveCalendarData();
+	     document.getElementById("daysCheckedList").value = calendarDaysSelected;
+	     document.getElementById("daysUncheckedList").value = calendarDaysUnSelected;
+	   	 document.getElementById("calendarForm").submit();
+	   }
+	   
+	   function saveCalendarData(){
+		   
+		   var calendarDates = document.getElementsByName("dates[]");
+		 	for (var i = 0; i < calendarDates.length; i++) {
+		   		if (calendarDates[i].checked) {
+		   			if (!calendarDaysSelected.includes(calendarDates[i])){
+		   				calendarDaysSelected.push(calendarDates[i].value);
+		   				calendarDaysUnSelected = removeDuplicateDates(calendarDaysUnSelected, calendarDates[i].value);
+		   			}
+		   		} else {//if it is not checked
+		   			if(!calendarDaysUnSelected.includes(calendarDates[i]))
+		   				calendarDaysUnSelected.push(calendarDates[i].value);
+		   				calendarDaysSelected = removeDuplicateDates(calendarDaysSelected, calendarDates[i].value);
+
+		   		}
+		   	}
+		 	console.log("daysSelected");
+		   	console.log(calendarDaysSelected);
+		   	console.log("daysUnselected");
+		   	console.log(calendarDaysUnSelected);
+	   }
+
+	   function saveEnteredDates(type) {
+		   saveCalendarData();
+	   	switch (type) {
+	   		case "today":
+	   			$('#calendar').fullCalendar('today');
+	   			break;
+	   		case "prev":
+	   			$('#calendar').fullCalendar('prev');
+	   			break;
+	   		case "next":
+	   			$('#calendar').fullCalendar('next');
+	   			break;
+	   	}
+
+	   }
+
+	   function removeDuplicateDates(array, element) {
+	   	var itemIndex = 0;
+	   	while ((itemIndex = array.indexOf(element, itemIndex)) > -1) {
+	   		array.splice(itemIndex, 1);
+	   	}
+	   	return array;
+	   }
 
    </script>
    <style>
@@ -222,8 +187,6 @@
                         <br>
                         <label for="streakLength"><span class= "red-text">*</span>Streak Length</label>
                         <input value="{{streak.streakLength}}" name="streakLength" id="streakLength" min="0" type="number" required>
-                        <label for="currency"><span class= "red-text">*</span>Currency Amount</label>
-                        <input value="{{streak.virtualCurrencyAwarded}}" name="currency" id="currency" min="0" type="number" required>
                      </form>
                      <br>
                      <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>
