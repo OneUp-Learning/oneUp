@@ -1,3 +1,4 @@
+<!-- // NOTE To use this selector you must add this function at the very bottom to onsubmit-->
 <div class="row">
 	<div class="input-field col s12">
     	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
@@ -1485,6 +1486,7 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
     }
 }
 
+// NOTE To use this selector you must add this function to onSubmit
 function condOnSubmit() {
 	condFillSpecifierString();
     condFillCondString();

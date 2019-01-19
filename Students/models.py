@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -142,14 +142,13 @@ class StudentActivities(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, on_delete=models.CASCADE, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)      
-    timestamp = models.DateTimeField(default= datetime.now)
+    timestamp = models.DateTimeField(default= datetime.now, verbose_name="Grading Timestamp") # represents when the activity was graded (if it has been)
     activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
     bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
     comment = models.CharField(max_length=500, default="") #Comment submitted by student
-    submissionTimestamp = models.DateTimeField(default= datetime.now)
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
     def getScoreWithBonus(self):
@@ -290,3 +289,12 @@ class StudentStreaks(models.Model):
     streakType = models.IntegerField(default=0)
     completedStreakCount = models.IntegerField(default=0)
     
+    
+class StudentProgressiveUnlocking(models.Model):
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    pUnlockingRuleID = models.ForeignKey(ProgressiveUnlocking, on_delete=models.CASCADE, verbose_name="the progressive unlocking rule", db_index=True)
+    objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
+    objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
+    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
+    isFullfilled = models.BooleanField(verbose_name='Did the student fullfill the unlocking rule', default=False)

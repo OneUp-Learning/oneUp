@@ -10,7 +10,7 @@ from django.shortcuts import render
 from Instructors.models import Questions, ResourceTags, QuestionsSkills
 from Instructors.models import ChallengesQuestions, ChallengesTopics, Challenges
 from Instructors.views.utils import initialContextDict
-from Badges.enums import QuestionTypes
+from Instructors.questionTypes import QuestionTypes
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck     

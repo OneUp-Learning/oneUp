@@ -87,7 +87,7 @@ def announcementCreateView(request):
 
                 # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
                 endTime = localizedDate(request, str(make_naive(announcement.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if announcement.endTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
+                if announcement.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
                     context_dict['endTimestamp']= endTime
                 else:
                     context_dict['endTimestamp']= ""

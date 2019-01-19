@@ -4,7 +4,8 @@ from Instructors.models import Challenges, CoursesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
-from Instructors.constants import unspecified_topic_name, default_time_str
+from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
+from Instructors.constants import unspecified_topic_name, default_time_str, unlimited_constant
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 from Badges.tasks import create_due_date_process
@@ -19,12 +20,17 @@ from oneUp.decorators import instructorsCheck
 
 import re
 
+from Instructors.questionTypes import questionTypeFunctions, QuestionTypes
+
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def challengeCreateView(request):
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
     context_dict, currentCourse = initialContextDict(request)
+
+    context_dict = setUpContextDictForConditions(context_dict,currentCourse,None)
+
                    
     questionObjects= []
     qlist = []
@@ -160,28 +166,30 @@ def challengeCreateView(request):
 
         # Number of attempts
         if('unlimitedAttempts' in request.POST):
-            challenge.numberAttempts = 99999   # unlimited attempts
+            challenge.numberAttempts = unlimited_constant   # unlimited attempts
         else:
             num = request.POST['numberAttempts']  #empty string and number 0 evaluate to false
             if not num:
-                challenge.numberAttempts = 99999
+                challenge.numberAttempts = unlimited_constant
             else:
                 numberAttempts = int(request.POST.get("numberAttempts", 1))
                 challenge.numberAttempts = numberAttempts
 
         # Time to complete the challenge
         if('unlimitedTime' in request.POST):
-            challenge.timeLimit = 99999   # unlimited time
+            challenge.timeLimit = unlimited_constant   # unlimited time
         else:
             time = request.POST['timeLimit']    #empty string and number 0 evaluate to false
             if not time:
-                challenge.timeLimit = 99999
+                challenge.timeLimit = unlimited_constant
             else:
                 timeLimit = int(request.POST.get("timeLimit", 45))
                 challenge.timeLimit = timeLimit
+                
         print("challenge")
         print(challenge)                      
         challenge.save()  #Save challenge to database
+        
         # check if course was selected
         addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic, currentCourse)                 
         # Processing and saving tags in DB
@@ -216,36 +224,36 @@ def challengeCreateView(request):
             
             for attr in string_attributes:
                 data = getattr(challenge,attr)
-                if data == 99999:
+                if data == unlimited_constant:
                     context_dict[attr] = ""
                 else:
                     context_dict[attr]= data
                           
-            if challenge.numberAttempts == 99999:
+            if challenge.numberAttempts == unlimited_constant:
                 context_dict['unlimitedAttempts']=True
             else:
                 context_dict['unlimitedAttempts']=False 
             
-            if challenge.timeLimit == 99999:
+            if challenge.timeLimit == unlimited_constant:
                 context_dict['unlimitedTime']=True
             else:
                 context_dict['unlimitedTime']=False 
             
 
-            startTime = localizedDate(request, str(make_naive(challenge.startTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.startTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+            startTime = localizedDate(request, str(make_naive(challenge.startTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if challenge.startTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['startTimestamp']= startTime
             else:
                 context_dict['startTimestamp']= ""
 
-            endTime = localizedDate(request, str(make_naive(challenge.endTimestamp)), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.endTimestamp.strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
+            endTime = localizedDate(request, str(make_naive(challenge.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if challenge.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
                 context_dict['endTimestamp']= endTime
             else:
                 context_dict['endTimestamp']= ""
             # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
             dueDate = localizedDate(request, str(make_naive(challenge.dueDate.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.dueDate.strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+            if challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['dueDate'] = dueDate
             else:
                 context_dict['dueDate'] = ""
@@ -305,59 +313,15 @@ def challengeCreateView(request):
 #             context_dict['topics_str'] = topicNames
 #             context_dict['all_Topics'] = utils.getTopicsForChallenge(challenge)
 
-            # The following information is needed for the challenge 'view' option            
+            context_dict['questionTypes'] = QuestionTypes
+
+            # The following information is needed for the challenge 'view' option
+            i = 0
             for q in questionObjects:
-                
-                q_type = q.type
-                # 8 is parsons
-                if q_type in [1,2,3,4,8]:     # static problems
-                    
-                    questdict = q.__dict__
-                    
-                    answers = Answers.objects.filter(questionID = q.questionID)
-                    answer_range = range(1,len(answers)+1)
-                    questdict['answers_with_count'] = list(zip(answer_range,answers))
-                    questdict['match_with_count'] = zip(answer_range,answers) 
-                    
-                    staticQuestion = StaticQuestions.objects.get(pk=q.questionID)
-                    questdict['questionText']=staticQuestion.questionText
-    
-                    questdict['typeID']=str(q.type)
-                    questdict['challengeID']= challengeId
-                    
-                    correct_answers = CorrectAnswers.objects.filter(questionID = q.questionID)
-                    print(correct_answers)
-                    canswer_range = range(1,len(correct_answers)+1)
-                    questdict['correct_answers'] = list(zip(canswer_range,correct_answers))
-                    
-                    question_point = ChallengesQuestions.objects.get(challengeID=challengeId, questionID=q)
-                    questdict['point'] = question_point.points
-                    
-                    #getting the matching questions of the challenge from database
-                    matchlist = []
-                    for match in MatchingAnswers.objects.filter(questionID=q.questionID):
-                        matchdict = match.__dict__
-                        matchdict['answers_count'] = range(1,int(len(answers))+1)
-                        matchlist.append(matchdict)
-                    questdict['matches']=matchlist
-                    qlist.append(questdict)
-                    
-                    if q_type == 8:
-                        answers = Answers.objects.filter(questionID=q.questionID)
-                        if answers:
-                            answer = answers[0]
-                            print("Answer", repr(answer))
-                            answer = repr(answer)
-                            
-                            #regex the answer, swap out the numbers, add a newline after lang and indent\n
-                            answer = re.sub("^<Answers: \d{3},", "# ", answer)
-                            answer = re.sub("ue;", "ue;\n", answer)
-                            answer = re.sub("se;", "se;\n", answer)
-                            questdict['modelSolution'] = answer 
-                              
-                else:
-                    # TODO prepare information for displaying dynamic questions
-                    qlist = []
+                i += 1
+                qdict = questionTypeFunctions[q.type]['makeqdict'](q,i,challengeId,None)
+                qdict = questionTypeFunctions[q.type]['correctAnswers'](qdict)
+                qlist.append(qdict)
         else:
             context_dict['topics'] = []
             context_dict['tags'] = []

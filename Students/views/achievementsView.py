@@ -122,7 +122,8 @@ def achievements(request):
     for courseChallenge in allCourseChallenge:
         if courseChallenge.challengeName != "Unassigned Problems":
             studentWarmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=courseChallenge).order_by('-endTimestamp')
-            challengesOrderedByTaking.append((courseChallenge,studentWarmupChallenge[0].endTimestamp))
+            if studentWarmupChallenge:
+                challengesOrderedByTaking.append((courseChallenge,studentWarmupChallenge[0].endTimestamp))
      
            
     challengesOrderedByTaking = sorted(challengesOrderedByTaking, key=lambda tup: tup[1], reverse=True)

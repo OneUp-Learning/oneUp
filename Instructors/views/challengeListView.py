@@ -12,7 +12,8 @@ from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
 from Badges.events import register_event
-from Badges.enums import Event, QuestionTypes
+from Badges.enums import Event
+from Instructors.questionTypes import QuestionTypes
 from Students.models import StudentRegisteredCourses
 from time import strftime
 
@@ -188,8 +189,8 @@ def warmUpChallengeList(request):
             all_challenges_for_topic.append(topic_challenges)
         else:
             unspecified_topic = ct.topicID 
-            hasUnspecified_topic=True           
-                
+            hasUnspecified_topic=True  
+           
     # Add the challenges with unspecified topic at the end
     if hasUnspecified_topic:
         topic_ID.append(unspecified_topic.topicID)
