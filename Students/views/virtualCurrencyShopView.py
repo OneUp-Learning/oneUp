@@ -7,6 +7,7 @@ from Students.views.utils import studentInitialContextDict
 from Badges.models import VirtualCurrencyRuleInfo, ActionArguments, RuleEvents, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, Event, ObjectTypes, dict_dict_to_zipped_list
 from Badges.events import register_event
+from Instructors.constants import unlimited_constant
 import logging
 import copy
 
@@ -161,7 +162,7 @@ def virtualCurrencyShopView(request):
             challenges = getChallengesForShop(request)
             for rule in vc_rules:
                 buyOptions.append({'id':rule.vcRuleID, 'cost': rule.vcRuleAmount, 'name': rule.vcRuleName, 'displayName': rule.vcRuleName, 
-                'description': rule.vcRuleDescription, 'challenges': copy.deepcopy(challenges), 'limit': rule.vcRuleLimit, 'remaining': 0})
+                'description': rule.vcRuleDescription, 'challenges': copy.deepcopy(challenges), 'limit': rule.vcRuleLimit if not rule.vcRuleLimit == unlimited_constant else 0, 'remaining': 0})
 
             # filter out the potential buy options if the student has went over the limit by looking at their transactions
             for buyOption in buyOptions:
