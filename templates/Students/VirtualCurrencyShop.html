@@ -106,6 +106,13 @@
          	document.getElementById("total").innerHTML =  "Total: " +  total;
          	//GGM checkTotal();
          }
+         function checkQuantity(){
+            for(var i = 0; i < indexes.length; i++){
+               if(document.getElementById("buyOptionQuantity"+indexes[i]).value > 0)
+                  return true;
+            }
+            return false;
+         }
          function checkTotal(){
          	var total = document.getElementById("total").innerHTML;
          	total = total.slice(7);	//GGM get number out of string
@@ -113,7 +120,7 @@
               alert("You do not have enough money ");
               return false;
            	}
-         	if(parseInt(total) == 0){	//GGM added case to check if zero total
+         	if(parseInt(total) == 0 && !checkQuantity()){	//GGM added case to check if zero total
          		alert("You have not bought anything.")
          		return false;
          	}

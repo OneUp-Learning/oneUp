@@ -10,6 +10,7 @@ from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import OperandTypes
 from Badges.systemVariables import SystemVariable
 from Instructors.views.utils import initialContextDict
+from Instructors.constants import unlimited_constant
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -30,7 +31,7 @@ def virtualCurrencySpendRuleList(request):
         vcsRuleName.append(rule.vcRuleName)
         position.append(rule.vcRulePosition)
         vcsAmount.append(rule.vcRuleAmount or 0)
-        vcsLimit.append(rule.vcRuleLimit)
+        vcsLimit.append(rule.vcRuleLimit if (not rule.vcRuleLimit == unlimited_constant) and (not rule.vcRuleLimit == 0) else "Unlimited")
                     
     context_dict['vcsRuleInfo'] = zip(range(1,len(vcsRuleID)+1),vcsRuleID,vcsRuleName,vcsAmount, vcsLimit, position)
 
