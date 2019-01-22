@@ -1466,7 +1466,7 @@ class SystemVariable():
         seriousChallengeReachedDueDate:{
             'index': seriousChallengeReachedDueDate,
             'name': 'seriousChallengeReachedDueDate',
-            'displayName': 'Serious Challenge Reached Due Date',
+            'displayName': 'When Serious Challenge Reached Due Date',
             'description': 'The serious challenge due date has past or reached based on the current moment',
             'eventsWhichCanChangeThis': {
                 ObjectTypes.challenge: [Event.challengeExpiration],
