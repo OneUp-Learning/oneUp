@@ -28,6 +28,7 @@ def courseConfigurationView(request):
             ccparams = CourseConfigParams()
             ccparams.courseID = currentCourse
             
+        ccparams.progressBarUsed = "progressBarUsed" in request.POST
         ccparams.gamificationUsed = "gamificationUsed" in request.POST   
         ccparams.courseAvailable = "courseAvailable" in request.POST
         logger.debug(request.POST['courseStartDate'])
@@ -51,6 +52,7 @@ def courseConfigurationView(request):
         if ccparams:
             context_dict['ccpID'] = ccparams.ccpID
             context_dict['gamificationUsed'] = ccparams.gamificationUsed
+            context_dict['progressBarUsed'] = ccparams.progressBarUsed
             context_dict['courseAvailable'] = ccparams.courseAvailable
            
             defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")

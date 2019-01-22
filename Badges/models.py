@@ -302,6 +302,8 @@ class CourseConfigParams(models.Model):
 
     levelingUsed = models.BooleanField(default=False)                 ##
 
+    progressBarUsed = models.BooleanField(default=True)              ## This is the progress bar in the student achievements page
+
     leaderboardUsed = models.BooleanField(default=False)              ##
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
     numStudentsDisplayed = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
