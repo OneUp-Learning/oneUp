@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <script>
+      function displayInput(){
+       var virtualCurrencyValue = 0;
+       var badgeID = 0;
+       console.log("ran");
+       /*
+       Virtual Currency is type 0, badge is type 1
+       */
+       var virtualCurrencyAmount = "<div id='virtualCurrencyAmount' class='col s6'>\n"+
+          "<input value='' name='virtualCurrency' id='virtualCurrency' type='number' class='validate' required>\n"+
+          "<label for='virtualCurrency'>Virtual Currency</label>\n"+
+          "</div>";
+       var badge = "<div id='badge' class='col s6'>\n"+
+       "<label for='badgeOption'>Badge Option</label>\n"+
+       "<select id='badgeOption' name='badgeID' >\n"+
+          "{% for badgeID, badgeName, badgeImage in badges %}\n"+
+          "<option data-icon='/{{badgeImage}}' id='{{badgeID}}' value='{{badgeID}}'>{{badgeName}}</option>\n"+
+          "{% endfor %}\n"+
+          "</select>\n"+
+          "</div>";
+       var previous = document.getElementById("previous");
+       
+       
+       if (document.getElementById("awardType").value == 0){
+        /* Check if the badges item is there, if so remove it*/
+        if (document.getElementById("badge")){
+        var badges = document.getElementById("badge");
+        badges.parentElement.removeChild(badges);
+        }
+              
+       /* Insert a new item as virtual currency for the page as long as there isnt one already*/
+        if (!document.getElementById("virtualCurrencyAmount")){
+        var node = document.createTextNode(virtualCurrencyAmount);
+              previous.insertAdjacentHTML('afterEnd',virtualCurrencyAmount);
+        }
+       }
+       
+       
+       if (document.getElementById("awardType").value == 1){
+        
+        /* Check if the virtual currency item is there, if so remove it*/
+        if(document.getElementById("virtualCurrencyAmount")){
+        var virtualCurrencyHTML = document.getElementById("virtualCurrencyAmount");
+        virtualCurrencyHTML.parentElement.removeChild(virtualCurrencyHTML);
+       
+              
+              /* Insert a new item as virtual currency for the page*/
+        var node = document.createTextNode(badge);
+              previous.insertAdjacentHTML('afterEnd',badge);
+              $('#badgeOption').material_select();
+        }
+       }
+      }
+      
+      function obtainCheckBoxData(){
+    	  checkbox = document.getElementById('resetStreak');
+    	  if (checkbox.checked)
+    		  document.getElementById('resetStreakHidden').value = "1";
+    	  else
+    		  document.getElementById('resetStreakHidden').value = "0";
+    	  return true;
+      }
+   </script>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Streak Config</h3>
+            </div>
+         </div>
+          <form id="form" onsubmit="return obtainCheckBoxData()" name="question" action="/oneUp/instructors/streakConfig" method="POST">
+                  {% csrf_token %}
+         <input type="hidden" value="{{streakID}}" name="streakID">
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  <div class="row">
+                     <div class="col s12">
+                        <textarea class="materialize-textarea" name="streakDescription" id="streakDescrip" rows="2" cols="70" class="validate" required>{{streakDescription}}</textarea>
+                        <label for="streakDescrip">Streak Description</label>
+                     </div>
+                  </div>
+                  <div class ="row">
+                     <div class="col s6">
+                        <label>Streak Type</label>
+                        <select id="streakType" name="streakType" {%if view%}readonly{%endif%}>
+                        <option value="0" {%if view%}disabled{%endif%}>Attendance</option>
+                        <option value="1" {%if view%}disabled{%endif%}>Challenge</option>
+                        </select>
+                     </div>
+                     
+                     <div class="col s6">
+                        <label>Award Type</label>
+                        <select id="awardType" onchange="displayInput();" name="awardType" {%if view%}readonly{%endif%}>
+                        <option val="virtualCurrency" value="0" {%if view%}disabled{%endif%}>Virtual Currency</option>
+                        <option val="badge" value="1" {%if view%}disabled{%endif%}>Badge</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col s6" id="previous">
+                        <input value="{{streakLength}}" name="streakLength" id="streakLength" type="number" class="validate" required>
+                        <label for="streaLength">Streak Length</label>
+                     </div>
+         {% if badgeID != 0 %}
+                     <div id='badge' class='col s6'>
+       <label for='badgeOption'>Badge Option</label>
+       <select id='badgeOption' name='badgeID' >
+          {% for badgeID, badgeName, badgeImage in badges %}
+          <option data-icon='/{{badgeImage}}' id='{{badgeID}}' value='{{badgeID}}'>{{badgeName}}</option>
+          {% endfor %}
+          </select>
+          </div>
+          <script>
+          		var badgeID = {{badgeID}};
+          		document.getElementById('badgeOption').value = badgeID;
+          		document.getElementById('awardType').value = 1;
+                        // re-initialize material-select
+                        $('#badgeOption').material_select();
+          </script>
+          {% else %}
+                     <div id='virtualCurrencyAmount' class='col s6'>
+          			<input name='virtualCurrency' value="{{virtualCurrency}}" id='virtualCurrency' type='number' class='validate' required>
+          			<label for='virtualCurrency'>Virtual Currency</label>
+          			</div>
+         {% endif %}
+          			
+          		
+          		<div class="row">
+          		<div class="col s12 m10 offset-s1">
+          		<br>{% if checkbox == True  %}
+                  	<input type="checkbox" checked="checked" id="resetStreak" />
+                        <label for="resetStreak">Reset Streak At Limit</label>
+                        <input id="resetStreakHidden"type="hidden" name="resetStreak">
+                    {% else %}
+                    <input type="checkbox" id="resetStreak" />
+                        <label for="resetStreak">Reset Streak At Limit</label>
+                        <input id="resetStreakHidden"type="hidden" name="resetStreak">
+                    {% endif %}
+                  </div>
+                  </div>
+                  </div>
+                  
+                  <div class='card-action right-align'>
+                     {% if view %}
+                     <a class="waves-effect waves-light btn" href="#!" onclick="window.history.back();"><i class="material-icons left">navigate_before</i>Back</a>
+                     {% else %}
+                     <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i></button>
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/streaks">
+                     <i class="material-icons left">close</i>Cancel</a>
+                     {% endif %}
+                  </div>
+               </div>
+            </div>
+         </div>
+         </form>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

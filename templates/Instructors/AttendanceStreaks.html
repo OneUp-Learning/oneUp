@@ -71,16 +71,20 @@
 	   
 	   	
 	   function validateDaysSelected() {
-	   	checkBoxes = document.getElementsByName("dayCheckbox");
+	   	var checkBoxes = document.getElementsByName("dayCheckbox");
+	   	var singleDayChecked = false;
 	   	for (var i = 0; i < checkBoxes.length; i++) {
 	   		if (checkBoxes[i].checked) {
+	   			singleDayChecked= true;
 	   			document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
 	   		}
 	   	}
-	   	if (document.getElementById("streakLength").value != "")
+	   	if (singleDayChecked){
 	   		document.getElementById("daysOfWeekForm").submit();
+	   		return true;
+	   	}
 	   	else
-	   		alert("Please Enter Streak Length or Currency Amount");
+	   		alert("Please Select Streak Day");
 	   }
 
 	   function obtainCalendarInfo() {
@@ -184,10 +188,7 @@
                         <input type="checkbox" name="dayCheckbox" value="6" id="sunday" />
                         <label id="badge" for="sunday">Sunday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="6" />
-                        <br>
-                        <label for="streakLength"><span class= "red-text">*</span>Streak Length</label>
-                        <input value="{{streak.streakLength}}" name="streakLength" id="streakLength" min="0" type="number" required>
-                     </form>
+                        </form>
                      <br>
                      <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>
                   </div>

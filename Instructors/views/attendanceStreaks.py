@@ -9,7 +9,7 @@ from Students.views.utils import studentInitialContextDict
 from Badges.models import LeaderboardsConfig
 from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams 
-from Instructors.models import AttendanceStreak
+from Instructors.models import StreakConfiguration
 from Badges.models import Conditions, Rules, RuleEvents, ActionArguments, VirtualCurrencyRuleInfo
 import json, datetime, ast, re
 from argparse import Action
@@ -21,10 +21,10 @@ from Students.models import StudentRegisteredCourses
 def attendanceStreaks(request):
     context_dict, currentCourse = studentInitialContextDict(request)
     
-    if AttendanceStreak.objects.filter(courseID=currentCourse).exists():
-        streak = AttendanceStreak.objects.filter(courseID=currentCourse)[0]
+    if StreakConfiguration.objects.filter(courseID=currentCourse).exists():
+        streak = StreakConfiguration.objects.filter(courseID=currentCourse)[0]
     else:
-        streak = AttendanceStreak()
+        streak = StreakConfiguration()
         streak.courseID = currentCourse
         streak.save()
     
@@ -113,9 +113,12 @@ def attendanceStreaks(request):
                 context_dict['eventCheckboxDays'] = "[]"
             
             daysDeselected = datesUnSelectedFromDatabase(streak.daysDeselected)
-            
+            streak.daysofWeek
             context_dict['eventCheckboxDaysUnselected'] = daysDeselected
         context_dict['streak'] = streak
+        if context_dict['streak']:
+            if context_dict['streak'].daysofWeek == "":
+                context_dict['streak'].daysofWeek = "[]"
         
         return render(request, 'Instructors/AttendanceStreaks.html', context_dict)   
     if request.method == 'POST':
@@ -131,13 +134,11 @@ def attendanceStreaks(request):
             else:
                 streak.daysofWeek = request.POST.getlist('daysOfWeek[]')
             
-        if 'streakLength' in request.POST:
-            streak.streakLength = request.POST['streakLength']
            
-            if Conditions.objects.filter(courseID=currentCourse, operand1Type=1005, operand1Value=950, operation="=").exists():
-                condition = Conditions.objects.filter(courseID=currentCourse, operand1Type=1005, operand1Value=950, operation="=")[0]
-                condition.operand2Value = streak.streakLength
-                condition.save()
+        if Conditions.objects.filter(courseID=currentCourse, operand1Type=1005, operand1Value=950, operation="=").exists():
+            condition = Conditions.objects.filter(courseID=currentCourse, operand1Type=1005, operand1Value=950, operation="=")[0]
+            #condition.operand2Value = streak.streakLength
+            condition.save()
             
         datesFromCalendarProcessed = []
         
