@@ -38,8 +38,8 @@ def SaveVirtualCurrencySpendRule(request):
             
             vcRuleInfo.vcRuleName = request.POST["ruleName"]
             vcRuleInfo.vcRuleDescription = request.POST["ruleDescription"]
-            vcRuleInfo.vcRuleLimit = request.POST["ruleLimit"] if not request.POST['ruleLimit'] == "" else unlimited_constant
-            vcRuleInfo.vcRuleAmount = request.POST['ruleAmount'] if  not request.POST['ruleAmount'] == "" else 0
+            vcRuleInfo.vcRuleLimit = request.POST["ruleLimit"] if not request.POST['ruleLimit'] == "" else str(unlimited_constant)
+            vcRuleInfo.vcRuleAmount = request.POST['ruleAmount'] if  not request.POST['ruleAmount'] == "" else str(0)
             vcRuleInfo.courseID = currentCourse
             vcRuleInfo.vcRuleType = False
             vcRuleInfo.save()
