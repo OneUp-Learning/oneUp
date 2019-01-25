@@ -91,7 +91,7 @@
 						</table>
 						{% else %}
 						<ul class="collapsible" data-collapsible="expandable">
-							{% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
+							{% for j,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
 							<input type="hidden" name="topicID" value="{{topic_ID}}">
 							<li>
 								<div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
