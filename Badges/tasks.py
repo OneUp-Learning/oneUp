@@ -36,7 +36,7 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
                     'currentCourseID': course_id,
                     'user': User.objects.get(pk=int(user_id)).username,
                 }
-                register_event_simple(Event.challengeExpiration, mini_req, student, challenge.challengeID)
+                register_event_simple(Event.challengeExpiration, mini_req, student.studentID, challenge.challengeID)
                 print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
 
 def create_due_date_process(request, challenge_id, due_date, tz_info):

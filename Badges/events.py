@@ -81,9 +81,6 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.userLogin):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = courseIDint #login form may not have an object id
-    if(eventID == Event.challengeExpiration):
-        eventEntry.objectType = ObjectTypes.challenge
-        eventEntry.objectID = objectId
         
     if(eventID == Event.leaderboardUpdate):
         eventEntry.objectType = ObjectTypes.none
