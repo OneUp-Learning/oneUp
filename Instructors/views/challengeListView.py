@@ -108,7 +108,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
             chall_due_date.append(item.dueDate)
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[6])  ##,chall_Category
+    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[7])  ##,chall_Category
     return context_dict
 
 
@@ -129,36 +129,109 @@ def challengesList(request):
         context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
     else:
         context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
-            
-#    disableExpiredChallenges(request)
+    
+    topic_ID = []      
+    topic_Name = [] 
+    topic_Pos = []     
+    challenges_count = []   
+    all_challenges_for_topic = []
+    hasUnspecified_topic = False
 
+    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
+    for ct in course_topics:
+        
+        tID = ct.topicID.topicID
+        tName = Topics.objects.get(pk=tID).topicName
+        if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
+            topic_ID.append(tID)
+            topic_Name.append(tName)
+            topic_Pos.append(ct.topicPos)
+            topic_challenges = challengesForTopic(ct.topicID, currentCourse, isGraded=True) 
+            challenges_count.append(len(list(topic_challenges)))
+            all_challenges_for_topic.append(topic_challenges)
+        else:
+            unspecified_topic = ct.topicID 
+            hasUnspecified_topic=True  
+           
+    # Add the challenges with unspecified topic at the end
+    if hasUnspecified_topic:
+        topic_ID.append(unspecified_topic.topicID)
+        topic_Name.append("Miscellaneous")
+        if topic_Pos: 
+            max_pos = max(topic_Pos)
+        else:
+            max_pos = 0
+        topic_Pos.append(max_pos+1) 
+        topic_challenges = challengesForTopic(unspecified_topic, currentCourse, isGraded=True)
+        challenges_count.append(len(list(topic_challenges)))
+        all_challenges_for_topic.append(topic_challenges)
+                    
+    context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
+            
     return render(request,'Instructors/ChallengesList.html', context_dict)
     
 
-def challengesForTopic(topic, currentCourse):
+def challengesForTopic(topic, currentCourse, isGraded=False):
 
     chall_ID = []  
     chall_Name = [] 
     #chall_Difficulty = []
     chall_visible = []
     chall_position = []
-    
-    challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
-    if challenge_topics:           
-        for challt in challenge_topics:
-            if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=False, courseID=currentCourse):
-                chall_ID.append(challt.challengeID.challengeID)
-                chall_Name.append(challt.challengeID.challengeName)
-                #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
-                chall_position.append(challt.challengeID.challengePosition)
-                if challt.challengeID.isVisible:
-                    chall_visible.append('Visible')
-                else:
-                    chall_visible.append('Not Visible')
+    if isGraded:
+        start_Timestamp = []
+        end_Timestamp = []
+        chall_due_date = []
+        chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
+        for challID in chall:
+            UnassignID = challID.challengeID  
+        challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
+        
+        if challenge_topics:           
+            for challt in challenge_topics:
+                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, courseID=currentCourse):
+                    print("Topics: {}".format(challenge_topics))
+                    print(topic)
+                    item =  challt.challengeID
+                    if item.challengeID != UnassignID:
+                        chall_ID.append(item.challengeID)
+                        chall_Name.append(item.challengeName)
+                        chall_position.append(item.challengePosition)
+
+                        if item.isVisible:
+                            chall_visible.append("Visible")
+                        else:
+                            chall_visible.append("Not Visible")
+                                
+                        if item.startTimestamp.strftime("%Y") < ("2900"):
+                            start_Timestamp.append(item.startTimestamp)
+                        else:
+                            start_Timestamp.append("")
+                        
+                        if item.endTimestamp.strftime("%Y") < ("2900"):
+                        
+                            end_Timestamp.append(item.endTimestamp)
+                        else:
+                            end_Timestamp.append("")
+
+                        chall_due_date.append(item.dueDate)
                     
-    print()
-    #return zip(challenge_Name,challenge_ID, challenge_Difficulty, isVisible)
-    return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,chall_position)), key=lambda tup: tup[4])
+        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: tup[7])
+    else:
+        challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
+        if challenge_topics:           
+            for challt in challenge_topics:
+                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=isGraded, courseID=currentCourse):
+                    chall_ID.append(challt.challengeID.challengeID)
+                    chall_Name.append(challt.challengeID.challengeName)
+                    #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
+                    chall_position.append(challt.challengeID.challengePosition)
+                    if challt.challengeID.isVisible:
+                        chall_visible.append('Visible')
+                    else:
+                        chall_visible.append('Not Visible')
+                    
+        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,chall_position)), key=lambda tup: tup[4])
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')

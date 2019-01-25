@@ -234,8 +234,9 @@ def exportChallenges(request):
                           
         tree = eTree.ElementTree(root)
         print(eTree.tostring(el_challenge))  
-                
-        f = open('media/textfiles/xmlfiles/challenges.xml', 'w') 
+
+        os.remove('media/textfiles/xmlfiles/challenges.xml')                
+        f = open('media/textfiles/xmlfiles/challenges.xml', 'w')         
         tree.write(f, encoding="unicode")        
         return render(request,'Instructors/ChallengeExportSave.html', context_dict)
 
