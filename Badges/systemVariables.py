@@ -881,7 +881,7 @@ def sc_reached_due_date(course, student, serious_challenge):
     # Returns true if the due date for serious challenge has been reached or if due date is the same as default date
     if not serious_challenge.isGraded:
         return False
-    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
+    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc).replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0)
 def earliest_challenge_submission_in_class(course, student, challenge):
     # Returns the datetime of the earliest submission of a challenge (serious or warmup) in a class
     from Students.models import StudentChallenges
