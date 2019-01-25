@@ -108,7 +108,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
             chall_due_date.append(item.dueDate)
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[6])  ##,chall_Category
+    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[7])  ##,chall_Category
     return context_dict
 
 
