@@ -216,7 +216,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
 
                         chall_due_date.append(item.dueDate)
                     
-        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: (tup[7], tup[6]))
+        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: tup[7])
     else:
         challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
         if challenge_topics:           
