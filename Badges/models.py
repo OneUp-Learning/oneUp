@@ -304,6 +304,8 @@ class CourseConfigParams(models.Model):
 
     progressBarUsed = models.BooleanField(default=True)              ## This is the progress bar in the student achievements page
 
+    seriousChallengesGrouped = models.BooleanField(default=False)    ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side
+
     leaderboardUsed = models.BooleanField(default=False)              ##
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
     numStudentsDisplayed = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
