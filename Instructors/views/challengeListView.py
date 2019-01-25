@@ -128,45 +128,46 @@ def challengesList(request):
     if warmUp == 1:
         context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
     else:
-        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
-    
-    topic_ID = []      
-    topic_Name = [] 
-    topic_Pos = []     
-    challenges_count = []   
-    all_challenges_for_topic = []
-    hasUnspecified_topic = False
+        if not context_dict['ccparams'].seriousChallengesGrouped:
+            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
+        else:
+            topic_ID = []      
+            topic_Name = [] 
+            topic_Pos = []     
+            challenges_count = []   
+            all_challenges_for_topic = []
+            hasUnspecified_topic = False
 
-    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
-    for ct in course_topics:
-        
-        tID = ct.topicID.topicID
-        tName = Topics.objects.get(pk=tID).topicName
-        if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
-            topic_ID.append(tID)
-            topic_Name.append(tName)
-            topic_Pos.append(ct.topicPos)
-            topic_challenges = challengesForTopic(ct.topicID, currentCourse, isGraded=True) 
-            challenges_count.append(len(list(topic_challenges)))
-            all_challenges_for_topic.append(topic_challenges)
-        else:
-            unspecified_topic = ct.topicID 
-            hasUnspecified_topic=True  
-           
-    # Add the challenges with unspecified topic at the end
-    if hasUnspecified_topic:
-        topic_ID.append(unspecified_topic.topicID)
-        topic_Name.append("Miscellaneous")
-        if topic_Pos: 
-            max_pos = max(topic_Pos)
-        else:
-            max_pos = 0
-        topic_Pos.append(max_pos+1) 
-        topic_challenges = challengesForTopic(unspecified_topic, currentCourse, isGraded=True)
-        challenges_count.append(len(list(topic_challenges)))
-        all_challenges_for_topic.append(topic_challenges)
-                    
-    context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
+            course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
+            for ct in course_topics:
+                
+                tID = ct.topicID.topicID
+                tName = Topics.objects.get(pk=tID).topicName
+                if not tName == unspecified_topic_name:   # leave challenges with unspecified topic for last        
+                    topic_ID.append(tID)
+                    topic_Name.append(tName)
+                    topic_Pos.append(ct.topicPos)
+                    topic_challenges = challengesForTopic(ct.topicID, currentCourse, isGraded=True) 
+                    challenges_count.append(len(list(topic_challenges)))
+                    all_challenges_for_topic.append(topic_challenges)
+                else:
+                    unspecified_topic = ct.topicID 
+                    hasUnspecified_topic=True  
+                
+            # Add the challenges with unspecified topic at the end
+            if hasUnspecified_topic:
+                topic_ID.append(unspecified_topic.topicID)
+                topic_Name.append("Miscellaneous")
+                if topic_Pos: 
+                    max_pos = max(topic_Pos)
+                else:
+                    max_pos = 0
+                topic_Pos.append(max_pos+1) 
+                topic_challenges = challengesForTopic(unspecified_topic, currentCourse, isGraded=True)
+                challenges_count.append(len(list(topic_challenges)))
+                all_challenges_for_topic.append(topic_challenges)
+                            
+            context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
             
     return render(request,'Instructors/ChallengesList.html', context_dict)
     
