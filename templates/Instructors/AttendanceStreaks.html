@@ -9,7 +9,7 @@
    <script src='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.min.js'></script>
    <script>
    document.addEventListener("DOMContentLoaded", function(event) {
-	   var daysSelected = {{streak.daysofWeek | safe}};
+	   var daysSelected = {{streak.daysofClass | safe}};
 	  	checkBoxes = document.getElementsByName("dayCheckbox");
 	  	for (var i = 0; i < checkBoxes.length; i++) {
 	  		if (daysSelected.includes(checkBoxes[i].value)) {
@@ -71,20 +71,16 @@
 	   
 	   	
 	   function validateDaysSelected() {
-	   	var checkBoxes = document.getElementsByName("dayCheckbox");
-	   	var singleDayChecked = false;
+	   	checkBoxes = document.getElementsByName("dayCheckbox");
 	   	for (var i = 0; i < checkBoxes.length; i++) {
 	   		if (checkBoxes[i].checked) {
-	   			singleDayChecked= true;
 	   			document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
 	   		}
 	   	}
-	   	if (singleDayChecked){
+	   	if (document.getElementById("streakLength").value != "")
 	   		document.getElementById("daysOfWeekForm").submit();
-	   		return true;
-	   	}
 	   	else
-	   		alert("Please Select Streak Day");
+	   		alert("Please Enter Streak Length or Currency Amount");
 	   }
 
 	   function obtainCalendarInfo() {
@@ -188,7 +184,10 @@
                         <input type="checkbox" name="dayCheckbox" value="6" id="sunday" />
                         <label id="badge" for="sunday">Sunday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="6" />
-                        </form>
+                        <br>
+                        <label for="streakLength"><span class= "red-text">*</span>Streak Length</label>
+                        <input value="{{streak.streakLength}}" name="streakLength" id="streakLength" min="0" type="number" required>
+                     </form>
                      <br>
                      <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>
                   </div>

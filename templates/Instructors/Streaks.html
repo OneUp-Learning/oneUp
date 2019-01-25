@@ -37,6 +37,8 @@
                            <td>{{streakType}}</td>
                             {% if streakAwardType == "Virtual Currency" %}
                            <td>{{streakAwardType}}: {{vcAwardAmount}}</td>
+                           {% else %}
+                           <td>{{streakAwardType}}</td>
                            {% endif %}
                            {% if streakType == "Attendance" %}
                            <td>{{streakLength}} (Days)</td>

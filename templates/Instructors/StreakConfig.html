@@ -94,21 +94,31 @@
                         <option value="1" {%if view%}disabled{%endif%}>Challenge</option>
                         </select>
                      </div>
+                     {%if streakType%}
+                     <script>
+                     var streakType = {{streakType}};
+                     document.getElementById('streakType').value = streakType;
+                             // re-initialize material-select
+                             $('#badgeOption').material_select();
                      
+                     </script>
+                     {% endif %}
                      <div class="col s6">
+                        <input value="{{streakLength}}" name="streakLength" id="streakLength" type="number" class="validate" required>
+                        <label for="streaLength">Streak Length</label>
+                     </div>
+                     
+                  </div>
+                  <div class="row">
+                  <div class="col s6"  id="previous">
                         <label>Award Type</label>
                         <select id="awardType" onchange="displayInput();" name="awardType" {%if view%}readonly{%endif%}>
                         <option val="virtualCurrency" value="0" {%if view%}disabled{%endif%}>Virtual Currency</option>
                         <option val="badge" value="1" {%if view%}disabled{%endif%}>Badge</option>
                         </select>
                      </div>
-                  </div>
-                  <div class="row">
-                     <div class="col s6" id="previous">
-                        <input value="{{streakLength}}" name="streakLength" id="streakLength" type="number" class="validate" required>
-                        <label for="streaLength">Streak Length</label>
-                     </div>
-         {% if badgeID != 0 %}
+                     
+         {% if badgeID  %}
                      <div id='badge' class='col s6'>
        <label for='badgeOption'>Badge Option</label>
        <select id='badgeOption' name='badgeID' >
@@ -130,10 +140,16 @@
           			<label for='virtualCurrency'>Virtual Currency</label>
           			</div>
          {% endif %}
-          			
-          		
           		<div class="row">
-          		<div class="col s12 m10 offset-s1">
+          		 <div class='col s6'>
+                                 <label>Periodic Variable:</label>
+                                 <select id='periodicVariableSelected' name='periodicVariableSelected'>
+                                 {% for periodicVariable in periodicVariables %}
+                                 "<option value='{{periodicVariable.index}}' {% if periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
+                                 {% endfor %}
+                                 "</select>
+                              </div>
+          		<div class="col s6">
           		<br>{% if checkbox == True  %}
                   	<input type="checkbox" checked="checked" id="resetStreak" />
                         <label for="resetStreak">Reset Streak At Limit</label>

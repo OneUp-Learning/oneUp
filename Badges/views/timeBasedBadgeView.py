@@ -31,7 +31,8 @@ def timeBasedBadgeView(request):
                     
                 # The range part is the index numbers.  
                 context_dict['badge'] = badge 
-                context_dict['edit'] = True            
+                context_dict['edit'] = True   
+                context_dict['checkbox'] = badge.resetStreak         
         else:
             context_dict['edit'] = False 
 
@@ -61,23 +62,31 @@ def timeBasedBadgeView(request):
         
             if 'badgeDescription' in request.POST:
                 periodic_badge.badgeDescription = request.POST['badgeDescription']   
+                
+            if 'resetStreak' in request.POST:
+                if int(request.POST['resetStreak']):
+                    periodic_badge.resetStreak = True
+                else:
+                    periodic_badge.resetStreak = False
 
             periodic_badge.courseID = current_course
             periodic_badge.badgeImage = request.POST['badgeImage']
             periodic_badge.isPeriodic = True
-            periodic_badge.periodicType = selectorMap[selectors]
             periodic_badge.periodicVariableID = request.POST['periodicVariableSelected']
             periodic_badge.timePeriodID = request.POST['timePeriodSelected']
             periodic_badge.threshold = request.POST['threshold']
             periodic_badge.operatorType = request.POST['operator']
             periodic_badge.lastModified = utcDate()
 
-            if selectors == "TopN":
-                periodic_badge.numberOfAwards = int(request.POST['numberOfAwards'])
-                periodic_badge.isRandom = None
-            elif selectors == "Random":
-                periodic_badge.isRandom = True
-                periodic_badge.numberOfAwards = None
+            if 'selectors' in request.POST:
+                periodic_badge.periodicType = selectorMap[selectors]
+
+                if selectors == "TopN":
+                    periodic_badge.numberOfAwards = int(request.POST['numberOfAwards'])
+                    periodic_badge.isRandom = None
+                elif selectors == "Random":
+                    periodic_badge.isRandom = True
+                    periodic_badge.numberOfAwards = None
 
             periodic_badge.save()
 
@@ -100,22 +109,31 @@ def timeBasedBadgeView(request):
         
             if 'badgeDescription' in request.POST:
                 periodic_badge.badgeDescription = request.POST['badgeDescription']   
-
+            
+            if 'resetStreak' in request.POST:
+                print("reset streak",int(request.POST['resetStreak']))
+                if int(request.POST['resetStreak']):
+                    periodic_badge.resetStreak = True
+                else:
+                    periodic_badge.resetStreak = False
+                    
             periodic_badge.courseID = current_course
             periodic_badge.badgeImage = request.POST['badgeImage']
             periodic_badge.isPeriodic = True
-            periodic_badge.periodicType = selectorMap[selectors]
+            
             periodic_badge.periodicVariableID = request.POST['periodicVariableSelected']
             periodic_badge.timePeriodID = request.POST['timePeriodSelected']
             periodic_badge.threshold = request.POST['threshold']
             periodic_badge.operatorType = request.POST['operator']
-                
-            if selectors == "TopN":
-                periodic_badge.numberOfAwards = int(request.POST['numberOfAwards'])
-                periodic_badge.isRandom = None
-            elif selectors == "Random":
-                periodic_badge.isRandom = True
-                periodic_badge.numberOfAwards = None
+            
+            if 'selectors' in request.POST:
+                periodic_badge.periodicType = selectorMap[selectors]
+                if selectors == "TopN":
+                    periodic_badge.numberOfAwards = int(request.POST['numberOfAwards'])
+                    periodic_badge.isRandom = None
+                elif selectors == "Random":
+                    periodic_badge.isRandom = True
+                    periodic_badge.numberOfAwards = None
 
             periodic_badge.save()
 

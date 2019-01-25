@@ -11,6 +11,8 @@ from Instructors.constants import uncategorized_activity, default_time_str
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 
+from django_celery_beat.models import PeriodicTask
+
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True,default=0)
@@ -397,23 +399,12 @@ class QuestionLibrary(models.Model):
     question = models.ForeignKey(Questions, on_delete=models.CASCADE)
     library = models.ForeignKey(LuaLibrary, on_delete=models.CASCADE)
     
-class StreakConfiguration(models.Model):
+class AttendaceStreakConfiguration(models.Model):
     streakConfigurationID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
-    daysofWeek = models.CharField(max_length=75)
-    daysDeselected = models.CharField(max_length=20000)#the days that were removed from the streak
-    def __str__(self):              
-        return str(self.streakConfigurationID)+","+str(self.courseID)+","+str(self.daysofWeek)
-class Streaks(models.Model):
-    streakID = models.AutoField(primary_key=True)
-    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
-    streakType = models.IntegerField(default = 0)
-    awardType = models.IntegerField(default = 0)
-    vcAwardAmount = models.IntegerField(default = 0)
-    awardID = models.IntegerField(default = 0)#used for the badgeID
+    daysofClass = models.CharField(max_length=75)#days of the week that are class scheduled for semester
+    daysDeselected = models.CharField(max_length=20000)#the days that were removed from the class schedule
     streakLength = models.IntegerField(default = 0)
-    streakDescription = models.CharField(max_length=200)
-    resetStreak = models.BooleanField(default = False)
     def __str__(self):              
-        return str(self.streakID)+","+str(self.streakLength)+","+str(self.courseID)
+        return str(self.streakConfigurationID)+","+str(self.courseID)+","+str(self.daysofClass) +","+ str(self.daysDeselected)
     

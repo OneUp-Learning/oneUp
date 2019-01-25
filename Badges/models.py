@@ -172,7 +172,7 @@ class PeriodicBadges(BadgesInfo):
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
-    
+    resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the badge.'''
         self.periodicTask.delete()
@@ -180,7 +180,6 @@ class PeriodicBadges(BadgesInfo):
 
     def __str__(self):
         return "Badge #{} : {}".format(self.badgeID, self.badgeName)
-
 # Virtual Currency Table for both automatically and manually handled VC rules
 class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
@@ -212,15 +211,14 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
-
+    resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the rule.'''
         self.periodicTask.delete()
         super().delete(*args, **kwargs)
-
     def __str__(self):
         return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
-
+    
 # Dates Table
 class Dates(models.Model):
     dateID = models.AutoField(primary_key=True)

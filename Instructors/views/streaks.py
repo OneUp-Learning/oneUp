@@ -10,14 +10,14 @@ from django.contrib.auth.decorators import login_required,  user_passes_test
 from django.template.defaultfilters import default
 from django.template.context_processors import request
 from oneUp.decorators import instructorsCheck
-from Instructors.models import StreakConfiguration, Streaks
+from Instructors.models import AttendaceStreakConfiguration
 from Badges.models import BadgesInfo
+from Badges.periodicVariables import periodic_task, PeriodicVariables
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def streaks(request):
     context_dict, currentCourse = initialContextDict(request)
-    streak = Streaks()
     if request.method == 'GET':
         streaksList = []
         streaks= Streaks.objects.filter(courseID=currentCourse)
@@ -48,6 +48,7 @@ def streaks(request):
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def streakConfig(request):
     context_dict, currentCourse = initialContextDict(request)
+    context_dict = createTimePeriodContext(context_dict)
     if request.method == 'GET':
         badgesList = []
         badges = BadgesInfo.objects.filter(courseID=currentCourse)
@@ -66,6 +67,9 @@ def streakConfig(request):
                     context_dict['virtualCurrency'] = streak.vcAwardAmount
                     context_dict['checkbox'] = streak.resetStreak
                     context_dict['badgeID'] = streak.awardID
+                    context_dict['streakType'] = streak.streakType 
+                    context_dict['awardType'] = streak.awardType
+                    context_dict['periodicVariableID'] = streak.periodicVariable
                     
         return render(request, 'Instructors/StreakConfig.html', context_dict)
         
@@ -106,6 +110,8 @@ def streakConfig(request):
                 streak.resetStreak = True
             else:
                 streak.resetStreak = False
+        if 'periodicVariableSelected' in request.POST:
+            streak.periodicVariable = request.POST['periodicVariableSelected']
         streak.save()
         return redirect('/oneUp/instructors/streaks')
         
@@ -123,28 +129,31 @@ def streakDelete(request):
 
 
 ## we must delete and recreate the periodic event or it will break
-def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboard):
-    leaderboardToOldPeriodicVariableDict = dict(zip(leaderboards, oldPeriodicVariableForLeaderboard))
-    boolNoOldVariable = False
+def createPeriodicTasksForObjects(currentStreak, oldPeriodicVariableForStreak, awardType):
+    streakToOldPeriodicVariableDict = dict(zip(currentStreak, oldPeriodicVariableForStreak))
+    isOldVariablePresent = False
 
-    if len(leaderboardToOldPeriodicVariableDict):
-        leaderboardObjects = leaderboardToOldPeriodicVariableDict
-        boolNoOldVariable = True
+    if len(streakToOldPeriodicVariableDict):
+        streakObjects = streakToOldPeriodicVariableDict
+        isOldVariablePresent = True
     else:
-        leaderboardObjects = leaderboards
+        streakObjects = streak
          
-    for leaderboard in leaderboardObjects:
-        if not leaderboard.isContinous:
-            if not boolNoOldVariable:
-                delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
-            else:
-                delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboardToOldPeriodicVariableDict[leaderboard], award_type="leaderboard", course=leaderboard.courseID)
-            leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
-            leaderboard.save()
+    for streak in streakObjects:
+        if not isOldVariablePresent:
+            delete_periodic_task(unique_id=streak.streakID, variable_index=streak.periodicVariable, award_type=awardType, course=streak.courseID)
+        else:
+            delete_periodic_task(unique_id=streak.streakID, variable_index=streakToOldPeriodicVariableDict[streak], award_type=awardType, course=streak.courseID)
+        streak.periodicTask = periodic_task(streak_id=streak.streakID, variable_index=streak.periodicVariable, course=streak.courseID, period_index=streak.timePeriodUpdateInterval,  number_of_top_students=streak.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
+        streak.save()
 
 def deleteLeaderboardConfigObjects(leaderboards):
     for leaderboardObjID in leaderboards:
-        leaderboard = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardObjID))
+        leaderboard = LeaderboardsConfig.objects.get(streakID=int(leaderboardObjID))
         if leaderboard.periodicVariable != 0:
-            delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
+            delete_periodic_task(unique_id=leaderboard.streakID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
         leaderboard.delete()
+        
+def createTimePeriodContext(context_dict):
+    context_dict['periodicVariables'] = [variable for _, variable in PeriodicVariables.periodicVariables.items()]
+    return context_dict

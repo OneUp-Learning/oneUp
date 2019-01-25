@@ -9,7 +9,7 @@ from Students.views.utils import studentInitialContextDict
 from Badges.models import LeaderboardsConfig
 from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams 
-from Instructors.models import StreakConfiguration
+from Instructors.models import AttendaceStreakConfiguration
 from Badges.models import Conditions, Rules, RuleEvents, ActionArguments, VirtualCurrencyRuleInfo
 import json, datetime, ast, re
 from argparse import Action
@@ -21,52 +21,12 @@ from Students.models import StudentRegisteredCourses
 def attendanceStreaks(request):
     context_dict, currentCourse = studentInitialContextDict(request)
     
-    if StreakConfiguration.objects.filter(courseID=currentCourse).exists():
-        streak = StreakConfiguration.objects.filter(courseID=currentCourse)[0]
+    if AttendaceStreakConfiguration.objects.filter(courseID=currentCourse).exists():
+        streak = AttendaceStreakConfiguration.objects.filter(courseID=currentCourse)[0]
     else:
-        streak = StreakConfiguration()
+        streak = AttendaceStreakConfiguration()
         streak.courseID = currentCourse
         streak.save()
-    
-    if Rules.objects.filter(courseID=currentCourse, awardFrequency=1100).exists():
-        rule = Rules.objects.filter(courseID=currentCourse)[0]
-    else:
-        condition = Conditions()
-        condition.operation =  '='
-        condition.courseID = currentCourse
-        condition.operand1Type = 1005
-        condition.operand1Value = 950
-        
-        condition.operand2Type = 1001
-        condition.operand2Value = streak.streakLength
-        condition.save()
-        
-        rule = Rules()
-        rule.conditionID = condition
-        rule.courseID = currentCourse
-        rule.actionID =  710
-        rule.awardFrequency = 1100
-        rule.save()
-        
-        ruleEvent = RuleEvents()
-        ruleEvent.rule = rule
-        ruleEvent.event = 870
-        ruleEvent.save()
-        
-        actionArgument = ActionArguments()
-        actionArgument.ruleID = rule
-        actionArgument.sequenceNumber = 1
-        actionArgument.argumentValue = 5
-        actionArgument.save()
-        
-        vcRuleInfo = VirtualCurrencyRuleInfo()
-        vcRuleInfo.vcRuleName = "Attendance Streak"
-        vcRuleInfo.vcRuleDescription = "Streaks"
-        vcRuleInfo.vcRuleType = True  
-        vcRuleInfo.vcRuleAmount = 5
-        vcRuleInfo.courseID = currentCourse
-        vcRuleInfo.ruleID = rule
-        vcRuleInfo.save()
         
         ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
         if StudentRegisteredCourses.objects.filter(courseID=currentCourse).exists():
@@ -96,8 +56,8 @@ def attendanceStreaks(request):
             d = ccparams.courseStartDate
             delta = datetime.timedelta(days=1)
             
-            if streak.daysofWeek:
-                streakDays = ast.literal_eval(streak.daysofWeek)
+            if streak.daysofClass:
+                streakDays = ast.literal_eval(streak.daysofClass)
                 streakDays = [int(i) for i in streakDays]
                 streak_calendar_days = []
                 while d <= ccparams.courseEndDate:
@@ -113,12 +73,12 @@ def attendanceStreaks(request):
                 context_dict['eventCheckboxDays'] = "[]"
             
             daysDeselected = datesUnSelectedFromDatabase(streak.daysDeselected)
-            streak.daysofWeek
+            streak.daysofClass
             context_dict['eventCheckboxDaysUnselected'] = daysDeselected
         context_dict['streak'] = streak
         if context_dict['streak']:
-            if context_dict['streak'].daysofWeek == "":
-                context_dict['streak'].daysofWeek = "[]"
+            if context_dict['streak'].daysofClass == "":
+                context_dict['streak'].daysofClass = "[]"
         
         return render(request, 'Instructors/AttendanceStreaks.html', context_dict)   
     if request.method == 'POST':
@@ -130,9 +90,9 @@ def attendanceStreaks(request):
             print("request.post.getlistcheckboc", request.POST.getlist('daysOfWeek[]'))
             checkboxResult = request.POST.getlist('daysOfWeek[]')
             if not checkboxResult:
-                streak.daysofWeek = []
+                streak.daysofClass = []
             else:
-                streak.daysofWeek = request.POST.getlist('daysOfWeek[]')
+                streak.daysofClass = request.POST.getlist('daysOfWeek[]')
             
            
         if Conditions.objects.filter(courseID=currentCourse, operand1Type=1005, operand1Value=950, operation="=").exists():
@@ -142,6 +102,9 @@ def attendanceStreaks(request):
             
         datesFromCalendarProcessed = []
         
+        if 'streakLength' in request.POST:
+            streak.streakLength = request.POST['streakLength']
+            
         if 'calendarDaysCheckedList' in request.POST:
             checkedCalendarDays = filterOutDuplicatesFromCalendar(request.POST.getlist('calendarDaysCheckedList'))
             print("checkedcalendardays", request.POST.getlist('calendarDaysCheckedList'))

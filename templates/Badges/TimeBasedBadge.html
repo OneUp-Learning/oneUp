@@ -4,7 +4,48 @@
 <head>
 	{% include 'scripts.html' %}
 </head>
+<script>
+function obtainCheckBoxData(){
+	  checkbox = document.getElementById('resetCheckbox');
+	  if (checkbox.checked){
+		  document.getElementById('resetStreakHidden').value = "1";
+	  		return true;
+	  }
+	  else{
+		  document.getElementById('resetStreakHidden').value = "0";
+	  	return true;
+	  }
+}
 
+function displayResetStreakCheckbox(){
+	var previous = document.getElementById('previous');
+	var checkboxEntity = "<div class='col s5' id='resetStreak'>\n"+
+	"<input type='checkbox' id='resetCheckbox'/>\n"+
+        "<label for='resetCheckbox'>Reset Streak At Limit</label>\n"+
+    "<input id='resetStreakHidden' type='hidden' name='resetStreak'>\n"+
+    "</div>";
+	var variableSelected = document.getElementById('periodicVariableSelected').value;
+	if (variableSelected == 1407 || variableSelected == 1408){
+		if(!document.getElementById('resetStreak')){
+        	var node = document.createTextNode(checkboxEntity);
+        	previous.insertAdjacentHTML('afterEnd',checkboxEntity);
+        	
+        	
+        	  var reason = document.getElementById("reason");
+        	  reason.style.display = "none";
+        	  reason.required = false;
+        	  document.getElementById("numberOfAwards").required = false;
+		}
+	}else{
+		var previous = document.getElementById('resetStreak');
+		previous.parentElement.removeChild(previous);
+		 var reason = document.getElementById("reason");
+   	  reason.style.display = "block";
+   	reason.required = true;
+   	document.getElementById("numberOfAwards").required = true;
+	}
+}
+</script>
 <body>
 	{% include 'heading.html' %}
 	<main>
@@ -20,7 +61,7 @@
 		</div>
 		<div class="row">
 			<div class="col s12 m8 offset-m2">
-				<form name="editBadge" action="/oneUp/badges/TimeBasedBadge" method="POST" onsubmit="return condOnSubmit();">
+				<form name="editBadge" action="/oneUp/badges/TimeBasedBadge" method="POST" onsubmit="return obtainCheckBoxData();">
 					{% csrf_token %}
 					{% if edit %}
 					<input type="hidden" name="badgeId" id="badgeId" value="{{badge.badgeID}}">
@@ -41,7 +82,7 @@
 										Badge Description</label>
 								</div>
 							</div>
-							<div class="row">
+							<div id="reason" class="row">
 									<div class="col s6">
 										<label>Reason:</label>
 										<p>
@@ -73,7 +114,7 @@
 								<div class="row">
 									<div class="col s5">
 										 <label>Condition:</label>
-										 <select id="periodicVariableSelected" name="periodicVariableSelected">
+										 <select onchange="displayResetStreakCheckbox();" id="periodicVariableSelected" name="periodicVariableSelected">
 											{% for periodicVariable in periodicVariables %}
 											<option value="{{periodicVariable.index}}" {% if badge.periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
 											{% endfor %}
@@ -96,10 +137,24 @@
 										 }
 									  </script> 
 									</div>
-									<div class="col s5">
+									<div id="previous" class="col s5">
 										<label for="timePeriodSelected">Treshold:</label>
 										<input type="number" id="treshold" name="threshold" value="{{badge.threshold}}" min="0" required></input>
 									</div>
+					{%if checkbox %}	
+					
+					<div class="col s5" id="resetStreak">
+					<br>{% if checkbox == True  %}
+                  	<input type="checkbox" checked="checked"  />
+                        <label for="resetStreak">Reset Streak At Limit</label>
+                        <input id="resetStreakHidden"type="hidden" name="resetStreak">
+                    {% else %}
+                    <input type="checkbox" />
+                        <label for="resetStreak">Reset Streak At Limit</label>
+                        <input id="resetStreakHidden"type="hidden" name="resetStreak">
+                    {% endif %}
+                    </div>
+                    {% endif %}
 								</div>
 							<div class="row">
 								<div class="col s12">
@@ -172,5 +227,13 @@
 			var input = document.getElementById("numberOfAwards");
 			input.required = false;
 		}
+		
+
+		{% if checkbox%}
+			var reason = document.getElementById("reason");
+			reason.style.display = "none";
+			reason.required = false;
+			document.getElementById("numberOfAwards").required = false;
+		{% endif %}
 </script>
 </html>

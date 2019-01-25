@@ -27,6 +27,7 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId, courseID=current_course)
                 context_dict['vc'] = periodicVC
                 context_dict['edit'] = True
+                context_dict['checkbox'] = periodicVC.resetStreak
         else:
             context_dict['edit'] = False
         context_dict = createTimePeriodContext(context_dict) 
@@ -57,22 +58,30 @@ def timeBasedVirtualCurrencyView(request):
    
             if request.POST['vcRuleAmount']:
                 periodicVC.vcRuleAmount = request.POST['vcRuleAmount']
-
+                
+            if 'resetStreak' in request.POST:
+                if int(request.POST['resetStreak']):
+                    periodicVC.resetStreak = True
+                else:
+                    periodicVC.resetStreak = False
+                
             periodicVC.courseID = current_course
             periodicVC.isPeriodic = True
-            periodicVC.periodicType = selectorMap[selectors]
+            
             periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
             periodicVC.timePeriodID = request.POST['timePeriodSelected']
             periodicVC.threshold = request.POST['threshold']
             periodicVC.operatorType = request.POST['operator']
             periodicVC.lastModified = utcDate()
             
-            if selectors == "TopN":
-                periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
-                periodicVC.isRandom = None
-            elif selectors == "Random":
-                periodicVC.isRandom = True
-                periodicVC.numberOfAwards = None
+            if 'selectors' in request.POST:
+                periodicVC.periodicType = selectorMap[selectors]
+                if selectors == "TopN":
+                    periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
+                    periodicVC.isRandom = None
+                elif selectors == "Random":
+                    periodicVC.isRandom = True
+                    periodicVC.numberOfAwards = None
 
             periodicVC.save()
             
@@ -97,21 +106,30 @@ def timeBasedVirtualCurrencyView(request):
                         
             if request.POST['vcRuleAmount']:
                 periodicVC.vcRuleAmount = request.POST['vcRuleAmount']
+                
+        
+            if 'resetStreak' in request.POST:
+                if int(request.POST['resetStreak']):
+                    periodicVC.resetStreak = True
+                else:
+                    periodicVC.resetStreak = False
 
             periodicVC.courseID = current_course
             periodicVC.isPeriodic = True
-            periodicVC.periodicType = selectorMap[selectors]
+            
             periodicVC.periodicVariableID = request.POST['periodicVariableSelected']
             periodicVC.timePeriodID = request.POST['timePeriodSelected']
             periodicVC.threshold = request.POST['threshold']
             periodicVC.operatorType = request.POST['operator']
-                
-            if selectors == "TopN":
-                periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
-                periodicVC.isRandom = None
-            elif selectors == "Random":
-                periodicVC.isRandom = True
-                periodicVC.numberOfAwards = None
+            
+            if 'selectors' in request.POST:
+                periodicVC.periodicType = selectorMap[selectors]
+                if selectors == "TopN":
+                    periodicVC.numberOfAwards = int(request.POST['numberOfAwards'])
+                    periodicVC.isRandom = None
+                elif selectors == "Random":
+                    periodicVC.isRandom = True
+                    periodicVC.numberOfAwards = None
           
             
             periodicVC.save()
