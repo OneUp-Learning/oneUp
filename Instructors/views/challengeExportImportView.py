@@ -238,6 +238,7 @@ def exportChallenges(request):
         os.remove('media/textfiles/xmlfiles/challenges.xml')                
         f = open('media/textfiles/xmlfiles/challenges.xml', 'w')         
         tree.write(f, encoding="unicode")        
+        f.close()
         return render(request,'Instructors/ChallengeExportSave.html', context_dict)
 
 @login_required
