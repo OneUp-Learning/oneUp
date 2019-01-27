@@ -232,6 +232,7 @@ class StudentConfigParams(models.Model):
     displayClassSkills = models.BooleanField(default=True) 
     displayClassAverage = models.BooleanField(default=True) 
     displayClassRanking = models.BooleanField(default=True)
+    participateInDuel = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
     
     def __str__(self):

@@ -101,7 +101,11 @@ def ChallengesList(request):
         
                         gradeID  = []
                         
-                        numberOfAttempts.append(len(sChallenges))
+                        if challenge.numberAttempts == 99999:
+                            numberOfAttempts.append(challenge.numberAttempts)
+                        else: 
+                            diff = challenge.numberAttempts - len(sChallenges)
+                            numberOfAttempts.append(diff)
                         
                         for sc in sChallenges:
                             gradeID.append(int(sc.getScore()))
@@ -117,7 +121,7 @@ def ChallengesList(request):
                         gradeFirst.append('Not Completed')
                         gradeMax.append('Not Completed')
                         gradeMin.append('Not Completed')
-                        numberOfAttempts.append("0")
+                        numberOfAttempts.append(challenge.numberAttempts)
                         adjusmentReason.append("")
                 
                 # Progressive Unlocking

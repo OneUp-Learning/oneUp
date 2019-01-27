@@ -43,7 +43,7 @@
                                 <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
                                 <td>{{challDueDate|default_date}}</td>
                                 <td>{{grade}}</td>
-                                {% if numberOfAttempts == '0' %}
+                                {% if numberOfAttempts == 99999 %}
                                 <td>Unlimited</td>
                                 {% else %}
                                 <td>{{numberOfAttempts}}</td>
