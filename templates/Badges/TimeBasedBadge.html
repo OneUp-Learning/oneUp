@@ -25,7 +25,7 @@ function displayResetStreakCheckbox(){
     "<input id='resetStreakHidden' type='hidden' name='resetStreak'>\n"+
     "</div>";
 	var variableSelected = document.getElementById('periodicVariableSelected').value;
-	if (variableSelected == 1407 || variableSelected == 1408){
+	if (variableSelected == 1407 | variableSelected == 1408){
 		if(!document.getElementById('resetStreak')){
         	var node = document.createTextNode(checkboxEntity);
         	previous.insertAdjacentHTML('afterEnd',checkboxEntity);
@@ -54,9 +54,9 @@ function displayResetStreakCheckbox(){
 				{% if edit %}
 				<h3>Modify Badge</h3>
 				{% else %}
-				<h3>Add New Badge</h3>
+				<h3> Add New Badge</h3>
 				{% endif %}
-				<p><span class="red-text">*</span> Denotes Required Fields.</p>
+				<p><span class="red-text">*</span>  Denotes Required Fields.</p>
 			</div>
 		</div>
 		<div class="row">
@@ -141,7 +141,7 @@ function displayResetStreakCheckbox(){
 										<label for="timePeriodSelected">Treshold:</label>
 										<input type="number" id="treshold" name="threshold" value="{{badge.threshold}}" min="0" required></input>
 									</div>
-					{%if checkbox %}	
+					{%if checkbox == False or checkbox == True %}	
 					
 					<div class="col s5" id="resetStreak">
 					<br>{% if checkbox == True  %}
@@ -229,7 +229,7 @@ function displayResetStreakCheckbox(){
 		}
 		
 
-		{% if checkbox%}
+		{%if checkbox == False or checkbox == True %}	
 			var reason = document.getElementById("reason");
 			reason.style.display = "none";
 			reason.required = false;

@@ -145,7 +145,7 @@
                                 <label for="timePeriodSelected">Treshold:</label>
                                 <input type="number" id="treshold" name="threshold" value="{{vc.threshold}}" min="0" required></input>
                             </div>
-                {% if checkbox %}
+                {%if checkbox == False or checkbox == True %}	
                        <div class="col s5">
 					<br>{% if checkbox == True  %}
                   	<input type="checkbox" checked="checked" id="resetStreak" />
@@ -215,7 +215,7 @@
 			input.required = false;
 		}
 		
-		{% if checkbox%}
+		{%if checkbox == False or checkbox == True %}	
 		var reason = document.getElementById("reason");
 		reason.style.display = "none";
 		reason.required = false;
