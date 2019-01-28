@@ -142,10 +142,10 @@ def getAveragePercentageScore(course, student, challenge):
     allScores = getTestScores(course, student, challenge)
     percentage = 0
     if allScores.exists():
-        testTotal = allScores[0].challengeID.totalScore
+        testTotal = allScores[0].challengeID.getCombinedScore()
         if testTotal == 0:
             return percentage
-        scoreList = allScores.values_list('testScore', flat=True)
+        scoreList = [c.getScore() for c in allScores]
         numberOfScores = len(scoreList)
         percentage = round(((sum(scoreList)/numberOfScores)/testTotal) * 100, 1)
         logger.debug("Challenge Average Percentage: " + str(percentage) + "%")
@@ -217,14 +217,14 @@ def getMinTestScore(course,student,challenge):
     lowestTestScore = allTestScores.earliest('testScore') #.earliest() also gets the min for an integer value
     return lowestTestScore.getScore()
     
-def getDateOfFirstAttempt(course,student,challenge):
+def getDateOfFirstChallengeSubmission(course,student,challenge):
     from Students.models import StudentEventLog
     #return the oldest date from the event log with matching object ID (looking at only the endChallenge event trigger 802)
     attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge.challengeID,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
     if len(attemptObjectsByDate) > 0:
-        return attemptObjectsByDate[0].timestamp
+        return attemptObjectsByDate[0].timestamp.date()
     else:
-        return datetime(2000,1,1,0,0,0)
+        return datetime(2000,1,1,0,0,0).date()
 
 def totalTimeSpentOnChallenges(course,student):
     from Students.models import StudentChallenges
@@ -300,8 +300,8 @@ def getScorePercentage(course,student, challenge):
     entirePoints = 0.0
     earnedPoints = 0.0
     for studentChallenge in studentChallenges:
-        entirePoints = studentChallenge.challengeID.totalScore
-        earnedPoints = studentChallenge.testScore
+        entirePoints = studentChallenge.challengeID.getCombinedScore()
+        earnedPoints = studentChallenge.getScore()
                 
     if entirePoints != 0.0:
         return ((float(earnedPoints) / float(entirePoints)) * 100)
@@ -635,7 +635,7 @@ def getConsecutiveWeeksOnLeaderboard(course,student):
 
     return math.trunc(delta.days/7)
 
-def getNumberOfUniqueChallengesAttempted(course, student):
+def getNumberOfUniqueSeriousChallengesAttempted(course, student):
     ''' Get the number of unique serious challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=True)
     attempted = 0
@@ -715,6 +715,17 @@ def getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic > 75%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student):    
+    challengesGreaterThan = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in challenges:
+        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percentage > 90.0:
+            challengesGreaterThan += 1
+    logger.debug("Number of unqiue warmup challenges > 90%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
 def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student):    
     challengesGreaterThan = 0
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
@@ -748,6 +759,17 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, stu
                 numberOfChall += 1
     print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
     return numberOfChall
+
+def getNumberOfUniqueSeriousChallengesGreaterThan90Percent(course, student):    
+    challengesGreaterThan = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=True)
+    for challenge in challenges:
+        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percentage > 90.0:
+            challengesGreaterThan += 1
+    logger.debug("Number of unqiue serious challenges > 90%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
 
 def isWarmUpChallenge(course,student,challenge):
     return not challenge.isGraded
@@ -860,82 +882,19 @@ def sc_reached_due_date(course, student, serious_challenge):
     # Returns true if the due date for serious challenge has been reached or if due date is the same as default date
     if not serious_challenge.isGraded:
         return False
-    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc) >= serious_challenge.dueDate
+    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc).replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0)
+def earliest_challenge_submission_in_class(course, student, challenge):
+    # Returns the datetime of the earliest submission of a challenge (serious or warmup) in a class
+    from Students.models import StudentChallenges
+    from Instructors.views.utils import localizedDate
 
-
-def processStudentAttendanceStreaks(course, student):
-    from Instructors.models import AttendanceStreak
-    from Students.models import StudentRegisteredCourses, StudentAttendance
-    from datetime import datetime, timedelta
-    from django.utils.timezone import localtime, now
-    from Badges.models import CourseConfigParams
-    import re, ast, datetime
-    def obtainStudentAttendanceRecordsForDay(student, day, course, streakLength):
-        studentStreakLengthSoFar = 0
-        print("day", day)
-        if StudentAttendance.objects.filter(courseID=course, studentID=student, timestamp=day).exists():
-            attendanceRecord = StudentAttendance.objects.filter(courseID=course, studentID=student, timestamp=day)[0]
-            print("record",attendanceRecord)
-            studentStreakLengthSoFar += 1
-            if studentStreakLengthSoFar == streakLength:
-                return (0,studentStreakLengthSoFar)
-        else:
-            print("no record obtained")
-            return (1,day)
-    def findEffectiveClassDates(ccparams, excluded_Dates, daysOfWeek, studentStreakStartDate):
-        studentStreakStartDate = studentStreakStartDate.date()
-        delta = datetime.timedelta(days=1)
-        streakDays = ast.literal_eval(daysOfWeek)
-        streakDays = [int(i) for i in streakDays]
-        streak_calendar_days = []
-        while studentStreakStartDate <= ccparams.courseEndDate:
-            if studentStreakStartDate.weekday() in streakDays:
-                streak_calendar_days.append(studentStreakStartDate.strftime("%Y-%m-%d"))
-            studentStreakStartDate += delta
-        
-        filteredStreakDays = []
-        for date in streak_calendar_days:
-            if date not in excluded_Dates:
-                if date < datetime.datetime.now().strftime("%Y-%m-%d"):
-                    filteredStreakDays.append(date)
-        return filteredStreakDays
-    
-    
-    streakLength = 0
-    
-    streakStartDate = None
-    
-    if StudentRegisteredCourses.objects.filter(courseID=course, studentID=student).exists():
-        registeredCourse = StudentRegisteredCourses.objects.filter(courseID=course, studentID=student)[0]
-        streakStartDate = registeredCourse.attendanceStreakStartDate
-        
-    if AttendanceStreak.objects.filter(courseID=course).exists():
-        ccparams = CourseConfigParams.objects.get(courseID=course)
-        streak = AttendanceStreak.objects.filter(courseID=course)[0]
-        streakLength = streak.streakLength
-        effectiveClassDates = []
-        effectiveClassDates = findEffectiveClassDates(ccparams, streak.daysDeselected, streak.daysofWeek, streakStartDate)
-        
-    
-    
-    studentStreakLength = 0
-    if streakLength != 0:
-        streakLengthStatusTuple = ()
-        print("effectiveClassDates", effectiveClassDates)
-        for effectiveClassDate in effectiveClassDates:
-            streakLengthStatusTuple = obtainStudentAttendanceRecordsForDay(student, effectiveClassDate, course, streakLength)
-        if streakLengthStatusTuple[0] == 0:#0 means we have a streak of matching length
-            return streakLengthStatusTuple[1]
-            registeredCourse.attendanceStreakStartDate = datetime.datetime.now().strftime("%Y-%m-%d")
-            registeredCourse.save()
-            print("enough dates")
-        elif streakLengthStatusTuple[0] == 1:
-            #the streak number is less than, so we need to find where the streak breaks
-            registeredCourse.attendanceStreakStartDate = streakLengthStatusTuple[1]
-            registeredCourse.save()
-            print("not enough dates")
-            return studentStreakLength
-            
+    earliest_submission = datetime(2000,1,1,0,0,0).date()
+    student_submissions = list(StudentChallenges.objects.filter(courseID=course, challengeID=challenge).exclude(endTimestamp__isnull=True).values_list('endTimestamp', flat=True))
+    if len(student_submissions) <= 0:
+        return earliest_submission
+    earliest_submission = min(student_submissions)
+    print("[DATE] {}".format(earliest_submission.date()))
+    return earliest_submission.date()
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
@@ -945,7 +904,7 @@ class SystemVariable():
     #percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
     maxTestScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
     minTestScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
-    dateOfFirstAttempt = 906 # The date on which the student has attempted a particular challenge for the first time.
+    dateOfFirstChallengeSubmission = 906 # The date on which the student has submitted a particular challenge for the first time.
     timeSpentOnChallenges = 907 # Time spent on a particular challenge.
     timeSpentOnQuestions = 908 # Time spent on a particular question. 
     consecutiveDaysLoggedIn = 909 # The number of consecutive days a student logs in to the One Up website
@@ -960,7 +919,7 @@ class SystemVariable():
     consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
     percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
-    uniqueChallengesAttempted = 920 # The number of unique challenges completed by the student
+    uniqueSeriousChallengesAttempted = 920 # The number of unique serious challenges completed by the student
     uniqueWarmupChallengesGreaterThan30Percent = 921 # Number of warmup challenges with a score percentage greater than 30%
     uniqueWarmupChallengesGreaterThan75Percent = 922 # Number of warmup challenges with a score percentage greater than 75%
     uniqueWarmupChallengesGreaterThan75PercentForTopic = 923 # Number of warmup challenges with a score percentage greater than 75% for a particular topic
@@ -987,7 +946,9 @@ class SystemVariable():
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
     seriousChallengeReachedDueDate = 944 # Returns true if the current time is past a serious challenge due date
-    studentAttendanceEntered = 950 #studentAttendance for streaks
+    uniqueWarmupChallengesGreaterThan90Percent = 945 # Number of warmup challenges with a score percentage greater than 90%
+    uniqueSeriousChallengesGreaterThan90Percent = 946 # Number of serious challenges with a score percentage greater than 90%
+    earliestChallengeSubmissionInClass = 947 # Returns the date of the earliest challenge submission
     systemVariables = {
         numAttempts:{
             'index': numAttempts,
@@ -1056,17 +1017,17 @@ class SystemVariable():
                 ObjectTypes.challenge: getMinTestScore
             }
         },
-        dateOfFirstAttempt:{
-            'index': dateOfFirstAttempt,
-            'name':'dateOfFirstAttempt',
-            'displayName':'Date of First Attempt',
-            'description':'The date on which the student has attempted a particular challenge for the first time.',
+        dateOfFirstChallengeSubmission:{
+            'index': dateOfFirstChallengeSubmission,
+            'name':'dateOfFirstChallengeSubmission',
+            'displayName':'Date of First Challenge Submission',
+            'description':'The date on which the student has submitted a particular challenge for the first time',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.startChallenge],
             },
             'type':'date',
             'functions':{
-                ObjectTypes.challenge: getDateOfFirstAttempt
+                ObjectTypes.challenge: getDateOfFirstChallengeSubmission
             }
         },
         timeSpentOnChallenges:{
@@ -1269,17 +1230,17 @@ class SystemVariable():
                 ObjectTypes.challenge:getAverageTestScore
             },
         },                        
-        uniqueChallengesAttempted:{
-            'index': uniqueChallengesAttempted,
-            'name':'uniqueChallengesAttempted',
-            'displayName':'Unique Challenges Attempted',
-            'description':'The number of unique challenges attempted by the student.',
+        uniqueSeriousChallengesAttempted:{
+            'index': uniqueSeriousChallengesAttempted,
+            'name':'uniqueSeriousChallengesAttempted',
+            'displayName':'Unique Serious Challenges Attempted',
+            'description':'The number of unique serious challenges attempted by the student.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none:getNumberOfUniqueChallengesAttempted
+                ObjectTypes.none:getNumberOfUniqueSeriousChallengesAttempted
             },
         },
         uniqueWarmupChallengesAttempted:{
@@ -1506,7 +1467,7 @@ class SystemVariable():
         seriousChallengeReachedDueDate:{
             'index': seriousChallengeReachedDueDate,
             'name': 'seriousChallengeReachedDueDate',
-            'displayName': 'Serious Challenge Reached Due Date',
+            'displayName': 'When Serious Challenge Reached Due Date',
             'description': 'The serious challenge due date has past or reached based on the current moment',
             'eventsWhichCanChangeThis': {
                 ObjectTypes.challenge: [Event.challengeExpiration],
@@ -1516,17 +1477,43 @@ class SystemVariable():
                 ObjectTypes.challenge: sc_reached_due_date
             },
         },
-        studentAttendanceEntered:{
-            'index': studentAttendanceEntered,
-            'name': 'studentAttendanceEntered',
-            'displayName': 'Student Attendance Streaks',
-            'description': 'Student Attendance Streaks',
-            'eventsWhichCanChangeThis': {
-                ObjectTypes.none: [Event.classAttendance],
+        uniqueWarmupChallengesGreaterThan90Percent:{
+            'index': uniqueWarmupChallengesGreaterThan90Percent,
+            'name':'uniqueWarmupChallengesGreaterThan90Percent',
+            'displayName':'Warmup Challenges with Score > 90%',
+            'description':'The number of warmup challenges with a score greater than 90%',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
-            'type': 'int',
-            'functions': {
-                ObjectTypes.none:processStudentAttendanceStreaks
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan90Percent
+            },
+        },
+        uniqueSeriousChallengesGreaterThan90Percent:{
+            'index': uniqueSeriousChallengesGreaterThan90Percent,
+            'name':'uniqueSeriousChallengesGreaterThan90Percent',
+            'displayName':'Serious Challenges with Score > 90%',
+            'description':'The number of serious challenges with a score greater than 90%',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan90Percent
+            },
+        },
+        earliestChallengeSubmissionInClass:{
+            'index': earliestChallengeSubmissionInClass,
+            'name':'earliestChallengeSubmissionInClass',
+            'displayName':'Earliest Challenge Submission in Class',
+            'description':'The date of the earliest warmup or serious challenge submission',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[Event.endChallenge],
+            },
+            'type':'date',
+            'functions':{
+                ObjectTypes.challenge:earliest_challenge_submission_in_class
             },
         },
                                                                        

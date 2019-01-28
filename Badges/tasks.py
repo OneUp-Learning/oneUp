@@ -36,7 +36,7 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
                     'currentCourseID': course_id,
                     'user': User.objects.get(pk=int(user_id)).username,
                 }
-                register_event_simple(Event.challengeExpiration, mini_req, student, challenge.challengeID)
+                register_event_simple(Event.challengeExpiration, mini_req, student.studentID, challenge.challengeID)
                 print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
 
 def create_due_date_process(request, challenge_id, due_date, tz_info):
@@ -47,7 +47,7 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
     from Instructors.views.utils import localizedDate
     # Make date naive since celery eta accepts only naive datetimes then localize it
     due_date = make_naive(due_date)
-    localized_due_date = localizedDate(None, str(due_date), "%Y-%m-%d %H:%M:%S", timezone)
+    localized_due_date = localizedDate(request, str(due_date), "%Y-%m-%d %H:%M:%S")
     # Setup the task and run at a later time (due_date)
     # Will delete itself after one minute once it has finished running
     timezone = request.session['django_timezone']

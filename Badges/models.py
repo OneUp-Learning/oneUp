@@ -25,6 +25,10 @@ class Conditions(models.Model):
                 return str(FloatConstants.objects.get(pk=value))
             elif (type == OperandTypes.stringConstant):
                 return str(StringConstants.objects.get(pk=value))
+            elif (type == OperandTypes.boolean):
+                return str(1 == value)
+            elif (type == OperandTypes.dateConstant):
+                return str(Dates.objects.get(pk=value))
             elif (type == OperandTypes.systemVariable): 
                 if value in SystemVariable.systemVariables:
                     if 'name' in SystemVariable.systemVariables[value]:
@@ -295,6 +299,10 @@ class CourseConfigParams(models.Model):
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
 
     levelingUsed = models.BooleanField(default=False)                 ##
+
+    progressBarUsed = models.BooleanField(default=True)              ## This is the progress bar in the student achievements page
+
+    seriousChallengesGrouped = models.BooleanField(default=False)    ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side
 
     leaderboardUsed = models.BooleanField(default=False)              ##
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##

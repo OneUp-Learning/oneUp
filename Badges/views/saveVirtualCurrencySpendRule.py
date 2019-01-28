@@ -4,6 +4,7 @@ from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, Virtua
 from Badges.enums import Action, OperandTypes , Event, dict_dict_to_zipped_list
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
+from Instructors.constants import unlimited_constant
 
 import logging
 logger = logging.getLogger(__name__)
@@ -37,8 +38,8 @@ def SaveVirtualCurrencySpendRule(request):
             
             vcRuleInfo.vcRuleName = request.POST["ruleName"]
             vcRuleInfo.vcRuleDescription = request.POST["ruleDescription"]
-            vcRuleInfo.vcRuleLimit = request.POST["ruleLimit"]
-            vcRuleInfo.vcRuleAmount = request.POST['ruleAmount']
+            vcRuleInfo.vcRuleLimit = request.POST["ruleLimit"] if not request.POST['ruleLimit'] == "" else str(unlimited_constant)
+            vcRuleInfo.vcRuleAmount = request.POST['ruleAmount'] if  not request.POST['ruleAmount'] == "" else str(0)
             vcRuleInfo.courseID = currentCourse
             vcRuleInfo.vcRuleType = False
             vcRuleInfo.save()

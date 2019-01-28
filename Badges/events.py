@@ -81,9 +81,6 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.userLogin):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = courseIDint #login form may not have an object id
-    if(eventID == Event.challengeExpiration):
-        eventEntry.objectType = ObjectTypes.challenge
-        eventEntry.objectID = objectId
         
     if(eventID == Event.leaderboardUpdate):
         eventEntry.objectType = ObjectTypes.none
@@ -370,11 +367,11 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
         inner_condition = Conditions.objects.get(pk=operandValue)
         return check_condition_helper(inner_condition, course, student, objectType, objectID,ht, timestampstr)
     elif (operandType == OperandTypes.floatConstant):
-        return FloatConstants.objects.get(pk=operandValue)
+        return FloatConstants.objects.get(pk=operandValue).floatValue
     elif (operandType == OperandTypes.stringConstant):
-        return StringConstants.objects.get(pk=operandValue)
+        return StringConstants.objects.get(pk=operandValue).stringValue
     elif (operandType == OperandTypes.dateConstant):
-        return Dates.objects.get(pk=operandValue)
+        return Dates.objects.get(pk=operandValue).dateValue
     elif (operandType == OperandTypes.systemVariable):
         return calculate_system_variable(operandValue,course,student,objectType,objectID)
     elif (operandType == OperandTypes.challengeSet):

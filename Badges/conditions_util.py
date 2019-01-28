@@ -13,6 +13,8 @@ from Badges.systemVariables import SystemVariable
 from Badges.enums import AwardFrequency
 from Badges.events import operandSetTypeToObjectType, chosenObjectSpecifierFields
 from Badges import systemVariables
+from datetime import datetime
+from Instructors.views.utils import utcDate
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var,context, insideFor):
@@ -116,7 +118,7 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             elif parts[3] == "Y":
                 cond.operand2Type = OperandTypes.dateConstant
                 dconst = Dates()
-                dconst.dateValue = rhsValueTable[value]
+                dconst.dateValue = utcDate(rhsValueTable[value], '%Y-%M-%d').date()
                 dconst.save()
                 cond.operand2Value = dconst.dateID
             cond.save()
@@ -225,7 +227,7 @@ def databaseConditionToJSONString(condition):
     def handleAtom():
         output = '{"type":"ATOM","op":"'+condition.operation+'","lhs":"'
         if condition.operand1Type != OperandTypes.systemVariable: # We have a problem because this should always be true for atoms when using our condition engine.
-            return "";
+            return ""
         else: # No problem
             output += str(condition.operand1Value)+'","rhstype":"'
         if condition.operand2Type == OperandTypes.systemVariable:
@@ -234,9 +236,9 @@ def databaseConditionToJSONString(condition):
             output += 'X","rhsvalue":"'+str(condition.operand2Value==1)+'"}'
         elif condition.operand2Type == OperandTypes.immediateInteger:
             output += 'N","rhsvalue":"'+str(condition.operand2Value)+'"}'
-        elif condition.operand2Value == OperandTypes.dateConstant:
+        elif condition.operand2Type == OperandTypes.dateConstant:
             output += 'Y","rhsvalue":"'+str(Dates.objects.get(pk=condition.operand2Value).dateValue)+'"}'
-        elif condition.operand2Value == OperandTypes.stringConstant:
+        elif condition.operand2Type == OperandTypes.stringConstant:
             output += 'T","rhsvalue":"'+StringConstants.objects.get(pk=condition.operand2Value).stringValue+'"}'
         else: # Other types should not appear as the right hand side of an atom.
             return "" 

@@ -56,7 +56,10 @@ def timeBasedBadgeView(request):
                 delete_periodic_task(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), award_type="badge", course=current_course)
             else:
                 periodic_badge = PeriodicBadges()
-                
+            
+            if 'edit' in request.POST:
+                periodic_badge = PeriodicBadges.objects.get(badgeID=request.POST['badgeId'], courseID=current_course)
+
             if 'badgeName' in request.POST:
                 periodic_badge.badgeName = request.POST['badgeName']
         
@@ -89,7 +92,11 @@ def timeBasedBadgeView(request):
                     periodic_badge.numberOfAwards = None
     
             periodic_badge.save()
-    
+
+            # Delete Periodic Task then recreate it
+            periodic_badge.periodicTask.delete()
+            # delete_periodic_task(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), award_type="badge", course=current_course)
+
             # Recreate the Periodic Task based on the type
             if selectors == "TopN":
                 periodic_badge.periodicTask = setup_periodic_badge(unique_id=int(periodic_badge.badgeID), badge_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), number_of_top_students=int(periodic_badge.numberOfAwards), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType)

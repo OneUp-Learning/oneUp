@@ -236,15 +236,7 @@ class StudentConfigParams(models.Model):
     courseBucks = models.IntegerField(default=0)
     
     def __str__(self):
-        return str(self.scpID)  +","
-        +str(self.courseID) +","
-        +str(self.studentID) +","
-        +str(self.displayBadges) +","                           
-        +str(self.displayLeaderBoard) +","                      
-        +str(self.displayClassSkills) +","                      
-        +str(self.displayClassAverage) +","                     
-        +str(self.displayClassRanking)    
-
+        return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +","+str(self.displayBadges) +","+str(self.displayLeaderBoard) +","+str(self.displayClassSkills) +","+str(self.displayClassAverage) +","+str(self.displayClassRanking) 
 
 class StudentLeaderboardHistory(models.Model):
     id = models.AutoField(primary_key=True)
@@ -300,3 +292,6 @@ class StudentProgressiveUnlocking(models.Model):
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     isFullfilled = models.BooleanField(verbose_name='Did the student fullfill the unlocking rule', default=False)
+    
+    def __str__(self):
+        return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.ojbectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)

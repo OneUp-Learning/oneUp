@@ -20,6 +20,7 @@
             <div class="col s12 m10 offset-m1">
                <div class="card">
                   <div class="card-content">
+                     {% if not ccparams.seriousChallengesGrouped %}
                      <table class="responsive-table">
                         <thead>
                            <th>Name</th>
@@ -76,6 +77,83 @@
                            {% endfor %}
                         </tbody>
                      </table>
+                     {% else %}
+                     <ul class="collapsible" data-collapsible="expandable">
+                           {% for j,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
+                           <input type="hidden" name="topicID" value="{{topic_ID}}">
+                           <li>
+                              <div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
+                                 {% if all_challenges != '0' and challenges_count > 0 %}
+                                 <span class="badge">{{challenges_count}}</span>
+                                 {% else %}
+                                 <span class="badge">0</span>
+                                 {% endif %}
+                              </div>
+                              <div class="collapsible-body">
+                                 <table class="responsive-table">
+                                    <thead>
+                                          <th>Name</th>
+                                          <th>Due Date</th>
+                                          <th>Score</th>
+                                          <th>Number of Attempts</th>
+                                          <th>Adjustment Reason</th>
+                                          <th class="secondary-content">
+                                             <a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="top" data-delay="50" data-tooltip="Display"><i class="material-icons" >filter_list</i></a>
+                                             <ul id='dropdown1' class='dropdown-content'>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{1}}{% if is_teacher %}&userID={{student}}{% endif %}">Latest Score</a></li>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{2}}{% if is_teacher %}&userID={{student}}{% endif %}">Earliest Score</a></li>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{3}}{% if is_teacher %}&userID={{student}}{% endif %}">Highest Score</a></li>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{4}}{% if is_teacher %}&userID={{student}}{% endif %}">Lowest Score</a></li>
+                                             </ul>
+                                          </th>
+                                    </thead>
+                                    <tbody>
+                                       {% for i,chall_ID,chall_Name, grade,numberOfAttempts,adjusmentReason, chall_position, challDueDate, isUnlocked in all_challenges %}
+                                       <input type="hidden" name="challengeID" value="{{chall_ID}}">
+                                       <tr>
+                                             <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
+                                             <td>{{challDueDate|default_date}}</td>
+                                             <td>{{grade}}</td>
+                                             {% if numberOfAttempts == '0' %}
+                                             <td>Unlimited</td>
+                                             {% else %}
+                                             <td>{{numberOfAttempts}}</td>
+                                             {% endif %}		
+                                             <td>{{adjusmentReason}}</td>
+                                           {% if isUnlocked.isFullfilled %}
+                                           <td class="right-align">
+                                              {% if is_teacher %} 
+                                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>   
+                                              {% else %}
+                                              {% if challDueDate|passed_current_time %}
+                                              <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                              {% else %}
+                                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
+                                              {% endif %}
+                                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}"><i class="material-icons left">visibility</i>View</a>   
+                                              {% endif %}
+                                           </td>
+                                           {% else %}
+                                           <td class="right-align">
+                                              <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                              <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
+                                           </td>   
+                                           {% endif %}
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                           <td class="center-align" colspan="4"><i>No Serious Challenges</i></td>
+                                        </tr>
+                                       {% endfor %}
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </li>
+                           {% empty %}
+                           <li>No Topics</li>
+                           {% endfor %}
+                        </ul>
+                        {% endif %}
                   </div>
                   <div class="card-action right-align">
                      <div class="hide-on-med-and-up">
