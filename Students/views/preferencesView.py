@@ -25,7 +25,8 @@ def preferencesView(request):
             context_dict['studCanChangeBadgeVis']=ccparams.studCanChangeBadgeVis
             context_dict['studCanChangeLeaderboardVis']=ccparams.studCanChangeLeaderboardVis
             context_dict['studCanChangeClassSkillsVis']=ccparams.studCanChangeClassSkillsVis
-            context_dict['studCanChangeclassAverageVis']=ccparams.studCanChangeclassAverageVis    
+            context_dict['studCanChangeclassAverageVis']=ccparams.studCanChangeclassAverageVis
+            context_dict["classmatesChallenges"] = ccparams.classmatesChallenges  
                     
         student = context_dict['student']   
     
@@ -48,6 +49,9 @@ def preferencesView(request):
 
         if ccparams.studCanChangeclassAverageVis:  
             scparams.displayClassAverage = "displayClassAverage" in request.POST
+        
+        if ccparams.classmatesChallenges:
+            scparams.participateInDuel = "participateInDuel" in request.POST
                                 
         # scparams.displayClassAverage = "displayClassAverage" in request.POST 
         scparams.displayClassRanking = "displayClassRanking" in request.POST     
@@ -70,6 +74,7 @@ def preferencesView(request):
             context_dict["displayClassAverage"]=scparams.displayClassAverage
             context_dict["displayClassSkills"]=scparams.displayClassSkills
             context_dict["displayClassRanking"]=scparams.displayClassRanking
+            context_dict["participateInDuel"]=scparams.participateInDuel
             
         return render(request,'Students/Preferences.html', context_dict)
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 import random 
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 
 ##GMM import Regular Expression, re
@@ -51,7 +51,10 @@ def ChallengeSetup(request):
                     duel_challenge = DuelChallenges.objects.get(pk=int(duel_id))
                     context_dict['challengeName'] = duel_challenge.duelChallengeName
                     context_dict['isduration'] = True
-                    context_dict['testDuration'] = duel_challenge.timeLimit
+                    total_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=20)
+                    remaing_time = total_time-utcDate()
+                    difference_minutes = remaing_time.total_seconds()/60.0
+                    context_dict['testDuration'] = difference_minutes
                     context_dict['isDuel'] = True
                     context_dict['duelID'] = duel_id
                 else:

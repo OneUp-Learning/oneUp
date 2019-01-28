@@ -8,6 +8,7 @@ from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
 from time import strftime
 from django.contrib.auth.decorators import login_required
+from datetime import datetime, timedelta
 
 @login_required
 def ChallengeDescription(request):
@@ -70,7 +71,10 @@ def ChallengeDescription(request):
                 
                 data = getattr(challenge,'timeLimit')
                 if is_duel:
-                    context_dict['timeLimit'] = duel_challenge.timeLimit
+                    total_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=20)
+                    remaing_time = remaing_time = total_time-utcDate()
+                    difference_minutes = remaing_time.total_seconds()/60.0
+                    context_dict['timeLimit'] = ("%.2f" % difference_minutes)
                 elif data == unlimited_constant:
                     context_dict['timeLimit'] = "None"
                 else:
