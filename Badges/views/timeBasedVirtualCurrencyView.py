@@ -87,8 +87,9 @@ def timeBasedVirtualCurrencyView(request):
 
             periodicVC.save()
 
-            # Delete the Periodic Task then recreate it
-            periodicVC.periodicTask.delete()
+            # if it has a periodic task Delete the Periodic Task then recreate it
+            if periodicVC.periodicTask:
+                periodicVC.periodicTask.delete()
             # delete_periodic_task(unique_id=int(periodicVC.vcRuleID), variable_index=int(periodicVC.periodicVariableID), award_type="vc", course=current_course)
             
             # Recreate the Periodic Task based on the type

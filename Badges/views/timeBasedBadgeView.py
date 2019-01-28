@@ -93,7 +93,8 @@ def timeBasedBadgeView(request):
             periodic_badge.save()
 
             # Delete Periodic Task then recreate it
-            periodic_badge.periodicTask.delete()
+            if periodic_badge.periodicTask:
+                periodic_badge.periodicTask.delete()
             # delete_periodic_task(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), award_type="badge", course=current_course)
 
             # Recreate the Periodic Task based on the type
