@@ -37,6 +37,15 @@ def preferencesView(request):
             ccparams.numBadgesDisplayed=0
             
         ccparams.levelingUsed = "levelingUsed" in request.POST
+            
+        ccparams.classmatesChallenges = "classmatesChallenges" in request.POST
+        if ccparams.classmatesChallenges:
+            ccparams.vcDuel = request.POST.get('vc_duel')
+            ccparams.vcCallout = request.POST.get('vc_callout')
+        else:
+            ccparams.vcDuel = 0
+            ccparams.vcCallout = 0
+        
         ccparams.leaderboardUsed = "leaderboardUsed" in request.POST
         if ccparams.leaderboardUsed == True:    
             ccparams.studCanChangeLeaderboardVis = "studCanChangeLeaderboardVis" in request.POST
@@ -110,6 +119,10 @@ def preferencesView(request):
             context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
             context_dict["thresholdToLevelMedium"]=ccparams.thresholdToLevelMedium
             context_dict["thresholdToLevelDifficulty"]=ccparams.thresholdToLevelDifficulty
+            context_dict["classmatesChallenges"]=ccparams.classmatesChallenges
+            context_dict["vc_callout"] = ccparams.vcCallout
+            context_dict["vc_duel"] = ccparams.vcDuel
+            
  
         return render(request,'Instructors/Preferences.html', context_dict)
     

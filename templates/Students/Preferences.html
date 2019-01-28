@@ -71,6 +71,19 @@
                                 </label>
                             </div>
                             {% endif %}
+                            {% if classmatesChallenges %}
+                            <div class="switch">
+                                <label>
+                                    Participate In Duel
+                                    {% if participateInDuel %}
+                                    <input name="participateInDuel" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="participateInDuel" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
+                            {% endif %}
                             </div>
                             <div class="card-action right-align">
                             {% if studCanChangeLeaderboardVis or studCanChangeClassSkillsVis or studCanChangeBadgeVis or studCanChangeclassAverageVis %}

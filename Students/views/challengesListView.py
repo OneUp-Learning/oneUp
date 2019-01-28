@@ -49,22 +49,21 @@ def ChallengesList(request):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+            grade = []
+            gradeLast = []
+            gradeFirst = []
+            gradeMax = []
+            gradeMin = []
+            adjusmentReason = []
+            challDueDate = []
+            isUnlocked = []
+            
+            numberOfAttempts = []
 
             if not challenges:
                 context_dict['no_challenge'] = 'Sorry!! there are no challenges associated with the course chosen..'
             else:
                 for challenge in challenges:
-                    grade = []
-                    gradeLast = []
-                    gradeFirst = []
-                    gradeMax = []
-                    gradeMin = []
-                    adjusmentReason = []
-                    challDueDate = []
-                    isUnlocked = []
-                    
-                    numberOfAttempts = []
-
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                     if challQuestions:
                         
@@ -93,7 +92,11 @@ def ChallengesList(request):
             
                             gradeID  = []
                             
-                            numberOfAttempts.append(len(sChallenges))
+                            if challenge.numberAttempts == 99999:
+                                numberOfAttempts.append(challenge.numberAttempts)
+                            else: 
+                                diff = challenge.numberAttempts - len(sChallenges)
+                                numberOfAttempts.append(diff)
                             
                             for sc in sChallenges:
                                 gradeID.append(int(sc.getScore()))
@@ -109,14 +112,16 @@ def ChallengesList(request):
                             gradeFirst.append('Not Completed')
                             gradeMax.append('Not Completed')
                             gradeMin.append('Not Completed')
-                            numberOfAttempts.append("0")
+                            numberOfAttempts.append(challenge.numberAttempts)
                             adjusmentReason.append("")
-                    
+
                     # Progressive Unlocking
                     studentPUnlocking = StudentProgressiveUnlocking.objects.filter(studentID=studentId,objectID=challenge.pk,objectType=ObjectTypes.challenge,courseID=currentCourse).first()
                     if studentPUnlocking:
                         isUnlocked.append({'isFullfilled': studentPUnlocking.isFullfilled,'description': studentPUnlocking.pUnlockingRuleID.description})
+
                     else:
+
                         isUnlocked.append({'isFullfilled': True,'description': ''})
 
                 if optionSelected == '1':

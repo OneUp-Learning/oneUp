@@ -301,6 +301,10 @@ class CourseConfigParams(models.Model):
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
 
     levelingUsed = models.BooleanField(default=False)                 ##
+    
+    classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
+    vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
+    vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
 
     progressBarUsed = models.BooleanField(default=True)              ## This is the progress bar in the student achievements page
 
@@ -308,7 +312,7 @@ class CourseConfigParams(models.Model):
 
     leaderboardUsed = models.BooleanField(default=False)              ##
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
-    numStudentsDisplayed = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
+    numStudentsDisplayed = models.IntegerField(default=0)              ## This is used to display the number of studentss in the leaderboard dashboard html table
 
     classSkillsDisplayed = models.BooleanField(default=False)         ## The classSkillsDisplayed is only for dashboard purposes for the instructor
     studCanChangeClassSkillsVis = models.BooleanField(default=False)  ## The classSkillsDisplayed is only for dashboard purposes for the student
