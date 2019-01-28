@@ -53,7 +53,6 @@ def timeBasedBadgeView(request):
         else:
             if 'badgeId' in request.POST:
                 periodic_badge = PeriodicBadges.objects.get(badgeID=request.POST['badgeId'], courseID=current_course)
-                delete_periodic_task(unique_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), award_type="badge", course=current_course)
             else:
                 periodic_badge = PeriodicBadges()
             

@@ -148,12 +148,12 @@
                 {%if checkbox == False or checkbox == True %}	
                        <div class="col s5">
 					<br>{% if checkbox == True  %}
-                  	<input type="checkbox" checked="checked" id="resetStreak" />
-                        <label for="resetStreak">Reset Streak At Limit</label>
+                  	<input type="checkbox" checked="checked" id="resetCheckbox" />
+                        <label for="resetCheckbox">Reset Streak At Limit</label>
                         <input id="resetStreakHidden"type="hidden" name="resetStreak">
                     {% else %}
-                    <input type="checkbox" id="resetStreak" />
-                        <label for="resetStreak">Reset Streak At Limit</label>
+                    <input type="checkbox" id="resetCheckbox" />
+                        <label for="resetCheckbox">Reset Streak At Limit</label>
                         <input id="resetStreakHidden"type="hidden" name="resetStreak">
                     {% endif %}
                     </div>
