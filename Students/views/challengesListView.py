@@ -49,22 +49,21 @@ def ChallengesList(request):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+            grade = []
+            gradeLast = []
+            gradeFirst = []
+            gradeMax = []
+            gradeMin = []
+            adjusmentReason = []
+            challDueDate = []
+            isUnlocked = []
+            
+            numberOfAttempts = []
 
             if not challenges:
                 context_dict['no_challenge'] = 'Sorry!! there are no challenges associated with the course chosen..'
             else:
                 for challenge in challenges:
-                    grade = []
-                    gradeLast = []
-                    gradeFirst = []
-                    gradeMax = []
-                    gradeMin = []
-                    adjusmentReason = []
-                    challDueDate = []
-                    isUnlocked = []
-                    
-                    numberOfAttempts = []
-
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                     if challQuestions:
                         
