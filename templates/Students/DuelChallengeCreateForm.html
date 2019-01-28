@@ -68,7 +68,7 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s18 m6">
-                              <label for="startTime"><span class= "red-text">*</span> Minute(s) The Challenge starts After Acceptance</label> 
+                              <label for="startTime"><span class= "red-text">*</span> Minute(s) The Challenge Starts After Acceptance</label> 
                               <input placeholder="minutes (minimum 5)" value="{{startTime}}" name="startTime" id="startTime" maxlength="6" type="number" class="validate" min="1" step="any" required>
                               <!--<input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">-->
                            </div>
@@ -80,7 +80,7 @@
 
                         </div>
                         <div class="row">
-                             <div class="input-field col s12" id="challengee_id">
+                             <div class="input-field col s2" id="challengee_id">
                               <select class="icons" name="challengee_id" form="duelChallForm" required>
                                 <!--<option value="{{currentStudent}}" selected>{{currentAvatar}}</option>
                                 <table>
@@ -91,7 +91,7 @@
                                        </option>
                                        
                                        <option value={{challengee_id}} id="challengee_id" name="challengee_id" > {{challengee.studentID.user.first_name}}</option>-->
-                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id"  data-icon="{{avatar}}"  class="circle">{{challengee.studentID.user.first_name}}</option>>
+                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id"  data-icon="{{avatar}}"  class="circle"></option>
                      
                                        <!--<label for="a{{i}}"><img alt="Avatar Image" width="76px" height="76px" src="/{{avatar}}"></label>        
                                                      <option img alt="Avatar Image" class="circle" width="35" height="35" src="{{avatar}}" {{challengee.studentID.user.first_name}}</option>
@@ -99,10 +99,11 @@
                                  
                                 {% endfor %}
                               
-                              
+                                
                               </select>
-                              <label for="challengee_id"><span class= "red-text">*</span> Select Challengee</label>
+                               <label  for="challengee_id"><span class= "red-text">*</span> Select Challengee</label>
                           </div>
+                         
                         </div>
                         <div class="row">
 
