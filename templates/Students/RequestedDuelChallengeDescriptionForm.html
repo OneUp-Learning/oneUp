@@ -21,11 +21,12 @@
         }
         
      </script>
+     
    </head>
    <body>
       {% include 'stheading.html' %}
 
-      <form id="refresh" name="refresh" action="/oneUp/students/DuelChallengeDescription" method="GET">
+      <form id="refresh" name="refresh" action="/oneUp/students/DuelChallengeDescription?duelChallengeID={{requested_duel_challenge.duelChallengeID}}&sTime=0" method="GET">
         <input type="hidden" name="duelChallengeID" id="duelChallengeID" value ="{{requested_duel_challenge.duelChallengeID}}">
         <!--<input type="hidden" name="accept" id="accept" value="True">-->
         <input type="submit" id="submit_hidden" name="submit_hidden" style="display:none;">
@@ -49,8 +50,8 @@
                         </div>
                         <ul style="font-size: 16px;">
                                 <li>
-                                    <span><b>Opponent Avatar: </b></span>
-                                    <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
+                                    
+                                    <span ><img class="circle" width="30" height="30" src="{{your_avatar}}"> vs <img class="circle" width="30" height="30" src="{{opponent_avatar}}"></span>
                                 </li>
                                 {% if hasExpired %}
                                         <li >
@@ -76,14 +77,25 @@
                                     <span><b>Betting Amount: </b></span>
                                     <span>{{requested_duel_challenge.vcBet}}</span>
                                 </li>
+                                
                                 {% endif %}
+                                <li>
+                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+                                        <span>{{duel_vc_const}}</span>
+                                    </li>
+                                    <li>
+                                    <span><b>Award Amount: </b></span>
+                                    <span>{{award}}</span>
+                                </li>
                                 {% if isTaken %}
                                     <li>
                                         <span><b>Score: </b></span>
                                         <span>{{sChall.testScore}} / {{sChall.challengeID.totalScore}} pts</span>
                                     </li>
                                     {% endif %}
+                                    
                                 </ul>
+                                
                         {% elif isTaken %}
                         <div class="section">
                             <h5><b>Duel Details</b></h5>
@@ -91,8 +103,8 @@
                         </div>
                         <ul style="font-size: 16px;">
                                 <li>
-                                    <span><b>Opponent Avatar: </b></span>
-                                    <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
+                                    <span ><img class="circle" width="30" height="30" src="{{your_avatar}}"> vs <img class="circle" width="30" height="30" src="{{opponent_avatar}}"></span>
+                                
                                 </li>
                                 <li >
                                         <span><b>Status: </b></span>
@@ -111,8 +123,17 @@
                                     <span><b>Betting Amount: </b></span>
                                     <span>{{requested_duel_challenge.vcBet}}</span>
                                 </li>
+                                
                                 {% endif %}
                                 <li>
+                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+                                        <span>{{duel_vc_const}}</span>
+                                    </li>
+                                <li>
+                                <li>
+                                    <span><b>Award Amount: </b></span>
+                                    <span>{{award}}</span>
+                                </li>
                                     <span><b>Score: </b></span>
                                     <span>{{sChall.testScore}} / {{sChall.challengeID.totalScore}} pts</span>
                                 </li>
@@ -125,8 +146,8 @@
                         <div>
                         <ul style="font-size: 16px;">
                             <li>
-                                <span><b>Opponent Avatar: </b></span>
-                                <span ><p><img class="circle" width="30" height="30" src="{{opponent_avatar}}"></p></span>
+                                <span ><img class="circle" width="30" height="30" src="{{your_avatar}}"> vs <img class="circle" width="30" height="30" src="{{opponent_avatar}}"></span>
+                                
                             </li>
                             <li>
                                 <span><b>Acceptance Status: </b></span>
@@ -136,16 +157,94 @@
                         		<span><b>Time Limit: </b></span>
                         		<span>{{requested_duel_challenge.timeLimit}} minute(s)</span>
                             </li>
-                            {% if not requested_duel_challenge.hasStarted %}
+                            {% if requested_duel_challenge.status == 1 %}
                         	<li>
-                        		<span><b>Time duel will start After Acceptance: </b></span>
+                        		<span><b>Time duel will start after acceptance: </b></span>
                         		<span>{{requested_duel_challenge.startTime}} minute(s)</span>
                             </li>
+                            {% elif not requested_duel_challenge.hasStarted %}
+                            <li>
+                                <span><b>Duel will start in: </b></span>
+                                <span id="count_down"></span>
+                                
+                                <script>
+                    // This script is for count down time 
+                    var duration = {{startTime}};
+                    var duration_milli = duration * 1000 * 60;
+                    var countDownDate = new Date(duration_milli).getTime() + new Date().getTime();
+            
+                    var x = setInterval(function() {
+            
+                        // Get now's date and time
+                        var now = new Date().getTime();
+            
+                        // Find the distance between now and the count down date + now
+                        var distance = countDownDate-now;
+            
+                        // Time calculations for days, hours, minutes and seconds
+                        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+                        if(days != 0 )
+                            document.getElementById("count_down").innerHTML = days + "d " + hours + "h "
+                            + minutes + "m " + seconds + "s ";
+                        else if(hours != 0)
+                            document.getElementById("count_down").innerHTML = hours + "h "
+                            + minutes + "m " + seconds + "s ";
+                        else
+                            document.getElementById("count_down").innerHTML = minutes + "m " + seconds + "s ";
+            
+                        // If the count down is over, write Expired 
+                        if (distance < 0) {
+                            clearInterval(x);
+                            document.getElementById("count_down").innerHTML = "0";
+                        }
+                    }, 1000);
+                </script> 
+                            </li>
                             {% else %}
-                            <!--<li>
-                                <span><b>Duel will finish in: </b></span>
-                                <span>{{start_time}}</span>
-                            </li>-->
+                             <li>
+                                 <span><b>Duel will finish in: </b></span>
+                                 <span id="test_time"></span>
+                                 <script>
+                    // This script is for count down time 
+                    var duration = {{testDuration}};
+                    var duration_milli = duration * 1000 * 60;
+                    var countDownDate = new Date(duration_milli).getTime() + new Date().getTime();
+            
+                    var x = setInterval(function() {
+            
+                        // Get now's date and time
+                        var now = new Date().getTime();
+            
+                        // Find the distance between now and the count down date + now
+                        var distance = countDownDate-now;
+            
+                        // Time calculations for days, hours, minutes and seconds
+                        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+                        if(days != 0 )
+                            document.getElementById("test_time").innerHTML = days + "d " + hours + "h "
+                            + minutes + "m " + seconds + "s ";
+                        else if(hours != 0)
+                            document.getElementById("test_time").innerHTML = hours + "h "
+                            + minutes + "m " + seconds + "s ";
+                        else
+                            document.getElementById("test_time").innerHTML = minutes + "m " + seconds + "s ";
+            
+                        // If the count down is over, write Expired 
+                        if (distance < 0) {
+                            clearInterval(x);
+                            document.getElementById("test_time").innerHTML = "0";
+                        }
+                    }, 1000);
+                </script> 
+                             </li>
                             {% endif %}
                             {% if requested_duel_challenge.isBetting %}
                             <li>
@@ -156,7 +255,16 @@
                                 <span><b>Betting Amount: </b></span>
                                 <span>{{requested_duel_challenge.vcBet}}</span>
                             </li>
+                            
                             {% endif %}
+                            <li>
+                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+                                        <span>{{duel_vc_const}}</span>
+                                    </li>
+                            <li>
+                                <span><b>Award Amount: </b></span>
+                                <span>{{award}}</span>
+                            </li>
                         </ul>
                         </div>
                         {% endif %}
@@ -186,8 +294,9 @@
                             {% endif %}
                             
                                 <div id="modal_decline" class="modal">
+                                <div class="model-dialog">
                                         <div class="modal-content">
-                                        <h5>Please select a reason for declanation</h5>
+                                        
                                         <!--
                                         <input type="radio" name="reason1" id="reason1" value="Not Interested"> Not Interest<br>
                                         <input type="radio" name="reason2" id="reason2" value="Duel requires too much time"> Duel requires too much time<br>
@@ -195,8 +304,37 @@
                                         <input type="radio" name="reason4" id="reason4" value="Duel requires too much virtual currency"> Duel requires too much virtual currency<br>  
                                         <input type="radio" name="reason5" id="reason5" value="Preferred not to say"> Preferred not to say<br>
                                         -->
-                                        <h5>Are you sure you want to decline?</h5>
-                                        <p>If you declined, the duel will be deleted and this action is revertible.</p>
+                                        
+                                         <!--  h5>Please select a reason for denial</h5>
+                                           <h5>
+                                            <label>
+                                              <input class="with-gap" name="group1" type="radio" checked />
+                                                <span>Not Interested</span>
+                                            </label>
+                                           </h5>
+                                           <h5>
+                                            <label>
+                                             <input class="with-gap" name="group1" type="radio" />
+                                              <span>Preferred not to say</span>
+                                            </label>
+                                           </h5>
+                                           <h5>
+                                            <label>
+                                             <input class="with-gap" name="group1" type="radio"  />
+                                               <span>Duel requires too much virtual currency</span>
+                                            </label>
+                                           </h5>
+                                           <h5>
+                                            <label>
+                                              <input class="with-gap" name="group1" type="radio" />
+                                               <span>Other</span>
+                                            </label>
+                                          </h5>-->
+                                          <h5>Are you sure you want to decline?</h5>
+                                        <h5>If you decline, the duel will be deleted and this action is not revertible.</h5>
+                                        
+                     
+                                        
                                         </div>
                                         <div class="modal-footer">
                                         <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
@@ -205,6 +343,7 @@
                                         </button>-->
                                         <a class="modal-action modal-close waves-effect waves-light btn-flat" href="/oneUp/students/DuelChallengeDelete?duelChallengeID={{requested_duel_challenge.duelChallengeID}}&denial=True">Decline
                                     </a>
+                                        </div>
                                         </div>
                                 </div>
                         

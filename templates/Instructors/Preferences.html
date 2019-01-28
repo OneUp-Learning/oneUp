@@ -305,7 +305,41 @@
                             </div>
                         </div>
                     </div>
+                   
+                    <div class="col s12 m4">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Classmates Challenges</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable the use of duels and call-outs
+                                            {% if classmatesChallenges %}
+                                            <input name="classmatesChallenges" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="classmatesChallenges" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{vc_duel}}" name="vc_duel" id="vc_duel" maxlength="7" type="number" min="0" max="100" >
+                                        <label for="vc_due">Amount of virtual currency rewarded to duel winners</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7" type="number" min="0" max="100" >
+                                        <label for="vc_callout">Amount of virtual currency rewarded to call-outs participants</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+              
                 <div class="row">
                     <div class="col s12 m4 offset-m8">
                         <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i class="material-icons right">done</i></button> 
