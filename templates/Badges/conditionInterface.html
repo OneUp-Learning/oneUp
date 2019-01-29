@@ -401,6 +401,8 @@ var condSpecifierDivs = {
 
 function condChangeAwardFreq(select) {
 	var newAwardFreq = select.value;
+	console.log("changeAwardFrequency called");
+	console.log(newAwardFreq);
 	var oldType = condAwardFrequencyToThingieTypeName[condOldAwardFreq];
 	var oldTypeNum = condAwardFrequencyToThingieType[condOldAwardFreq];
 	var oldLabel = oldType + ":scope";
@@ -443,8 +445,6 @@ function condChangeAwardFreq(select) {
     	condSpecifierDivs[newTypeNum].style.display = "block";
     }
 }
-
-condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
 
 function condChangeSpecifier(select) {
 	var objectTypeNum = select.dataset.condObjectTypeNum;
@@ -1388,6 +1388,8 @@ if (initialCond === "empty") {
 } else {
     condCreateUIFromCondition(initialCond, initialEmpty, "none");
 }
+
+condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
 
 function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
     function selectOptionByValue(sel, val) {
