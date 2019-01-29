@@ -131,7 +131,6 @@ class Channel extends Component {
           
       }
   }
-
   componentDidMount() {
     chat_socket.onopen = function(){
       //console.log("Connected to chat socket: ");
@@ -175,6 +174,10 @@ class Channel extends Component {
           //console.log("Someone Change Topic")
           this.props.leaveCallback(false);
         }
+      }
+      else if(message.event == 'add_users_to_channel'){
+        
+        this.props.leaveCallback(false);
       }
       else if(message.event == 'leave_channel' ){
          if(message.channel_name != this.props.channel.channel_name)

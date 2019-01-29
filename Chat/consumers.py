@@ -121,6 +121,19 @@ class ChatConsumer(WebsocketConsumer):
                     'course': course_json
                 }
             )
+        elif message_type == 'add_users_to_channel':
+            added_users_json = text_data_json['added_users']
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'broadcast',
+                    'event': message_type,
+                    'channel_name': channel_name,
+                    'user': user_json,
+                    'added_users': added_users_json,
+                    'course': course_json
+                }
+            )
         elif message_type == 'leave_channel':
             if user in channel.users.all():
                 channel.users.remove(user)

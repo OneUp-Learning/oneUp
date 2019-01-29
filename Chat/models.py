@@ -10,6 +10,7 @@ class Channel(models.Model):
     course = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     channel_url = models.SlugField(null=True, blank=True)
     topic = models.TextField(max_length=40, blank=True, null=True)
+    private = models.BooleanField(default=False) 
     users = models.ManyToManyField(User, blank=True, related_name='subscribers')
     creator = models.ForeignKey(User, null=True, blank=True, related_name='creator', on_delete=models.CASCADE)
     
@@ -17,7 +18,7 @@ class Channel(models.Model):
         unique_together = ('channel_name', 'course', 'channel_url')
 
     def __str__(self):
-        return "Channel ID: {} - Course: {} - Slug: {} - Topic: {} - Users: {} - Creator: {}".format(self.channel_name, self.course, self.channel_url, self.topic, self.users, self.creator)
+        return "Channel ID: {} - Course: {} - Slug: {} - Topic: {} - Private: {} - Users: {} - Creator: {}".format(self.channel_name, self.course, self.channel_url, self.topic, self.private, self.users, self.creator)
 
     def save(self, *args, **kwargs):
         if not self.id:

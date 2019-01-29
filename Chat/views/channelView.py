@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from Chat.models import Channel
-from Chat.serializers import ChannelSerializer
+from Chat.serializers import ChannelSerializer, UserSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -51,7 +51,7 @@ class ChannelView(APIView):
                 return Response({'success': False, 'type':'name_error', 'reason': 'Must contain only these special characters: underscores, hyphens, and periods'})
 
             user = User.objects.get(username=data['user']['username'], password=data['user']['password'], first_name=data['user']['first_name'], last_name=data['user']['last_name'], email=data['user']['email'])
-            new_channel = Channel(channel_name=data['channel_name'], topic=data['channel_topic'], creator=user, course=currentCourse)
+            new_channel = Channel(channel_name=data['channel_name'], topic=data['channel_topic'], private=data['channel_private'], creator=user, course=currentCourse)
             new_channel.save()
 
             new_channel.users.add(user)
@@ -62,7 +62,7 @@ class ChannelView(APIView):
             if len(data['channel_topic']) > 40:
                 return Response({'success': False, 'type':'topic_error', 'reason': 'Topic must be at most 40 characters!'})
 
-            channel = Channel.objects.get(channel_name=data['channel_name'])
+            channel = Channel.objects.get(channel_name=data['channel_name'], course=currentCourse)
             if channel.topic == data['channel_topic']:
                 return Response({'success': False, 'type':'topic_error', 'reason': 'Please enter a topic!'})
             
@@ -70,5 +70,25 @@ class ChannelView(APIView):
             channel.save()
                 
             return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': channel.channel_url})
+        elif data['type'] == 'change_private_status':
+            channel = Channel.objects.get(channel_name=data['channel_name'], course=currentCourse)
+            channel.private = data['channel_private']
+            channel.save()
+            return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': channel.channel_url})
+        elif data['type'] == 'add_users_to_channel':
+            users_to_add = data['users']
+            channel = Channel.objects.get(channel_name=data['channel_name'], course=currentCourse)
+            added_users = []
+            for user_id, add in users_to_add.items():
+                user = User.objects.get(pk=int(user_id))
+                if add:
+                    added_users.append(user)
+
+            channel.users.set(added_users)
+            channel.save()
+
+            added_users = [UserSerializer(user).data for user in added_users]
+
+            return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': channel.channel_url, 'added_users': added_users})
         else:
             return Response({'success': False, 'type':'undefined', 'reason': 'Type must be stated'})

@@ -23,7 +23,7 @@ class MessageView(APIView):
         Return a list of all messages.
         """
         context_dict, current_course = initialContextDict(request)
-        channel, created = Channel.objects.get_or_create(channel_url=channel_url, course=current_course)
+        channel = Channel.objects.get(channel_url=channel_url, course=current_course)
         # We want to show the last 25 messages, ordered most-recent-last
         messages = Message.objects.filter(channel=channel).order_by('-timestamp')
         paginator = Paginator(messages, 25)

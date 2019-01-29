@@ -26,25 +26,24 @@ class UserView(APIView):
         user = request.user
         context_dict, current_course = initialContextDict(request)
 
-        student = Student.objects.get(user=user)
-        is_test_student = student.isTestStudent
-        is_teacher = False
-        if is_test_student:
-            is_teacher = True
-        
-        st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=current_course)
-        avatar = checkIfAvatarExist(st_crs)
-
         user_serializer = UserSerializer(user)
         course_serializer = CourseSerializer(current_course)
 
         course_students = StudentRegisteredCourses.objects.filter(courseID=current_course)
+        is_teacher = False
+        avatar = None
         student_avatars = {}
+        users = []
         for student in course_students:
             user_id = student.studentID.user.id
             student_avatar = checkIfAvatarExist(student)
             student_isteacher = student.studentID.isTestStudent
             student_avatars[user_id] = {'avatar': student_avatar, 'is_teacher': student_isteacher}
 
-        return Response({'user': user_serializer.data, 'course': course_serializer.data, 'is_teacher': is_teacher, 'avatar': avatar, 'student_avatars': student_avatars})
+            if user_id == user.id:
+                is_teacher = student_isteacher
+                avatar = student_avatar
+            users.append(UserSerializer(student.studentID.user).data)
+
+        return Response({'user': user_serializer.data, 'course': course_serializer.data, 'is_teacher': is_teacher, 'avatar': avatar, 'student_avatars': student_avatars, 'users': users})
 

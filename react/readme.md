@@ -1,5 +1,6 @@
 # React Chat App Development 
-This file describes how to begin developing using react on the chat app
+This file describes how to begin developing using react on the chat app.
+Node Package Manager is required to build react code.
 
 ## Development Scripts
 All the development javascript files are in the `src` folder under this folder. All react components are combined into one file: `chat-app.js`. This file just simply imports the `App.js` file

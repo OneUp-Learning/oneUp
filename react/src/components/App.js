@@ -9,11 +9,13 @@ import FontIcon from 'react-md/lib/FontIcons/FontIcon';
 import Grid from 'react-md/lib/Grids/Grid';
 import Cell from 'react-md/lib/Grids/Cell';
 import Button from 'react-md/lib/Buttons/Button';
+import Checkbox from 'react-md/lib/SelectionControls/Checkbox';
 import TextField from 'react-md/lib/TextFields/TextField';
 import DialogContainer from 'react-md/lib/Dialogs/DialogContainer';
 import MenuButton from 'react-md/lib/Menus/MenuButton';
 import List from 'react-md/lib/Lists/List';
 import ListItem from 'react-md/lib/Lists/ListItem';
+import ListItemControl from 'react-md/lib/Lists/ListItemControl';
 import Avatar from 'react-md/lib/Avatars/Avatar';
 import Layover from 'react-md/lib/Helpers/Layover';
 
@@ -42,24 +44,29 @@ class App extends Component{
             channelSelected: false,
             channelAccess: false,
             activeChannel: null,
+            activeChannelCheckboxes: {},
 
             user: null,
             course: null,
             avatar: '',
             isTeacher: false,
             studentAvatars: null,
+            usersInCourse: null,
 
             isLoading: true,
 
             showCreateChannelDialog: false,
             showDeleteChannelDialog: false,
             showChannelUsersDialog: false,
+            showAddChannelUsersDialog: false,
             showChannelTopicDialog: false,
 
             newChannelName: '',
             newChannelTopic: '',
 
             changeChannelTopic: '',
+
+            channelPrivate: false,
 
             createChannelNameError: '',
             createChannelTopicError: '',
@@ -193,10 +200,27 @@ class App extends Component{
         let channels = this.state.channels
         for(var id in Object.entries(channels)){
             let channel = channels[id];
-            if(channel.channel_name == channel_name)
+            if(channel.channel_name == channel_name){
+                this.updateActiveChannelCheckboxes(channel);
                 return channel
+            }
         }
         return null;
+    }
+    updateActiveChannelCheckboxes(channel){
+        let checkboxes = this.state.activeChannelCheckboxes;
+        Object.entries(checkboxes).forEach(
+            ([id, value]) => {
+                checkboxes[id] = false;
+                for(var j = 0; j < channel.users.length; j++){
+                    if(channel.users[j].id == id){
+                        checkboxes[id] = true;
+                        break;
+                    }
+                }
+            }
+        );        
+        this.setState({activeChannelCheckboxes: checkboxes})
     }
     isChannelSubscribed(channel_name){
         let subscribed_channels = this.state.subscribedChannels;
@@ -218,7 +242,11 @@ class App extends Component{
         })
         .then(data => {
             //console.log(data);
-            this.setState({user: data['user'], course: data['course'], avatar: data['avatar'], isTeacher: data['is_teacher'], studentAvatars: data['student_avatars']}); 
+            let add_users_checkbox = {};
+            for(var i = 0; i < data['users'].length; i++){
+                add_users_checkbox[data['users'][i].id] = false;
+            }
+            this.setState({user: data['user'], course: data['course'], avatar: data['avatar'], isTeacher: data['is_teacher'], studentAvatars: data['student_avatars'], usersInCourse: data['users'], activeChannelCheckboxes: add_users_checkbox}); 
         });
     }
     onLogOut(e){
@@ -260,6 +288,12 @@ class App extends Component{
     onCloseChannelUsersDialog(e){
         this.setState({showChannelUsersDialog: false});
     }
+    onOpenAddChannelUsersDialog(e){
+        this.setState({showAddChannelUsersDialog: true});
+    }
+    onCloseAddChannelUsersDialog(e){
+        this.setState({showAddChannelUsersDialog: false});
+    }
     onOpenDeleteChannelDialog(e){
         this.setState({showDeleteChannelDialog: true});
     }
@@ -270,7 +304,7 @@ class App extends Component{
         this.setState({showCreateChannelDialog: true})
     }
     onCloseCreateChannelDialog(e){
-        this.setState({showCreateChannelDialog: false, newChannelName: '', newChannelTopic: '', createChannelNameErrorState: false, createChannelTopicErrorState: false})
+        this.setState({showCreateChannelDialog: false, newChannelName: '', newChannelTopic: '', channelPrivate: false, createChannelNameErrorState: false, createChannelTopicErrorState: false})
     }
     onOpenChannelTopicDialog(e){
         this.setState({showChannelTopicDialog: true})
@@ -278,10 +312,44 @@ class App extends Component{
     onCloseChannelTopicDialog(e){
         this.setState({showChannelTopicDialog: false, changeChannelTopic: '', changeChannelTopicErrorState: false})
     }
+    onAddUsersToChannel(e){
+        let payload = {type: 'add_users_to_channel', channel_name: this.state.activeChannel.channel_name, 
+                        users: this.state.activeChannelCheckboxes}
+            fetch(window.location.href+'channels/', {
+                method: 'POST',
+                credentials: "same-origin",
+                headers: {
+                    "X-CSRFToken": get_cookie('csrftoken'),
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.status !== 200) {
+                    return this.setState({ placeholder: "Fail to add users" });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if(data.success){
+                    chat_socket.send(JSON.stringify({ event: 'add_users_to_channel',  user: this.state.user, course: this.state.course, channel_name: data.channel_name, added_users: data.added_users }))
+                    this.fetchChannels().then(d =>{
+                        this.updateActiveChannelCheckboxes(data.channel_name)
+                    });
+                    this.setState({showAddChannelUsersDialog: false})
+                    
+                } else {
+                    if(data.type == 'name_error'){
+                        this.setState({createChannelNameErrorState: true, createChannelNameError: data.reason})
+                    }
+                }
+            });
+    }
     onCreateChannel(e){
-        
         if(/\S/.test(this.state.newChannelName)){   
-            let payload = {type: 'create', channel_name: this.state.newChannelName.trim(), channel_topic: this.state.newChannelTopic.trim(), user: this.state.user}
+            let payload = {type: 'create', channel_name: this.state.newChannelName.trim(), channel_topic: this.state.newChannelTopic.trim(), 
+                            channel_private: this.state.channelPrivate, user: this.state.user}
             fetch(window.location.href+'channels/', {
                 method: 'POST',
                 credentials: "same-origin",
@@ -301,12 +369,12 @@ class App extends Component{
             .then(data => {
                 //console.log(data);
                 if(data.success){
-                    chat_socket.send(JSON.stringify({ event: 'add_channel',  user: this.state.user, course: this.state.course, channel_name: this.state.newChannelName }))
+                    chat_socket.send(JSON.stringify({ event: 'add_channel',  user: this.state.user, course: this.state.course, channel_name: data.channel_name }))
                     //console.log("Fetching local")
                     this.fetchChannels().then(done => {
                         return this.onSelectedChannel(null, data.channel_name, data.channel_url);
                     });
-                    this.setState({showCreateChannelDialog: false, newChannelName: '', newChannelTopic: '', createChannelTopicErrorState: false})
+                    this.setState({showCreateChannelDialog: false, newChannelName: '', newChannelTopic: '', channelPrivate: false, createChannelTopicErrorState: false})
                 } else {
                     if(data.type == 'name_error'){
                         this.setState({createChannelNameErrorState: true, createChannelNameError: data.reason})
@@ -383,8 +451,8 @@ class App extends Component{
         }
     }
     onJoinChannel(channel_name){
-        this.fetchChannels().then(data => {;
-        this.setState({activeChannel: this.getChannelObject(channel_name)});
+        this.fetchChannels().then(data => {
+            this.setState({activeChannel: this.getChannelObject(channel_name)});
         })
     }
     onLeaveChannel(local){
@@ -416,7 +484,7 @@ class App extends Component{
             var data = JSON.parse(m.data);
             //console.log("App.js:")
             //console.log(data.event);
-            if(data.event == 'add_channel' || data.event == 'delete_channel'){
+            if(data.event == 'add_channel' || data.event == 'delete_channel' || data.event == 'add_users_to_channel'){
                 //console.log("Fetching from websocket")
                 this.fetchChannels();
             }
@@ -428,11 +496,11 @@ class App extends Component{
     render() {
         const {navItems, channelSelected, activeChannel, isLoading, channelAccess, mediaClass, 
             channels, autocompleteValue, 
-            showCreateChannelDialog, showDeleteChannelDialog, showChannelUsersDialog, showChannelTopicDialog,
+            showCreateChannelDialog, showDeleteChannelDialog, showChannelUsersDialog, showAddChannelUsersDialog, showChannelTopicDialog,
             createChannelNameError,createChannelTopicError, changeChannelTopicError, 
             createChannelNameErrorState, createChannelTopicErrorState, changeChannelTopicErrorState,
-            newChannelName, newChannelTopic, changeChannelTopic,
-             user, course, isTeacher, studentAvatars} = this.state;
+            newChannelName, newChannelTopic, channelPrivate, changeChannelTopic,
+             user, course, isTeacher, studentAvatars, usersInCourse, activeChannelCheckboxes} = this.state;
         const divStyle = {
             filter: 'blur(5px)',
             width: '100%',
@@ -480,12 +548,86 @@ class App extends Component{
                 more_vert
             </MenuButton>
         );
+        const Loader = () => (
+            <div className={"loader"}>
+                <svg viewBox="0 0 32 32" width="32" height="32">
+                    <circle id="spinner" cx="16" cy="16" r="14" fill="none"></circle>
+                </svg>
+            </div>
+        );
+        const ToolBarActions = () => {
+            if(channelSelected){
+                if(channelAccess)
+                    return <ChatOptions />
+                if (activeChannel.private == false)
+                    return <Button onClick={(e) => this.onButtonClick(e, "Join")} flat primary swapTheming>Join Channel</Button>
+            }
+            return null
+        };
+        const BlurChannelFrame = () => (
+            <div>
+                <Grid style={{display: 'contents'}}>
+                    <Cell size={12} offset={mediaClass == '' ? 0 : 3}>
+                        <div className={'md-display-3'} style={h3Style}>Join 
+                            <i style={{fontWeight: '200'}}># {activeChannel.channel_name}</i> to view messages 
+                        </div>
+                    </Cell>
+                </Grid>
+                <div style={divStyle}>
+                    <Channel key={activeChannel.channel_name} mediaClass={mediaClass} user={user} course={course} isTeacher={isTeacher} studentAvatars={studentAvatars} channelAccess={channelAccess} 
+                        channel={activeChannel} joinCallback={(channel_name) => this.onJoinChannel(channel_name)} leaveCallback={(local) => this.onLeaveChannel(local)}
+                        endpoint={window.location.href+activeChannel.channel_url+'/messages?page='} />
+                </div>
+            </div>
+        );
+
+        const ChannelFrame = () => {
+            if(channelSelected && activeChannel != null){
+                if(channelAccess)
+                    return <Channel key={activeChannel.channel_name} mediaClass={mediaClass} user={user} course={course} isTeacher={isTeacher} studentAvatars={studentAvatars} channelAccess={channelAccess} 
+                    channel={activeChannel} joinCallback={(channel_name) => this.onJoinChannel(channel_name)} leaveCallback={(local) => this.onLeaveChannel(local)}
+                    endpoint={window.location.href+activeChannel.channel_url+'/messages?page='} />
+                
+                return <BlurChannelFrame />
+            }
+            return null
+        }
+        const AddUsers = () => (
+            (activeChannel != null &&
+            <DialogContainer
+                id="add_channel_users_dialog"
+                visible={showAddChannelUsersDialog}
+                onHide={(e) => {(this.onCloseAddChannelUsersDialog(e))}}
+                title={"Add Users to #"+ activeChannel.channel_name}
+                portal={true}
+                lastChild={true}
+                disableScrollLocking={true}
+                renderNode={document.body}
+                actions={[<Button flat primary onClick={(e) => this.onAddUsersToChannel(e)}>Add</Button>]}
+            >
+                <List>
+                {usersInCourse.map((s_user, index) => 
+                    (s_user.id != user.id) &&
+                    <ListItemControl
+                        key={index}
+                        primaryText={(studentAvatars[s_user.id]['is_teacher'] == true || isTeacher || s_user.id == user.id) ? s_user.username : ""}
+                        secondaryText={(studentAvatars[s_user.id]['is_teacher'] == true || isTeacher  || s_user.id == user.id) ? s_user.first_name + " " + s_user.last_name : ""}
+                        leftAvatar={ <Avatar style={{border: 'none', width: '52px', height: '52px', borderRadius: '10%'}} src={this.state.studentAvatars[s_user.id]['avatar']} />}
+                        secondaryAction={
+                            <Checkbox
+                              id={"user-"+index}
+                              name="user-select"
+                              label=""
+                              labelBefore
+                              checked={activeChannelCheckboxes[s_user.id]}
+                              onChange={(value, e) => {this.setState(prevState => ({activeChannelCheckboxes: {...prevState.activeChannelCheckboxes, [s_user.id]: value}}))}}
+                            />}
+                    />)}
+                </List>
+            </DialogContainer>)
+        );
         return (
-            isLoading ? <div className={"loader"}>
-            <svg viewBox="0 0 32 32" width="32" height="32">
-              <circle id="spinner" cx="16" cy="16" r="14" fill="none"></circle>
-            </svg>
-          </div> : (
+            isLoading ? <Loader /> : (
             <NavigationDrawer
               drawerId="main-navigation"
               drawerClassName="app-font"
@@ -512,9 +654,7 @@ class App extends Component{
                                                             onChange={(text, e) => this.onAutoCompleteChange(text, e)}
                                                             onAutocomplete={(suggestion, suggestionIndex, matches) => (this.onAutoComplete(suggestion, suggestionIndex, matches))}
                                                         />}
-              toolbarActions={channelSelected ? (
-                  channelAccess ? (<ChatOptions />) 
-                    : (<Button onClick={(e) => this.onButtonClick(e, "Join")} flat primary swapTheming>Join Channel</Button>)) : null}
+              toolbarActions={<ToolBarActions />}
             >
             <DialogContainer
                 id="create_channel_dialog"
@@ -542,6 +682,13 @@ class App extends Component{
                     errorText={createChannelTopicError}
                     onChange={(value, e) => this.setState({newChannelTopic: value, createChannelTopicErrorState: false, createChannelTopicError: ''})}
                 />
+                <Checkbox
+                    id="channel-private"
+                    name="channel-private"
+                    label="Invite only"
+                    value={channelPrivate}
+                    onChange={(value, e) => this.setState({channelPrivate: value})}
+                />
             </DialogContainer>
 
             <DialogContainer
@@ -552,11 +699,13 @@ class App extends Component{
                         <Button flat secondary onClick={(e) => this.onButtonClick(e, 'Delete')}>Delete Channel</Button>]}
                 title="Delete Channel?"
             />
+            <AddUsers />
             {activeChannel != null ? 
             <DialogContainer
                 id="channel_users_dialog"
                 visible={showChannelUsersDialog}
                 onHide={(e) => {(this.onCloseChannelUsersDialog(e))}}
+                actions={[<Button flat primary iconChildren="chat_bubble_outline" onClick={(e) => this.setState({showAddChannelUsersDialog: true})}>Add Users</Button>]}
                 title={"People in #"+ activeChannel.channel_name}
             >
                 <List>
@@ -580,9 +729,9 @@ class App extends Component{
                 onHide={(e) => {(this.onCloseChannelTopicDialog(e))}}
                 actions={[<Button flat primary onClick={(e) => this.onChangeChannelTopic(e)}>Change</Button>]}
                 title={"Topic"}
-                aria-describedby="speed-boost-description"
+                aria-describedby="current-topic"
             >
-                <p id="speed-boost-description" className="md-color--secondary-text">{activeChannel.topic}</p>
+                <p id="current-topic" className="md-color--secondary-text">{activeChannel.topic}</p>
                 <TextField
                     id="channel-topic"
                     label="Change Topic"
@@ -596,24 +745,7 @@ class App extends Component{
             </DialogContainer>
             : null}
 
-                               {channelSelected && activeChannel != null ? (
-                               channelAccess? (<Channel key={activeChannel.channel_name} mediaClass={mediaClass} user={user} course={course} isTeacher={isTeacher} studentAvatars={studentAvatars} channelAccess={channelAccess} 
-                                                        channel={activeChannel} joinCallback={(channel_name) => this.onJoinChannel(channel_name)} leaveCallback={(local) => this.onLeaveChannel(local)}
-                                                        endpoint={window.location.href+activeChannel.channel_url+'/messages?page='} />)
-                               : (
-                                <div>
-                                    <Grid style={{display: 'contents'}}>
-                                        <Cell size={12} offset={mediaClass == '' ? 0 : 3}>
-                                    <div className={'md-display-3'} style={h3Style}>Join <i style={{fontWeight: '200'}}># {activeChannel.channel_name}</i> to view messages </div>
-                                    </Cell>
-                                    </Grid>
-                                    <div style={divStyle}>
-                                        <Channel key={activeChannel.channel_name} mediaClass={mediaClass} user={user} course={course} isTeacher={isTeacher} studentAvatars={studentAvatars} channelAccess={channelAccess} 
-                                                channel={activeChannel} joinCallback={(channel_name) => this.onJoinChannel(channel_name)} leaveCallback={(local) => this.onLeaveChannel(local)}
-                                                endpoint={window.location.href+activeChannel.channel_url+'/messages?page='} />
-                                    </div>
-                                </div>
-                               )) : null}
+                <ChannelFrame />
             </NavigationDrawer>
             )
           );
