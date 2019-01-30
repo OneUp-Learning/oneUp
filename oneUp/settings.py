@@ -72,9 +72,12 @@ INSTALLED_APPS = (
     'Students',
     'Badges',
     'Administrators',
+    'Chat',
     'notify',
     'easy_timezones',
-    'django_celery_beat'
+    'django_celery_beat',
+    'rest_framework',
+    'channels'
 )
 
 MIDDLEWARE = [
@@ -98,7 +101,7 @@ WSGI_APPLICATION = 'oneUp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': 'databases/Austin/db.sqlite3',
     }
 }
 
@@ -165,6 +168,23 @@ PASSWORD_HASHERS = (
 )
 
 LOGIN_URL='/oneUp/permission_error'
+
+# Chat app settings
+ASGI_APPLICATION = 'oneUp.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+}
 
 # Custom serializer which is mostly just JSON, but can handle decimal types
 # without making them floats along the way.

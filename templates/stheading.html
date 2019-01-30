@@ -216,6 +216,7 @@
 				<li><a class="waves-effect" href="/oneUp/students/CoursePerformance">Grades</a></li>
 				{%if ccparams.gamificationUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/achievements">Achievements</a></li>
+				<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
 				{% if  ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
@@ -267,6 +268,9 @@
 				<li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="account"><i class="material-icons">more_vert</i></a></li>
 				{% endif %}
 			</ul>
+
+
+			<!--MOBILE-->
 			<ul class="side-nav" id="slide-out">
 				{% if logged_in %}
 				<li>
@@ -310,6 +314,7 @@
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/CoursePerformance"><i class="material-icons">timeline</i>Course Performance</a></li>
 						{%if ccparams.gamificationUsed %}
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/achievements"><i class="material-icons">flare</i>Achievements</a></li>
+						<li><a class="collapsible-header waves-effect" href="/oneUp/chat/api">Chat</a></li>
 						{% if  ccparams.avatarUsed or  ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 						<li>
 							<a class="collapsible-header"><i class="material-icons">build</i>Tools</a>
