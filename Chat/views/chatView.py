@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 import json, re
 from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 
 from Instructors.views.utils import initialContextDict
 from Students.views.utils import studentInitialContextDict
@@ -24,10 +25,14 @@ def chat(request):
     if not Student.objects.get(user=user).isTestStudent:
         print("Student")
         context_dict,currentCourse = studentInitialContextDict(request)
+        if not context_dict['ccparams'].chatUsed:
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/oneUp/students/StudentCourseHome'))
     else:
         print("Teacher")
         context_dict, currentCourse = initialContextDict(request)
-    
+        if not context_dict['ccparams'].chatUsed:
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/oneUp/instructors/instructorCourseHome'))
+
     channel, _ = Channel.objects.get_or_create(channel_name="generic", course=currentCourse)
     
     if not Channel.objects.filter(channel_name="generic", users=user, course=currentCourse).exists():

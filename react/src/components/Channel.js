@@ -133,8 +133,12 @@ class Channel extends Component {
           
       }
   }
+  componentWillReceiveProps(nextProps) {
+    this.setState({ channel: nextProps.channel, channelAccess: nextProps.channelAccess });  
+  }
   componentDidMount() {
     this._IsMounted = true;
+    // console.log("Channel Mounted");
     chat_socket.onopen = function(){
       //console.log("Connected to chat socket: ");
     }
@@ -143,7 +147,7 @@ class Channel extends Component {
     }
     chat_socket.onmessage = function(m){
       var message = JSON.parse(m.data);
-      console.log(message);
+      // console.log(message);
       if(message.event == 'message_channel'){
         this.setState(prevState => ({
           data: [message.message, ...prevState.data]
@@ -160,14 +164,14 @@ class Channel extends Component {
         
         if(this.props.user.id == message.user.id){
           this.props.joinCallback(message.channel.channel_name);
-          console.log("You Join");
+          // console.log("You Join");
         } else {
-          console.log("Someone Join")
+          // console.log("Someone Join")
           // this.props.leaveCallback(false);
           this.props.updateChannelsCallback();
         }
       }
-      else if(message.event == 'change_topic'){
+      else if(message.event == 'change_topic' || message.event == 'change_private_status'){
         // if(message.channel_name != this.props.channel.channel_name)
         //   return;
 
@@ -195,10 +199,10 @@ class Channel extends Component {
           }
           if(kick_me){
             // Leave the room
-            console.log("Kicked from the room");
+            // console.log("Kicked from the room");
             this.props.leaveCallback(false);
           } else{
-            console.log("added loaded");
+            // console.log("added loaded");
             this.props.updateChannelsCallback();
           }
         } else {
@@ -213,10 +217,11 @@ class Channel extends Component {
           }
           if(add_me){
             // Subscribe to the room
-            console.log("Subscribed to room");
+            // console.log("Subscribed to room");
             this.props.updateChannelsCallback();
           } else {
-            console.log("Not for me");
+            // console.log("Not for me");
+            this.props.updateChannelsCallback();
           }
         }
         
@@ -228,7 +233,7 @@ class Channel extends Component {
           
         if(this.props.user.id == message.user.id){
           // this.props.leaveCallback(true);
-          console.log("You Leave")
+          // console.log("You Leave")
           this.props.updateChannelsCallback();
         } else {
           //console.log("Someone Left")
@@ -280,6 +285,7 @@ class Channel extends Component {
       });
   }
   componentWillUnmount(){
+    // console.log("Channel UnMounted");
     this._IsMounted = false;
   }
   render() {

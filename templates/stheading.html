@@ -181,7 +181,7 @@
 			<li><a href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
 			<li><a href="/oneUp/students/EarnedVCTransactions">Your Earning Transactions</a></li>
 			<li><a href="/oneUp/students/Transactions">Your Spending Transactions</a></li>
-			{% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
+			{% if ccparams.classmatesChallenges %}
 			<li><a class="waves-effect" href="/oneUp/students/Callouts">Challenge Classmates</a></li>
 			{% endif %}
 						
@@ -216,22 +216,26 @@
 				<li><a class="waves-effect" href="/oneUp/students/CoursePerformance">Grades</a></li>
 				{%if ccparams.gamificationUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/achievements">Achievements</a></li>
-				<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
-				{% if  ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
+				{% endif %}
+				{% if ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
 					<ul id="coursetools" class="dropdown-content">
-						{% if ccparams.avatarUsed %}
+						{% if ccparams.gamificationUsed and ccparams.avatarUsed %}
 						<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
 						{% endif %}
-						{% if ccparams.virtualCurrencyUsed %}
+						{% if ccparams.chatUsed %}
+						<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
+						{% endif %}
+						{% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
 						<li><a class="waves-effect" href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
 						<li><a class="waves-effect" href="/oneUp/students/EarnedVCTransactions">Your Earning Transactions</a></li>
 						<li><a class="waves-effect" href="/oneUp/students/Transactions">Your Spending Transactions</a></li>
 						{% endif %}
-						{% if ccparams.classmatesChallenges %}
+						{% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
 			            <li><a class="waves-effect" href="/oneUp/students/Callouts">Challenge Classmates</a></li>
-			             {% endif %}
+						{% endif %}
+						{% if ccparams.gamificationUsed %}
 						{% if ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 						<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
 						{% endif %}
@@ -240,7 +244,6 @@
 						{% endif %}
 					</ul>
 				</li>
-				{% endif %}
 				{% endif %}
 				<li>
 					<a class="waves-effect" href="/oneUp/students/StudentQA">Help</a>
@@ -314,20 +317,24 @@
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/CoursePerformance"><i class="material-icons">timeline</i>Course Performance</a></li>
 						{%if ccparams.gamificationUsed %}
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/achievements"><i class="material-icons">flare</i>Achievements</a></li>
-						<li><a class="collapsible-header waves-effect" href="/oneUp/chat/api">Chat</a></li>
-						{% if  ccparams.avatarUsed or  ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
+						{% endif %}
+						{% if ccparams.chatUsed or ccparams.avatarUsed or  ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 						<li>
 							<a class="collapsible-header"><i class="material-icons">build</i>Tools</a>
 							<div class="collapsible-body">
 								<ul>
-									{% if ccparams.avatarUsed %}
+									{% if ccparams.avatarUsed and ccparams.gamificationUsed %}
 									<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
 									{% endif %}
-									{% if ccparams.virtualCurrencyUsed %}
+									{% if ccparams.chatUsed %}
+										<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
+									{% endif %}
+									{% if ccparams.virtualCurrencyUsed and ccparams.gamificationUsed %}
 									<li>
-										<li><a class="dropdown-button" id="clearAll" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
+										<li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
 									</li>
 									{% endif %}
+									{% if ccparams.gamificationUsed %}
 									{% if ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 									<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
 									{% endif %}
@@ -342,7 +349,6 @@
 						<li>
 							<a class="collapsible-header waves-effect" href="/oneUp/students/StudentQA"><i class="material-icons">help</i>Help</a>
 						</li>
-						{% endif %}
 						<li>
 							<a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count2' class="new badge red"></span></div></a>
 							<div class='collapsible-body'>

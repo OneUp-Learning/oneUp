@@ -72,7 +72,7 @@ class ChannelView(APIView):
             return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': channel.channel_url})
         elif data['type'] == 'change_private_status':
             channel = Channel.objects.get(channel_name=data['channel_name'], course=currentCourse)
-            channel.private = data['channel_private']
+            channel.private = data['channel_privacy']
             channel.save()
             return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': channel.channel_url})
         elif data['type'] == 'add_users_to_channel':
@@ -85,10 +85,14 @@ class ChannelView(APIView):
                     added_users.append(user)
             
             updated = False
-            for user in channel.users.all():
-                if not user in added_users:
-                    updated = True
-                    break
+            channel_users = channel.users.all()
+            if len(channel_users) == len(added_users):
+                for user in channel_users:
+                    if not user in added_users:
+                        updated = True
+                        break
+            else:
+                updated = True
             
             if updated:
                 channel.users.set(added_users)

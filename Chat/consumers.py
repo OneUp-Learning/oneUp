@@ -113,7 +113,7 @@ class ChatConsumer(WebsocketConsumer):
                         'channel': channel_json,
                     }
                 )
-        elif message_type == 'change_topic':
+        elif message_type == 'change_topic' or message_type == 'change_private_status':
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
                 {
