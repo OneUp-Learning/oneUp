@@ -1,5 +1,5 @@
 from Chat.models import Channel, Message
-from Chat.serializers import  MessageSerializer, UserSerializer, CourseSerializer
+from Chat.serializers import  MessageSerializer, UserSerializer, CourseSerializer, ChannelSerializer
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from django.contrib.auth.models import User
@@ -32,14 +32,15 @@ class ChatConsumer(WebsocketConsumer):
         if channel_url == 'generic':
             user = UserSerializer(self.scope['user'])
             course_json = CourseSerializer(currentCourse)
+            channel_json = ChannelSerializer(Channel.objects.get(channel_name='generic', course=currentCourse)).data
             for group in self.groups:
-                if not 'chat_%d_generic' %  currentCourse.courseID in group:
+                if not 'chat_%d_generic' %  currentCourse.courseID in self.groups:
                     async_to_sync(self.channel_layer.group_send)(
                         group,
                         {
                             'type': 'broadcast',
                             'event': 'join_channel',
-                            'channel_name': 'generic',
+                            'channel': channel_json,
                             'user': user.data,
                             'course': course_json.data
                         }
@@ -51,6 +52,7 @@ class ChatConsumer(WebsocketConsumer):
         # Leave room group
         if self.room_group_name in self.groups:
             self.groups.remove(self.room_group_name)
+
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
@@ -62,19 +64,20 @@ class ChatConsumer(WebsocketConsumer):
         message_type = text_data_json['event']
         user_json = text_data_json['user']
         course_json = text_data_json['course']
-        print(course_json)
+        
         user = User.objects.get(username=user_json['username'], password=user_json['password'], first_name=user_json['first_name'], last_name=user_json['last_name'], email=user_json['email'])
         course = Courses.objects.get(courseID=course_json['courseID'])
 
         channel_name = self.room_name
         channel = Channel.objects.get(channel_name=channel_name, course=course)
+        channel_json = ChannelSerializer(channel).data
 
         if message_type == 'message_channel':
             message = text_data_json['message']
             
             print("User: {}".format(user))
             print("Message: {}".format(message))
-            print("Channel: {}".format(channel_name))
+            print("Channel: {}".format(channel_json))
 
             
             message_obj = Message()
@@ -93,7 +96,7 @@ class ChatConsumer(WebsocketConsumer):
                     'message': serializer.data,
                     'user': user_json,
                     'course': course_json,
-                    'channel_name': channel_name
+                    'channel': channel_json,
                 }
             )
         elif message_type == 'join_channel':
@@ -105,9 +108,9 @@ class ChatConsumer(WebsocketConsumer):
                     {
                         'type': 'broadcast',
                         'event': message_type,
-                        'channel_name': channel_name,
                         'user': user_json,
-                        'course': course_json
+                        'course': course_json,
+                        'channel': channel_json,
                     }
                 )
         elif message_type == 'change_topic':
@@ -116,24 +119,28 @@ class ChatConsumer(WebsocketConsumer):
                 {
                     'type': 'broadcast',
                     'event': message_type,
-                    'channel_name': channel_name,
+                    'channel': channel_json,
                     'user': user_json,
                     'course': course_json
                 }
             )
         elif message_type == 'add_users_to_channel':
             added_users_json = text_data_json['added_users']
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'broadcast',
-                    'event': message_type,
-                    'channel_name': channel_name,
-                    'user': user_json,
-                    'added_users': added_users_json,
-                    'course': course_json
-                }
-            )
+            print(added_users_json)
+            for group in self.groups:
+                course_id = int(group.split('_')[1])
+                if course_id == course.courseID:
+                    async_to_sync(self.channel_layer.group_send)(
+                        group,
+                        {
+                            'type': 'broadcast',
+                            'event': message_type,
+                            'channel': channel_json,
+                            'user': user_json,
+                            'added_users': added_users_json,
+                            'course': course_json
+                        }
+                    )
         elif message_type == 'leave_channel':
             if user in channel.users.all():
                 channel.users.remove(user)
@@ -143,7 +150,7 @@ class ChatConsumer(WebsocketConsumer):
                     {
                         'type': 'broadcast',
                         'event': message_type,
-                        'channel_name': channel_name,
+                        'channel': channel_json,
                         'user': user_json,
                         'course': course_json
                     }
@@ -151,16 +158,18 @@ class ChatConsumer(WebsocketConsumer):
         elif message_type == 'delete_channel':
             if channel.creator == user:
                 for group in self.groups:
-                    async_to_sync(self.channel_layer.group_send)(
-                        group,
-                        {
-                            'type': 'broadcast',
-                            'event': message_type,
-                            'channel_name': channel_name,
-                            'user': user_json,
-                            'course': course_json
-                        }
-                    )
+                    course_id = int(group.split('_')[1])
+                    if course_id == course.courseID:
+                        async_to_sync(self.channel_layer.group_send)(
+                            group,
+                            {
+                                'type': 'broadcast',
+                                'event': message_type,
+                                'channel': channel_json,
+                                'user': user_json,
+                                'course': course_json
+                            }
+                        )
                 self.groups.remove('chat_%d_%s' % (course.courseID, channel.channel_name.replace(" ", "_")))
                 channel.delete()
         elif message_type == 'add_channel':
@@ -169,16 +178,18 @@ class ChatConsumer(WebsocketConsumer):
             print("Channel: {}".format(channel_n))
             print("Groups: {}".format(self.groups))
             for group in self.groups:
-                async_to_sync(self.channel_layer.group_send)(
-                    group,
-                    {
-                        'type': 'broadcast',
-                        'event': message_type,
-                        'channel_name': channel_name,
-                        'user': user_json,
-                        'course': course_json
-                    }
-                )
+                course_id = int(group.split('_')[1])
+                if course_id == course.courseID:
+                    async_to_sync(self.channel_layer.group_send)(
+                        group,
+                        {
+                            'type': 'broadcast',
+                            'event': message_type,
+                            'channel': channel_json,
+                            'user': user_json,
+                            'course': course_json
+                        }
+                    )
 
             if not 'chat_%d_%s' % (course.courseID, channel_n.replace(" ", "_")) in self.groups:
                 self.groups.append('chat_%d_%s' % (course.courseID, channel_n.replace(" ", "_")))

@@ -83,12 +83,21 @@ class ChannelView(APIView):
                 user = User.objects.get(pk=int(user_id))
                 if add:
                     added_users.append(user)
+            
+            updated = False
+            for user in channel.users.all():
+                if not user in added_users:
+                    updated = True
+                    break
+            
+            if updated:
+                channel.users.set(added_users)
+                channel.save()
 
-            channel.users.set(added_users)
-            channel.save()
+                added_users = [UserSerializer(user).data for user in added_users]
 
-            added_users = [UserSerializer(user).data for user in added_users]
-
-            return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': channel.channel_url, 'added_users': added_users})
+                return Response({'success': True, 'channel_name': data['channel_name'], 'channel_url': channel.channel_url, 'added_users': added_users})
+            else:
+                return Response({'success': False, 'type': 'add_users_error', 'reason': 'Users are already in/out the room'})
         else:
             return Response({'success': False, 'type':'undefined', 'reason': 'Type must be stated'})

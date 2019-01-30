@@ -57,8 +57,8 @@ class Form extends Component {
   };
   handleNotificationSend(event){
     console.log(event.data);
-    if(event.data.user == this.props.user.id && event.data.msg){
-      // console.log(event.data.msg);
+    if(event.data.user == this.props.user.id){
+      console.log(event.data.msg);
       this.setState({message: event.data.msg}, () => {this.handleSubmit(event)});
     }
   };

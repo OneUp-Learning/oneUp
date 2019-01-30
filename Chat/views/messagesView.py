@@ -23,17 +23,20 @@ class MessageView(APIView):
         Return a list of all messages.
         """
         context_dict, current_course = initialContextDict(request)
-        channel = Channel.objects.get(channel_url=channel_url, course=current_course)
-        # We want to show the last 25 messages, ordered most-recent-last
-        messages = Message.objects.filter(channel=channel).order_by('-timestamp')
-        paginator = Paginator(messages, 25)
-        page = int(request.GET.get('page', 1))
+        channel = Channel.objects.filter(channel_url=channel_url, course=current_course)
+        if channel.exists():
+            channel = channel[0]
+            # We want to show the last 25 messages, ordered most-recent-last
+            messages = Message.objects.filter(channel=channel).order_by('-timestamp')
+            paginator = Paginator(messages, 25)
+            page = int(request.GET.get('page', 1))
 
-        if page >= paginator.num_pages+1:
-            return Response({})
+            if page >= paginator.num_pages+1:
+                return Response({})
 
-        m = paginator.get_page(page)
-    
-        serializer = MessageSerializer(m, many=True)
-        return Response(serializer.data)
+            m = paginator.get_page(page)
+        
+            serializer = MessageSerializer(m, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'Channel does not exists'})
 

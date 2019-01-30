@@ -13,6 +13,7 @@ import './socket.js';
 import '../css/spinner.css';
 
 class Channel extends Component {
+  _IsMounted = false;
 
   constructor(props){
     super(props);
@@ -40,7 +41,8 @@ class Channel extends Component {
     course: PropTypes.object.isRequired,
     studentAvatars: PropTypes.object.isRequired,
     joinCallback: PropTypes.func.isRequired,
-    leaveCallback: PropTypes.func.isRequired
+    leaveCallback: PropTypes.func.isRequired,
+    updateChannelsCallback: PropTypes.func.isRequired,
   };
 
   loadMoreMessages = () => {
@@ -49,13 +51,15 @@ class Channel extends Component {
     return fetch(url).then(response => {
       return response.json();
     }).then(messages =>{
-      if(Object.keys(messages).length != 0){
-        this.setState(prevState => ({
-          data: prevState.data.concat(messages),
-          page: prevState.page + 1
-        }));
-      } else {
-        this.setState({loadedAllMessages: true});
+      if(this._IsMounted){
+        if(Object.keys(messages).length != 0){
+          this.setState(prevState => ({
+            data: prevState.data.concat(messages),
+            page: prevState.page + 1
+          }));
+        } else {
+          this.setState({loadedAllMessages: true});
+        }
       }
     })
   }
@@ -105,13 +109,11 @@ class Channel extends Component {
                   tag: this.props.channel.channel_name,
                   body: message.message.message,
                   icon: this.props.studentAvatars[message.user.id]['avatar'],
-                  badge: '/static/images/ic_stat_chat.png',
+                  badge: '/static/chat/images/ic_stat_chat.png',
                   timestamp: Date.now(),
                   renotify: true,
                   actions: [
-                      {action: 'message', title: 'Reply', type:'text',
-                        },
-
+                      {action: 'message', title: 'Reply', type:'text'},
                     ],
                   data: {
                       options: {
@@ -123,7 +125,7 @@ class Channel extends Component {
                   }
                 };
           
-                let title = ' • #' + message.message.channel.channel_name;
+                let title = this.props.course.courseName + ' • #' + message.message.channel.channel_name;
                 return reg.showNotification(title, options);
               });
             }
@@ -132,6 +134,7 @@ class Channel extends Component {
       }
   }
   componentDidMount() {
+    this._IsMounted = true;
     chat_socket.onopen = function(){
       //console.log("Connected to chat socket: ");
     }
@@ -140,67 +143,110 @@ class Channel extends Component {
     }
     chat_socket.onmessage = function(m){
       var message = JSON.parse(m.data);
-      //console.log(message);
+      console.log(message);
       if(message.event == 'message_channel'){
         this.setState(prevState => ({
           data: [message.message, ...prevState.data]
         }))
         if(this.props.user.id !== message.user.id){
-          if(message.channel_name != this.props.channel.channel_name)
-            return;
+          // if(message.channel_name != this.props.channel.channel_name)
+          //   return;
           this.notify(message);
         }
       }
       else if(message.event == 'join_channel'){
-        if(message.channel_name != this.props.channel.channel_name)
-          return;
-
+        // if(message.channel_name != this.props.channel.channel_name)
+        //   return;
+        
         if(this.props.user.id == message.user.id){
-          this.props.joinCallback(message.channel_name);
-          //console.log("You Join");
+          this.props.joinCallback(message.channel.channel_name);
+          console.log("You Join");
         } else {
-          //console.log("Someone Join")
-          this.props.leaveCallback(false);
+          console.log("Someone Join")
+          // this.props.leaveCallback(false);
+          this.props.updateChannelsCallback();
         }
       }
       else if(message.event == 'change_topic'){
-        if(message.channel_name != this.props.channel.channel_name)
-          return;
+        // if(message.channel_name != this.props.channel.channel_name)
+        //   return;
 
-        if(this.props.user.id == message.user.id){
-          this.props.leaveCallback(false);
-          //console.log("You Change Topic");
-        } else {
-          //console.log("Someone Change Topic")
-          this.props.leaveCallback(false);
-        }
+        this.props.updateChannelsCallback();
+        // if(this.props.user.id == message.user.id){
+        //   this.props.leaveCallback(false);
+        //   //console.log("You Change Topic");
+        // } else {
+        //   //console.log("Someone Change Topic")
+        //   this.props.leaveCallback(false);
+        // }
       }
       else if(message.event == 'add_users_to_channel'){
+        // Sends to everyone connected to the chat app
+        let added_users = message.added_users;
+        if(message.channel.channel_name == this.props.channel.channel_name){
+          // This person is in the channel that added users 
+          let kick_me = true;
+          for(var i = 0; i < added_users.length; i++){
+            let id = added_users[i].id;
+            if(this.props.user.id == id){
+              kick_me = false;
+              break;
+            }
+          }
+          if(kick_me){
+            // Leave the room
+            console.log("Kicked from the room");
+            this.props.leaveCallback(false);
+          } else{
+            console.log("added loaded");
+            this.props.updateChannelsCallback();
+          }
+        } else {
+          // This person is not in the channel that added users
+          let add_me = false;
+          for(var i = 0; i < added_users.length; i++){
+            let id = added_users[i].id;
+            if(this.props.user.id == id){
+              add_me = true;
+              break;
+            }
+          }
+          if(add_me){
+            // Subscribe to the room
+            console.log("Subscribed to room");
+            this.props.updateChannelsCallback();
+          } else {
+            console.log("Not for me");
+          }
+        }
         
-        this.props.leaveCallback(false);
+        
       }
       else if(message.event == 'leave_channel' ){
-         if(message.channel_name != this.props.channel.channel_name)
-          return;
+        //  if(message.channel_name != this.props.channel.channel_name)
+        //   return;
           
         if(this.props.user.id == message.user.id){
-          this.props.leaveCallback(true);
-          //console.log("You Leave")
+          // this.props.leaveCallback(true);
+          console.log("You Leave")
+          this.props.updateChannelsCallback();
         } else {
           //console.log("Someone Left")
-          this.props.leaveCallback(false);
+          // this.props.leaveCallback(false);
+          this.props.updateChannelsCallback();
         }
       }
       else if(message.event == 'delete_channel'){
        
         if(this.props.channel){
-          if(this.props.channel.channel_name == message.channel_name && this.props.user.id == message.user.id){
+          if(this.props.channel.channel_name == message.channel.channel_name && this.props.user.id == message.user.id){
             //console.log("You Deleted Channel")
             this.props.leaveCallback(true);
           }
           else{
             //console.log("Somone Delete Channel")
-            this.props.leaveCallback(false);
+            // this.props.leaveCallback(false);
+            this.props.leaveCallback(true);
           }
         }
       }
@@ -208,7 +254,8 @@ class Channel extends Component {
        
         if(this.props.user.id != message.user.id){
           //console.log("Someone Add Channel")
-          this.props.leaveCallback(false);
+          // this.props.leaveCallback(false);
+          this.updateChannelsCallback();
         }
         else{
           //console.log("You Add Channel")
@@ -225,10 +272,15 @@ class Channel extends Component {
         return response.json();
       })
       .then(data => {
-        this.setState({ data: data, loaded: true }); 
-        //console.log(data);
-        this.scrollToElement();
+        if(this._IsMounted){
+          this.setState({ data: data, loaded: true }); 
+          //console.log(data);
+          this.scrollToElement();
+        }
       });
+  }
+  componentWillUnmount(){
+    this._IsMounted = false;
   }
   render() {
     const { data, loaded, placeholder, channel, channelAccess, scrollBoxHeight, messageBoxHeight } = this.state;
