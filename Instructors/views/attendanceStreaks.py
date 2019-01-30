@@ -9,8 +9,9 @@ from Students.views.utils import studentInitialContextDict
 from Badges.models import LeaderboardsConfig
 from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams 
-from Instructors.models import AttendaceStreakConfiguration
-from Badges.models import Conditions, Rules, RuleEvents, ActionArguments, VirtualCurrencyRuleInfo
+from Badges.models import AttendaceStreakConfiguration
+from Badges.models import Conditions, Rules, RuleEvents, ActionArguments, VirtualCurrencyRuleInfo, VirtualCurrencyPeriodicRule
+from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_vc, delete_periodic_task
 import json, datetime, ast, re
 from argparse import Action
 from Students.models import StudentRegisteredCourses
@@ -101,9 +102,6 @@ def attendanceStreaks(request):
             condition.save()
             
         datesFromCalendarProcessed = []
-        
-        if 'streakLength' in request.POST:
-            streak.streakLength = request.POST['streakLength']
             
         if 'calendarDaysCheckedList' in request.POST:
             checkedCalendarDays = filterOutDuplicatesFromCalendar(request.POST.getlist('calendarDaysCheckedList'))
@@ -113,7 +111,7 @@ def attendanceStreaks(request):
             uncheckedCalendarDays = filterOutDuplicatesFromCalendar(request.POST.getlist('calendarDaysUncheckedList'))
             print('calendarDaysUncheckedList', uncheckedCalendarDays)
             streak.daysDeselected = uncheckedCalendarDays
-        streak.save()   
+        streak.save()
 
         return redirect('attendanceStreaks')
 

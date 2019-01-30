@@ -77,10 +77,7 @@
 	   			document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
 	   		}
 	   	}
-	   	if (document.getElementById("streakLength").value != "")
 	   		document.getElementById("daysOfWeekForm").submit();
-	   	else
-	   		alert("Please Enter Streak Length or Currency Amount");
 	   }
 
 	   function obtainCalendarInfo() {
@@ -184,9 +181,6 @@
                         <input type="checkbox" name="dayCheckbox" value="6" id="sunday" />
                         <label id="badge" for="sunday">Sunday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="6" />
-                        <br>
-                        <label for="streakLength"><span class= "red-text">*</span>Streak Length</label>
-                        <input value="{{streak.streakLength}}" name="streakLength" id="streakLength" min="0" type="number" required>
                      </form>
                      <br>
                      <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>

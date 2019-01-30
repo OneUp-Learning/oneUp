@@ -395,3 +395,10 @@ class ProgressiveUnlocking(models.Model):
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
 
+class AttendaceStreakConfiguration(models.Model):
+    streakConfigurationID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
+    daysofClass = models.CharField(max_length=75)#days of the week that are class scheduled for semester
+    daysDeselected = models.CharField(max_length=20000)#the days that were removed from the class schedule
+    def __str__(self):              
+        return str(self.streakConfigurationID)+","+str(self.courseID)+","+str(self.daysofClass) +","+ str(self.daysDeselected)

@@ -83,8 +83,6 @@ from Instructors.views.addExistingStudentView import addStudentListView, addExis
 from Instructors.views.activityListView import reorderActivities
 from Instructors.views.attendanceStreaks import attendanceStreaks
 
-from Instructors.views.streaks import streaks, streakConfig, streakDelete
-
 admin.autodiscover()
 
 urlpatterns = [
@@ -181,8 +179,5 @@ urlpatterns = [
     url(r'^addExistingStudent', addExistingStudent, name="addExistingStudent"),
     url(r'^reorderActivities', reorderActivities, name="addExistingStudent"),
     url(r'^attendanceStreaks', attendanceStreaks, name="attendanceStreaks"),
-    url(r'^streakConfig', streakConfig, name="streakConfig"),
-    url(r'^streakDelete', streakDelete, name="streakDelete"),
-    url(r'^streaks', streaks, name="streaks"),
     
 ]
