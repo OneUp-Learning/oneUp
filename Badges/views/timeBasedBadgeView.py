@@ -32,7 +32,7 @@ def timeBasedBadgeView(request):
                 # The range part is the index numbers.  
                 context_dict['badge'] = badge 
                 context_dict['edit'] = True  
-                if badge.periodicVariableID == 1408 or badge.periodicVariableID == 1407:
+                if badge.periodicVariableID == 1408 or badge.periodicVariableID == 1407 or badge.periodicVariableID == 1409 or badge.periodicVariableID == 1410:
                     context_dict['checkbox'] = badge.resetStreak         
         else:
             context_dict['edit'] = False 

@@ -27,7 +27,7 @@ def timeBasedVirtualCurrencyView(request):
                 periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcId, courseID=current_course)
                 context_dict['vc'] = periodicVC
                 context_dict['edit'] = True
-                if periodicVC.periodicVariableID == 1408 or periodicVC.periodicVariableID == 1407:
+                if periodicVC.periodicVariableID == 1408 or periodicVC.periodicVariableID == 1407 or periodicVC.periodicVariableID == 1409 or periodicVC.periodicVariableID == 1410:
                     context_dict['checkbox'] = periodicVC.resetStreak
         else:
             context_dict['edit'] = False

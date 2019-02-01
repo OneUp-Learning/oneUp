@@ -620,31 +620,35 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     if not result_only:
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
+def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
+    from Students.models import StudentStreaks, StudentChallenges
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
+    from datetime import datetime
+    from Instructors.models import Challenges
+    challengeTotalScore = 0
+    studentScores = []
+    filteredStudentScores = []
+    maxStudentScore = 0
+    
+    if Challenges.objects.filter(challengeID= challengeID).exists():
+        challengeTotalScore = Challenges.objects.filter(challengeID= challengeID)[0].totalScore
+    
+    if StudentChallenges.objects.filter(challengeID=challengeID, studentID=student, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))).exists():
+        studentChallenges = StudentChallenges.objects.filter(challengeID=challengeID, studentID=student)
+        for studentChallenge in studentChallenges:
+            studentScores.append((studentChallenge.testScore/challengeTotalScore))
+            
+        filteredStudentScores = list(filter(lambda x: x >= percentage, studentScores))
+    if filteredStudentScores:
+        return 1
+    else:
+        return 0
 def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     print("Calculating student challenge streak") 
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
     from datetime import datetime
     from Instructors.models import Challenges
-    def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
-        challengeTotalScore = 0
-        studentScores = []
-        filteredStudentScores = []
-        maxStudentScore = 0
-        
-        if Challenges.objects.filter(challengeID= challengeID).exists():
-            challengeTotalScore = Challenges.objects.filter(challengeID= challengeID)[0].totalScore
-        
-        if StudentChallenges.objects.filter(challengeID=challengeID, studentID=student, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))).exists():
-            studentChallenges = StudentChallenges.objects.filter(challengeID=challengeID, studentID=student)
-            for studentChallenge in studentChallenges:
-                studentScores.append((studentChallenge.testScore/challengeTotalScore))
-                
-            filteredStudentScores = list(filter(lambda x: x >= percentage, studentScores))
-        if filteredStudentScores:
-            return 1
-        else:
-            return 0
     # Get the last time this periodic variable has ran if not getting results only (leaderboards)
     if not result_only:
         last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
