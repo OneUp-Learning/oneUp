@@ -117,15 +117,25 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     if is_leaderboard:
         award_type += "leaderboard"
 
+    unique_str = str(unique_id)+"_"+award_type
+    periodic_task = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id))
+    total_runs = periodic_task.total_run_count
+
     # Handle beginning of time period
     if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
-        unique_str = str(unique_id)+"_"+award_type
-        periodic_task = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id))
-        total_runs = periodic_task.total_run_count
+        # If it has ran once then return and set it not to run anymore
         if total_runs >= 1:
             periodic_task.enabled = False
             periodic_task.save()
             return
+    # Check for frequency to see handle every N days/month/week etc
+    # ex. biweekly
+    # (day 1) total_runs = 0 , frequency = 2, task will run
+    # (day 7) total_runs = 1 , frequency = 2, task will not run
+    # (day 14) total_runs = 2 , frequency = 2, task will run
+    # ...
+    if total_runs % time_period['frequency'] != 0:
+        return
 
     # Get the course
     course = get_course(course_id)
@@ -362,9 +372,9 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
 
 def calculate_unique_warmups(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the number of unique Warm-up challenges the student has completed
-        with a score greater than 60%.
+        with a score greater than 70%.
     '''
-    print("Calculating Unique Warmups with a Score > 60%") 
+    print("Calculating Unique Warmups with a Score > 70%") 
     from Instructors.models import Challenges
     from Students.models import StudentChallenges
     from decimal import Decimal
@@ -408,16 +418,16 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
         if studentChallenges.exists():
             print("Student Challenges: {}".format(studentChallenges))
             # Get the total possible score (Note: total score is Decimal type) for this challenge
-            total_score_possible = challenge.totalScore
+            total_score_possible = challenge.getCombinedScore()
             # Get the highest score out of the student attempts for this challenge (Note: test score is Decimal type)
-            highest_score = max([warmup.testScore for warmup in studentChallenges])
+            highest_score = max([warmup.getScore() for warmup in studentChallenges])
             # If the total possible score is not set then skip this Warm-up challenge
             if total_score_possible <= 0:
                 continue
             # Calculate the percentage
             percentage = (highest_score/total_score_possible) * Decimal(100)
-            # Say this challenge is counted for if the student score percentage is greater than 60%
-            if percentage > Decimal(60.0):
+            # Say this challenge is counted for if the student score percentage is greater than 80%
+            if percentage > Decimal(70.0):
                 unique_warmups += 1
 
     print("Course: {}".format(course))
@@ -451,10 +461,15 @@ class TimePeriods:
     from django.utils import timezone
     from datetime import timedelta
 
-    ''' TimePeriods enum starting at 1500.'''
+    ''' TimePeriods enum starting at 1500.
+        schedule: crontab of when to run
+        datetime: used for results only to look back a time period
+        frequency: rate at which to run the task. ex. frequency 2 (daily) will run every other day
+    '''
     daily = 1500 # Runs every day at midnight
     weekly = 1501 # Runs every Sunday at midnight
-    beginning_of_time = 1502 # Runs only once
+    biweekly = 1502 # Runs every two weeks on Sunday at midnight
+    beginning_of_time = 1503 # Runs only once
     daily_test = 1599
     timePeriods = {
         daily_test:{
@@ -464,7 +479,8 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='*/2', hour='*', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2))
+            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2)),
+            'frequency': 1,
         },
         daily:{
             'index': daily,
@@ -473,21 +489,32 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='0', hour='0', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=1))
+            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=1)),
+            'frequency': 1,
         },
         weekly:{
             'index': weekly,
             'name': 'weekly',
             'displayName': 'Weekly on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=7))
+            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=7)),
+            'frequency': 1,
+        },
+        biweekly:{
+            'index': biweekly,
+            'name': 'biweekly',
+            'displayName': 'Every Two Weeks on Sundays at Midnight',
+            'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
+            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=14)),
+            'frequency': 2,
         },
         beginning_of_time:{
             'index': beginning_of_time,
             'name': 'beginning_of_time',
             'displayName': 'Only once at Midnight',
             'schedule': get_or_create_schedule(minute="0", hour="0"),
-            'datetime': lambda: None
+            'datetime': lambda: None,
+            'frequency': 1,
         }
     }
 class PeriodicVariables:
@@ -517,8 +544,8 @@ class PeriodicVariables:
         unique_warmups: {
             'index': unique_warmups,
             'name': 'unique_warmups',
-            'displayName': 'Student Unique Warm-up Challenges Completed with a Score > 60%',
-            'description': 'Retrieves the amount of unique Warm-up Challenges completed by students with a score greater than 60%',
+            'displayName': 'Student Unique Warm-up Challenges Completed with a Score > 70%',
+            'description': 'Retrieves the amount of unique Warm-up Challenges completed by students with a score greater than 70%',
             'function': calculate_unique_warmups,
             'task_type': 'Badges.periodicVariables.periodic_task',
         }
