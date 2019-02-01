@@ -41,6 +41,7 @@ def validateResetPassword(request):
     username = request.POST['username'].strip()
     old_password = request.POST['old_password'].strip()
     new_password = request.POST['new_password'].strip()
+    new_password_confirm = request.POST['new_password_confirm'].strip()
 
     student = context_dict['student']
     
@@ -54,7 +55,9 @@ def validateResetPassword(request):
         errorList.append("Username is incorrect")
     if new_password == "":
         errorList.append("Please enter a new password")
-    print("Passed")
+    if new_password_confirm != new_password:
+        errorList.append("New password and confirm password do not match")
+
     response = {}
     response['errorMessages'] = errorList
     return JsonResponse(response)
