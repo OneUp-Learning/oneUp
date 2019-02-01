@@ -263,7 +263,7 @@ class DuelChallenges(models.Model):
     acceptTime = models.DateTimeField(auto_now_add=True, verbose_name="Accept Timestamp", db_index=True)
     startTime = models.IntegerField(default=1440) # time in minutes, Default 24 hours
     timeLimit = models.IntegerField(default=120)  # time in minutes, Default 1 hour
-    customMessage = models.CharField(max_length=600, default='')
+    customMessage = models.CharField(max_length=6000, default='')
     status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
