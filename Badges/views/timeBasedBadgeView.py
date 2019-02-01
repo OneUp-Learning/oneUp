@@ -48,8 +48,9 @@ def timeBasedBadgeView(request):
         selectors = request.POST.get("selectors")
 
         if 'delete' in request.POST:
-            periodic_badge = PeriodicBadges.objects.get(badgeID=request.POST['badgeId'], courseID=current_course)
-            periodic_badge.delete()
+            if PeriodicBadges.objects.filter(badgeID=request.POST['badgeId'], courseID=current_course).exists():
+                periodic_badge = PeriodicBadges.objects.filter(badgeID=request.POST['badgeId'], courseID=current_course)[0]
+                periodic_badge.delete()
         else:
             if 'badgeId' in request.POST:
                 periodic_badge = PeriodicBadges.objects.get(badgeID=request.POST['badgeId'], courseID=current_course)
@@ -107,7 +108,7 @@ def timeBasedBadgeView(request):
             
             periodic_badge.save()
     
-            return redirect('PeriodicBadges.html')
+        return redirect('PeriodicBadges.html')
         
 
 def extractPaths(context_dict): #function used to get the names from the file location
@@ -121,7 +122,8 @@ def extractPaths(context_dict): #function used to get the names from the file lo
     context_dict["imagePaths"] = zip(range(1,len(imagePath)+1), imagePath)
 
 def createTimePeriodContext(context_dict):
-
-    context_dict['periodicVariables'] = [v for _, v in PeriodicVariables.periodicVariables.items()]
+    import collections
+   
+    context_dict['periodicVariables'] = [v for _, v in  sorted(PeriodicVariables.periodicVariables.items())]
     context_dict['timePeriods'] = [t for _, t in TimePeriods.timePeriods.items()]
     return context_dict

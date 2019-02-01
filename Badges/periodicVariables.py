@@ -5,6 +5,7 @@ import random
 import logging
 from _datetime import datetime
 from dateutil.utils import today
+from billiard.connection import CHALLENGE
 logger = logging.getLogger(__name__)
 
 from django.conf import settings
@@ -619,6 +620,121 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     if not result_only:
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
+def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    print("Calculating student challenge streak") 
+    from Students.models import StudentStreaks, StudentChallenges
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
+    from datetime import datetime
+    from Instructors.models import Challenges
+    def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
+        challengeTotalScore = 0
+        studentScores = []
+        filteredStudentScores = []
+        maxStudentScore = 0
+        
+        if Challenges.objects.filter(challengeID= challengeID).exists():
+            challengeTotalScore = Challenges.objects.filter(challengeID= challengeID)[0].totalScore
+        
+        if StudentChallenges.objects.filter(challengeID=challengeID, studentID=student, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))).exists():
+            studentChallenges = StudentChallenges.objects.filter(challengeID=challengeID, studentID=student)
+            for studentChallenge in studentChallenges:
+                studentScores.append((studentChallenge.testScore/challengeTotalScore))
+                
+            filteredStudentScores = list(filter(lambda x: x >= percentage, studentScores))
+        if filteredStudentScores:
+            return 1
+        else:
+            return 0
+    # Get the last time this periodic variable has ran if not getting results only (leaderboards)
+    if not result_only:
+        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    else:
+        date_time = time_period['datetime']
+        if date_time:
+            last_ran = date_time()
+        else:
+            last_ran = None
+           
+    treshold = 0
+    resetStreak = False  
+    #if detemine which type of award this is and obtain tresholds and resetStreak booleans
+    if award_type == 'badge':
+        if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
+            periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
+            treshold = periodicBadge.threshold
+            resetStreak = periodicBadge.resetStreak
+    elif award_type == 'vc':
+        if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
+            periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
+            treshold = periodicVC.threshold
+            resetStreak = periodicVC.resetStreak
+     
+    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
+        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
+    else:
+        studentStreak = StudentStreaks()
+        studentStreak.studentID = student
+        studentStreak.courseID = course
+        studentStreak.streakStartDate = datetime.now()
+        studentStreak.streakType = 0
+        studentStreak.objectID = unique_id
+        studentStreak.currentStudentStreakLength = 0   
+        
+    total = 0
+    total = studentStreak.currentStudentStreakLength
+    
+    #figure out how many challenges have been completed by the student
+    challengeCount = len(StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+    studentChallengeIDs = []
+    maxScores = []
+    if challengeCount > 1:
+        for challenge in challengeCount:
+            studentChallengeIDs.append(challenge.challengeID)
+        
+        challengeScores = []
+        for studentChallengeID in studentChallengeIDs:
+            if getPercentageScoreForStudent(studentChallengeID, student, percentage, last_ran):
+                total += 1
+    elif challengeCount == 1:
+        studentChallenge = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, challengeID=studentChallengeIDs, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
+        challenge = Challenges.objects.filter(challengeID=studentChallengeID[0])
+        if studentChallenge.testScore/challenge.challengeTotalScore >= (percentage *.01):
+            total += 1
+    else:
+        total = 0
+        
+    #if total is larger than streak and we want to NOT reset streak
+    if total > treshold and resetStreak:
+        studentStreak.currentStudentStreakLength = 0
+        total = treshold
+    elif total > treshold and not resetStreak:
+        if total % treshold == 0:
+            total = treshold
+        else:
+            #total is set as remainder of current streak length and treshold
+            total %= treshold
+    elif total == treshold and resetStreak:
+        studentStreak.currentStudentStreakLength = 0
+        total = treshold
+    elif total == treshold and not resetStreak:
+        total = treshold
+        
+    studentStreak.save()
+    
+    print("Course: {}".format(course))
+    print("Student: {}".format(student))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(last_ran))
+    print("Total Earnings: {}".format(total))
+
+    # Set this as the last time this task has ran
+    if not result_only:
+        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    return (student, total)
+def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False)
+def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False)
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
     if settings.CURRENTLY_MIGRATING:
@@ -686,6 +802,8 @@ class PeriodicVariables:
     unique_warmups = 1402
     attendance_streak = 1407
     challenge_streak = 1408
+    warmup_challenge_greater_or_equal_to_40 = 1409
+    warmup_challenge_greater_or_equal_to_70 = 1410
 
     periodicVariables = {
         highest_earner: {
@@ -720,11 +838,28 @@ class PeriodicVariables:
             'function': calculate_student_attendance_streak,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
+        warmup_challenge_greater_or_equal_to_40: {
+            'index': warmup_challenge_greater_or_equal_to_40,
+            'name': 'Warmup challenge >= 40%',
+            'displayName': 'Warmup Challenge Streak Score >= 40%',
+            'description': 'Warmup Challenge Streak Score >= 40%',
+            'function': calculate_warmup_challenge_greater_or_equal_to_40,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        warmup_challenge_greater_or_equal_to_70: {
+            'index': warmup_challenge_greater_or_equal_to_70,
+            'name': 'Warmup challenge >= 70%',
+            'displayName': 'Warmup Challenge Streak Score >= 70%',
+            'description': 'Warmup Challenge Streak Score >= 70%',
+            'function': calculate_warmup_challenge_greater_or_equal_to_70,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        
         challenge_streak: {
             'index': challenge_streak,
             'name': 'challenge_streak',
-            'displayName': 'Student Challenge Streak',
-            'description': 'Student Challenge Streak',
+            'displayName': 'Challenge Streak',
+            'description': 'Challenge Streak',
             'function': calculate_student_challenge_streak,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },

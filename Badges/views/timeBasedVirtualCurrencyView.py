@@ -105,6 +105,6 @@ def timeBasedVirtualCurrencyView(request):
 
 def createTimePeriodContext(context_dict):
 
-    context_dict['periodicVariables'] = [v for _, v in PeriodicVariables.periodicVariables.items()]
+    context_dict['periodicVariables'] = [v for _, v in sorted(PeriodicVariables.periodicVariables.items())]
     context_dict['timePeriods'] = [t for _, t in TimePeriods.timePeriods.items()]
     return context_dict
