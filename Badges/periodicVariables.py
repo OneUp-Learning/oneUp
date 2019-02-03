@@ -441,7 +441,7 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     #should be set before the start of a week, week defined as 7 days. 
     from Students.models import StudentStreaks, StudentAttendance
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, CourseConfigParams
-    from Instructors.models import AttendaceStreakConfiguration
+    from Instructors.models import AttendanceStreakConfiguration
     from datetime import datetime, timedelta
     import ast
     
@@ -483,11 +483,11 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
         
     
     # Get the attendance for this student
-    if AttendaceStreakConfiguration.objects.filter(courseID=course.courseID).exists():
+    if AttendanceStreakConfiguration.objects.filter(courseID=course.courseID).exists():
         print("attendance exists")
         
         #determine the days of class for our entire class
-        streak = AttendaceStreakConfiguration.objects.filter(courseID=course.courseID)[0]
+        streak = AttendanceStreakConfiguration.objects.filter(courseID=course.courseID)[0]
         excluded_Dates = streak.daysDeselected
         streakDays = ast.literal_eval(streak.daysofClass)
         streakDays = [int(i) for i in streakDays]
@@ -644,7 +644,7 @@ def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
         return 1
     else:
         return 0
-def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, unique_id, award_type, result_only):
     print("Calculating student challenge >= streak") 
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
