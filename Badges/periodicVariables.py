@@ -232,6 +232,7 @@ def get_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Retrieves the last time a periodic task has ran. 
         Returns None if it is has not ran yet.
     '''
+    print("award type", award_type)
     if not "badge" in award_type  and not "vc" in award_type and not "leaderboard" in award_type:
         logger.error("Cannot find Periodic Task Object: award_type is not 'badge' or 'vc' or 'leaderboard'!!")
 
@@ -644,7 +645,7 @@ def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
     else:
         return 0
 def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    print("Calculating student challenge streak") 
+    print("Calculating student challenge >= streak") 
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
     from datetime import datetime
@@ -736,9 +737,9 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
 def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False)
+    calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False)
+    calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
     if settings.CURRENTLY_MIGRATING:
