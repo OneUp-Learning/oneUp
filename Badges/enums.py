@@ -8,6 +8,45 @@ def dict_dict_to_zipped_list(d,fields):
         output.append(attrlist)
     return output
 
+class Goal():
+    warmup10 = 1600
+    warmup70 = 1602
+    warmup80 = 1604
+    warmup90 = 1606
+    streak10 = 1610
+    streak70 = 1612
+    streak80 = 1614
+    streak90 = 1616
+    courseBucks = 1620
+    courseXP = 1630
+    courseBadges = 1640
+    goals = {
+        warmup10:{
+                'index': warmup10,
+                'name': 'warmup10',
+                'displayName': 'Number of Warm Ups to be taken',
+                'description': 'The number of Warm Ups the student aims to take.',
+                },
+        warmup70:{
+                'index': warmup70,
+                'name': 'warmup70',
+                'displayName': 'Number of Warm Ups taken with 70% score',
+                'description': 'The number of Warm Ups the student aims to take.',
+                },
+        warmup10:{
+                'index': warmup10,
+                'name': 'warmup10',
+                'displayName': 'Number of Warm Ups to be taken',
+                'description': 'The number of Warm Ups the student aims to take.',
+                },
+        warmup10:{
+                'index': warmup10,
+                'name': 'warmup10',
+                'displayName': 'Number of Warm Ups to be taken',
+                'description': 'The number of Warm Ups the student aims to take.',
+                },
+        }
+
 class Action():
     giveBadge = 701 # Give a student a badge
     createNotification = 702 # Give a student a notification
