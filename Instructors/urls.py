@@ -78,8 +78,10 @@ from Instructors.views.studentAttendanceReportView import studentAttendanceRepor
 
 from Instructors.views.switchToStudentView import switchToStudentView
 from Instructors.views.resetTestStudentData import resetTestStudent
-from Instructors.views.addExistingStudentView import addStudentListView, addExistingStudent
 
+from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
+
+from Instructors.views.addExistingStudentView import addStudentListView, addExistingStudent
 from Instructors.views.activityListView import reorderActivities
 
 admin.autodiscover()
@@ -174,7 +176,8 @@ urlpatterns = [
     url(r'^studentAttendance',studentAttendance,name='studentAttendance'),
     url(r'^switchView', switchToStudentView, name='swtichView'),
     url(r'^resetTestStudent', resetTestStudent, name='resetTestStudent'),
+    url(r'^reorderActivities', reorderActivities, name="addExistingStudent"),
+    url(r'^dynamicLeaderboard', dynamicLeaderboardView, name='dynamicLeaderboardView'),
     url(r'^addStudentListView', addStudentListView, name='addStudentListView'),
     url(r'^addExistingStudent', addExistingStudent, name="addExistingStudent"),
-    url(r'^reorderActivities', reorderActivities, name="addExistingStudent"),
 ]

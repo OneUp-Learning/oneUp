@@ -54,7 +54,33 @@
                      </div>
                   </div>
                </div>
-                  
+               {% if displayLeaderBoard %}
+                  <div class="col s12 m12">
+                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
+                  <div class="col s6 m3">
+                  <div class="card-panel">
+                  <table>
+                    <caption><h5>{{leaderboardNames}}</h5></caption>
+                    <thead>
+                      <th>Student</th>
+                      <th>Points</th>
+                    </thead>
+                    <tbody>
+                        {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
+                        <tr>
+                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td>{{points}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td class="center-align" colspan="2"><i>No students with enough results to place on leaderboard</i></td></tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                  </div>
+                  </div>
+                  {% endfor %}
+                  </div>
+                {% endif %}
                </div>
               
             </div>

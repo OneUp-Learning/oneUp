@@ -62,33 +62,36 @@
                   </div>
                   </div>
                 </div>
-            </div>
-            <div class="row">
-                {% if leaderboardUsed and gamificationUsed %}                
-                <div class="col s12 m6">
+            </div>           
+                <div class="col s12 m12">
+                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
+                  <div class="col s6 m3">
                   <div class="card-panel">
                   <table>
-                    <caption><h5>Leader Board</h5></caption>
+                    <caption><h5>{{leaderboardNames}}</h5></caption>
                     <thead>
                       <th>Student</th>
-                      <th>XP</th>
+                      <th>Points</th>
                     </thead>
                     <tbody>
-                        {% for i,avatarImage,xpoints, usi in user_range %}
+                        {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
                         <tr>
-                            <td><img class="tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi}}" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
-                            <td>{{xpoints}}</td>
+                            <td><img class="tooltipped" data-position="top" data-delay="50" data-tooltip="{{studentUsers}}" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td>{{points}}</td>
                         </tr>
                         {% empty %}
-                        <tr><td class="center-align" colspan="2"><i>No students with XP</i></td></tr>
+                        <tr><td class="center-align" colspan="2"><i>No students with enough results to place on leaderboard</i></td></tr>
                         {% endfor %}
                     </tbody>
                   </table>
                   </div>
+                  </div>
+                  {% endfor %}
+                  </div>
                 </div>
-                {% endif %}
+            <div class="row">
                 {% if classSkillsDisplayed and gamificationUsed %}                
-                <div class="col s12 m6">
+                <div class="col s12 m4 offset-m1">
                     <div class="card-panel">
                     <table>
                     <caption><h5>Skills Board</h5></caption>

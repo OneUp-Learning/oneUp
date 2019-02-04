@@ -8,40 +8,45 @@
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Class Leader Board</h3>
+               <h3> Leader Board</h3>
             </div>
          </div>
          <div class="row">
-         <div class="col s12 m10 offset-m1 ">
+         <div class="col s12 m10 offset-m1">
             <div class="row">
             {% if  classSkillsDisplayed and displayClassSkills %}
-               <div class="col s12 m6">
+               <div class="col s12 m12">
              {% else %}
              	<div class="col s12 m12">
              {% endif %}
+                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
+                  <div class="col s12 m2">
                   <div class="card-panel">
-                     <table>
-                        <thead>
-                           <th>Student</th>
-                           <th>XP</th>
-                        </thead>
-                        <tbody>
-                           {% for i,avatarImage,xpoints, user in user_range %}
-                           <tr>
-                              <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
-                              <td>{{xpoints}}</td>
-                           </tr>
-                           {% empty %}
-                           <tr>
-                              <td class="center-align" colspan="2"><i>No students with XP</i></td>
-                           </tr>
-                           {% endfor %}
-                        </tbody>
-                     </table>
+                  <table>
+                    <caption><h5>{{leaderboardNames}}</h5></caption>
+                    <caption><h6>{{leaderboardDescriptions}}</h6></caption>
+                    <thead>
+                      <th>Student</th>
+                      <th>Points</th>
+                    </thead>
+                    <tbody>
+                        {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
+                        <tr>
+                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td>{{points}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td class="center-align" colspan="2"><i>No students with XP</i></td></tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                  </div>
+                  </div>
+                  {% endfor %}
                   </div>
                </div>
                {% if classSkillsDisplayed and displayClassSkills and ccparams.gamificationUsed %}                    
-               <div class="col s12 m6">
+               <div class="col s12 m4">
                   <div class="card-panel">
                      <table>
                         <thead>
@@ -54,7 +59,7 @@
                               <td>{{skill.skillName}}</td>
                               <td>
                                  {% for usi in skill.usersInfo %} 
-                                 <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                 <div class="chip" >
                                     <img src="{{usi.avatarImage}}">
                                     {{usi.skillPoints}}
                                  </div>

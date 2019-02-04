@@ -40,6 +40,7 @@ from Students.views.leaderboardView import LeaderboardView
 from Students.views.switchToInstructorView import switchToInstructorView
 from Students.views.calloutsView import callouts_list, duel_challenge_create, duel_challenge_accept, duel_challenge_description, duel_challenge_delete,validate_duel_challenge_creation
 from Students.views.resetPasswordView import validateResetPassword
+from Students.views.leaderboardInfoView import leaderboardInfoView
 
 admin.autodiscover()
 
@@ -71,6 +72,7 @@ urlpatterns = [
     url(r'^VirtualCurrencyShop',virtualCurrencyShopView, name='Virtual Current Shop'),
     url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions'),
     url(r'^StudentQA', studentQA, name='Student QA'),
+    url(r'^LeaderboardInfo',leaderboardInfoView, name='LeaderboardInfo'),
     url(r'^Leaderboard',LeaderboardView, name='Leaderboard'),
     url(r'^switchView', switchToInstructorView, name="switchToInstructorView"),
     url(r'^Callouts',callouts_list, name='Callouts'),
