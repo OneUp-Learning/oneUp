@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <link href='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.min.css' rel='stylesheet' />
+   <link href='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+   <script src='/static/ThirdParty/fullcalendar-3.9.0/lib/moment.min.js'></script>
+   <script src='/static/ThirdParty/fullcalendar-3.9.0/fullcalendar.min.js'></script>
+   <script>
+   document.addEventListener("DOMContentLoaded", function(event) {
+	   var daysSelected = {{streak.daysofClass | safe}};
+	  	checkBoxes = document.getElementsByName("dayCheckbox");
+	  	for (var i = 0; i < checkBoxes.length; i++) {
+	  		if (daysSelected.includes(checkBoxes[i].value)) {
+	  			checkBoxes[i].checked = true;
+	  		}
+	  	}
+	 });
+   
+	   var calendarDaysSelected = {{eventCheckboxDays | safe}};
+	   var calendarDaysUnSelected = {{eventCheckboxDaysUnselected | safe}};
+	   var daysOfCalendar = calendarDaysSelected.concat(calendarDaysUnSelected);
+	   
+	   $(document).ready(function () {
+	   	var calendar = $('#calendar').fullCalendar({
+	   		showNonCurrentDates: false,
+	   		eventStartEditable: false,
+	   		viewRender: function () {
+	   			$(".fc-disabled-day").html('');
+	   		},
+	   		dayRender: function (date, cell) {
+	   			 if (daysOfCalendar.includes(date.format('YYYY-MM-DD'))){
+	   			 var checkbox = document.createElement('input');
+   				 checkbox.type = "checkbox";
+   				 checkbox.name = "dates[]";
+   				 checkbox.value = date.format('YYYY-MM-DD');
+   				 checkbox.id = date.format('YYYY-MM-DD');
+   				 var label = document.createElement('label')
+   				 label.htmlFor = date.format('YYYY-MM-DD');
+   				 label.appendChild(document.createTextNode(''));
+				
+				 if (calendarDaysSelected.includes(date.format('YYYY-MM-DD')))
+					 checkbox.checked = true;
+	   			
+   				 cell.append(checkbox);
+   				 cell.append(label);
+	   			}
+	   			
+
+	   		},
+	   		eventRender: function (event, element, view) {
+	   		},
+	   		header: {
+	   			left: '',
+	   			center: 'title',
+	   			right: ''
+	   		},
+	   		dayClick: function (date, jsEvent, view) {
+	   			if (document.getElementById(date.format('YYYY-MM-DD')).checked)
+	   				document.getElementById(date.format('YYYY-MM-DD')).checked = false;
+	   			else
+	   				document.getElementById(date.format('YYYY-MM-DD')).checked = true;
+	   		},
+	   		navLinks: false, // can click day/week names to navigate views
+	   		editable: true,
+	   		eventLimit: true, // allow "more" link when too many events
+	   		events: {{event | safe}}
+	   	});
+	   });
+	   
+	   	
+	   function validateDaysSelected() {
+	   	checkBoxes = document.getElementsByName("dayCheckbox");
+	   	for (var i = 0; i < checkBoxes.length; i++) {
+	   		if (checkBoxes[i].checked) {
+	   			document.getElementById(checkBoxes[i].value).value = checkBoxes[i].value;
+	   		}
+	   	}
+	   		document.getElementById("daysOfWeekForm").submit();
+	   }
+
+	   function obtainCalendarInfo() {
+		 saveCalendarData();
+	     document.getElementById("daysCheckedList").value = calendarDaysSelected;
+	     document.getElementById("daysUncheckedList").value = calendarDaysUnSelected;
+	   	 document.getElementById("calendarForm").submit();
+	   }
+	   
+	   function saveCalendarData(){
+		   
+		   var calendarDates = document.getElementsByName("dates[]");
+		 	for (var i = 0; i < calendarDates.length; i++) {
+		   		if (calendarDates[i].checked) {
+		   			if (!calendarDaysSelected.includes(calendarDates[i])){
+		   				calendarDaysSelected.push(calendarDates[i].value);
+		   				calendarDaysUnSelected = removeDuplicateDates(calendarDaysUnSelected, calendarDates[i].value);
+		   			}
+		   		} else {//if it is not checked
+		   			if(!calendarDaysUnSelected.includes(calendarDates[i]))
+		   				calendarDaysUnSelected.push(calendarDates[i].value);
+		   				calendarDaysSelected = removeDuplicateDates(calendarDaysSelected, calendarDates[i].value);
+
+		   		}
+		   	}
+		 	console.log("daysSelected");
+		   	console.log(calendarDaysSelected);
+		   	console.log("daysUnselected");
+		   	console.log(calendarDaysUnSelected);
+	   }
+
+	   function saveEnteredDates(type) {
+		   saveCalendarData();
+	   	switch (type) {
+	   		case "today":
+	   			$('#calendar').fullCalendar('today');
+	   			break;
+	   		case "prev":
+	   			$('#calendar').fullCalendar('prev');
+	   			break;
+	   		case "next":
+	   			$('#calendar').fullCalendar('next');
+	   			break;
+	   	}
+
+	   }
+
+	   function removeDuplicateDates(array, element) {
+	   	var itemIndex = 0;
+	   	while ((itemIndex = array.indexOf(element, itemIndex)) > -1) {
+	   		array.splice(itemIndex, 1);
+	   	}
+	   	return array;
+	   }
+
+   </script>
+   <style>
+   td.fc-other-month {
+   visibility: hidden;
+}
+   </style>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Student Attendance Streak Configuration</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s2 offset-m1">
+               <div class="card">
+                  <div class="card-content">
+                     <form id="daysOfWeekForm" action="/oneUp/instructors/attendanceStreaks" method="post">
+                        {% csrf_token %}
+                        <p>Class Days: </p>
+                        <input type="checkbox" name="dayCheckbox" value="0" id="monday" />
+                        <label id="badge" for="monday">Monday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="0" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="1" id="tuesday" />
+                        <label id="badge" for="tuesday">Tuesday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="1" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="2" id="wednesday" />
+                        <label id="badge" for="wednesday">Wednesday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="2" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="3" id="thursday" />
+                        <label id="badge" for="thursday">Thursday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="3" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="4" id="friday" />
+                        <label id="badge" for="friday">Friday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="4" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="5" id="saturday" />
+                        <label id="badge" for="saturday">Saturday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="5" />
+                        <br>
+                        <input type="checkbox" name="dayCheckbox" value="6" id="sunday" />
+                        <label id="badge" for="sunday">Sunday</label>
+                        <input type="hidden" name="daysOfWeek[]" value="32" id="6" />
+                     </form>
+                     <br>
+                     <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>
+                  </div>
+               </div>
+            </div>
+            <div class="col s12 m8">
+               <div class="card">
+                  <div class="card-content">
+                     <form id="calendarForm" action="/oneUp/instructors/attendanceStreaks" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                        <div class="col s5">
+                        <button name="navButton" type="button" onclick="saveEnteredDates('prev');" class="btn waves-effect waves-light"><i class="material-icons left">navigate_before</i></button>
+                        </div>
+                        <div class="col s3">
+                        <button name="navButton" type="button" onclick="saveEnteredDates('today');" class="btn waves-effect waves-light"><i class="material-icons left">today</i>Today</button>
+                        </div>
+                        <div class="col s1 offset-s2">
+                        <button name="navButton" type="button" onclick="saveEnteredDates('next');" class="btn waves-effect waves-light"><i class="material-icons left">navigate_next</i></button>
+                        </div>
+                        </div>
+                        <div id='calendar'></div>
+                        <input type="hidden" name="calendarDaysCheckedList" value="" id="daysCheckedList" />
+                        <input type="hidden" name="calendarDaysUncheckedList" value="" id="daysUncheckedList" />
+                     </form>
+                  </div>
+                  <div class="card-action right-align">
+                     <a onclick="return obtainCalendarInfo()" class="waves-effect waves-light btn"><i class="material-icons left">send</i>Submit</a>                         
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

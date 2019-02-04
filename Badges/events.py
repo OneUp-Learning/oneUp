@@ -158,7 +158,6 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
         eventEntry.objectID = objectId
         
         
-        
 #     if(eventID == Event.seeClassAverage):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId
