@@ -4,7 +4,7 @@ from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSe
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     AwardFrequency
 from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
-    StudentRegisteredCourses, StudentVirtualCurrency, StudentProgressiveUnlocking
+    StudentRegisteredCourses, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased,StudentProgressiveUnlocking
 from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
 from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
@@ -485,7 +485,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
         
         if actionID == Action.increaseVirtualCurrency:
-            previousAwards = StudentVirtualCurrency.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
+            previousAwards = StudentVirtualCurrencyRuleBased.objects.filter(studentID = student.studentID, courseID=courseID, vcRuleID = vcRule)
             if rule.awardFrequency != AwardFrequency.justOnce:
                 previousAwards = previousAwards.filter(objectID = objID)
             if previousAwards.exists():
@@ -493,7 +493,8 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                 logger.debug("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
                 return 
                         
-        studVCRec = StudentVirtualCurrency()
+        studVCRec = StudentVirtualCurrencyRuleBased()
+        studVCRec.courseID = courseID
         studVCRec.studentID = student.studentID
         if rule.awardFrequency == AwardFrequency.justOnce:
             studVCRec.objectID = 0

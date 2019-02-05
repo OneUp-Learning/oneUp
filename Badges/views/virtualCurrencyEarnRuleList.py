@@ -38,7 +38,7 @@ def virtualCurrencyEarnRuleList(request):
         isRuleCustom = request.GET['isRuleCustom'] in ['true', 'True']
         
         if isRuleCustom == True:
-            vcRulesCustom = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')
+            vcRulesCustom = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
             vcRules = [r for r in vcRulesCustom if not hasattr(r, 'virtualcurrencyruleinfo')]
             
             for rule in vcRules:
@@ -50,7 +50,7 @@ def virtualCurrencyEarnRuleList(request):
                 
             context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcAmount, position)
         else:
-            vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')
+            vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
             
             for rule in vcRules:
                 # Rules that are considered 'Earning' have vcRuleType as True
@@ -75,7 +75,7 @@ def reorderVirtualCurrencyEarnRules(request):
     context_dict,currentCourse = initialContextDict(request);
     
     if request.POST['isRuleCustom'] == 'True':
-        vcRulesCustom = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')
+        vcRulesCustom = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
         for rule in vcRulesCustom:
             if str(rule.vcRuleID) in request.POST:
                 rule.vcRulePosition = request.POST[str(rule.vcRuleID)]
@@ -83,7 +83,7 @@ def reorderVirtualCurrencyEarnRules(request):
         
         return redirect('/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=true')
     else:
-        vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')
+        vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
         for rule in vcRules:
             if str(rule.vcRuleID) in request.POST:
                 rule.vcRulePosition = request.POST[str(rule.vcRuleID)]
