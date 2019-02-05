@@ -283,8 +283,11 @@ def multipleChoiceAnswersAndGrades(qdict,studentAnswers):
             userSelection = index
             userAnswer = answer
             break
-    # answerNumber is used to match answer choices on the front-end (AH)
-    qdict['user_answer'] = {'answerNumber':userSelection,'answerText':userAnswer['answerText']}
+    if not userAnswer: # We didn't find the correct answer.
+        qdict['user_answer'] = {'answerNumber':-1,'answerText':'Student selected answer which has since been deleted due to editing.  View will not match original grading.'}
+    else:
+        # answerNumber is used to match answer choices on the front-end (AH)
+        qdict['user_answer'] = {'answerNumber':userSelection,'answerText':userAnswer['answerText']}
     
     # Check to see if the student answer matches the correct answer (AH)
     if int(studentAnswerValue) == correctAnswer.answerID:

@@ -3,6 +3,8 @@ from Badges.tasks import app
 import json
 import random
 import logging
+from _datetime import datetime
+from dateutil.utils import today
 logger = logging.getLogger(__name__)
 
 from django.conf import settings
@@ -440,7 +442,193 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     if not result_only:
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, unique_warmups)
+def calculate_student_attendance_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    print("Calculating student_attendance_streak") 
+    #this one is best ran with daily time period
+    #weekly will work but cause it to ignore the extra attendance days unless set up properly.
+    #should be set before the start of a week, week defined as 7 days. 
+    from Students.models import StudentStreaks, StudentAttendance
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, CourseConfigParams
+    from Instructors.models import AttendanceStreakConfiguration
+    from datetime import datetime, timedelta
+    import ast
+    
+    # Get the last time this periodic variable has ran if not getting results only (leaderboards)
+    if not result_only:
+        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    else:
+        date_time = time_period['datetime']
+        if date_time:
+            last_ran = date_time()
+        else:
+            last_ran = None
+            
+    treshold = 0
+    resetStreak = False
+    
+    #if detemine which type of award this is and obtain tresholds and resetStreak booleans
+    if award_type == 'badge':
+        if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
+            periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
+            treshold = periodicBadge.threshold
+            resetStreak = periodicBadge.resetStreak
+    elif award_type == 'vc':
+        if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
+            periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
+            treshold = periodicVC.threshold
+            resetStreak = periodicVC.resetStreak
+     
+    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
+        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
+    else:
+        studentStreak = StudentStreaks()
+        studentStreak.studentID = student
+        studentStreak.courseID = course
+        studentStreak.streakStartDate = datetime.now().strftime("%Y-%m-%d")
+        studentStreak.streakType = 0
+        studentStreak.objectID = unique_id
+        studentStreak.currentStudentStreakLength = 0      
+        
+    
+    # Get the attendance for this student
+    if AttendanceStreakConfiguration.objects.filter(courseID=course.courseID).exists():
+        print("attendance exists")
+        
+        #determine the days of class for our entire class
+        streak = AttendanceStreakConfiguration.objects.filter(courseID=course.courseID)[0]
+        excluded_Dates = streak.daysDeselected
+        streakDays = ast.literal_eval(streak.daysofClass)
+        streakDays = [int(i) for i in streakDays]
+        streak_calendar_days = []
+        ccparams = CourseConfigParams.objects.get(courseID=course.courseID)
+        d = ccparams.courseStartDate
+        while d <= ccparams.courseEndDate:
+            if d.weekday() in streakDays:
+                streak_calendar_days.append(d.strftime("%Y-%m-%d"))
+            d += timedelta(days=1)
+        events = []
+        filteredStreakDays = []
+        for date in streak_calendar_days:
+            if date not in excluded_Dates:
+                filteredStreakDays.append(date)
+        isTodayStreakDay = False
+        if datetime.now().strftime("%Y-%m-%d") in filteredStreakDays:
+            isTodayStreakDay = True
+            
+    total = 0
+    #determine what to do with their attendance
+    if isTodayStreakDay:
+        
+        if StudentAttendance.objects.filter(courseID=course.courseID, studentID=student, timestamp=datetime.now().strftime("%Y-%m-%d")).exists():
+            studentStreak.currentStudentStreakLength += 1
+            total = studentStreak.currentStudentStreakLength
+            
+            #if total is larger than streak and we want to NOT reset streak
+            if total > treshold and resetStreak:
+                studentStreak.currentStudentStreakLength = 0
+                total = treshold
+            elif total > treshold and not resetStreak:
+                if total % treshold == 0:
+                    total = treshold
+                else:
+                    #total is set as remainder of current streak length and treshold
+                    total %= treshold
+            elif total == treshold and resetStreak:
+                studentStreak.currentStudentStreakLength = 0
+                total = treshold
+            elif total == treshold and not resetStreak:
+                total = treshold
+                
+        else:
+            studentStreak.currentStudentStreakLength = 0
+            total = 0
+                        
+    studentStreak.save()
+    print("Course: {}".format(course))
+    print("Student: {}".format(student))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(last_ran))
+    print("Total Earnings: {}".format(total))
 
+    # Set this as the last time this task has ran
+    if not result_only:
+        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    return (student, total)
+def calculate_student_challenge_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    print("Calculating student challenge streak") 
+    from Students.models import StudentStreaks, StudentChallenges
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
+    from datetime import datetime
+    # Get the last time this periodic variable has ran if not getting results only (leaderboards)
+    if not result_only:
+        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    else:
+        date_time = time_period['datetime']
+        if date_time:
+            last_ran = date_time()
+        else:
+            last_ran = None
+           
+    treshold = 0
+    resetStreak = False  
+    #if detemine which type of award this is and obtain tresholds and resetStreak booleans
+    if award_type == 'badge':
+        if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
+            periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
+            treshold = periodicBadge.threshold
+            resetStreak = periodicBadge.resetStreak
+    elif award_type == 'vc':
+        if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
+            periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
+            treshold = periodicVC.threshold
+            resetStreak = periodicVC.resetStreak
+     
+    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
+        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
+    else:
+        studentStreak = StudentStreaks()
+        studentStreak.studentID = student
+        studentStreak.courseID = course
+        studentStreak.streakStartDate = datetime.now()
+        studentStreak.streakType = 0
+        studentStreak.objectID = unique_id
+        studentStreak.currentStudentStreakLength = 0   
+        
+    total = 0
+    
+    #figure out how many challenges have been completed by the student
+    challengeCount = len(StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+    studentStreak.currentStudentStreakLength += challengeCount
+    
+    total = studentStreak.currentStudentStreakLength
+    #if total is larger than streak and we want to NOT reset streak
+    if total > treshold and resetStreak:
+        studentStreak.currentStudentStreakLength = 0
+        total = treshold
+    elif total > treshold and not resetStreak:
+        if total % treshold == 0:
+            total = treshold
+        else:
+            #total is set as remainder of current streak length and treshold
+            total %= treshold
+    elif total == treshold and resetStreak:
+        studentStreak.currentStudentStreakLength = 0
+        total = treshold
+    elif total == treshold and not resetStreak:
+        total = treshold
+        
+    studentStreak.save()
+    
+    print("Course: {}".format(course))
+    print("Student: {}".format(student))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(last_ran))
+    print("Total Earnings: {}".format(total))
+
+    # Set this as the last time this task has ran
+    if not result_only:
+        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    return (student, total)
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
     if settings.CURRENTLY_MIGRATING:
@@ -523,6 +711,8 @@ class PeriodicVariables:
     highest_earner = 1400
     student_warmup_pratice = 1401
     unique_warmups = 1402
+    attendance_streak = 1407
+    challenge_streak = 1408
 
     periodicVariables = {
         highest_earner: {
@@ -548,7 +738,23 @@ class PeriodicVariables:
             'description': 'Retrieves the amount of unique Warm-up Challenges completed by students with a score greater than 70%',
             'function': calculate_unique_warmups,
             'task_type': 'Badges.periodicVariables.periodic_task',
-        }
+        },
+        attendance_streak: {
+            'index': attendance_streak,
+            'name': 'attendance_streak',
+            'displayName': 'Student Attendance Streak',
+            'description': 'Retrieves the student Attendance so far',
+            'function': calculate_student_attendance_streak,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        challenge_streak: {
+            'index': challenge_streak,
+            'name': 'challenge_streak',
+            'displayName': 'Student Challenge Streak',
+            'description': 'Student Challenge Streak',
+            'function': calculate_student_challenge_streak,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
     }
 
 if __debug__:

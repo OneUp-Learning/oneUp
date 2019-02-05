@@ -56,6 +56,7 @@ class StudentRegisteredCourses(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     avatarImage= models.CharField(max_length=200, default='')    
     virtualCurrencyAmount = models.IntegerField(default=0)
+    attendanceStreakStartDate = models.DateTimeField(default = datetime.now)
     def __str__(self):
         return str(self.studentID) + "," + str(self.courseID)
     
@@ -269,7 +270,7 @@ class DuelChallenges(models.Model):
     acceptTime = models.DateTimeField(auto_now_add=True, verbose_name="Accept Timestamp", db_index=True)
     startTime = models.IntegerField(default=1440) # time in minutes, Default 24 hours
     timeLimit = models.IntegerField(default=120)  # time in minutes, Default 1 hour
-    customMessage = models.CharField(max_length=600, default='')
+    customMessage = models.CharField(max_length=6000, default='')
     status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
@@ -279,6 +280,15 @@ class Winners(models.Model):
     DuelChallengeID = models.ForeignKey(DuelChallenges, on_delete=models.CASCADE, verbose_name="the related Duel", db_index=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+
+class StudentStreaks(models.Model):
+    studentStreakID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    streakStartDate = models.DateTimeField(null=True, blank=True, verbose_name="The date the streak reset on")
+    streakType = models.IntegerField(default=0)
+    objectID = models.IntegerField(default=0)
+    currentStudentStreakLength = models.IntegerField(default=0)
     
     
 class StudentProgressiveUnlocking(models.Model):

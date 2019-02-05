@@ -234,6 +234,9 @@
 						{% if ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 						<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
 						{% endif %}
+						{% if is_test_student is False %}
+						<li><a class="waves-effect" href="/oneUp/students/ResetPassword">Reset Password</a></li>
+						{% endif %}
 					</ul>
 				</li>
 				{% endif %}
@@ -322,6 +325,9 @@
 									{% endif %}
 									{% if ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 									<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
+									{% endif %}
+									{% if is_test_student is False %}
+									<li><a class="waves-effect" href="/oneUp/students/ResetPassword">Reset Password</a></li>
 									{% endif %}
 									
 								</ul>
