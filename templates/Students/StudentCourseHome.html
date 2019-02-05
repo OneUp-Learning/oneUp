@@ -54,6 +54,32 @@
                      </div>
                   </div>
                </div>
+            {% if displayBadges and ccparams.gamificationUsed %}                            
+            <div class="row">
+                <div class="col s12">
+                  <div class="card-panel">
+                  <table>
+                    <thead>
+                      <th>Latest Badges</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                               {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %}                                                       
+                               <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
+                               <img class="tooltipped" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50">
+                               &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                               {% empty %}
+                               <i>No badges earned</i>
+                               {% endfor %}
+                            </td>
+                         </tr>
+                    </tbody>
+                  </table>
+                  </div>
+                </div>
+            </div>
+            {% endif %}   
                {% if displayLeaderBoard %}
                   <div class="col s12 m12">
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 

@@ -290,26 +290,26 @@ def generateSkillTable(currentCourse, context_dict):
         for sk in cskills:
             skill = Skills.objects.get(skillID=sk.skillID.skillID)
 
-            usersInfo=[] 
-                                             
-        for u in students:
-            skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
-            skillPoints =0 
-                                                 
-            for sRecord in skillRecords:
-                skillPoints += sRecord.skillPoints
-
-            if skillPoints > 0:
-                st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
-                uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
-                logger.debug('[GET] ' + str(uSkillInfo))
-                usersInfo.append(uSkillInfo)
-                
-        usersInfo = sorted(usersInfo, key=lambda k: k['skillPoints'], reverse=True)
-                 
-        if len(usersInfo) != 0:
-            skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentBestSkillsDisplayed]} 
-            context_dict['skills'].append(skillInfo) 
+            usersInfo=[]
+            if skill:              
+                for u in students:
+                    skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=u,skillID = skill)
+                    skillPoints =0 
+                                                         
+                    for sRecord in skillRecords:
+                        skillPoints += sRecord.skillPoints
+        
+                    if skillPoints > 0:
+                        st_c = StudentRegisteredCourses.objects.get(studentID=u,courseID=currentCourse)                                       
+                        uSkillInfo = {'user':u.user,'skillPoints':skillPoints,'avatarImage':st_c.avatarImage}
+                        logger.debug('[GET] ' + str(uSkillInfo))
+                        usersInfo.append(uSkillInfo)
+                        
+                usersInfo = sorted(usersInfo, key=lambda k: k['skillPoints'], reverse=True)
+                         
+                if len(usersInfo) != 0:
+                    skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentBestSkillsDisplayed]} 
+                    context_dict['skills'].append(skillInfo) 
         
 def generateLeaderboards(currentCourse, displayHomePage):
     
