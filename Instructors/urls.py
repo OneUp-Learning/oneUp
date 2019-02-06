@@ -83,6 +83,7 @@ from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 
 from Instructors.views.addExistingStudentView import addStudentListView, addExistingStudent
 from Instructors.views.activityListView import reorderActivities
+from Instructors.views.attendanceStreaks import attendanceStreaks
 
 admin.autodiscover()
 
@@ -180,4 +181,5 @@ urlpatterns = [
     url(r'^dynamicLeaderboard', dynamicLeaderboardView, name='dynamicLeaderboardView'),
     url(r'^addStudentListView', addStudentListView, name='addStudentListView'),
     url(r'^addExistingStudent', addExistingStudent, name="addExistingStudent"),
+    url(r'^attendanceStreaks', attendanceStreaks, name="attendanceStreaks"),
 ]

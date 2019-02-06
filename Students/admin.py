@@ -3,7 +3,7 @@ from django.contrib import admin
 # Register your models here.
 from Students.models import Student, StudentRegisteredCourses, StudentChallenges, StudentChallengeQuestions, StudentBadges, DuelChallenges, Winners
 from Students.models import StudentChallengeAnswers, MatchShuffledAnswers, StudentCourseSkills, StudentVirtualCurrency, StudentProgressiveUnlocking
-from Students.models import StudentEventLog,StudentConfigParams,StudentLeaderboardHistory, StudentActivities, StudentFile, StudentVirtualCurrencyTransactions, UploadedAvatarImage, StudentAttendance, PeriodicallyUpdatedleaderboards
+from Students.models import StudentEventLog,StudentConfigParams,StudentLeaderboardHistory, StudentActivities, StudentFile, StudentVirtualCurrencyTransactions, UploadedAvatarImage, StudentAttendance, StudentStreaks, PeriodicallyUpdatedleaderboards
 
 
 admin.site.register(Student)
@@ -26,4 +26,5 @@ admin.site.register(StudentAttendance)
 admin.site.register(PeriodicallyUpdatedleaderboards)
 admin.site.register(DuelChallenges)
 admin.site.register(Winners)
+admin.site.register(StudentStreaks)
 admin.site.register(StudentProgressiveUnlocking)
