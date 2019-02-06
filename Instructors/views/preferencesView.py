@@ -82,6 +82,8 @@ def preferencesView(request):
         
         ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
         ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
+        
+        ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()
 
         return redirect('/oneUp/instructors/instructorCourseHome',"","")
@@ -113,7 +115,7 @@ def preferencesView(request):
             context_dict["classmatesChallenges"]=ccparams.classmatesChallenges
             context_dict["vc_callout"] = ccparams.vcCallout
             context_dict["vc_duel"] = ccparams.vcDuel
-            
+            context_dict["streaksUsed"] = ccparams.streaksUsed
  
         return render(request,'Instructors/Preferences.html', context_dict)
     
