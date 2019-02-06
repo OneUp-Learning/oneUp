@@ -630,16 +630,18 @@ def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
     studentScores = []
     filteredStudentScores = []
     maxStudentScore = 0
-    
+
+    challengeID = challengeID.challengeID
+    print("percentage", percentage)
     if Challenges.objects.filter(challengeID= challengeID).exists():
         challengeTotalScore = Challenges.objects.filter(challengeID= challengeID)[0].totalScore
     
     if StudentChallenges.objects.filter(challengeID=challengeID, studentID=student, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))).exists():
         studentChallenges = StudentChallenges.objects.filter(challengeID=challengeID, studentID=student)
         for studentChallenge in studentChallenges:
-            studentScores.append((studentChallenge.testScore/challengeTotalScore))
-            
+            studentScores.append(float((studentChallenge.testScore/challengeTotalScore)))
         filteredStudentScores = list(filter(lambda x: x >= percentage, studentScores))
+        print("filteredStudentScores", filteredStudentScores)
     if filteredStudentScores:
         return 1
     else:
@@ -650,6 +652,30 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
     from datetime import datetime
     from Instructors.models import Challenges
+
+    percentage = percentage *.01
+        # Get the last time this periodic variable has ran
+    if not result_only:
+        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
+    # Check aganist only Warm-up challenges
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    # The amount of unique Warm-up challenges with a score greater than 60%
+    unique_warmups = 0
+    
+    # If this is first time running, set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous challenges from beginning of time
+    if last_ran == None:
+        if award_type == 'badge':
+            periodic_badge = PeriodicBadges.objects.get(badgeID=unique_id, courseID=course)
+            last_ran = periodic_badge.lastModified
+        elif award_type == 'vc':
+            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
+            last_ran = periodicVC.lastModified
+        elif result_only:
+            date_time = time_period['datetime']
+            if date_time:
+                last_ran = date_time()
+            else:
+                last_ran = None
     # Get the last time this periodic variable has ran if not getting results only (leaderboards)
     if not result_only:
         last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
@@ -686,27 +712,27 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         studentStreak.currentStudentStreakLength = 0   
         
     total = 0
-    total = studentStreak.currentStudentStreakLength
     
     #figure out how many challenges have been completed by the student
     challengeCount = len(StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
     studentChallengeIDs = []
     maxScores = []
+
     if challengeCount > 1:
-        for challenge in challengeCount:
+        studentChallenges = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
+        for challenge in studentChallenges:
             studentChallengeIDs.append(challenge.challengeID)
-        
         challengeScores = []
         for studentChallengeID in studentChallengeIDs:
             if getPercentageScoreForStudent(studentChallengeID, student, percentage, last_ran):
                 total += 1
     elif challengeCount == 1:
-        studentChallenge = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, challengeID=studentChallengeIDs, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
-        challenge = Challenges.objects.filter(challengeID=studentChallengeID[0])
-        if studentChallenge.testScore/challenge.challengeTotalScore >= (percentage *.01):
+        print("challCount==1")
+        studentChallenge = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID,
+        endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
+        challenge = Challenges.objects.filter(challengeID=studentChallenge.challengeID)[0]
+        if (studentChallenge.testScore/challenge.challengeTotalScore) >= (percentage):
             total += 1
-    else:
-        total = 0
         
     #if total is larger than streak and we want to NOT reset streak
     if total > treshold and resetStreak:
@@ -737,9 +763,9 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
 def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+    return calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+    return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
     from django.conf import settings
     if settings.CURRENTLY_MIGRATING:
