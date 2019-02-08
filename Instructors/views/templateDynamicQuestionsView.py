@@ -134,7 +134,8 @@ def templateDynamicQuestionForm(request):
         return redirectVar
     
     elif request.method == 'GET':
-        
+        if 'view' in request.GET:
+            context_dict['view'] = request.GET['view']
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
         context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True

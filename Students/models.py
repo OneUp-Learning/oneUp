@@ -128,14 +128,20 @@ class StudentBadges(models.Model):
 
 class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
-    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, on_delete=models.CASCADE, verbose_name="the virtual currency rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
+    vcName = models.CharField(max_length=300, null=True, blank=True)  
+    vcDescription = models.CharField(max_length=4000, null=True, blank=True)
+    def __str__(self):              
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
+class StudentVirtualCurrencyRuleBased(StudentVirtualCurrency):
+    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, related_name="vcrule", on_delete=models.SET_NULL, verbose_name="the virtual currency rule", db_index=True, null=True, blank=True)
 
     def __str__(self):              
-        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -282,7 +288,7 @@ class DuelChallenges(models.Model):
     acceptTime = models.DateTimeField(auto_now_add=True, verbose_name="Accept Timestamp", db_index=True)
     startTime = models.IntegerField(default=1440) # time in minutes, Default 24 hours
     timeLimit = models.IntegerField(default=120)  # time in minutes, Default 1 hour
-    customMessage = models.CharField(max_length=600, default='')
+    customMessage = models.CharField(max_length=6000, default='')
     status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended

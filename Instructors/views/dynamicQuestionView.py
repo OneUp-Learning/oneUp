@@ -105,7 +105,8 @@ def dynamicQuestionForm(request):
         return redirectVar
     
     elif request.method == 'GET':
-        
+        if 'view' in request.GET:
+            context_dict['view'] = request.GET['view']
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"]= 1

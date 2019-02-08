@@ -41,7 +41,7 @@ def virtualCurrencySpendRuleList(request):
 def reorderVcSpendRuleList(request):
     context_dict,currentCourse = initialContextDict(request);
 
-    vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')
+    vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=currentCourse).order_by('vcRulePosition')
     for rule in vcRules:
         if str(rule.vcRuleID) in request.POST:
             rule.vcRulePosition = request.POST[str(rule.vcRuleID)]

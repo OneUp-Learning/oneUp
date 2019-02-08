@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
-from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrency
+from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
 from Badges.systemVariables import logger
 
 
@@ -53,7 +53,8 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 studentobj.save()
                 
                 ruleCustom = VirtualCurrencyCustomRuleInfo.objects.get(courseID = course, vcRuleID = int(request.POST[studentRuleAttribute]))
-                studentVC = StudentVirtualCurrency()
+                studentVC = StudentVirtualCurrencyRuleBased()
+                studentVC.courseID = course
                 studentVC.studentID = studentobj.studentID
                 studentVC.vcRuleID = ruleCustom
                 studentVC.value = vcAmount
