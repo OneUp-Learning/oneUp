@@ -358,7 +358,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
             last_ran = None
 
     # Get the earnings for this student
-    earnings = StudentVirtualCurrency.objects.filter(studentID = student, vcRuleID__courseID = course)
+    earnings = StudentVirtualCurrency.objects.filter(studentID = student, courseID = course)
     # If this is not the first time running, only get the earnings since last ran
     if last_ran:
         earnings = earnings.filter(timestamp__gte=last_ran)
@@ -634,6 +634,11 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
+
+    # Set this as the last time this task has ran
+    if not result_only:
+        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    return (student, total)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     return studentScore(student, course, periodic_variable, time_period, unique_id, result_only,  gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False)
