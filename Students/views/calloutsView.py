@@ -538,7 +538,11 @@ def duel_challenge_description(request):
     duel_vc_const = ccparams.vcDuel
 
     if 'duelChallengeID' in request.GET:
-        duel_challenge = DuelChallenges.objects.get(pk=int(request.GET['duelChallengeID']))
+        try:
+            duel_challenge = DuelChallenges.objects.get(pk=int(request.GET['duelChallengeID']))
+        except:
+            return redirect('/oneUp/students/Callouts') 
+        
         context_dict['timeLimit'] = duel_challenge.timeLimit
         
         context_dict['award'] = duel_vc_const + 2 * duel_challenge.vcBet

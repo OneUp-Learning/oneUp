@@ -21,7 +21,11 @@
    <body>
     {% csrf_token %}
 
+      {% if is_teacher %}    
+      {% include 'heading.html' %}
+      {% else %}
       {% include 'stheading.html' %}
+      {% endif %}
       <main>
          <div class="row center-align">
             <div class="col s12 m10 offset-m1">
