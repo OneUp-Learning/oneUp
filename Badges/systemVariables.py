@@ -35,23 +35,208 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
         object = objectTypeToObjectClass[objectType].objects.get(pk=objectID)
         return functions[objectType](course,student,object)
 
-def getNumAttempts(course,student,challenge):
-    from Students.models import StudentEventLog
-    #Return the number of attempts (looking at only the startChallenge event trigger 801)
-    numberOfAttempts = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, objectID = challenge.challengeID, event = Event.endChallenge).count()
-    return numberOfAttempts
 
-# Utility function used by other functions.  
+''' Utility Functions '''
+
 def getTestScores(course,student,challenge):
+    ''' Utility function used by other functions. 
+        This will return the student submissions for a challenge.
+    '''
     from Students.models import StudentChallenges
     return StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=challenge)
 
-# Utility function used by other functions.  
+def getActivityScores(course, student, activity):
+    ''' Utility function used by other functions. 
+        This will return the student submissions for a activity.
+    '''
+    from Students.models import StudentActivities
+    return StudentActivities.objects.filter(activityID = activity, courseID = course, studentID = student)
+
 def getAllTestScores(course,challenge):
+    ''' Utility function used by other functions. 
+        This will return the all students submissions for a challenge.
+    '''
     from Students.models import StudentChallenges
     return StudentChallenges.objects.filter(courseID=course, challengeID=challenge).exclude(studentID__isTestStudent=True)
 
+def getAllActivityScores(course, activity):
+    ''' Utility function used by other functions.
+        This will return the all students submissions for a activity.
+    '''
+    from Students.models import StudentActivities
+    return StudentActivities.objects.filter(courseID=course, activityID=activity).exclude(studentID__isTestStudent=True)
+
+def getScorePercentage(course,student, challenge):
+    ''' Utility function used by other functions.
+        Returns the score percentage of the latest student submission of a challenge'''
+    from Students.models import StudentChallenges
+    studentChallenges = StudentChallenges.objects.filter(courseID=course,studentID=student, challengeID=challenge)
+    entirePoints = 0.0
+    earnedPoints = 0.0
+    for studentChallenge in studentChallenges:
+        entirePoints = studentChallenge.challengeID.getCombinedScore()
+        earnedPoints = studentChallenge.getScore()
+                
+    if entirePoints != 0.0:
+        return ((float(earnedPoints) / float(entirePoints)) * 100)
+    else:
+        return 0
+
+def getAveragePercentageScore(course, student, challenge):
+    ''' Utility function used by other functions.
+        Returns the percentage of the average score
+        a student has scored in a challenge
+        ex. scores=[10, 5, 2], numberOfScores = 3, testTotal = 10, percentage = 56.7%
+    '''
+    allScores = getTestScores(course, student, challenge)
+    percentage = 0
+    if allScores.exists():
+        testTotal = allScores[0].challengeID.getCombinedScore()
+        if testTotal == 0:
+            return percentage
+        scoreList = [c.getScore() for c in allScores]
+        numberOfScores = len(scoreList)
+        percentage = round(((sum(scoreList)/numberOfScores)/testTotal) * 100, 1)
+        logger.debug("Challenge Average Percentage: " + str(percentage) + "%")
+        return percentage
+    return percentage
+
+def getUniqueChallengesGreaterThanPercentage(course, student, isGraded, percentage):
+    ''' Utility function used by other functions.
+        Returns the number of challenges greater than some percentage.
+        isGraded when True is serious
+        isGraded when False is warmup
+    '''
+    challengesGreaterThan = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=isGraded)
+    for challenge in challenges:
+        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
+        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percentage > percentage:
+            challengesGreaterThan += 1
+    return challengesGreaterThan
+    
+def getDaysDifferenceActity(activity, studentActivity):
+    ''' Utility function used by other functions.
+        This will return the number of days between the student submission and activity deadline.
+    '''
+    from Students.models import StudentFile
+
+    deadline = activity.deadLine
+    submission = StudentFile.objects.all.filter(activity = studentActivity).latest("timestamp").timestamp
+    # print("getDaysDifferenceActity")
+    # print("Deadline ", deadline)
+    # print("submission", submission)
+    numDays = str(deadline - submission)
+    # print(numDays)
+    if numDays[0]== "-":
+        i=0
+        for x in numDays:
+            if x==" ":
+                return -1 * int(numDays[1:i])
+            i+=1
+    i=0
+    for x in numDays:
+        if x==" ":
+            return int(numDays[0:i])
+        i+=1
+
+def getDaysBetweenCurrentTimeAndDeadline(challenge):
+    ''' Utility function used by other functions.
+        Returns the number of days between now and challenge deadline.
+    '''
+    deadline = challenge.endTimestamp
+    now = timezone.now()
+    diff = deadline-now
+    return diff.days
+
+def getTimeSpentOnChallenges(course, student, isGraded):
+    ''' Utility function used by other functions.
+        Returns the total time in minutes a student has spent on challenges.
+        isGraded when True is serious
+        isGraded when False is warmup
+    '''
+    from Students.models import StudentChallenges
+    # This calculates the time for both serious and warmup challenges
+    #return the sum of delta times between StartChallenge and End Challenge events   
+    challengeTimes = StudentChallenges.objects.filter(courseID = course,studentID = student, challengeID__isGraded=isGraded).exclude(endTimestamp__isnull=True) #ensure that the challenge has an endTimestamp
+    #Accumulate the elapsed time for all challenges in the database with matching student and course ID's
+    #initialize totalTime as arbitrary datetime object in order to accumulate elapsed time
+    totalTime = datetime(2000,1,1,0,0,0) #python throws Value Error if the date is too small, otherwise it would have been initialized to all 0's
+    for challenge in challengeTimes:
+        totalTime+=challenge.endTimestamp - challenge.startTimestamp
+    totalTime -= datetime(2000,1,1,0,0,0) #subtract arbitrary value back out, in order to get the accurate elapsed time
+    minutes = totalTime.total_seconds()/60 #convert total elapsed time to minutes
+    return minutes
+
+def getAllChallenges(course,student, isGraded):
+    ''' Utility function used by other functions.
+        Returns the total score for either a serious or warmup challenge.
+        isGraded when True is serious
+        isGraded when False is warmup
+    '''
+    from Students.models import StudentChallenges
+    from Instructors.models import ChallengesQuestions
+    challengeQuestions = []
+    #get all the challenges for the course, and depending on isGraded(serious=true,warmup=false)
+    challenges = StudentChallenges.objects.filter(courseID=course, studentID=student)
+    
+    for challenge in challenges:
+        challengeQuestions.append(list(ChallengesQuestions.objects.filter(challengeID=challenge.challengeID)))
+      
+    staticList = []
+    dynamicList = [] 
+    for challengeItem in challengeQuestions:
+        for item in challengeItem:
+            if item.challengeID.isGraded == isGraded:
+                if item.questionID.type == 6 or item.questionID.type == 7:
+                    if item.questionID not in dynamicList:
+                        dynamicList.append(item.questionID)
+                else:
+                    if item.questionID not in staticList:
+                        staticList.append(item.questionID)
+              
+    totalScore = 0
+    for static in staticList:
+        totalScore += firstAttemptStatic(static)
+        
+    for dynamic in dynamicList:
+        totalScore += dynamicQuestionMax(dynamic)
+            
+    return totalScore
+
+def dynamicQuestionMax(questionID):
+    ''' Utility function used by other functions.
+        Finds the max score for the dynamic problem.
+        Dynamic problem types are 6 and 7.
+    '''
+    from Students.models import StudentChallengeQuestions
+    questions = StudentChallengeQuestions.objects.filter(questionID = questionID)
+    
+    scores = []
+    
+    #for each question find the max by finding the scores for each question
+    for question in questions:
+        scores.append(question.questionScore)
+    return max(scores)
+    
+def firstAttemptStatic(questionID):
+    ''' Utility function used by other functions.
+        Finds the first attempt for the question and returns the score.
+    '''
+    from Students.models import StudentChallengeQuestions
+    question = StudentChallengeQuestions.objects.filter(questionID=questionID).first()
+    
+    if question == None:
+        return 0
+    else:
+        return question.questionScore
+
+
+''' System Variables Functions '''
+
 def challengeScore(course,student,challenge):    
+    ''' This will return the latest challenge submission test score (score + score adjustment + curve).'''
     #Return the test score from the fired event
     #Event enum is unspecified because it could be triggered on multiple occasions
     scores = getTestScores(course,student,challenge)
@@ -59,55 +244,115 @@ def challengeScore(course,student,challenge):
         return 0 
     return scores.latest('testScore').getScore() 
 
+def getTotalScoreForWarmupChallenges(course,student):
+    ''' This will return the student total score for a warmup challenge'''
+    return getAllChallenges(course, student, False)
+
+def getTotalScoreForSeriousChallenges(course,student):
+    ''' This will return the student total score for a serious challenge'''
+    return getAllChallenges(course, student, True)
+
 def activityScore(course,student,activity):
-    from Students.models import StudentActivities
-    scores = StudentActivities.objects.filter(activityID = activity, courseID = course, studentID = student)
+    ''' This will return the activity score of an activity completed by a student. 
+        The score does not include bonus points.
+        If activity has not been completed, the score will be 0
+    ''' 
+    scores = getActivityScores(course,student,activity)
     if len(scores) == 0:
         return 0
-    #logger.debug("Student activity score: " + str(scores[0].activityScore))    
-    return scores[0].activityScore
+    return scores.latest('activityScore').activityScore
 
-# Utility function used by other functions.
-def getActivityScore(course, activity):
-    from Students.models import StudentActivities
-    
-    activities = StudentActivities.objects.filter(courseID=course, activityID=activity).exclude(studentID__isTestStudent=True)
-    scores = []
-    
-    for activity in activities:
-        scores.append(activity.activityScore)
-        
-    return scores
+def getMaxTestScore(course,student,challenge):   
+    ''' This will return the highest score of all the student submissions of a challenge.
+        Score is calculated by score + adjustment + curve.'''
+    allTestScores = getAllTestScores(course,challenge)
+    if len(allTestScores) == 0:
+        return 0 
+    return allTestScores.latest('testScore').getScore()
+
+def getMinTestScore(course,student,challenge):
+    ''' This will return the lowest score of all the student submissions of a challenge.
+        Score is calculated by score + adjustment + curve.'''
+    allTestScores = getAllTestScores(course,challenge)
+    if len(allTestScores) == 0:
+        return 0    
+    return allTestScores.earliest('testScore').getScore()
 
 def getMaxActivityScore(course, student, activity):
-    '''Return the highest score of an activity per course'''
-    
-    scores = getActivityScore(course, activity)
-    
-    if scores:
-        return int(max(scores))
-    else:
+    ''' Return the highest score of an activity for a course'''
+    scores = getAllActivityScores(course, activity)
+    if len(scores) == 0:
         return 0
+    return scores.latest('activityScore').activityScore
         
 def getMinActivityScore(course, student, activity):
-    '''Return the lowest score of an activity per course'''
-    scores = getActivityScore(course, activity)
-    
-    if scores:
-        return int(min(scores))
-    else:
+    ''' Return the lowest score of an activity for a course'''
+    scores = getAllActivityScores(course, activity)
+    if len(scores) == 0:
         return 0
+    return scores.earliest('activityScore').activityScore
+
+def getAverageTestScore(course, student, challenge):    
+    ''' INCOMPLETE
+        This will return the average challenge score for a course
+    '''
+    #return the average score of the a challenge
+    #Note that average test score includes testScore + curve and the scoreAdjustment
+    
+    from Students.models import StudentRegisteredCourses
+    
+    maxScores = 0.0
+    
+    allScores = getTestScores(course,student,challenge)
+    if allScores.exists():
+        maxScore = allScores.latest('testScore').getScore()
+        
+        maxScores += float(maxScore)
+        
+    return maxScores/StudentRegisteredCourses.objects.filter(courseID=course).count()
     
 def getAverageActivityScore(course,student, activity):
-    '''Return the average score of an activity per course'''
-    scores = getActivityScore(course, activity)
-    if scores:
-        return (float(sum(scores))/float(len(scores)))
-    else:
+    ''' Return the average score of an activity for a course'''
+    scores = getAllActivityScores(course, activity)
+    if len(scores) == 0:
         return 0
-   
+    return float(sum([score.activityScore for score in scores])) / float(len(scores))
+
+def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
+    ''' This will return the percentage of the highest challenge score obtained by a student
+        for a challenge.
+        Score does not include bonus points (score + adjustment + curve)
+    '''
+    allScores = getTestScores(course,student,challenge)
+    maxScore = 0
+    for score in allScores:
+        combinedScore = score.getScore()
+        if combinedScore > maxScore:
+            maxScore = combinedScore
+    
+    challengeScore = challenge.getCombinedScore()
+    if challengeScore == 0:
+        return 0
+    return float(maxScore)/float(challengeScore) * 100
+
+def getPercentageOfMaxActivityScore(course, student, activity):
+    ''' This will return the percentage of the highest score for a course of a activity'''
+    print("percentage of max activity score")
+    print(activity)
+    highestScore = getMaxActivityScore(course, student, activity)
+    
+    totalScore = activity.points
+    #avoiding division by zer0
+    if totalScore != 0:
+        print("percentage of score out of max activity score ", (float(highestScore)/float(totalScore))*100.0)
+        return ((float(highestScore)/float(totalScore))*100.0)
+    else:
+        return 0.0
+
 def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challenge):
-    '''return percentage of correctly answered questions out of all the questions'''
+    ''' This will return the student percentage of correctly answered questions out of 
+        all the questions for a challenge
+    '''
     from Students.models import StudentChallengeQuestions, StudentChallenges
     from Instructors.models import ChallengesQuestions
     questionIds = []
@@ -133,91 +378,132 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
         return round((float(correctlyAnsweredQuestions)/float(totalQuestions))*100)
     else:
         return 0
-    
-def getAveragePercentageScore(course, student, challenge):
-    ''' Utility function that returns the percentage of the average score
-        a student has scored in a challenge
-        ex. scores=[10, 5, 2], numberOfScores = 3, testTotal = 10, percentage = 56.7%
-    '''
-    allScores = getTestScores(course, student, challenge)
-    percentage = 0
-    if allScores.exists():
-        testTotal = allScores[0].challengeID.getCombinedScore()
-        if testTotal == 0:
-            return percentage
-        scoreList = [c.getScore() for c in allScores]
-        numberOfScores = len(scoreList)
-        percentage = round(((sum(scoreList)/numberOfScores)/testTotal) * 100, 1)
-        logger.debug("Challenge Average Percentage: " + str(percentage) + "%")
-        return percentage
-    return percentage
 
-# def getHighestPercentageCorrect(course,student,challenge):
-#     #Return the actual correct percentage using the highest score from the fired event
-#     #Get the student score
-#     student_challenges = getTestScores(course,student,challenge)
-#     if student_challenges:
-#         student_challege = student_challenges.latest('testScore')
-#     else:
-#         return 0
-# 
-#     #Check if denominator is zero to avoid getting a DivideByZero error
-#     if float(student_challege.getScore()) != 0:
-#         return (float(student_challege.getScore())/float(student_challege.challengeID.totalScore)) * 100
-#     else:
-#         return 0
+def getPercentageOfActivityScore(course, student , activity):
+    ''' This will return the percentage of the student's activity 
+        score out of the max possible activity score'''
 
-def getMaxTestScore(course,student,challenge):   
-    #return the highest test score achieved out of the entire class for a challenge
-    #Note that highest test score includes testScore + curve and not the scoreAdjustment
-    allTestScores = getAllTestScores(course,challenge)
-    if len(allTestScores) == 0:
-        return 0 
-    return max([sc.getScore() for sc in allTestScores])
-    
-def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
-    #return the percentage of the higest text score
-    # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
- 
-    allScores = getTestScores(course,student,challenge)
-    maxScore = 0
-    for score in allScores:
-        combinedScore = score.getScore()
-        if combinedScore > maxScore:
-            maxScore = combinedScore
-    
-    challengeScore = challenge.getCombinedScore()
-    if challengeScore == 0:
+    totalScore = activity.points
+    if totalScore != 0:
+        return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
+    else:
         return 0
-    return float(maxScore)/float(challengeScore) * 100
+
+def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
+    ''' This will return the the difference between the percentages of the student's scores for this 
+        activity and its previous one.
+    '''
     
-def getAverageTestScore(course, student, challenge):    
-    #return the average score of the a challenge
-    #Note that average test score includes testScore + curve and the scoreAdjustment
+    from Students.models import StudentActivities 
     
-    from Students.models import StudentRegisteredCourses
+    print(student)
+    print(activity.activityName)
+     
+    # get all activities for this student from the database; order by timestamp
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+    print (stud_activities)
+    assignments = []
+    for sa in stud_activities:
+        assignments.append(sa.activityID)
+    #print('assignments',assignments)
+
+    # now work only with the assignments
+    # if no activities or just one activity return zero
+    if len(assignments)==1 or len(assignments)==0:
+        return 0
+     
+    previousActivityScorePercentage = unlimited_constant #Should never be used if code is correct
+    numActivitiesVisited = 0
     
-    maxScores = 0.0
-    
-    allScores = getTestScores(course,student,challenge)
-    if allScores.exists():
-        maxScore = allScores.latest('testScore').getScore()
+    for assign in assignments:
+        numActivitiesVisited += 1
+        if assign == activity:
+            if numActivitiesVisited == 1:
+                #This is the very first activity, we cannot compare it to previous
+                
+                return 0
+            else:
+                return getPercentageOfActivityScore(course,student,assign)-previousActivityScorePercentage
+        else:
+            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, assign)
+            
+    return 0
+
+def getScoreDifferenceFromPreviousActivity(course, student, activity):
+    ''' This will return the student difference of score between this 
+        activity and the previous one.'''
         
-        maxScores += float(maxScore)
-        
-    return maxScores/StudentRegisteredCourses.objects.filter(courseID=course).count()
+    from Students.models import StudentActivities 
+    #filter database by timestamp
+    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
+
+    stud_assignments = []
+    for sa in stud_activities:
+        stud_assignments.append(sa)
+            
+    print('Stud_asssignments',stud_assignments)
+
+    # now work only with the assignments    
+    # if no activities or just one activity return zero
+    if len(stud_assignments)==1 or len(stud_assignments)==0:
+        return 0
     
-def getMinTestScore(course,student,challenge):
-    #return the min test score achieved out of the entire class for a challenge
-    #Note that min test score includes testScore + curve and not the scoreAdjustment
- 
-    allTestScores = getAllTestScores(course,challenge)
-    if len(allTestScores) == 0:
-        return 0    
-    lowestTestScore = allTestScores.earliest('testScore') #.earliest() also gets the min for an integer value
-    return lowestTestScore.getScore()
+    previousActivityScore = unlimited_constant  #Should never be used if code is correct
+    numActivitiesVisited = 0
+    
+    for sa in stud_assignments:
+        numActivitiesVisited += 1
+        if sa.activityID == activity:            
+            if numActivitiesVisited == 1:
+                #This is the very first activity, we cannot compare it to previous
+                return 0
+            else:
+                return sa.activityScore-previousActivityScore
+        else:
+            previousActivityScore = sa.activityScore
+            
+    return 0
+
+def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student, activity):
+    ''' This system variable calculates the score difference from the activity provided and 
+        the previous activies based on the average of the previous activities and the activity
+        category for the student. The previous activities are selected if the activity deadline 
+        is less than or equal to the activity provied deadline as well as the activity provided category.
+
+        Author: Austin
+        Last Modified by: Austin
+    '''
+    from Instructors.models import Activities
+    from Students.models import StudentActivities 
+    print("activity {}".format(activity))
+    # Get all the activities within the category that has a deadline earlier than the passed in activity
+    activitiesWithCategory = Activities.objects.filter(category = activity.category).filter(deadLine__lte=activity.deadLine)
+    # Get the student activities that has a score and is apart of activites with category and order by deadline with the latest being first
+    studentActivites = StudentActivities.objects.filter(courseID = course, activityID__in = activitiesWithCategory, studentID = student, graded = True).order_by('-activityID__deadLine')
+    if studentActivites.exists():
+        latestAttempt = studentActivites.first()
+        # Calculate the total of the earlier activities scores
+        total = sum(int(act.activityScore) for act in studentActivites[1:])
+        count = studentActivites.count()-1
+        if count <= 0:
+            print("Total: " + str(total))
+            print("latest Score: " + str(latestAttempt.activityScore))
+            return 0
+        # Calculate the average
+        average = total/count
+        print("Total: " + str(total))
+        print("Average: "+ str(average))
+        print("latest Score: " + str(latestAttempt.activityScore))
+        # The student on average has earned more than their last attempt return the difference
+        if average > latestAttempt.activityScore:
+            return average - float(latestAttempt.activityScore)
+
+    return 0
     
 def getDateOfFirstChallengeSubmission(course,student,challenge):
+    ''' This will return the date (not datetime) of the first submission of a challenge for a student.
+        If no submission is found, the date of 1/1/200 will be returned
+    '''
     from Students.models import StudentEventLog
     #return the oldest date from the event log with matching object ID (looking at only the endChallenge event trigger 802)
     attemptObjectsByDate = StudentEventLog.objects.filter(course = course, student = student,objectID = challenge.challengeID,objectType = ObjectTypes.challenge, event = Event.endChallenge).order_by('-timestamp')
@@ -226,21 +512,50 @@ def getDateOfFirstChallengeSubmission(course,student,challenge):
     else:
         return datetime(2000,1,1,0,0,0).date()
 
-def totalTimeSpentOnChallenges(course,student):
+def earliest_challenge_submission_in_class(course, student, challenge):
+    ''' This will return the date of the earliest submission of a particular challenge in a course.'''
     from Students.models import StudentChallenges
-    # This calculates the time for both serious and warmup challenges
-    #return the sum of delta times between StartChallenge and End Challenge events   
-    challengeTimes = StudentChallenges.objects.filter(courseID = course,studentID = student).exclude(endTimestamp__isnull=True) #ensure that the challenge has an endTimestamp
-    #Accumulate the elapsed time for all challenges in the database with matching student and course ID's
-    #initialize totalTime as arbitrary datetime object in order to accumulate elapsed time
-    totalTime = datetime(2000,1,1,0,0,0) #python throws Value Error if the date is too small, otherwise it would have been initialized to all 0's
-    for challenge in challengeTimes:
-        totalTime+=challenge.endTimestamp - challenge.startTimestamp
-    totalTime -= datetime(2000,1,1,0,0,0) #subtract arbitrary value back out, in order to get the accurate elapsed time
-    minutes = totalTime.total_seconds()/60 #convert total elapsed time to minutes
+
+    earliest_submission = datetime(2000,1,1,0,0,0).date()
+    student_submissions = list(StudentChallenges.objects.filter(courseID=course, challengeID=challenge).exclude(endTimestamp__isnull=True).values_list('endTimestamp', flat=True))
+    if len(student_submissions) <= 0:
+        return earliest_submission
+    earliest_submission = min(student_submissions)
+    print("[DATE] {}".format(earliest_submission.date()))
+    return earliest_submission.date()
+
+def sc_reached_due_date(course, student, serious_challenge):
+    ''' This will return True/False if the serious challenge due date has been reached
+        or the due date has a default date (not set)
+    '''
+    if not serious_challenge.isGraded:
+        return False
+    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc).replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0)
+
+def isWarmUpChallenge(course,student,challenge):
+    ''' This will return True/False if the a particular challenge is a warmup challenge'''
+    return not challenge.isGraded
+
+def totalTimeSpentOnChallenges(course,student):
+    ''' This will return the total minutes a student has spent completing any challenges'''
+    return getTimeSpentOnChallenges(course, student, True) + getTimeSpentOnChallenges(course, student, False)
+
+def getTotalMinutesSpentOnWarmupChallenges(course, student):
+    ''' This will return the number of minutes a student has spent on all warmup challenges'''    
+    minutes = getTimeSpentOnChallenges(course, student, False)
+    logger.debug("Total minutes spent on warmup challenges: " + str(minutes))
+    return minutes
+
+def getTotalMinutesSpentOnSeriousChallenges(course, student):
+    ''' This will return the number of minutes a student has spent on all serious challenges'''    
+    minutes = getTimeSpentOnChallenges(course, student, True)
+    logger.debug("Total minutes spent on serious challenges: " + str(minutes))
     return minutes
 
 def totalTimeSpentOnQuestions(course,student):
+    ''' INCOMPLETE...
+        This will return the total time in minutes a student has spent on questions
+    '''
     from Students.models import StudentEventLog
     #return the sum of delta times between Start Question and End Question events
     
@@ -268,7 +583,34 @@ def totalTimeSpentOnQuestions(course,student):
         minutes = totalTime.total_seconds()/60
         return minutes
 
+def getConsecutiveScoresDifference(course, student, challenge):
+    ''' This will return the score difference between a particular student completed challenge score and
+        student previous completed challenge score
+    '''
+    from Students.models import StudentChallenges, StudentEventLog
+    
+    difference = 0
+    logger.debug(challenge)
+    # Get the last challenge the student has taken whether it's a warmpup or serious challenge
+    studentLastChallengeEvent = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, event = Event.endChallenge).exclude(objectID = challenge.challengeID).order_by('-timestamp')
+    if studentLastChallengeEvent:
+        studentLastChallengeEvent = studentLastChallengeEvent[0]
+        studentLastChallenge = StudentChallenges.objects.filter(courseID = course, studentID=student, challengeID = studentLastChallengeEvent.objectID)
+        if studentLastChallenge.exists():
+            # Get both challenges highest test score
+            latestScore = challengeScore(course,student, studentLastChallengeEvent.objectID)
+            previousScore = challengeScore(course, student, challenge)
+            logger.debug(latestScore)
+            logger.debug(previousScore)
+            
+            difference = abs(previousScore - latestScore)
+            logger.debug("Difference between last challenge score: " + str(difference))
+            return difference
+            
+    return difference
+
 def getConsecutiveDaysLoggedIn(course,student):
+    ''' This will return the number of days a student has logged in.'''
     from Students.models import StudentEventLog
     #Counter that sums every login event for a particular course with a new Day timestamp
     #return the counter
@@ -293,26 +635,12 @@ def getConsecutiveDaysLoggedIn(course,student):
         previous_day = d
     return consecutive_days
 
-def getScorePercentage(course,student, challenge):
-    '''Return of a challenge score per student'''
-    from Students.models import StudentChallenges
-    studentChallenges = StudentChallenges.objects.filter(courseID=course,studentID=student, challengeID=challenge)
-    entirePoints = 0.0
-    earnedPoints = 0.0
-    for studentChallenge in studentChallenges:
-        entirePoints = studentChallenge.challengeID.getCombinedScore()
-        earnedPoints = studentChallenge.getScore()
-                
-    if entirePoints != 0.0:
-        return ((float(earnedPoints) / float(entirePoints)) * 100)
-    else:
-        return 0
-
 def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge): 
+    ''' This will return the number of consecutive days a student has taken a warmup challenge
+        with a score >= 30%
+    '''
     from Students.models import StudentEventLog
     warmUpChallDates = []
-    print()
-    print(student)
     # filter all the ended challenge events
     eventObjects = StudentEventLog.objects.filter(student=student, course=course,event = Event.endChallenge)
     for event in eventObjects:
@@ -363,8 +691,11 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge):
         print()
         print()
         return consecutiveDays
-    True
+
 def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge): 
+    ''' This will return the number of consecutive days a student has taken a warmup challenge
+        with a score >= 75%
+    '''
     from Students.models import StudentEventLog
     warmUpChallDates = []
     # filter all the ended challenge events
@@ -417,150 +748,31 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
         print("consecutive days 1:", consecutiveDays)
         print()
         print()
-        return consecutiveDays    
-    
-def getActivitiesCompleted(course,student):
-    from Students.models import StudentEventLog
-    #Return the number of Participation Noted events
-    numActivitiesCompleted = StudentEventLog.objects.filter(course = course,student = student,objectType = ObjectTypes.activity, event = Event.participationNoted).count()
-    return numActivitiesCompleted
+        return consecutiveDays 
 
-def getNumDaysSubmissionLateActivity(course, student , activity):
-    '''Return the number of days an activity submitted after due date'''
-    from Students.models import StudentActivities
-   
-    print("numb days submissionsssss late")
-    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    if not studentActivity:
-        return (float('inf'))
-    else: 
-        print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
-        return (-1 *getDaysDifferenceActity(activity,studentActivity[0]))
-    
-def getNumDaysSubmissionEarlyActivity(course, student , activity):
-    '''Return the number of days an activity submitted before due date'''
-    from Students.models import StudentActivities
-    
-    print("numb days submissionsssss early")
-    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    if not studentActivity:
-        return (-1*float('inf'))
-    else:
-        print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
-        return getDaysDifferenceActity(activity,studentActivity[0])
-
-# utility function return difference in days between the submission and due date
-def getDaysDifferenceActity(activity, studentActivity):
-    from Students.models import StudentFile
-
-    deadline = activity.deadLine
-    submission = StudentFile.objects.all.filter(activity = studentActivity).latest("timestamp").timestamp
-    print("getDaysDifferenceActity")
-    print("Deadline ", deadline)
-    print("submission", submission)
-    numDays = str(deadline - submission)
-    print(numDays)
-    if numDays[0]== "-":
-        i=0
-        for x in numDays:
-            if x==" ":
-                return -1 * int(numDays[1:i])
-            i+=1
-    i=0
-    for x in numDays:
-        if x==" ":
-            return int(numDays[0:i])
-        i+=1
-    
-def getScoreDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference of score between this activity and the previous one.'''
-    '''NOTE: temporary it is made to work only for Assignments'''
-        
-    from Students.models import StudentActivities 
-    #filter database by timestamp
-    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-
-    stud_assignments = []
-    # filter only the activities started with "Assignment"
-    for sa in stud_activities:
-#        if sa.activityID.activityName.startswith('Assign'):
-        stud_assignments.append(sa)
-            
-    print('Stud_asssignments',stud_assignments)
-
-    # now work only with the assignments    
-    # if no activities or just one activity return zero
-    if len(stud_assignments)==1 or len(stud_assignments)==0:
-        return 0
-    
-    previousActivityScore = unlimited_constant  #Should never be used if code is correct
-    numActivitiesVisited = 0
-    
-    for sa in stud_assignments:
-        numActivitiesVisited += 1
-        if sa.activityID == activity:            
-            if numActivitiesVisited == 1:
-                #This is the very first activity, we cannot compare it to previous
-                return 0
-            else:
-                return sa.activityScore-previousActivityScore
-        else:
-            previousActivityScore = sa.activityScore
-            
+def getConsecutiveClassesAttended(course,student):
+    ''' INCOMPLETE
+        This will return the number of consecutive classes a student has attended.
+    '''
+    # We have the data to complete this now   
     return 0
 
-def getPercentageOfActivityScore(course, student , activity):
-    '''Returns the percentage of the student's activity score out of the max possible score'''
+def getConsecutiveWeeksOnLeaderboard(course,student): 
+    ''' This will return the number of weeks a student has been on the leaderboard'''   
+    import math
+    from Students.models import StudentLeaderboardHistory
 
-    totalScore = activity.points
-    if totalScore != 0:
-        return ((float(activityScore(course, student, activity))/float(totalScore)) * 100)
-    else:
+    # Assuming student has to be on leaderboard for atleast 7 days (AH)
+    studentLog = StudentLeaderboardHistory.objects.filter(courseID = course, studentID = student, endTimestamp=None).values('startTimestamp')
+    if not studentLog.exists():
         return 0
+    studentLog = studentLog[0]
+    startDate = studentLog['startTimestamp'].date()
+    latestDate = datetime.now(tz=timezone.utc).date()
+    delta = latestDate - startDate
 
-
-def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
-    '''Returns the the difference between the percentages of the student's scores for this activity and its previous one. '''
-    '''NOTE: temporary it is made to work only for Assignments'''
+    return math.trunc(delta.days/7)   
     
-    from Students.models import StudentActivities 
-    
-    print(student)
-    print(activity.activityName)
-     
-    # get all activities for this student from the database; order by timestamp
-    stud_activities = StudentActivities.objects.all().filter(courseID=course, studentID=student).order_by('timestamp')
-    print (stud_activities)
-    assignments = []
-    # filter only the activities started with "Assignment"
-    for sa in stud_activities:
-#        if sa.activityID.activityName.startswith('Assign'):
-        assignments.append(sa.activityID)
-    #print('assignments',assignments)
-
-    # now work only with the assignments
-    # if no activities or just one activity return zero
-    if len(assignments)==1 or len(assignments)==0:
-        return 0
-     
-    previousActivityScorePercentage = unlimited_constant #Should never be used if code is correct
-    numActivitiesVisited = 0
-    
-    for assign in assignments:
-        numActivitiesVisited += 1
-        if assign == activity:
-            if numActivitiesVisited == 1:
-                #This is the very first activity, we cannot compare it to previous
-                
-                return 0
-            else:
-                return getPercentageOfActivityScore(course,student,assign)-previousActivityScorePercentage
-        else:
-            previousActivityScorePercentage = getPercentageOfActivityScore(course, student, assign)
-            
-    return 0
-
-
 # def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
 #     '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
 #     
@@ -586,54 +798,62 @@ def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
 #         else:
 #             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
 #             
-#     return 0
- 
-
-def getPercentageOfMaxActivityScore(course, student, activity):
-    '''Returns the percentage of the highest score for the course out of the max possible score for this activity'''
-    print("percentage of max activity score")
-    print(activity)
-    highestScore = getMaxActivityScore(course, student, activity)
-    
-    totalScore = activity.points
-    #avoiding division by zer0
-    if totalScore != 0:
-        print("percentage of score out of max activity score ", (float(highestScore)/float(totalScore))*100.0)
-        return ((float(highestScore)/float(totalScore))*100.0)
-    else:
-        return 0.0
-    
-
-def getDaysBetweenCurrentTimeAndDeadline(challenge):
-    deadline = challenge.endTimestamp
-    now = timezone.now()
-    diff = deadline-now
-    return diff.days
+#     return 0   
 
 def calcNumDaysSubmissionEarly(course,student,challenge):
+    ''' INCOMPLETE
+        This will return the number of days the student has completed a challenge before the deadline
+        If the result is < 0 then the submission is late
+    '''
     return getDaysBetweenCurrentTimeAndDeadline(challenge)
         
 def calcNumDaysSubmissionLate(course,student,challenge):
+    ''' INCOMPLETE
+        This will return the number of days the student has completed a challenge after the deadline
+        If the result is < 0 then the submission is early
+    '''
     return -1 * getDaysBetweenCurrentTimeAndDeadline(challenge)
 
-def getConsecutiveClassesAttended(course,student):
-    # This one we can't actually implement yet because we don't have the data.    
-    return 0
+def getNumDaysSubmissionEarlyActivity(course, student , activity):
+    ''' Return the number of days an activity submitted before due date'''
+    from Students.models import StudentActivities
+    
+    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
+    if not studentActivity:
+        return (-1*float('inf'))
+    else:
+        return getDaysDifferenceActity(activity,studentActivity[0])
 
-def getConsecutiveWeeksOnLeaderboard(course,student):    
-    import math
-    from Students.models import StudentLeaderboardHistory
+def getNumDaysSubmissionLateActivity(course, student , activity):
+    ''' Return the number of days an activity submitted after due date'''
+    from Students.models import StudentActivities
+   
+    print("numb days submissionsssss late")
+    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
+    if not studentActivity:
+        return (float('inf'))
+    else: 
+        return (-1 *getDaysDifferenceActity(activity,studentActivity[0]))
+    
+def getNumAttempts(course,student,challenge):
+    ''' This will return the number of times a student has completed a specific challenge. ''' 
+    from Students.models import StudentEventLog
+    #Return the number of attempts (looking at only the startChallenge event trigger 801)
+    numberOfAttempts = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, objectID = challenge.challengeID, event = Event.endChallenge).count()
+    return numberOfAttempts
 
-    # Assuming student has to be on leaderboard for atleast 7 days (AH)
-    studentLog = StudentLeaderboardHistory.objects.filter(courseID = course, studentID = student, endTimestamp=None).values('startTimestamp')
-    if not studentLog.exists():
-        return 0
-    studentLog = studentLog[0]
-    startDate = studentLog['startTimestamp'].date()
-    latestDate = datetime.now(tz=timezone.utc).date()
-    delta = latestDate - startDate
+def getActivitiesCompleted(course,student):
+    ''' This will return the number of activities a student has participated in.'''
+    from Students.models import StudentEventLog
+    numActivitiesCompleted = StudentEventLog.objects.filter(course = course,student = student,objectType = ObjectTypes.activity, event = Event.participationNoted).count()
+    return numActivitiesCompleted
 
-    return math.trunc(delta.days/7)
+def getNumberOfBadgesEarned(course, student):
+    ''' This will return the number of badges a student has earned'''
+    from Students.models import StudentBadges
+    count = StudentBadges.objects.filter(studentID = student).count()
+    logger.debug("Number of Earned Badges by student: " + str(count))
+    return count
 
 def getNumberOfUniqueSeriousChallengesAttempted(course, student):
     ''' Get the number of unique serious challenges the student has taken.'''    
@@ -646,6 +866,7 @@ def getNumberOfUniqueSeriousChallengesAttempted(course, student):
     
     logger.debug("Serious Challenges Attempted: " + str(attempted))
     return attempted
+
 def getNumberOfUniqueWarmupChallengesAttempted(course, student):
     ''' Get the number of warmup challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
@@ -657,51 +878,59 @@ def getNumberOfUniqueWarmupChallengesAttempted(course, student):
     
     logger.debug("Warmup Challenges Attempted: " + str(attempted))
     return attempted
-    
-def getTotalMinutesSpentOnWarmupChallenges(course, student):
-    from Students.models import StudentChallenges
-    
-    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
-    minutes = 0
-    if not challenges.exists():
-        return minutes
-    for challenge in challenges:
-        # Get student challenges where the endtimestamp is not null meaning they must complete the warmup challenge
-        studentChallenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=challenge.challengeID).exclude(endTimestamp__isnull=True).values('startTimestamp', 'endTimestamp')
-        if len(studentChallenges) > 0:
-            for studentChallenge in studentChallenges:
-                endDate = studentChallenge['endTimestamp']
-                startDate = studentChallenge['startTimestamp']
-                delta = endDate - startDate
-                minutes += (delta.seconds//60)%60
-                
-    logger.debug("Total minutes spent on warmup challenges: " + str(minutes))
-    return minutes
+            
+def getNumberOfUniqueSeriousChallengesGreaterThan30Percent(course, student):  
+    ''' This will return the number of unique serious challenges that a student completed with a 
+        score > 30%
+    '''  
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, True, 30.0)
+    logger.debug("Number of unqiue serious challenges > 30%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
 
-def getConsecutiveScoresDifference(course, student, challenge):
-    from Students.models import StudentChallenges, StudentEventLog
-    
-    difference = 0
-    logger.debug(challenge)
-    # Get the last challenge the student has taken whether it's a warmpup or serious challenge
-    studentLastChallengeEvent = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, event = Event.endChallenge).exclude(objectID = challenge.challengeID).order_by('-timestamp')
-    if studentLastChallengeEvent:
-        studentLastChallengeEvent = studentLastChallengeEvent[0]
-        studentLastChallenge = StudentChallenges.objects.filter(courseID = course, studentID=student, challengeID = studentLastChallengeEvent.objectID)
-        if studentLastChallenge.exists():
-            # Get both challenges highest test score
-            latestScore = challengeScore(course,student, studentLastChallengeEvent.objectID)
-            previousScore = challengeScore(course, student, challenge)
-            logger.debug(latestScore)
-            logger.debug(previousScore)
-            
-            difference = abs(previousScore - latestScore)
-            logger.debug("Difference between last challenge score: " + str(difference))
-            return difference
-            
-    return difference
-            
+def getNumberOfUniqueSeriousChallengesGreaterThan75Percent(course, student):  
+    ''' This will return the number of unique serious challenges that a student completed with a 
+        score > 75%
+    '''  
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, True, 75.0)
+    logger.debug("Number of unqiue serious challenges > 75%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
+def getNumberOfUniqueSeriousChallengesGreaterThan90Percent(course, student):  
+    ''' This will return the number of unique serious challenges that a student completed with a 
+        score > 90%
+    '''  
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, True, 90.0)
+    logger.debug("Number of unqiue serious challenges > 90%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
+def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):  
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score > 30%
+    '''  
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 30.0)
+    logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
+def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score > 75%
+    '''   
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 75.0)
+    logger.debug("Number of unqiue warmup challenges > 75%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
+def getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student):  
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score > 90%
+    '''
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 90.0)
+    logger.debug("Number of unqiue warmup challenges > 90%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
 def getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, topic): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score > 75% for a particular topic
+    '''
     from Instructors.models import ChallengesTopics   
     challengesGreaterThan = 0
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
@@ -715,40 +944,10 @@ def getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic > 75%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
-def getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student):    
-    challengesGreaterThan = 0
-    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
-    for challenge in challenges:
-        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
-        if percentage > 90.0:
-            challengesGreaterThan += 1
-    logger.debug("Number of unqiue warmup challenges > 90%: " + str(challengesGreaterThan))
-    return challengesGreaterThan
-
-def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student):    
-    challengesGreaterThan = 0
-    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
-    for challenge in challenges:
-        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
-        if percentage > 75.0:
-            challengesGreaterThan += 1
-    logger.debug("Number of unqiue warmup challenges > 75%: " + str(challengesGreaterThan))
-    return challengesGreaterThan
-
-def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):    
-    challengesGreaterThan = 0
-    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
-    for challenge in challenges:
-        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
-        if percentage > 30.0:
-            challengesGreaterThan += 1
-    logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
-    return challengesGreaterThan
-
-def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, student):    
+def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, student): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score > 75% that the student has only completed once
+    '''   
     numberOfChall = 0
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     for challenge in challenges:
@@ -760,162 +959,23 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, stu
     print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
     return numberOfChall
 
-def getNumberOfUniqueSeriousChallengesGreaterThan90Percent(course, student):    
-    challengesGreaterThan = 0
-    challenges = Challenges.objects.filter(courseID=course, isGraded=True)
-    for challenge in challenges:
-        # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
-        if percentage > 90.0:
-            challengesGreaterThan += 1
-    logger.debug("Number of unqiue serious challenges > 90%: " + str(challengesGreaterThan))
-    return challengesGreaterThan
 
-def isWarmUpChallenge(course,student,challenge):
-    return not challenge.isGraded
-
-def getNumberOfBadgesEarned(course, student):
-    from Students.models import StudentBadges
-    count = StudentBadges.objects.filter(studentID = student).count()
-    logger.debug("Number of Earned Badges by student: " + str(count))
-    return count
-
-def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student, activity):
-    ''' This system variable calculates the score difference from the activity provided and 
-        the previous activies based on the average of the previous activities and the activity
-        category for the student. The previous activities are selected if the activity deadline 
-        is less than or equal to the activity provied deadline as well as the activity provided category.
-
-        Author: Austin
-        Last Modified by: Austin
-    '''
-    from Instructors.models import Activities
-    from Students.models import StudentActivities 
-    print("activity {}".format(activity))
-    # Get all the activities within the category that has a deadline earlier than the passed in activity
-    activitiesWithCategory = Activities.objects.filter(category = activity.category).filter(deadLine__lte=activity.deadLine)
-    # Get the student activities that has a score and is apart of activites with category and order by deadline with the latest being first
-    studentActivites = StudentActivities.objects.filter(courseID = course, activityID__in = activitiesWithCategory, studentID = student, graded = True).order_by('-activityID__deadLine')
-    if studentActivites.exists():
-        latestAttempt = studentActivites.first()
-        # Calculate the total of the earlier activities scores
-        total = sum(int(act.activityScore) for act in studentActivites[1:])
-        count = studentActivites.count()-1
-        if count <= 0:
-            print("Total: " + str(total))
-            print("latest Score: " + str(latestAttempt.activityScore))
-            return 0
-        # Calculate the average
-        average = total/count
-        print("Total: " + str(total))
-        print("Average: "+ str(average))
-        print("latest Score: " + str(latestAttempt.activityScore))
-        # The student on average has earned more than their last attempt return the difference
-        if average > latestAttempt.activityScore:
-            return average - float(latestAttempt.activityScore)
-
-    return 0
-
-    
-def getTotalScoreForWarmupChallenges(course,student):
-    return getAllChallenges(course, student, False)
-
-def getTotalScoreForSeriousChallenges(course,student):
-    return getAllChallenges(course, student, True)
-
-def getAllChallenges(course,student, isGraded):
-    #isGraded true means serious, false warmup
-    #utility function to get all the challenges for a course, student
-    from Students.models import StudentChallenges
-    from Instructors.models import ChallengesQuestions
-    challengeQuestions = []
-    #get all the challenges for the course, and depending on isGraded(serious=true,warmup=false)
-    challenges = StudentChallenges.objects.filter(courseID=course, studentID=student)
-    
-    for challenge in challenges:
-        challengeQuestions.append(list(ChallengesQuestions.objects.filter(challengeID=challenge.challengeID)))
-      
-    staticList = []
-    dynamicList = [] 
-    for challengeItem in challengeQuestions:
-        for item in challengeItem:
-            if item.challengeID.isGraded == isGraded:
-                if item.questionID.type == 6 or item.questionID.type == 7:
-                    if item.questionID not in dynamicList:
-                        dynamicList.append(item.questionID)
-                else:
-                    if item.questionID not in staticList:
-                        staticList.append(item.questionID)
-              
-    totalScore = 0
-    for static in staticList:
-        totalScore += firstAttemptStatic(static)
-        
-    for dynamic in dynamicList:
-        totalScore += dynamicQuestionMax(dynamic)
-            
-    return totalScore
-
-def dynamicQuestionMax(questionID):
-    #find the max score for the dynamic problem, dynamics are 6 or 7
-    from Students.models import StudentChallengeQuestions
-    questions = StudentChallengeQuestions.objects.filter(questionID = questionID)
-    
-    scores = []
-    
-    #for each question find the max by finding the scores for each question
-    for question in questions:
-        scores.append(question.questionScore)
-    return max(scores)
-    
-    
-def firstAttemptStatic(questionID):
-    #find the first attempt for the questions, and sum the static problem scores
-    from Students.models import StudentChallengeQuestions
-    question = StudentChallengeQuestions.objects.filter(questionID=questionID).first()
-    
-    if question == None:
-        return 0
-    else:
-        return question.questionScore
-def sc_reached_due_date(course, student, serious_challenge):
-    # Returns true if the due date for serious challenge has been reached or if due date is the same as default date
-    if not serious_challenge.isGraded:
-        return False
-    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc).replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0)
-def earliest_challenge_submission_in_class(course, student, challenge):
-    # Returns the datetime of the earliest submission of a challenge (serious or warmup) in a class
-    from Students.models import StudentChallenges
-    from Instructors.views.utils import localizedDate
-
-    earliest_submission = datetime(2000,1,1,0,0,0).date()
-    student_submissions = list(StudentChallenges.objects.filter(courseID=course, challengeID=challenge).exclude(endTimestamp__isnull=True).values_list('endTimestamp', flat=True))
-    if len(student_submissions) <= 0:
-        return earliest_submission
-    earliest_submission = min(student_submissions)
-    print("[DATE] {}".format(earliest_submission.date()))
-    return earliest_submission.date()
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
-    #KI: I'm commenting this entry out because the corresponding structure
-    # has been commented out.  I'm not clear why it has.
-    #percentageCorrect = 903 # The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge
     maxTestScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
     minTestScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
     dateOfFirstChallengeSubmission = 906 # The date on which the student has submitted a particular challenge for the first time.
     timeSpentOnChallenges = 907 # Time spent on a particular challenge.
-    timeSpentOnQuestions = 908 # Time spent on a particular question. 
+    timeSpentOnQuestions = 908 # Time spent on a particular question. INCOMPLETE
     consecutiveDaysLoggedIn = 909 # The number of consecutive days a student logs in to the One Up website
     activitiesCompleted = 910 # The number of activities a student has completed for a particular course
-    #KI: Someone added this and never implemented it.
-    #challengeId = 911 # The challenge ID if a badge is to be awarded for a specific challenge - CHECK the notes fop this!
-    numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier
-    numDaysSubmissionLate = 913 #Number of days an assignment is submitted late
-    averageTestScore = 914  # Average Test Score
+    numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier INCOMPLETE
+    numDaysSubmissionLate = 913 #Number of days an assignment is submitted late INCOMPLETE
+    averageTestScore = 914  # Average Test Score INCOMPLETE
     consecutiveWeeksOnLeaderboard = 915 #Consecutive weeks on the leaderboard
-    consecutiveClassesAttended = 916 #The numbedifference between the student scores for the latest and the previous activitiesr of consecutive classes a student has attended
+    consecutiveClassesAttended = 916 #The numbedifference between the student scores for the latest and the previous activitiesr of consecutive classes a student has attended INCOMPLETE
     consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
     percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
@@ -925,17 +985,10 @@ class SystemVariable():
     uniqueWarmupChallengesGreaterThan75PercentForTopic = 923 # Number of warmup challenges with a score percentage greater than 75% for a particular topic
     totalMinutesSpentOnWarmupChallenges = 924 # Total minutes spent on warmup challenges only
     differenceFromLastChallengeScore = 925 # Score difference from last complete challenge/warmup challenge and a specific challenge
-    minActivityScore = 926 # Lowest activity score of the course 
-    maxActivityScore = 927 # highest activity score of the course 
     averageActivityScore = 928 # average activity score of the course 
-# KI: Commented out next two because they functionally already exists and no dictionary entry was
-# made for it.
-#    numDaysActivitySubmissionLate = 929 # Difference of days between submission and due date
-#    numDaysActivitySubmissionEarly =  930 # Difference of days between submission and due date  
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
     isWarmUp = 932 # is a warm-up challenge
     activityScoreDifferenceByCategory = 941
-#    scoreDifferenceFromLastActivity = 933 # Difference between the student scores for the latest and the previous activities
     scorePercentageDifferenceFromPreviousActivity = 934 # Difference between the percentages of the student's scores for this activity and the one preceding it'''      
     percentageOfActivityScore = 935 # Percentage of the student's score out of the max possible score for this activity
     percentageOfMaxActivityScore = 936 # Percentage of the highest score for the course out of the max possible score for this activity
@@ -945,29 +998,20 @@ class SystemVariable():
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
-    seriousChallengeReachedDueDate = 944 # Returns true if the current time is past a serious challenge due date
-    uniqueWarmupChallengesGreaterThan90Percent = 945 # Number of warmup challenges with a score percentage greater than 90%
+    seriousChallengeReachedDueDate = 944 
+    uniqueWarmupChallengesGreaterThan90Percent = 945 
     uniqueSeriousChallengesGreaterThan90Percent = 946 # Number of serious challenges with a score percentage greater than 90%
     earliestChallengeSubmissionInClass = 947 # Returns the date of the earliest challenge submission
+    uniqueSeriousChallengesGreaterThan30Percent = 948
+    uniqueSeriousChallengesGreaterThan75Percent = 949
+    totalMinutesSpentOnSeriousChallenges = 950
+
     systemVariables = {
-        numAttempts:{
-            'index': numAttempts,
-            'name':'numAttempts',
-            'displayName':'Number of Attempts',
-            'description':'The total number of attempts that a student has given to a challenge',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.challenge: getNumAttempts
-            }
-        },
         score:{
             'index': score,
             'name':'score',
             'displayName':'Score',
-            'description':'The score for the challenge or activity',
+            'description':'The completed activity or challenge score by a student. The student activity score does not include bonus points. The student challenge score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.endChallenge, Event.adjustment],
                 ObjectTypes.activity:[Event.participationNoted,],
@@ -978,44 +1022,178 @@ class SystemVariable():
                 ObjectTypes.challenge: challengeScore
             }    
         },
-#         percentageCorrect:{
-#             'index': percentageCorrect,
-#             'name':'percentageCorrect',
-#             'displayName':'Percentage Correct',
-#             'description':'The percentage of correct answers that a student has answered in an(single) attempt for a particular challenge',
-#             'eventsWhichCanChangeThis':{
-#                 ObjectTypes.challenge:[Event.endChallenge, Event.adjustment],
-#             },
-#             'type':'int',
-#             'functions':{
-#                 ObjectTypes.challenge: getHighestPercentageCorrect
-#             }
-#         },
-        maxTestScore:{
-            'index': maxTestScore,
-            'name':'maxTestScore',
-            'displayName':'Maximum Challenge Score',
-            'description':"The maximum of the test scores of all the student's attempts for a particular challenge",
+        totalScoreForWarmupChallenges:{
+            'index': totalScoreForWarmupChallenges,
+            'name':'totalScoreForWarmupChallenges',
+            'displayName':'Warmup Challenge Total Score',
+            'description':'The student total score for a warmup challenge. Takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[ Event.challengeExpiration, Event.adjustment],
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge: getMaxTestScore
+                ObjectTypes.none:getTotalScoreForWarmupChallenges
+            },
+        },
+        totalScoreForSeriousChallenges:{
+            'index': totalScoreForSeriousChallenges,
+            'name':'totalScoreForSeriousChallenges',
+            'displayName':'Serious Challenge Total Score',
+            'description':'The student total score for a serious challenge. Takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getTotalScoreForSeriousChallenges
+            },
+        },
+        maxTestScore:{
+            'index': maxTestScore,
+            'name':'maxTestScore',
+            'displayName':'Highest Score',
+            'description':"The highest score of all student submissions for a particular challenge or activity. The student activity score does not include bonus points. The student challenge score only includes the student score, adjustment, and curve.",
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[ Event.challengeExpiration, Event.adjustment],
+                ObjectTypes.activity: [Event.participationNoted]
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge: getMaxTestScore,
+                ObjectTypes.activity: getMaxActivityScore
             }
         },
         minTestScore:{
             'index': minTestScore,
             'name':'minTestScore',
-            'displayName':'Minimum Challenge Score',
-            'description':"The minimum of the test scores of all the student's attempts for a particular challenge",
+            'displayName':'Lowest Score',
+            'description':"The lowest score of all student submissions for a particular challenge or activity. The student activity score does not include bonus points. The student challenge score only includes the student score, adjustment, and curve.",
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[ Event.challengeExpiration,Event.adjustment],
+                ObjectTypes.activity: [Event.participationNoted]
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge: getMinTestScore
+                ObjectTypes.challenge: getMinTestScore,
+                ObjectTypes.activity: getMinActivityScore
             }
+        },
+        averageTestScore:{
+            'index': averageTestScore,
+            'name':'averageTestScore',
+            'displayName':'Average Test Score',
+            'description':'Average Test Score.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[Event.endChallenge,Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:getAverageTestScore
+            },
+        }, 
+        averageActivityScore:{
+            'index':averageActivityScore,
+            'name':'averageActivityScore',
+            'displayName':'Average Activity Score',
+            'description':'The average activity score of all students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity: getAverageActivityScore
+            }
+        },
+        percentOfScoreOutOfMaxChallengeScore:{
+            'index': percentOfScoreOutOfMaxChallengeScore,
+            'name':'percentOfScoreOutOfMaxChallengeScore',
+            'displayName':'Percentage of Student Max Score Out of Challenge Score',
+            'description':'The percentage of the student max score for a particular challenge. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
+            },
+        },  
+        percentageOfMaxActivityScore:{
+            'index': percentageOfMaxActivityScore,
+            'name':'percentageOfMaxActivityScore',
+            'displayName':'Percentage of a Activity Max Score for the Course',
+            'description':'Percentage of the highest score for the course out of the max possible score for this activity',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity:[Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity:getPercentageOfMaxActivityScore
+            },
+        },
+        percentageOfCorrectAnswersPerChallengePerStudent:{
+            'index': percentageOfCorrectAnswersPerChallengePerStudent,
+            'name':'percentageOfCorrectAnswersPerChallengePerStudent',
+            'displayName':'Percentage of Correctly Answered Questions',
+            'description':'The student percentage of correctly answered questions out total number of questions for a challenge',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:getPercentageOfCorrectAnswersPerChallengePerStudent
+            },
+        }, 
+        percentageOfActivityScore:{
+            'index': percentageOfActivityScore,
+            'name':'percentageOfActivityScore',
+            'displayName':'Percentage of Student Score for this Activity',
+            'description':'Percentage of the student score out of the max possible score for this activity',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity:[Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity:getPercentageOfActivityScore
+            },
+        }, 
+        scorePercentageDifferenceFromPreviousActivity:{
+            'index': scorePercentageDifferenceFromPreviousActivity,
+            'name':'scorePercentageDifferenceFromPreviousActivity',
+            'displayName':'Score Percentage Difference of Activity and Its Preceding Activity',
+            'description':'The student difference of the score percentage of this activity from the activity preceding it',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity:[Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity:getScorePercentageDifferenceFromPreviousActivity
+            },
+        },
+        scoreDifferenceFromPreviousActivity:{
+            'index': scoreDifferenceFromPreviousActivity,
+            'name':'scoreDifferenceFromPreviousActivity',
+            'displayName':'Score Difference from Previous Completed Activity',
+            'description':'The student score difference of an activity from the activity preceding it',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity:[Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity:getScoreDifferenceFromPreviousActivity
+            },
+        },
+        activityScoreDifferenceByCategory:{
+            'index': activityScoreDifferenceByCategory,
+            'name':'activityScoreDifferenceFromPreviousAveragedScoresByCategory',
+            'displayName':'Score Difference From Averaged Previous Activities Scores For Activity Category',
+            'description':'The student score difference from averaged previous activities scores based on a particular activity category',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity: activityScoreDifferenceFromPreviousAveragedScoresByCategory
+            },
         },
         dateOfFirstChallengeSubmission:{
             'index': dateOfFirstChallengeSubmission,
@@ -1030,11 +1208,50 @@ class SystemVariable():
                 ObjectTypes.challenge: getDateOfFirstChallengeSubmission
             }
         },
+        earliestChallengeSubmissionInClass:{
+            'index': earliestChallengeSubmissionInClass,
+            'name':'earliestChallengeSubmissionInClass',
+            'displayName':'Earliest Challenge Submission in Course',
+            'description':'The date of the earliest submission of a particular challenge by any student in the course',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[Event.endChallenge],
+            },
+            'type':'date',
+            'functions':{
+                ObjectTypes.challenge:earliest_challenge_submission_in_class
+            },
+        },
+        seriousChallengeReachedDueDate:{
+            'index': seriousChallengeReachedDueDate,
+            'name': 'seriousChallengeReachedDueDate',
+            'displayName': 'Serious Challenge Has Reached Due Date',
+            'description': 'The serious challenge due date has reached',
+            'eventsWhichCanChangeThis': {
+                ObjectTypes.challenge: [Event.challengeExpiration],
+            },
+            'type': 'boolean',
+            'functions': {
+                ObjectTypes.challenge: sc_reached_due_date
+            },
+        },
+        isWarmUp:{
+            'index': isWarmUp,
+            'name': 'isWarmUp',
+            'displayName': 'Is WarmUp Challenge',
+            'description': 'True if the challenge in question is a warmup challenge, false if serious',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[Event.endChallenge],
+            },
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.challenge:isWarmUpChallenge
+            },
+        },
         timeSpentOnChallenges:{
             'index': timeSpentOnChallenges,
             'name':'timeSpentOnChallenges',
-            'displayName':'Time Spent On Warmup and Serious Challenges',
-            'description':'Total time spent in the Challenges section for a particular course.',
+            'displayName':'Time Spent On Challenges',
+            'description':'The total time in minutes a student has spent completing challenges',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
@@ -1043,11 +1260,37 @@ class SystemVariable():
                 ObjectTypes.none: totalTimeSpentOnChallenges
             }
         },
+        totalMinutesSpentOnWarmupChallenges:{
+            'index': totalMinutesSpentOnWarmupChallenges,
+            'name':'totalMinutesSpentOnWarmupChallenges',
+            'displayName':'Total Minutes Spent on Warmup Challenges',
+            'description':'The total minutes a student has spent on all warmup challenges',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getTotalMinutesSpentOnWarmupChallenges
+            },
+        },
+        totalMinutesSpentOnSeriousChallenges:{
+            'index': totalMinutesSpentOnSeriousChallenges,
+            'name':'totalMinutesSpentOnSeriousChallenges',
+            'displayName':'Total Minutes Spent on Serious Challenges',
+            'description':'The total minutes a student has spent on all serious challenges',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getTotalMinutesSpentOnSeriousChallenges
+            },
+        },
         timeSpentOnQuestions:{
             'index': timeSpentOnQuestions,
             'name':'timeSpentOnQuestions',
             'displayName':'Time Spent On Questions',
-            'description':'Total time spent in the Questions section for a particular course.',
+            'description':'The total time in minutes a student has spent completing questions',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endQuestion], #I'm not sure this makes sense - Keith
             },
@@ -1056,11 +1299,24 @@ class SystemVariable():
                 ObjectTypes.none: totalTimeSpentOnQuestions
             }
         },
+        differenceFromLastChallengeScore:{
+            'index': differenceFromLastChallengeScore,
+            'name':'differenceFromLastChallengeScore',
+            'displayName':'Score Difference from Last Completed Challenge',
+            'description':'The student score difference from the last completed challenge and a particular challenge',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:getConsecutiveScoresDifference
+            },
+        },
         consecutiveDaysLoggedIn:{
             'index':consecutiveDaysLoggedIn,
             'name':'consecutiveDaysLoggedIn',
             'displayName':'Consecutive Days Logged In',
-            'description':'The number of consecutive days a student logs in to the One Up website.',
+            'description':'The number of consecutive days a student has logged in',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none: [Event.userLogin],
             },
@@ -1068,57 +1324,57 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none: getConsecutiveDaysLoggedIn
             }
-        },
-        activitiesCompleted:{
-            'index':activitiesCompleted,
-            'name':'activitiesCompleted',
-            'displayName':'Activities Completed',
-            'description':'The number of activities a student has completed for a particular course.',
+        },                  
+        consecutiveDaysWarmUpChallengesTaken30Percent:{
+            'index': consecutiveDaysWarmUpChallengesTaken30Percent,
+            'name':'consecutiveDaysWarmUpChallengesTaken30Percent',
+            'displayName':'Consecutive Days Warm Up Challenge Taken (at least 30% correct)',
+            'description':'The number of consecutive days a student has taken a particular warm-up challenge (at least 30% correct).',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.participationNoted],
+                ObjectTypes.challenge: [Event.endChallenge , Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none: getActivitiesCompleted
+                ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken30Percent
             }
         },
-        minActivityScore:{
-            'index':minActivityScore,
-            'name':'minActivityScore',
-            'displayName':'Lowest Activity Score',
-            'description':'The lowest activity score for a particular course.',
+        consecutiveDaysWarmUpChallengesTaken75Percent:{
+            'index': consecutiveDaysWarmUpChallengesTaken75Percent,
+            'name':'consecutiveDaysWarmUpChallengesTaken75Percent',
+            'displayName':'Consecutive Days Warm Up Challenge Taken (at least 75% correct)',
+            'description':'The number of consecutive days a student has taken a particular warm-up challenge (at least 75% correct).',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.activity:[Event.participationNoted],
+                ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.activity: getMinActivityScore
+                ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken75Percent
             }
         },
-        maxActivityScore:{
-            'index':maxActivityScore,
-            'name':'maxActivityScore',
-            'displayName':'Highest Activity Score',
-            'description':'The highest activity score reached for a particular course.',
+        consecutiveClassesAttended:{
+            'index': consecutiveClassesAttended,
+            'name':'consecutiveClassesAttended',
+            'displayName':'Consecutive Classes Attended',
+            'description':'The number of consecutive classes a student has attended',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.activity: [Event.participationNoted],
+                ObjectTypes.none: [Event.instructorAction],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.activity: getMaxActivityScore
-            }
-        },
-        averageActivityScore:{
-            'index':averageActivityScore,
-            'name':'averageActivityScore',
-            'displayName':'Average Activity Score',
-            'description':'The average activity score for a particular course.',
+                ObjectTypes.none:getConsecutiveClassesAttended
+            },
+        }, 
+        consecutiveWeeksOnLeaderboard:{
+            'index': consecutiveWeeksOnLeaderboard,
+            'name':'consecutiveWeeksOnLeaderboard',
+            'displayName':'Consecutive Weeks on the Leaderboard',
+            'description':'The number of consecutive weeks a student has been on the leaderboard',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.activity: [Event.participationNoted],
+                ObjectTypes.none: [Event.leaderboardUpdate],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.activity: getAverageActivityScore
+                ObjectTypes.none: getConsecutiveWeeksOnLeaderboard
             }
         },
         numDaysSubmissionEarlier:{
@@ -1127,7 +1383,7 @@ class SystemVariable():
             'displayName':'Number of Days Submission Earlier',
             'description':'The number of days a submission is turned in earlier than the stated deadline',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge: [Event.endChallenge,],
+                ObjectTypes.challenge: [Event.endChallenge],
                 ObjectTypes.activity: [Event.activitySubmission],
             },
             'type':'int',
@@ -1142,7 +1398,7 @@ class SystemVariable():
             'displayName':'Number of Days Submission Late',
             'description':'The number of days a submission is turned in later than the stated deadline',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge: [Event.endChallenge,],
+                ObjectTypes.challenge: [Event.endChallenge],
                 ObjectTypes.activity: [Event.activitySubmission],
             },
             'type':'int',
@@ -1150,91 +1406,51 @@ class SystemVariable():
                 ObjectTypes.challenge: calcNumDaysSubmissionLate,
                 ObjectTypes.activity: getNumDaysSubmissionLateActivity,
             } 
-        },                    
-        consecutiveDaysWarmUpChallengesTaken30Percent:{
-            'index': consecutiveDaysWarmUpChallengesTaken30Percent,
-            'name':'consecutiveDaysWarmUpChallengesTaken30Percent',
-            'displayName':'Consecutive Days Warm Up Challenges (at least 30% correct) Taken ',
-            'description':'The number of consecutive days a student has taken Warm-up challenges (at least 30% correct).',
+        },
+        numAttempts:{
+            'index': numAttempts,
+            'name':'numAttempts',
+            'displayName':'Number of Attempts',
+            'description':'The number of times a student has completed a challenge',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge: [Event.endChallenge , Event.adjustment],
+                ObjectTypes.challenge:[Event.endChallenge],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken30Percent
+                ObjectTypes.challenge: getNumAttempts
             }
         },
-        consecutiveDaysWarmUpChallengesTaken75Percent:{
-            'index': consecutiveDaysWarmUpChallengesTaken75Percent,
-            'name':'consecutiveDaysWarmUpChallengesTaken75Percent',
-            'displayName':'Consecutive Days Warm Up Challenges (at least 75% correct) Taken ',
-            'description':'The number of consecutive days a student has taken Warm-up challenges (at least 75% correct).',
+        activitiesCompleted:{
+            'index':activitiesCompleted,
+            'name':'activitiesCompleted',
+            'displayName':'Number of Activities Participated',
+            'description':'The number of activities a student has received participation',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
+                ObjectTypes.none:[Event.participationNoted],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken75Percent
+                ObjectTypes.none: getActivitiesCompleted
             }
         },
-                       
-        consecutiveWeeksOnLeaderboard:{
-            'index': consecutiveWeeksOnLeaderboard,
-            'name':'consecutiveWeeksOnLeaderboard',
-            'displayName':'Consecutive Weeks on the Leaderboard',
-            'description':'The number of consecutive weeks a student has been at the top 3 positions of the Leaderboard.',
+        badgesEarned:{
+            'index': badgesEarned,
+            'name':'badgesEarned',
+            'displayName':'Badges Earned',
+            'description':'The number of badges the student has earned',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none: [Event.leaderboardUpdate],
+                ObjectTypes.none:[Event.endChallenge],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none: getConsecutiveWeeksOnLeaderboard
-            }
-        },
-        consecutiveClassesAttended:{
-            'index': consecutiveClassesAttended,
-            'name':'consecutiveClassesAttended',
-            'displayName':'Consecutive Classes Attended',
-            'description':'The number of consecutive classes a student has attended.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none: [Event.instructorAction],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none:getConsecutiveClassesAttended
+                ObjectTypes.none:getNumberOfBadgesEarned
             },
         }, 
-        percentOfScoreOutOfMaxChallengeScore:{
-            'index': percentOfScoreOutOfMaxChallengeScore,
-            'name':'percentOfScoreOutOfMaxChallengeScore',
-            'displayName':'Percent of student score out of max challenge score',
-            'description':'Percentage of student score (for the max scored attempt) out of max challenge score.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
-            },
-        },                                             
-        averageTestScore:{
-            'index': averageTestScore,
-            'name':'averageTestScore',
-            'displayName':'Average Test Score',
-            'description':'Average Test Score.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge,Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.challenge:getAverageTestScore
-            },
-        },                        
         uniqueSeriousChallengesAttempted:{
             'index': uniqueSeriousChallengesAttempted,
             'name':'uniqueSeriousChallengesAttempted',
-            'displayName':'Unique Serious Challenges Attempted',
-            'description':'The number of unique serious challenges attempted by the student.',
+            'displayName':'Unique Serious Challenges Completed',
+            'description':'The number of unique serious challenges completed by the student.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
@@ -1246,8 +1462,8 @@ class SystemVariable():
         uniqueWarmupChallengesAttempted:{
             'index': uniqueWarmupChallengesAttempted,
             'name':'uniqueWarmupChallengesAttempted',
-            'displayName':'Unique Warmup Challenges Attempted',
-            'description':'The number of unique warmup challenges attempted by the student.',
+            'displayName':'Unique Warmup Challenges Completed',
+            'description':'The number of unique warmup challenges completed by the student.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
@@ -1255,12 +1471,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesAttempted
             },
-        },    
+        },   
         uniqueWarmupChallengesGreaterThan30Percent:{
             'index': uniqueWarmupChallengesGreaterThan30Percent,
             'name':'uniqueWarmupChallengesGreaterThan30Percent',
-            'displayName':'Warmup Challenges with Score > 30%',
-            'description':'The number of warmup challenges with a score greater than 30%.',
+            'displayName':'Warmup Challenges Score (greater than 30% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than 30%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1272,8 +1488,8 @@ class SystemVariable():
         uniqueWarmupChallengesGreaterThan75Percent:{
             'index': uniqueWarmupChallengesGreaterThan75Percent,
             'name':'uniqueWarmupChallengesGreaterThan75Percent',
-            'displayName':'Warmup Challenges with Score > 75%',
-            'description':'The number of warmup challenges with a score greater than 75%.',
+            'displayName':'Warmup Challenges Score (greater than 75% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than 75%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1282,206 +1498,11 @@ class SystemVariable():
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75Percent
             },
         },
-        uniqueWarmupChallengesGreaterThan75PercentForTopic:{
-            'index': uniqueWarmupChallengesGreaterThan75PercentForTopic,
-            'name':'uniqueWarmupChallengesGreaterThan75PercentForTopic',
-            'displayName':'Warmup Challenges with Score > 75% for Specific Topic',
-            'description':'The number of warmup challenges with a score greater than 75% for a specific topic.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic
-            },
-        },
-        totalMinutesSpentOnWarmupChallenges:{
-            'index': totalMinutesSpentOnWarmupChallenges,
-            'name':'totalMinutesSpentOnWarmupChallenges',
-            'displayName':'Total Minutes Spent on Warmup Challenges',
-            'description':'The total minutes spent on all warmup challenges',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.endChallenge],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none:getTotalMinutesSpentOnWarmupChallenges
-            },
-        },
-        percentageOfCorrectAnswersPerChallengePerStudent:{
-            'index': percentageOfCorrectAnswersPerChallengePerStudent,
-            'name':'percentageOfCorrectAnswersPerChallengePerStudent',
-            'displayName':'Percent of correctly answered questions',
-            'description':'Percent of correctly answered questions out total number of questions.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.challenge:getPercentageOfCorrectAnswersPerChallengePerStudent
-            },
-        },      
-        differenceFromLastChallengeScore:{
-            'index': differenceFromLastChallengeScore,
-            'name':'differenceFromLastChallengeScore',
-            'displayName':'Score Difference from Last Completed Challenge',
-            'description':'Score difference from last completed challenge/warmup challenge and a specific challenge.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge, Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.challenge:getConsecutiveScoresDifference
-            },
-        },
-        isWarmUp:{
-            'index': isWarmUp,
-            'name': 'isWarmUp',
-            'displayName': 'Is WarmUp Challenge',
-            'description': 'True if the challenge in question is a warmup challenge, false if serious.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge],
-            },
-            'type':'boolean',
-            'functions':{
-                ObjectTypes.challenge:isWarmUpChallenge
-            },
-        },
-        activityScoreDifferenceByCategory:{
-            'index': activityScoreDifferenceByCategory,
-            'name':'activityScoreDifferenceFromPreviousAveragedScoresByCategory',
-            'displayName':'Averaged Score Difference From Previous Activities By Activity Category',
-            'description':'Averaged score difference from previous activities based on the activity category.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activity: [Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activity: activityScoreDifferenceFromPreviousAveragedScoresByCategory
-            },
-        }, 
-        scorePercentageDifferenceFromPreviousActivity:{
-            'index': scorePercentageDifferenceFromPreviousActivity,
-            'name':'scorePercentageDifferenceFromPreviousActivity',
-            'displayName':'Score Percentage Difference of Activity from Its Preceding Activity',
-            'description':'Difference of the score percentage of this activity from the activity preceding it.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activity:[Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activity:getScorePercentageDifferenceFromPreviousActivity
-            },
-        }, 
-        percentageOfActivityScore:{
-            'index': percentageOfActivityScore,
-            'name':'percentageOfActivityScore',
-            'displayName':'Percentage of Student Score for this Activity',
-            'description':'Percentage of the student score out of the max possible score for this activity.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activity:[Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activity:getPercentageOfActivityScore
-            },
-        },   
-         percentageOfMaxActivityScore:{
-            'index': percentageOfMaxActivityScore,
-            'name':'percentageOfMaxActivityScore',
-            'displayName':'Percentage of the Max Score for the Course for this Activity',
-            'description':'Percentage of the highest score for the course out of the max possible score for this activity.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activity:[Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activity:getPercentageOfMaxActivityScore
-            },
-        },
-        badgesEarned:{
-            'index': badgesEarned,
-            'name':'badgesEarned',
-            'displayName':'Badges Earned',
-            'description':'The number of badges the student has earned.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.endChallenge],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none:getNumberOfBadgesEarned
-            },
-        },  
-        scoreDifferenceFromPreviousActivity:{
-            'index': scoreDifferenceFromPreviousActivity,
-            'name':'scoreDifferenceFromPreviousActivity',
-            'displayName':'Score Difference from Previous Completed Activity',
-            'description':'Score difference of an activity from the activity preceding it.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activity:[Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activity:getScoreDifferenceFromPreviousActivity
-            },
-        },      
-        uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
-            'index': uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt,
-            'name':'uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt',
-            'displayName':'Warmup Challenges with Score > 75% with only one attempt',
-            'description':'The number of warmup challenges with a score greater than 75% with only one attempt.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
-            },
-        },
-        totalScoreForWarmupChallenges:{
-            'index': totalScoreForWarmupChallenges,
-            'name':'totalScoreForWarmupChallenges',
-            'displayName':'Warmup Challenge Total Score',
-            'description':'Total Score For Warmup Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none:getTotalScoreForWarmupChallenges
-            },
-        },
-        totalScoreForSeriousChallenges:{
-            'index': totalScoreForSeriousChallenges,
-            'name':'totalScoreForSeriousChallenges',
-            'displayName':'Serious Challenge Total Score',
-            'description':'Total Score For Serious Challenges takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none:getTotalScoreForSeriousChallenges
-            },
-        },
-        seriousChallengeReachedDueDate:{
-            'index': seriousChallengeReachedDueDate,
-            'name': 'seriousChallengeReachedDueDate',
-            'displayName': 'When Serious Challenge Reached Due Date',
-            'description': 'The serious challenge due date has past or reached based on the current moment',
-            'eventsWhichCanChangeThis': {
-                ObjectTypes.challenge: [Event.challengeExpiration],
-            },
-            'type': 'boolean',
-            'functions': {
-                ObjectTypes.challenge: sc_reached_due_date
-            },
-        },
         uniqueWarmupChallengesGreaterThan90Percent:{
             'index': uniqueWarmupChallengesGreaterThan90Percent,
             'name':'uniqueWarmupChallengesGreaterThan90Percent',
-            'displayName':'Warmup Challenges with Score > 90%',
-            'description':'The number of warmup challenges with a score greater than 90%',
+            'displayName':'Warmup Challenges Score (greater than 90% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than 90%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1490,11 +1511,37 @@ class SystemVariable():
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan90Percent
             },
         },
+        uniqueSeriousChallengesGreaterThan30Percent:{
+            'index': uniqueSeriousChallengesGreaterThan30Percent,
+            'name':'uniqueSeriousChallengesGreaterThan30Percent',
+            'displayName':'Serious Challenges Score (greater than 30% correct)',
+            'description':'The number of serious challenges a student has completed with a score greater than 30%. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan30Percent
+            },
+        },
+        uniqueSeriousChallengesGreaterThan75Percent:{
+            'index': uniqueSeriousChallengesGreaterThan75Percent,
+            'name':'uniqueSeriousChallengesGreaterThan75Percent',
+            'displayName':'Serious Challenges Score (greater than 75% correct)',
+            'description':'The number of serious challenges a student has completed with a score greater than 75%. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan75Percent
+            },
+        },
         uniqueSeriousChallengesGreaterThan90Percent:{
             'index': uniqueSeriousChallengesGreaterThan90Percent,
             'name':'uniqueSeriousChallengesGreaterThan90Percent',
-            'displayName':'Serious Challenges with Score > 90%',
-            'description':'The number of serious challenges with a score greater than 90%',
+            'displayName':'Serious Challenges Score (greater than 90% correct)',
+            'description':'The number of serious challenges a student has completed with a score greater than 90%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1503,20 +1550,32 @@ class SystemVariable():
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan90Percent
             },
         },
-        earliestChallengeSubmissionInClass:{
-            'index': earliestChallengeSubmissionInClass,
-            'name':'earliestChallengeSubmissionInClass',
-            'displayName':'Earliest Challenge Submission in Class',
-            'description':'The date of the earliest warmup or serious challenge submission',
+        uniqueWarmupChallengesGreaterThan75PercentForTopic:{
+            'index': uniqueWarmupChallengesGreaterThan75PercentForTopic,
+            'name':'uniqueWarmupChallengesGreaterThan75PercentForTopic',
+            'displayName':'Warmup Challenges Score for Specific Topic (greater than 75% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than 75% for a specific topic. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge],
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
             },
-            'type':'date',
+            'type':'int',
             'functions':{
-                ObjectTypes.challenge:earliest_challenge_submission_in_class
+                ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic
             },
-        },
-                                                                       
+        },  
+        uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
+            'index': uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt,
+            'name':'uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt',
+            'displayName':'One Attempt Warmup Challenges Score (greater than 75% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than 75% and with only one attempt',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
+            },
+        },                                                               
     }
 
 if __debug__:
