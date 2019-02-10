@@ -282,7 +282,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
             last_ran = None
 
     # Get the earnings for this student
-    earnings = StudentVirtualCurrency.objects.filter(studentID = student, vcRuleID__courseID = course)
+    earnings = StudentVirtualCurrency.objects.filter(studentID = student, courseID = course)
     # If this is not the first time running, only get the earnings since last ran
     if last_ran:
         earnings = earnings.filter(timestamp__gte=last_ran)

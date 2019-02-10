@@ -128,14 +128,20 @@ class StudentBadges(models.Model):
 
 class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
-    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, on_delete=models.CASCADE, verbose_name="the virtual currency rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
+    vcName = models.CharField(max_length=300, null=True, blank=True)  
+    vcDescription = models.CharField(max_length=4000, null=True, blank=True)
+    def __str__(self):              
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
+class StudentVirtualCurrencyRuleBased(StudentVirtualCurrency):
+    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, related_name="vcrule", on_delete=models.SET_NULL, verbose_name="the virtual currency rule", db_index=True, null=True, blank=True)
 
     def __str__(self):              
-        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)

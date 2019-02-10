@@ -23,6 +23,7 @@ def ChallengesList(request):
     
     context_dict,currentCourse = studentInitialContextDict(request)
     
+    
     user = -1
     if request.user.is_authenticated:
         user = request.user.username
