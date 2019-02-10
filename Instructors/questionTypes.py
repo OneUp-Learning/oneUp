@@ -478,19 +478,22 @@ def parsonsMakeAnswerList(qdict,POST):
         ##lines of code are broken into sections
         ##§ is how we know which lines are which
         #¬ is used join, to create a list
-        print("StudentSolutonBeforeChanges", studentSolution)
+        print("StudentSolutonBeforeChanges", repr(studentSolution))
         studentSolution = re.sub(r"&lt;", "<", studentSolution)
         studentSolution = re.sub(r"&gt;", ">", studentSolution)
         studentSolution = re.sub(r"&quot;", "\"", studentSolution)
         studentSolution = re.sub(r"&quot;", "\"", studentSolution)
         studentSolution = re.sub(r"^&amp;nbsp;", "", studentSolution)
         studentSolution = re.sub(r",&amp;nbsp;", "ℊ", studentSolution)
+        studentSolution = re.sub(r"&amp;&amp;", "&&", studentSolution)
         studentSolution = re.sub(r";,", ";§¬", studentSolution)
-        studentSolution = re.sub(r";,", ";§¬", studentSolution)
+        studentSolution = re.sub(r";\r\n", ";@@§¬", studentSolution)
         studentSolution = re.sub(r"},", "}§¬", studentSolution)
         studentSolution = re.sub(r"{,", "{§¬", studentSolution)
+        studentSolution = re.sub(r",{", "{§¬", studentSolution)
         studentSolution = re.sub(r"\),", ")§¬", studentSolution)
         studentSolution = re.sub(r"\(,", "(§¬", studentSolution)
+        studentSolution = re.sub(r"§¬}[^$]", "§¬}@@§¬", studentSolution)
         print("StudentSolAfter change", studentSolution)
         
         #we turn the student solution into a list
@@ -502,9 +505,15 @@ def parsonsMakeAnswerList(qdict,POST):
         print("LineIndent", lineIndent);
        
         #perform the spacing for each line
+        regexp = re.compile(r'@@')
         IndentedStudentSolution = [];
         for index, line in enumerate(studentSolution):
-            line = '    ' * int(lineIndent[index]) + line
+            if regexp.search(line):
+                line = re.sub(r"@@", "", line)
+                line = '    ' * int(lineIndent[index]) + line
+                lineIndent.insert(index, lineIndent[index-1])
+            else:
+                line = '    ' * int(lineIndent[index]) + line
             IndentedStudentSolution.append(line)
             print("Index: ", index)
         studentSolution = IndentedStudentSolution
