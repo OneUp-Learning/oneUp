@@ -31,19 +31,61 @@ class Goal():
                 'index': warmup70,
                 'name': 'warmup70',
                 'displayName': 'Number of Warm Ups taken with 70% score',
-                'description': 'The number of Warm Ups the student aims to take.',
+                'description': 'The number of Warm Ups the student aims to complete with a score of 70%',
                 },
-        warmup10:{
-                'index': warmup10,
-                'name': 'warmup10',
-                'displayName': 'Number of Warm Ups to be taken',
-                'description': 'The number of Warm Ups the student aims to take.',
+        warmup80:{
+                'index': warmup80,
+                'name': 'warmup80',
+                'displayName': 'Number of Warm Ups to be taken with 80% score',
+                'description': 'The number of Warm Ups the student aims to complete with a score of 80%.',
                 },
-        warmup10:{
-                'index': warmup10,
-                'name': 'warmup10',
-                'displayName': 'Number of Warm Ups to be taken',
-                'description': 'The number of Warm Ups the student aims to take.',
+        warmup90:{
+                'index': warmup90,
+                'name': 'warmup90',
+                'displayName': 'Number of Warm Ups to be taken with 90% score',
+                'description': 'The number of Warm Ups the student aims to complete with a score of 90%',
+                },
+        streak10:{
+                'index': streak10,
+                'name': 'streak10',
+                'displayName': 'Number of consecutive days for Warm Ups',
+                'description': 'The number consecutive days where at least one Warm Up is completed',
+                },
+        streak70:{
+                'index': streak70,
+                'name': 'streak70',
+                'displayName': 'Number of consecutive days for Warm Ups',
+                'description': 'The number consecutive days where at least one Warm Up is completed with a score of 70%',
+                },
+        streak80:{
+                'index': streak80,
+                'name': 'streak80',
+                'displayName': 'Number of consecutive days for Warm Ups',
+                'description': 'The number consecutive days where at least one Warm Up is completed with a score of 80%',
+                },
+        streak90:{
+                'index': streak90,
+                'name': 'streak90',
+                'displayName': 'Number of consecutive days for Warm Ups',
+                'description': 'The number consecutive days where at least one Warm Up is completed with a score of 90%',
+                },
+        courseBucks:{
+                'index': courseBucks,
+                'name': 'courseBucks',
+                'displayName': 'Number of Course Bucks earned',
+                'description': 'The amount of Course Bucks earned',
+                },
+        courseXP:{
+                'index': courseXP,
+                'name': 'courseXP',
+                'displayName': 'Amount of Course XP earned',
+                'description': 'The amount of Course Experience Points earned by the student',
+                },
+        courseBadges:{
+                'index': courseBadges,
+                'name': 'courseBadges',
+                'displayName': 'Number of Course Badges earned',
+                'description': 'The number of Course Badges earned by the student',
                 },
         }
 
