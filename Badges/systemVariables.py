@@ -749,29 +749,6 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
         print()
         print()
         return consecutiveDays 
-
-def getConsecutiveClassesAttended(course,student):
-    ''' INCOMPLETE
-        This will return the number of consecutive classes a student has attended.
-    '''
-    # We have the data to complete this now   
-    return 0
-
-def getConsecutiveWeeksOnLeaderboard(course,student): 
-    ''' This will return the number of weeks a student has been on the leaderboard'''   
-    import math
-    from Students.models import StudentLeaderboardHistory
-
-    # Assuming student has to be on leaderboard for atleast 7 days (AH)
-    studentLog = StudentLeaderboardHistory.objects.filter(courseID = course, studentID = student, endTimestamp=None).values('startTimestamp')
-    if not studentLog.exists():
-        return 0
-    studentLog = studentLog[0]
-    startDate = studentLog['startTimestamp'].date()
-    latestDate = datetime.now(tz=timezone.utc).date()
-    delta = latestDate - startDate
-
-    return math.trunc(delta.days/7)   
     
 # def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
 #     '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
@@ -839,7 +816,7 @@ def getNumAttempts(course,student,challenge):
     ''' This will return the number of times a student has completed a specific challenge. ''' 
     from Students.models import StudentEventLog
     #Return the number of attempts (looking at only the startChallenge event trigger 801)
-    numberOfAttempts = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, objectID = challenge.challengeID, event = Event.endChallenge).count()
+    numberOfAttempts = StudentEventLog.objects.filter(course = course, student = student, objectType = ObjectTypes.challenge, objectID = challenge.challengeID, event = Event.startChallenge).count()
     return numberOfAttempts
 
 def getActivitiesCompleted(course,student):
@@ -974,8 +951,6 @@ class SystemVariable():
     numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier INCOMPLETE
     numDaysSubmissionLate = 913 #Number of days an assignment is submitted late INCOMPLETE
     averageTestScore = 914  # Average Test Score INCOMPLETE
-    consecutiveWeeksOnLeaderboard = 915 #Consecutive weeks on the leaderboard
-    consecutiveClassesAttended = 916 #The numbedifference between the student scores for the latest and the previous activitiesr of consecutive classes a student has attended INCOMPLETE
     consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
     percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
@@ -1351,32 +1326,6 @@ class SystemVariable():
                 ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken75Percent
             }
         },
-        consecutiveClassesAttended:{
-            'index': consecutiveClassesAttended,
-            'name':'consecutiveClassesAttended',
-            'displayName':'Consecutive Classes Attended',
-            'description':'The number of consecutive classes a student has attended',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none: [Event.instructorAction],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none:getConsecutiveClassesAttended
-            },
-        }, 
-        consecutiveWeeksOnLeaderboard:{
-            'index': consecutiveWeeksOnLeaderboard,
-            'name':'consecutiveWeeksOnLeaderboard',
-            'displayName':'Consecutive Weeks on the Leaderboard',
-            'description':'The number of consecutive weeks a student has been on the leaderboard',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.none: [Event.leaderboardUpdate],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.none: getConsecutiveWeeksOnLeaderboard
-            }
-        },
         numDaysSubmissionEarlier:{
             'index': numDaysSubmissionEarlier,
             'name':'numDaysSubmissionEarlier',
@@ -1413,7 +1362,7 @@ class SystemVariable():
             'displayName':'Number of Attempts',
             'description':'The number of times a student has completed a challenge',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge],
+                ObjectTypes.challenge:[Event.startChallenge],
             },
             'type':'int',
             'functions':{
