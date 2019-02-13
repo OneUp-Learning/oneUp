@@ -7,13 +7,38 @@ import random
 import logging
 from _datetime import date
 from celery.bin.result import result
+
+from celery.five import monotonic
+from contextlib import contextmanager
+from django.core.cache import cache
+
 import _cffi_backend
 from _datetime import datetime
 from dateutil.utils import today
 from billiard.connection import CHALLENGE
-logger = logging.getLogger(__name__)
+from oneUp.logger import logger
 
 from django.conf import settings
+
+LOCK_EXPIRE = 60 * 5 # lock expire in 5 minutes
+
+@contextmanager
+def memcache_lock(lock_id, oid):
+    timeout_at = monotonic() + LOCK_EXPIRE - 3
+    # cache.add fails if the key already exists
+    status = cache.add(lock_id, oid, LOCK_EXPIRE)
+    try:
+        yield status
+    finally:
+        # memcache delete is very slow, but we have to use it to take
+        # advantage of using add() for atomic locking
+        if monotonic() < timeout_at and status:
+            # don't release the lock if we exceeded the timeout
+            # to lessen the chance of releasing an expired lock
+            # owned by someone else
+            # also don't release the lock if we didn't acquire it
+            cache.delete(lock_id)
+
 
 def setup_periodic_badge(unique_id, badge_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None):
     ''' unique_id should be the created id for periodic badge object. badge_id is the id of the badge to award students'''
@@ -115,7 +140,10 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     # Get the periodic variable and time period
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     time_period = TimePeriods.timePeriods[period_index]
-    
+
+    # Get the course
+    course = get_course(course_id)
+
     # Set the award type used for finding Periodic Task object
     award_type = ""
     if badge_id:
@@ -126,9 +154,15 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
         award_type += "leaderboard"
 
     unique_str = str(unique_id)+"_"+award_type
+    # Aquire the lock for the task 
+    lock_id = "lock-{}".format(periodic_variable['name']+'_'+unique_str)
+    with memcache_lock(lock_id, app.oid) as acquired:
+        if not acquired:
+            return
+    
     periodic_task = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id))
     total_runs = periodic_task.total_run_count
-
+    print("TOTAL RUNS {}".format(total_runs))
     # Handle beginning of time period
     if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
         # If it has ran once then return and set it not to run anymore
@@ -142,11 +176,11 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     # (day 7) total_runs = 1 , frequency = 2, task will not run
     # (day 14) total_runs = 2 , frequency = 2, task will run
     # ...
+    
     if total_runs % time_period['frequency'] != 0:
+        periodic_task.total_run_count += 1
+        periodic_task.save()
         return
-
-    # Get the course
-    course = get_course(course_id)
 
     # Handle beginning of time period
     if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
@@ -158,11 +192,8 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
             periodic_task.save()
             return
 
-    # Get the course
-    course = get_course(course_id)
-
     # Get all the students in this course, exclude test student
-    students = StudentRegisteredCourses.objects.filter(courseID=course)
+    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     rank = []
     # Evaluate each student based on periodic variable function
     for student_in_course in students:
@@ -189,6 +220,8 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
                 savePeriodicLeaderboardResults(rank,unique_id, course)
             else:
                 savePeriodicLeaderboardResults(rank,unique_id, course)
+    periodic_task.total_run_count += 1
+    periodic_task.save()
 
 def filter_students(students, number_of_top_students, threshold, operator_type, is_random):
     ''' Filters out students based on parameters if they are not None.
@@ -315,7 +348,7 @@ def get_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Retrieves the last time a periodic task has ran. 
         Returns None if it is has not ran yet.
     '''
-    print("award type", award_type)
+    # print("award type", award_type)
     if not "badge" in award_type  and not "vc" in award_type and not "leaderboard" in award_type:
         logger.error("Cannot find Periodic Task Object: award_type is not 'badge' or 'vc' or 'leaderboard'!!")
 
@@ -346,7 +379,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
     from Students.models import StudentVirtualCurrency
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
 
-    print("result only", result_only)
+    # print("result only", result_only)
     # Get the last time this periodic variable has ran if not getting results only (leaderboards)
     if not result_only:
         last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
@@ -379,7 +412,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
    
     print("Course: {}".format(course))
     print("Student: {}".format(student))
-    print("Periodic Variable: {}".format(periodic_variable))
+    # print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
 
