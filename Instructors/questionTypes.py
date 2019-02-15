@@ -215,9 +215,7 @@ def parsonsqdict(question,i,challengeId,studChallQuest):
     print("joinedSolString", solution_string)
     
     solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
-    
-    
-    qdict['model_solution']=repr(solution_string).strip('\'')
+    qdict['model_solution'] = repr(solution_string).strip('\'')
     print("questqdict['model_solution']", qdict['model_solution'])
     
     return qdict
