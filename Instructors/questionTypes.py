@@ -215,9 +215,7 @@ def parsonsqdict(question,i,challengeId,studChallQuest):
     print("joinedSolString", solution_string)
     
     solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
-    
-    
-    qdict['model_solution']=repr(solution_string).strip('\'')
+    qdict['model_solution'] = repr(solution_string).strip('\'')
     print("questqdict['model_solution']", qdict['model_solution'])
     
     return qdict
@@ -474,24 +472,41 @@ def parsonsMakeAnswerList(qdict,POST):
         
     #if the student ddnt fill in any solution, zero points
     if studentSolution != "":
+        ##Regex is hard, please do not modify unless you have multiple examples to test with
+        ##you will be chasing bugs all day forever like I did here ~ggonzalez
+        ##test and retest, I used regex101.com, but regex101 sees \r as \\r and \n as \\n are not
         ##regex student solution, putting ¬ where the 
         ##lines of code are broken into sections
-        ##§ is how we know which lines are which
+        ##§is how we know which lines are which
         #¬ is used join, to create a list
-        print("StudentSolutonBeforeChanges", studentSolution)
+        #᚜ is to tab
+        #ℊ is used as newlines
+        #@@ causes a lookback at previous lines for indentation in the case of blocks
+        #^^^ ignores the previous lines indentation in special cases
+        print("StudentSolutonBeforeChanges", repr(studentSolution))
         studentSolution = re.sub(r"&lt;", "<", studentSolution)
         studentSolution = re.sub(r"&gt;", ">", studentSolution)
         studentSolution = re.sub(r"&quot;", "\"", studentSolution)
         studentSolution = re.sub(r"&quot;", "\"", studentSolution)
         studentSolution = re.sub(r"^&amp;nbsp;", "", studentSolution)
-        studentSolution = re.sub(r",&amp;nbsp;", "ℊ", studentSolution)
+        studentSolution = re.sub(r"};,&amp;nbsp;", "};¬ℊ", studentSolution)
+        studentSolution = re.sub(r"},&amp;nbsp;", "},ℊ", studentSolution)
+        studentSolution = re.sub(r"[^};],&amp;nbsp;", "§¬ℊ", studentSolution)
+        studentSolution = re.sub(r"],&amp;nbsp;", "§¬ℊ", studentSolution)
+        studentSolution = re.sub(r"&amp;&amp;", "&&", studentSolution)
+        studentSolution = re.sub(r";,&amp;nbsp;", ";@@§¬", studentSolution)
         studentSolution = re.sub(r";,", ";§¬", studentSolution)
-        studentSolution = re.sub(r";,", ";§¬", studentSolution)
-        studentSolution = re.sub(r"},", "}§¬", studentSolution)
+        studentSolution = re.sub(r";\r\n(?!})", ";@@§¬", studentSolution)
+        studentSolution = re.sub(r" \r\n},}", "\r§¬    }§}", studentSolution)
         studentSolution = re.sub(r"{,", "{§¬", studentSolution)
+        studentSolution = re.sub(r",{", "{§¬", studentSolution)
         studentSolution = re.sub(r"\),", ")§¬", studentSolution)
         studentSolution = re.sub(r"\(,", "(§¬", studentSolution)
-        print("StudentSolAfter change", studentSolution)
+        studentSolution = re.sub(r"}\r\nreturn", "^^^,}§¬\rreturn", studentSolution)
+        studentSolution = re.sub(r"§¬}[^$]", "§¬}§¬", studentSolution)
+        studentSolution = re.sub(r"else,", "else§¬", studentSolution)
+        studentSolution = re.sub(r"    return", "᚜return", studentSolution)
+        print("StudentSolAfter change", repr(studentSolution))
         
         #we turn the student solution into a list
         studentSolution = [x.strip() for x in studentSolution.split('¬')]
@@ -499,14 +514,53 @@ def parsonsMakeAnswerList(qdict,POST):
         
         #make a list of lines, split on , so we know how much to indent where
         lineIndent = [x.strip() for x in lineIndent.split(',')]
-        print("LineIndent", lineIndent);
-       
+        #print("LineIndent", lineIndent)
+    
         #perform the spacing for each line
-        IndentedStudentSolution = [];
+        ignorePreviousLine = re.compile(r"\^\^\^")
+        regexp = re.compile(r"@@")
+        kickLineBack = re.compile(r"ℊ")
+        elseHasBeenFound = re.compile(r"else")
+        IndentedStudentSolution = []
+        ignoreExtraIndentationFromElse = False
+        print("studentSolLength", enumerate(studentSolution))
         for index, line in enumerate(studentSolution):
-            line = '    ' * int(lineIndent[index]) + line
+            print("indent", int(lineIndent[index]))
+            print("line before", repr(line))
+            if regexp.search(line) and not (index-1 == 0) and ignoreExtraIndentationFromElse== False:
+                print("found @@")
+                line = re.sub(r"@@", "", line)
+                line = '    ' * int(lineIndent[index-1]) + line
+                lineIndent.insert(index, lineIndent[index-1])
+            elif (ignoreExtraIndentationFromElse and regexp.search(line) and not (index-1 == 0)):
+                print("found @@ with extra else indentation")
+                line = re.sub(r"@@", "", line)
+                line = '    ' * int(lineIndent[index]) + line
+                ignoreExtraIndentationFromElse = False
+            elif regexp.search(line) and (index == 1):
+                print("found @@ and at index 1")
+                line = re.sub(r"@@", "", line)
+                line = '    ' * int(lineIndent[index+1]) + line
+                lineIndent.insert(index, lineIndent[index])
+            elif ignorePreviousLine.search(line) and not (index-1 == 0):
+                print("ignoring prevous and not at index 0")
+                line = re.sub(r"\^\^\^", "", line)
+                line = '    ' * int(lineIndent[index]) + line
+                lineIndent.insert(index, lineIndent[index])
+            elif kickLineBack.search(line):
+                print("found g")
+                line = re.sub(r"ℊ", "", line)
+                line = '    ' * int(lineIndent[index]) + line
+                lineIndent.insert(index, lineIndent[index-1])
+            elif elseHasBeenFound.search(line):
+                print("else has been found")
+                ignoreExtraIndentationFromElse = True
+                line = '    ' * int(lineIndent[index]) + line
+            else:
+                line = '    ' * int(lineIndent[index]) + line
             IndentedStudentSolution.append(line)
             print("Index: ", index)
+            print("line after", repr(line))
         studentSolution = IndentedStudentSolution
         
         studentSolution = ""
@@ -517,6 +571,7 @@ def parsonsMakeAnswerList(qdict,POST):
         #apply newlines so the code will be formatted properly
         studentSolution = re.sub(r"§", "\n", studentSolution)
         studentSolution = re.sub(r"ℊ ","\n", studentSolution)
+        studentSolution = re.sub(r"᚜","\t", studentSolution)
         
         studentSolution = 'IndentationArray:'+ str(lineIndent)+ ";" +studentSolution
 
@@ -589,7 +644,7 @@ def parsonsAddAnswersAndGrades(qdict,studentAnswers):
             maxPoints = qdict['total_points']
             penalties = Decimal(0.0)
             
-            studentSolutionLineCount = len(studentSolution)
+            studentSolutionLineCount = len(lineIndent)
             
              ##if there was an indentation problem
             if indentation == "true":
