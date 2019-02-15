@@ -47,17 +47,24 @@ def studentXP(studentId, courseId):
     
     earnedScorePoints = 0 
     totalScorePoints = 0   
-    
+    xpMaxScore = True # Specify if the xp should be calculated based on max score or first attempt
     courseChallenges = Challenges.objects.filter(courseID=courseId, isGraded=True, isVisible=True)
     for challenge in courseChallenges:
         sc = StudentChallenges.objects.filter(studentID=studentId, courseID=courseId,challengeID=challenge)
 
-        gradeID  = []                            
-        for s in sc:
-            gradeID.append(int(s.getScoreWithBonus()))   # get the score + adjustment
+        gradeID  = [] 
+        if xpMaxScore:                           
+            for s in sc:
+                gradeID.append(int(s.getScoreWithBonus()))   # get the score + adjustment + bonus
+        elif sc.exists():
+            gradeID.append(int(sc.first().getScoreWithBonus())) 
                                 
         if(gradeID):
-            earnedScorePoints += max(gradeID)
+            if xpMaxScore:
+                earnedScorePoints += max(gradeID)
+            else:
+                earnedScorePoints += gradeID[0]
+
             totalScorePoints += challenge.totalScore
             
     totalScorePointsSC = earnedScorePoints * xpWeightSChallenge / 100      # max grade for this challenge
@@ -71,12 +78,19 @@ def studentXP(studentId, courseId):
     for challenge in courseChallenges:
         wc = StudentChallenges.objects.filter(studentID=studentId, courseID=courseId,challengeID=challenge)
 
-        gradeID  = []                            
-        for w in wc:
-            gradeID.append(int(w.testScore)) 
+        gradeID  = []  
+        if xpMaxScore:                          
+            for w in wc:
+                gradeID.append(int(w.testScore)) 
+        elif wc.exists():
+            gradeID.append(int(wc.first().testScore))
                                
         if(gradeID):
-            earnedScorePoints += max(gradeID)
+            if xpMaxScore:
+                earnedScorePoints += max(gradeID)
+            else:
+                earnedScorePoints += gradeID[0]
+
             totalScorePoints += challenge.totalScore
             
     totalScorePointsWC = earnedScorePoints * xpWeightWChallenge / 100      # max grade for this challenge
