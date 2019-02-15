@@ -9,6 +9,7 @@ import logging
 from billiard.connection import CHALLENGE
 from django.conf.urls.static import static
 from dateutil.utils import today
+from Instructors.views.utils import utcDate
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -99,7 +100,7 @@ def getMinActivityScore(course, student, activity):
         return 0
     
 def getAverageActivityScore(course,student, activity):
-    '''Return the average score of an activity per course'''
+    '''Return the average score of an activity per course, actual average, NOT percentage'''
     scores = getActivityScore(course, activity)
     if scores:
         return (float(sum(scores))/float(len(scores)))
@@ -191,22 +192,33 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
         return 0
     return float(maxScore)/float(challengeScore) * 100
     
-def getAverageTestScore(course, student, challenge):    
-    #return the average score of the a challenge
-    #Note that average test score includes testScore + curve and the scoreAdjustment
-    
+def getAverageTestScorePercent(course, student, challenge):    
+    #return the course average score of the a challenge, adjustment and curve are considered
+   
     from Students.models import StudentRegisteredCourses
+    from Students.models import StudentChallenges
     
-    maxScores = 0.0
-    
-    allScores = getTestScores(course,student,challenge)
-    if allScores.exists():
-        maxScore = allScores.latest('testScore').getScore()
-        
-        maxScores += float(maxScore)
-        
-    return maxScores/StudentRegisteredCourses.objects.filter(courseID=course).count()
-    
+    students = StudentRegisteredCourses.objects.filter(courseID=course)
+    max_scores = 0 
+    chall = 0
+    for student in students:
+        try: 
+            max_score = StudentChallenges.objects.filter(courseID=course, studentID=student.studentID, challengeID=challenge).latest('testScore').getScore()
+            max_scores += max_score
+            chall += 1
+            print('here student', student)
+        except:
+            print('here')
+            continue
+    if not chall == 0 and not challenge.totalScore == 0: 
+        ave = (max_scores / (chall * challenge.totalScore)) * 100
+        print("Get average test score percentage", ave)
+        return ave
+    else:
+        print("Get average test score percentage", 0)
+        return 0
+   
+
 def getMinTestScore(course,student,challenge):
     #return the min test score achieved out of the entire class for a challenge
     #Note that min test score includes testScore + curve and not the scoreAdjustment
@@ -425,6 +437,28 @@ def getActivitiesCompleted(course,student):
     numActivitiesCompleted = StudentEventLog.objects.filter(course = course,student = student,objectType = ObjectTypes.activity, event = Event.participationNoted).count()
     return numActivitiesCompleted
 
+# utility function return difference in days between the submission and due date
+def getDaysDifferenceActity(activity, studentActivity):
+    from Students.models import StudentFile
+
+    deadline = activity.deadLine
+    submission = StudentFile.objects.all.filter(activity = studentActivity).latest("timestamp").timestamp
+    print("getDaysDifferenceActity")
+    print("Deadline ", deadline)
+    print("submission", submission)
+    numDays = str(deadline - submission)
+    print(numDays)
+    i=0
+    if numDays[0]== "-":
+        for x in numDays:
+            if x==" ":
+                return -1 * int(numDays[1:i])
+            i+=1
+    for x in numDays:
+        if x==" ":
+            return int(numDays[0:i])
+        i+=1
+
 def getNumDaysSubmissionLateActivity(course, student , activity):
     '''Return the number of days an activity submitted after due date'''
     from Students.models import StudentActivities
@@ -449,29 +483,21 @@ def getNumDaysSubmissionEarlyActivity(course, student , activity):
         print("submission early " , getDaysDifferenceActity(activity,studentActivity[0]))
         return getDaysDifferenceActity(activity,studentActivity[0])
 
-# utility function return difference in days between the submission and due date
-def getDaysDifferenceActity(activity, studentActivity):
-    from Students.models import StudentFile
+def getDaysBetweenCurrentTimeAndDeadline(challenge):
+    deadline = challenge.dueDate
+    now = utcDate()
+    diff = deadline-now
+    return diff.days
 
-    deadline = activity.deadLine
-    submission = StudentFile.objects.all.filter(activity = studentActivity).latest("timestamp").timestamp
-    print("getDaysDifferenceActity")
-    print("Deadline ", deadline)
-    print("submission", submission)
-    numDays = str(deadline - submission)
-    print(numDays)
-    if numDays[0]== "-":
-        i=0
-        for x in numDays:
-            if x==" ":
-                return -1 * int(numDays[1:i])
-            i+=1
-    i=0
-    for x in numDays:
-        if x==" ":
-            return int(numDays[0:i])
-        i+=1
-    
+def calcNumDaysSubmissionEarly(course,student,challenge):
+    days = getDaysBetweenCurrentTimeAndDeadline(challenge)
+    return days
+        
+def calcNumDaysSubmissionLate(course,student,challenge):
+    days = -1 * getDaysBetweenCurrentTimeAndDeadline(challenge)
+    return days
+
+
 def getScoreDifferenceFromPreviousActivity(course, student, activity):
     '''Returns the the difference of score between this activity and the previous one.'''
     '''NOTE: temporary it is made to work only for Assignments'''
@@ -603,19 +629,6 @@ def getPercentageOfMaxActivityScore(course, student, activity):
     else:
         return 0.0
     
-
-def getDaysBetweenCurrentTimeAndDeadline(challenge):
-    deadline = challenge.endTimestamp
-    now = timezone.now()
-    diff = deadline-now
-    return diff.days
-
-def calcNumDaysSubmissionEarly(course,student,challenge):
-    return getDaysBetweenCurrentTimeAndDeadline(challenge)
-        
-def calcNumDaysSubmissionLate(course,student,challenge):
-    return -1 * getDaysBetweenCurrentTimeAndDeadline(challenge)
-
 def getConsecutiveClassesAttended(course,student):
     # This one we can't actually implement yet because we don't have the data.    
     return 0
@@ -1220,14 +1233,14 @@ class SystemVariable():
         averageTestScore:{
             'index': averageTestScore,
             'name':'averageTestScore',
-            'displayName':'Average Test Score',
-            'description':'Average Test Score.',
+            'displayName':'Course Average Percent Test Score ',
+            'description':'Get the Average Percentage Test Score Of The Course.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.endChallenge,Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge:getAverageTestScore
+                ObjectTypes.challenge:getAverageTestScorePercent
             },
         },                        
         uniqueSeriousChallengesAttempted:{
