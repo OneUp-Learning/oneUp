@@ -106,7 +106,7 @@ def parsonsForm(request):
             
             answer.answerText += instructorLine
             setUpCode = request.POST['setupCode']
-            setUpCode = re.sub(r"\r\n {4}", "\r\n\t", setUpCode)
+            setUpCode = re.sub(r"(\r\n {4}", "\r\n\t", setUpCode)
             answer.answerText += setUpCode
             print("Answer new answer", answer.answerText)
             answer.save()
