@@ -65,13 +65,18 @@
                                     <a class="tooltipped"data-position="down" data-delay="100" data-tooltip="{{ulockingDescript}}" style="color:grey;"><i class="fa fa-lock"></i>&nbsp; {{challenge_Name}} </a>
                                     {% endif %}
                                     {% if score == 2 and isUnlocked %}  <!-- If score have not been taken and is not locked -->
-                                    <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}&isWarmup={{isWarmup}}" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
-                                    <i class="fa fa-square-o" aria-hidden="true"></i></a>
+                                        {% if is_teacher %}
+                                           <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
+                                           <i class="fa fa-square" style="color:grey;" aria-hidden="true"></i></a>
+                                        {% else %}
+                                           <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}&isWarmup={{isWarmup}}" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
+                                           <i class="fa fa-square-o" aria-hidden="true"></i></a>
+                                        {% endif %}
                                     {% elif score == 2 and not isUnlocked %}  <!-- If score have not been taken and is locked -->
                                     <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
                                     <i class="fa fa-square" style="color:grey;" aria-hidden="true"></i></a>
                                     {% elif score == 3 %} <!-- If score equals Above Average -->
-                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="You've got it!" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
+                                    <a class="secondary-content tooltipped" data-position="right" data-delay="50" {% if not is_teacher %}data-tooltip="You've got it!"{% else %}data-tooltip="Student has got it!"{% endif %} href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">
                                     <i class="fa fa-square" style="color:green;" aria-hidden="true"></i></a>
                                     {% elif score == 4 %} <!-- If score equals Average -->
                                     <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Getting there" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}">

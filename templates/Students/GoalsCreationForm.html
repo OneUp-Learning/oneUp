@@ -1,0 +1,190 @@
+<body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               {% if timestamp < currDate %}
+                 {% if studentGoalID %}
+                   <h3>Edit Student Goal</h3>
+                 {% endif %}
+                 {% else %}
+                    <h3>Create New Student Goal</h3>
+               {% endif %}
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <form id="form" name="question" action="/oneUp/instructors/challengeCreateView" method="POST" >
+                  {% csrf_token %}
+                  <input type="hidden" name="studentGoalID" id="studentGoalID" value="{{studentGoalID}}">
+                  {% endif %}
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Name" value="{{challengeName}}" name="challengeName" id="challenge_name" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
+                              <label for="challenge_name"><span class= "red-text">*</span> Challenge Name</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <select id="goalType" name="goalType" {%if view%}readonly{%endif%}>
+                                 <option value="" disabled selected>What type of goal to set?</option>
+                                 <option id= "warmUps" value="{{warmUps}}" {%if view%}disabled{%endif%}>Warm Ups</option>
+                                 <option id="streak" value="streak" {%if view%}disabled{%endif%}>Streak</option>
+                                 <option id="courseBucks" value="courseBucks" {%if view%}disabled{%endif%}>Course Bucks</option>
+                                 <option id="courseXP" value="courseXP" {%if view%}disabled{%endif%}>Course XP</option>
+                                 <option id="courseBadges" value="courseBadges" {%if view%}disabled{%endif%}>Course Badges</option>
+                              </select>
+                              <label>Difficulty</label>
+                              <script type="text/javascript">
+                              	if ()
+                              
+                              
+                              </script>
+                              
+                              
+                              <script  type="text/javascript"> 
+                                 window.onload = function() {
+                                 	if ("{{challengeDifficulty}}" != '')  {
+                                 	document.getElementById("{{challengeDifficulty}}").selected = true;
+                                    $("#difficulty").material_select();
+                                 	} 
+                                 }
+                              </script> 
+                           </div>
+                        </div>
+                        <div class="col s12">
+                              <input name="randomizeProblems" type="checkbox" id="randomizeProblems" {% if randomizeProblems %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="randomizeProblems">Randomize Problems</label>
+                           </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Availability</h5>
+                           </div>
+                           <div class="col s12">
+                              <input name="isVisible" type="checkbox" id="challenge_visible" {% if isVisible %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="challenge_visible">Make challenge available</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12 m4">
+                              <label for="startTime">Display From:</label> 
+                              <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime" {%if view%}readonly{%endif%}>
+                           </div>
+                           <div class="col s12 m4">
+                              <label for="endTime">Display Until:</label> 
+                              <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime" {%if view%}readonly{%endif%}>
+                           </div>
+                           <div class="col s12 m4">
+                        		<label for="dueDate">Due Date:</label>
+                        		<input type="text" class="datepicker-until" name="dueDate" id="dueDate" value="{{dueDate}}" {%if view%}readonly{%endif%}>
+                        	</div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input value="{{numberAttempts}}" name="numberAttempts" id="num_attempts" maxlength="4" type="number" class="validate" min="0" max="999" {%if view%}readonly{%endif%}>
+                              <label for="num_attempts">Number of Attempts</label>
+                           </div>
+                           <div class="col s12">
+                              <input name="unlimitedAttempts" onchange="CheckboxAttemptsChange(this)" type="checkbox" id="unl_attempts" {% if unlimitedAttempts %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="unl_attempts">Unlimited Attempts</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input value="{{timeLimit}}" name="timeLimit" id="time_limit" maxlength="4" type="number" class="validate" min="0" max="999" {%if view%}readonly{%endif%}>
+                              <label for="time_limit">Time Limit</label>
+                           </div>
+                           <div class="col s12">
+                              <input name="unlimitedTime" onchange="CheckboxTimeChange(this)" type="checkbox" id="unl_time" {% if unlimitedTime %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="unl_time">Unlimited Time</label>
+                           </div>
+                        </div>
+                        <!-- GGM added password confirm for challenges -->
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input name="challengePassword" id="password" type="password" value="{{challengePassword}}" class="validate" autocomplete="new-password" {%if view%}readonly{%endif%}>
+                              <label for="password" data-error="incorrect">Password</label>
+                           </div>
+                           <div class="input-field col s12">
+                              <input name="challengePasswordConfirm" id="passwordConfirm" type="password" value="{{challengePassword}}" class="validate" {%if view%}readonly{%endif%}>
+                              <label for="passwordConfirm" data-error="incorrect">Confirm Password</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+
+                                <input value="{{manuallyGradedScore}}" name="manuallyGradedScore" id="manually_Graded_Score" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" step="any" {%if view%}readonly{%endif%}>
+
+                                <label for="manually_Graded_Score">Possible points for a manually graded section of the challenge</label>
+                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+
+                                <input value="{{curve}}" name="curve" id="curve_id" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" step="any" {%if view%}readonly{%endif%}>
+
+                                <label for="curve_id">Curve</label>
+                             </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <label for="topics">Topics</label>
+                              <div id="topics" {%if view == False%}class="chips chips-topics-autocomplete"{%endif%}></div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <label for="tags">Tags</label>
+                              <div id="tags" {%if view == False%}class="chips chips-tags"{%endif%}></div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Feedback Options</h5>
+                           </div>
+                           <div class="col s12">
+                              <input name="displayCorrectAnswer" type="checkbox" id="display_correct" {% if displayCorrectAnswer %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="display_correct">Display Correct Answers</label>
+                           </div>
+                           <div class="col s12">
+                              <input name="displayCorrectAnswerFeedback" type="checkbox" id="display_correct_feedback" {% if displayCorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="display_correct_feedback">Display Correct Answer Feedback</label>
+                           </div>
+                           <div class="col s12">
+                              <input name="displayIncorrectAnswerFeedback" type="checkbox" id="display_incorrect_feedback" {% if displayIncorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="display_incorrect_feedback">Display Incorrect Answer Feedback</label>
+                           </div>
+                        </div>
+                        {% if view %}
+	                        <div class="divider"></div>
+	                       
+	                        {% for i,question in question_range %}
+	             				{% include "../question.html" with q=question graded=False showcorrect=True instructorview=True %}     	
+	                        {% endfor %}
+                        {% endif %}
+                        
+                      </div>
+                     
+                     <div class="card-action right-align">
+                     	{% if view == False %}
+                     	<!-- GGM added validation for passwords -->
+                        <button class="btn waves-effect waves-light" onclick="return validatePasswords()" type="submit" name="submit">Save<i class="material-icons right">send</i>
+                        </button>
+                        {% endif %}
+                        {% if warmUp %}									
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/warmUpChallengeList">
+                        {% else %}
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengesList">											
+                        {% endif %}
+                        <i class="material-icons left">close</i>Cancel</a>                                                                  									
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>

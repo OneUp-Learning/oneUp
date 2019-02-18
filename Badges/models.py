@@ -176,7 +176,7 @@ class PeriodicBadges(BadgesInfo):
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
-    
+    resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the badge.'''
         self.periodicTask.delete()
@@ -184,7 +184,6 @@ class PeriodicBadges(BadgesInfo):
 
     def __str__(self):
         return "Badge #{} : {}".format(self.badgeID, self.badgeName)
-
 # Virtual Currency Table for both automatically and manually handled VC rules
 class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
@@ -216,15 +215,14 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
-
+    resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the rule.'''
         self.periodicTask.delete()
         super().delete(*args, **kwargs)
-
     def __str__(self):
         return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
-
+    
 # Dates Table
 class Dates(models.Model):
     dateID = models.AutoField(primary_key=True)
@@ -340,7 +338,8 @@ class CourseConfigParams(models.Model):
     ## Levels of Difficulties for the course
     thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium
     thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
-
+    
+    streaksUsed = models.BooleanField(default = False)                 ##
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -402,3 +401,10 @@ class ProgressiveUnlocking(models.Model):
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
 
+class AttendaceStreakConfiguration(models.Model):
+    streakConfigurationID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
+    daysofClass = models.CharField(max_length=75)#days of the week that are class scheduled for semester
+    daysDeselected = models.CharField(max_length=20000)#the days that were removed from the class schedule
+    def __str__(self):              
+        return str(self.streakConfigurationID)+","+str(self.courseID)+","+str(self.daysofClass) +","+ str(self.daysDeselected)

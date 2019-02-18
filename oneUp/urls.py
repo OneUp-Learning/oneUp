@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf import settings
 
 from django.contrib import admin
-from django.contrib.auth.views import login
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 import django.views.static
@@ -27,7 +27,7 @@ else:
         url(r'^oneUp/administrators/',include('Administrators.urls')),
         url(r'^oneUp/chat/', include('Chat.urls')),
         url(r'^oneUp/',include('Administrators.urls')),
-        url(r'^login$', login, {'template_name':'home.html'}),
+        url(r'^login$', LoginView.as_view(template_name='home.html'), name='login'),
         url(r'^notifications/', include('notify.urls', 'notifications')),
         path('service-worker.js',(TemplateView.as_view(
             template_name="Chat/service-worker.js",

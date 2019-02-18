@@ -190,7 +190,7 @@ def challengeCreateView(request):
         print(challenge)                      
         challenge.save()  #Save challenge to database
         
-        # check if course was selected
+        # check if course was selected 
         addTopicsToChallenge(challenge,request.POST['topics'],unspecified_topic, currentCourse)                 
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)

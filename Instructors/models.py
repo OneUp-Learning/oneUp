@@ -11,6 +11,7 @@ from Instructors.constants import uncategorized_activity, default_time_str
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 
+from django_celery_beat.models import PeriodicTask
 
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
@@ -397,6 +398,4 @@ class QuestionLibrary(models.Model):
     ID = models.AutoField(primary_key=True) 
     question = models.ForeignKey(Questions, on_delete=models.CASCADE)
     library = models.ForeignKey(LuaLibrary, on_delete=models.CASCADE)
-    
-
     
