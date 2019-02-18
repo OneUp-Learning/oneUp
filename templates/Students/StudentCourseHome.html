@@ -54,7 +54,59 @@
                      </div>
                   </div>
                </div>
-                  
+            {% if displayBadges and ccparams.gamificationUsed %}                            
+            <div class="row">
+                <div class="col s12">
+                  <div class="card-panel">
+                  <table>
+                    <thead>
+                      <th>Latest Badges</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                               {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %}                                                       
+                               <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
+                               <img class="tooltipped" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50">
+                               &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                               {% empty %}
+                               <i>No badges earned</i>
+                               {% endfor %}
+                            </td>
+                         </tr>
+                    </tbody>
+                  </table>
+                  </div>
+                </div>
+            </div>
+            {% endif %}   
+               {% if displayLeaderBoard %}
+                  <div class="col s12 m12">
+                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
+                  <div class="col s6 m3">
+                  <div class="card-panel">
+                  <table>
+                    <caption><h5>{{leaderboardNames}}</h5></caption>
+                    <thead>
+                      <th>Student</th>
+                      <th>Points</th>
+                    </thead>
+                    <tbody>
+                        {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
+                        <tr>
+                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td>{{points}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td class="center-align" colspan="2"><i>No students with enough results to place on leaderboard</i></td></tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                  </div>
+                  </div>
+                  {% endfor %}
+                  </div>
+                {% endif %}
                </div>
               
             </div>
