@@ -313,11 +313,11 @@ def duel_challenge_create(request):
     student_id = context_dict['student']
 
     # get list of challengees and exclude the challenger and test students
-    reg_students = StudentRegisteredCourses.objects.filter(courseID=current_course).exclude(studentID=student_id) .exclude(studentID__isTestStudent=True)
-    
+    reg_students = StudentRegisteredCourses.objects.filter(courseID=current_course).exclude(studentID=student_id).exclude(studentID__isTestStudent=True).order_by('?')
     avatars=[]
     challengees = []
     challengees_ids = []
+    ids_avs = []
     for challengee in reg_students:
         try:
             scparam = StudentConfigParams.objects.get(studentID=challengee.studentID, courseID=current_course)
@@ -326,13 +326,17 @@ def duel_challenge_create(request):
                 challengees_ids.append(challengee.studentID.user.id)
                 avatar = challengee.avatarImage #checkIfAvatarExist(challengee)
                 avatars.append(avatar)
+                ids_avs.append(str(challengee.studentID.user.id)+"---"+str(avatar))
         except:
             challengees.append(challengee)
             challengees_ids.append(challengee.studentID.user.id)
             avatar = challengee.avatarImage #checkIfAvatarExist(challengee)
             avatars.append(avatar)
+            ids_avs.append(str(challengee.studentID.user.id)+"---"+str(avatar))
             
-    context_dict['challengees_range']=zip(range(0,len(avatars)),challengees_ids,avatars, challengees)
+    if avatars:
+        context_dict['first_avatar'] = avatars[0]
+    context_dict['challengees_range']=zip(range(0,len(avatars)),challengees_ids,avatars, challengees, ids_avs)
     
     ccparams = CourseConfigParams.objects.get(courseID = current_course)
     duel_vc_const = ccparams.vcDuel
@@ -353,10 +357,13 @@ def duel_challenge_create(request):
             duel_challenge = DuelChallenges()
 
         #print(int(request.POST['challengee_id']))
-        challengee_reg_crs = StudentRegisteredCourses.objects.get(studentID__user__id=int(request.POST['challengee_id']), courseID=current_course)
+        
+        id_av = request.POST['challengee_id'].split("---")
+        print(id_av)
+        challengee_reg_crs = StudentRegisteredCourses.objects.get(studentID__user__id=int(id_av[0]), courseID=current_course)
         challengee = challengee_reg_crs.studentID
         print("challengee")
-        print(request.POST['challengee_id'])
+    
         print(challengee)
         duel_challenge.challengee = challengee
 

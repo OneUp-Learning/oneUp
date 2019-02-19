@@ -1,7 +1,6 @@
 #import nltk
 from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
 from Instructors.constants import unspecified_topic_name
-from Badges.models import CourseConfigParams
 from Badges.enums import ObjectTypes
 import re
 import string
@@ -364,7 +363,10 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
             challTopic.topicID = unspecified_topic
             challTopic.save()
 # Sets up the logged_in, username, and course_Name entries in the context_dict and then returns it along with the currentCourse if any.
+
 def initialContextDict(request, user=None, session=None):
+
+    from Badges.models import CourseConfigParams
     context_dict = {}
     if user and session:
         context_dict['logged_in'] = user.is_authenticated
