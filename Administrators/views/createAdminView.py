@@ -11,11 +11,13 @@ from django.shortcuts import render
 
 from oneUp.auth import createAdmins, checkPermBeforeView, admins
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import adminsCheck
 
+
+@login_required
+@user_passes_test(adminsCheck,login_url='/oneUp/home',redirect_field_name='')
 def createAdminView(request):
-    checkPermBeforeView(createAdmins,request,createAdminViewUnchecked)
-
-def createAdminViewUnchecked(request):
  
     context_dict = {}
     

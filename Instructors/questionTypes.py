@@ -214,9 +214,11 @@ def parsonsqdict(question,i,challengeId,studChallQuest):
     print("tabbedSol String", tabedSolution_string)
     print("joinedSolString", solution_string)
     
-    solution_string =  re.sub("##\\n\\t", "\\\\n", solution_string)
-    solution_string =  re.sub("##\\n(?!\\t)", "\\\\n", solution_string)
-    qdict['model_solution'] = repr(solution_string).strip('\'')
+    # solution_string =  re.sub("##\\n\\t", "\\\\n", solution_string)
+    # solution_string =  re.sub("##\\n(?!\\t)", "\\\\n", solution_string)
+    solution_string =  re.sub("##\\n *", "\\\\n", solution_string)
+    solution_string =  re.sub("\\\\n\\t", "\\\\n", solution_string)
+    qdict['model_solution']=repr(solution_string).strip('\'')
     print("questqdict['model_solution']", repr(qdict['model_solution']))
     
     return qdict
@@ -507,6 +509,7 @@ def parsonsMakeAnswerList(qdict,POST):
         studentSolution = re.sub(r"§¬}[^$]", "§¬}§¬", studentSolution)
         studentSolution = re.sub(r"else,", "else§¬", studentSolution)
         studentSolution = re.sub(r"    return", "᚜return", studentSolution)
+        studentSolution = re.sub(r"(?<=;)\r\n},}", "\r\n᚜}\r\n}", studentSolution)
         print("StudentSolAfter change", repr(studentSolution))
         
         #we turn the student solution into a list

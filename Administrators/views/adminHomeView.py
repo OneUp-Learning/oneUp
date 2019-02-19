@@ -5,10 +5,13 @@ Last Updated Sep 20, 2016
 '''
 from django.template import RequestContext
 from django.shortcuts import render
-
 from django.contrib.auth.models import User
 from Instructors.models import Courses
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import adminsCheck
 
+@login_required
+@user_passes_test(adminsCheck,login_url='/oneUp/home',redirect_field_name='')
 def adminHome(request):
  
     context_dict = { }
