@@ -195,7 +195,10 @@ def challengeCreateView(request):
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)
         
-        create_due_date_process(request, challenge.challengeID, challenge.dueDate, request.session['django_timezone'])
+        if challenge.dueDate != default_date:
+            create_due_date_process(request, challenge.challengeID, challenge.dueDate, request.session['django_timezone'])
+        else:
+            print("No due date selected")
         
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')

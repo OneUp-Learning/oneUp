@@ -104,9 +104,27 @@ def createRule(request,current_course,context_dict):
             print("Edit")
             pk = request.GET['ruleID']
             rule = ProgressiveUnlocking.objects.filter(pk=pk).first()
+            
             print(rule.name)
             context_dict['pRule'] = rule
             context_dict = setUpContextDictForConditions(context_dict,current_course,rule.ruleID)
+            
+            objectString =  ObjectTypes.objectTypes[rule.objectType]
+        
+            context_dict['edit'] = True
+            if objectString == 'activity':
+                context_dict['type'] = {'id' : ObjectTypes.activity, 'string' : 'Activity'}
+            elif objectString == 'challenge':
+                chall = Challenges.objects.get(pk=rule.objectID)
+                if(chall.isGraded): # It is a serious chall
+                    context_dict['type']={'id' : ObjectTypes.challenge, 'string' : ' Serious Challenge' }
+                else:
+                    context_dict['type'] = {'id' : ObjectTypes.challenge, 'string' : ' WarmUp Challenge' }
+            elif objectString == 'topic':
+                context_dict['type'] = {'id' : ObjectTypes.topic, 'string' : 'Topic' }
+            elif objectString == 'activityCategory':
+                context_dict['type'] = {'id' : ObjectTypes.activityCategory, 'string' : 'ActivityCategory' }
+
         else:
             context_dict = setUpContextDictForConditions(context_dict,current_course,None)
 
@@ -148,7 +166,7 @@ def createRule(request,current_course,context_dict):
         objTypes.append( {'id' : ObjectTypes.topic, 'string' : 'Topic' } )
         objTypes.append( {'id' : ObjectTypes.activityCategory, 'string' : 'ActivityCategory' } )
         context_dict['filter'] = objTypes
-
+    
         return render(request, 'Badges/AddProgressiveUnlocking.html', context_dict)
         
 

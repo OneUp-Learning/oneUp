@@ -31,7 +31,7 @@
                   </table>
                   <div class="row center-align">
                       <div class="col s12">
-                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/announcementList"><i class="material-icons right">navigate_next</i>View All Announcements</a>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/announcementList"><i class="material-icons right">navigate_next</i>View Announcements</a>
                       </div>
                   </div>
                   </div>
@@ -62,33 +62,62 @@
                   </div>
                   </div>
                 </div>
-            </div>
+            </div>      
+                       {% if badgesUsed and gamificationUsed %}                            
             <div class="row">
-                {% if leaderboardUsed and gamificationUsed %}                
-                <div class="col s12 m6">
+                <div class="col s12">
                   <div class="card-panel">
                   <table>
-                    <caption><h5>Leader Board</h5></caption>
                     <thead>
-                      <th>Student</th>
-                      <th>XP</th>
+                      <th>Latest Badges</th>
                     </thead>
                     <tbody>
-                        {% for i,avatarImage,xpoints, usi in user_range %}
                         <tr>
-                            <td><img class="tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi}}" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
-                            <td>{{xpoints}}</td>
-                        </tr>
-                        {% empty %}
-                        <tr><td class="center-align" colspan="2"><i>No students with XP</i></td></tr>
-                        {% endfor %}
+                            <td>
+                               {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage, user in badgesInfo %}                                                       
+                               <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
+                               <img class="tooltipped" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50" data-tooltip="{{user}}">
+                               &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                               {% empty %}
+                               <i>No badges earned</i>
+                               {% endfor %}
+                            </td>
+                         </tr>
                     </tbody>
                   </table>
                   </div>
                 </div>
-                {% endif %}
+            </div>
+            {% endif %}        
+                <div class="col s12 m12">
+                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
+                  <div class="col s6 m3">
+                  <div class="card-panel">
+                  <table>
+                    <caption><h5>{{leaderboardNames}}</h5></caption>
+                    <thead>
+                      <th>Student</th>
+                      <th>Points</th>
+                    </thead>
+                    <tbody>
+                        {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
+                        <tr>
+                            <td><img class="tooltipped" data-position="top" data-delay="50" data-tooltip="{{studentUsers}}" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td>{{points}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td class="center-align" colspan="2"><i>No students with enough results to place on leaderboard</i></td></tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                  </div>
+                  </div>
+                  {% endfor %}
+                  </div>
+                </div>
+            <div class="row">
                 {% if classSkillsDisplayed and gamificationUsed %}                
-                <div class="col s12 m6">
+                <div class="col s12 m4 offset-m1">
                     <div class="card-panel">
                     <table>
                     <caption><h5>Skills Board</h5></caption>
@@ -119,33 +148,7 @@
                     </div>
                   </div>
                   {% endif %}                  
-            </div>
-            {% if badgesUsed and gamificationUsed %}                            
-            <div class="row">
-                <div class="col s12">
-                  <div class="card-panel">
-                  <table>
-                    <thead>
-                      <th>Latest Badges</th>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                               {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage, user in badgesInfo %}                                                       
-                               <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
-                               <img class="tooltipped" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50" data-tooltip="{{user}}">
-                               &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                               {% empty %}
-                               <i>No badges earned</i>
-                               {% endfor %}
-                            </td>
-                         </tr>
-                    </tbody>
-                  </table>
-                  </div>
-                </div>
-            </div>
-            {% endif %}            
+            </div>         
             </div>
             </div>
         </main>
