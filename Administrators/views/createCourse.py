@@ -5,13 +5,14 @@ from Instructors.models import Courses, Instructors, InstructorRegisteredCourses
 from Instructors.constants import uncategorized_activity
 from Badges.models import CourseConfigParams
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 
 from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str, anonymous_avatar
 from Instructors.views.utils import utcDate
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
+from oneUp.decorators import adminsCheck
 
 def add_instructor_test_student(instructor,course):
     # Add test student to the course while adding instructor to the course
@@ -57,6 +58,10 @@ def add_instructor_test_student(instructor,course):
     scparams.studentID = student
     scparams.save()
 
+
+
+@login_required
+@user_passes_test(adminsCheck,login_url='/oneUp/home',redirect_field_name='')
 def courseCreateView(request):
     
     context_dict = { }

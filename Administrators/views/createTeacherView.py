@@ -13,11 +13,13 @@ from oneUp.auth import createTeachers, checkPermBeforeView, teachers
 from django.contrib.auth.models import User
 from Badges.systemVariables import logger
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import adminsCheck
 
+
+@login_required
+@user_passes_test(adminsCheck,login_url='/oneUp/home',redirect_field_name='')
 def createTeacherView(request):
-    checkPermBeforeView(createTeachers,request,createTeacherViewUnchecked)
-
-def createTeacherViewUnchecked(request):
     context_dict = {}
     
     context_dict["logged_in"]=request.user.is_authenticated
