@@ -69,7 +69,6 @@ def StudentCourseHome(request):
             
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
-        studentObkj = Student.objects.get(id=19)
         context_dict = courseBadges(currentCourse, context_dict)
            
     #Trigger Student login event here so that it can be associated with a particular Course

@@ -969,30 +969,39 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(date_time))
     
+    xpSeriousMaxScore = True # Specify if the xp should be calculated based on max score or first attempt
+    xpWarmupMaxScore = True
+
     if len(ccparamsList) >0:
         cparams = ccparamsList[0]
         xpWeightSP=cparams.xpWeightSP
         xpWeightSChallenge=cparams.xpWeightSChallenge
         xpWeightWChallenge=cparams.xpWeightWChallenge
         xpWeightAPoints=cparams.xpWeightAPoints
+        xpSeriousMaxScore = cparams.xpCalculateSeriousByMaxScore 
+        xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore 
        
     # get the serious challenges for this course
     earnedScorePoints = 0 
     totalScorePoints = 0    
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True, isVisible=True)
     
-    
-    
     for challenge in courseChallenges:
         seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
         if not startOfTime:
             seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
-        gradeID  = []                            
-        for serious in seriousChallenge:
-            gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment
+        gradeID  = []    
+        if xpSeriousMaxScore:                           
+            for serious in seriousChallenge:
+                gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
+        elif sc.exists():
+            gradeID.append(int(seriousChallenge.first().getScoreWithBonus())) 
                                 
         if(gradeID):
-            earnedScorePoints += max(gradeID)
+            if xpSeriousMaxScore:
+                earnedScorePoints += max(gradeID)
+            else:
+                earnedScorePoints += gradeID[0]
             totalScorePoints += challenge.totalScore
             
     totalScorePointsSeriousChallenge = earnedScorePoints * xpWeightSChallenge / 100      # max grade for this challenge
@@ -1007,12 +1016,19 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
         if not startOfTime:
             warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
-        gradeID  = []                            
-        for warmup in warmupChallenge:
-            gradeID.append(int(warmup.testScore)) 
+        gradeID  = []           
+        if xpWarmupMaxScore:                          
+            for warmup in warmupChallenge:
+                gradeID.append(int(warmup.testScore)) 
+        elif wc.exists():
+            gradeID.append(int(warmupChallenge.first().testScore))
                                
         if(gradeID):
-            earnedScorePoints += max(gradeID)
+            if xpWarmupMaxScore:
+                earnedScorePoints += max(gradeID)
+            else:
+                earnedScorePoints += gradeID[0]
+
             totalScorePoints += challenge.totalScore
             
     totalScorePointsWarmupChallenge = earnedScorePoints * xpWeightWChallenge / 100      # max grade for this challenge
@@ -1092,7 +1108,7 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='*', hour='*', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2)),
+            'datetime': lambda: timezone.now() - timedelta(minutes=2),
             'frequency': 1,
         },
         daily:{
@@ -1102,7 +1118,7 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='0', hour='0', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=1)),
+            'datetime': lambda: timezone.now() - timedelta(days=1),
             'frequency': 1,
         },
         weekly:{
@@ -1110,7 +1126,7 @@ class TimePeriods:
             'name': 'weekly',
             'displayName': 'Weekly on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=7)),
+            'datetime': lambda: timezone.now() - timedelta(days=7),
             'frequency': 1,
         },
         biweekly:{
@@ -1118,7 +1134,7 @@ class TimePeriods:
             'name': 'biweekly',
             'displayName': 'Every Two Weeks on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=14)),
+            'datetime': lambda: timezone.now() - timedelta(days=14),
             'frequency': 2,
         },
         beginning_of_time:{

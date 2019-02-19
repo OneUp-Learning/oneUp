@@ -99,6 +99,8 @@ def dynamicLeaderboardView(request):
             context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
             context_dict["xpWeightSP"]=ccparams.xpWeightSP
             context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
+            context_dict['xpCalculateSeriousByMaxScore'] = ccparams.xpCalculateSeriousByMaxScore
+            context_dict['xpCalculateWarmupByMaxScore'] = ccparams.xpCalculateWarmupByMaxScore
             
                    
         return render(request,'Instructors/DynamicLeaderboard.html', context_dict)
@@ -214,6 +216,8 @@ def dynamicLeaderboardView(request):
             ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
             ccparams.xpWeightSP = request.POST.get('xpWeightSP')
             ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
+            ccparams.xpCalculateSeriousByMaxScore = request.POST.get('xpCalculateSeriousByMaxScore')
+            ccparams.xpCalculateWarmupByMaxScore = request.POST.get('xpCalculateWarmupByMaxScore')
             ccparams.leaderboardUpdateFreq = 1
             ccparams.numStudentsDisplayed = ccpStudentsShown
             ccparams.save()
