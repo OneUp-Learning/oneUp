@@ -1,0 +1,41 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --config dev.config.js --progress --colors --mode development",
+    "watch": "webpack --config dev.config.js --watch --mode development",
+    "build": "webpack --mode production --config prod.config.js",
+    "postinstall": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "webpack": "^4.25.1",
+    "webpack-bundle-tracker": "^0.4.2-beta",
+    "webpack-cli": "^3.2.1"
+  },
+  "dependencies": {
+    "css-loader": "^1.0.1",
+    "emoji-mart": "^2.9.1",
+    "moment": "^2.22.2",
+    "prop-types": "^15.6.2",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-emoji-render": "^0.4.6",
+    "react-md": "^1.9.0",
+    "react-resize-detector": "^3.2.0",
+    "style-loader": "^0.23.1"
+  },
+  "engines": {
+    "npm": "5.5.1",
+    "node": "8.10.0"
+  }
+}

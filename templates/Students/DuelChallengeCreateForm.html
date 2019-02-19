@@ -73,7 +73,7 @@
                               <!--<input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">-->
                            </div>
                            <div class="input-field col s18 m6">
-                              <label for="timeLimit"><span class= "red-text">*</span> Time Limit</label>
+                              <label for="timeLimit"><span class= "red-text">*</span> Time Limit In Minutes</label>
                               <input placeholder="minutes (minimum 5)" value="{{timeLimit}}" name="timeLimit" id="timeLimit" maxlength="6" type="number" class="validate" min="1" step="any" required> 
                               <!--<input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime">-->
                            </div>
@@ -82,25 +82,18 @@
                         <div class="row">
                              <div class="input-field col s2" id="challengee_id">
                               <select class="icons" name="challengee_id" form="duelChallForm" required>
+                              
                                 <!--<option value="{{currentStudent}}" selected>{{currentAvatar}}</option>
                                 <table>
                                  <tbody>-->
                                 {% for i, challengee_id, avatar, challengee in challengees_range %}
-                                    <!--{% if avatar != currentAvatar %}-->
-                                       <!--<option value={{challengee_id}} id="challengee_id" name="challengee_id"> <li><p class="center-align"><img class="circle" width="100" height="100" src="{{avatar}}"></p></li>
-                                       </option>
-                                       
-                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id" > {{challengee.studentID.user.first_name}}</option>-->
-                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id"  data-icon="{{avatar}}"  class="circle"></option>
-                     
-                                       <!--<label for="a{{i}}"><img alt="Avatar Image" width="76px" height="76px" src="/{{avatar}}"></label>        
-                                                     <option img alt="Avatar Image" class="circle" width="35" height="35" src="{{avatar}}" {{challengee.studentID.user.first_name}}</option>
-                                    {% endif %}-->
+                                   <option value={{challengee_id}} id="challengee_id" name="challengee_id"  data-icon="{{avatar}}"  class="circle"></option>
                                  
                                 {% endfor %}
                               
                                 
                               </select>
+                              
                                <label  for="challengee_id"><span class= "red-text">*</span> Select Challengee</label>
                           </div>
                          

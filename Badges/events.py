@@ -4,7 +4,7 @@ from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSe
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     AwardFrequency
 from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
-    StudentRegisteredCourses, StudentVirtualCurrency, StudentProgressiveUnlocking
+    StudentRegisteredCourses, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased,StudentProgressiveUnlocking
 from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
 from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
@@ -511,6 +511,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             return
                                     
                     studVCRec = StudentVirtualCurrency()
+                    studVCRec.courseID = courseID
                     studVCRec.studentID = student.studentID
                     if rule.awardFrequency == AwardFrequency.justOnce:
                         studVCRec.objectID = 0

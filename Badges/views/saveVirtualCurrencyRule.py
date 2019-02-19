@@ -78,6 +78,7 @@ def SaveVirtualCurrencyRule(request):
                 # Save rule information to the VirtualCurrencyRuleInfo Table
                 vcRuleInfo.courseID = currentCourse
                 vcRuleInfo.vcRuleName = vcRuleName
+                vcRuleInfo.vcRuleType = True
                 vcRuleInfo.vcRuleDescription = vcRuleDescription
                 vcRuleInfo.vcRuleAmount = vcRuleAmount
                 vcRuleInfo.save()

@@ -31,18 +31,46 @@ def SaveVirtualCurrencySpendRule(request):
         if 'manual' in request.POST:
             logger.debug("Manual Spending Rule")
             if request.POST['vcRuleID']:
-                vcRuleInfo = VirtualCurrencyCustomRuleInfo.objects.get(vcRuleID=request.POST['vcRuleID'], courseID= currentCourse)
-            else:
-                vcRuleInfo = VirtualCurrencyCustomRuleInfo()
-                logger.debug("New Spend Rule")
+                DeleteVirtualCurrencySpendRule(request.POST['vcRuleID'])
+
+            vcRuleInfo = VirtualCurrencyRuleInfo()
+            logger.debug("New Spend Rule")
             
+            condition = Conditions()
+            condition.courseID = currentCourse
+            condition.operation = '='
+            condition.operand1Type = OperandTypes.immediateInteger
+            condition.operand1Value = 1
+            condition.operand2Type = OperandTypes.immediateInteger
+            condition.operand2Value = 1
+            condition.save()
+                                            
+            # Save game rule to the Rules table
+            gameRule = Rules()
+            gameRule.conditionID = condition
+            gameRule.actionID = Action.decreaseVirtualCurrency
+            gameRule.courseID = currentCourse
+            gameRule.save()
+            
+            ruleEvent = RuleEvents()
+            ruleEvent.rule = gameRule
+            ruleEvent.event = Event.spendingVirtualCurrency
+            ruleEvent.save()
+            
+            actionArgs = ActionArguments()
+            actionArgs.ruleID = gameRule
+            actionArgs.sequenceNumber = 1
+            actionArgs.argumentValue = request.POST['ruleAmount'] if  not request.POST['ruleAmount'] == "" else str(0)
+            actionArgs.save()
+            
+            vcRuleInfo.ruleID = gameRule    
             vcRuleInfo.vcRuleName = request.POST["ruleName"]
             vcRuleInfo.vcRuleDescription = request.POST["ruleDescription"]
             vcRuleInfo.vcRuleLimit = request.POST["ruleLimit"] if not request.POST['ruleLimit'] == "" else str(unlimited_constant)
             vcRuleInfo.vcRuleAmount = request.POST['ruleAmount'] if  not request.POST['ruleAmount'] == "" else str(0)
             vcRuleInfo.courseID = currentCourse
             vcRuleInfo.vcRuleType = False
-            vcRuleInfo.save()
+            vcRuleInfo.save()  
         else:
             pass
 

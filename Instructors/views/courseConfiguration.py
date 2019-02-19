@@ -29,6 +29,7 @@ def courseConfigurationView(request):
             ccparams.courseID = currentCourse
             
         ccparams.progressBarUsed = "progressBarUsed" in request.POST
+        ccparams.chatUsed = "chatUsed" in request.POST
         ccparams.seriousChallengesGrouped = "seriousChallengesGrouped" in request.POST
         ccparams.gamificationUsed = "gamificationUsed" in request.POST   
         ccparams.courseAvailable = "courseAvailable" in request.POST
@@ -54,6 +55,7 @@ def courseConfigurationView(request):
             context_dict['ccpID'] = ccparams.ccpID
             context_dict['gamificationUsed'] = ccparams.gamificationUsed
             context_dict['progressBarUsed'] = ccparams.progressBarUsed
+            context_dict['chatUsed'] = ccparams.chatUsed
             context_dict['seriousChallengesGrouped'] = ccparams.seriousChallengesGrouped
             context_dict['courseAvailable'] = ccparams.courseAvailable
            

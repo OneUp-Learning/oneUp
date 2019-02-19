@@ -81,8 +81,9 @@ def parsonsForm(request):
             
             instructorLine = languageName + indentationBoolean
             answer.answerText += instructorLine
-            answer.answerText += request.POST['setupCode']
-            print("Answer edit answer:", answer.answerText)
+            setUpCode = request.POST['setupCode']
+            answer.answerText += setUpCode
+            print("Answer edit answer:", repr(answer.answerText))
             answer.save()
             # no need to change correct answer
             #correctAnswerObject = CorrectAnswers.objects.filter(questionID=question)
@@ -103,7 +104,8 @@ def parsonsForm(request):
             
             
             answer.answerText += instructorLine
-            answer.answerText += request.POST['setupCode']
+            setUpCode = request.POST['setupCode']
+            answer.answerText += setUpCode
             print("Answer new answer", answer.answerText)
             answer.save()
             # the answer is also the correct answer - model solution to be displayed to the student

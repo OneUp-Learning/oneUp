@@ -33,6 +33,7 @@ def studentAchievements(request):
         
     # The range part is the index numbers.
     context_dict['user_range'] = sorted(list(zip(range(1,user.count()+1),first_Name,last_Name,user_Email,userID) ), key=lambda tup: tup[2])
+    context_dict['is_teacher'] = True
         
 
     return render(request,'Instructors/StudentAchievements.html', context_dict)

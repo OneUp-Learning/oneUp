@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking
+from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking,  LeaderboardsConfig
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -128,14 +128,20 @@ class StudentBadges(models.Model):
 
 class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
-    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, on_delete=models.CASCADE, verbose_name="the virtual currency rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
+    vcName = models.CharField(max_length=300, null=True, blank=True)  
+    vcDescription = models.CharField(max_length=4000, null=True, blank=True)
+    def __str__(self):              
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
+class StudentVirtualCurrencyRuleBased(StudentVirtualCurrency):
+    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, related_name="vcrule", on_delete=models.SET_NULL, verbose_name="the virtual currency rule", db_index=True, null=True, blank=True)
 
     def __str__(self):              
-        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -237,7 +243,25 @@ class StudentConfigParams(models.Model):
     courseBucks = models.IntegerField(default=0)
     
     def __str__(self):
-        return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +","+str(self.displayBadges) +","+str(self.displayLeaderBoard) +","+str(self.displayClassSkills) +","+str(self.displayClassAverage) +","+str(self.displayClassRanking) 
+        return str(self.scpID)  +","
+        +str(self.courseID) +","
+        +str(self.studentID) +","
+        +str(self.displayBadges) +","                           
+        +str(self.displayLeaderBoard) +","                      
+        +str(self.displayClassSkills) +","                      
+        +str(self.displayClassAverage) +","                     
+        +str(self.displayClassRanking)    
+
+class PeriodicallyUpdatedleaderboards(models.Model):
+    periodicLeaderboardID = models.AutoField(primary_key=True)
+    leaderboardID = models.ForeignKey(LeaderboardsConfig, on_delete=models.CASCADE, verbose_name="the related leaderboard configuration object", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    studentPoints = models.IntegerField(default=0)
+    studentPosition = models.IntegerField(default=0)
+      
+    def __str__(self):              
+        return str(self.periodicLeaderboardID)+", LeaderboardID: "+str(self.leaderboardID) + ", StudentID: "+str(self.studentID)+", Points: "+str(self.studentPoints)+", Position: "+str(self.studentPosition)
+    
 
 class StudentLeaderboardHistory(models.Model):
     id = models.AutoField(primary_key=True)
