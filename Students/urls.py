@@ -23,7 +23,8 @@ from Students.views.challengeResultsView import ChallengeResults
 from Students.views.challengesTakenView import ChallengesTaken
 from Students.views.courseInfoView import CourseInformation
 from Students.views.coursePerformanceView import CoursePerformance
-
+from Students.views.goalsListView import goalsList
+from Students.views.goalCreateView import goalCreate
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
 from Students.views.resetPasswordView import resetPasswordView
@@ -60,7 +61,9 @@ urlpatterns = [
     url(r'^ChallengeResults',ChallengeResults, name='ChallengeResults'),
     url(r'^ChallengesTaken',ChallengesTaken, name='ChallengesTaken'),
     url(r'^CourseInformation',CourseInformation,name='CourseInformation'),
-    url(r'^CoursePerformance',CoursePerformance,name='CoursePerformance'),    
+    url(r'^CoursePerformance',CoursePerformance,name='CoursePerformance'),
+    url(r'^GoalsList',goalsList, name='GoalsList'),
+    url(r'^GoalCreate', goalCreate, name='GoalCreate'),    
     url(r'^Preferences',preferencesView, name='preferencesView'), 
     url(r'^Logout', LogoutView, name='Logout'),       
     url(r'^ResetPassword', resetPasswordView, name='ResetPassword'),
