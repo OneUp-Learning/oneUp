@@ -1092,7 +1092,7 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='*', hour='*', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(minutes=2)),
+            'datetime': lambda: timezone.now() - timedelta(minutes=2),
             'frequency': 1,
         },
         daily:{
@@ -1102,7 +1102,7 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='0', hour='0', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=1)),
+            'datetime': lambda: timezone.now() - timedelta(days=1),
             'frequency': 1,
         },
         weekly:{
@@ -1110,7 +1110,7 @@ class TimePeriods:
             'name': 'weekly',
             'displayName': 'Weekly on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=7)),
+            'datetime': lambda: timezone.now() - timedelta(days=7),
             'frequency': 1,
         },
         biweekly:{
@@ -1118,7 +1118,7 @@ class TimePeriods:
             'name': 'biweekly',
             'displayName': 'Every Two Weeks on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
-            'datetime': lambda: timezone.make_aware(timezone.now() - timedelta(days=14)),
+            'datetime': lambda: timezone.now() - timedelta(days=14),
             'frequency': 2,
         },
         beginning_of_time:{
