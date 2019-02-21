@@ -1,9 +1,9 @@
 '''
-Created on Sept 24, 2015
+Created on February 2, 2019
 
-Modified 09/27/2016
+Based on announcementsListView.html as a template
 
-@author: Dillon Perry
+@author: James Cherry
 '''
 from django.template import RequestContext
 from django.shortcuts import render
@@ -16,68 +16,58 @@ from oneUp.decorators import instructorsCheck
 from Students.models import StudentGoalSetting
 
 # Added boolean to check if viewing from announcements page or course home page
-def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
+def goalsList(currentCourse, context_dict, courseHome):
 
-    announcement_ID = []      
-    author_ID = []
-    start_Timestamp = []
-    end_Timestamp = []
-    subject = []
-    message = []
+    studentGoal_ID = []      
+    student_ID = []
+    start_date = []
+    end_date = []
+    goal_Type = []
+    targeted_Number = []
         
-    Goals = StudentGoalSetting.objects.filter(courseID=currentCourse).order_by('-startTimestamp')
-    removeExpired()
+    goals = StudentGoalSetting.objects.filter(courseID=currentCourse).order_by('-startTimestamp')
     index = 0
     if not courseHome: # Shows all the announcements
-        for announcement in announcements:
-            announcement_ID.append(announcement.announcementID) #pk
-            author_ID.append(announcement.authorID)
-            start_Timestamp.append(announcement.startTimestamp)
+        for goal in goals:
+            studentGoal_ID.append(goal.studentGoalID) #pk
+            student_ID.append(goal.studentID)
+            start_date.append(goal.timestamp)
             # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-            endTime = announcement.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
-            if endTime != default_time_str: 
-                end_Timestamp.append(announcement.endTimestamp)
-            else:
-                end_Timestamp.append("")
+            end_date = goal.timestamp
+            end_date.append(goal.timestamp)
             
-            subject.append(announcement.subject[:25])
-            message.append(announcement.message[:300])
+            #end_date calculation function here
+            
+            goal_Type.append(goal.goalType)
+            targeted_Number.append(goal.targetedNumber)
     else: # Only shows the first three
-        for announcement in announcements:
-            if index < 3:
-                announcement_ID.append(announcement.announcementID) #pk
-                author_ID.append(announcement.authorID)
-                start_Timestamp.append(announcement.startTimestamp)
-                end_Timestamp.append(announcement.endTimestamp)
-                subject.append(announcement.subject[:25])
-                message.append(announcement.message[:300])
+        for goal in goals:
+            if index < 1:
+                studentGoal_ID.append(goal.studentGoalID) #pk
+                student_ID.append(goal.studentID)
+                start_date.append(goal.timestamp)
+                end_date.append(goal.timestamp)
+                goal_Type.append(goal.goalType)
+                targeted_Number.append(goal.targetedNumber)
                 index += 1
     
       
     # The range part is the index numbers.
-    context_dict['announcement_range'] = zip(range(1,announcements.count()+1),announcement_ID,author_ID,start_Timestamp,end_Timestamp,subject,message)
+    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,start_date,end_date,goal_Type,targeted_Number)
     return context_dict
 
     
 @login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def announcementList(request):
 
     context_dict, currentCourse = initialContextDict(request)
 
-    context_dict = createContextForAnnouncementList(currentCourse, context_dict, False)
+    context_dict = createContextForGoalList(currentCourse, context_dict, False)
     
-    return render(request,'Instructors/AnnouncementsList.html', context_dict)
+    return render(request,'Instructors/GoalsList.html', context_dict)
 
 
-#compares current time with the endTimestamp of each announcement
-#if the current time exceeds the endTimestamp, the announcement is deleted from the database
-def removeExpired():
-    announcements = Announcements.objects.all()
-    currentTime = utcDate().strftime("%m/%d/%Y %I:%M %p") 
-    for announcement in announcements:
-        if (currentTime > datetime.strptime(str(announcement.endTimestamp.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")):
-            announcement.delete()
+
             
     
     

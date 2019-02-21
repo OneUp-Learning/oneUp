@@ -46,7 +46,7 @@ def goalCreate(request):
     else:
         if request.GET:
                             
-            # If announcementId is specified then we load for editing.
+            # If studentGoalId is specified then we load for editing.
             if 'studentGoalID' in request.GET:
                 goal = StudentGoalSetting.objects.get(pk=int(request.GET['studentGoalID']))
                 
