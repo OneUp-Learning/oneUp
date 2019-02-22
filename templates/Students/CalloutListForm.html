@@ -76,7 +76,7 @@
                            <table class="responsive-table" style="width:100%">
                            
                     <tbody>
-			              {% for i, sent_chall, is_editable, vcBet, status, challengee_avatar, challenger_avatar in sent_duel_challenges %}
+			              {% for i, sent_chall, is_editable, vcBet, status, challengee_avatar, challenger_avatar, topic, w_l in sent_duel_challenges %}
 			              <tr>
 			                <td>{{sent_chall.duelChallengeName}}</td>
                       <td>{{status}}</td>
@@ -88,6 +88,8 @@
                       <td>Not Started</td>
                       {% endif %}
                       <!--<td>{{vcBet}} VC</td>-->
+                      <td>{{topic}}</td>
+                      <td>{{w_l}}</td>
 
                       <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}"></td>
                       
@@ -116,7 +118,7 @@
                         <table class="responsive-table" style="width:100%">
                         
                  <tbody>
-                 {% for i, requested_chall, vcBet, status, has_accepted, challengee_avatar, challenger_avatar in requested_duel_challenges %}
+                 {% for i, requested_chall, vcBet, status, has_accepted, challengee_avatar, challenger_avatar, topic, w_l in requested_duel_challenges %}
                  <tr>
                    <td>{{requested_chall.duelChallengeName}}</td>
                    <td>{{status}}</td>
@@ -127,6 +129,8 @@
                    {% else %}
                    <td>Not Started</td>
                    {% endif %}
+                   <td>{{topic}}</td>
+                   <td>{{w_l}}</td>
 
                    <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}"></td>
                             

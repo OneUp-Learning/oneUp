@@ -36,14 +36,6 @@
              });
          });
       </script>
-      
-      <script>
-          function selectAv(imageId, newImage)
-          {
-        	  id_av = newImage.split("---")
-        	  document.getElementById(imageId).src = id_av[1];
-          }
-      </script>
 
    </head>
    <body>
@@ -149,6 +141,7 @@
                                    <label>Select Difficulty</label>
                                  </div>
                              </div>
+                        {% if is_bet_vc %}
                         <div class="row">
                            <div class="col s12">
                               <input name="isBetting" type="checkbox" id="isBetting" {% if isBetting %} checked {% endif %}/>
@@ -164,6 +157,7 @@
                                <p id="challengee_vc_error" name="challengee_vc_error" class= "red-text"></p>
                               </div>
                          </div>
+                        {% endif %}
                      </div>
                      <div class="card-action right-align">
                            
@@ -199,6 +193,12 @@
       {% include 'footer.html' %}
    </body>
    <script>
+   function selectAv(imageId, newImage)
+   {
+ 	  id_av = newImage.split("---")
+ 	  document.getElementById(imageId).src = id_av[1];
+   }
+   
    $("#duelChallForm").on('submit', function(e){
       $('#header_error').html("");
       $('#random_chall_error').html("");

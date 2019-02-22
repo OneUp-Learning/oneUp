@@ -304,6 +304,8 @@ class CourseConfigParams(models.Model):
     levelingUsed = models.BooleanField(default=False)                 ##
     
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
+    betVC = models.BooleanField(default=True)                         ## Allow the bet of virtual currency in duels
+    vcDuelParticipants = models.IntegerField(default=0)               ## Amount of virtual currency rewarded to duel participants
     vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
     vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
 
