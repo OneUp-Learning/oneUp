@@ -29,6 +29,7 @@ else:
         url(r'^oneUp/',include('Administrators.urls')),
         url(r'^login$', LoginView.as_view(template_name='home.html'), name='login'),
         url(r'^notifications/', include('notify.urls', 'notifications')),
+        url(r'^ckeditor/', include('ckeditor_uploader.urls')),
         path('service-worker.js',(TemplateView.as_view(
             template_name="Chat/service-worker.js",
             content_type='application/javascript')), name='service-worker.js'),
