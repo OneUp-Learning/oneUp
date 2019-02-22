@@ -172,10 +172,10 @@ LOGIN_URL='/oneUp/permission_error'
 # Chat app settings
 ASGI_APPLICATION = 'oneUp.routing.application'
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+    "default": {
+        "BACKEND": "channels_rabbitmq.core.RabbitmqChannelLayer",
+        "CONFIG": {
+            "host": "amqp://guest:guest@localhost/asgi",
         },
     },
 }
