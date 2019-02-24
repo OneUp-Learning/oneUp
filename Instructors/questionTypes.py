@@ -157,6 +157,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
         intentationEnabledVariableAndValue.group(0), "")
 
     qdict['answerText'] = solution_string
+    print("solution String before changes",repr(solution_string))
     #dynamically set dfficulty of parson distractor
 
     #get the count of the distractors
@@ -176,6 +177,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     ##then we just use the full distractor count
 
     #repr function will give us the raw representation of the string
+    print("Solution String", repr(solution_string))
     solution_string = re.sub("\\r", "", solution_string)
     solution_string = re.sub("^ *\\t", "  ", solution_string)
     solution_string = re.sub("^\\t *", "  ", solution_string)
@@ -183,7 +185,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     #tokenizer characters ☃ and ¬
     solution_string = re.sub("\n", "\n¬☃", solution_string)
     solution_string = re.sub("^[ ]+?", "☃", solution_string)
-    print("Solution StringF", solution_string)
+    print("Solution String", solution_string)
 
     #we turn the student solution into a list
     solution_string = [x.strip() for x in solution_string.split('¬')]
@@ -233,6 +235,8 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
                                   line)
                 else:
                     line = re.sub("^ *", '&nbsp;' + ' ' * 4, line)
+        print("line", line)
+        line = re.sub("\t(?=return.*; *##)", "&nbsp;    ", line)
         line = line + "\n"
         tabedSolution_string.append(line)
 
@@ -241,10 +245,11 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     qdict['solution_string'] = solution_string
     qdict['tabbed_sol_string'] = tabedSolution_string
     print("tabbedSol String", tabedSolution_string)
-    print("joinedSolString", solution_string)
+    print("joinedSolString", repr(solution_string))
 
     solution_string = re.sub("##\\n *", "\\\\n", solution_string)
     solution_string = re.sub("\\\\n\t", "\\\\n", solution_string)
+    solution_string = re.sub("(?<=\n)\s{4}", "\t", solution_string)
     qdict['model_solution'] = repr(solution_string).strip('\'')
     print("questqdict['model_solution']", qdict['model_solution'])
 
@@ -541,15 +546,6 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
 
 
 def parsonsMakeAnswerList(qdict, POST):
-    def merge(x, key='##'):
-        tmp = []
-        for i in x:
-            if (i[0:len(key)] == key) and len(tmp):
-                yield ' '.join(tmp)
-                tmp = []
-            tmp.append(i)
-        if len(tmp):
-            yield ' '.join(tmp)
     #get all the data from the webpage
     #data is accessed through the index
     studentAnswerDict = {}
@@ -583,8 +579,8 @@ def parsonsMakeAnswerList(qdict, POST):
         # ⋊ is used to maintain the indentation of the line, so that we can later remove it
         # but still keep proper indentation in each line
         #if it contains a block treat it as a unit
-        #⋊\t*(?=.*;##)
-        solution_string = re.sub("(?<!##\r)\n", "᚛¬⋊", solution_string)
+        solution_string = re.sub("(?<!##)(?<!#distractor)\n", "᚛¬⋊", solution_string)
+        solution_string = re.sub(";(?!.+)", "᚛", solution_string)
         
         print("solution_stringrepr", repr(solution_string))
         print("solution_string", solution_string)
@@ -592,12 +588,12 @@ def parsonsMakeAnswerList(qdict, POST):
         solution_string_split = [x.strip() for x in solution_string.split('¬')]
         for solution_string_splits in solution_string_split:
             print("solution_string_splits",solution_string_splits)
-            solution_string_splits = re.sub("^⋊\s*(?!.*;##)", "", solution_string_splits)
-            solution_string_splits = re.sub("^⋊\s{8}(?=.*;##)", "    ", solution_string_splits)
-            solution_string_splits = re.sub("^⋊\s{4}(?=.*;##)", "", solution_string_splits)
+            solution_string_splits = re.sub("^⋊\s*(?!.*;\s*##)", "", solution_string_splits)
+            solution_string_splits = re.sub("^⋊\s{8}(?=.*;\s*##)", "    ", solution_string_splits)
+            solution_string_splits = re.sub("^⋊\s{4}(?=.*;\s*##)(?!return)", "", solution_string_splits)
             solution_string_splits = re.sub("(?=return.*;\s*##\r\n})", "    ", solution_string_splits)
-            solution_string_splits = re.sub("^⋊\s*(?=.*;##)", "" , solution_string_splits)
             solution_string_splits = re.sub("᚛", "\n", solution_string_splits)
+            solution_string_splits = re.sub("⋊", "", solution_string_splits)
             solution_string_array.append(solution_string_splits)
 
         print("solution_string_array", solution_string_array)
