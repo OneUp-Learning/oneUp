@@ -188,13 +188,18 @@ PASSWORD_HASHERS = (
 
 LOGIN_URL='/oneUp/permission_error'
 
+# For chat/celery
+rabbitmq_username = getpass.getuser()
+with open('oneUp/rabbitmq_password') as f:
+    rabbitmq_password = f.read().strip()
+
 # Chat app settings
 ASGI_APPLICATION = 'oneUp.routing.application'
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_rabbitmq.core.RabbitmqChannelLayer",
         "CONFIG": {
-            "host": "amqp://guest:guest@localhost/asgi",
+            "host": 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/asgi',
         },
     },
 }
@@ -210,9 +215,6 @@ REST_FRAMEWORK = {
 SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
 
 # Celery Settings
-rabbitmq_username = getpass.getuser()
-with open('oneUp/rabbitmq_password') as f:
-    rabbitmq_password = f.read().strip()
 CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/'+rabbitmq_username
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'

@@ -502,7 +502,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
             try:
                 with transaction.atomic(): 
                     if actionID == Action.increaseVirtualCurrency:
-                        previousAwards = StudentVirtualCurrency.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
+                        previousAwards = StudentVirtualCurrencyRuleBased.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
                         if rule.awardFrequency != AwardFrequency.justOnce:
                             previousAwards = previousAwards.filter(objectID = objID)
                         if previousAwards.exists():
