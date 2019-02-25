@@ -667,13 +667,11 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
 
     qdict['student_solution'] = studentAnswer
 
-    wrongPositionLineNumberbers = studentAnswerDict[
-        'wrongPositionLineNumberbers']
+    wrongPositionLineNumberbers = studentAnswerDict['wrongPositionLineNumberbers']
     errorDescriptions = studentAnswerDict['errorDescriptions']
     correctLineCount = int(studentAnswerDict['correctLineCount'])
-    feedBackButtonClickCount = int(
-        studentAnswerDict['feedBackButtonClickCount'])
-
+    feedBackButtonClickCount = int(studentAnswerDict['feedBackButtonClickCount'])
+    print("correctlinecount", correctLineCount,wrongPositionLineNumberbers,errorDescriptions,feedBackButtonClickCount)
     if studentSolution == "":
         qdict['user_points'] = 0
     else:
@@ -684,8 +682,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
 
         ##otherwise grade on our criteria
         else:
-            indentationErrorCount = len(
-                re.findall(r'(?=i.e. indentation)', repr(studentSolution)))
+            indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(studentSolution)))
 
             ##grading section
             studentGrade = qdict['total_points']
@@ -698,38 +695,30 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             if indentation == "true":
                 if indentationErrorCount > 0:
                     ##we multiply by 1/2 because each wrong is half of 1/n
-                    penalties += (indentationErrorCount / correctLineCount) * (
-                        1 / 2)
+                    penalties += (indentationErrorCount / correctLineCount) * (  1 / 2)
 
             ##too few
             if (correctLineCount > studentSolutionLineCount):
-                penalties += Decimal(
-                    (correctLineCount - studentSolutionLineCount) *
-                    (1 / correctLineCount))
+                penalties += Decimal((correctLineCount - studentSolutionLineCount) * (1 / correctLineCount))
                 print("Penalties too few!: ", penalties)
-                ##too many
+            ##too many
             if (correctLineCount < studentSolutionLineCount):
-                penalties += Decimal(
-                    (studentSolutionLineCount - correctLineCount) *
-                    (1 / correctLineCount))
+                penalties += Decimal((studentSolutionLineCount - correctLineCount) * (1 / correctLineCount))
                 print("Penalties too many!: ", penalties)
 
             if wrongPositionLineNumberbers:
-                wrongPositionLineNumberbers = [
-                    x.strip() for x in wrongPositionLineNumberbers.split(',')
-                ]
-                print("WrongLineNumber length:",
-                      len(wrongPositionLineNumberbers))
-                penalties += Decimal(
-                    len(wrongPositionLineNumberbers) / correctLineCount)
+                wrongPositionLineNumberbers = [x.strip() for x in wrongPositionLineNumberbers.split(',')]
+                penalties += Decimal( len(wrongPositionLineNumberbers) / correctLineCount)
+                print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
                 print("WrongLine Number penalties: ", penalties)
             if feedBackButtonClickCount > 0:
                 maxPoints /= feedBackButtonClickCount * 2
                 print("Feedback button click count:", feedBackButtonClickCount)
                 print("Penalties after feedback:", penalties)
 
-            #max poitns is all the maximum student points, and we subtract the penalties
-            studentGrade = maxPoints - maxPoints * penalties
+            #max points is the maximum points student can earn, and we subtract the penalties
+            print("studentGrade", studentGrade, maxPoints, penalties)
+            studentGrade = maxPoints - penalties
             if studentGrade < 0:
                 studentGrade = 0
 
