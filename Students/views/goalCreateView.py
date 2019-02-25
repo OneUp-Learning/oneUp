@@ -11,7 +11,7 @@ from Instructors.views.utils import utcDate, initialContextDict
 
 #2.18.2019 JC
 from Students.models import StudentGoalSetting
-#from Badges.enums import Goal
+from Badges.enums import Goal
 
 @login_required
  
@@ -39,7 +39,7 @@ def goalCreate(request):
         
         goal.save();  #Writes to database.    
                 
-        return redirect('goalsListView')
+        return redirect('goalsList')
 
     ######################################
     # request.GET 

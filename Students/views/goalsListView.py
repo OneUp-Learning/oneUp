@@ -14,9 +14,11 @@ from Instructors.constants import default_time_str
 from datetime import datetime
 from oneUp.decorators import instructorsCheck   
 from Students.models import StudentGoalSetting
+from Students.views.utils import studentInitialContextDict
+from Students.views.allAnnouncementsView import createContextForAnnouncementList
 
 # Added boolean to check if viewing from announcements page or course home page
-def goalsList(currentCourse, context_dict, courseHome):
+def createContextForGoalsList(currentCourse, context_dict, courseHome):
 
     studentGoal_ID = []      
     student_ID = []
@@ -25,7 +27,7 @@ def goalsList(currentCourse, context_dict, courseHome):
     goal_Type = []
     targeted_Number = []
         
-    goals = StudentGoalSetting.objects.filter(courseID=currentCourse).order_by('-startTimestamp')
+    goals = StudentGoalSetting.objects.order_by('-timestamp')
     index = 0
     if not courseHome: # Shows all the announcements
         for goal in goals:
@@ -58,13 +60,13 @@ def goalsList(currentCourse, context_dict, courseHome):
 
     
 @login_required
-def announcementList(request):
+def goalsList(request):
 
     context_dict, currentCourse = initialContextDict(request)
 
-    context_dict = createContextForGoalList(currentCourse, context_dict, False)
+    context_dict = createContextForGoalsList(currentCourse, context_dict, False)
     
-    return render(request,'Instructors/GoalsList.html', context_dict)
+    return render(request,'Students/GoalsList.html', context_dict)
 
 
 
