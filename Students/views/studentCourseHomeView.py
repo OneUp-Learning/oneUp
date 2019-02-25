@@ -107,13 +107,14 @@ def courseBadges(currentCourse, context_dict):
             students = []                                         
             for st_c in st_crs:
                 students.append(st_c.studentID)     # all students in the course
+            print("students", students)
             
             #Displaying the list of challenges from database
-            badges = StudentBadges.objects.all().order_by('-timestamp')
+            badges = StudentBadges.objects.filter(badgeID__courseID=currentCourse).order_by('-timestamp')
             print("badges")
             print(badges)
             for badge in badges:
-                if (badge.studentID in students) and (badge.badgeID.courseID == currentCourse):
+                if (badge.studentID in students):
                     studentBadgeID.append(badge.studentBadgeID)
                     studentID.append(badge.studentID)
                     badgeID.append(badge.badgeID)
