@@ -579,7 +579,7 @@ def parsonsMakeAnswerList(qdict, POST):
         # ⋊ is used to maintain the indentation of the line, so that we can later remove it
         # but still keep proper indentation in each line
         #if it contains a block treat it as a unit
-        solution_string = re.sub("(?<!##)(?<!#distractor)\n", "᚛¬⋊", solution_string)
+        solution_string = re.sub("(?<!##)\n", "᚛¬⋊", solution_string)
         solution_string = re.sub(";(?!.+)", "᚛", solution_string)
         
         print("solution_stringrepr", repr(solution_string))
@@ -604,6 +604,7 @@ def parsonsMakeAnswerList(qdict, POST):
         studentSolutions = [x.strip() for x in studentSolutions.split(',')]
 
         print("studentSol", studentSolutions)
+        qdict['parsonStudentSol'] = studentSolutions
         regexp = re.compile(r'##')
         missingLines = []
         missingLineCount = 1
@@ -666,6 +667,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     studentAnswer = studentAnswer.join(IndentedStudentSolution)
 
     qdict['student_solution'] = studentAnswer
+    print("student solution", qdict['student_solution'])
 
     wrongPositionLineNumberbers = studentAnswerDict['wrongPositionLineNumberbers']
     errorDescriptions = studentAnswerDict['errorDescriptions']
@@ -689,7 +691,9 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             maxPoints = qdict['total_points']
             penalties = Decimal(0.0)
 
-            studentSolutionLineCount = len(lineIndent)
+            studentSolutionLineCount = len(qdict['parsonStudentSol'])
+            print("lineIndent", qdict['parsonStudentSol'])
+            print("studentSolLineCount", studentSolutionLineCount)
 
             ##if there was an indentation problem
             if indentation == "true":
@@ -698,11 +702,11 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
                     penalties += (indentationErrorCount / correctLineCount) * (  1 / 2)
 
             ##too few
-            if (correctLineCount > studentSolutionLineCount):
+            if (studentSolutionLineCount < correctLineCount):
                 penalties += Decimal((correctLineCount - studentSolutionLineCount) * (1 / correctLineCount))
                 print("Penalties too few!: ", penalties)
             ##too many
-            if (correctLineCount < studentSolutionLineCount):
+            if (studentSolutionLineCount > correctLineCount):
                 penalties += Decimal((studentSolutionLineCount - correctLineCount) * (1 / correctLineCount))
                 print("Penalties too many!: ", penalties)
 
@@ -718,7 +722,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
 
             #max points is the maximum points student can earn, and we subtract the penalties
             print("studentGrade", studentGrade, maxPoints, penalties)
-            studentGrade = maxPoints - penalties
+            studentGrade = maxPoints - (maxPoints * penalties)
             if studentGrade < 0:
                 studentGrade = 0
 
