@@ -510,7 +510,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             print("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
                             return
                                     
-                    studVCRec = StudentVirtualCurrency()
+                    studVCRec = StudentVirtualCurrencyRuleBased()
                     studVCRec.courseID = courseID
                     studVCRec.studentID = student.studentID
                     if rule.awardFrequency == AwardFrequency.justOnce:
