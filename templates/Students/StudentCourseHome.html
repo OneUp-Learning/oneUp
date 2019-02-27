@@ -60,7 +60,7 @@
                   <div class="card-panel">
                   <table>
                     <thead>
-                      <th>Latest Badges</th>
+                      <th>Latest Badges </th>
                     </thead>
                     <tbody>
                         <tr>
@@ -80,7 +80,7 @@
                 </div>
             </div>
             {% endif %}   
-               {% if displayLeaderBoard %}
+               {% if displayLeaderBoard and ccparams.leaderboardUsed%}
                   <div class="col s12 m12">
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
                   <div class="col s6 m3">
