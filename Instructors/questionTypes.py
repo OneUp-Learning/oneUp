@@ -615,8 +615,13 @@ def parsonsMakeAnswerList(qdict, POST):
         duplicateIndentation = False
         tabbed_sol = ""
         i = 0
+        doesTheEntireThingHaveZeroIndetation = True
+        for lineIndentObject in lineIndent:
+            if int(lineIndent) != 0:
+                doesTheEntireThingHaveZeroIndetation = False
+                break
+        
         pattern = re.compile("##")
-        patternReturn = re.compile("^(?!(\t|\s{4})return)")
         for studentSolution in studentSolutions:
             print("studentSolution", studentSolution)
             print("i", i)
@@ -624,7 +629,7 @@ def parsonsMakeAnswerList(qdict, POST):
             
             #if we have gotten zero for indentation, we wish to consume all tabs and spaces
 
-            if int(lineIndent[i]) == 0 and patternReturn.search(solution_string_array[int(studentSolution)]) and pattern.search(solution_string_array[int(studentSolution)]):
+            if int(lineIndent[i]) == 0 and doesTheEntireThingHaveZeroIndetation and pattern.search(solution_string_array[int(studentSolution)]):
                 #if we have zero indentation, and we have the ##, we must consume all indentation
                 #or we will have odd indentation if zero indentation is entered
                 tabbed_sol = solution_string_array[int(studentSolution)]
