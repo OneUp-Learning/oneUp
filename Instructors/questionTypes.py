@@ -617,7 +617,7 @@ def parsonsMakeAnswerList(qdict, POST):
         i = 0
         doesTheEntireThingHaveZeroIndetation = True
         for lineIndentObject in lineIndent:
-            if int(lineIndent) != 0:
+            if int(lineIndentObject) != 0:
                 doesTheEntireThingHaveZeroIndetation = False
                 break
         
