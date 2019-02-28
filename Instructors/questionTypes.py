@@ -589,11 +589,15 @@ def parsonsMakeAnswerList(qdict, POST):
         for solution_string_splits in solution_string_split:
             print("solution_string_splits",solution_string_splits)
             solution_string_splits = re.sub("^⋊\s*(?!.*;\s*##)", "", solution_string_splits)
-            solution_string_splits = re.sub("^⋊\s{8}(?=.*;\s*##)", "    ", solution_string_splits)
-            solution_string_splits = re.sub("^⋊\s{4}(?=.*;\s*##)(?!return)", "", solution_string_splits)
+            solution_string_splits = re.sub("^⋊(\t\t|\s{8})(?=.*;\s*##)", "    ", solution_string_splits)
+            solution_string_splits = re.sub("^⋊(\t|\s{4})(?=.*;\s*##)(?!return)", "", solution_string_splits)
             solution_string_splits = re.sub("(?=return.*;\s*##\r\n})", "    ", solution_string_splits)
             solution_string_splits = re.sub("᚛", "\n", solution_string_splits)
             solution_string_splits = re.sub("⋊", "", solution_string_splits)
+
+            #for some mysterious reason ace editor hates commas,
+            #we had to use a special comma to allow it to be visisble
+            solution_string_splits = re.sub("(?!\"),(?=.*\";)", "‚", solution_string_splits)
             solution_string_array.append(solution_string_splits)
 
         print("solution_string_array", solution_string_array)
@@ -611,11 +615,27 @@ def parsonsMakeAnswerList(qdict, POST):
         duplicateIndentation = False
         tabbed_sol = ""
         i = 0
+        pattern = re.compile("##")
+        patternReturn = re.compile("^(?!(\t|\s{4})return)")
         for studentSolution in studentSolutions:
             print("studentSolution", studentSolution)
             print("i", i)
             print("int(lineIndent[i]) + solution_string_array[int(studentSolution)])",int(lineIndent[i]), solution_string_array[int(studentSolution)])
-            tabbed_sol = ("\t" * int(lineIndent[i]) + solution_string_array[int(studentSolution)])
+            
+            #if we have gotten zero for indentation, we wish to consume all tabs and spaces
+
+            if int(lineIndent[i]) == 0 and patternReturn.search(solution_string_array[int(studentSolution)]) and pattern.search(solution_string_array[int(studentSolution)]):
+                #if we have zero indentation, and we have the ##, we must consume all indentation
+                #or we will have odd indentation if zero indentation is entered
+                tabbed_sol = solution_string_array[int(studentSolution)]
+
+                #kill leading spacing
+                tabbed_sol = re.sub("^(\t\t|\s*)(?=.*;\s*##)", "", tabbed_sol)
+
+                #kill space within
+                tabbed_sol = re.sub("(?<=##\\n)(\\t|\s{4}|s\s{8})", "", tabbed_sol)
+            else:
+                tabbed_sol = ("\t" * int(lineIndent[i]) + solution_string_array[int(studentSolution)])
             tabbed_sol = re.sub("##", "", tabbed_sol)
             tabbed_sol = re.sub("#distractor", "", tabbed_sol)
             studentAnswer +=  tabbed_sol
@@ -684,22 +704,22 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
 
         ##otherwise grade on our criteria
         else:
-            indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(studentSolution)))
-
+            indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(errorDescriptions)))
+            print("indentation error count", indentationErrorCount, repr(studentSolution))
             ##grading section
             studentGrade = qdict['total_points']
             maxPoints = qdict['total_points']
             penalties = Decimal(0.0)
 
             studentSolutionLineCount = len(qdict['parsonStudentSol'])
-            print("lineIndent", qdict['parsonStudentSol'])
+            print("studentSol", qdict['parsonStudentSol'])
             print("studentSolLineCount", studentSolutionLineCount)
 
             ##if there was an indentation problem
             if indentation == "true":
                 if indentationErrorCount > 0:
                     ##we multiply by 1/2 because each wrong is half of 1/n
-                    penalties += (indentationErrorCount / correctLineCount) * (  1 / 2)
+                    penalties += Decimal((indentationErrorCount / correctLineCount) * 5)
 
             ##too few
             if (studentSolutionLineCount < correctLineCount):
