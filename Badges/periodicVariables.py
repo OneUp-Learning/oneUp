@@ -994,7 +994,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         if xpSeriousMaxScore:                           
             for serious in seriousChallenge:
                 gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
-        elif sc.exists():
+        elif seriousChallenge.exists():
             gradeID.append(int(seriousChallenge.first().getScoreWithBonus())) 
                                 
         if(gradeID):
@@ -1020,7 +1020,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         if xpWarmupMaxScore:                          
             for warmup in warmupChallenge:
                 gradeID.append(int(warmup.testScore)) 
-        elif wc.exists():
+        elif warmupChallenge.exists():
             gradeID.append(int(warmupChallenge.first().testScore))
                                
         if(gradeID):

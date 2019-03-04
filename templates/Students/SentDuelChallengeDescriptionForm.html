@@ -79,11 +79,21 @@
                                     {% endif %}
                                     {% if duel_vc_const > 0 %}
 	                                    <li>
-	                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+	                                        <span><b>Winner's Award: </b></span>
 	                                        <span>{{duel_vc_const}}</span>
 	                                    </li>
+	            
+	                                {% endif %}
+	                                {% if duel_vc_participants_const > 0 %}
 	                                    <li>
-	                                         <span><b>Award Amount: </b></span>
+	                                        <span><b>Participation Award: </b></span>
+	                                        <span>{{duel_vc_participants_const}}</span>
+	                                    </li>
+	                                    {% endif %}
+	                                    
+	                               {% if award %}         
+	                                    <li>
+	                                         <span><b>Total Award for winner(s): </b></span>
 	                                         <span>{{award}}</span>
 	                                    </li>
 	                                {% endif %}
@@ -125,14 +135,25 @@
                                 {% endif %}
                                 {% if duel_vc_const > 0 %}
 	                                    <li>
-	                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+	                                        <span><b>Winner's Award: </b></span>
 	                                        <span>{{duel_vc_const}}</span>
 	                                    </li>
+	            
+	                                {% endif %}
+	                                {% if  duel_vc_participants_const > 0 %}
 	                                    <li>
-	                                         <span><b>Award Amount: </b></span>
-	                                         <span>{{award}}</span>
+	                                        <span><b>Participation Award: </b></span>
+	                                        <span>{{duel_vc_participants_const}}</span>
 	                                    </li>
 	                                {% endif %}
+	                                    
+	                                    
+	                               {% if award %}         
+	                                    <li>
+	                                         <span><b>Total Award for winner(s): </b></span>
+	                                         <span>{{award}}</span>
+	                                    </li>
+	                               {% endif %}
                                     <span><b>Score: </b></span>
                                     <span>{{sChall.testScore}} / {{sChall.challengeID.totalScore}} pts</span>
                                 </li>
@@ -259,14 +280,25 @@
                             {% endif %}
                             {% if duel_vc_const > 0 %}
 	                                    <li>
-	                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+	                                        <span><b>Winner's Award: </b></span>
 	                                        <span>{{duel_vc_const}}</span>
 	                                    </li>
+	            
+	                        {% endif %}
+	                        {% if duel_vc_participants_const > 0 %}
 	                                    <li>
-	                                         <span><b>Award Amount: </b></span>
+	                                        <span><b>Participation Award: </b></span>
+	                                        <span>{{duel_vc_participants_const}}</span>
+	                                    </li>
+	                        {% endif %}
+	                                    
+	                                    
+	                        {% if award %}         
+	                                    <li>
+	                                         <span><b>Total Award for winner(s): </b></span>
 	                                         <span>{{award}}</span>
 	                                    </li>
-	                                {% endif %}
+	                         {% endif %}
                         </ul>
                         </div>
                        {% endif %}
