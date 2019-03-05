@@ -90,8 +90,12 @@
                                  {% for grade,sc_user,sc_chall in grade_range %}
                                  <input type="hidden" name="challID" value="{{sc_user}}">
                                  <input type="hidden" name="challID" value="{{sc_chall}}">
-                                 <td><a href="/oneUp/students/ChallengesTaken?challengeID={{sc_chall}}&userID={{sc_user}}&classAchievements">{{grade}}</a> {% endfor %}
-                                 </td>
+                                 {% if grade !=  '-' %}
+                                     <td><a href="/oneUp/students/ChallengesTaken?challengeID={{sc_chall}}&userID={{sc_user}}&classAchievements">{{grade}}</a></td>
+                                 {% else %}  
+                                     <td>{{grade}}</td>
+                                 {% endif %} 
+                                      {% endfor %}
                                  {% for activityGrades in allActivityGrade_range %}
                                  <td> {{activityGrades}}</td>
                                  {% endfor %}

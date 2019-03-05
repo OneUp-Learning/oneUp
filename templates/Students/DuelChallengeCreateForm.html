@@ -108,37 +108,48 @@
                              </div>
                         </div>
                         {% endif %}
-                       
-                        <div class="row">
+                       <div class="row">
 
                                 <div class="input-field col s16 m6" id="topic">
-                                        <select name="topic" form="duelChallForm">
+                                        <select name="topic" form="duelChallForm" required>
                                           <!--<option value="{{currentStudent}}" selected>{{currentAvatar}}</option>-->
-                                          {%if course_topics%}
+                                          {%if course_topics|length > 1%}
                                           <option name= "topic" value="Any" >Any</option>
                                           {%endif%}
                                           {% for topic in course_topics %}
-                                                  <!--{% if avatar != currentAvatar %}-->
-                                                  <option value={{topic.topicID.topicID}} name="topic"> {{topic.topicID.topicName}}</option>
-                                                 
-                                                 <!-- <option img alt="Avatar Image" class="circle" width="35" height="35" src="{{avatar}}"</option>
-                                                  {% endif %}-->
+                                                  
+                                                  <option value="{{topic.topicID.topicID}}" name="topic"> {{topic.topicID.topicName}}</option>
+                                                 {% empty %}
+                                                     <option  disabled >No topic for you and your opponent at this moment</option>
+                                              
                                           {% endfor %}
                                         </select>
-                                          <label for="topic"><span class= "red-text"></span> Select Topic</label>
+                                          <label for="topic"><span class= "red-text">*</span> Select Topic</label>
                                           <p id="random_chall_error" name="random_chall_error" class= "red-text"></p>
                                  
                                 </div>
 
                                 <div class="input-field col s16 m6">
-                                   <select name="difficulty" {%if view%}readonly{%endif%}>
-                                      <!--<option value="" disabled selected>Choose Difficulty</option>-->
+                                   <select name="difficulty" required }>
+                                      <!--<option value="" disabled selected>Choose Difficulty</option>
                                       <option id= "Any" value="Any" {%if view%}disabled{%endif%}>Any</option>
                                       <option id= "Easy" value="Easy" {%if view%}disabled{%endif%}>Easy</option>
                                       <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
-                                      <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
+                                      <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>-->
+                                      
+                                      {%if difficulty_set|length > 1%}
+                                          <option name= "topic" value="Any" >Any</option>
+                                      {%endif%}
+                                      
+                                      {% for difficulty in difficulty_set %}
+                                                  
+                                            <option value="{{difficulty}}" name="difficulty"> {{difficulty}}</option>
+                                            {% empty %}
+                                                 <option disabled > No difficulty</option>
+                                           
+                                      {% endfor %}
                                    </select>
-                                   <label>Select Difficulty</label>
+                                   <label><span class= "red-text">*</span> Select Difficulty</label>
                                  </div>
                              </div>
                         {% if is_bet_vc %}
@@ -146,6 +157,7 @@
                            <div class="col s12">
                               <input name="isBetting" type="checkbox" id="isBetting" {% if isBetting %} checked {% endif %}/>
                               <label for="isBetting">Bet An Amount of Virtual Currency</label>
+                              
                            </div>
                         </div>
                         
@@ -155,6 +167,7 @@
                                <label for="vcBetting"><span class= "red-text">*</span> Virtual Currency Amount</label>
                                <p id="challenger_vc_error" name="challenger_vc_error" class= "red-text"></p>
                                <p id="challengee_vc_error" name="challengee_vc_error" class= "red-text"></p>
+                               <p id="vc_error" name="vc_error" class= "red-text"></p>
                               </div>
                          </div>
                         {% endif %}
@@ -167,7 +180,7 @@
                         <div id="modal_confirm" class="modal">
                             <div class="modal-content">
                               <P>Upon submission, if bet of virtual currency is checked, you are agreeing the specified amount of 
-                                  Vitual Currency will be withdrawn from your account and put at stake. 
+                                  Virtual Currency will be withdrawn from your account and put at stake. 
                                   In case of a tie or request denial, your Virtual Currency will be reimbursed. 
                                   The system will randomly select a challenge that was not completed by you nor 
                                   your opponent based on specified topic and difficulty. To win the Duel, 
@@ -197,6 +210,7 @@
    {
  	  id_av = newImage.split("---")
  	  document.getElementById(imageId).src = id_av[1];
+ 	  
    }
    
    $("#duelChallForm").on('submit', function(e){
@@ -204,6 +218,7 @@
       $('#random_chall_error').html("");
       $('#challengee_vc_error').html("");
       $('#challenger_vc_error').html("");
+      $('#vc_error').html("");
 
       $.ajax({
     		  	url: "/oneUp/students/ValidateDuelChallengeCreate", 
@@ -213,16 +228,19 @@
    		        data: $("#duelChallForm").serialize(),
    		        success: function(error){
                     let status = true;
-   		        	if(error.random_chall_error.length > 0){
-                       e.preventDefault();
-   		        		status = false ;
-   		        		$('#random_chall_error').html(error.random_chall_error[0]);
-   		        	}
+                    
+   		        if(error.random_chall_error.length > 0){
+                    e.preventDefault();
+   		            status = false ;
+   		        	$('#random_chall_error').html(error.random_chall_error[0]);
+   		        		
+   		        }
    		        
                   if(error.challengee_vc_error.length > 0){
                      e.preventDefault();
                      status = false;
-                     $('#challengee_vc_error').html(error.challengee_vc_error[0])
+                     $('#challengee_vc_error').html(error.challengee_vc_error[0]);
+                     
                   }
 
                   if(error.challenger_vc_error.length > 0){
@@ -230,10 +248,18 @@
                      status = false;
                      $('#challenger_vc_error').html(error.challenger_vc_error[0]);
                   }
+                  
+                  if(error.max_vc_error.length > 0){
+                      e.preventDefault();
+                      status = false;
+                      $('#vc_error').html(error.max_vc_error[0]);
+                      
+                      
+                   }
 
                   if(!status){
                      e.preventDefault();
-                     $('#header_error').html('Please correct errors');
+                     $('#header_error').html('Please correct error(s)');
                   }
                   
       		  }
