@@ -143,6 +143,7 @@ def createRule(request,current_course,context_dict):
                 ruleType = ObjectTypes.activity
                 objs = Activities.objects.filter(courseID=current_course)
                 context_dict['ruleTypeString'] = 'Activity'
+                
             
             elif request.GET['ruleType'] == 'topic':
                 ruleType = ObjectTypes.topic

@@ -469,44 +469,60 @@ def duel_challenge_create(request):
 
     # Get course topics
     
-    course_topics_list = []
-    course_topics = CoursesTopics.objects.filter(courseID=current_course)   
-    for ct in course_topics:
-        course_topics_list.append(ct)
-    context_dict['course_topics'] = course_topics_list
+    #course_topics_list = []
+    #course_topics = CoursesTopics.objects.filter(courseID=current_course)   
+    #for ct in course_topics:
+        #course_topics_list.append(ct)
+    #context_dict['course_topics'] = course_topics_list
     
-#     course_topics_list = set()
-#     difficulty_set = set()
-#     challenges_list = []
-#     chall_topics = []
-#     challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
-#     for chall_t in challenges_topics:
-#             # check if challenge has not been taken by challenger and challengee
-#             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=reg_students[0].studentID) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id):
-#                 if not chall_t.challengeID.isGraded:
-#                     # check if challenge has any questions
-#                     if ChallengesQuestions.objects.filter(challengeID=chall_t.challengeID):
-#                         challenges_list.append(chall_t.challengeID)
-#                         chall_topics.append(chall_t)
-# 
-#     challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
-#     challenger_duels_challs = []
-#     for challenger_duel in challenger_duels:
-#         challenger_duels_challs.append(challenger_duel.challengeID)
-#         
+    course_topics_set = set()
+    #course_topics_dict = {}
+    difficulty_set = set()
+    challenges_list = []
+    chall_topics = []
+    challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+    for chall_t in challenges_topics:
+            # check if challenge has not been taken by challenger and challengee
+            if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id): #not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=reg_students[0].studentID) 
+                if not chall_t.challengeID.isGraded:
+                    # check if challenge has any questions
+                    if ChallengesQuestions.objects.filter(challengeID=chall_t.challengeID):
+                        challenges_list.append(chall_t.challengeID)
+                        chall_topics.append(chall_t)
+ 
+    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
+    challenger_duels_challs = []
+    for challenger_duel in challenger_duels:
+        challenger_duels_challs.append(challenger_duel.challengeID)
+         
 #     challengee_duels = DuelChallenges.objects.filter(challengee = reg_students[0].studentID)
 #     challengee_duels_challs = []
 #     for challengee_duel in challengee_duels:
 #         challenger_duels_challs.append(challengee_duel.challengeID)
-#         
-#     for chall, chall_topic in zip(challenges_list, chall_topics):
-#         if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
-#             #ChallengesQuestions.objects.filter(challengeID=chall_t.challengeID)
-#             
-#             course_topics_list.add(chall_topic)
-#     print(course_topics_list)
-#             
-#     context_dict['course_topics'] = course_topics_list
+         
+    topic_ids = []
+    for chall, chall_topic in zip(challenges_list, chall_topics):
+        if not chall in challenger_duels_challs : #and not chall in challengee_duels_challs
+            difficulty_set.add(chall.challengeDifficulty)
+            
+            if chall_topic.topicID.topicID in topic_ids:
+                continue
+            else:
+                topic_ids.append(chall_topic.topicID.topicID)
+            course_topics_set.add(chall_topic)
+#             if not chall_topic.topicID.topicName in course_topics_dict:
+#                 course_topics_dict[chall_topic.topicID.topicName] = [chall_topic.topicID.topicName, {chall.challengeDifficulty}]
+#             else:
+#                 course_topics_dict[chall_topic.topicID.topicName][1].add(chall.challengeDifficulty)
+#                 
+                
+    print(course_topics_set)
+    if '' in difficulty_set:
+        difficulty_set.remove('')
+    print(difficulty_set)
+                     
+    context_dict['course_topics'] = course_topics_set
+    context_dict['difficulty_set'] = difficulty_set
 
     if request.POST:
         # If editing
@@ -544,10 +560,14 @@ def duel_challenge_create(request):
         difficulty = request.POST['difficulty']
         random_challenge = get_random_challenge(topic,difficulty,current_course,student_id, challengee)
         
-        topic_obj = Topics.objects.get(topicID=int(topic))
-        print("topic nameeeeee", topic_obj.topicName)
+        try:
+            topic_obj = Topics.objects.get(topicID=int(topic))
+            print("topic nameeeeee", topic_obj.topicName)
+            topic_name = topic_obj.topicName
+        except:
+            topic_name = 'Any'
         
-        topic_name = topic_obj.topicName
+        
         custom_message +=" on "+topic_name+" (topic) and "+difficulty+" level of difficulty."
         duel_challenge.challengeID = random_challenge
 
@@ -626,6 +646,7 @@ def duel_challenge_create(request):
 @login_required
 def validate_duel_challenge_creation(request):
     from django.http import JsonResponse
+    from Badges.models import CourseConfigParams
 
     c_d,current_course = studentInitialContextDict(request)
     student_id = c_d['student']
@@ -634,6 +655,7 @@ def validate_duel_challenge_creation(request):
     if request.POST:
     
         random_chall_error = []
+        max_vc_error = []
         challengee_vc_error = []
         challenger_vc_error = []
         
@@ -656,41 +678,32 @@ def validate_duel_challenge_creation(request):
         if 'isBetting' in request.POST:
             if request.POST['vcBetting']:
                 vc_bet = int(request.POST['vcBetting'])
-                print("vc_bet",vc_bet)
+                
+                ccparams = CourseConfigParams.objects.get(courseID = current_course)
+                if ccparams.vcDuelMaxBet < vc_bet:
+                    max_vc_error.append("Maximum virtual currency you are allowed to bet is "+ str(ccparams.vcDuelMaxBet))
+ 
                 challengee_reg_crs = StudentRegisteredCourses.objects.get(studentID=challengee, courseID=current_course)
     
                 if challengee_reg_crs.virtualCurrencyAmount < vc_bet:
                     challengee_vc_error.append('Your opponent does not have sufficient virtual currency to bet. Tip: Bet less or uncheck betting.')
-                    
+                     
+                        
                 challenger_reg_crs = StudentRegisteredCourses.objects.get(studentID=student_id, courseID=current_course)
                 challenger_vc = challenger_reg_crs.virtualCurrencyAmount
                 
                 if challenger_vc < vc_bet:
-                    challenger_vc_error.append('You do not have sufficient virtual currency to bet. Your virtual currency is '+str(challenger_vc)+'.')
-                    
-        context_dict['random_chall_error'] = random_chall_error 
-        context_dict['challengee_vc_error'] = challengee_vc_error 
-        context_dict['challenger_vc_error'] = challenger_vc_error
+                    challenger_vc_error.append('You do not have sufficient virtual currency to bet. Your virtual currency is ' + str(challenger_vc) + '.')
         
+        context_dict['random_chall_error'] = random_chall_error 
+        context_dict['challengee_vc_error'] = challengee_vc_error
+        context_dict['challenger_vc_error'] = challenger_vc_error           
+        context_dict['max_vc_error'] = max_vc_error
+        
+        print(context_dict)
         return JsonResponse(context_dict)
     
-    return redirect('/oneUp/students/Callouts')
-
-def convert_time_to_hh_mm(time):
-    '''convert_time_to_hh_mm converts int time into hh:mm format'''
-    
-    hh = time//60
-    mm = (time%60)*60
-    str_hh = str(hh)
-    if len(str_hh) <= 1:
-        str_hh = "0"+str_hh
-    str_mm = str(mm)
-    if len(str_mm) <= 1:
-        if (time%60) < 0.1:
-            str_mm = "0"+str_mm
-        else:
-            str_mm +="0"
-    return str_hh[:2]+":"+str_mm[:2]
+    return redirect('/oneUp/students/Callouts') 
 
 @login_required
 def duel_challenge_description(request):
