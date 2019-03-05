@@ -25,21 +25,22 @@ def goalCreate(request):
 
         # Get the activity from the DB for editing or create a new announcement  
         if 'studentGoalID' in request.POST:
-            sg = request.POST['studentGoalID']
-            goal= StudentGoalSetting.objects.get(pk=int(sg))
+            sgi = request.POST['studentGoalID']
+            goal= StudentGoalSetting.objects.get(pk=int(sgi))
         else:
             goal = StudentGoalSetting()
 
-        #     
+        #    
+        #goal.studentID = context_dict['student'] #get student
         goal.goalType = request.POST['goalType']
-        goal.vcRuleID = request.POST['vcRuleID']
-        goal.objectID = request.POST['objectID']
-        goal.targetedNumber = request.POST['targetNumber']
+        #goal.vcRuleID = request.POST['vcRuleID']
+        #goal.objectID = request.POST['objectID']
+        goal.targetedNumber = request.POST['targetedNumber']
         goal.timestamp = utcDate()
         
         goal.save();  #Writes to database.    
                 
-        return redirect('goalsList')
+        return redirect('GoalsList')
 
     ######################################
     # request.GET 
@@ -52,7 +53,7 @@ def goalCreate(request):
                 
                 # Copy all of the attribute values into the context_dict to
                 # display them on the page.
-                context_dict['studentGoalID'] = request.GET['studentGoalID']
+                #context_dict['studentGoalID'] = request.GET['studentGoalID']
                 context_dict['goalType'] = goal.goalType
                 context_dict['targetNumber'] = goal.targetNumber
                                 

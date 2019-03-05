@@ -25,32 +25,47 @@
                <form name="studentGoal" action="/oneUp/students/GoalCreate" method="POST">
                   {% csrf_token %}
                   {% if studentGoalID %}
-                  <input type="hidden" name="studentGoalID" id="studentGoalD" value="{{studentGoalID}}">
+                  <input type="hidden" name="studentGoalID" id="studentGoalID" value="{{studentGoalID}}">
                   {% endif %}
                   <div class="card">
                      <div class="card-content">
                         <div class="row">
                            <div class="input-field col s12">
+                              <select name="goalType" id="goalType" class="validate" required>
+                                 <option value=1600>Warm Ups with any score</option>
+                                 <option value=1602>Warm Ups at 70% or higher
+                                 <option value=1604>Warm Ups at 80% or higher
+                                 <option value=1606>Warm Ups at 90% or higher
+                                 <option value=1610>Streak with any score</option>
+                                 <option value=1612>Streak at 70% or higher</option> 
+                                 <option value=1614>Streak at 80% or higher</option> 
+                                 <option value=1616>Streak at 90% or higher</option> 
+                                 <option value=1620>Course Bucks</option>
+                                 <option value=1630>Course XP</option>
+                                 <option value=1640>Course Badges</option>                                  
+                              </select>
+                           </div>
+                           <!-- <div class="input-field col s12">
                               <input value="{{goalType}}" name="goalType" id="goalType" type="text" class="validate" required>
                               <label for="goalType"><span class= "red-text">*</span> What is your goal: </label>
-                           </div>
+                           </div> -->
                         </div>
                         <div class="row">
                         <div class="input-field col s12">
-                           <input type="number" name="targetedNumber" id="targetedNumber" required >{{targetedNumber}}</input>
+                           <input value="{{targetedNumber}}" name="targetedNumber" id="targetedNumber" type="number" required ></input>
                            <label for="targetedNumber">How many: </label>
                         </div>
                         </div>
-                        <div class="row">
+                        <!-- <div class="row">
                            <div class="col s12">
-<!--                               <label for="endTime">Announcement Expiration</label>  -->
-<!--                               <input type="text" class="datepicker-from" name="endTime" value="{{endTimestamp}}" id="endTime"> -->
+                              <label for="endTime">Announcement Expiration</label> 
+                              <input type="text" class="datepicker-from" name="endTime" value="{{endTimestamp}}" id="endTime">
                            </div>
-                        </div>
+                        </div> -->
                      </div>
                      <div class="card-action right-align">
                         <button class="btn waves-effect waves-light" type="submit" name="submit">Create<i class="material-icons right">send</i></button>
-                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/announcementList"><i class="material-icons left">close</i>Cancel</a>
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons left">close</i>Cancel</a>
                      </div>
                   </div>
                </form>
