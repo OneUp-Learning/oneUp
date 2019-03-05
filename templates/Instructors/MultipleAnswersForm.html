@@ -2,6 +2,7 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      {% load static %}
       <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
       <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
       <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
@@ -150,11 +151,14 @@
                         <div class="row">
                            <div class="col s12">
                               <label for="question_text"><span class= "red-text">*</span> Problem Text</label>
-                              <textarea class="ckeditor" name="questionText" id="question_text" rows="2" cols="70" {%if view%}readonly{%else%}required{%endif%}>{{questionText}}</textarea>
+                              <!-- <textarea class="ckeditor" name="questionText" id="question_text" rows="2" cols="70" {%if view%}readonly{%else%}required{%endif%}>{{questionText}}</textarea> -->
                               <!-- <script type="text/javascript">
                                 CKEDITOR.config.autoParagraph = false;
                                 CKEDITOR.replace('questionText');
                               </script>               -->
+                              <div class="django-ckeditor-widget" data-field-id="0">
+                                 <textarea name="questionText" id="question_text" rows="2" cols="70" {%if view%}readonly{%else%}required{%endif%} data-processed="0" data-config="{{ ckeditor.config }}" data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" data-id="question_text" data-type="ckeditortype">{{ questionText }}</textarea>
+                             </div>
                            </div>
                         </div>
                         <div class="row">

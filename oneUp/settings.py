@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 #This is used for uploading AvatarImages
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #This is for the sever
-MEDIA_URL =  'media/' #This is for the html
+MEDIA_URL =  '/media/' #This is for the html
 CKEDITOR_UPLOAD_PATH = "ckeditor/uploads/"
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = True
 CKEDITOR_RESTRICT_BY_USER = True
@@ -135,7 +135,7 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 STATIC_URL = '/OneUp/' # You may find this is already defined as such.
 
-CKEDITOR_BASEPATH = os.path.join(STATIC_PATH, 'ThirdParty/ckeditor/ckeditor')
+CKEDITOR_BASEPATH = os.path.join(STATIC_ROOT, 'ThirdParty/ckeditor/ckeditor')
 
 STATICFILES_DIRS = (
 )
@@ -180,65 +180,61 @@ LOGIN_URL='/oneUp/permission_error'
 # Ckeditor Settings
 CKEDITOR_CONFIGS = {
     'default': {
-        'skin': 'moono',
+        'skin': 'moono-lisa',
         # 'skin': 'office2013',
         'toolbar_Basic': [
             ['Source', '-', 'Bold', 'Italic']
         ],
-        'toolbar_YourCustomToolbarConfig': [
-            {'name': 'document', 'items': ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates']},
-            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']},
-            {'name': 'editing', 'items': ['Find', 'Replace', '-', 'SelectAll']},
-            {'name': 'forms',
-             'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
-                       'HiddenField']},
+        'toolbar_Custom': [
+            {'name': 'document', 'items': ['Source', '-', 'Preview', 'Print', '-', 'Templates']},
+            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo']},
+            {'name': 'editing', 'items': ['Find', 'Replace', 'SelectAll']},
             '/',
             {'name': 'basicstyles',
              'items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']},
             {'name': 'paragraph',
-             'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-',
+             'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-',
                        'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl',
                        'Language']},
-            {'name': 'links', 'items': ['Link', 'Unlink', 'Anchor']},
+            {'name': 'links', 'items': ['Link', 'Unlink']},
             {'name': 'insert',
-             'items': ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe']},
+             'items': ['Image', 'Table', 'HorizontalRule', 'Smiley', 'EqnEditor', 'CodeSnippet', 'Markdown']},
             '/',
             {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
             {'name': 'colors', 'items': ['TextColor', 'BGColor']},
-            {'name': 'tools', 'items': ['Maximize', 'ShowBlocks']},
             {'name': 'about', 'items': ['About']},
-            '/',  # put this to force next toolbar on new line
-            {'name': 'yourcustomtools', 'items': [
-                # put the name of your editor.ui.addButton here
-                'Preview',
-                'Maximize',
-
-            ]},
         ],
-        'toolbar': 'Basic',  # put selected toolbar config here
-        # 'toolbarGroups': [{ 'name': 'document', 'groups': [ 'mode', 'document', 'doctools' ] }],
+        'toolbar': 'Custom',  # put selected toolbar config here
         # 'height': 291,
-        # 'width': '100%',
-        # 'filebrowserWindowHeight': 725,
-        # 'filebrowserWindowWidth': 940,
-        # 'toolbarCanCollapse': True,
-        # 'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+        'width': '100%',
+        'filebrowserWindowHeight': 725,
+        'filebrowserWindowWidth': 940,
+        'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+        'format_tags': 'p;h1;h2;h3;pre',
+        'removeDialogTabs': 'image:advanced;link:advanced',
+        'line_height': '0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em',
         'tabSpaces': 4,
         'extraPlugins': ','.join([
             'uploadimage', # the upload image feature
+            'uploadwidget',
             # your extra plugins here
-            'div',
             'autolink',
             'autoembed',
             'embedsemantic',
             'autogrow',
             # 'devtools',
+            'pastecode',
+            'pastefromword',
+            'mathjax',
             'widget',
             'lineutils',
             'clipboard',
             'dialog',
             'dialogui',
-            'elementspath'
+            'elementspath',
+            'smiley',
+            'codesnippet',
+            'markdown'
         ]),
     }
 }
