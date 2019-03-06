@@ -209,15 +209,16 @@ CKEDITOR_CONFIGS = {
         'width': '100%',
         'filebrowserWindowHeight': 725,
         'filebrowserWindowWidth': 940,
-        'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
         'format_tags': 'p;h1;h2;h3;pre',
         'removeDialogTabs': 'image:advanced;link:advanced',
         'line_height': '0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em',
+        'autoParagraph': False,
         'tabSpaces': 4,
+        'codeSnippet_theme': 'obsidian',
         'extraPlugins': ','.join([
             'uploadimage', # the upload image feature
             'uploadwidget',
-            # your extra plugins here
+            'eqneditor',
             'autolink',
             'autoembed',
             'embedsemantic',
@@ -225,7 +226,6 @@ CKEDITOR_CONFIGS = {
             # 'devtools',
             'pastecode',
             'pastefromword',
-            'mathjax',
             'widget',
             'lineutils',
             'clipboard',
