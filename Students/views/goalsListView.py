@@ -17,6 +17,9 @@ from Students.models import StudentGoalSetting
 from Students.views.utils import studentInitialContextDict
 from Students.views.allAnnouncementsView import createContextForAnnouncementList
 
+from Students.models import StudentGoalSetting
+
+
 # Added boolean to check if viewing from announcements page or course home page
 def createContextForGoalsList(currentCourse, context_dict, courseHome):
 
@@ -31,26 +34,26 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
     index = 0
     if not courseHome: # Shows all the announcements
         for goal in goals:
-            studentGoal_ID.append(goal.studentGoalID) #pk
-            student_ID.append(goal.studentID)
-            start_date.append(goal.timestamp)
+            studentGoal_ID.append(goals.studentGoalID) #pk
+            student_ID.append(goals.studentID)
+            start_date.append(goals.timestamp)
             # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-            end_date = goal.timestamp
-            end_date.append(goal.timestamp)
+            endDate = goals.timestamp + datetime.timedelta(days=7)
+            end_date.append(endDate)
             
             #end_date calculation function here
             
-            goal_Type.append(goal.goalType)
-            targeted_Number.append(goal.targetedNumber)
+            goal_Type.append(goals.goalType)
+            targeted_Number.append(goals.targetedNumber)
     else: # Only shows the first three
         for goal in goals:
             if index < 1:
-                studentGoal_ID.append(goal.studentGoalID) #pk
-                student_ID.append(goal.studentID)
-                start_date.append(goal.timestamp)
-                end_date.append(goal.timestamp)
-                goal_Type.append(goal.goalType)
-                targeted_Number.append(goal.targetedNumber)
+                studentGoal_ID.append(goals.studentGoalID) #pk
+                student_ID.append(goals.studentID)
+                start_date.append(goals.timestamp)
+                end_date.append(goals.timestamp)
+                goal_Type.append(goals.goalType)
+                targeted_Number.append(goals.targetedNumber)
                 index += 1
     
       

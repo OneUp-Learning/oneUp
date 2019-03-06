@@ -31,7 +31,7 @@ def goalCreate(request):
             goal = StudentGoalSetting()
 
         #    
-        #goal.studentID = context_dict['student'] #get student
+        #goal.studentID = context_dict['student'] #get student ID
         goal.goalType = request.POST['goalType']
         #goal.vcRuleID = request.POST['vcRuleID']
         #goal.objectID = request.POST['objectID']
