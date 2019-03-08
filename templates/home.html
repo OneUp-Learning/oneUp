@@ -17,8 +17,7 @@
       {% include 'heading0.html' %}
       <main>
         <div class="row">
-          <div class="col s12 m2 l4"></div>
-          <div class="col s12 m8 l4">
+          <div class="col s12 m8 l4 offset-m2 offset-l4">
             <div class="card-panel">
               {% if not logged_in %}
               <div class="row center-align">
@@ -56,11 +55,23 @@
                     <label class="active" for="password" data-error="incorrect">Password</label>
                   </div>
                 </div>    
-                <div class="row">
-                  <button class="btn waves-effect waves-light cyan" type="submit" name="login" value="Login">Submit
+                <div class="row" style="text-align-last: center;">
+                  <button class="btn waves-effect waves-light" type="submit" name="login" value="Login">Submit
                     <i class="material-icons right">send</i>
-                  </button>  
-                </div>                
+                  </button>
+                </div>    
+                <div class="row">
+                  <p style="text-align-last: center;"><a class="waves-effect waves-light modal-trigger" href="#forgot-password">Forgot password?</a></p>
+                  <div id="forgot-password" class="modal">
+                      <div class="modal-content left-align">
+                        <h4>Trouble Logginng In?</h4>
+                        <p style="color: #6d6d6d;">See your instructor or administrator to reset your password</p>
+                      </div>
+                      <div class="modal-footer">
+                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Back To Login</a>
+                      </div>
+                    </div>
+                </div>            
               </form>
               {% else %}
               <div class="row center-align">
@@ -113,7 +124,6 @@
               {% endif %}
             </div>
           </div>
-          <div class="col s12 m2 l4"></div>
         </div>
       </main>
       {% include 'footer.html' %}
