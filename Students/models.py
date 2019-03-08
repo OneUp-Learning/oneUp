@@ -142,6 +142,17 @@ class StudentVirtualCurrencyRuleBased(StudentVirtualCurrency):
 
     def __str__(self):              
         return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
+    
+class StudentGoalSetting(models.Model):
+    studentGoalID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
+    goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
+    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
+    targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
+
+    def __str__(self):              
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
