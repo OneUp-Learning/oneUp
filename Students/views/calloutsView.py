@@ -17,6 +17,7 @@ from celery import Celery
 import json
 from Instructors.views.courseInfoView import courseInformation
 
+
 app = Celery('Students', broker='amqp://localhost')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
@@ -389,6 +390,9 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
                         print("difficulty selected", difficulty)
                         if difficulty == "Any":
                             challenges_list.append(chall_t.challengeID)
+
+                        elif difficulty == 'Unspecified' and chall_t.challengeID.challengeDifficulty=='':
+                            challenges_list.append(chall_t.challengeID)
                             
                         else:
                             if chall_t.challengeID.challengeDifficulty == difficulty:
@@ -461,6 +465,8 @@ def duel_challenge_create(request):
     ccparams = CourseConfigParams.objects.get(courseID = current_course)
     duel_vc_const = ccparams.vcDuel
     duel_vc_participants_const = ccparams.vcDuelParticipants
+
+    context_dict['max_bet'] = ccparams.vcDuelMaxBet
     
     if ccparams.betVC:
         context_dict["is_bet_vc"] = True
@@ -483,7 +489,7 @@ def duel_challenge_create(request):
     challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
     for chall_t in challenges_topics:
             # check if challenge has not been taken by challenger and challengee
-            if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id): #not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=reg_students[0].studentID) 
+            if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=reg_students[0].studentID) :
                 if not chall_t.challengeID.isGraded:
                     # check if challenge has any questions
                     if ChallengesQuestions.objects.filter(challengeID=chall_t.challengeID):
@@ -495,14 +501,14 @@ def duel_challenge_create(request):
     for challenger_duel in challenger_duels:
         challenger_duels_challs.append(challenger_duel.challengeID)
          
-#     challengee_duels = DuelChallenges.objects.filter(challengee = reg_students[0].studentID)
-#     challengee_duels_challs = []
-#     for challengee_duel in challengee_duels:
-#         challenger_duels_challs.append(challengee_duel.challengeID)
+    challengee_duels = DuelChallenges.objects.filter(challengee = reg_students[0].studentID)
+    challengee_duels_challs = []
+    for challengee_duel in challengee_duels:
+        challengee_duels_challs.append(challengee_duel.challengeID)
          
     topic_ids = []
     for chall, chall_topic in zip(challenges_list, chall_topics):
-        if not chall in challenger_duels_challs : #and not chall in challengee_duels_challs
+        if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
             difficulty_set.add(chall.challengeDifficulty)
             
             if chall_topic.topicID.topicID in topic_ids:
@@ -519,6 +525,7 @@ def duel_challenge_create(request):
     print(course_topics_set)
     if '' in difficulty_set:
         difficulty_set.remove('')
+        difficulty_set.add('Unspecified')
     print(difficulty_set)
                      
     context_dict['course_topics'] = course_topics_set
@@ -599,7 +606,7 @@ def duel_challenge_create(request):
             print('is betting is true')
              # Set the amount of VC
             if 'vcBetting' in request.POST:
-                vc_bet = int(request.POST['vcBetting'])
+                vc_bet = abs(int(request.POST['vcBetting']))
                 double_vc = 2*vc_bet
                 duel_challenge.vcBet = vc_bet
                 custom_message += " This Challenge is a bet that rewards the winner an amount of Virtual Currency of " +str(double_vc) 
@@ -642,6 +649,92 @@ def duel_challenge_create(request):
         return redirect('/oneUp/students/Callouts')
     #elif request.GET:
     return render(request,'Students/DuelChallengeCreateForm.html', context_dict)
+
+@login_required
+def get_create_duel_topics_difficulties(request):
+    from django.http import JsonResponse
+
+    c_d,current_course = studentInitialContextDict(request)
+    student_id = c_d['student']
+    context_dict = {}
+
+    challengee_id = request.GET['challengee']
+    course_topics_set = set()
+    difficulty_set = set()
+
+    challenges_list = []
+    chall_topics = []
+
+    if 'topic_id' in request.GET:
+        topic = request.GET['topic_id']
+        if topic == "Any":
+            course_topics = CoursesTopics.objects.filter(courseID=current_course) 
+        else:
+            topic_obj = Topics.objects.get(topicID=int(topic))
+            print("topic nameeeeee", topic_obj.topicName)
+            course_topics = CoursesTopics.objects.filter(courseID=current_course, topicID=topic_obj)
+    else:
+        course_topics = CoursesTopics.objects.filter(courseID=current_course)
+
+    challenges_list = []
+    for crs_t in course_topics:
+        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID)
+
+    if 'topicID' in request.GET:
+        topic = request.GET['topicID']
+
+        if topic == "Any":
+            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+        else:
+            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, topicID=int(topic))
+    else:
+        challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+       
+
+    for chall_t in challenges_topics:
+            # check if challenge has not been taken by challenger and challengee
+            if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :
+                if not chall_t.challengeID.isGraded:
+                    # check if challenge has any questions
+                    if ChallengesQuestions.objects.filter(challengeID=chall_t.challengeID):
+                        challenges_list.append(chall_t.challengeID)
+                        chall_topics.append(chall_t)
+ 
+
+    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
+    challenger_duels_challs = []
+    for challenger_duel in challenger_duels:
+        challenger_duels_challs.append(challenger_duel.challengeID)
+         
+    challengee_duels = DuelChallenges.objects.filter(challengee__user__id=challengee_id)
+    challengee_duels_challs = []
+    for challengee_duel in challengee_duels:
+        challengee_duels_challs.append(challengee_duel.challengeID)
+         
+    topic_ids = []
+    i=0
+    for chall, chall_topic in zip(challenges_list, chall_topics):
+        if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
+            
+            difficulty_set.add(chall.challengeDifficulty)
+            
+            if chall_topic.topicID.topicID in topic_ids:
+                continue
+            else:
+                topic_ids.append(chall_topic.topicID.topicID)
+            course_topics_set.add(str(chall_topic.topicID.topicID)+"---"+chall_topic.topicID.topicName)
+
+    if '' in difficulty_set:
+        difficulty_set.remove('')
+        difficulty_set.add('Unspecified')
+
+    print(course_topics_set)
+                     
+    context_dict['course_topics'] = list(course_topics_set)
+    context_dict['difficulty_set'] = list(difficulty_set)
+
+    print(context_dict)
+    return JsonResponse(context_dict)
 
 @login_required
 def validate_duel_challenge_creation(request):
