@@ -23,6 +23,7 @@ from Badges.systemVariables import logger
 from Students.views.challengeSetupView import makeSerializableCopyOfDjangoObjectDictionary
 import re
 import math
+import pytz
 from decimal import Decimal
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
@@ -106,12 +107,12 @@ def ChallengeResults(request):
                     context_dict['warmUp'] = 1
                     
                 print("Start Time: "+request.POST['startTime'])
-                startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")  
+                startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p").replace(tzinfo=None).astimezone(pytz.utc)
                 #end time of the test is the current time when it is navigated to this page
                 endTime = utcDate()
                 print("End Time:"+ endTime.strftime("%m/%d/%Y %I:%M %p"))
 
-                attemptId = 'challenge:'+challengeId + '@' + startTime.strftime("%m/%d/%Y %I:%M:%S %p")
+                attemptId = 'challenge:'+challengeId + '@' + request.POST['startTime']
                 print("attemptID = "+attemptId)               
                 
                 # Do not grade the same challenge twice
