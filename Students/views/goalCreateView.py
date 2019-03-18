@@ -12,7 +12,9 @@ from Instructors.views.utils import utcDate, initialContextDict
 #2.18.2019 JC
 from Students.models import StudentGoalSetting
 from Badges.enums import Goal
+from Badges import systemVariables
 from Students.views.utils import studentInitialContextDict
+from Badges.systemVariables import SystemVariable
 
 @login_required
  
@@ -21,6 +23,7 @@ def goalCreate(request):
     # The context contains information such as the client's machine details, for example.
  
     context_dict, currentCourse = studentInitialContextDict(request)
+    sysVar = SystemVariable
 
     if request.POST:
 
@@ -35,7 +38,7 @@ def goalCreate(request):
         goal.studentID = context_dict['student'] #get student ID
         goal.goalType = request.POST['goalType']    
         goal.targetedNumber = request.POST['targetedNumber']
-        goal.timestamp = utcDate()        
+        goal.timestamp = utcDate()       
         
         goal.save();  #Writes to database.    
                 
