@@ -24,7 +24,6 @@
      
    </head>
    <body>
-      {% include 'stheading.html' %}
 
       <form id="refresh" name="refresh" action="/oneUp/students/DuelChallengeDescription?duelChallengeID={{requested_duel_challenge.duelChallengeID}}&sTime=0" method="GET">
         <input type="hidden" name="duelChallengeID" id="duelChallengeID" value ="{{requested_duel_challenge.duelChallengeID}}">
@@ -81,11 +80,21 @@
                                 {% endif %}
                                 {% if duel_vc_const > 0 %}
 	                                    <li>
-	                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+	                                        <span><b>Winner's Award: </b></span>
 	                                        <span>{{duel_vc_const}}</span>
 	                                    </li>
+	            
+	                            {% endif %}
+	                            {% if duel_vc_participants_const > 0 %}
 	                                    <li>
-	                                         <span><b>Award Amount: </b></span>
+	                                        <span><b>Participation Award: </b></span>
+	                                        <span>{{duel_vc_participants_const}}</span>
+	                                    </li>
+	                            {% endif %}
+	                                    
+	                            {% if award %}         
+	                                    <li>
+	                                         <span><b>Total Award for winner(s): </b></span>
 	                                         <span>{{award}}</span>
 	                                    </li>
 	                            {% endif %}
@@ -127,16 +136,27 @@
                                 </li>
                                 
                                 {% endif %}
-                                {% if duel_vc_const > 0 %}
+                               {% if duel_vc_const > 0 %}
 	                                    <li>
-	                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+	                                        <span><b>Winner's Award: </b></span>
 	                                        <span>{{duel_vc_const}}</span>
 	                                    </li>
+	            
+	                           {% endif %}
+	                           {% if duel_vc_participants_const > 0 %}
 	                                    <li>
-	                                         <span><b>Award Amount: </b></span>
+	                                        <span><b>Participation Award: </b></span>
+	                                        <span>{{duel_vc_participants_const}}</span>
+	                                    </li>
+	                           {% endif %}
+	                                    
+	                                    
+	                           {% if award %}         
+	                                    <li>
+	                                         <span><b>Total Award for winner(s): </b></span>
 	                                         <span>{{award}}</span>
 	                                    </li>
-	                                {% endif %}
+	                           {% endif %}
                                     <span><b>Score: </b></span>
                                     <span>{{sChall.testScore}} / {{sChall.challengeID.totalScore}} pts</span>
                                 </li>
@@ -262,14 +282,24 @@
                             {% endif %}
                            {% if duel_vc_const > 0 %}
 	                                    <li>
-	                                        <span><b>Virtual Currency provided by Teacher: </b></span>
+	                                        <span><b>Winner's Award: </b></span>
 	                                        <span>{{duel_vc_const}}</span>
 	                                    </li>
+	            
+	                        {% endif %}
+	                        {% if duel_vc_participants_const > 0 %}
 	                                    <li>
-	                                         <span><b>Award Amount: </b></span>
+	                                        <span><b>Participation Award: </b></span>
+	                                        <span>{{duel_vc_participants_const}}</span>
+	                                    </li>
+	                         {% endif %}
+	                                    
+	                         {% if award %}         
+	                                    <li>
+	                                         <span><b>Total Award for winner(s): </b></span>
 	                                         <span>{{award}}</span>
 	                                    </li>
-	                        {% endif %}
+	                         {% endif %}
                         </ul>
                         </div>
                         {% endif %}

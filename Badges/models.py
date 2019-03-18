@@ -303,14 +303,18 @@ class CourseConfigParams(models.Model):
 
     levelingUsed = models.BooleanField(default=False)                 ##
     
+    # Duels related
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
+    betVC = models.BooleanField(default=True)                         ## Allow the bet of virtual currency in duels
+    vcDuelParticipants = models.IntegerField(default=0)               ## Amount of virtual currency rewarded to duel participants
     vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
+    vcDuelMaxBet = models.IntegerField(default=3)                     ## Max Amount of betting virtual currency 
     vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
-
+     
     progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page
     
     chatUsed = models.BooleanField(default=True)                      ## This will enable or disable the chat feature 
-
+    
     seriousChallengesGrouped = models.BooleanField(default=False)     ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side
 
     leaderboardUsed = models.BooleanField(default=False)              ##
@@ -338,6 +342,10 @@ class CourseConfigParams(models.Model):
     xpWeightWChallenge = models.IntegerField(default=0)               ## XP Weights for Warm up Challenges
     xpWeightAPoints    = models.IntegerField(default=0)               ## XP Weights for Activity Points
 
+    xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by 
+                                                                      ## max score of scores or by the first attempt score
+    xpCalculateWarmupByMaxScore = models.BooleanField(default=False)  ## Same as preivous but for warmup challenges
+
     ## Levels of Difficulties for the course
     thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium
     thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
@@ -347,6 +355,13 @@ class CourseConfigParams(models.Model):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
         +str(self.numBadgesDisplayed) +"," \
+        +str(self.levelingUsed) +"," \
+        +str(self.classmatesChallenges) +"," \
+        +str(self.vcDuel) +"," \
+        +str(self.vcCallout) +"," \
+        +str(self.progressBarUsed) +"," \
+        +str(self.chatUsed) +"," \
+        +str(self.seriousChallengesGrouped) +"," \
         +str(self.levelingUsed) +"," \
         +str(self.leaderboardUsed) +"," \
         +str(self.numStudentsDisplayed) +"," \
@@ -363,7 +378,15 @@ class CourseConfigParams(models.Model):
         +str(self.xpWeightSP) +"," \
         +str(self.xpWeightSChallenge) +"," \
         +str(self.xpWeightWChallenge) +"," \
-        +str(self.xpWeightAPoints) +"," 
+        +str(self.xpWeightAPoints) +"," \
+        +str(self.xpCalculateSeriousByMaxScore)+"," \
+        +str(self.xpCalculateWarmupByMaxScore)+"," \
+        +str(self.classmatesChallenges)+","\
+        +str(self.betVC)+","\
+        +str(self.vcCallout)+","\
+        +str(self.vcDuel)+","\
+        +str(self.vcDuelMaxBet)+","\
+        +str(self.vcDuelParticipants)+","
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)

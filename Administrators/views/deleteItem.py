@@ -4,7 +4,11 @@ from django.shortcuts import render, redirect
 from Instructors.models import Instructors, InstructorRegisteredCourses, Courses
 from django.contrib.auth.models import User
 from django_celery_beat.models import PeriodicTask
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import adminsCheck
 
+@login_required
+@user_passes_test(adminsCheck,login_url='/oneUp/home',redirect_field_name='')
 def deleteItemView(request):
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated

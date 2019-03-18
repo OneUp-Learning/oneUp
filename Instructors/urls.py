@@ -85,6 +85,8 @@ from Instructors.views.addExistingStudentView import addStudentListView, addExis
 from Instructors.views.activityListView import reorderActivities
 from Instructors.views.attendanceStreaks import attendanceStreaks
 
+from Instructors.views.challengeClassmatesReport import challenge_classmates_report, duel_challenge_report
+
 admin.autodiscover()
 
 urlpatterns = [
@@ -182,4 +184,6 @@ urlpatterns = [
     url(r'^addStudentListView', addStudentListView, name='addStudentListView'),
     url(r'^addExistingStudent', addExistingStudent, name="addExistingStudent"),
     url(r'^attendanceStreaks', attendanceStreaks, name="attendanceStreaks"),
+    url(r'^challengeClassmatesReport', challenge_classmates_report, name="challengeClassmatesReport"),
+    url(r'^DuelChallengeReport', duel_challenge_report, name="DuelChallengeReport"),
 ]
