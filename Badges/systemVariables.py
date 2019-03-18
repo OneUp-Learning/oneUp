@@ -9,6 +9,7 @@ import logging
 from billiard.connection import CHALLENGE
 from django.conf.urls.static import static
 from dateutil.utils import today
+from Instructors.views.utils import utcDate
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -145,8 +146,8 @@ def getDaysBetweenCurrentTimeAndDeadline(challenge):
     ''' Utility function used by other functions.
         Returns the number of days between now and challenge deadline.
     '''
-    deadline = challenge.endTimestamp
-    now = timezone.now()
+    deadline = challenge.dueDate
+    now = utcDate()
     diff = deadline-now
     return diff.days
 
@@ -497,8 +498,35 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
         # The student on average has earned more than their last attempt return the difference
         if average > latestAttempt.activityScore:
             return average - float(latestAttempt.activityScore)
-
     return 0
+    
+def getAverageTestScorePercent(course, student, challenge):    
+    '''return the course average score of the a challenge, adjustment and curve are considered'''
+   
+    from Students.models import StudentRegisteredCourses
+    from Students.models import StudentChallenges
+    
+    students = StudentRegisteredCourses.objects.filter(courseID=course)
+    max_scores = 0 
+    chall = 0
+    for student in students:
+        try: 
+            max_score = StudentChallenges.objects.filter(courseID=course, studentID=student.studentID, challengeID=challenge).latest('testScore').getScore()
+            max_scores += max_score
+            chall += 1
+            print('here student', student)
+        except:
+            print('here')
+            continue
+    if not chall == 0 and not challenge.totalScore == 0: 
+        ave = (max_scores / (chall * challenge.totalScore)) * 100
+        print("Get average test score percentage", ave)
+        return ave
+    else:
+        print("Get average test score percentage", 0)
+        return 0
+   
+
     
 def getDateOfFirstChallengeSubmission(course,student,challenge):
     ''' This will return the date (not datetime) of the first submission of a challenge for a student.
@@ -746,10 +774,40 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
         if warmUpChallDates[len(warmUpChallDates)-1] != today:
             consecutiveDays = 0
         print("consecutive days 1:", consecutiveDays)
-        print()
-        print()
-        return consecutiveDays 
+        return consecutiveDays    
+
+
+def getNumDaysSubmissionLateActivity(course, student , activity):
+    '''Return the number of days an activity submitted after due date'''
+    from Students.models import StudentActivities
+   
+    print("numb days submissionsssss late")
+    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
+    if not studentActivity:
+        return (float('inf'))
+    else: 
+        print("submission late " , getDaysDifferenceActity(activity,studentActivity[0]))
+        return (-1 *getDaysDifferenceActity(activity,studentActivity[0]))
     
+def getNumDaysSubmissionEarlyActivity(course, student , activity):
+    '''Return the number of days an activity submitted before due date'''
+    from Students.models import StudentActivities
+    
+    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
+    if not studentActivity:
+        return (-1*float('inf'))
+    else:
+        return getDaysDifferenceActity(activity,studentActivity[0])
+
+def calcNumDaysSubmissionEarly(course,student,challenge):
+    days = getDaysBetweenCurrentTimeAndDeadline(challenge)
+    return days
+        
+def calcNumDaysSubmissionLate(course,student,challenge):
+    days = -1 * getDaysBetweenCurrentTimeAndDeadline(challenge)
+    return days
+
+
 # def getScorePercentageDifferenceFromPreviousActivity(course, student, activity):
 #     '''Returns the the difference between the percentages of the student's scores for this activity and its previous one'''
 #     
@@ -775,43 +833,9 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
 #         else:
 #             previousActivityScorePercentage = getPercentageOfActivityScore(course, student, activityObject.activityID)
 #             
-#     return 0   
+#     return 0
 
-def calcNumDaysSubmissionEarly(course,student,challenge):
-    ''' INCOMPLETE
-        This will return the number of days the student has completed a challenge before the deadline
-        If the result is < 0 then the submission is late
-    '''
-    return getDaysBetweenCurrentTimeAndDeadline(challenge)
-        
-def calcNumDaysSubmissionLate(course,student,challenge):
-    ''' INCOMPLETE
-        This will return the number of days the student has completed a challenge after the deadline
-        If the result is < 0 then the submission is early
-    '''
-    return -1 * getDaysBetweenCurrentTimeAndDeadline(challenge)
 
-def getNumDaysSubmissionEarlyActivity(course, student , activity):
-    ''' Return the number of days an activity submitted before due date'''
-    from Students.models import StudentActivities
-    
-    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    if not studentActivity:
-        return (-1*float('inf'))
-    else:
-        return getDaysDifferenceActity(activity,studentActivity[0])
-
-def getNumDaysSubmissionLateActivity(course, student , activity):
-    ''' Return the number of days an activity submitted after due date'''
-    from Students.models import StudentActivities
-   
-    print("numb days submissionsssss late")
-    studentActivity = StudentActivities.objects.filter(courseID=course, studentID=student, activityID=activity)
-    if not studentActivity:
-        return (float('inf'))
-    else: 
-        return (-1 *getDaysDifferenceActity(activity,studentActivity[0]))
-    
 def getNumAttempts(course,student,challenge):
     ''' This will return the number of times a student has completed a specific challenge. ''' 
     from Students.models import StudentEventLog
