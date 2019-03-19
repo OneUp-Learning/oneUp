@@ -410,7 +410,7 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     
     dt = datetime.strptime(date, form)
     
-    print("Converted Time to UTC: " , dt.replace(tzinfo=timezone.utc))
+    print("Converted Time to UTC: " , dt.astimezone(pytz.utc))
     return dt.replace(tzinfo=timezone.utc)  
 
 def localizedDate(request, date_str, date_format, timezone=None):
