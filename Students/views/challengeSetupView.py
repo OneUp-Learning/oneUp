@@ -20,6 +20,7 @@ from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 from locale import currency
 from django.db.models.functions.window import Lead
+from oneUp.ckeditorUtil import config_ck_editor
 
 def makeSerializableCopyOfDjangoObjectDictionary(obj):
     dict = obj.__dict__.copy()
@@ -115,6 +116,7 @@ def ChallengeSetup(request):
             
         register_event(Event.startChallenge,request,None,challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)
-        
+       
+        context_dict['ckeditor'] = config_ck_editor()
     return render(request,'Students/ChallengeSetup.html', context_dict)
 

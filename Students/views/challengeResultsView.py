@@ -24,6 +24,7 @@ from Students.views.challengeSetupView import makeSerializableCopyOfDjangoObject
 import re
 import math
 from decimal import Decimal
+from oneUp.ckeditorUtil import config_ck_editor
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
@@ -255,6 +256,7 @@ def ChallengeResults(request):
 
             # The sort on the next line should be unnecessary, but better safe than sorry
             context_dict['questions'] = sorted(questions,key=lambda q:q['index'])
+            context_dict['ckeditor'] = config_ck_editor()
             
     return render(request,'Students/ChallengeResults.html', context_dict)
 
