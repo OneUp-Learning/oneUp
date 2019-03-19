@@ -214,7 +214,7 @@ CKEDITOR_CONFIGS = {
         'line_height': '0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em',
         'autoParagraph': False,
         'tabSpaces': 4,
-        'codeSnippet_theme': 'obsidian',
+        'codeSnippet_theme': 'default',
         'extraPlugins': ','.join([
             'uploadimage', # the upload image feature
             'uploadwidget',
