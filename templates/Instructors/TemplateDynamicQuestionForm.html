@@ -4,8 +4,11 @@
 <head>
     {% include 'scripts.html' %} {% load staticfiles %}
     <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
+    <link href="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/styles/obsidian.css" rel="stylesheet">
+    <script src="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js"></script>
     <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
-      <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
+    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
     <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/js/AJAXgetquerystring.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -70,6 +73,8 @@
         }
 
         var numParts = {{numParts}}
+        var ckeditor_config = "{{ckeditor.config}}";
+        var ckeditor_plugins_resources = "{{ckeditor.external_plugin_resources}}";
 
         function addPart() {
 
