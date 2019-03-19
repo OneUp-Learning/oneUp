@@ -699,6 +699,8 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     correctLineCount = int(studentAnswerDict['correctLineCount'])
     feedBackButtonClickCount = int(studentAnswerDict['feedBackButtonClickCount'])
     print("correctlinecount", correctLineCount,wrongPositionLineNumberbers,errorDescriptions,feedBackButtonClickCount)
+    studentGrade = 0.0
+    penalties = 0.0
     if studentSolution == "":
         qdict['user_points'] = 0
     else:
@@ -720,12 +722,6 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             print("studentSol", qdict['parsonStudentSol'])
             print("studentSolLineCount", studentSolutionLineCount)
 
-            ##if there was an indentation problem
-            if indentation == "true":
-                if indentationErrorCount > 0:
-                    ##we multiply by 1/2 because each wrong is half of 1/n
-                    penalties += Decimal((indentationErrorCount / correctLineCount) * 5)
-
             ##too few
             if (studentSolutionLineCount < correctLineCount):
                 penalties += Decimal((correctLineCount - studentSolutionLineCount) * (1 / correctLineCount))
@@ -740,24 +736,27 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
                 penalties += Decimal( len(wrongPositionLineNumberbers) / correctLineCount)
                 print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
                 print("WrongLine Number penalties: ", penalties)
-            if feedBackButtonClickCount > 0:
-                maxPoints /= feedBackButtonClickCount * 2
-                print("Feedback button click count:", feedBackButtonClickCount)
-                print("Penalties after feedback:", penalties)
 
-            #max points is the maximum points student can earn, and we subtract the penalties
-            print("studentGrade", studentGrade, maxPoints, penalties)
-            studentGrade = maxPoints - (maxPoints * penalties)
-            if studentGrade < 0:
-                studentGrade = 0
+            ##if there was an indentation problem
+            if indentation == "true":
+                if indentationErrorCount > 0:
+                    ##we multiply by 1/2 because each wrong is half of 1/n
+                    penalties += Decimal((indentationErrorCount / correctLineCount) * (1/2))
 
-            print("Student grade:", studentGrade)
-            print("Total Points:", qdict['total_points'])
-            if (float(studentGrade) == float(qdict['total_points'])):
-                qdict['user_points'] = qdict['total_points']
-                print("Correct answer full points", qdict['user_points'])
-            else:
-                qdict['user_points'] = round(Decimal(studentGrade), 2)
+    print("Student grade:", studentGrade)
+    print("Total Points:", qdict['total_points'])
+    if feedBackButtonClickCount > 0:
+        maxPoints /= feedBackButtonClickCount * 2
+    else:
+        maxPoints = qdict['total_points']
+
+    #max points is the maximum points student can earn, and we subtract the penalties
+    print("studentGrade", studentGrade, maxPoints, penalties)
+    studentGrade = float(maxPoints) - (float(maxPoints) * float(penalties))
+    if studentGrade < 0:
+        studentGrade = 0
+
+    qdict['user_points'] = round(Decimal(studentGrade), 2)
     return qdict
 
 
