@@ -80,12 +80,8 @@ def getRollByDate(request, context_dict):
                 studentPresenceOnDatesList.append("false")
                 datesPostion[position] += 1 
             else:
-                student = list(student)
-                if student[0].isPresent == True:
-                    studentPresenceOnDatesList.append("true")
-                else:
-                    studentPresenceOnDatesList.append("false")
-                    datesPostion[position] += 1
+                studentPresenceOnDatesList.append("true")
+                datesPostion[position] += 1
 
             position+=1
                     
@@ -113,7 +109,7 @@ def generateDatesList(startDate, endDate, isPresent):
     count = 0
     step = timedelta(days=1)
     while startDate <= endDate:
-        if(isPresent != None or isPresent[0][count] != "clear"):
+        if(isPresent != None and isPresent[0][count] != "clear"):
             dates.append(str(startDate.month) +"/"+str(startDate.day))
         
         count += 1
