@@ -692,7 +692,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     studentAnswer = studentAnswer.join(IndentedStudentSolution)
 
     qdict['student_solution'] = studentAnswer
-    print("student solution", qdict['student_solution'])
+    print("student solution", repr(qdict['student_solution']))
 
     wrongPositionLineNumberbers = studentAnswerDict['wrongPositionLineNumberbers']
     errorDescriptions = studentAnswerDict['errorDescriptions']
@@ -701,26 +701,23 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     print("correctlinecount", correctLineCount,wrongPositionLineNumberbers,errorDescriptions,feedBackButtonClickCount)
     studentGrade = 0.0
     penalties = 0.0
-    if studentSolution == "":
-        qdict['user_points'] = 0
+    if studentSolution == "" or studentSolution == '\n':
+        qdict['total_points'] = 0
+        print("activated")
     else:
         ##if no errors happened give them full credit
         if (errorDescriptions == ""):
-
             qdict['user_points'] = qdict['total_points']
 
         ##otherwise grade on our criteria
         else:
             indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(errorDescriptions)))
-            print("indentation error count", indentationErrorCount, repr(studentSolution))
             ##grading section
             studentGrade = qdict['total_points']
             maxPoints = qdict['total_points']
             penalties = Decimal(0.0)
 
             studentSolutionLineCount = len(qdict['parsonStudentSol'])
-            print("studentSol", qdict['parsonStudentSol'])
-            print("studentSolLineCount", studentSolutionLineCount)
 
             ##too few
             if (studentSolutionLineCount < correctLineCount):
