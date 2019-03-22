@@ -80,8 +80,12 @@ def getRollByDate(request, context_dict):
                 studentPresenceOnDatesList.append("false")
                 datesPostion[position] += 1 
             else:
-                studentPresenceOnDatesList.append("true")
-                datesPostion[position] += 1
+                student = list(student)
+                if student[0].isPresent == True:
+                    studentPresenceOnDatesList.append("true")
+                else:
+                    studentPresenceOnDatesList.append("false")
+                    datesPostion[position] += 1
 
             position+=1
                     
