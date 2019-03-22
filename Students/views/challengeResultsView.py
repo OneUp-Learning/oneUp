@@ -23,7 +23,9 @@ from Badges.systemVariables import logger
 from Students.views.challengeSetupView import makeSerializableCopyOfDjangoObjectDictionary
 import re
 import math
+import pytz
 from decimal import Decimal
+from oneUp.ckeditorUtil import config_ck_editor
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
@@ -106,12 +108,12 @@ def ChallengeResults(request):
                     context_dict['warmUp'] = 1
                     
                 print("Start Time: "+request.POST['startTime'])
-                startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")  
+                startTime = utcDate(request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p").replace(tzinfo=None).astimezone(pytz.utc)
                 #end time of the test is the current time when it is navigated to this page
                 endTime = utcDate()
                 print("End Time:"+ endTime.strftime("%m/%d/%Y %I:%M %p"))
 
-                attemptId = 'challenge:'+challengeId + '@' + startTime.strftime("%m/%d/%Y %I:%M:%S %p")
+                attemptId = 'challenge:'+challengeId + '@' + request.POST['startTime']
                 print("attemptID = "+attemptId)               
                 
                 # Do not grade the same challenge twice
@@ -255,6 +257,7 @@ def ChallengeResults(request):
 
             # The sort on the next line should be unnecessary, but better safe than sorry
             context_dict['questions'] = sorted(questions,key=lambda q:q['index'])
+            context_dict['ckeditor'] = config_ck_editor()
             
     return render(request,'Students/ChallengeResults.html', context_dict)
 

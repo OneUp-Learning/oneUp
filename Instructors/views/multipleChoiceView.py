@@ -21,7 +21,9 @@ from Instructors.constants import unassigned_problems_challenge_name, default_ti
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from oneUp.logger import logger
-from oneUp.decorators import instructorsCheck   
+from oneUp.decorators import instructorsCheck  
+
+from oneUp.ckeditorUtil import config_ck_editor
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
@@ -250,4 +252,7 @@ def multipleChoiceForm(request):
 
         if 'questionId' in request.POST:         
             return redirect('challengesView')
+            
+        context_dict['ckeditor'] = config_ck_editor()
+
     return render(request,'Instructors/MultipleChoiceForm.html', context_dict)

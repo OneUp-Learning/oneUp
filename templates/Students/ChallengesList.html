@@ -26,7 +26,7 @@
                            <th>Name</th>
                            <th>Due Date</th>
                            <th>Score</th>
-                           <th>Number of Attempts</th>
+                           <th>Remaining Attempts</th>
                            <th>Adjustment Reason</th>
                            <th class="secondary-content">
                               <a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="top" data-delay="50" data-tooltip="Display"><i class="material-icons" >filter_list</i></a>
@@ -55,7 +55,7 @@
                                  {% if is_teacher %} 
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
                                  {% else %}
-                                 {% if challDueDate|passed_current_time %}
+                                 {% if passed_current_time %}
                                  <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
                                  {% else %}
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
@@ -65,8 +65,12 @@
                               </td>
                               {% else %}
                               <td class="right-align">
-                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>   
-                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
+                                 {% if not is_teacher %}
+                                    <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a> 
+                                    <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
+                                 {% else %}
+                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
+                                 {% endif %}
                               </td>   
                               {% endif %}
                            </tr>

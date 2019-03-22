@@ -941,6 +941,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     if result_only:
         date_time = time_period['datetime']
         date_time = date_time()
+        startOfTime = True
             
     else:
         date_time = get_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID) 
@@ -959,9 +960,8 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
                 date_time = None
             
         set_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID)
-    startOfTime = False
-    if date_time == None:
-        startOfTime = True
+        startOfTime = False
+        
     
     
     print("Course: {}".format(course))
@@ -969,30 +969,39 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(date_time))
     
+    xpSeriousMaxScore = True # Specify if the xp should be calculated based on max score or first attempt
+    xpWarmupMaxScore = True
+
     if len(ccparamsList) >0:
         cparams = ccparamsList[0]
         xpWeightSP=cparams.xpWeightSP
         xpWeightSChallenge=cparams.xpWeightSChallenge
         xpWeightWChallenge=cparams.xpWeightWChallenge
         xpWeightAPoints=cparams.xpWeightAPoints
+        xpSeriousMaxScore = cparams.xpCalculateSeriousByMaxScore 
+        xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore 
        
     # get the serious challenges for this course
     earnedScorePoints = 0 
     totalScorePoints = 0    
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True, isVisible=True)
-    
-    
-    
+
     for challenge in courseChallenges:
         seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
         if not startOfTime:
             seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
-        gradeID  = []                            
-        for serious in seriousChallenge:
-            gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment
+        gradeID  = []    
+        if xpSeriousMaxScore:                           
+            for serious in seriousChallenge:
+                gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
+        elif seriousChallenge.exists():
+            gradeID.append(int(seriousChallenge.first().getScoreWithBonus())) 
                                 
         if(gradeID):
-            earnedScorePoints += max(gradeID)
+            if xpSeriousMaxScore:
+                earnedScorePoints += max(gradeID)
+            else:
+                earnedScorePoints += gradeID[0]
             totalScorePoints += challenge.totalScore
             
     totalScorePointsSeriousChallenge = earnedScorePoints * xpWeightSChallenge / 100      # max grade for this challenge
@@ -1007,12 +1016,19 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
         if not startOfTime:
             warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
-        gradeID  = []                            
-        for warmup in warmupChallenge:
-            gradeID.append(int(warmup.testScore)) 
+        gradeID  = []           
+        if xpWarmupMaxScore:                          
+            for warmup in warmupChallenge:
+                gradeID.append(int(warmup.testScore)) 
+        elif warmupChallenge.exists():
+            gradeID.append(int(warmupChallenge.first().testScore))
                                
         if(gradeID):
-            earnedScorePoints += max(gradeID)
+            if xpWarmupMaxScore:
+                earnedScorePoints += max(gradeID)
+            else:
+                earnedScorePoints += gradeID[0]
+
             totalScorePoints += challenge.totalScore
             
     totalScorePointsWarmupChallenge = earnedScorePoints * xpWeightWChallenge / 100      # max grade for this challenge
@@ -1037,22 +1053,35 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
             
     totalScorePointsActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
     print("activity points total", totalScorePointsActivityPoints)
-#     # get the skill points for this course
-#     totalScoreSkillPoints = 0
-#     cskills = CoursesSkills.objects.filter(courseID=course)
-#     for sk in cskills:
-#         skill = Skills.objects.get(skillID=sk.skillID.skillID)
-#         
-#         sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
-#         #print ("Skill Points Records", sp)
-#         gradeID = []
-#         
-#         for p in sp:
-#             gradeID.append(int(p.skillPoints))
-#             #print("skillPoints", p.skillPoints)
-#         if (gradeID):
-#             totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
-#     print("total score skill points", totalScoreSkillPoints)
+     # SKILL POINTS
+    totalScorePointsSP = 0      # to be used in calculation of the XP Points     
+    skill_Name = []                
+    skill_Points = []
+    skill_ClassAvg = []
+    
+    cskills = CoursesSkills.objects.filter(courseID=course)
+    for sk in cskills:
+        skill = Skills.objects.get(skillID=sk.skillID.skillID)
+        
+        sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+        print ("Skill Points Records", sp)
+        
+        if not sp:  
+            skill_Points.append(0)                     
+        else:    
+            # find the max score for this challenge if there are several attempts                
+            gradeID  = []
+            
+            for p in sp:
+                gradeID.append(int(p.skillPoints))
+                print("skillPoints", p.skillPoints)   
+            
+            sumSkillPoints = sum(gradeID,0)                
+            totalScorePointsSP += sumSkillPoints
+
+    # weighting the total skill points to be used in calculation of the XP Points     
+    print("totalScorePointsSP: ", totalScorePointsSP)              
+    totalScorePointsSkillPointsWeighted = totalScorePointsSP * xpWeightSP / 100   
     
     if gradeWarmup:
         xp = round(totalScorePointsWarmupChallenge,0)
@@ -1064,8 +1093,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
         print("serious plus activity ran")
     else:
-        #
-        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints),0)
+        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScorePointsSkillPointsWeighted),0)
         print("xp has ran")
     
     return (studentId,xp)

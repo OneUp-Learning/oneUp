@@ -19,7 +19,7 @@ def studentSkillsEarned(request):
  
     context_dict, currentCourse = initialContextDict(request)
     
-    user = User.objects.filter(username=request.GET['userID'])
+    user = User.objects.get(username=request.GET['userID'])
     studentId = Student.objects.filter(user=user)
     
     for u in studentId:

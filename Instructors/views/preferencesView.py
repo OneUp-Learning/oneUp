@@ -42,9 +42,13 @@ def preferencesView(request):
         if ccparams.classmatesChallenges:
             ccparams.vcDuel = request.POST.get('vc_duel')
             ccparams.vcCallout = request.POST.get('vc_callout')
+            ccparams.vcDuelParticipants = request.POST.get('vc_duel_participants')
+            ccparams.vcDuelMaxBet = request.POST.get("vc_duel_max_bet")
         else:
             ccparams.vcDuel = 0
             ccparams.vcCallout = 0
+            ccparams.vcDuelParticipants = 0
+        ccparams.betVC = "betVC" in request.POST
         
         ccparams.leaderboardUsed = "leaderboardUsed" in request.POST
         if ccparams.leaderboardUsed == True:    
@@ -115,7 +119,11 @@ def preferencesView(request):
             context_dict["classmatesChallenges"]=ccparams.classmatesChallenges
             context_dict["vc_callout"] = ccparams.vcCallout
             context_dict["vc_duel"] = ccparams.vcDuel
+            context_dict["betVC"] = ccparams.betVC
+            context_dict["vc_duel_participants"] = ccparams.vcDuelParticipants
+            context_dict["vc_duel_max_bet"] = ccparams.vcDuelMaxBet
             context_dict["streaksUsed"] = ccparams.streaksUsed
+            
  
         return render(request,'Instructors/Preferences.html', context_dict)
     

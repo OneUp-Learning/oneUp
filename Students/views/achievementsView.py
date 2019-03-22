@@ -43,6 +43,8 @@ def achievements(request):
     xpWeightSChallenge = 0
     xpWeightWChallenge = 0
     xpWeightAPoints = 0
+    xpSeriousMaxScore = True # Specify if the xp should be calculated based on max score or first attempt
+    xpWarmupMaxScore = True
     xp = 0        
     ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
     if len(ccparamsList) >0:
@@ -57,6 +59,8 @@ def achievements(request):
         xpWeightSChallenge=cparams.xpWeightSChallenge
         xpWeightWChallenge=cparams.xpWeightWChallenge
         xpWeightAPoints=cparams.xpWeightAPoints
+        xpSeriousMaxScore = cparams.xpCalculateSeriousByMaxScore 
+        xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore
         print("Config Parameters::",xpWeightSP,xpWeightSChallenge,xpWeightWChallenge,xpWeightAPoints)
         
     #Begin Vendhan Changes        # XP Points Variable initialization
@@ -82,15 +86,22 @@ def achievements(request):
         else:    
             # find the max score for this challenge if there are several attempts                
             gradeID  = []
-            gradeWithBonus = []   
+            gradeWithBonus = []  
+            maxC = 0
+            maxB = 0
             for s in sc:
                 gradeID.append(int(s.getScore()))   # for serious challenges include also score adjustment and curve
                 gradeWithBonus.append(int(s.getScoreWithBonus()))
                 print(s.getScoreWithBonus()) 
                 #s_testTotal = s.challengeID.totalScore
                 s_testTotal = s.challengeID.getCombinedScore()
-            maxC = max(gradeID)  
-            maxB = max(gradeWithBonus)                
+            if xpSeriousMaxScore:
+                maxC = max(gradeID)
+                maxB = max(gradeWithBonus)
+            else:
+                maxC = int(sc.first().getScore())
+                maxB = int(sc.first().getScoreWithBonus())
+               
             earnedPointsSeriousChallenges += maxB
             score.append(maxC)
             chall_Name.append(challenge.challengeName)               
@@ -134,8 +145,7 @@ def achievements(request):
     
     for challenge in courseChallenges:
          wc = StudentChallenges.objects.filter(studentID=studentId, courseID=currentCourse,challengeID=challenge).order_by('-endTimestamp')
-         print(wc)
-         
+         maxWC = 0
          if wc:          # if the challenge was taken           
             gradeID  = []
                                 
@@ -143,7 +153,12 @@ def achievements(request):
                 gradeID.append(int(w.testScore)) 
                 print(w.testScore) 
                 s_testTotal = w.challengeID.totalScore
-            maxWC = max(gradeID)                
+                
+            if xpWarmupMaxScore:
+                maxWC = max(gradeID)
+            else:
+                maxWC += int(wc.first().testScore)
+                            
             totalScorePointsWC += maxWC
             
             warmUpMaxScore.append(maxWC)    
@@ -233,6 +248,7 @@ def achievements(request):
     #Sum up all weighted components to find the student's XP points
     xp = round((earnedPointsSeriousChallengesWeighted + totalScorePointsWCWeighted + totalScorePointsSPWeighted + earnedActivityPointsWeighted),0)
     context_dict['studentXP_range'] = xp
+    print("xp", xp, earnedPointsSeriousChallengesWeighted, totalScorePointsWCWeighted, totalScorePointsSPWeighted, earnedActivityPointsWeighted)
     context_dict['studentUngradedChallengesPPoints_range'] = totalScorePointsSPWeighted        
     #End Vendhan Changes
       
