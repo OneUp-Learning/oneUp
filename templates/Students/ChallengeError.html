@@ -1,44 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-         
-          {% include 'scripts.html' %}
-         
-      </head>
-      <body>
-      <div id="page-wrapper">
 
-          {% include 'stheading.html' %}
+<head>
 
-            <div class="frame" id="grad" align="center">
-         	<div class="container">
-         	<div class="row">
-         	<div class="12u">
-         		<h1>Challenges</h1>
- 
-			</div></div>
-			<div class="row">
-			<div class="4u 1u(mobile)">&nbsp;</div>
-         	<div class="4u 10u(mobile)">
-                  <table class="bg" style="text-align:center">
-                  		<tr><td>{{challengeName}}</td></tr>
-                
-						<tr><td>{{errorName}}
-						<br>{{errorMessage}}</td></tr>
-						<form name= "testList" action="/oneUp/students/ChallengesList" method="GET">
-      						{% csrf_token %}
-      						<tr><td><input type="submit" name="submit" value="Ok" class="button"></td></tr>
-      					</form>
-                   </table>   
+   {% include 'scripts.html' %}
+
+</head>
+
+<body>
+   <main>
+      {% include 'stheading.html' %}
+      <div class="row center-align">
+         <div class="col s12 m10 offset-m1">
+            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{challengeName}}</h3>
          </div>
-         <div class="4u 1u(mobile)">&nbsp;</div>
-         </div></div>
+      </div>
+      <div class="row">
+         <div class="col s12 m10 offset-m1">
+            <div class="card">
+               <div class="card-content">
+                  <span class="card-title">{{errorName}}</span>
+                  <p>{{errorMessage}}</p>
+               </div>
+               <div class="card-action">
+                     {% if isDuel and areAllDone %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{duelID}}">
+                     {% elif isDuel and not areAllDone %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{duelID}}">  
+                     {% elif isDuel %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/Callouts">
+                     {% elif view %}
+                     <a class="waves-effect waves-ligh btn" href="/oneUp/students/ChallengesTaken?{% if not all %}challengeID={{challengeID}}{% endif %}{% if is_teacher %}&userID={{student}}{% endif %}{% if classAchievements %}&classAchievements{%endif%}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}">
+                     {% elif warmUp %}									
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList">
+                     {% else %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList">											
+                     {% endif %}
+                     <i class="material-icons left">check</i>Done</a> 
+               </div>
             </div>
          </div>
-         <!-- Footer -->
+      </div>
 
-        {% include 'footer.html' %}
+   </main>
+   {% include 'footer.html' %}
+</body>
 
-    
-      </body>
-   </html>
+</html>

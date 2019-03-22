@@ -1,118 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
+
+<head>
     {% include 'scripts.html' %}
-   </head>
-   <body>
-        {% include 'heading.html' %}
-        <main>
-            <div class="row center-align">
-                <div class="col s12">
-                    <h3>Course Gamification Configuration</h3>
-                </div>
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Course Gamification Configuration</h3>
             </div>
-            <form name="CourseConfigParam" onsubmit="return checkIfBadgesNumberIsZero()" action="/oneUp/instructors/preferences" method="POST">
-            {% csrf_token %} 
+        </div>
+        <form name="CourseConfigParam" onsubmit="return checkIfBadgesNumberIsZero()" action="/oneUp/instructors/preferences"
+            method="POST">
+            {% csrf_token %}
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
             <div class="row">
                 <div class="col s12 m4 offset-m2">
-                	
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Course Leaderboard Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Leaderboard
-                                            {% if leaderboardUsed %}
-                                            <input name="leaderboardUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="leaderboardUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Course Leaderboard Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Leaderboard
+                                        {% if leaderboardUsed %}
+                                        <input name="leaderboardUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="leaderboardUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
+                    </div>
                 </div>
+             
                 <div class="col s12 m4">
-                    
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Skills Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Display skill points on the leaderboard
-                                            {% if classSkillsDisplayed %}
-                                            <input name="classSkillsDisplayed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="classSkillsDisplayed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Skills Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Display skill points on the leaderboard
+                                        {% if classSkillsDisplayed %}
+                                        <input name="classSkillsDisplayed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="classSkillsDisplayed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{numStudentBestSkillsDisplayed}}" name="numStudentBestSkillsDisplayed" id="skills_top_students" maxlength="3" type="number" min="0" max="100">
+                                        <input value="{{numStudentBestSkillsDisplayed}}" name="numStudentBestSkillsDisplayed" id="skills_top_students" maxlength="3" type="number" min="0" max="100" required>
                                         <label for="skills_top_students">Number of top students to be displayed for each skill</label>
                                     </div>
-                                </div>
+
                             </div>
+                            
                         </div>
+                    </div>
                 </div>
             </div>
+           </div>
             <div class="row">
-                    <div class="col s12 m4 offset-m2">
+                <div class="col s12 m4 offset-m2">
                     <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Badges Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable the use of badges
-                                            {% if badgesUsed %}
-                                            <input name="badgesUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="badgesUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                        <div class="card-content">
+                            <span class="card-title">Badges Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable the use of badges
+                                        {% if badgesUsed %}
+                                        <input name="badgesUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="badgesUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed" id="badges_recent" maxlength="3" type="number" min="0" max="100">
+                                        <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed" id="badges_recent" maxlength="3" type="number" min="0" max="100" required>
                                         <label for="badges_recent">Number of recent badges to be displayed on the leaderboard</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    
                     </div>
-                    <div class="col s12 m4">
-                    	
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Virtual Currency Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Virtual Currency
-                                            {% if virtualCurrencyUsed %}
-                                            <input name="virtualCurrencyUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="virtualCurrencyUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+
+                </div>
+                <div class="col s12 m4">
+
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Virtual Currency Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Virtual Currency
+                                        {% if virtualCurrencyUsed %}
+                                        <input name="virtualCurrencyUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="virtualCurrencyUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3" type="number" min="0" max="100">
+                                        <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3" type="number" min="0" max="100" required>
                                         <label for="vc_added">Increase the virtual currency of all students by ($$)</label>
                                     </div>
                                 </div>
@@ -120,128 +124,129 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col s12 m4 offset-m2">
-                    
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Avatars Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable the use of Avatars
-                                            {% if avatarUsed %}
-                                            <input name="avatarUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="avatarUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m4 offset-m2">
+
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Avatars Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable the use of Avatars
+                                        {% if avatarUsed %}
+                                        <input name="avatarUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="avatarUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col s12 m4">
-                    
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Leveling Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Leveling
-                                            {% if levelingUsed %}
-                                            <input name="levelingUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="levelingUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                      
-                        
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col s12 m4 offset-m2">
+                <div class="col s12 m4">
+
                     <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Student Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change leaderboard visibility
-                                            {% if leaderboardUsed and studCanChangeLeaderboardVis %}
-                                            <input name="studCanChangeLeaderboardVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeLeaderboardVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change skill points visibility
-                                            {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
-                                            <input name="studCanChangeClassSkillsVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeClassSkillsVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change recent badge visibility
-                                            {% if badgesUsed and studCanChangeBadgeVis %}
-                                            <input name="studCanChangeBadgeVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeBadgeVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change class average visibility on achievement page
-                                            {% if classAverageUsed and studCanChangeclassAverageVis %}
-                                            <input name="studCanChangeclassAverageVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeclassAverageVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Display class average on student achievement page
-                                            {% if classAverageUsed %}
-                                            <input name="classAverageUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="classAverageUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                        <div class="card-content">
+                            <span class="card-title">Leveling Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Leveling
+                                        {% if levelingUsed %}
+                                        <input name="levelingUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="levelingUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col s12 m4">
-                    	<div class="card">
+
+
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m4 offset-m2">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Student Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change leaderboard visibility
+                                        {% if leaderboardUsed and studCanChangeLeaderboardVis %}
+                                        <input name="studCanChangeLeaderboardVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeLeaderboardVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change skill points visibility
+                                        {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
+                                        <input name="studCanChangeClassSkillsVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeClassSkillsVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change recent badge visibility
+                                        {% if badgesUsed and studCanChangeBadgeVis %}
+                                        <input name="studCanChangeBadgeVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeBadgeVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change class average visibility on achievement page
+                                        {% if classAverageUsed and studCanChangeclassAverageVis %}
+                                        <input name="studCanChangeclassAverageVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeclassAverageVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Display class average on student achievement page
+                                        {% if classAverageUsed %}
+                                        <input name="classAverageUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="classAverageUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="card">
                         <div class="card-content">
                             <span class="card-title">Thresholds for Challenge Difficulty</span>
                             <div class="row">
@@ -251,7 +256,9 @@
                                     </div>
                                 </div>
                                 <div class="input-field col s12 inline">
-                                    <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium" id="threshold_1" maxlength="3" type="number" min="0" max="100">
+
+                                    <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium" id="threshold_1" maxlength="3" type="number" min="0" max="100" required>
+
                                     <label for="threshold_1">Threshold</label>
                                 </div>
                             </div>
@@ -262,54 +269,37 @@
                                     </div>
                                 </div>
                                 <div class="input-field col s12 inline">
-                                    <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty" id="threshold_2" maxlength="3" type="number" min="0" max="100">
+                                    <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty" id="threshold_2" maxlength="3" type="number" min="0" max="100" required>
                                     <label for="threshold_2">Threshold</label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-               	<div class="row">
-                   	<div class="col s12 m4 offset-m2">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Streak Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Streaks
-                                            {% if streaksUsed %}
-                                            <input name="streaksUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="streaksUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                        </div>
-                                        </div>
-                                        </div>
-                                        </div>
-                                        </div>
-
-                    <div class="col s12 m4">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Leveling Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Leveling
-                                            {% if levelingUsed %}
-                                            <input name="levelingUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="levelingUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m4 offset-m2">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Streak Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Streaks
+                                        {% if streaksUsed %}
+                                        <input name="streaksUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="streaksUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                
                 </div>
                   <div class="row">
                     <div class="col s12 m4 offset-m2">
@@ -331,14 +321,16 @@
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3" type="number" min="0" max="100">
+                                        <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3" type="number" min="0" max="100" required>
                                         <label for="vc_added">Increase the virtual currency of all students by ($$)</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-				  <div class="col s12 m4">
+                    
+                    <div class="col s12 m4">
+				  
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">Classmates Challenges</span>
@@ -356,80 +348,79 @@
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Allow students to bet virtual currency in duels
+                                            {% if betVC %}
+                                            <input name="betVC" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="betVC" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{vc_duel}}" name="vc_duel" id="vc_duel" maxlength="7" type="number" min="0" max="100" >
+                                        <input value="{{vc_duel}}" name="vc_duel" id="vc_duel" maxlength="7" type="number" min="0" max="100" required >
                                         <label for="vc_due">Amount of virtual currency rewarded to duel winners</label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7" type="number" min="0" max="100" >
+                                        <input value="{{vc_duel_participants}}" name="vc_duel_participants" id="vc_duel_participants" maxlength="7" type="number" min="0" max="100" required >
+                                        <label for="vc_due_participants">Amount of virtual currency rewarded to duel participants</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{vc_duel_max_bet}}" name="vc_duel_max_bet" id="vc_duel_max_bet" maxlength="7" type="number" min="0" max="100" required >
+                                        <label for="vc_duel_max_bet">Maximum amount of virtual currency allowed for betting</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7" type="number" min="0" max="100" required>
                                         <label for="vc_callout">Amount of virtual currency rewarded to call-outs participants</label>
-                    <div class="col s12 m4">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Streak Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Streaks
-                                            {% if streaksUsed %}
-                                            <input name="streaksUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="streaksUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
+                    
+                                  </div>
+                               </div>
                             </div>
-                        </div>
+                          </div>
+                       </div>
+                          
                     </div>
-                    </div>
-                    <div class="row">
-                    <div class="col s12 m4 offset-m2">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Avatars Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable the use of Avatars
-                                            {% if avatarUsed %}
-                                            <input name="avatarUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="avatarUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
+        
+				  
+                 </div>
+                    
+                
+                    
+            <div class="row">
+                <div class="col s12 m4 offset-m2">
+                    <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i
+                            class="material-icons right">done</i></button>
+                    <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i
+                            class="material-icons right">close</i>Cancel</a>
                 </div>
-                <div class="row">
-                    <div class="col s12 m4 offset-m8">
-                        <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i class="material-icons right">done</i></button> 
-                        <a class="waves-effect waves-light btn"  href="/oneUp/instructors/instructorCourseHome"><i class="material-icons right">close</i>Cancel</a>
-                    </div>
-                </div>
-            </form>
-            <script>
-    function checkIfBadgesNumberIsZero() {
-    	if (document.getElementById('badgesUsed').checked 
-        		&& document.getElementById('badges_recent').value == 0){
-            var answer = confirm("Are you sure you wish to have zero badges displayed?")
-            if (answer) {
-    			return true;
-    		}
-    		else {
-    			return false;
-    		}
-        }
-    }
-</script>
-        </main>
-        {% include 'footer.html' %}
-    </body>
+            </div>
+        </form>
+        <script>
+            function checkIfBadgesNumberIsZero() {
+                if (document.getElementById('badgesUsed').checked &&
+                    document.getElementById('badges_recent').value == 0) {
+                    var answer = confirm("Are you sure you wish to have zero badges displayed?")
+                    if (answer) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        </script>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
 </html>

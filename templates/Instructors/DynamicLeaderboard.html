@@ -27,7 +27,7 @@
         var newElement =  "<div name='leaderboard' id='leaderboard_"+id+"'>\n"+
     	"<input type='hidden' name='leaderboardID[]' value='none'>\n"+
         "<div class='row'>\n"+
-           "<div class='col s12 m10 offset-m1'>\n"+
+           "<div class='col s12 m9 offset-m1'>\n"+
               "<div class='card'>\n"+
                  "<div class='card-content'>\n"+
                     "<div class='row'>\n"+
@@ -309,6 +309,40 @@
                                  <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
                               </div>
                            </div>
+                           <div class="row">
+                              <div class="row">
+                                    <div class="col s12">
+                                        <p>Serious Challenges</p>
+                                    </div>
+                                </div>
+                              <div class="row">
+                              <p>
+                                  <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio" id="xpSeriousMaxScore" value="True" {% if xpCalculateSeriousByMaxScore == True %} checked {%endif%} />
+                                  <label for="xpSeriousMaxScore">Calculate XP by max score</label>
+                              </p>
+                              <p>
+                                  <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio" value="False" id="xpSeriousFirstAttempt" {% if xpCalculateSeriousByMaxScore == False %} checked {%endif%} />
+                                  <label for="xpSeriousFirstAttempt">Calculate XP by first attempt</label>
+                              </p>
+                           </div>
+                          </div>
+                          <div class="row">
+                           <div class="row">
+                                 <div class="col s12">
+                                     <p>Warmup Challenges</p>
+                                 </div>
+                             </div>
+                           <div class="row">
+                           <p>
+                               <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio" id="xpWarmupMaxScore" value="True" {% if xpCalculateWarmupByMaxScore == True %} checked {%endif%} />
+                               <label for="xpWarmupMaxScore">Calculate XP by max score</label>
+                           </p>
+                           <p>
+                               <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio" value="False" id="xpWarmupFirstAttempt" {% if xpCalculateWarmupByMaxScore == False %} checked {%endif%} />
+                               <label for="xpWarmupFirstAttempt">Calculate XP by first attempt</label>
+                           </p>
+                        </div>
+                       </div>
                         </div>
                      </div>
                   </div>
@@ -413,7 +447,7 @@
             {% endfor %}
             <div class="row">
                <div class="col s12 m10 offset-m1"></div>
-               <div class="right-align col s12 m10 offset-m1">
+               <div class="right-align col s12 m9 offset-m1">
                   <a id="removeLeaderboard" class="waves-effect waves-light btn"
                      onclick="removeAnswer();"><i class="material-icons left">remove</i>Remove Last
                   Leaderboard</a> 

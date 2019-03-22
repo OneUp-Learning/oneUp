@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+    {% include 'scripts.html' %}
+    </head>
+
+<body>
+    {% include 'heading.html' %}
+    
+      
+      <main>
+         <div class="row center-align">
+            <div class="col s12 m10 offset-m1">
+               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Report for {{duel_challenge.duelChallengeName}}</h3>
+            </div>
+         </div> 
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  {% csrf_token %}        
+                     <div class="card-content">
+                    
+                            <ul style="font-size: 16px;">
+                                    <li>
+                                      
+                                            <span >{{challenger}}&nbsp &nbsp<img class="circle" width="30" height="30" src="{{challenger_av}}">&nbsp &nbsp vs &nbsp &nbsp<img class="circle" width="30" height="30" src="{{challengee_av}}">&nbsp &nbsp {{challengee}}</span>
+                                 
+                                    </li>
+                                    {% if hasExpired %}
+                                        
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Expired</span>
+                                        </li>
+                                    {% elif in_progress %}
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Duel is in Progress</span>
+                                        </li>
+                                    {% elif duel_challenge.hasEnded %}
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Completed</span>
+                                        </li>
+                                    {% else %}
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Not started</span>
+                                        </li>
+                                    {% endif %}
+                                    {% if winner1 and winner2 %}
+                                        <li>
+                                            <span><b>Winner 1: </b></span>
+                                            <span>{{winner1}}</span>
+                                        </li>
+                                    
+                                        <li>
+                                            <span><b>Winner 1 Score: </b></span>
+                                            <span>{{w1.testScore}} / {{w1.challengeID.totalScore}} pts</span>
+                                        </li>
+                                        <li>
+                                            <span><b>Winner 2: </b></span>
+                                            <span>{{winner1}}</span>
+                                        </li>
+                                    
+                                        <li>
+                                            <span><b>Winner 2 Score: </b></span>
+                                            <span>{{w2.testScore}} / {{w2.challengeID.totalScore}} pts</span>
+                                        </li>
+                                    {% elif winner %}
+                                    <li>
+                                            <span><b>Winner: </b></span>
+                                            <span>{{winner}}</span>
+                                        </li>
+                                    
+                                        <li>
+                                            <span><b>Winner Score: </b></span>
+                                            <span>{{w.testScore}} / {{w.challengeID.totalScore}} pts</span>
+                                        </li>
+                                    {% endif %}
+                                    <li >
+                                        <span><b>Start Time: </b></span>
+                                        <span>{{duel_challenge.startTime}} minute(s)</span>
+                                    </li>
+                                    <li >
+                                        <span><b>Time Limit: </b></span>
+                                        <span>{{duel_challenge.timeLimit}} minute(s)</span>
+                                    </li>
+                                    <li >
+                                        <span><b>Invitation Date and Time: </b></span>
+                                        <span>{{duel_challenge.sendTime}}</span>
+                                    </li>
+                                    {% if duel_challenge.status == 2 %}
+                                        <li >
+                                            <span><b>Acceptance Date and Time: </b></span>
+                                            <span>{{duel_challenge.acceptTime}}</span>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    <li>
+                                        <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation."><b>Allow the use of VC (current settings): </b></span>
+                                        {% if ccparams.betVC %}
+                                            <span>Yes</span>
+                                        {% else %}
+                                            <span>No</span>
+                                        {% endif %}
+                                    </li>
+                                
+                                    <li>
+                                        <span><b>Betting: </b></span>
+                                        {% if duel_challenge.isBetting %}
+                                            <span>Yes</span>
+                                        {% else %}
+                                            <span>No</span>
+                                        {% endif %}
+                                    </li>
+                                    {% if duel_challenge.isBetting %}
+                                        <li>
+                                            <span><b>Betting Amount: </b></span>
+                                            <span>{{duel_challenge.vcBet}}</span>
+                                        </li>
+                                    {% endif %}
+                                    <li>
+	                                        <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation."><b>Winner's Award (current settings): </b></span>
+	                                        <span>{{ccparams.vcDuel}}</span>
+	                                </li>
+	                                <li>
+	                                        <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation." ><b>Participation Award (current settings): </b></span>
+	                                        <span>{{ccparams.vcDuelParticipants}}</span>
+	                                </li>
+	                                    
+	                              
+	                                 <li>
+	                                         <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation." ><b>Total Award for winner(s) (current settings): </b></span>
+	                                         <span>{{total_award}}</span>
+	                                 </li>
+	                                
+                                    
+                                </ul>
+                        
+                      <div class="card-action">
+                        <div class="row right-align">  
+                            <a class="btn waves-effect waves-light" href="/oneUp/instructors/challengeClassmatesReport"><i class="material-icons left">navigate_before</i>Back</a> 										  						
+                        </div>
+                    </div>
+                 
+                 </div>
+                 </div>
+                 
+               </div>
+            </div>
+        
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>
