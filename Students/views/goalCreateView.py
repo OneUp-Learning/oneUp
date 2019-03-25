@@ -15,6 +15,7 @@ from Badges.enums import Goal
 from Badges import systemVariables
 from Students.views.utils import studentInitialContextDict
 from Badges.systemVariables import SystemVariable
+from django.template.context_processors import request
 
 @login_required
  
@@ -23,7 +24,6 @@ def goalCreate(request):
     # The context contains information such as the client's machine details, for example.
  
     context_dict, currentCourse = studentInitialContextDict(request)
-    sysVar = SystemVariable
 
     if request.POST:
 
@@ -37,8 +37,9 @@ def goalCreate(request):
         goal.courseID = currentCourse
         goal.studentID = context_dict['student'] #get student ID
         goal.goalType = request.POST['goalType']    
-        goal.targetedNumber = request.POST['targetedNumber']
-        goal.timestamp = utcDate()       
+        goal.targetedNumber = int(request.POST['targetedNumber'])
+        goal.timestamp = utcDate()
+        goal.progressToGoal = (goalProgressFxn(goal.goalType, goal.courseID, goal.studentID) / goal.targetedNumber) * 100       
         
         goal.save();  #Writes to database.    
                 
@@ -60,3 +61,29 @@ def goalCreate(request):
                                 
 
     return render(request,'Students/GoalsCreationForm.html', context_dict)
+
+def goalProgressFxn(goalType, course, student):
+    sysVarFxn = systemVariables
+    sysVar = systemVariables.SystemVariable
+    
+    if goalType == 1600:
+        return int(systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student))
+    if goalType == 1602:
+        return int(systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan70Percent(course, student))
+    if goalType == 1604:
+        return int(systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan80Percent(course, student))
+    if goalType == 1606:
+        return int(systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student))
+    if goalType == 1610:
+        return int(systemVariables.getConsecutiveDaysWarmUpChallengesTaken30Percent(course, student, goalType))
+    if goalType == 1612:
+        return int(systemVariables.getConsecutiveDaysWarmUpChallengesTaken70Percent(course, student, goalType))
+    if goalType == 1614:
+        return int(systemVariables.getConsecutiveDaysWarmUpChallengesTaken80Percent(course, student, goalType))
+    if goalType == 1616:
+        return int(systemVariables.getConsecutiveDaysWarmUpChallengesTaken90Percent(course, student, goalType))
+    if goalType == 1640:
+        return int(systemVariables.getNumberOfBadgesEarned(course, student))
+    
+    
+    

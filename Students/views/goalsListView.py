@@ -31,6 +31,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
     end_date = []
     goal_Type = []
     targeted_Number = []
+    goal_progress = []
         
     goals = StudentGoalSetting.objects.filter(studentID=context_dict['student'],courseID=currentCourse).order_by('-timestamp')
     index = 0
@@ -46,6 +47,8 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
             #end_date calculation function here            
             goal_Type.append(goalTypeToString(goal.goalType))
             targeted_Number.append(goal.targetedNumber)
+            goal_progress.append(goal.progressToGoal)
+            
     else: # Only shows the first three
         for goal in goals:
             if index < 1:
@@ -57,11 +60,12 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
                 end_date.append(endDate.strftime('%m/%d/%y'))
                 goal_Type.append(goalTypeToString(goal.goalType))
                 targeted_Number.append(goal.targetedNumber)
+                goal_progress.append(goal.progressToGoal)
                 index += 1
     
       
     # The range part is the index numbers.
-    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number)
+    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number, goal_progress)
     return context_dict
 
     
