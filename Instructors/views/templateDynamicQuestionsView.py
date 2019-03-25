@@ -20,7 +20,7 @@ import re
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 from oneUp.decorators import instructorsCheck     
-
+from oneUp.ckeditorUtil import config_ck_editor
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def templateDynamicQuestionForm(request):
@@ -196,6 +196,8 @@ def templateDynamicQuestionForm(request):
     
     if 'questionId' in request.POST:         
             return redirect('challengesView')
+
+    context_dict['ckeditor'] = config_ck_editor()
             
     return render(request,'Instructors/TemplateDynamicQuestionForm.html', context_dict)
 

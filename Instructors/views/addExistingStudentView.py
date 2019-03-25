@@ -25,7 +25,7 @@ def addStudentListView(request):
     
     # Students not in this class
     srcInCourse = StudentRegisteredCourses.objects.filter(courseID=currentCourse).distinct().values('studentID')
-    students = Student.objects.exclude(pk__in=srcInCourse)
+    students = Student.objects.exclude(pk__in=srcInCourse).filter(isTestStudent=False)
     
     if 'partial_name' in request.GET:
         partial_name = request.GET['partial_name']
