@@ -248,6 +248,7 @@ def achievements(request):
     #Sum up all weighted components to find the student's XP points
     xp = round((earnedPointsSeriousChallengesWeighted + totalScorePointsWCWeighted + totalScorePointsSPWeighted + earnedActivityPointsWeighted),0)
     context_dict['studentXP_range'] = xp
+    print("xp", xp, earnedPointsSeriousChallengesWeighted, totalScorePointsWCWeighted, totalScorePointsSPWeighted, earnedActivityPointsWeighted)
     context_dict['studentUngradedChallengesPPoints_range'] = totalScorePointsSPWeighted        
     #End Vendhan Changes
       

@@ -13,6 +13,7 @@ from Instructors.views.utils import utcDate
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
 from oneUp.decorators import adminsCheck
+from oneUp.ckeditorUtil import config_ck_editor
 
 def add_instructor_test_student(instructor,course):
     # Add test student to the course while adding instructor to the course
@@ -51,7 +52,7 @@ def add_instructor_test_student(instructor,course):
         # Configure params for test student
         scparamsList = StudentConfigParams.objects.filter(courseID=course)
         if scparamsList:
-            scparams = scparams[0]
+            scparams = scparamsList[0]
         else:
             scparams = StudentConfigParams()
     scparams.courseID = course
@@ -236,6 +237,7 @@ def courseCreateView(request):
             context_dict["courseEndDate"]=""
         context_dict['editCourse'] = True
     context_dict['view'] = False
+    context_dict['ckeditor'] = config_ck_editor()
         
     return render(request,'Administrators/createCourse.html',context_dict)
             

@@ -5,9 +5,9 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 .ck-view {
     overflow: overlay;
 }
-.ck-view img:not([width]) {
+/* .ck-view img:not([width]) {
     width: 100%;
-}
+} */
 .ck-view img {
     max-width: 100%;
 }

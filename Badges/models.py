@@ -303,12 +303,14 @@ class CourseConfigParams(models.Model):
 
     levelingUsed = models.BooleanField(default=False)                 ##
     
+    # Duels related
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
     betVC = models.BooleanField(default=True)                         ## Allow the bet of virtual currency in duels
     vcDuelParticipants = models.IntegerField(default=0)               ## Amount of virtual currency rewarded to duel participants
     vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
+    vcDuelMaxBet = models.IntegerField(default=3)                     ## Max Amount of betting virtual currency 
     vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
-
+     
     progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page
     
     chatUsed = models.BooleanField(default=True)                      ## This will enable or disable the chat feature 
@@ -378,7 +380,13 @@ class CourseConfigParams(models.Model):
         +str(self.xpWeightWChallenge) +"," \
         +str(self.xpWeightAPoints) +"," \
         +str(self.xpCalculateSeriousByMaxScore)+"," \
-        +str(self.xpCalculateWarmupByMaxScore)+","
+        +str(self.xpCalculateWarmupByMaxScore)+"," \
+        +str(self.classmatesChallenges)+","\
+        +str(self.betVC)+","\
+        +str(self.vcCallout)+","\
+        +str(self.vcDuel)+","\
+        +str(self.vcDuelMaxBet)+","\
+        +str(self.vcDuelParticipants)+","
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)

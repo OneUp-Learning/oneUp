@@ -22,7 +22,8 @@ import re
 from django.templatetags.i18n import language
 from sqlparse.utils import indent
 from django.template.defaultfilters import length
-from oneUp.decorators import instructorsCheck   
+from oneUp.decorators import instructorsCheck
+from oneUp.ckeditorUtil import config_ck_editor
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
@@ -82,6 +83,8 @@ def parsonsForm(request):
             instructorLine = languageName + indentationBoolean
             answer.answerText += instructorLine
             setUpCode = request.POST['setupCode']
+            print("setupcode", setUpCode)
+            ##setUpCode = re.sub("\r\n\s{4}", "\r\n\t", setUpCode)
             answer.answerText += setUpCode
             print("Answer edit answer:", repr(answer.answerText))
             answer.save()
@@ -105,6 +108,8 @@ def parsonsForm(request):
             
             answer.answerText += instructorLine
             setUpCode = request.POST['setupCode']
+            print("setupcode", setUpCode)
+            ##setUpCode = re.sub("\r\n\s{4}", "\t", setUpCode)
             answer.answerText += setUpCode
             print("Answer new answer", answer.answerText)
             answer.save()
@@ -244,5 +249,7 @@ def parsonsForm(request):
 
         if 'questionId' in request.POST:         
             return redirect('challengesView')
+        
+        context_dict['ckeditor'] = config_ck_editor()
     
     return render(request,'Instructors/ParsonsForm.html', context_dict)

@@ -941,6 +941,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     if result_only:
         date_time = time_period['datetime']
         date_time = date_time()
+        startOfTime = True
             
     else:
         date_time = get_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID) 
@@ -959,9 +960,8 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
                 date_time = None
             
         set_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID)
-    startOfTime = False
-    if date_time == None:
-        startOfTime = True
+        startOfTime = False
+        
     
     
     print("Course: {}".format(course))
@@ -985,7 +985,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     earnedScorePoints = 0 
     totalScorePoints = 0    
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True, isVisible=True)
-    
+
     for challenge in courseChallenges:
         seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
         if not startOfTime:
@@ -1053,22 +1053,35 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
             
     totalScorePointsActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
     print("activity points total", totalScorePointsActivityPoints)
-#     # get the skill points for this course
-#     totalScoreSkillPoints = 0
-#     cskills = CoursesSkills.objects.filter(courseID=course)
-#     for sk in cskills:
-#         skill = Skills.objects.get(skillID=sk.skillID.skillID)
-#         
-#         sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
-#         #print ("Skill Points Records", sp)
-#         gradeID = []
-#         
-#         for p in sp:
-#             gradeID.append(int(p.skillPoints))
-#             #print("skillPoints", p.skillPoints)
-#         if (gradeID):
-#             totalScoreSkillPoints = ((totalScoreSkillPoints + sum(gradeID,0)) * xpWeightSP / 100)
-#     print("total score skill points", totalScoreSkillPoints)
+     # SKILL POINTS
+    totalScorePointsSP = 0      # to be used in calculation of the XP Points     
+    skill_Name = []                
+    skill_Points = []
+    skill_ClassAvg = []
+    
+    cskills = CoursesSkills.objects.filter(courseID=course)
+    for sk in cskills:
+        skill = Skills.objects.get(skillID=sk.skillID.skillID)
+        
+        sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+        print ("Skill Points Records", sp)
+        
+        if not sp:  
+            skill_Points.append(0)                     
+        else:    
+            # find the max score for this challenge if there are several attempts                
+            gradeID  = []
+            
+            for p in sp:
+                gradeID.append(int(p.skillPoints))
+                print("skillPoints", p.skillPoints)   
+            
+            sumSkillPoints = sum(gradeID,0)                
+            totalScorePointsSP += sumSkillPoints
+
+    # weighting the total skill points to be used in calculation of the XP Points     
+    print("totalScorePointsSP: ", totalScorePointsSP)              
+    totalScorePointsSkillPointsWeighted = totalScorePointsSP * xpWeightSP / 100   
     
     if gradeWarmup:
         xp = round(totalScorePointsWarmupChallenge,0)
@@ -1080,8 +1093,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
         print("serious plus activity ran")
     else:
-        #
-        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints),0)
+        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScorePointsSkillPointsWeighted),0)
         print("xp has ran")
     
     return (studentId,xp)

@@ -17,8 +17,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 #This is used for uploading AvatarImages
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #This is for the sever
-MEDIA_URL =  'media/' #This is for the html
-
+MEDIA_URL =  '/media/' #This is for the html
+CKEDITOR_UPLOAD_PATH = "ckeditor/uploads/"
+CKEDITOR_UPLOAD_SLUGIFY_FILENAME = True
+CKEDITOR_RESTRICT_BY_USER = True
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+CKEDITOR_IMAGE_BACKEND = "pillow"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -77,7 +81,9 @@ INSTALLED_APPS = (
     'easy_timezones',
     'django_celery_beat',
     'rest_framework',
-    'channels'
+    'channels',
+    'ckeditor',
+    'ckeditor_uploader'
 )
 
 MIDDLEWARE = [
@@ -129,6 +135,8 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 STATIC_URL = '/OneUp/' # You may find this is already defined as such.
 
+CKEDITOR_BASEPATH = os.path.join(STATIC_ROOT, 'ThirdParty/ckeditor/ckeditor')
+
 STATICFILES_DIRS = (
 )
 
@@ -169,13 +177,75 @@ PASSWORD_HASHERS = (
 
 LOGIN_URL='/oneUp/permission_error'
 
+# Ckeditor Settings
+CKEDITOR_CONFIGS = {
+    'default': {
+        'skin': 'moono-lisa',
+        # 'skin': 'office2013',
+        'toolbar_Basic': [
+            ['Source', '-', 'Bold', 'Italic']
+        ],
+        'toolbar_Custom': [
+            {'name': 'document', 'items': ['Source', '-', 'Preview', 'Print', '-', 'Templates']},
+            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo']},
+            {'name': 'editing', 'items': ['Find', 'Replace', 'SelectAll']},
+            '/',
+            {'name': 'basicstyles',
+             'items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']},
+            {'name': 'paragraph',
+             'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-',
+                       'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl',
+                       'Language']},
+            {'name': 'links', 'items': ['Link', 'Unlink']},
+            {'name': 'insert',
+             'items': ['Image', 'Table', 'HorizontalRule', 'Smiley', 'EqnEditor', 'CodeSnippet', 'Markdown']},
+            '/',
+            {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
+            {'name': 'colors', 'items': ['TextColor', 'BGColor']},
+            {'name': 'about', 'items': ['About']},
+        ],
+        'toolbar': 'Custom',  # put selected toolbar config here
+        # 'height': 291,
+        'width': '100%',
+        'filebrowserWindowHeight': 725,
+        'filebrowserWindowWidth': 940,
+        'format_tags': 'p;h1;h2;h3;pre',
+        'removeDialogTabs': 'image:advanced;link:advanced',
+        'line_height': '0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em',
+        'autoParagraph': False,
+        'tabSpaces': 4,
+        'codeSnippet_theme': 'default',
+        'extraPlugins': ','.join([
+            'uploadimage', # the upload image feature
+            'uploadwidget',
+            'eqneditor',
+            'autolink',
+            'autoembed',
+            'embedsemantic',
+            'autogrow',
+            # 'devtools',
+            'pastecode',
+            'pastefromword',
+            'widget',
+            'lineutils',
+            'clipboard',
+            'dialog',
+            'dialogui',
+            'elementspath',
+            'smiley',
+            'codesnippet',
+            'markdown'
+        ]),
+    }
+}
+
 # Chat app settings
 ASGI_APPLICATION = 'oneUp.routing.application'
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+    "default": {
+        "BACKEND": "channels_rabbitmq.core.RabbitmqChannelLayer",
+        "CONFIG": {
+            "host": "amqp://guest:guest@localhost/asgi",
         },
     },
 }

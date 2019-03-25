@@ -17,6 +17,7 @@ from datetime import datetime
 from oneUp.logger import logger
 
 from oneUp.decorators import instructorsCheck     
+from oneUp.ckeditorUtil import config_ck_editor
 
 import re
 
@@ -344,6 +345,7 @@ def challengeCreateView(request):
     else:
         view = 0
     context_dict['view'] = view == 1
+    context_dict['ckeditor'] = config_ck_editor()
     return render(request,'Instructors/ChallengeCreateForm.html', context_dict)     #edit
    
 

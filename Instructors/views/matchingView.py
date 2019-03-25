@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.logger import logger
 from decimal import Decimal
 from oneUp.decorators import instructorsCheck  
+from oneUp.ckeditorUtil import config_ck_editor
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -242,5 +243,7 @@ def matchingForm(request):
     
     if 'questionId' in request.POST:         
         return redirect('challengesView')
+
+    context_dict['ckeditor'] = config_ck_editor()
 
     return render(request,'Instructors/MatchingForm.html', context_dict)

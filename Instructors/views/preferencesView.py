@@ -43,6 +43,7 @@ def preferencesView(request):
             ccparams.vcDuel = request.POST.get('vc_duel')
             ccparams.vcCallout = request.POST.get('vc_callout')
             ccparams.vcDuelParticipants = request.POST.get('vc_duel_participants')
+            ccparams.vcDuelMaxBet = request.POST.get("vc_duel_max_bet")
         else:
             ccparams.vcDuel = 0
             ccparams.vcCallout = 0
@@ -120,6 +121,7 @@ def preferencesView(request):
             context_dict["vc_duel"] = ccparams.vcDuel
             context_dict["betVC"] = ccparams.betVC
             context_dict["vc_duel_participants"] = ccparams.vcDuelParticipants
+            context_dict["vc_duel_max_bet"] = ccparams.vcDuelMaxBet
             context_dict["streaksUsed"] = ccparams.streaksUsed
             
  
