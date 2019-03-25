@@ -28,7 +28,7 @@
                               {% endfor %}
                            </tbody>
                         </table>
-                        <a class="waves-effect waves-light btn" href="/oneUp/students/Announcements"><i class="material-icons right">navigate_next</i>View Announcements</a>
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/Announcements"><i class="material-icons right">navigate_next</i>View All Announcements</a>
                      </div>
                   </div>
                   <div class="col s12 m6">
@@ -45,7 +45,7 @@
                               </tr>
                               {% empty %}
                               <tr>
-                                 <td class="center-align"><i>No Upcoming Serious challenges</i></td>
+                                 <td class="center-align"><i>No upcoming Serious challenges</i></td>
                               </tr>
                               {% endfor %}
                            </tbody>
@@ -60,7 +60,7 @@
                   <div class="card-panel">
                   <table>
                     <thead>
-                      <th>Latest Badges</th>
+                      <th>Latest Badges </th>
                     </thead>
                     <tbody>
                         <tr>
@@ -80,7 +80,7 @@
                 </div>
             </div>
             {% endif %}   
-               {% if displayLeaderBoard %}
+               {% if displayLeaderBoard and ccparams.leaderboardUsed%}
                   <div class="col s12 m12">
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
                   <div class="col s6 m3">

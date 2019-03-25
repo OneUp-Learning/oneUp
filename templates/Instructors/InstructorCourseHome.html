@@ -50,7 +50,7 @@
                          </tr>
                       {% empty %}
                       <tr>
-                        <td class="center-align"><i>No Upcoming Serious Challenges</i></td>
+                        <td class="center-align"><i>No upcoming Serious Challenges</i></td>
                       </tr>
                       {% endfor %}
                     </tbody>
@@ -88,7 +88,8 @@
                   </div>
                 </div>
             </div>
-            {% endif %}        
+            {% endif %}
+            {% if displayLeaderBoard and leaderboardUsed%}    
                 <div class="col s12 m12">
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
                   <div class="col s6 m3">
@@ -114,6 +115,7 @@
                   </div>
                   {% endfor %}
                   </div>
+                  {% endif %}
                 </div>
             <div class="row">
                 {% if classSkillsDisplayed and gamificationUsed %}                
