@@ -156,13 +156,12 @@ $(document).ready(function () {
     });
 });
 
-  // Update a notification using AJAX.
+// Update a notification using AJAX.
 $(document).ready(function updateNotifications() {
     var $notification_box = $(nfBoxListClassSelector);
     var flag = $notification_box.children().first().attr('data-nf-id') || '1';
 
     if (!flag || $notification_box.length == 0) {
-    	console.log(flag);
         console.log('Notity improperly configured. No data-nf-id was found.')
         console.log('  Make sure you have a container element with \''+ nfBoxListClassSelector + '\' as css class.');
         return;
@@ -181,4 +180,3 @@ $(document).ready(function updateNotifications() {
         }
     });
 });
-

@@ -90,7 +90,11 @@
                                        <option value={{obj.pk}} >{{obj.activityName}}</option>
                                     {%endif%}
                                   {% elif ruleType == 1306 %}
-                                    <option selected value={{obj.pk}} >{{obj.topicID.topicName}}</option>}
+                                    {% if pRule.objectID == obj.pk %}
+                                       <option selected value={{obj.pk}} >{{obj.topicID.topicName}}</option>
+                                    {% else %}
+                                       <option value={{obj.pk}} >{{obj.topicID.topicName}}</option>
+                                    {% endif %}
                                   {% elif ruleType == 1307 %}
                                      {% if pRule.objectID == obj.pk %}
                                        <option selected value={{obj.pk}} >{{obj.name}}</option>}

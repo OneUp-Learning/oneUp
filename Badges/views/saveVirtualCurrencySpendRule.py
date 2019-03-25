@@ -110,6 +110,7 @@ def SaveVirtualCurrencySpendRule(request):
                             rule.vcRuleAmount = int(actionArg.argumentValue)
                             rule.save()
                             selectedSpendRulesEvents.remove(eventI)
+             
                 else:
                     if eventI in selectedSpendRulesEvents:
                         vcRuleInfo = VirtualCurrencyRuleInfo()  
@@ -165,5 +166,5 @@ def SaveVirtualCurrencySpendRule(request):
                         vcRuleInfo.vcRuleAmount = request.POST["ruleAmount_"+str(eventI)]
                         vcRuleInfo.vcRuleType = False # Spending type
                         vcRuleInfo.save()
-                
+                    
     return redirect("/oneUp/badges/VirtualCurrencySpendRuleList")
