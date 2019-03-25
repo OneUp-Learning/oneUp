@@ -37,7 +37,7 @@ by James Cherry -->
                         </tr>
                      </thead>
                      <tbody>
-                        {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number in goal_range %}
+                        {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress in goal_range %}
                         <tr>
                            <td>{{studentGoal_ID}}</td>
                            <td>{{student_ID}}</td>
@@ -46,7 +46,7 @@ by James Cherry -->
                            <td>{{end_date}}</td>
                            <td>{{goal_Type}}</td>
                            <td>{{targeted_Number}}</td>
-                           <td>{{goal_progress}}</td>
+                           <td>{{goal_progress}}%</td>
                            <td>Status</td>
                            <td>
                               <form action="/oneUp/instructors/deleteAnnouncement" method="POST">
