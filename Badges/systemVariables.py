@@ -495,9 +495,9 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
         print("Total: " + str(total))
         print("Average: "+ str(average))
         print("latest Score: " + str(latestAttempt.activityScore))
-        # The student on average has earned more than their last attempt return the difference
-        if average > latestAttempt.activityScore:
-            return average - float(latestAttempt.activityScore)
+        # The students' last attempt has earned more than their average return the difference
+        if latestAttempt.activityScore > average:
+            return float(latestAttempt.activityScore) - average
     return 0
     
 def getAverageTestScorePercent(course, student, challenge):    
