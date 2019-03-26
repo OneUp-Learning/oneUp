@@ -788,6 +788,54 @@
                 <h3>Achievements</h3>
             </div>
         </div>
+        {% if BadgeStreakInfo or VCStreakInfo %}
+        <div class="row">
+            {% if VCStreakInfo%}
+                <div class="col s10 m10 offset-m1">
+            {%else%}
+                <div class="col s5 m5 offset-m1">
+            {%endif%}
+                    <div class="card">
+                        <div class="card-content">
+                            {% if VCStreakInfo%}
+                            <div class="row center-align">
+                                <span class="card-title">Upcoming (depending on your persistence)</span>
+                            </div>
+                            {%else%}
+                                <span class="card-title">Upcoming (depending on your persistence)</span>
+                            {%endif%}
+                            {%if BadgeStreakInfo %}
+                            <div class="row">
+                                <div class="col s6 m6">
+                            <h5>Badges</h5>
+                            {% for badgeName, description, StreakLength, treshold, badgeType, badgeTime in BadgeStreakInfo %}
+                            <p><i>Streak:</i> {{badgeName}} </p>
+                            <p>Description: {{description}}</p>
+                            <p>You will be awarded a Badge once you reach {{treshold}} consecutive <i>{{badgeType}}</i> by: {{badgeTime}}, you currently have {{StreakLength}} </p>
+                            <br>
+                            
+                            {% endfor %}
+                            </div>
+                            {% endif%}
+
+                            {% if VCStreakInfo%}
+                                <div class="col s6 m6">
+                            <h5>Virtual Currency</h5>
+                            {% for VCRuleName, description, awardAmount,StreakLength, treshold, vcType, vcTime in VCStreakInfo %}
+                            <p><i>Streak:</i> {{VCRuleName}} </p>
+                            <p>Description: {{description}}</p>
+                            <p>You will be awarded {{awardAmount}} Virtual Currency once you reach {{treshold}} consecutive <i>{{vcType}}</i> by: {{vcTime}}, you currently have {{StreakLength}}</p>
+                            <br>
+                            {% endfor %}
+                            </div>
+                            </div>
+                            {%endif%}
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+        {% endif %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card-panel">
