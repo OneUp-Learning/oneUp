@@ -19,6 +19,8 @@ from Students.views.allAnnouncementsView import createContextForAnnouncementList
 
 from Students.models import StudentGoalSetting
 from Badges.enums import Goal
+from Badges import systemVariables
+from Students.views import goalCreateView
 
 
 # Added boolean to check if viewing from announcements page or course home page
@@ -46,8 +48,9 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
             end_date.append(endDate.strftime('%m/%d/%y'))            
             #end_date calculation function here            
             goal_Type.append(goalTypeToString(goal.goalType))
-            targeted_Number.append(goal.targetedNumber)
-            goal_progress.append(goal.progressToGoal)
+            targeted_Number.append(goal.targetedNumber)            
+                                  
+            goal_progress.append(calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID))
             
     else: # Only shows the first three
         for goal in goals:
@@ -83,5 +86,11 @@ def goalTypeToString(gt):
     #gname = 'Blank'    
     
     return genums[gt].get('displayName')
+
+def calculateProgress(initial, goalType, course, student):
+    goalType = str(goalType)
+    newProgress = goalCreateView.goalProgressFxn(goalType, course, student)
+    
+    return newProgress - initial
     
     

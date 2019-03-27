@@ -39,9 +39,8 @@ def goalCreate(request):
         goal.goalType = request.POST['goalType']    
         goal.targetedNumber = int(request.POST['targetedNumber'])
         goal.timestamp = utcDate()
-        
-        goalprogress = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)        
-        goal.progressToGoal = (goalprogress / goal.targetedNumber) * 100       
+          
+        goal.progressToGoal = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)     
         
         goal.save();  #Writes to database.    
                 
@@ -67,7 +66,6 @@ def goalCreate(request):
 def goalProgressFxn(goalType, course, student):
     sysVarFxn = systemVariables
     sysVar = systemVariables.SystemVariable
-    goalType = int(goalType)
     
     if goalType == "1600":
         return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
