@@ -1000,10 +1000,10 @@ def duel_challenge_accept(request):
                 
                 return  render(request,'Students/DuelChallengeInsufficientVCForm.html', context_dict)
         
-        # if student has sufficient amount of vc then take it and put at stake
-        challengee_vc = challengee_reg_crs.virtualCurrencyAmount
-        challengee_reg_crs.virtualCurrencyAmount = challengee_vc-duel_challenge.vcBet
-        challengee_reg_crs.save()
+            # if student has sufficient amount of vc then take it and put at stake 
+            challengee_vc = challengee_reg_crs.virtualCurrencyAmount
+            challengee_reg_crs.virtualCurrencyAmount = challengee_vc-duel_challenge.vcBet
+            challengee_reg_crs.save()
 
         # toggle status to accpeted
         duel_challenge.status = 2 
