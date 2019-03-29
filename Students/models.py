@@ -319,6 +319,10 @@ class StudentStreaks(models.Model):
     objectID = models.IntegerField(default=0)
     currentStudentStreakLength = models.IntegerField(default=0)
     
+    def __str__(self):
+        return "StreakID: " + str(self.studentStreakID) + " studentID: " + str(self.studentID) + " courseID: " + str(self.courseID) + " streakStartDate:" + str(self.streakStartDate)
+        + " streakType: " + str(self.streakType) + " objectID:" + str(self.objectID) + " currentStudentStreakLength" + str(self.currentStudentStreakLength)
+    
     
 class StudentProgressiveUnlocking(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)

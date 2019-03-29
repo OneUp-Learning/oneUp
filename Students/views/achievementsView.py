@@ -334,7 +334,7 @@ def convertTimePeriodToTimePrompt(streakObj):
         nextRun = lastRan + timedelta(days=14)
         return nextRun
     else:
-        return "None"
+        return "Two Minutes"
 def findOutIfStreakChallengeOrAttendance(periodicVariableID):
     if periodicVariableID == 1407:
         return (1, "attendances")
@@ -368,7 +368,9 @@ def displayStreaks(context_dict, student, courseID):
         print("vcStreaks", vcStreaks)
         #find the display information for each streak in each list
         for badgeStreak in badgeStreaks:
-            if PeriodicBadges.objects.filter(badgeID=badgeStreak.objectID).exists:
+            print("badgeStreak", badgeStreak.objectID)
+            print("exists", )
+            if PeriodicBadges.objects.filter(badgeID=badgeStreak.objectID):
                 periodicBadge = PeriodicBadges.objects.get(badgeID=badgeStreak.objectID)
                 badgeStreakName.append(periodicBadge.badgeName)
                 badgeTreshhold.append(periodicBadge.threshold)
@@ -378,7 +380,7 @@ def displayStreaks(context_dict, student, courseID):
                 badgeTime.append(convertTimePeriodToTimePrompt(periodicBadge))
                 badgeDescription.append(periodicBadge.badgeDescription)
 
-        context_dict['BadgeStreakInfo'] = list(zip(badgeStreakName, badgeDescription,badgeCurrentStreakLength, badgeTreshhold, badgeType, badgeTime))
+        context_dict['BadgeStreakInfo'] = list(zip(range(1,len(badgeType)+1), badgeStreakName, badgeDescription,badgeCurrentStreakLength, badgeTreshhold, badgeType, badgeTime))
         print("context_dict['BadgeStreakInfo']",context_dict['BadgeStreakInfo'])
 
         VCStreakName = []
@@ -401,6 +403,6 @@ def displayStreaks(context_dict, student, courseID):
                 vcTime.append(convertTimePeriodToTimePrompt(vcPeriodicRule))
                 vcDescription.append(vcPeriodicRule.vcRuleDescription)
                 vcAmount.append(vcPeriodicRule.vcRuleAmount)
-        context_dict['VCStreakInfo'] = list(zip(VCStreakName, vcDescription, vcAmount, VCCurrentStreakLength, vcStreakTreshhold, vcType, vcTime))
+        context_dict['VCStreakInfo'] = list(zip(range(1,len(vcType)+1), VCStreakName, vcDescription, vcAmount, VCCurrentStreakLength, vcStreakTreshhold, vcType, vcTime))
         print("context_dict['VCStreakInfo']", context_dict['VCStreakInfo'])
     return context_dict

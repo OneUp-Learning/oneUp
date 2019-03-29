@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+    <style>
+            .indicator {
+            margin: .2em;
+            width: 5em;
+            height: 2.5em;
+        }
+    </style>
 <head>
-
+        <script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
     {% include 'scripts.html' %}
 
     <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
@@ -780,49 +787,6 @@
         });
     </script>
 </head>
-<div id="container"></div>
-<script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
-<style>
-    #container {
-  margin: .5em;
-  width: 10em;
-  height: 5em;
-}
-</style>
-<script>
-var bar = new ProgressBar.SemiCircle(container, {
-  strokeWidth: 6,
-  color: '#FFEA82',
-  trailColor: '#eee',
-  trailWidth: 1,
-  easing: 'easeInOut',
-  duration: 1400,
-  svgStyle: null,
-  text: {
-    value: '',
-    alignToBottom: false
-  },
-  from: {color: '#FFEA82'},
-  to: {color: '#ED6A5A'},
-  // Set default step function for all animate calls
-  step: (state, bar) => {
-    bar.path.setAttribute('stroke', state.color);
-    var value = Math.round(bar.value() * 100);
-    if (value === 0) {
-      bar.setText('');
-    } else {
-      bar.setText(value);
-    }
-
-    bar.text.style.color = state.color;
-  }
-});
-bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-bar.text.style.fontSize = '2rem';
-
-bar.animate(1.0);  // Number from 0.0 to 1.0
-</script>
-
 <body>
     {% if is_teacher %} {% include 'heading.html' %} {% else %} {% include 'stheading.html' %} {% endif %}
     <main>
@@ -852,23 +816,23 @@ bar.animate(1.0);  // Number from 0.0 to 1.0
                             <div class="row">
                                 <div class="col s6 m6">
                             <h5>Badges</h5>
-                            {% for badgeName, description, StreakLength, treshold, badgeType, badgeTime in BadgeStreakInfo %}
-                            <p><i>Streak:</i> {{badgeName}} </p>
-                            <p>Description: {{description}}</p>
-                            <p>You will be awarded a Badge once you reach {{treshold}} consecutive <i>{{badgeType}}</i> by: {{badgeTime}}, you currently have {{StreakLength}} </p>
-                            <br>
                             
+                            <div class="row">
+                            {% for i, badgeName, description, StreakLength, treshold, badgeType, badgeTime in BadgeStreakInfo %}
+                            <div class="indicator" data-streaklength="{{StreakLength}}" title="{{description}} by {{badgeTime}}" data-treshold="{{treshold}}" id="badge_container_{{i}}"></div>
+                            <br>
                             {% endfor %}
+                            </div>
                             </div>
                             {% endif%}
 
                             {% if VCStreakInfo%}
                                 <div class="col s6 m6">
                             <h5>Virtual Currency</h5>
-                            {% for VCRuleName, description, awardAmount,StreakLength, treshold, vcType, vcTime in VCStreakInfo %}
-                            <p><i>Streak:</i> {{VCRuleName}} </p>
-                            <p>Description: {{description}}</p>
-                            <p>You will be awarded {{awardAmount}} Virtual Currency once you reach {{treshold}} consecutive <i>{{vcType}}</i> by: {{vcTime}}, you currently have {{StreakLength}}</p>
+                            {% for i, VCRuleName, description, awardAmount,StreakLength, treshold, vcType, vcTime in VCStreakInfo %}
+                            <div class="indicator" data-streaklength="{{StreakLength}}" title="{{description}} by {{vcTime}}" data-treshold="{{treshold}}" id="vc_container_{{i}}">
+                            <p></p>
+                            </div>
                             <br>
                             {% endfor %}
                             </div>
@@ -1076,3 +1040,54 @@ bar.animate(1.0);  // Number from 0.0 to 1.0
 
 </body>
 </html>
+<script>
+    window.onload = function(){
+        var indicatorsFound = document.getElementsByClassName("indicator");
+        for(var i = 0; i < indicatorsFound.length; i++){
+            createProgressBar(indicatorsFound[i].dataset.streaklength, indicatorsFound[i].dataset.treshold, indicatorsFound.item(i));
+        }
+        var streakIndicators = [];
+    }
+
+    function createProgressBar(currentCount ,treshold, objID){
+        console.log(treshold);
+        console.log(currentCount);
+        treshold = parseInt(treshold);
+        currentCount = parseInt(currentCount);
+        var bar = new ProgressBar.SemiCircle(objID, {
+      strokeWidth: 6,
+      color: '#ADD8E6',
+      trailColor: '#eee',
+      trailWidth: 1,
+      easing: 'easeInOut',
+      duration: 1400,
+      svgStyle: null,
+      text: {
+        value: '',
+        alignToBottom: false
+      },
+      from: {color: '#ADD8E6'},
+      to: {color: '#1a237e'},
+      // Set default step function for all animate calls
+      step: (state, bar) => {
+        bar.path.setAttribute('stroke', state.color);
+        var value = Math.round(bar.value() * treshold);
+        if (value === 0) {
+          bar.setText('0');
+        } else if(value == currentCount+1){
+            bar.stop();    
+        }
+        else{
+          bar.setText(value);
+        }
+    
+        bar.text.style.color = state.color;
+      }
+    });
+    bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+    bar.text.style.fontSize = '2rem';
+    
+    bar.animate(1.0);  // Number from 0.0 to 1.0
+    }
+    
+    </script>
