@@ -50,7 +50,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
             goal_Type.append(goalTypeToString(goal.goalType))
             targeted_Number.append(goal.targetedNumber)            
                                   
-            goal_progress.append(calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID))
+            goal_progress.append(calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber))
             
     else: # Only shows the first three
         for goal in goals:
@@ -63,7 +63,8 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
                 end_date.append(endDate.strftime('%m/%d/%y'))
                 goal_Type.append(goalTypeToString(goal.goalType))
                 targeted_Number.append(goal.targetedNumber)
-                goal_progress.append(goal.progressToGoal)
+                
+                goal_progress.append(calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber))
                 index += 1
     
       
@@ -87,10 +88,13 @@ def goalTypeToString(gt):
     
     return genums[gt].get('displayName')
 
-def calculateProgress(initial, goalType, course, student):
+def calculateProgress(initialGoalTarget, goalType, course, student, target):
     goalType = str(goalType)
+    
     newProgress = goalCreateView.goalProgressFxn(goalType, course, student)
     
-    return newProgress - initial
+    progressPercent = ((newProgress - initialGoalTarget) / target) * 100
+    
+    return round(progressPercent, 0)
     
     
