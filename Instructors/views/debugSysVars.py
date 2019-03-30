@@ -143,7 +143,10 @@ def getAllStudents(courseStudents):
         s = cs.studentID
         userID.append(s)
         first_Name.append(s.user.first_name)
-        last_Name.append(s.user.last_name)
+        if s.isTestStudent:
+            last_Name.append(s.user.last_name + " (Test Student)")
+        else:
+            last_Name.append(s.user.last_name)
         user_Avatar.append(checkIfAvatarExist(cs))
 
     return userID, first_Name, last_Name, user_Avatar
@@ -235,6 +238,8 @@ def getSysValues(student, sysVar, objectType, currentCourse):
 
 def prepForDisplay(student, sysVar, object, value, assignment, currentCourse):
     name = student.user.first_name + " " + student.user.last_name
+    if student.isTestStudent:
+        name += " (Test Student)"
     avatarImage = checkIfAvatarExist(StudentRegisteredCourses.objects.get(
         studentID=student, courseID=currentCourse))
     objectName = ObjectTypes.objectTypes[int(object)]
