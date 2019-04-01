@@ -16,7 +16,8 @@ from Instructors.constants import unassigned_problems_challenge_name, default_ti
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
-from oneUp.decorators import instructorsCheck  
+from oneUp.decorators import instructorsCheck 
+from oneUp.ckeditorUtil import config_ck_editor 
 
 from oneUp.logger import logger
 
@@ -245,5 +246,7 @@ def trueFalseNewForm(request):
         context_dict['answer_range'] = zip(range(1,num_answers+1),ansValue,ansPK,ansChecked)
         if 'questionId' in request.POST:         
             return redirect('challengesView')
+            
+        context_dict['ckeditor'] = config_ck_editor()
     
     return render(request,'Instructors/TrueFalseForm.html', context_dict)
