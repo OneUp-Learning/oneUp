@@ -11,7 +11,7 @@ by James Cherry -->
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Goals for {{studentID}}</h3>
+               <h3>Goals for {{username}}</h3>
             </div>
          </div>
          <div class="row right-align">
@@ -37,7 +37,7 @@ by James Cherry -->
                         </tr>
                      </thead>
                      <tbody>
-                        {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress in goal_range %}
+                        {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}
                         <tr>
                            <td>{{studentGoal_ID}}</td>
                            <td>{{student_ID}}</td>
@@ -46,16 +46,30 @@ by James Cherry -->
                            <td>{{end_date}}</td>
                            <td>{{goal_Type}}</td>
                            <td>{{targeted_Number}}</td>
-                           <td>{{goal_progress}}%</td>
-                           <td>Status</td>
+                           <td>{{goal_progress}}%</td>                          
+                           <td>
+                           		{% if goal_status == "Failed" %}
+                           		<font color="red">{{goal_status}}</font>
+                           		{% elif goal_status == "Completed" %}
+                           		<font color="green">{{goal_status}}</font>
+                           		{% else %}
+                           		{{goal_status}}
+                           		{% endif %}
+                           </td>
                            <td>
                               <form action="/oneUp/instructors/deleteAnnouncement" method="POST">
                                  {% csrf_token %} 
                                  <input type="hidden" name="studentGoalID" value="{{studentGoal_ID}}">
                                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='goal{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                 <ul id='goal{{i}}' class='dropdown-content'>
-                                    <li><a href="/oneUp/students/GoalCreate?studentGoalID={{studentGoal_ID}}">Edit</a></li>
-                                    <li class="divider"></li>
+                                 <ul id='goal{{i}}' class='dropdown-content'>                                 	
+                                    <li>
+                                    	{% if edit_allowed %}
+                                    	<a href="/oneUp/students/GoalCreate?studentGoalID={{studentGoal_ID}}">Edit</a>
+                                    	{% else %}
+                                    	<a><font color="gray">Edit</font></a>
+                                    	{% endif %}
+                                    </li>
+                                    <li class="divider"></li>                                 	
                                     <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
                                  </ul>
                                  <div id="modal_delete{{i}}" class="modal">
