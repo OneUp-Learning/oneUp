@@ -90,9 +90,11 @@
             </div>
             {% endif %}
             {% if displayLeaderBoard and leaderboardUsed%}    
-                <div class="col s12 m12">
+                  <div class="col s12 m12">
+                  <div class="row" style="display: flex;">
+                  <div class="col s12 m6"></div>
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
-                  <div class="col s6 m3">
+                  <div class="col s12">
                   <div class="card-panel">
                   <table>
                     <caption><h5>{{leaderboardNames}}</h5></caption>
@@ -114,6 +116,8 @@
                   </div>
                   </div>
                   {% endfor %}
+                   <div class="col s12 m6"></div>
+                  </div>
                   </div>
                   {% endif %}
                 </div>

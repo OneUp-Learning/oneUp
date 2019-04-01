@@ -82,8 +82,10 @@
             {% endif %}   
                {% if displayLeaderBoard and ccparams.leaderboardUsed%}
                   <div class="col s12 m12">
-                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
-                  <div class="col s6 m3">
+                  <div class="row" style="display: flex;">
+                  <div class="col s12 m6"></div>
+                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %}  
+                  <div class="col s12">
                   <div class="card-panel">
                   <table>
                     <caption><h5>{{leaderboardNames}}</h5></caption>
@@ -104,7 +106,10 @@
                   </table>
                   </div>
                   </div>
-                  {% endfor %}
+                  
+                  {% endfor %} 
+                  <div class="col s12 m6"></div>
+                  </div>
                   </div>
                 {% endif %}
                </div>
