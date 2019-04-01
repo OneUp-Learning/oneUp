@@ -1,8 +1,11 @@
-#
-# Created on  2/18/2019
-# James Cherry
-#Modeled after announcementCreateView.py
-#
+'''
+Created on 2/18/2019
+
+Modeled after announcementCreateView.py
+
+@author: jcherry
+'''
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -10,11 +13,10 @@ from Instructors.views.announcementListView import createContextForAnnouncementL
 from Instructors.views.utils import utcDate, initialContextDict
 
 #2.18.2019 JC
-from Students.models import StudentGoalSetting
+from Students.models import StudentGoalSetting, StudentRegisteredCourses
 from Badges.enums import Goal
 from Badges import systemVariables
 from Students.views.utils import studentInitialContextDict
-from Badges.systemVariables import SystemVariable
 from django.template.context_processors import request
 
 @login_required
@@ -54,36 +56,40 @@ def goalCreate(request):
             # If studentGoalId is specified then we load for editing.
             if 'studentGoalID' in request.GET:
                 goal = StudentGoalSetting.objects.get(pk=int(request.GET['studentGoalID']))
+                genums = Goal.goals
                 # Copy all of the attribute values into the context_dict to
                 # display them on the page.
                 context_dict['studentGoalID'] = request.GET['studentGoalID']
-                context_dict['goalType'] = goal.goalType
+                context_dict['goalType'] = genums[goal.goalType].get('displayName')
                 context_dict['targetedNumber'] = goal.targetedNumber
                                 
 
     return render(request,'Students/GoalsCreationForm.html', context_dict)
 
 def goalProgressFxn(goalType, course, student):
-    sysVarFxn = systemVariables
-    sysVar = systemVariables.SystemVariable
-    
-    if goalType == "1600":
+        
+    if goalType == str(Goal.warmup10):
         return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
-    if goalType == "1602":
+    if goalType == str(Goal.warmup70):
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan70Percent(course, student)
-    if goalType == "1604":
+    if goalType == str(Goal.warmup80):
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan80Percent(course, student)
-    if goalType == "1606":
+    if goalType == str(Goal.warmup90):
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student)
-    if goalType == "1610":
+    if goalType == str(Goal.streak10):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken30Percent(course, student, goalType)
-    if goalType == "1612":
+    if goalType == str(Goal.streak70):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken70Percent(course, student, goalType)
-    if goalType == "1614":
+    if goalType == str(Goal.streak80):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken80Percent(course, student, goalType)
-    if goalType == "1616":
+    if goalType == str(Goal.streak90):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken90Percent(course, student, goalType)
-    if goalType == "1640":
+    if goalType == str(Goal.courseBucks):
+        studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
+        return studentReg.virtualCurrencyAmount
+    if goalType == str(Goal.courseXP):
+        return 0
+    if goalType == str(Goal.courseBadges):
         return systemVariables.getNumberOfBadgesEarned(course, student)
     
     
