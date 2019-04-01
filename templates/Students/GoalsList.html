@@ -57,18 +57,14 @@ by James Cherry -->
                            		{% endif %}
                            </td>
                            <td>
-                              <form action="/oneUp/instructors/deleteAnnouncement" method="POST">
+                              <form action="/oneUp/students/GoalDelete" method="POST">
                                  {% csrf_token %} 
                                  <input type="hidden" name="studentGoalID" value="{{studentGoal_ID}}">
                                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='goal{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                  <ul id='goal{{i}}' class='dropdown-content'>                                 	
-                                    <li>
                                     	{% if edit_allowed %}
-                                    	<a href="/oneUp/students/GoalCreate?studentGoalID={{studentGoal_ID}}">Edit</a>
-                                    	{% else %}
-                                    	<a><font color="gray">Edit</font></a>
-                                    	{% endif %}
-                                    </li>
+                                    	<li><a href="/oneUp/students/GoalCreate?studentGoalID={{studentGoal_ID}}">Edit</a></li>
+                                    	{% endif %}                                    
                                     <li class="divider"></li>                                 	
                                     <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
                                  </ul>

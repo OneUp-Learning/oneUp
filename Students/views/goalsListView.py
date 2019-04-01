@@ -1,5 +1,5 @@
 '''
-Created on February 2, 2019
+Created on 2/1/2019
 
 Based on announcementsListView.html as a template
 
@@ -105,6 +105,7 @@ def calculateProgress(initialGoalTarget, goalType, course, student, target):
     
     newProgress = goalCreateView.goalProgressFxn(goalType, course, student)
     
+    print(initialGoalTarget)
     progressPercent = ((newProgress - initialGoalTarget) / target) * 100
     
     return round(progressPercent, 0)
