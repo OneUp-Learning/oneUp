@@ -86,27 +86,26 @@
        {% endif %}
 
        
- 
-		<div class="frame" id="grad" align="center">
-        <div class="container">
-        <div class="row">
-        <div class="12u">
-        	<h1>Notifications</h1>
-        	<a href="/oneUp/students/NotificationPage?ID=0">All Notifications</a> <br/>
-        	<a href="/oneUp/students/NotificationPage?ID=1">Active Notifications</a><br/>
-        	<a href="/oneUp/students/NotificationPage?ID=2">Deleted Notifications</a>
+	<main>
+		<div div class="row center-align">
+        <div class="col s12">
+        	<h3>Notifications</h3>
+        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=0">All Notifications</a>
+        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=1">Active Notifications</a>
+        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=2">Deleted Notifications</a>
 		</div>
 		</div>
-		<br />
-		
-		<div align="center">
-			
-   			<div id="nTable" class="notification-box-list ">
-   			<table id='T1' class="bg" style="margin-bottom: .750em; width: 80%; align: center;">
+		<div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  <div class="card-content">
+   				
+   			<table class = "responsive-table">
+			   
    			<tr>
    				<th>Notification Description</th>
    				<th>Notification Timestamp</th>
-   				<th style="padding-left: 100px;">Options</th>
+   				<th style="padding-left: 100px">Options</th>
    			</tr>
    			
    			
@@ -118,7 +117,7 @@
 				{% user_notifications %}   				
    			{% elif ID == 2 %}
    				{% render_notifications using request.user.notifications.deleted %}
-   				
+   			<div class="divider"></div>
             {% endif %}	
    			</table>
    			</div>
@@ -129,9 +128,9 @@
 		</div>
         </div>
 	<!-- Footer -->
-
-
+	
 	</div>`
+	</main>
 	     {% include 'footer.html' %}
 	
 	
