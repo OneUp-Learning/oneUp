@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions
+from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges
 
@@ -80,6 +80,7 @@ def transactionsView(request):
     total = []
     transactionID = []
     challenges = []
+    transaction_type = [] # Purchase or Earned or ?
     
     for transaction in transactions:
         # RULE BASED VC NOT USED
@@ -99,6 +100,7 @@ def transactionsView(request):
             total.append(rule.vcRuleAmount)
             status.append(transaction.status)
             transactionID.append(transaction.transactionID)
+            transaction_type.append("Purchase")
             # Show what challenge the transaction was for
             if transaction.objectType == ObjectTypes.challenge:
                 challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
@@ -108,15 +110,37 @@ def transactionsView(request):
                     challenges.append(None)
             else:
                 challenges.append(None)
-        
-    #logger.debug(transactionID)
-    #logger.debug(name)
-    #logger.debug(description)
-    #logger.debug(purchaseDate)
-    #logger.debug(total)
+    # Fill in the earned transactions
+    stud_vc =  StudentVirtualCurrency.objects.filter(courseID=course,studentID=student).order_by('-timestamp') 
+    for stud_VCrule in stud_vc:
+        if hasattr(stud_VCrule, 'studentvirtualcurrencyrulebased'):
+            vcrule = stud_VCrule.studentvirtualcurrencyrulebased.vcRuleID
+            if stud_VCrule.courseID == course and vcrule.vcRuleType:
+                name.append(vcrule.vcRuleName)
+                description.append(vcrule.vcRuleDescription)
+                purchaseDate.append(stud_VCrule.timestamp)
+                
+                if vcrule.vcRuleAmount != -1:
+                    total.append(stud_VCrule.value)
+                else:
+                    avcr = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcrule.vcRuleID)
+                    if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
+                        total.append(ActionArguments.objects.get(ruleID=avcr.ruleID).argumentValue)
+                    else:
+                        total.append(0)   
+        else:
+            name.append(stud_VCrule.vcName)
+            description.append(stud_VCrule.vcDescription)
+            purchaseDate.append(stud_VCrule.timestamp)
+            total.append(stud_VCrule.value)
+
+        status.append("Complete")
+        transaction_type.append("Earned")
+        transactionID.append(None)
+        challenges.append(None)
     
     # Sort by status (Request -> In Progress -> Complete)
-    context_dict['transactions'] = sorted(zip(transactionID, name,description,purchaseDate, total, status, challenges), key=lambda s : s[5][1])
+    context_dict['transactions'] = sorted(zip(transactionID, name,description,purchaseDate, total, status, challenges, transaction_type), key=lambda s : (s[5], s[3]), reverse=True)
     context_dict['studentName'] = student.user.first_name + " " + student.user.last_name
     context_dict['studentVirtualCurrency'] = currentStudentCurrencyAmmount
     return render(request,"Students/Transactions.html",context_dict)

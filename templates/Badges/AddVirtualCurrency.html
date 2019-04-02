@@ -1,76 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
 
-        {% include 'scripts.html' %}
+<head>
 
-	</head>
-   <body>
-   
-        {% include 'heading.html' %}  
-        <main>
+    {% include 'scripts.html' %}
+
+</head>
+
+<body>
+
+    {% include 'heading.html' %}
+    <main>
         <div class="row center-align">
             <div class="col s12">
-        	    <h3>Add Virtual Currency</h3>
-		    </div>
+                <h3>Add Virtual Currency</h3>
+            </div>
         </div>
         <div class="row">
-        <div class="col s12 m10 offset-m1">
-            <div class="card">
-                <form id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">                        
-                <div class="card-content">
-                  {% csrf_token %}
-                  <table>
+            <div class="col s12 m10 offset-m1">
+                <div class="card">
+                    <form id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
+                        <div class="card-content">
+                            {% csrf_token %}
+                            <table>
 
-                  	<thead>
-      				<th>Student</th>
-     				<th>Current Virtual Currency</th>
-      				<th>Virtual Currency</th>
-      				<th>Manual Earning Rule</th>
-      				<th></th>
-            </thead>
-            <tbody>
-        	{% for studentID, studentName, studentCurrencyVC in students %}
-                     <tr> 
-       			<td>{{studentName}}</td>
-       			<td>{{studentCurrencyVC}}</td>
-       			<td><input type="number" name="{{studentID}}_Value" id="{{studentID}}_Value" min="0" /></td>
-       			<td><div class="select-wrapper">
-                                 <select name="{{studentID}}_Rule" >
-                                    <option value=""selected>Select Earn Rule</option>
-                                    {% for ruleID, ruleName in rules %}
-                                    <option id="{{ruleID}}" value="{{ruleID}}">{{ruleName}}</option>
+                                <thead>
+                                    <th>Student</th>
+                                    <th>Current Virtual Currency</th>
+                                    <th>Type</th>
+                                    <th>Virtual Currency</th>
+                                    <th>Manual Earning Rule</th>
+                                    <th></th>
+                                </thead>
+                                <tbody>
+                                    {% for studentID, studentName, studentCurrencyVC in students %}
+                                    <tr>
+                                        <td>{{studentName}}</td>
+                                        <td>{{studentCurrencyVC}}</td>
+                                        <td>
+                                            <p>
+                                                <input class="with-gap" name="{{studentID}}_type" type="radio" checked value="set" id="{{studentID}}_type_set" />
+                                                <label for="{{studentID}}_type_set">Set Virtual Currency</label>
+                                            </p>
+                                            <p>
+                                                <input class="with-gap" name="{{studentID}}_type" type="radio" value="combine" id="{{studentID}}_type_combine" />
+                                                <label for="{{studentID}}_type_combine">Combine Virtual Currency</label>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="{{studentID}}_Value" id="{{studentID}}_Value"
+                                                min="0" />
+                                        </td>
+                                        <td>
+                                            <div class="select-wrapper">
+                                                <select name="{{studentID}}_Rule">
+                                                    <option value="" selected>Select Earn Rule</option>
+                                                    {% for ruleID, ruleName in rules %}
+                                                    <option id="{{ruleID}}" value="{{ruleID}}">{{ruleName}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td class="center-align" colspan="6"><i>No Students</i></td>
+                                    </tr>
                                     {% endfor %}
-                                 </select>
-                              </div>
-                            </td>
-       			<td></td>
-               </tr>
-               {% empty %}
-               <tr>
-                   <td class="center-align" colspan="5"><i>No Students</i></td>
-               </tr>
-                     {% endfor %}
-                     </tbody>
-                  </table>
-                  </div>
-                  <div class="card-action right-align">
-                      <div class="row">
-                          <div class="col s12">
-                          <button class="btn waves-effect waves-light" type="submit" id="create" name="create">Add Currency
-                        <i class="material-icons right">send</i>
-                        </button>
-                    </div>
-                    </div>
-                    </div>
-               </form>
-		</div>
-        </div>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-action right-align">
+                            <div class="row">
+                                <div class="col s12">
+                                    <button class="btn waves-effect waves-light" type="submit" id="create"
+                                        name="create">Add Currency
+                                        <i class="material-icons right">send</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </main>
-      <!-- Footer -->
-      
-        {% include 'footer.html' %}
-           
-   </body>
+    <!-- Footer -->
+
+    {% include 'footer.html' %}
+
+</body>
+
 </html>

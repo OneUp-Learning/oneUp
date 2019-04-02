@@ -65,7 +65,7 @@
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Your Purchases</h3>
+               <h3>Your Transactions</h3>
             </div>
          </div>
          <div class="row">
@@ -75,24 +75,29 @@
                      <table class="responsive-table">
                         <thead>
                            <tr>
-                              <th>Item Name</th>
-                              <th>Item Description</th>
-                              <th>Date Purchased</th>
-                              <th>Item Cost</th>
-                              <th>Item Status</th>
+                              <th>Name</th>
+                              <th>Description</th>
+                              <th>Date</th>
+                              <th>Type</th>
+                              <th>Amount</th>
+                              <th>Status</th>
                               <th>View Notes</th>
                               <th>Download Receipt</th>
                            </tr>
                         </thead>
                         <tbody>
-                           {% for transactionID, name, description, purchaseDate, total, status, challenges in transactions %}
+                           {% for transactionID, name, description, purchaseDate, total, status, challenges, type in transactions %}
                            <tr>
                               <td>{{name}}</td>
                               <td>{{description}}</td>
                               <td>{{purchaseDate}}</td>
+                              <td>{{type}}</td>
                               <td>{{total}}</td>
                               <td><b>{{status}}</b></td>
-                              <td><a class="waves-effect waves-light btn" href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><i class="material-icons left">visibility</i>View Note</a></td>
+                              <td>{% if transactionID != None %}
+                                 <a class="waves-effect waves-light btn" href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><i class="material-icons left">visibility</i>View Note</a>
+                                 {% endif %}
+                              </td>
                               {% if status != 'Complete' and status != 'Reverted' %}
                               <td class="center-align"><a class="waves-effect waves-light tooltipped create" href="#!" data-tooltip="Download" data-position="right" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{purchaseDate}}" {% if challenges != None %}data-challenge="{{challenges}}"{% endif %}><i class="material-icons left">file_download</i></a></td>
                               {% else %}
@@ -108,7 +113,7 @@
                      </table>
                   </div>
                   <div class="card-action right-align">
-                     <a class="waves-effect waves-light btn" href="/oneUp/students/VirtualCurrencyShop"><i class="material-icons left">navigate_before</i>Back to Shop</a>
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/VirtualCurrencyShop"><i class="material-icons left">shop</i>Go to Couse Shop</a>
                   </div>
                </div>
             </div>
