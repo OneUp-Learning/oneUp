@@ -105,7 +105,6 @@ def calculateProgress(initialGoalTarget, goalType, course, student, target):
     
     newProgress = goalCreateView.goalProgressFxn(goalType, course, student)
     
-    print(initialGoalTarget)
     progressPercent = ((newProgress - initialGoalTarget) / target) * 100
     
     return round(progressPercent, 0)
