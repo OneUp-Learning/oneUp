@@ -12,12 +12,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.utils import utcDate, initialContextDict
 
-#2.18.2019 JC
+#4.2.2019 JC
 from Students.models import StudentGoalSetting, StudentRegisteredCourses
 from Badges.enums import Goal
 from Badges import systemVariables
 from Students.views.utils import studentInitialContextDict
 from django.template.context_processors import request
+from Badges.periodicVariables import studentScore, TimePeriods
 
 @login_required
  
@@ -67,7 +68,7 @@ def goalCreate(request):
     return render(request,'Students/GoalsCreationForm.html', context_dict)
 
 def goalProgressFxn(goalType, course, student):
-        
+    print (goalType)    
     if goalType == str(Goal.warmup10):
         return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
     if goalType == str(Goal.warmup70):
@@ -88,7 +89,9 @@ def goalProgressFxn(goalType, course, student):
         studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
         return studentReg.virtualCurrencyAmount
     if goalType == str(Goal.courseXP):
-        return 0
+        time_period = TimePeriods.timePeriods[1503]
+        s_id, xp = studentScore(student, course, 0, time_period, 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
+        return xp
     if goalType == str(Goal.courseBadges):
         return systemVariables.getNumberOfBadgesEarned(course, student)
     

@@ -253,6 +253,7 @@ class StudentConfigParams(models.Model):
     displayClassRanking = models.BooleanField(default=True)
     participateInDuel = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
+    displayGoal = models.BooleanField(default=True)
     
     def __str__(self):
         return str(self.scpID)  +","
@@ -262,7 +263,8 @@ class StudentConfigParams(models.Model):
         +str(self.displayLeaderBoard) +","                      
         +str(self.displayClassSkills) +","                      
         +str(self.displayClassAverage) +","                     
-        +str(self.displayClassRanking)    
+        +str(self.displayClassRanking) +","
+        +str(self.displayGoal)   
 
 class PeriodicallyUpdatedleaderboards(models.Model):
     periodicLeaderboardID = models.AutoField(primary_key=True)
