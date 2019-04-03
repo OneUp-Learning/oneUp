@@ -1028,6 +1028,31 @@ def getNumberOfBadgesEarned(course, student):
     logger.debug("Number of Earned Badges by student: " + str(count))
     return count
 
+def getNumberOfDuelsSent(course, student):
+    ''' This will return the number of duels sent by a student regardless of the
+        outcome of the duel
+    '''
+    from Students.models import DuelChallenges
+    sent = len(DuelChallenges.objects.filter(challenger=student, courseID=course))
+    return sent
+
+def getNumberOfDuelsAccepted(course, student):
+    ''' This will return the number of duels a student has accepted sent by any other
+        student.
+        Status -> indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
+    '''
+    from Students.models import DuelChallenges
+    accepted = len(DuelChallenges.objects.filter(challengee=student, courseID=course, status=2))
+    return accepted
+
+def getNumberOfDuelsWon(course, student):
+    ''' This will return the number of wins the student has earned for every duel 
+        in the course
+    '''
+    from Students.models import Winners
+    wins = len(Winners.objects.filter(studentID=student, courseID=course))
+    return wins
+
 def getNumberOfUniqueSeriousChallengesAttempted(course, student):
     ''' Get the number of unique serious challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=True)
@@ -1192,12 +1217,16 @@ class SystemVariable():
     uniqueSeriousChallengesGreaterThan30Percent = 948
     uniqueSeriousChallengesGreaterThan75Percent = 949
     totalMinutesSpentOnSeriousChallenges = 950
-    uniqueWarmupChallengesGreaterThan70Percent = 951 # Number of warmup challenges with a score percentage greater than 70%
-    uniqueWarmupChallengesGreaterThan80Percent = 952 # Number of warmup challenges with a score percentage greater than 80%
-    consecutiveDaysWarmUpChallengesTaken70Percent = 953 #Consecutive days warm up challenges at least 70% correct are taken
-    consecutiveDaysWarmUpChallengesTaken80Percent = 954 #Consecutive days warm up challenges at least 80% correct are taken
-    consecutiveDaysWarmUpChallengesTaken90Percent = 955 #Consecutive days warm up challenges at least 30% correct are taken
     
+    uniqueWarmupChallengesGreaterThan70Percent = 961 # Number of warmup challenges with a score percentage greater than 70%
+    uniqueWarmupChallengesGreaterThan80Percent = 962 # Number of warmup challenges with a score percentage greater than 80%
+    consecutiveDaysWarmUpChallengesTaken70Percent = 963 #Consecutive days warm up challenges at least 70% correct are taken
+    consecutiveDaysWarmUpChallengesTaken80Percent = 964 #Consecutive days warm up challenges at least 80% correct are taken
+    consecutiveDaysWarmUpChallengesTaken90Percent = 965 #Consecutive days warm up challenges at least 30% correct are taken
+    
+    duelsSent = 951 # Returns the number of duels a student has sent (completed duels only)
+    duelsAccepted = 952 # Returns the number of duels a student has accepted (completed duels only)
+    duelsWon = 953 # Returns the number of duels a student has won
 
     systemVariables = {
         score:{
@@ -1807,7 +1836,46 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
             },
-        },                                                               
+        },  
+        duelsSent:{
+            'index': duelsSent,
+            'name':'duelsSent',
+            'displayName':'# of Duels Sent',
+            'description':'The total number a student has sent duels to other students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.duelSent],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfDuelsSent
+            },
+        },  
+        duelsAccepted:{
+            'index': duelsAccepted,
+            'name':'duelsAccepted',
+            'displayName':'# of Duels Accepted',
+            'description':'The total number a student has accepted duels from other students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.duelAccepted],  
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfDuelsAccepted
+            },
+        },     
+        duelsWon:{
+            'index': duelsWon,
+            'name':'duelsWon',
+            'displayName':'# of Duels Won',
+            'description':'The total number a student has won duels',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.duelWon],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfDuelsWon
+            },
+        },                                                        
     }
 
 if __debug__:
