@@ -6,14 +6,15 @@
    	<td>
     	<span class="timesince">{{ notification.created|timesince }} ago</span>
     </td>
+	
 	<td style="padding-left: 50px;">
-    	<button  data-id="{{ notification.id }}" class="btn waves-effect waves-light"
+    	<button  data-id="{{ notification.id }}" class="mark-notification"
        		data-mark-action="{{ notification.read|yesno:'unread,read' }}"
         	data-toggle-text="Mark as {{ notification.read|yesno:_('read,unread') }}">
 
         	Mark as {{ notification.read|yesno:'unread,read' }}
 
     	</button>
-    	<button class="btn waves-effect waves-light" data-id="{{ notification.id }}"><i class="material-icons left">close</i>Delete</button>
+    	<button class="delete-notification" data-id="{{ notification.id }}">Delete</button>
 	</td>
 </tr>
