@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
+      <script>$(function () {	
+         var series1 = [];
+         var arrayName = [];
+         var arrayData = [];
+         var userChartsData = [];
+         var userNames = [];
+            
+         function rows2cols(a) {
+             	  var r = [];
+             	  var t;
+         
+             	  for (var i=0, iLen=a.length; i<iLen; i++) {
+             	    t = a[i];
+         
+             	    for (var j=0, jLen=t.length; j<jLen; j++) {
+             	      if (!r[j]) {
+             	        r[j] = [];
+             	      }
+             	      r[j][i] = t[j];
+             	    }
+             	  }
+             	  return r;
+         }	   
+         
+         var userPoints = function() {
+                 var userArray  = [{% for i,allGoals in goalsRange %} 
+                 				  	{% for user_Names, goals_Created,goals_Completed,goals_Failed in allGoals %} 
+                       						[ '{{user_Names}}',{{goals_Created}},{{goals_Completed}},{{goals_Failed}}]	
+                    						{% if not forloop.last %},{% endif %}{% endfor %}
+                    					  {% if not forloop.last %},{% endif %}{% endfor %}
+                                        ]; 
+                      // alert('userArray: '+userArray);
+                       var userArray1 = [] ;
+                       userArray1Index = 0 ;
+                       for (i= 0; i<userArray.length; i++ ){    
+                       	var recordExists = 'N';
+                       	for (j=0; j <userArray1.length; j++)
+                       		{
+                       		  if ((userArray[i][0] == userArray1[j][0]) &&
+                       		     (userArray[i][1] == userArray1[j][1]) && i!=j
+                       		     ){
+                       			  recordExists = 'Y';
+                       			  
+                       		  }
+                       		} 
+                       	 
+                       	if (recordExists != 'Y'){
+                       		userArray1[userArray1Index] = userArray[i];
+                       		userArray1Index++;
+                       	}
+                       }
+                      // alert('userArray1: '+userArray1);
+                       var arrayforCharts = rows2cols(userArray1);                
+                       var index = 0;
+                       var valueFound = 'N';
+                       for (i=0 ; i < arrayforCharts[0].length ; i++)
+                       	{
+                       	  valueFound = 'N';                	  
+                       	  if (i == 0)
+                       	  {
+                       		  userNames[index] = arrayforCharts[0][i];
+                       		  index +=1;
+                       	  }
+                       	  else
+                       		  {
+                       		    for (j=0; j < userNames.length ; j++ ){                		    	
+                       		    	if (arrayforCharts[0][i] == userNames[j]) {
+                       		    		valueFound = 'Y';
+                       		    	}
+                       		    }
+                       		    
+                       		    if (valueFound == 'N'){
+                       		    	
+                       		    	userNames[index] = arrayforCharts[0][i];
+                             		  index +=1;
+                       		    }
+                       		  } 
+                       	}             
+                     // alert('arrayforCharts: '+arrayforCharts);
+                   return arrayforCharts;
+             };	
+           
+         
+         $(document).ready(function (){
+         
+         userChartsData = userPoints();
+         //alert('userChallengesNames: '+userChallengesNames);
+         for (i=0 ; i < userNames.length ; i++){
+         	var options = {chart : {
+         		renderTo : 'container'+(i+1),
+         		type : 'column'
+         	},
+         	title : {
+         		text : []
+         	},
+         	tooltip : {
+         		formatter: function() {
+                           return ''+ this.series.name +': '+ this.y +' points';
+                       }
+         	},
+         	xAxis : {
+         		categories : []
+         	},
+         	yAxis : {
+         		title:{text:'Points'
+         		}
+         	},
+         	credits: {
+         	      enabled: false
+         	  },
+         	series : []
+         	};
+         	
+         	options.title.text.push(userNames[i]);
+         	var TotalGoalsCreated = 'Y';
+         	var TotalGoalsCompleted = 'Y' ;
+         	var TotalGoalsFailed = 'Y';
+         	for (k = 0; k < userChartsData.length ; k++){		
+         	
+         	  	for (j=0; j < userChartsData[0].length ; j++){	
+         	  		//alert('userChartsData[0].length : '+userChartsData[0].length);
+         			if (userNames[i] == userChartsData[0][j]){	
+         				
+         				if (k == 1){							
+         				//	alert('userChartsData[1][j]: '+userChartsData[1][j]);
+         				   options.xAxis.categories.push(userChartsData[1][j]);
+         				}
+         				else if (k == 2){							
+         					if (TotalGoalsCreated == 'Y'){
+         							var dataPoints = [];
+         							dataPointsIndex = 0;
+         							
+         							for (l= 0 ; l < userChartsData[0].length ; l++)
+         								{
+         								  if (userNames[i] == userChartsData[0][l]){
+         									  dataPoints[dataPointsIndex] = userChartsData[2][l];
+         									  dataPointsIndex++;
+         									}
+         								}
+         							
+         							var series1 = {
+         								name : 'GoalsCreated' ,
+         								data : dataPoints 
+         							}
+         							options.series.push(series1);
+         							TotalGoalsCreated = 'N';
+         						}
+         					 }	
+         											
+         				else if (k == 3){
+         					if (TotalGoalsCompleted == 'Y')	{
+         						var dataPoints3 = [];
+         						dataPointsIndex3 = 0;
+         						
+         						for (l= 0 ; l < userChartsData[0].length ; l++)
+         							{
+         							  if (userNames[i] == userChartsData[0][l]){
+         								//  alert('userChartsData[3][l]'+userChartsData[3][l]);
+         								  dataPoints3[dataPointsIndex3] = userChartsData[3][l];
+         								  dataPointsIndex3++;
+         								}
+         							}
+         						var series11 = {
+         								name : 'GoalsCompleted'	,
+         								color: 'darkblue', 
+         								data : dataPoints3 
+         							}
+         						
+         						options.series.push(series11);
+         						TotalGoalsCompleted = 'N';
+         						}
+         									
+         					}
+         				else if (k == 4){
+         					if (TotalGoalsFailed == 'Y')	{
+         						var dataPoints4 = [];
+         						dataPointsIndex4 = 0;
+         						
+         						for (l= 0 ; l < userChartsData[0].length ; l++)
+         							{
+         							  if (userNames[i] == userChartsData[0][l]){
+         								 // alert('userChartsData[4][l]'+userChartsData[4][l]);
+         								  dataPoints4[dataPointsIndex4] = userChartsData[4][l];
+         								  dataPointsIndex4++;
+         								}
+         							}
+         						var series111 = {
+         								name : 'GoalsFailed'	,
+         								color: 'lightgreen', 
+         								data : dataPoints4 
+         							}
+         						
+         						options.series.push(series111);
+         						TotalGoalsFailed = 'N';
+         						}
+         									
+         					}//k if end
+         				
+         				}
+         					
+         			}
+         		
+         		}
+         	//alert(JSON.stringify(options));
+         	var chart = new Highcharts.Chart(options);
+         	}			
+         	
+         }	);  
+           
+         });
+      </script>
+   </head>
+   <body>
+      {% include 'heading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Goals Visualization</h3>            
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  <div class="card-content">
+                     <script>         
+                        for (i=0; i < {{goalsCount}} ; i++ )
+                         {
+                         document.write('<div class="row"><div class="col s12"><div id="container'+(i+1)+'" class="js-box"></div></div></div>');
+                         }        	  
+                     </script>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>
