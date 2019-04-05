@@ -1080,6 +1080,14 @@ def duel_challenge_accept(request):
         #duel_challenge.hasStarted = True
         duel_challenge.acceptTime = utcDate()
         duel_challenge.save()
+
+        # Register event that the student has accepted the duel
+        mini_req = {
+            'currentCourseID': duel_challenge.courseID.pk,
+            'user': duel_challenge.challengee.user.username,
+        }
+        register_event_simple(Event.duelAccepted, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+        
         context_dict['requested_duel_challenge']=duel_challenge
         #context_dict['time_limit'] = convert_time_to_hh_mm(duel_challenge.timeLimit)
         #context_dict['start_time'] = convert_time_to_hh_mm(duel_challenge.startTime)
