@@ -50,7 +50,7 @@ def createTeacherView(request):
                 
                 student = Student.objects.filter(user=instructor)
                 if student:
-                    student = student[0]
+                    student = student[0].user
                     student.first_name = firstname
                     student.last_name = lastname
                     if not pword.startswith('bcrypt'):
@@ -62,7 +62,7 @@ def createTeacherView(request):
             if instructorEmails and instructorEmails[0].email != request.POST['iEmailPrev']:
                 errorList.append("Instructor email is taken.")
             if len(errorList) == 0: # The username and email are unique
-                instructor = instructors[0]
+                instructor = User.objects.filter(groups__name="Teachers", username=request.POST['iUsernamePrev']).first()
                 instructor.username = uname
                 instructor.first_name = firstname
                 instructor.last_name = lastname
@@ -73,7 +73,7 @@ def createTeacherView(request):
                 
                 student = Student.objects.filter(user=instructor)
                 if student:
-                    student = student[0]
+                    student = student[0].user
                     student.first_name = firstname
                     student.last_name = lastname
                     if not pword.startswith('bcrypt'):
