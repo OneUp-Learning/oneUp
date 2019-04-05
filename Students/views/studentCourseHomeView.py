@@ -66,6 +66,7 @@ def StudentCourseHome(request):
             context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
             context_dict["displayClassAverage"]=scparams.displayClassAverage
             context_dict["displayClassSkills"]=scparams.displayClassSkills
+            context_dict["displayGoal"]=scparams.displayGoal
             
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)

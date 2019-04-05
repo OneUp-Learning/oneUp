@@ -87,6 +87,8 @@ from Instructors.views.attendanceStreaks import attendanceStreaks
 
 from Instructors.views.challengeClassmatesReport import challenge_classmates_report, duel_challenge_report
 
+
+
 admin.autodiscover()
 
 urlpatterns = [

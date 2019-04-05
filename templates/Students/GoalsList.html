@@ -7,11 +7,19 @@ by James Cherry -->
       {% include 'scripts.html' %}
    </head>
    <body>
+   	  {% if is_teacher %}    
+      {% include 'heading.html' %}
+      {% else %}
       {% include 'stheading.html' %}
+      {% endif %}
       <main>
          <div class="row center-align">
             <div class="col s12">
+               {% if is_teacher %} 
+               <h3>Goals for {{student}}</h3>
+               {% else %}   
                <h3>Goals for {{username}}</h3>
+               {% endif %}
             </div>
          </div>
          <div class="row right-align">
@@ -25,9 +33,9 @@ by James Cherry -->
                   <table>
                      <thead>
                         <tr>
-                           <th>StudentGoalID</th>
+                           <!-- <th>StudentGoalID</th>
                            <th>Student ID</th>
-                           <th>Course ID</th>
+                           <th>Course ID</th> -->
                            <th>Start Date</th>
                            <th>Due Date</th>
                            <th>Goal Type</th>
@@ -39,9 +47,9 @@ by James Cherry -->
                      <tbody>
                         {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}
                         <tr>
-                           <td>{{studentGoal_ID}}</td>
+                           <!-- <td>{{studentGoal_ID}}</td>
                            <td>{{student_ID}}</td>
-                           <td>{{course_ID}}</td>
+                           <td>{{course_ID}}</td> -->
                            <td>{{start_date}}</td>
                            <td>{{end_date}}</td>
                            <td>{{goal_Type}}</td>
@@ -57,6 +65,7 @@ by James Cherry -->
                            		{% endif %}
                            </td>
                            <td>
+                              {% if not is_teacher %}
                               <form action="/oneUp/students/GoalDelete" method="POST">
                                  {% csrf_token %} 
                                  <input type="hidden" name="studentGoalID" value="{{studentGoal_ID}}">
@@ -79,6 +88,7 @@ by James Cherry -->
                                     </div>
                                  </div>
                               </form>
+                              {% endif %}
                            </td>
                         </tr>
                         {% empty %}
