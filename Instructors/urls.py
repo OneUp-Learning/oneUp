@@ -42,7 +42,7 @@ from Instructors.views.importStudentsView import importStudents
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
-from Instructors.views.InstructorQA import instructorQA
+from Instructors.views.instructorQA import instructorQA
 
 from Instructors.views.matchingView import matchingForm
 from Instructors.views.milestoneCreateView import milestoneCreateView

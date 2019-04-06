@@ -11,13 +11,13 @@ from Students.models import StudentChallenges, StudentActivities
 from Instructors.models import Challenges, Activities
 from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate
-from Instructors.views.utils import instructorInitialContextDict
+from Instructors.views.utils import initialContextDict
 from django.db.models import Q
-from Instructors.views.utils import instructorInitialContextDict
+
 
 from django.contrib.auth.decorators import login_required
 
 @login_required
 def instructorQA(request):
-    context_dict, currentCourse = instructorInitialContextDict(request)          
-    return render(request,'Instructors/InstructorQA.html',context_dict)
+    context_dict, currentCourse = initialContextDict(request)          
+    return render(request,'instructors/InstructorQA.html',context_dict)
