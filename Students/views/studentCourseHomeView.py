@@ -17,6 +17,12 @@ from Students.views.utils import studentInitialContextDict
 
 from Students.views.avatarView import checkIfAvatarExist
 
+from Students.views.goalsListView import createContextForGoalsList
+from Students.models import StudentGoalSetting
+from Badges.enums import Goal
+from Badges import systemVariables
+from Students.views import goalCreateView
+
 @login_required
 def StudentCourseHome(request):
     context_dict = { }
@@ -43,6 +49,7 @@ def StudentCourseHome(request):
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
         context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
+        context_dict = createContextForGoalsList(currentCourse, context_dict, True, request.user)
         context_dict['course_Name'] = currentCourse.courseName
         context_dict['is_test_student'] = sID.isTestStudent
         if sID.isTestStudent:
@@ -133,4 +140,4 @@ def courseBadges(currentCourse, context_dict):
             context_dict['course_Name'] = 'Not Selected'
         
     return context_dict 
-    
+
