@@ -13,7 +13,7 @@ from Instructors.views.utils import utcDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime, date, time, timedelta
 from oneUp.decorators import instructorsCheck   
-from Students.models import StudentGoalSetting
+from Students.models import StudentGoalSetting, Student
 from Students.views.utils import studentInitialContextDict
 from Students.views.allAnnouncementsView import createContextForAnnouncementList
 
@@ -24,7 +24,9 @@ from Students.views import goalCreateView
 
 
 # Added boolean to check if viewing from announcements page or course home page
-def createContextForGoalsList(currentCourse, context_dict, courseHome):
+def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
+
+    student = Student.objects.get(user=user)
 
     studentGoal_ID = []      
     student_ID = []
@@ -37,9 +39,12 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
     goal_progress = []
     goal_status = []
         
-    goals = StudentGoalSetting.objects.filter(studentID=context_dict['student'],courseID=currentCourse).order_by('-timestamp')
+    #goals = StudentGoalSetting.objects.filter(studentID=context_dict['student'],courseID=currentCourse).order_by('-timestamp')
+    
     index = 0
     if not courseHome: # Shows all the announcements
+        goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
+        
         for goal in goals:
             studentGoal_ID.append(goal.studentGoalID) #pk
             student_ID.append(goal.studentID)
@@ -60,7 +65,9 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
             goal_status.append(goalStatus(progressPercent, endDate))
             
     else: # Only shows the first three
-        for goal in goals:
+        goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
+        
+        for goal in goals:                        
             if index < 1:
                 studentGoal_ID.append(goal.studentGoalID) #pk
                 student_ID.append(goal.studentID)
@@ -90,7 +97,7 @@ def goalsList(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
 
-    context_dict = createContextForGoalsList(currentCourse, context_dict, False)
+    context_dict = createContextForGoalsList(currentCourse, context_dict, False, request.user)
     
     return render(request,'Students/GoalsList.html', context_dict)
 
