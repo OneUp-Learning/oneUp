@@ -38,6 +38,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
     targeted_Number = []
     goal_progress = []
     goal_status = []
+    initial_value = []
         
     #goals = StudentGoalSetting.objects.filter(studentID=context_dict['student'],courseID=currentCourse).order_by('-timestamp')
     
@@ -49,7 +50,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             studentGoal_ID.append(goal.studentGoalID) #pk
             student_ID.append(goal.studentID)
             start_date.append(goal.timestamp.strftime('%m/%d/%y'))
-            course_ID.append(goal.courseID)
+            course_ID.append(goal.courseID)            
             # if default end date (= unlimited) is stored, we don't want to display it on the webpage  
             
             edit_allowed.append(editGoal(goal.timestamp))
@@ -71,7 +72,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             if index < 1:
                 studentGoal_ID.append(goal.studentGoalID) #pk
                 student_ID.append(goal.studentID)
-                course_ID.append(goal.courseID)
+                course_ID.append(goal.courseID)                
                 
                 edit_allowed.append(editGoal(goal.timestamp))
                 
