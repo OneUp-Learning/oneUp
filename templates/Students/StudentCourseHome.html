@@ -59,43 +59,41 @@
                </div>
             {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal %}
             <div class="col s12 m6">
-                     <div class="card-panel center-align">
-                     	{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}
-                              	<div class="col s6 m6">
-                            		<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="99" id="goalindicator"></div>
-                            	</div>
-                        {% endfor %}
-<!--                         <table> -->
-<!--                            <thead> -->
-<!--                               <th>Goals In Progress</th> -->
-<!--                            </thead> -->
-<!--                            <tbody> -->
-<!--                               {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                             -->
-<!--                               <tr> -->
-<!-- 		                           <td>{{start_date}}</td> -->
-<!-- 		                           <td>{{end_date}}</td> -->
-<!-- 		                           <td>{{goal_Type}}</td> -->
-<!-- 		                           <td>{{targeted_Number}}</td> -->
-<!-- 		                           <td>{{goal_progress}}%</td>                           -->
-<!-- 		                           <td> -->
-<!-- 		                           		{% if goal_status == "Failed" %} -->
-<!-- 		                           		<font color="red">{{goal_status}}</font> -->
-<!-- 		                           		{% elif goal_status == "Completed" %} -->
-<!-- 		                           		<font color="green">{{goal_status}}</font> -->
-<!-- 		                           		{% else %} -->
-<!-- 		                           		{{goal_status}} -->
-<!-- 		                           		{% endif %} -->
-<!-- 		                           </td> -->
-<!-- 		                       </tr> -->
-<!--                               {% empty %}  -->
-<!--                               <tr> -->
-<!--                                  <td class="center-align"><i>No Goals Created Yet</i></td> -->
-<!--                               </tr> -->
-<!--                               {% endfor %} -->
-<!--                            </tbody> -->
-<!--                         </table> -->
+                     <div class="card-panel center-align">                              	
+                        <table>
+                           <thead>
+                              <th>Goals In Progress</th>
+                           </thead>
+                           <tbody>
+                              {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                            
+                              <tr>
+		                           <td>{{start_date}}</td>
+		                           <td>{{end_date}}</td>
+		                           <td>{{goal_Type}}</td>
+		                           <td>{{targeted_Number}}</td>
+		                           <td>{{goal_progress}}%</td>                          
+		                           <td>
+		                           		{% if goal_status == "Failed" %}
+		                           		<font color="red">{{goal_status}}</font>
+		                           		{% elif goal_status == "Completed" %}
+		                           		<font color="green">{{goal_status}}</font>
+		                           		{% else %}
+		                           		{{goal_status}}
+		                           		{% endif %}
+		                           </td>
+		                       </tr>
+                              {% empty %} 
+                              <tr>
+                                 <td class="center-align"><i>No Goals Created Yet</i></td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
                         <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
                      </div>
+                  </div>
+                  <div class="col s6 m6">
+                  		<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
                   </div>
             {% endif %}
             {% if displayBadges and ccparams.gamificationUsed %}                            
@@ -166,15 +164,13 @@
 </html>
 
 <script>
-    window.onload = function(){
-    	createProgressBar({{goal_Progress}}, {{targeted_number}}, goalindicator);
-    	
-//         var indicatorsFound = document.getElementsByClassName("goalindicator");
-//         for(var i = 0; i < indicatorsFound.length; i++){
-//             createProgressBar(indicatorsFound[i].dataset.goalprogress, indicatorsFound[i].dataset.target, indicatorsFound.item(i));
-//         }
-//         var streakIndicators = [];
-//     }
+    window.onload = function(){    	
+        var indicatorsFound = document.getElementsByClassName("goalindicator");
+        for(var i = 0; i < indicatorsFound.length; i++){
+            createProgressBar(indicatorsFound[i].dataset.goalprogress, indicatorsFound[i].dataset.target, indicatorsFound.item(i));
+        }
+        var streakIndicators = [];
+    }
 
     function createProgressBar(currentCount ,treshold, objID){
         console.log(treshold);
@@ -194,7 +190,7 @@
         alignToBottom: false
       },
       from: {color: '#000000'},
-      to: {color: '#000000'},
+      to: {color: '#1df704},
       // Set default step function for all animate calls
       
       step: (state, bar) => {
@@ -206,7 +202,7 @@
             bar.stop();    
         }
         else{
-          bar.setText(value);
+          bar.setText((currentCount / treshold) * 100 + " %");
         }
     
         bar.text.style.color = state.color;
@@ -217,5 +213,4 @@
     
     bar.animate(1.0);  // Number from 0.0 to 1.0
     }
-    
-    </script>
+</script>

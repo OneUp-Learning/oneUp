@@ -11,6 +11,9 @@ from Badges import systemVariables
 from Students.views import goalCreateView, goalsListView  
 from Students.views.goalsListView import goalsList
 from datetime import datetime, date, time, timedelta
+
+import json
+from django.db.models import Count
     
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
@@ -137,7 +140,7 @@ def classAchievementsViz(request):
             goals_Failed.append(failed)
             
                 
-            allGoals.append(zip(user_Names, goals_Created,goals_Completed,goals_Failed ))  
+            allGoals.append(zip(user_Names,goals_Created,goals_Completed,goals_Failed ))  
             
         context_dict['goalsRange'] = zip(range(1,len(allGoals)+1),allGoals)
         context_dict['goalsCount'] = goals.count()   
