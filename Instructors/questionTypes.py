@@ -702,8 +702,8 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     studentGrade = 0.0
     penalties = 0.0
     if studentSolution == "" or studentSolution == '\n':
-        qdict['total_points'] = 0
-        print("activated")
+        qdict['user_points'] = 0
+#        print("activated")
     else:
         ##if no errors happened give them full credit
         if (errorDescriptions == ""):
