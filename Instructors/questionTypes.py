@@ -707,7 +707,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     else:
         ##if no errors happened give them full credit
         if (errorDescriptions == ""):
-            qdict['user_points'] = qdict['total_points']
+            studentGrade = qdict['total_points']
 
         ##otherwise grade on our criteria
         else:
@@ -740,20 +740,20 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
                     ##we multiply by 1/2 because each wrong is half of 1/n
                     penalties += Decimal((indentationErrorCount / correctLineCount) * (1/2))
 
-    print("Student grade:", studentGrade)
-    print("Total Points:", qdict['total_points'])
-    if feedBackButtonClickCount > 0:
-        maxPoints /= feedBackButtonClickCount * 2
-    else:
-        maxPoints = qdict['total_points']
-
-    #max points is the maximum points student can earn, and we subtract the penalties
-    print("studentGrade", studentGrade, maxPoints, penalties)
-    studentGrade = float(maxPoints) - (float(maxPoints) * float(penalties))
-    if studentGrade < 0:
-        studentGrade = 0
-
-    qdict['user_points'] = round(Decimal(studentGrade), 2)
+            print("Student grade:", studentGrade)
+            print("Total Points:", qdict['total_points'])
+            if feedBackButtonClickCount > 0:
+                maxPoints /= feedBackButtonClickCount * 2
+            else:
+                maxPoints = qdict['total_points']
+        
+            #max points is the maximum points student can earn, and we subtract the penalties
+            print("studentGrade", studentGrade, maxPoints, penalties)
+            studentGrade = float(maxPoints) - (float(maxPoints) * float(penalties))
+            if studentGrade < 0:
+                studentGrade = 0
+    
+            qdict['user_points'] = round(Decimal(studentGrade), 2)
     return qdict
 
 
