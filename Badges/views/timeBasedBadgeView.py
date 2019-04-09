@@ -32,7 +32,7 @@ def timeBasedBadgeView(request):
                 # The range part is the index numbers.  
                 context_dict['badge'] = badge 
                 context_dict['edit'] = True  
-                if badge.periodicVariableID == 1408 or badge.periodicVariableID == 1407 or badge.periodicVariableID == 1409 or badge.periodicVariableID == 1410:
+                if determineIfStreakAward(badge.periodicVariableID):
                     context_dict['checkbox'] = badge.resetStreak         
         else:
             context_dict['edit'] = False 
@@ -80,13 +80,16 @@ def timeBasedBadgeView(request):
             periodic_badge.threshold = request.POST['threshold']
             periodic_badge.operatorType = request.POST['operator']
             periodic_badge.lastModified = utcDate()
+
+            streakObject = determineIfStreakAward(int(request.POST['periodicVariableSelected']))
     
             if 'selectors' in request.POST:
                 periodic_badge.periodicType = selectorMap[selectors]
     
                 if selectors == "TopN":
-                    periodic_badge.numberOfAwards = int(request.POST['numberOfAwards'])
-                    periodic_badge.isRandom = None
+                    if not streakObject: 
+                        periodic_badge.numberOfAwards = int(request.POST['numberOfAwards'])
+                        periodic_badge.isRandom = None
                 elif selectors == "Random":
                     periodic_badge.isRandom = True
                     periodic_badge.numberOfAwards = None
@@ -100,6 +103,7 @@ def timeBasedBadgeView(request):
 
             # Recreate the Periodic Task based on the type
             if selectors == "TopN":
+                print("number of awards", periodic_badge.numberOfAwards)
                 periodic_badge.periodicTask = setup_periodic_badge(unique_id=int(periodic_badge.badgeID), badge_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), number_of_top_students=int(periodic_badge.numberOfAwards), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType)
             elif selectors == "Random":
                 periodic_badge.periodicTask = setup_periodic_badge(unique_id=int(periodic_badge.badgeID), badge_id=int(periodic_badge.badgeID), variable_index=int(periodic_badge.periodicVariableID), course=current_course, period_index=int(periodic_badge.timePeriodID), threshold=int(periodic_badge.threshold), operator_type=periodic_badge.operatorType, is_random=periodic_badge.isRandom)
@@ -127,3 +131,8 @@ def createTimePeriodContext(context_dict):
     context_dict['periodicVariables'] = [v for _, v in  sorted(PeriodicVariables.periodicVariables.items())]
     context_dict['timePeriods'] = [t for _, t in TimePeriods.timePeriods.items()]
     return context_dict
+def determineIfStreakAward(variableID):
+    if  variableID == 1408 or  variableID == 1407 or variableID == 1409 or variableID == 1410:
+        return True
+    else:
+        return False
