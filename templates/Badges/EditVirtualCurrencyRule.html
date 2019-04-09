@@ -34,13 +34,14 @@
                      </div>
                      {% if isRuleCustom == False %}
                         {% include "Badges/conditionInterface.html" %}
-                     {% endif %}
+                     
                      <div class="row">
                         <div class="input-field col s12">
                            <input value="{{vcAmount}}" name="ruleAmount" id="rule_amount" maxlength="4" type="number" class="validate" min="0" max="999" step="any" required>
                            <label for="rule_amount"><span class= "red-text">*</span> Course Bucks Earned with This Rule</label>
                         </div>
                      </div>
+                     {% endif %}
                   </div>
                   <div class="card-action right-align">
                      <button class="btn waves-effect waves-light" id="{{editOrCreate}}" type="submit" name="{{editOrCreate}}">{{captialSaveOrCreate}} Rule<i class="material-icons right">send</i>

@@ -50,7 +50,10 @@ def VirtualCurrencyDisplay(request):
                 if (ActionArguments.objects.filter(ruleID=a_rule.ruleID).exists()):
                     value = ActionArguments.objects.get(ruleID=a_rule.ruleID).argumentValue
             else:
-                value = rule.vcRuleAmount   # manually handled rule
+                # The custom earning rule amounts are not being used since 
+                # Add VC to student transaction takes care of the amount
+                # value = rule.vcRuleAmount   # manually handled rule
+                value = "Varies"
             vcEarningRuleAmount.append(value)
             countEarningRules = countEarningRules+1  
                   
