@@ -7,7 +7,7 @@
       <script src="/static/ThirdParty/pdfmake/vfs_fonts.js"></script>
       <script>
          $( document ).ready(function(){
-          $('.create').on('click', function(e){
+          $(document).on('click', '.create', function(e){
         	  e.preventDefault();
         	  var student = $(this).data('student');
         	  var item = $(this).data('item');
@@ -57,7 +57,45 @@
         	  // download the PDF
         	  pdfMake.createPdf(docDefinition).download('certificate.pdf');
           });
+         
+          $('#transaction-type').change(function(e){
+             let type = e.currentTarget.selectedOptions[0].value;
+             $.getJSON('/oneUp/students/filterTransactions?transaction_type='+type, 
+               function(data){
+                  let transactions = data['transactions'];
+                  $('#table-body').empty();
+                  let result = null;
+                  if(transactions.length > 0){
+                     for(let transaction of transactions){
+                        result = "<tr>\n" +
+                              "<td>"+transaction[1]+"</td>\n"+
+                              "<td>"+transaction[2]+"</td>\n"+
+                              "<td>"+transaction[3]+"</td>\n"+
+                              "<td>"+transaction[7]+"</td>\n"+
+                              "<td>"+transaction[4]+"</td>\n"+
+                              "<td><b>"+transaction[5]+"</b></td>\n"+
+                              "<td>"+(transaction[0] != null ? 
+                                 "<a class='waves-effect waves-light btn' href='/oneUp/students/TransactionNotes?transactionID="+transaction[0]+"'><i class='material-icons left'>visibility</i>View Note</a>": "")
+                              +"</td>\n"+
+
+                              (transaction[5] != 'Complete' && transaction[5] != 'Reverted' ? 
+                              "<td class='center-align'><a class='waves-effect waves-light tooltipped create' href='#!' data-tooltip='Download' data-position='right' data-student='{{studentName}}' data-item='"+transaction[1]+"' data-description='"+transaction[2]+"' data-currency='"+transaction[4]+"' data-date='"+transaction[3]+"'"+
+                              (transaction[6] != null ? "data-challenge='"+transaction[6]+"'" : "")+"><i class='material-icons left'>file_download</i></a></td>\n" :
+                              "<td></td>\n")+
+                           "</tr>\n";
+                        $("#table-body").append(result);
+                     }
+                  } else {
+                     result = "<tr>\n"+
+                              "<td class='center-align' colspan='7'><i>No transactions</i></td>\n"+
+                           "</tr>\n";
+                     $("#table-body").append(result);
+                  }
+               } 
+            );
+          });
          });
+
       </script>
    </head>
    <body>
@@ -65,7 +103,17 @@
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Your Purchases</h3>
+               <h3>Virtual Currency Transactions</h3>
+            </div>
+         </div>
+         <div class="row">
+            <div class="input-field col s12 m2 offset-m1">
+               <select name="transaction-type" id="transaction-type">
+                  <option value="all" id="transaction-type-all" selected>All</option>
+                  <option value="spent" id="transaction-type-spent">Spent</option>
+                  <option value="earned" id="transaction-type-earned">Earned</option>
+               </select>
+               <label for="transaction-type">Filter by Type</label>
             </div>
          </div>
          <div class="row">
@@ -75,26 +123,31 @@
                      <table class="responsive-table">
                         <thead>
                            <tr>
-                              <th>Item Name</th>
-                              <th>Item Description</th>
-                              <th>Date Purchased</th>
-                              <th>Item Cost</th>
-                              <th>Item Status</th>
+                              <th>Name</th>
+                              <th>Description</th>
+                              <th>Date</th>
+                              <th>Type</th>
+                              <th>Amount</th>
+                              <th>Status</th>
                               <th>View Notes</th>
                               <th>Download Receipt</th>
                            </tr>
                         </thead>
-                        <tbody>
-                           {% for transactionID, name, description, purchaseDate, total, status, challenges in transactions %}
+                        <tbody id="table-body">
+                           {% for transactionID, name, description, date, total, status, challenges, type in transactions %}
                            <tr>
                               <td>{{name}}</td>
                               <td>{{description}}</td>
-                              <td>{{purchaseDate}}</td>
+                              <td>{{date}}</td>
+                              <td>{{type}}</td>
                               <td>{{total}}</td>
                               <td><b>{{status}}</b></td>
-                              <td><a class="waves-effect waves-light btn" href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><i class="material-icons left">visibility</i>View Note</a></td>
+                              <td>{% if transactionID != None %}
+                                 <a class="waves-effect waves-light btn" href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><i class="material-icons left">visibility</i>View Note</a>
+                                 {% endif %}
+                              </td>
                               {% if status != 'Complete' and status != 'Reverted' %}
-                              <td class="center-align"><a class="waves-effect waves-light tooltipped create" href="#!" data-tooltip="Download" data-position="right" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{purchaseDate}}" {% if challenges != None %}data-challenge="{{challenges}}"{% endif %}><i class="material-icons left">file_download</i></a></td>
+                              <td class="center-align"><a class="waves-effect waves-light tooltipped create" href="#!" data-tooltip="Download" data-position="right" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{date}}" {% if challenges != None %}data-challenge="{{challenges}}"{% endif %}><i class="material-icons left">file_download</i></a></td>
                               {% else %}
                               <td></td>
                               {% endif %}
@@ -108,7 +161,7 @@
                      </table>
                   </div>
                   <div class="card-action right-align">
-                     <a class="waves-effect waves-light btn" href="/oneUp/students/VirtualCurrencyShop"><i class="material-icons left">navigate_before</i>Back to Shop</a>
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/VirtualCurrencyShop"><i class="material-icons left">shop</i>Go to Couse Shop</a>
                   </div>
                </div>
             </div>
