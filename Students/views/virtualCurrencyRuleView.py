@@ -9,6 +9,7 @@ from django.shortcuts import render
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments
 from Badges.events import register_event
 from Badges.enums import Event
+from Instructors.constants import unlimited_constant
 
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
@@ -70,7 +71,7 @@ def VirtualCurrencyDisplay(request):
             else:
                 value = rule.vcRuleAmount   # manually handled rule
             vcSpendingRuleAmount.append(value)
-            vcSpendingRuleLimit.append(rule.vcRuleLimit)
+            vcSpendingRuleLimit.append(rule.vcRuleLimit if (not rule.vcRuleLimit == unlimited_constant) and (not rule.vcRuleLimit == 0) else "Unlimited")
             countSpendingRules = countSpendingRules+1
              
         # The range part is the index numbers.
