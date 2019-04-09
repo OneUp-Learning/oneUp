@@ -66,7 +66,7 @@ def ActivityDetail(request):
                 studentFile = StudentFile.objects.filter(studentID=studentId, activity=student_activity, latest=True)
                 context_dict['comment']= student_activity.comment
                 context_dict['isSubmitted'] = True
-                context_dict['submissionTime']=student_activity.submissionTimestamp
+                context_dict['submissionTime']=student_activity.timestamp
                 context_dict['score']=student_activity.activityScore
                 context_dict['feedback']=student_activity.instructorFeedback
                 #we are allowed to upload files 
