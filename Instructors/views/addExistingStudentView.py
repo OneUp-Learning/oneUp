@@ -60,8 +60,17 @@ def addExistingStudent(request):
             username = value[len(usernameprefix):] # String without the username prefix
             user = User.objects.get(username=username)
             students.append(Student.objects.get(user=user))
-        
+
+    srcForCourse = StudentRegisteredCourses.objects.select_related('studentID').filter(courseID = currentCourse)
+    studentsInCourse = [src.studentID for src in srcForCourse]
+
     for student in students:
+        # Although students who are already in the course shouldn't
+        # appear on the list, they might if a stale version of the form is
+        # used
+        if student in studentsInCourse:
+            continue
+
         # register the student for this course
         studentRegisteredCourses = StudentRegisteredCourses()
         studentRegisteredCourses.studentID = student
