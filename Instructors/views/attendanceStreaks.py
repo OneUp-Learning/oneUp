@@ -9,7 +9,7 @@ from Students.views.utils import studentInitialContextDict
 from Badges.models import LeaderboardsConfig
 from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams 
-from Badges.models import AttendaceStreakConfiguration
+from Badges.models import AttendanceStreakConfiguration
 from Badges.models import Conditions, Rules, RuleEvents, ActionArguments, VirtualCurrencyRuleInfo, VirtualCurrencyPeriodicRule
 from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_vc, delete_periodic_task
 import json, datetime, ast, re
@@ -22,10 +22,10 @@ from Students.models import StudentRegisteredCourses
 def attendanceStreaks(request):
     context_dict, currentCourse = studentInitialContextDict(request)
     
-    if AttendaceStreakConfiguration.objects.filter(courseID=currentCourse).exists():
-        streak = AttendaceStreakConfiguration.objects.filter(courseID=currentCourse)[0]
+    if AttendanceStreakConfiguration.objects.filter(courseID=currentCourse).exists():
+        streak = AttendanceStreakConfiguration.objects.filter(courseID=currentCourse)[0]
     else:
-        streak = AttendaceStreakConfiguration()
+        streak = AttendanceStreakConfiguration()
         streak.courseID = currentCourse
         streak.save()
         
