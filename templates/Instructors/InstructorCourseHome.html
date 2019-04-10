@@ -88,7 +88,8 @@
                   </div>
                 </div>
             </div>
-            {% endif %}        
+            {% endif %}
+            {% if leaderboardUsed %}    
                 <div class="col s12 m12">
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
                   <div class="col s6 m3">
@@ -114,6 +115,7 @@
                   </div>
                   {% endfor %}
                   </div>
+                  {% endif %}
                 </div>
             <div class="row">
                 {% if classSkillsDisplayed and gamificationUsed %}                
