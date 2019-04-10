@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+    <style>
+            .indicator {
+            margin: .2em;
+            width: 5em;
+            height: 2.5em;
+        }
+    </style>
 <head>
-
+        <script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
     {% include 'scripts.html' %}
     
     <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
@@ -811,7 +818,57 @@
                     </table>
                 </div>
             </div>
-        </div>       
+        </div>
+        {% if BadgeStreakInfo or VCStreakInfo %}
+        <div class="row">
+            {% if VCStreakInfo%}
+                <div class="col s10 m10 offset-m1">
+            {%else%}
+                <div class="col s5 m5 offset-m1">
+            {%endif%}
+                    <div class="card">
+                        <div class="card-content">
+                            {% if VCStreakInfo%}
+                            
+                            <div class="row center-align">
+                                <span class="card-title">Upcoming (depending on your persistence)</span>
+                            </div>
+                            {%else%}
+                                <span class="card-title">Upcoming (depending on your persistence)</span>
+                            {%endif%}
+                            {%if BadgeStreakInfo %}
+                            <div class="row">
+                                <div class="col s6 m6">
+                            <h5>Badges</h5>
+                            
+                            <div class="row">
+                            {% for i, badgeName, description, StreakLength, treshold, badgeType, badgeTime in BadgeStreakInfo %}
+                            <div class="col s6 m6">
+                            <div class="indicator" data-streaklength="{{StreakLength}}" title="{{description}} by {{badgeTime}}" data-treshold="{{treshold}}" id="badge_container_{{i}}"></div>
+                            </div>
+                            {% endfor %}
+                            </div>
+                            </div>
+                            {% endif%}
+
+                            {% if VCStreakInfo%}
+                                <div class="col s6 m6">
+                            <h5>Virtual Currency</h5>
+                            {% for i, VCRuleName, description, awardAmount,StreakLength, treshold, vcType, vcTime in VCStreakInfo %}
+                            <div class="col s6 m6">
+                            <div class="indicator" data-streaklength="{{StreakLength}}" title="{{description}} by {{vcTime}}" data-treshold="{{treshold}}" id="vc_container_{{i}}">
+                            </div>
+                            </div>
+                            {% endfor %}
+                            </div>
+                            </div>
+                            {%endif%}
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+        {% endif %}
         {% if ccparams.progressBarUsed %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
@@ -984,4 +1041,58 @@
 
 </body>
 </html>
+<<<<<<< HEAD
 
+=======
+<script>
+    window.onload = function(){
+        var indicatorsFound = document.getElementsByClassName("indicator");
+        for(var i = 0; i < indicatorsFound.length; i++){
+            createProgressBar(indicatorsFound[i].dataset.streaklength, indicatorsFound[i].dataset.treshold, indicatorsFound.item(i));
+        }
+        var streakIndicators = [];
+    }
+
+    function createProgressBar(currentCount ,treshold, objID){
+        console.log(treshold);
+        console.log(currentCount);
+        treshold = parseInt(treshold);
+        currentCount = parseInt(currentCount);
+        var bar = new ProgressBar.SemiCircle(objID, {
+      strokeWidth: 6,
+      color: '#ADD8E6',
+      trailColor: '#000000',
+      trailWidth: 1,
+      easing: 'easeInOut',
+      duration: 1400,
+      svgStyle: null,
+      text: {
+        value: '',
+        alignToBottom: false
+      },
+      from: {color: '#eff5ff'},
+      to: {color: '#1a237e'},
+      // Set default step function for all animate calls
+      step: (state, bar) => {
+        bar.path.setAttribute('stroke', state.color);
+        var value = Math.round(bar.value() * treshold);
+        if (value === 0) {
+          bar.setText('0');
+        } else if(value == currentCount+1){
+            bar.stop();    
+        }
+        else{
+          bar.setText(value);
+        }
+    
+        bar.text.style.color = state.color;
+      }
+    });
+    bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+    bar.text.style.fontSize = '2rem';
+    
+    bar.animate(1.0);  // Number from 0.0 to 1.0
+    }
+    
+    </script>
+>>>>>>> refs/heads/release-apr-25-2019
