@@ -54,19 +54,19 @@ class Goal():
         streak70:{
                 'index': streak70,
                 'name': 'streak70',
-                'displayName': 'Number of consecutive days for Warm Ups',
+                'displayName': 'Number of consecutive days for Warm Ups with 70% score',
                 'description': 'The number consecutive days where at least one Warm Up is completed with a score of 70%',
                 },
         streak80:{
                 'index': streak80,
                 'name': 'streak80',
-                'displayName': 'Number of consecutive days for Warm Ups',
+                'displayName': 'Number of consecutive days for Warm Ups with 80% score',
                 'description': 'The number consecutive days where at least one Warm Up is completed with a score of 80%',
                 },
         streak90:{
                 'index': streak90,
                 'name': 'streak90',
-                'displayName': 'Number of consecutive days for Warm Ups',
+                'displayName': 'Number of consecutive days for Warm Ups with 90% score',
                 'description': 'The number consecutive days where at least one Warm Up is completed with a score of 90%',
                 },
         courseBucks:{
