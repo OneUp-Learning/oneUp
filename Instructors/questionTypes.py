@@ -612,7 +612,7 @@ def parsonsMakeAnswerList(qdict, POST):
         studentSolutions = [x.strip() for x in studentSolutions.split(',')]
 
         print("studentSol", studentSolutions)
-        qdict['parsonStudentSol'] = studentSolutions
+        studentAnswerDict['parsonStudentSol'] = studentSolutions
         regexp = re.compile(r'##')
         missingLines = []
         missingLineCount = 1
@@ -705,7 +705,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             maxPoints = qdict['total_points']
             penalties = Decimal(0.0)
 
-            studentSolutionLineCount = len(qdict['parsonStudentSol'])
+            studentSolutionLineCount = len(studentAnswerDict['parsonStudentSol'])
 
             ##too few
             if (studentSolutionLineCount < correctLineCount):
@@ -741,7 +741,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             if studentGrade < 0:
                 studentGrade = 0
     
-            qdict['user_points'] = round(Decimal(studentGrade), 2)
+        qdict['user_points'] = round(Decimal(studentGrade), 2)
     return qdict
 
 
