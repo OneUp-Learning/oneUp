@@ -19,7 +19,11 @@ by James Cherry -->
       <main>
          <div class="row center-align">
             <div class="col s12">
+            	{% if studentGoalID %}
+            	<h3>Edit Existing Goal</h3>
+            	{% else %}
                <h3>New Goal Creation</h3>
+                {% endif %}
                <p><span class= "red-text">*</span> Denotes Required Fields.</p>
             </div>
          </div>

@@ -69,30 +69,30 @@ def goalCreate(request):
 
 def goalProgressFxn(goalType, course, student):
     print (goalType)    
-    if goalType == str(Goal.warmup10):
+    if goalType == Goal.warmup10:
         return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
-    if goalType == str(Goal.warmup70):
+    if goalType == Goal.warmup70:
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan70Percent(course, student)
-    if goalType == str(Goal.warmup80):
+    if goalType == Goal.warmup80:
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan80Percent(course, student)
-    if goalType == str(Goal.warmup90):
+    if goalType == Goal.warmup90:
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student)
-    if goalType == str(Goal.streak10):
+    if goalType == Goal.streak10:
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken30Percent(course, student, goalType)
-    if goalType == str(Goal.streak70):
+    if goalType == Goal.streak70:
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken70Percent(course, student, goalType)
-    if goalType == str(Goal.streak80):
+    if goalType == Goal.streak80:
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken80Percent(course, student, goalType)
-    if goalType == str(Goal.streak90):
+    if goalType == Goal.streak90:
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken90Percent(course, student, goalType)
-    if goalType == str(Goal.courseBucks):
+    if goalType == Goal.courseBucks:
         studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
         return studentReg.virtualCurrencyAmount
-    if goalType == str(Goal.courseXP):
+    if goalType == Goal.courseXP:
         time_period = TimePeriods.timePeriods[1503]
         s_id, xp = studentScore(student, course, 0, time_period, 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
         return xp
-    if goalType == str(Goal.courseBadges):
+    if goalType == Goal.courseBadges:
         return systemVariables.getNumberOfBadgesEarned(course, student)
     
     

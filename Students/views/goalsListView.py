@@ -26,7 +26,10 @@ from Students.views import goalCreateView
 # Added boolean to check if viewing from announcements page or course home page
 def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
 
-    student = Student.objects.get(user=user)
+    if (not instructorsCheck(user)):
+        student = Student.objects.get(user=user)
+    else:
+        student = context_dict["student"]
 
     studentGoal_ID = []      
     student_ID = []
@@ -38,13 +41,12 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
     targeted_Number = []
     goal_progress = []
     goal_status = []
-    initial_value = []
         
-    #goals = StudentGoalSetting.objects.filter(studentID=context_dict['student'],courseID=currentCourse).order_by('-timestamp')
+    goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
+    gcv = goalCreateView
     
     index = 0
     if not courseHome: # Shows all the announcements
-        goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
         
         for goal in goals:
             studentGoal_ID.append(goal.studentGoalID) #pk
@@ -59,14 +61,16 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             end_date.append(endDate.strftime('%m/%d/%y'))           
             #end_date calculation function here            
             goal_Type.append(goalTypeToString(goal.goalType))
-            targeted_Number.append(goal.targetedNumber)            
-                                  
-            progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)
+            targeted_Number.append(goal.targetedNumber) 
+            
+            newProgress = gcv.goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)
+                
+            progressPercent = calculateProgress(goal.progressToGoal, newProgress, goal.targetedNumber)
+                       
             goal_progress.append(progressPercent)
             goal_status.append(goalStatus(progressPercent, endDate))
             
     else: # Only shows the first three
-        goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
         
         for goal in goals:                        
             if index < 1:
@@ -82,7 +86,9 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 goal_Type.append(goalTypeToString(goal.goalType))
                 targeted_Number.append(goal.targetedNumber)
                 
-                progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)
+                newProgress = gcv.goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)
+                
+                progressPercent = calculateProgress(goal.progressToGoal, newProgress, goal.targetedNumber)
                 goal_progress.append(progressPercent)
                 goal_status.append(goalStatus(progressPercent, endDate))
                 index += 1
@@ -105,13 +111,9 @@ def goalsList(request):
 def goalTypeToString(gt):
     genums = Goal.goals
     #gname = 'Blank'    
-    
     return genums[gt].get('displayName')
 
-def calculateProgress(initialGoalTarget, goalType, course, student, target):
-    goalType = str(goalType)
-    
-    newProgress = goalCreateView.goalProgressFxn(goalType, course, student)
+def calculateProgress(initialGoalTarget, newProgress, target):
     
     progressPercent = ((newProgress - initialGoalTarget) / target) * 100
     
