@@ -40,15 +40,21 @@
 							<table>
 								<thead>
 									<th>Name</th>
-									<th>Course Bucks</th>
+									<th>Description</th>
+									{% if isRuleCustom == False %}
+									<th>Amount</th>
+									{% endif %}
 									<th>Rule Position</th>
 									<th><span class="badge">{{numRules}}</span></th>
 								</thead>
 								<tbody>
-									{% for i,vcRuleID,vcRuleName,vcAmount, position in vcRuleInfo %}
+									{% for i,vcRuleID,vcRuleName,vcRuleDescription, vcAmount, position in vcRuleInfo %}
 									<tr>
 										<td>{{vcRuleName}}</td>
+										<td>{{vcRuleDescription}}</td>
+										{% if isRuleCustom == False %}
 										<td>{{vcAmount}}</td>
+										{% endif %}
 										<td>
 											<div class="input-field col s6">
 												<input placeholder="Position" value="{{position}}" name="{{vcRuleID}}" id="rulePosition" maxlength="4" type="number"

@@ -61,13 +61,22 @@
                                       <i class="fa fa-unlock-alt"></i>&nbsp;
                                       {{challenge_Name}}
                                     </a>
+                                    {% elif is_teacher and isUnlocked %}
+                                       {% if score == 2 %}
+                                       <a class="tooltipped" data-position="down" data-delay="50" data-tooltip="Not Attempted"><i class="fa fa-unlock-alt"></i>&nbsp; {{challenge_Name}} </a>
+                                       {% else %}
+                                       <a class="tooltipped" data-position="down" data-delay="50" data-tooltip="View Challenge" href="/oneUp/students/ChallengesTaken?challengeID={{challenge_ID}}&warmUp{% if is_teacher %}&userID={{student}}{% endif %}" >
+                                          <i class="fa fa-unlock-alt"></i>&nbsp;
+                                       {{challenge_Name}}
+                                       </a>
+                                       {% endif %}
                                     {% else %}
-                                    <a class="tooltipped"data-position="down" data-delay="100" data-tooltip="{{ulockingDescript}}" style="color:grey;"><i class="fa fa-lock"></i>&nbsp; {{challenge_Name}} </a>
+                                    <a class="tooltipped" data-position="down" data-delay="50" data-tooltip="{% if ulockingDescript == '' %}Locked{% else %}{{ulockingDescript}}{% endif %}" style="color:grey;"><i class="fa fa-lock"></i>&nbsp; {{challenge_Name}} </a>
                                     {% endif %}
                                     {% if score == 2 and isUnlocked %}  <!-- If score have not been taken and is not locked -->
                                         {% if is_teacher %}
                                            <a class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
-                                           <i class="fa fa-square" style="color:grey;" aria-hidden="true"></i></a>
+                                             <i class="fa fa-square-o" aria-hidden="true"></i></a>
                                         {% else %}
                                            <a href="/oneUp/students/ChallengeDescription?challengeID={{challenge_ID}}&isWarmup={{isWarmup}}" class="secondary-content tooltipped" data-position="right" data-delay="50" data-tooltip="Not Attempted">
                                            <i class="fa fa-square-o" aria-hidden="true"></i></a>
