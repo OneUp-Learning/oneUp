@@ -17,6 +17,9 @@ from celery import Celery
 import json
 from Instructors.views.courseInfoView import courseInformation
 
+from Badges.enums import Event
+from Badges.events import register_event, register_event_simple
+
 
 app = Celery('Students', broker='amqp://localhost')
 app.config_from_object('django.conf:settings', namespace='CELERY')
@@ -86,6 +89,12 @@ def automatic_evaluator(duel_id, course_id):
                 notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
                                         verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
                 
+                # Register event that the student has won the duel
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner.studentID.user.username,
+                }
+                register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_id)
                 
                 if duel_vc_participants_const > 0:
                         
@@ -107,7 +116,14 @@ def automatic_evaluator(duel_id, course_id):
                 # Notify student about their lost
                 notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
                                         verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
-            
+                
+                # Register event that the student has lost the duel
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': challengee_challenge.studentID.user.username,
+                }
+                register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_id)
+
             elif challengee_challenge.testScore > challenger_challenge.testScore:
                 winner_s = challengee_challenge.studentID
                 vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s, courseID=current_course)
@@ -135,6 +151,13 @@ def automatic_evaluator(duel_id, course_id):
                 notify.send(None, recipient=winner.studentID.user, actor=challenger_challenge.studentID.user,
                                         verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
                 
+                # Register event that the student has won the duel
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner.studentID.user.username,
+                }
+                register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_id)
+
                 if duel_vc_participants_const > 0:
                         
                         vc_loser = StudentRegisteredCourses.objects.get(studentID=challenger_challenge.studentID, courseID=duel_challenge.courseID)
@@ -156,7 +179,13 @@ def automatic_evaluator(duel_id, course_id):
                 # Notify student about their lost
                 notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner.user,
                                         verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
-            
+
+                # Register event that the student has lost the duel
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': challenger_challenge.studentID.user.username,
+                }
+                register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_id)
 
             else:
                 winner1 = challengee_challenge.studentID
@@ -208,7 +237,20 @@ def automatic_evaluator(duel_id, course_id):
         
                 notify.send(None, recipient=winner2.user, actor=winner1.user,
                                         verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
-           
+
+                # Register event that the students has won the duel
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner1.user.username,
+                }
+                register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_id)
+
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner2.user.username,
+                }
+                register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_id)
+
         elif StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course):
             student_id = duel_challenge.challengee
             vc_winner = StudentRegisteredCourses.objects.get(studentID=student_id, courseID=current_course)
@@ -224,9 +266,21 @@ def automatic_evaluator(duel_id, course_id):
 
             notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
                                             verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': duel_challenge.challengee.user.username,
+            }
+            register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_id)
+
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
                                             verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
-                
+            
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': duel_challenge.challenger.user.username,
+            }
+            register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_id)
+
         elif StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course):
             student_id = duel_challenge.challenger
             vc_winner = StudentRegisteredCourses.objects.get(studentID=student_id, courseID=current_course)
@@ -242,8 +296,19 @@ def automatic_evaluator(duel_id, course_id):
 
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
                                             verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': duel_challenge.challenger.user.username,
+            }
+            register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_id)
+
             notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
                                             verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': duel_challenge.challengee.user.username,
+            }
+            register_event_simple(Event.duelLost, mini_req, duel_challenge.challengee, objectId=duel_id)
 
         duel_challenge.hasEnded = True
         duel_challenge.save()
@@ -644,7 +709,12 @@ def duel_challenge_create(request):
 
         notify.send(None, recipient=challengee.user, actor=student_id.user,
                                     verb= 'Someone sent you a duel request named '+duel_name, nf_type='Duel Request', extra=json.dumps({"course": str(current_course.courseID)}))
-                    
+        
+        mini_req = {
+            'currentCourseID': current_course.pk,
+            'user': student_id.user.username,
+        }
+        register_event_simple(Event.duelSent, mini_req, student_id, objectId=duel_challenge.duelChallengeID)
 
         return redirect('/oneUp/students/Callouts')
     #elif request.GET:
@@ -1000,16 +1070,24 @@ def duel_challenge_accept(request):
                 
                 return  render(request,'Students/DuelChallengeInsufficientVCForm.html', context_dict)
         
-        # if student has sufficient amount of vc then take it and put at stake
-        challengee_vc = challengee_reg_crs.virtualCurrencyAmount
-        challengee_reg_crs.virtualCurrencyAmount = challengee_vc-duel_challenge.vcBet
-        challengee_reg_crs.save()
+            # if student has sufficient amount of vc then take it and put at stake 
+            challengee_vc = challengee_reg_crs.virtualCurrencyAmount
+            challengee_reg_crs.virtualCurrencyAmount = challengee_vc-duel_challenge.vcBet
+            challengee_reg_crs.save()
 
         # toggle status to accpeted
         duel_challenge.status = 2 
         #duel_challenge.hasStarted = True
         duel_challenge.acceptTime = utcDate()
         duel_challenge.save()
+
+        # Register event that the student has accepted the duel
+        mini_req = {
+            'currentCourseID': duel_challenge.courseID.pk,
+            'user': duel_challenge.challengee.user.username,
+        }
+        register_event_simple(Event.duelAccepted, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+        
         context_dict['requested_duel_challenge']=duel_challenge
         #context_dict['time_limit'] = convert_time_to_hh_mm(duel_challenge.timeLimit)
         #context_dict['start_time'] = convert_time_to_hh_mm(duel_challenge.startTime)
@@ -1049,6 +1127,12 @@ def duel_challenge_accept(request):
         # Notify challenger that the challengee has accepted the request
         notify.send(None, recipient=duel_challenge.challenger.user, actor=challengee.user,
                                     verb= "Your opponent has accepted the duel, " + duel_challenge.duelChallengeName +", request. The duel will start in "+str(duel_challenge.startTime)+" minutes." , nf_type='Request Acceptance', extra=json.dumps({"course": str(course_id)}))           
+
+        mini_req = {
+            'currentCourseID': duel_challenge.courseID.pk,
+            'user': challengee.user.username,
+        }
+        register_event_simple(Event.duelSent, mini_req, challengee, objectId=duel_challenge.duelChallengeID)
 
         return render(request,'Students/RequestedDuelChallengeDescriptionForm.html', context_dict)
 
@@ -1134,15 +1218,40 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 if duel_challenge.challenger == student_id:
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
                                             verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+                    # Register event that the student has won the duel
+                    mini_req = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challenger.user.username,
+                    }
+                    register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
+
                     notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
                                             verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+                    # Register event that the student has lost the duel
+                    mini_req = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challengee.user.username,
+                    }
+                    register_event_simple(Event.duelLost, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+
                 else: 
                         
                     notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
                                             verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+                    mini_req = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challengee.user.username,
+                    }
+                    register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
                                             verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
-                
+                    mini_req = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challenger.user.username,
+                    }
+                    register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
+
 
                 duel_challenge.hasEnded = True
                 duel_challenge.save()
@@ -1181,7 +1290,12 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
                                     verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
             
-            
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': winner.studentID.user.username,
+            }
+            register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_challenge.duelChallengeID)
+
             if duel_vc_participants_const > 0:
                         
                         vc_loser = StudentRegisteredCourses.objects.get(studentID=challengee_challenge.studentID, courseID=duel_challenge.courseID)
@@ -1202,7 +1316,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             # Notify student about their lost
             notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
                                     verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
-          
+
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': challengee_challenge.studentID.user.username,
+            }
+            register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_challenge.duelChallengeID)
+
         elif challengee_challenge.testScore > challenger_challenge.testScore:
             winner_s = challengee_challenge.studentID
             vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s, courseID=current_course)
@@ -1230,6 +1350,12 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             notify.send(None, recipient=winner_s.user, actor=challenger_challenge.studentID.user,
                                     verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
             
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': winner_s.user.username,
+            }
+            register_event_simple(Event.duelWon, mini_req, winner_s, objectId=duel_challenge.duelChallengeID)
+
             if duel_vc_participants_const > 0:
                         
                         vc_loser = StudentRegisteredCourses.objects.get(studentID=challenger_challenge.studentID, courseID=duel_challenge.courseID)
@@ -1251,7 +1377,12 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             # Notify student about their lost
             notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner_s.user,
                                     verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
-          
+
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': challenger_challenge.studentID.user.username,
+            }
+            register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
         else:
             winner1 = challengee_challenge.studentID
@@ -1300,10 +1431,21 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             # Notify winners
             notify.send(None, recipient=winner1.user, actor=winner2.user,
                                         verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
-        
+
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': winner1.user.username,
+            }
+            register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_challenge.duelChallengeID)
+
             notify.send(None, recipient=winner2.user, actor=winner1.user,
                                         verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
-        
+
+            mini_req = {
+                'currentCourseID': duel_challenge.courseID.pk,
+                'user': winner2.user.username,
+            }
+            register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_challenge.duelChallengeID)
 
         duel_challenge.hasEnded = True
         duel_challenge.save()

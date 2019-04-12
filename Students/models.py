@@ -150,9 +150,10 @@ class StudentGoalSetting(models.Model):
     goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
+    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
 
     def __str__(self):              
-        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.courseID) +"," +str(self.goalType) +"," + str(self.timestamp) +"," + str(self.targetedNumber) + "," + str(self.progressToGoal)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -252,6 +253,7 @@ class StudentConfigParams(models.Model):
     displayClassRanking = models.BooleanField(default=True)
     participateInDuel = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
+    displayGoal = models.BooleanField(default=True)
     
     def __str__(self):
         return str(self.scpID)  +","
@@ -261,7 +263,8 @@ class StudentConfigParams(models.Model):
         +str(self.displayLeaderBoard) +","                      
         +str(self.displayClassSkills) +","                      
         +str(self.displayClassAverage) +","                     
-        +str(self.displayClassRanking)    
+        +str(self.displayClassRanking) +","
+        +str(self.displayGoal)   
 
 class PeriodicallyUpdatedleaderboards(models.Model):
     periodicLeaderboardID = models.AutoField(primary_key=True)

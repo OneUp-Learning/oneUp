@@ -34,7 +34,7 @@ def add_instructor_test_student(instructor,course):
     if newStudent:
         studentRegisteredCourse = StudentRegisteredCourses()
     else:
-        studentRegisteredCourses = StudentRegisteredCourses.objects.filter(courseID=course)
+        studentRegisteredCourses = StudentRegisteredCourses.objects.filter(courseID=course, studentID=student)
         if studentRegisteredCourses:
             studentRegisteredCourse = studentRegisteredCourses[0]
         else:
@@ -50,7 +50,7 @@ def add_instructor_test_student(instructor,course):
         scparams = StudentConfigParams()
     else:      
         # Configure params for test student
-        scparamsList = StudentConfigParams.objects.filter(courseID=course)
+        scparamsList = StudentConfigParams.objects.filter(courseID=course, studentID=student)
         if scparamsList:
             scparams = scparamsList[0]
         else:
@@ -59,7 +59,25 @@ def add_instructor_test_student(instructor,course):
     scparams.studentID = student
     scparams.save()
 
+def remove_test_student(instructor, course):
+    # Removes the test student from the course along with their config 
+    # when a instructor is removed from a course
+    # Does not remove the actual Student object (AH)
+    student = Student.objects.filter(user = instructor)
+    if not student.exists():
+        return
+    student = student[0]
 
+    studentRegisteredCourses = StudentRegisteredCourses.objects.filter(courseID=course, studentID=student)
+    if studentRegisteredCourses.exists():
+        for registered_courses in studentRegisteredCourses:
+            registered_courses.delete()
+    
+    scparamsList = StudentConfigParams.objects.filter(courseID=course, studentID=student)
+    if scparamsList.exists():
+        for scparams in scparamsList:
+            scparams.delete()
+    
 
 @login_required
 @user_passes_test(adminsCheck,login_url='/oneUp/home',redirect_field_name='')
@@ -74,8 +92,10 @@ def courseCreateView(request):
     if request.method == 'POST':
         name = request.POST['courseName']
         description = request.POST['courseDescription']
+        instructors = []
         if 'instructorName' in request.POST:
-            instructor_username = request.POST['instructorName']
+            instructor_usernames = request.POST.getlist('instructorName')
+            instructors = [User.objects.get(username=instructor_username) for instructor_username in instructor_usernames]
         
         if 'courseID' in request.GET: # Editing course
             courses = Courses.objects.filter(courseName = name)
@@ -84,20 +104,26 @@ def courseCreateView(request):
                 course.courseDescription = description
                 course.save()
                 if 'instructorName' in request.POST:
-                    instructor = User.objects.get(username=instructor_username)
-                    irc = InstructorRegisteredCourses.objects.filter(courseID = course)
-                    if irc.exists():
-                        irc = irc.first()
-                        irc.instructorID = instructor
-                        irc.save()
-                                                    
-                    else:
-                        irc = InstructorRegisteredCourses()
-                        irc.instructorID = instructor
-                        irc.courseID = course
-                        irc.save()
-
-                    add_instructor_test_student(instructor,course)
+                    irc = InstructorRegisteredCourses.objects.filter(courseID = course, instructorID__in=instructors)
+                    instructors_to_remove = InstructorRegisteredCourses.objects.filter(courseID = course).exclude(instructorID__in=instructors)
+                    # Register instructors to the course (AH)
+                    for instructor in instructors:
+                        # If this instructor is registered for course then skip
+                        if irc.filter(instructorID = instructor).exists():
+                            continue
+                        else:
+                            irc = InstructorRegisteredCourses()
+                            irc.instructorID = instructor
+                            irc.courseID = course
+                            irc.save()
+                            
+                        add_instructor_test_student(instructor,course)
+                    
+                    # Remove instructors that were not selected from the course 
+                    if instructors_to_remove.exists():
+                        for registered_courses in instructors_to_remove:
+                            remove_test_student(registered_courses.instructorID, course)
+                            registered_courses.delete()
                 
                 ccp = CourseConfigParams.objects.get(courseID = course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
@@ -113,27 +139,33 @@ def courseCreateView(request):
                 ccp.save()
             elif courses: # The new course name is already chosen
                 context_dict['errorMessage'] = "Course name taken."
-            else: # The new course name is not chosen so change it
+            else: # The new course name is different from old one and is unique so change it
                 course = Courses.objects.get(courseName = request.POST['cNamePrev'])
                 course.courseName = name
                 course.courseDescription = description
                 course.save()
                 
                 if 'instructorName' in request.POST:
-                    instructor = User.objects.get(username=instructor_username)
-                    irc = InstructorRegisteredCourses.objects.filter(courseID = course)
-                    if irc.exists():
-                        irc = irc.first()
-                        irc.instructorID = instructor
-                        irc.save()
-                        
-                    else:
-                        irc = InstructorRegisteredCourses()
-                        irc.instructorID = instructor
-                        irc.courseID = course
-                        irc.save()
-                        
-                    add_instructor_test_student(instructor,course)
+                    irc = InstructorRegisteredCourses.objects.filter(courseID = course, instructorID__in=instructors)
+                    instructors_to_remove = InstructorRegisteredCourses.objects.filter(courseID = course).exclude(instructorID__in=instructors)
+                    # Register instructors to the course
+                    for instructor in instructors:
+                        # If this instructor is registered for course then skip
+                        if irc.filter(instructorID = instructor).exists():
+                            continue
+                        else:
+                            irc = InstructorRegisteredCourses()
+                            irc.instructorID = instructor
+                            irc.courseID = course
+                            irc.save()
+                            
+                        add_instructor_test_student(instructor,course)
+                    
+                    # Remove instructors that were not selected from the course 
+                    if instructors_to_remove.exists():
+                        for registered_courses in instructors_to_remove:
+                            remove_test_student(registered_courses.instructorID, course)
+                            registered_courses.delete()
         
                 ccp = CourseConfigParams.objects.get(courseID = course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
@@ -159,14 +191,14 @@ def courseCreateView(request):
                 course.save()
                 
                 if 'instructorName' in request.POST:
-                    instructor = User.objects.get(username=instructor_username)
-                    
-                    irc = InstructorRegisteredCourses()
-                    irc.instructorID = instructor
-                    irc.courseID = course
-                    irc.save()
-                    
-                    add_instructor_test_student(instructor,course)
+                    for instructor in instructors:
+
+                        irc = InstructorRegisteredCourses()
+                        irc.instructorID = instructor
+                        irc.courseID = course
+                        irc.save()
+                        
+                        add_instructor_test_student(instructor,course)
                     
                 ccp = CourseConfigParams()
                 ccp.courseID = course
@@ -182,6 +214,7 @@ def courseCreateView(request):
                      
                 ccp.save()
                 
+                # Add a default unassigned problem for this course
                 unassigned_problem_challenge = Challenges()
                 unassigned_problem_challenge.challengeName = unassigned_problems_challenge_name
                 unassigned_problem_challenge.courseID = course
@@ -199,7 +232,7 @@ def courseCreateView(request):
                 courseTopic.courseID = course
                 courseTopic.save()
                 
-                #Add a default category
+                # Add a default category
                 defaultActivityCategory = ActivitiesCategory()
                 defaultActivityCategory.name = uncategorized_activity
                 defaultActivityCategory.courseID = course
@@ -224,7 +257,7 @@ def courseCreateView(request):
         context_dict['courseDescription'] = course.courseDescription
         irc = InstructorRegisteredCourses.objects.filter(courseID = request.GET['courseID'])
         if irc.exists():
-            context_dict['instructorName'] = irc.first().instructorID.username
+            context_dict['instructorNames'] = [ instructor.instructorID.username for instructor in irc]
         ccparams = CourseConfigParams.objects.get(courseID = request.GET['courseID'])
         defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         if(ccparams.courseStartDate.year < defaultTime.year):

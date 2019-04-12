@@ -152,6 +152,11 @@ class Event():
     
     classAttendance = 870
     activitySubmission = 871
+
+    duelSent = 872
+    duelAccepted = 873
+    duelWon = 874
+    duelLost = 875
     
     events = {
               startChallenge: {
@@ -408,6 +413,34 @@ class Event():
                         'displayName':'activitySubmission',
                         'description':'when a student submits an activity',
                         'isVirtualCurrencySpendRule':True
+                        },
+            duelSent: {
+                        'index': duelSent,
+                        'name':'duelSent',
+                        'displayName':'duelSent',
+                        'description':'when a student sent a duel',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            duelAccepted: {
+                        'index': duelAccepted,
+                        'name':'duelAccepted',
+                        'displayName':'duelAccepted',
+                        'description':'when a student accepted a duel',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            duelWon: {
+                        'index': duelWon,
+                        'name':'duelWon',
+                        'displayName':'duelWon',
+                        'description':'when a student wins a duel',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            duelLost: {
+                        'index': duelLost,
+                        'name':'duelLost',
+                        'displayName':'duelLost',
+                        'description':'when a student lose a duel',
+                        'isVirtualCurrencySpendRule':False
                         },
 #               seeClassAverage: {
 #                         'index': seeClassAverage,

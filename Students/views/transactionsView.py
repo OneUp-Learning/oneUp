@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions
+from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges
 
@@ -25,14 +25,12 @@ def transactionsView(request):
 
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=course)  
                 
-    currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount     
+    currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount
+
     # RULE BASED VC NOT USED    
     def getVCEvents():
         events = dict_dict_to_zipped_list(Event.events,['index','displayName', 'description','isVirtualCurrencySpendRule'])  
         return [id for id, _, _, is_vc in events if is_vc]
-
-    # Get all transactions for the student and send it to the webpage
-    transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event=Event.spendingVirtualCurrency).order_by('-studentEvent__timestamp')
 
     # Code from virtual currency shop view
     # RULE BASED VC NOT USED
@@ -71,52 +69,105 @@ def transactionsView(request):
             return (False, 0, None)
         else:
             return (True, getAmountFromBuyRule(buyRule), buyRule)
-        
-    #logger.debug(transactions)
+    
+    context_dict['transactions'] = get_transactions(context_dict, course, student)
+    context_dict['studentName'] = student.user.first_name + " " + student.user.last_name
+    context_dict['studentVirtualCurrency'] = currentStudentCurrencyAmmount
+
+    return render(request,"Students/Transactions.html",context_dict)
+
+@login_required
+def filterTransactions(request):
+    from django.http import JsonResponse
+    if request.method == 'GET':
+        context_dict,course = studentInitialContextDict(request)    
+        student = context_dict['student']
+        t_type = request.GET['transaction_type']
+        transactions = get_transactions(context_dict, course, student, t_type)
+
+    return JsonResponse({'transactions': transactions})
+
+def get_transactions(context_dict, course, student, t_type='all'):
+    from django.utils import formats
+
+    st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=course)         
+    currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount
+
     name = []
-    purchaseDate = []
+    date = []
     description = []
     status = []
     total = []
     transactionID = []
     challenges = []
-    
-    for transaction in transactions:
-        # RULE BASED VC NOT USED
-        # event = Event.events[transaction.studentEvent.event]
-        # _, totals, rule = getBuyAmountForEvent(transaction.studentEvent.event)
-        # if rule:
-        #     name.append(rule.vcRuleName)
-        #     description.append(rule.vcRuleDescription)
-        # else:
-        #     name.append(event['displayName'])
-        #     description.append(event['description'])
-        rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
-        if rule:
-            name.append(rule.vcRuleName)
-            description.append(rule.vcRuleDescription)
-            purchaseDate.append(transaction.studentEvent.timestamp)
-            total.append(rule.vcRuleAmount)
-            status.append(transaction.status)
-            transactionID.append(transaction.transactionID)
-            # Show what challenge the transaction was for
-            if transaction.objectType == ObjectTypes.challenge:
-                challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
-                if challenge:
-                    challenges.append(challenge.challengeName)
+    transaction_type = []
+
+    results = []
+    # Show the transactions based on the type (spent, earned, or all)
+    if t_type == 'spent' or t_type == 'all':
+        # Get all the student spending transactions (items they bought)
+        transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event=Event.spendingVirtualCurrency).order_by('-studentEvent__timestamp')
+
+        for transaction in transactions:
+            rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
+            if rule:
+                name.append(rule.vcRuleName)
+                description.append(rule.vcRuleDescription)
+                date.append(transaction.studentEvent.timestamp)
+                total.append(rule.vcRuleAmount)
+                status.append(transaction.status)
+                transactionID.append(transaction.transactionID)
+                transaction_type.append("Purchase")
+                # Show what challenge the transaction was for
+                if transaction.objectType == ObjectTypes.challenge:
+                    challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
+                    if challenge:
+                        challenges.append(challenge.challengeName)
+                    else:
+                        challenges.append(None)
                 else:
                     challenges.append(None)
+
+    if t_type == 'earned' or t_type == 'all':
+        # Get all the transactions that the student has earned 
+        stud_vc =  StudentVirtualCurrency.objects.filter(courseID=course,studentID=student).order_by('-timestamp') 
+        for stud_VCrule in stud_vc:
+            # If the transaction has a rule attached, get the information from that rule
+            if hasattr(stud_VCrule, 'studentvirtualcurrencyrulebased'):
+                vcrule = stud_VCrule.studentvirtualcurrencyrulebased.vcRuleID
+                if stud_VCrule.courseID == course and vcrule.vcRuleType:
+                    name.append(vcrule.vcRuleName)
+                    description.append(vcrule.vcRuleDescription)
+                    date.append(stud_VCrule.timestamp)
+                    
+                    if vcrule.vcRuleAmount != -1:
+                        total.append(stud_VCrule.value)
+                    else:
+                        avcr = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcrule.vcRuleID)
+                        if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
+                            total.append(ActionArguments.objects.get(ruleID=avcr.ruleID).argumentValue)
+                        else:
+                            total.append(0)   
             else:
-                challenges.append(None)
-        
-    #logger.debug(transactionID)
-    #logger.debug(name)
-    #logger.debug(description)
-    #logger.debug(purchaseDate)
-    #logger.debug(total)
-    
+                name.append(stud_VCrule.vcName)
+                description.append(stud_VCrule.vcDescription)
+                date.append(stud_VCrule.timestamp)
+                total.append(stud_VCrule.value)
+
+            status.append("Complete")
+            transaction_type.append("Earned")
+            transactionID.append(None)
+            challenges.append(None)
+            
     # Sort by status (Request -> In Progress -> Complete)
-    context_dict['transactions'] = sorted(zip(transactionID, name,description,purchaseDate, total, status, challenges), key=lambda s : s[5][1])
-    context_dict['studentName'] = student.user.first_name + " " + student.user.last_name
-    context_dict['studentVirtualCurrency'] = currentStudentCurrencyAmmount
-    return render(request,"Students/Transactions.html",context_dict)
+    transactions = sorted(zip(transactionID, name,description,date, total, status, challenges, transaction_type), key=lambda s : (s[5], s[3]), reverse=True)
+    
+    # Need to format the datetime object to be like it shows in the html file
+    # This will mimick what django does to render dates on the frontend
+    # Since the data is being returned as JSON for filtering
+    transactions_formatted = []
+    for transaction in transactions:
+        tuple_list = list(transaction)
+        tuple_list[3] = formats.date_format(tuple_list[3], "DATETIME_FORMAT")
+        transactions_formatted.append(tuple_list)
+    return transactions_formatted
