@@ -20,4 +20,4 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def instructorQA(request):
     context_dict, currentCourse = initialContextDict(request)          
-    return render(request,'instructors/InstructorQA.html',context_dict)
+    return render(request,'Instructors/InstructorQA.html',context_dict)
