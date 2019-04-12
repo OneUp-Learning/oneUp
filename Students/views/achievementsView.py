@@ -22,7 +22,6 @@ from Students.models import StudentStreaks
 from Badges.models import  PeriodicBadges, VirtualCurrencyPeriodicRule
 from datetime import datetime, timedelta
 
-
 @login_required
 def achievements(request):
 
