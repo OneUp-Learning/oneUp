@@ -131,16 +131,18 @@ def classAchievementsViz(request):
                     failed += 1
                     
             user_Names.append(str(student.user.first_name+' '+student.user.last_name))
-            print (user_Names)
-            print (created)      
+            print (user_Names)     
             goals_Created.append(created)
-            print (completed)
+            print (goals_Created)
             goals_Completed.append(completed)
-            print(failed)
+            print(goals_Completed)
             goals_Failed.append(failed)
+            print(goals_Failed)
             
                 
-            allGoals.append(zip(user_Names,goals_Created,goals_Completed,goals_Failed ))  
+            allGoals.append(zip(user_Names,goals_Created,goals_Completed,goals_Failed ))
+            
+            print("All goals for student", allGoals)  
             
         context_dict['goalsRange'] = zip(range(1,len(allGoals)+1),allGoals)
         context_dict['goalsCount'] = goals.count()   

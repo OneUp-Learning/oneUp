@@ -21,6 +21,7 @@ from Students.models import StudentGoalSetting
 from Badges.enums import Goal
 from Badges import systemVariables
 from Students.views import goalCreateView
+from Students.views.goalCreateView import goalCreate
 
 
 # Added boolean to check if viewing from announcements page or course home page
@@ -43,7 +44,6 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
     goal_status = []
         
     goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
-    gcv = goalCreateView
     
     index = 0
     if not courseHome: # Shows all the announcements
@@ -62,11 +62,8 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             #end_date calculation function here            
             goal_Type.append(goalTypeToString(goal.goalType))
             targeted_Number.append(goal.targetedNumber) 
-            
-            newProgress = gcv.goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)
-                
-            progressPercent = calculateProgress(goal.progressToGoal, newProgress, goal.targetedNumber)
-                       
+                            
+            progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)                       
             goal_progress.append(progressPercent)
             goal_status.append(goalStatus(progressPercent, endDate))
             
@@ -86,9 +83,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 goal_Type.append(goalTypeToString(goal.goalType))
                 targeted_Number.append(goal.targetedNumber)
                 
-                newProgress = gcv.goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)
-                
-                progressPercent = calculateProgress(goal.progressToGoal, newProgress, goal.targetedNumber)
+                progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)
                 goal_progress.append(progressPercent)
                 goal_status.append(goalStatus(progressPercent, endDate))
                 index += 1
@@ -113,7 +108,10 @@ def goalTypeToString(gt):
     #gname = 'Blank'    
     return genums[gt].get('displayName')
 
-def calculateProgress(initialGoalTarget, newProgress, target):
+def calculateProgress(initialGoalTarget, goalType, course, student, target):
+    gcv = goalCreateView
+    
+    newProgress = gcv.goalProgressFxn(goalType, course, student)
     
     progressPercent = ((newProgress - initialGoalTarget) / target) * 100
     

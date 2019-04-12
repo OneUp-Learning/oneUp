@@ -23,9 +23,11 @@ by James Cherry -->
             </div>
          </div>
          <div class="row right-align">
+         {% if not is_teacher %}
          	<div class="col s12 m10 offset-m1">
          	   <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>       
          	</div>
+         {% endif %}
          </div>
          <div class="row">
             <div class="col s12 m10 offset-m1">
@@ -98,9 +100,11 @@ by James Cherry -->
             </div>
          </div>
          <div class="row right-align">
+         {% if not is_teacher %}
          	<div class="col s12 m10 offset-m1">
          	   <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>       
          	</div>
+         {% endif %}
          </div>
       </main>
       {% include 'footer.html' %}    
