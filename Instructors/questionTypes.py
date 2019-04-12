@@ -178,9 +178,9 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
 
     #repr function will give us the raw representation of the string
     print("Solution String", repr(solution_string))
-    solution_string = re.sub("\\r", "", solution_string)
-    solution_string = re.sub("^ *\\t", "  ", solution_string)
-    solution_string = re.sub("^\\t *", "  ", solution_string)
+    solution_string = re.sub("\t{3}", "☃            ", solution_string)
+    solution_string = re.sub("\t{2}", "☃        ", solution_string)
+    solution_string = re.sub("\t{1}", "☃    ", solution_string)
 
     #tokenizer characters ☃ and ¬
     solution_string = re.sub("\n", "\n¬☃", solution_string)
@@ -188,6 +188,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     print("Solution String", solution_string)
 
     #we turn the student solution into a list
+    solution_string = re.sub("(?<=\n)\t*", "   ", solution_string)
     solution_string = [x.strip() for x in solution_string.split('¬')]
     print("solutionString", solution_string)
 
@@ -235,8 +236,9 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
                                   line)
                 else:
                     line = re.sub("^ *", '&nbsp;' + ' ' * 4, line)
-        print("line", line)
+        print("line", repr(line))
         line = re.sub("\t(?=return.*; *##)", "&nbsp;    ", line)
+        line = re.sub("(\s{4}|\t)(?=.* *##})", '&nbsp;' + ' ' * 4, line)
         line = line + "\n"
         tabedSolution_string.append(line)
 
@@ -586,21 +588,23 @@ def parsonsMakeAnswerList(qdict, POST):
         print("solution_string", solution_string)
         solution_string_array = []
         solution_string_split = [x.strip() for x in solution_string.split('¬')]
-        for solution_string_splits in solution_string_split:
-            print("solution_string_splits",solution_string_splits)
-            solution_string_splits = re.sub("^⋊\s*(?!.*;\s*##)", "", solution_string_splits)
-            solution_string_splits = re.sub("^⋊(\t\t|\s{8})(?=.*;\s*##)", "    ", solution_string_splits)
-            solution_string_splits = re.sub("^⋊(\t|\s{4})(?=.*;\s*##)(?!return)", "", solution_string_splits)
-            solution_string_splits = re.sub("(?=return.*;\s*##\r\n})", "    ", solution_string_splits)
-            solution_string_splits = re.sub("᚛", "\n", solution_string_splits)
-            solution_string_splits = re.sub("⋊", "", solution_string_splits)
-
+        for line in solution_string_split:
+            print("line:",repr(line))
+            line = re.sub("^⋊\s*(?!.*;\s*##)", "", line)
+            line = re.sub("^⋊(\t\t|\s{8})(?=.*;\s*##)", "    ", line)
+            line = re.sub("^⋊(\t|\s{4})(?=.*;\s*##)(?!return)", "", line)
+            line = re.sub("⋊\t(?=return.*\s*##\n})", "    ", line)
+            print("line unchanged:", repr(line))
+            line = re.sub("^((?!\s*return)(?=.* *##\n}))", "    ", line)
+            line = re.sub("᚛", "\n", line)
+            line = re.sub("⋊", "", line)
+            line = re.sub("##", "", line)
             #for some mysterious reason ace editor hates commas,
             #we had to use a special comma to allow it to be visisble
-            solution_string_splits = re.sub("(?!\"),(?=.*\";)", "‚", solution_string_splits)
-            solution_string_array.append(solution_string_splits)
+            line = re.sub("(?!\"),(?=.*\";)", "‚", line)
+            solution_string_array.append(line)
 
-        print("solution_string_array", solution_string_array)
+        print("solution_string_array", repr(solution_string_array))
 
         
         lineIndent = [x.strip() for x in lineIndent.split(',')]
@@ -608,7 +612,7 @@ def parsonsMakeAnswerList(qdict, POST):
         studentSolutions = [x.strip() for x in studentSolutions.split(',')]
 
         print("studentSol", studentSolutions)
-        qdict['parsonStudentSol'] = studentSolutions
+        studentAnswerDict['parsonStudentSol'] = studentSolutions
         regexp = re.compile(r'##')
         missingLines = []
         missingLineCount = 1
@@ -623,29 +627,13 @@ def parsonsMakeAnswerList(qdict, POST):
         
         pattern = re.compile("##")
         for studentSolution in studentSolutions:
-            print("studentSolution", studentSolution)
-            print("i", i)
-            print("int(lineIndent[i]) + solution_string_array[int(studentSolution)])",int(lineIndent[i]), solution_string_array[int(studentSolution)])
-            
-            #if we have gotten zero for indentation, we wish to consume all tabs and spaces
-
-            if int(lineIndent[i]) == 0 and doesTheEntireThingHaveZeroIndetation and pattern.search(solution_string_array[int(studentSolution)]):
-                #if we have zero indentation, and we have the ##, we must consume all indentation
-                #or we will have odd indentation if zero indentation is entered
-                tabbed_sol = solution_string_array[int(studentSolution)]
-
-                #kill leading spacing
-                tabbed_sol = re.sub("^(\t\t|\s*)(?=.*;\s*##)", "", tabbed_sol)
-
-                #kill space within
-                tabbed_sol = re.sub("(?<=##\\n)(\\t|\s{4}|s\s{8})", "", tabbed_sol)
-            else:
-                tabbed_sol = ("\t" * int(lineIndent[i]) + solution_string_array[int(studentSolution)])
-            tabbed_sol = re.sub("##", "", tabbed_sol)
-            tabbed_sol = re.sub("#distractor", "", tabbed_sol)
+            ##print("studentSolution", studentSolution)
+            ##print("i", i)
+            ##print("int(lineIndent[i]) + solution_string_array[int(studentSolution)])",int(lineIndent[i]), solution_string_array[int(studentSolution)])
+            tabbed_sol = ("\t" * int(lineIndent[i]) + solution_string_array[int(studentSolution)])
             studentAnswer +=  tabbed_sol
             i+=1
-        print("studentAnswer", studentAnswer)
+        #print("studentAnswer", studentAnswer)
     studentAnswerDict['studentSolution'] = studentAnswer
     return [json.dumps(studentAnswerDict)]
 
@@ -717,7 +705,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             maxPoints = qdict['total_points']
             penalties = Decimal(0.0)
 
-            studentSolutionLineCount = len(qdict['parsonStudentSol'])
+            studentSolutionLineCount = len(studentAnswerDict['parsonStudentSol'])
 
             ##too few
             if (studentSolutionLineCount < correctLineCount):
@@ -753,7 +741,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             if studentGrade < 0:
                 studentGrade = 0
     
-            qdict['user_points'] = round(Decimal(studentGrade), 2)
+        qdict['user_points'] = round(Decimal(studentGrade), 2)
     return qdict
 
 
