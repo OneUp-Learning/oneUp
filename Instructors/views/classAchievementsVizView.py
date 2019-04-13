@@ -104,16 +104,14 @@ def classAchievementsViz(request):
         
         # visualize challenges               
         allGoals = []
+        goals_Created = []
+        goals_Completed = []
+        goals_Failed = []
+        user_Names = []
                             
         #Displaying the list of challenges from database
                              
         for student in students:
-#            userScores = []
-#            userEarliestScores = []
-            goals_Created = []
-            goals_Completed = []
-            goals_Failed = []
-            user_Names = []
             completed = 0
             failed = 0
             created = 0
@@ -130,22 +128,21 @@ def classAchievementsViz(request):
                 if (glview.goalStatus(progressPercent, endDate) == "Failed"):
                     failed += 1
                     
-            user_Names.append(str(student.user.first_name+' '+student.user.last_name))
-            print (user_Names)     
-            goals_Created.append(created)
-            print (goals_Created)
-            goals_Completed.append(completed)
-            print(goals_Completed)
-            goals_Failed.append(failed)
-            print(goals_Failed)
-            
-                
-            allGoals.append(zip(user_Names,goals_Created,goals_Completed,goals_Failed ))
-            
-            print("All goals for student", allGoals)  
-            
-        context_dict['goalsRange'] = zip(range(1,len(allGoals)+1),allGoals)
-        context_dict['goalsCount'] = goals.count()   
+            if (created):
+                user_Names.append(str(student.user.first_name+' '+student.user.last_name))   
+                goals_Created.append(created)
+                goals_Completed.append(completed)
+                goals_Failed.append(failed)
+        
+        print(students)
+        print(user_Names)
+        print(goals_Created)
+        print(goals_Completed)
+        print(goals_Failed)
+                   
+        context_dict['studentsRange'] = zip(range(1,len(students)+1),user_Names,goals_Created,goals_Completed,goals_Failed)
+        print("Students in the class:",len(students))
+        context_dict['studentsCount'] = len(students)   
         
         return render(request,'Instructors/ClassGoalsViz.html', context_dict)
                     

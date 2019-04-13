@@ -4,82 +4,25 @@
       {% include 'scripts.html' %}
       <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
       
-      <script>           
-	      Highcharts.chart('container', {
-	      		
-	      		chart: {
-	      			type: 'column'
-	      		},
-	      
-	      		title: {
-	      			text: '{{user_names}}'
-	      		},
-	      
-	      		subtitle: {
-	      			text: ''
-	      		},
-	      		
-	      		xAxis: {
-	      			categories: [
-	      				'{{user_names}}'
-	      			],
-	      			crosshair: true      			
-	      		},
-	      		
-	      		yAxis: {
-	      			min: 0
-	      			title: {
-	      				text: 'Number of Goals'
-	      			}
-	      		},
-	      		tooltip: {
-	      			headerFormat: '<span style="font-size:10px">{point.key}</span><table>;,'
-	      			pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>'
-	      			+ '<td style="padding:0"><b>{point.y:.1f}mm</b></td></tr>',
-	      			footerFormat: '</table>',
-	      			shared: true,
-	      			useHTML: true
-	      		},
-	      		plotOptions: {
-	      			column: {
-	      				pointPadding: 0.2,
-	      				borderWidth: 0
-	      			}
-	      		},
-	      		series: [{
-	      			name: 'Created',
-	      			data: [{{created}}]
-	      		},{
-	      			name: 'Completed',
-	      			data: [{{completed}}]
-	      		},{
-	      			name: 'Missed',
-	      			data: [{{failed}}]
-	      		}]     			
-	      		
-	      });        
-      </script>
-      
-      
    </head>
    <body>
       {% include 'heading.html' %}
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Goals Visualization</h3>            
+               <h3>Goals Visualization</h3>
             </div>
          </div>
          <div class="row">
             <div class="col s12 m10 offset-m1">
                <div class="card">
                   <div class="card-content">
-                  {% for i,allGoals in goalsRange %}
-                     <script>         
-                         document.write('<div class="row"><div class="col s12"><div id="container" class="js-box"></div></div></div>');                        
-                         
-                     </script>
-                  {% endfor %}
+                  {% for i,user_Names,goals_Created,goals_Completed,goals_Failed in studentsRange %}       
+                         <div class="row">                         
+                         		<div class="goalindicator" data-student="{{user_Names}}" data-created="{{goals_Created}}" data-completed="{{goals_Completed}}" data-failed="{{goals_Failed}}" id="goal_container{{i}}">
+                         		</div>                         		
+                         </div> 
+                  {% endfor %}	  
                   </div>
                </div>
             </div>
@@ -88,3 +31,57 @@
       {% include 'footer.html' %}
    </body>
 </html>
+
+<script>
+	console.log("Am I running?");
+	window.onload = function() {
+		var indicatorsFound = document.getElementsByClassName("goalindicator");
+        console.log(indicatorsFound.length)
+        for(var i = 0; i < indicatorsFound.length; i++){
+        	createBarChart(indicatorsFound[i].dataset.student, indicatorsFound[i].dataset.created, indicatorsFound[i].dataset.completed, indicatorsFound[i].dataset.failed, indicatorsFound.item(i));
+        }
+	}
+
+	function createBarChart(username, created, completed, failed, objID){	
+		
+			console.log(username);
+			console.log(created);
+			created = parseInt(created);
+			console.log(completed);
+			completed = parseInt(completed);
+			console.log(failed);
+			failed = parseInt(failed);
+		
+			Highcharts.chart(objID, {
+			chart: {
+				type: 'column'
+			},
+			title: {
+				text: 'Goal Statistics for ' + [username]
+			},
+			xAxis: {
+				categories: [],
+				crosshair: true
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: 'Number of Goals'
+				}
+			},
+			series :[{
+				name: 'Created',
+				data: [created],
+				color: 'black'
+			}, {
+				name: 'Completed',
+				data: [completed],
+				color: 'green'
+			}, {
+				name: 'Failed',
+				data: [failed],
+				color: 'red'
+			}]
+		});
+	}
+</script>

@@ -90,6 +90,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
     
       
     # The range part is the index numbers.
+    print (student_ID)
     context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed)
     return context_dict
 
