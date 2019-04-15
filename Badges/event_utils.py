@@ -4,18 +4,18 @@ def updateLeaderboard(course):
     from Instructors.views.utils import utcDate
     from Badges.periodicVariables import studentScore, TimePeriods
 
-    students = StudentRegisteredCourses.objects.filter(courseID=course)
+    studentrcs = StudentRegisteredCourses.objects.filter(courseID=course)
     studentLeaders = {}
     currentTime = utcDate()
 
-    for student in students:
+    for studentrc in studentrcs:
         time_period = TimePeriods.timePeriods[1503]
-        s_id, xp = studentScore(student, course, 0, time_period, 0, result_only=True,
+        s_id, xp = studentScore(studentrc.studentID, course, 0, time_period, 0, result_only=True,
                                 gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
 
         # get all the students that have xp
         if xp > 0:
-            studentLeaders[student] = xp
+            studentLeaders[studentrc] = xp
 
     # Sort dict starting from most to least amount of xp. result is list of tuples
     studentLeaders = sorted(studentLeaders.items(),
