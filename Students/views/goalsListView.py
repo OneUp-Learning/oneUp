@@ -122,7 +122,7 @@ def goalStatus(progressPercent, endDate):
     if (progressPercent >= 100):
         return "Completed"
     elif (utcDate() >= endDate):
-        return "Failed"
+        return "Missed"
     else:
         return "In Progress"
     

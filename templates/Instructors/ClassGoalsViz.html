@@ -32,35 +32,42 @@
    </body>
 </html>
 
-<script>
-	console.log("Am I running?");
+<script>	
 	window.onload = function() {
 		var indicatorsFound = document.getElementsByClassName("goalindicator");
-        console.log(indicatorsFound.length)
+        console.log(indicatorsFound.length)       
+                
+        var usernames = []
+        var creations = []
+        var completions = []
+        var failures = []
+        
         for(var i = 0; i < indicatorsFound.length; i++){
-        	createBarChart(indicatorsFound[i].dataset.student, indicatorsFound[i].dataset.created, indicatorsFound[i].dataset.completed, indicatorsFound[i].dataset.failed, indicatorsFound.item(i));
+        	usernames[i] = indicatorsFound[i].dataset.student;
+        	creations[i] = parseInt(indicatorsFound[i].dataset.created);
+        	completions[i] = parseInt(indicatorsFound[i].dataset.completed);
+        	failures[i] = parseInt(indicatorsFound[i].dataset.failed);
         }
+        
+        createBarChart(usernames, creations, completions, failures, indicatorsFound.item(0));
 	}
 
 	function createBarChart(username, created, completed, failed, objID){	
 		
 			console.log(username);
 			console.log(created);
-			created = parseInt(created);
 			console.log(completed);
-			completed = parseInt(completed);
 			console.log(failed);
-			failed = parseInt(failed);
 		
 			Highcharts.chart(objID, {
 			chart: {
 				type: 'column'
 			},
 			title: {
-				text: 'Goal Statistics for ' + [username]
+				text: 'Goal Statistics'
 			},
 			xAxis: {
-				categories: [],
+				categories: username,
 				crosshair: true
 			},
 			yAxis: {
@@ -71,15 +78,15 @@
 			},
 			series :[{
 				name: 'Created',
-				data: [created],
+				data: created,
 				color: 'black'
 			}, {
 				name: 'Completed',
-				data: [completed],
+				data: completed,
 				color: 'green'
 			}, {
-				name: 'Failed',
-				data: [failed],
+				name: 'Missed',
+				data: failed,
 				color: 'red'
 			}]
 		});
