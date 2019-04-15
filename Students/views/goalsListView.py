@@ -45,6 +45,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
         
     goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
     
+    
     index = 0
     if not courseHome: # Shows all the announcements
         
@@ -65,7 +66,9 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                             
             progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)                       
             goal_progress.append(progressPercent)
-            goal_status.append(goalStatus(progressPercent, endDate))
+            
+            status = goalStatus(progressPercent, endDate)
+            goal_status.append(status)
             
     else: # Only shows the first three
         
@@ -85,8 +88,9 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 
                 progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)
                 goal_progress.append(progressPercent)
-                goal_status.append(goalStatus(progressPercent, endDate))
-                index += 1
+                
+                status = goalStatus(progressPercent, endDate)
+                goal_status.append(status)
     
       
     # The range part is the index numbers.
