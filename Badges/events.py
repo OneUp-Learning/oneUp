@@ -520,7 +520,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
             # Increase the student virtual currency amount
             student.virtualCurrencyAmount += vcRuleAmount
             student.save()
-            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' virtual bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
             return
     
         if actionID == Action.decreaseVirtualCurrency:
@@ -529,7 +529,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                 student.virtualCurrencyAmount -= vcRuleAmount 
                 instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
                 instructor = instructorCourse.instructorID
-                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' virtual bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
             else:
                 #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
                 logger.debug("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
