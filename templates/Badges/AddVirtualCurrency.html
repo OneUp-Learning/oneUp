@@ -39,13 +39,14 @@
                                         <td>{{studentCurrencyVC}}</td>
                                         <td>
                                             <p>
-                                                <input class="with-gap" name="{{studentID}}_type" type="radio" checked value="set" id="{{studentID}}_type_set" />
-                                                <label for="{{studentID}}_type_set">Set Virtual Currency</label>
-                                            </p>
-                                            <p>
-                                                <input class="with-gap" name="{{studentID}}_type" type="radio" value="combine" id="{{studentID}}_type_combine" />
+                                                <input class="with-gap" name="{{studentID}}_type" type="radio" value="combine" id="{{studentID}}_type_combine" checked/>
                                                 <label for="{{studentID}}_type_combine">Combine Virtual Currency</label>
                                             </p>
+                                            <p>
+                                                <input class="with-gap" name="{{studentID}}_type" type="radio" value="set" id="{{studentID}}_type_set" />
+                                                <label for="{{studentID}}_type_set">Set Virtual Currency</label>
+                                            </p>
+                                            
                                         </td>
                                         <td>
                                             <input type="number" name="{{studentID}}_Value" id="{{studentID}}_Value"
