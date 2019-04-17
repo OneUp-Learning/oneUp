@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -396,10 +395,10 @@
                   </div>
                   <div class="collapsible-body">
                     <span>Dynamic problems are problems created with Lua code that have far more versatility than static problems. 
-                    Instructors can create dynamic problems that have randomly generated questions, or use external tools, such as compilers and interpreters, to generate questions. 
+                    Instructors can create dynamic problems which have random elements to questions.  In some cases, they might also create static questions with dynamic grading when there are many different correct answers possible.  This includes support for using external tools such as compilers and interpreters as part of the grading process so that you can grade simple programming problems even when there are many possible variations on the solution. 
                     There are two types of dynamic problems: Templates and Raw Lua.
-                    A Template problem allows instructors to configure the setup of a problem and then later specify the details of the problem. 
-                    A Raw Lua problem is more flexible than Template, but require programming in Lua. Instructors should use Raw Lua problems if they want specific results from their code.
+                    A Template problem allows instructors to enter the formatted text of a problem and only fill in specific details dynamically using values set up in the code portion. 
+                    A Raw Lua problem is more flexible than Template, but requires more programming in Lua. Instructors should use Raw Lua problems only if they are trying build a problem where the text or structure is likely to vary radically between the different randomized instances.  We expect that this will be quite rare.
                     Most things can be done with Template problems. 
                     </span>
                   </div>
@@ -419,20 +418,20 @@
                     <p style = "text-indent:40px">The four distinct sections require more nuance: Add Dependency, Dependent Libraries, Set-Up Code, and Template. 
                     Instructors can add any Lua Libraries that they have uploaded as dependencies by clicking the Add Dependency drop-down menu and selecting their desired library. 
                     The new dependency will appear in the Dependant Libraries section. 
-                    Lua code is used to set up any needed variables and perform any complex should be included in the Set-Up Code section. 
+                    Lua code is used to set up any needed variables and perform any computations needed including computing the answer that the student answer will be checked against.  It should be included in the Set-Up Code section. 
                     The problem itself should be below. 
                     </p>
-                    <p style = "text-indent:40px">To display a variable in the Problem Area, it must be enclosed in pipes enclosed in brackets (ex. [|x|]). To include Lua code, it must be enclosed curly braces enclosed in brackets (ex. [{Some code for your thoughts}]). 
-                    A piece of code that must be included in the problem is the <b>make_answer</b> function which is used to create answer blanks. 
+                    <p style = "text-indent:40px">To display a variable in the Problem Area, it must be enclosed in pipes (vertical lines) enclosed in brackets (ex. [|x|]). To include Lua code, it must be enclosed in curly braces enclosed in brackets (ex. [{Some code for your thoughts}]). 
+                    A piece of code that must be included at least in the problem is the <b>make_answer</b> function which is used to create answer blanks.  If this is omitted, students will not be able to answer the generated question.  More than one answer blank can be included in a single problem. 
                     The make_answer function takes five arguments: The name of the answer blank (displayed to students when describing their results), 
                     the type of answer blank, the size, the answer checking function to be used (several of which are provided), and the maximum amount of points the student can receive for the answer blank. A
-                    n example make_answer is provided when creating a Template problem in the Template section. 
+                    simple example make_answer is provided when creating a Template problem in the Template section. 
                     </p>
                     <p style = "text-indent:40px">Instructors can create multi-part problems, where the next part is dependant on the previous one. 
                     Simply click the Add Part button to add an additional Template section. 
                     Instructors can also test their problems before creating them in by clicking the Try Out Question button at the bottom of the page. 
                     The Random Seed field affects any random variables that the Instructor might have included. 
-                    When the same Random Seed is used, the same problem will be generated. 
+                    When the same Random Seed is used, the same problem will be generated.  This can be used to debug problems if students see a version of the problem with an error and to check that variations of the problem are correctly being generated and graded.
                     Click Save to add the problem to the problem pool.
                     </p>
                     </span>
@@ -451,8 +450,8 @@
                     Click the blue Help button with a “?” mark on the top right-hand side of the Problem Info to show the documentation for Raw Lua problems.
                     </p>
                     <p style = "text-indent:40px">It should be noted that Templated problems and Raw Lua have practically the same capabilities. 
-                    Instructors should Raw Lua if they want something very specific for their problem to do. 
-                    Anything done in Raw Lua can generally be done in Templated problems.
+                    We expect that instructors will usually only use Raw Lua problems when they are building a very complex problem where the structure of the problem instances might vary wildly so that they can't write a single template.
+                    Anything done in Raw Lua can generally be done in Templated problems, and this is the recommended approach.
                     </p>
                     <p style = "text-indent:40px">There are four sections that require attention: Add Dependency, Dependent Libraries, Number of Parts, and Code. 
                     Both Add Dependency and Dependent Libraries function exactly as they do with Templated problems, allowing Instructors to add any Lua libraries they have uploaded. 
@@ -699,74 +698,80 @@
                 </li>
                 <li>
                   <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Badges?</div>
+                    <i class="material-icons">question_answer</i>What Do I need to know about Badges?</div>
                   <div class="collapsible-body">
-                    <span>Badges are a form of an award a student can recieve for completing tasks specified by the Instructor. 
-                    There are three types of Badges: Automatic, Manual, and Time-Period based. 
-                    Automatic Badges are awarded according to Rule Conditions defined by the Instructor.
-                     Manual Badges are badges with no conditions that are assigned manually to individual students by the instructor. 
-                     Time-Period Based Badges are automatically awarded at specific time intervals to students who meet certain conditions (i.e. students with a 5-day attendance streak). 
-                     The main purpose of Badges is to give students a sense of achievement and progress as they advance through the course. 
-                     Badges that students earn are shown in their Achievements page and the Latest Badges section of the Course Home page.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create Automatic Badges?</div>
-                  <div class="collapsible-body">
-                    <span>In the Game Features menu, hover over Badges and then click on Automatic & Manual Badges in the side menu. 
-                    You will be taken to the Badges page, where you can view the badges you have already created and modify them. 
-                    Click Add New Badge to be taken to the Badge creation page. 
-                    The Badge Name and Badge Description fields give the badge a name and provide a description for the conditions for earning the badge, respectively. 
-                    The Badge Image section allows the Instructor to pick the image for the badge from a collection of available images. 
-                    The same badge image can be used for multiple badges. 
-                    The Award Frequency option specifies whether to award the badge just once, or once per Challenge, Activity, Topic, or Category. 
-                    To define Rule Conditions for the Badge, follow the guidelines discussed in How do I create a Rule. 
-                    Click Create to add the Badge to the Badges page.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create/Assign/Remove Manual Badges?</div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">Manual Badges are much simpler to create than their automatic counterpart, as they do not require Rule Conditions. 
-                    They allow the instructor to create Badges for cases in which it is not possible to define a Rule Condition that can be automatically checked (for example, if there is no necessary information in the system). 
-                    In the Game Features menu, hover over Badges and then click on Automatic & Manual Badges in the side menu. 
-                    <p style = "text-indent:40px"><b>Create Manual Badges: </b>In the Badges page, scroll down until you see the Manual Badges section. 
-                    Click Add New Manual Badge to be taken to the Badge creation page. 
-                    As with Automatic Badges, the Badge Name and Badge Description fields give the badge a name and provide a description for the conditions for earning the badge, respectively. 
-                    Select an image for the badge in the Badge Image section and then click Create to add the new Manual Badge. </p>
-                     <p style = "text-indent:40px"><b>Assigning Badges to Students: </b>Because Manual Badges do not have any Rule Conditions, which students and when receive them is entirely to the discretion of the Instructor. 
-                    In the Game Features menu, hover over Badges and then click on Add Badges to Students in the side menu. 
-                    There are two sections in this page: one where you give badges, the Assign Badges section, and one where you take badges, the Remove Badges section. 
-                    It should be noted that ONLY Manual Badges can be assigned to/removed from students manually.
-                    In the Assign Badges section, select the student you wish to be assigned a badge in the Select Student drop-down menu. 
-                    Then, select their respective badge in the Select Badge drop-down menu. 
-                    Click Assign Badge to add the Manual Badge to the student. </p>
-                    <p style = "text-indent:40px"><b>Removing Badges from Students: </b> To remove badges from students, first scroll down to the Remove Badges section of the Add Badges to Students page. 
-                    All students who have manual badges along with the badges they have are listed here. 
-                    To remove them, simply select all the badges you wish to remove and from which students. 
-                    Then, click Delete Badge to properly remove the badges.</p>
-                    </p>
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create Time-Period Based Badges?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px"> In the Game Features menu, hover over Badges and click on Time-Period Based Badges in the side menu to be taken to the Add New Time Based Badge page. 
-                    The Badge Name, Description, and Image all serve the same purposes as with previous badges. 
-                    The primary difference here is the Time-Period conditions. 
-                    These are not unlike Rule Conditions, but much more streamlined to simplify the process. </p>
-                    <p style = "text-indent:40px"> There are four Condition options that require attention: Give To, Number of Students, Time Period, and the Condition section. 
-                    The <b>Give To</b> option allows Instructors to give the badge to either a number of top students (Top #), all students, or randomly. 
-                    The <b>Number of Students</b> option only appears if the Top # option is selected and sets the number of students who will earn the badge. 
-                    The <b>Time Period</b> drop-down menu specifies how often the badge will be awarded to students (i.e. Daily, Weekly, etc.). 
-                    The <b>Condition</b> section functions much like a Rule Condition, but with fewer, more specific options. 
-                    The Operator and Threshold function the same as with Rule Conditions. 
-                    Once all parameters are set, click Create Badge to add the new Time-Period Based Badge.</p></span>
+                  <ul>
+	                <li>
+	                    <p></p>
+	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What are Badges?</b><br />
+	                    <span><p style = "text-indent:40px">Badges are a form of an award a student can receive for completing tasks specified by the Instructor. 
+	                    There are three types of Badges: Automatic, Manual, and Time-Period based. 
+	                    Automatic Badges are awarded according to Rule Conditions defined by the Instructor.
+	                     Manual Badges are badges with no conditions that are assigned manually to individual students by the instructor. 
+	                     Time-Period Based Badges are automatically awarded at specific time intervals to students who meet certain conditions (i.e. students with a 5-day attendance streak). 
+	                     The main purpose of Badges is to give students a sense of achievement and progress as they advance through the course. 
+	                     Badges that students earn are shown in their Achievements page and the Latest Badges section of the Course Home page.</p></span>
+	
+	                     <hr>
+	                </li>
+	                <li>
+	                  <p>&nbsp;</p>
+	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;  <b>How do I Create Automatic Badges?</b>	                 
+	                    <span><p style = "text-indent:40px">In the Game Features menu, hover over Badges and then click on Automatic & Manual Badges in the side menu. 
+	                    You will be taken to the Badges page, where you can view the badges you have already created and modify them. 
+	                    Click Add New Badge to be taken to the Badge creation page. 
+	                    The Badge Name and Badge Description fields give the badge a name and provide a description for the conditions for earning the badge, respectively. 
+	                    The Badge Image section allows the Instructor to pick the image for the badge from a collection of available images. 
+	                    The same badge image can be used for multiple badges. 
+	                    The Award Frequency option specifies whether to award the badge just once, or once per Challenge, Activity, Topic, or Category. 
+	                    To define Rule Conditions for the Badge, follow the guidelines discussed in How do I create a Rule. 
+	                    Click Create to add the Badge to the Badges page.</p> </span>	                  
+	                   <hr>
+	                </li>
+		               
+	                <li>
+	    				<p>&nbsp;</p>
+	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp; <b>How do I Create/Assign/Remove Manual Badges?</b>   
+	                    <span>
+	                    <p style = "text-indent:40px">Manual Badges are much simpler to create than their automatic counterpart, as they do not require Rule Conditions. 
+	                    They allow the instructor to create Badges for cases in which it is not possible to define a Rule Condition that can be automatically checked (for example, if there is no necessary information in the system). 
+	                    In the Game Features menu, hover over Badges and then click on Automatic & Manual Badges in the side menu. 
+	                    <p style = "text-indent:40px"><b>Create Manual Badges: </b>In the Badges page, scroll down until you see the Manual Badges section. 
+	                    Click Add New Manual Badge to be taken to the Badge creation page. 
+	                    As with Automatic Badges, the Badge Name and Badge Description fields give the badge a name and provide a description for the conditions for earning the badge, respectively. 
+	                    Select an image for the badge in the Badge Image section and then click Create to add the new Manual Badge. </p>
+	                     <p style = "text-indent:40px"><b>Assigning Badges to Students: </b>Because Manual Badges do not have any Rule Conditions, which students and when receive them is entirely to the discretion of the Instructor. 
+	                    In the Game Features menu, hover over Badges and then click on Add Badges to Students in the side menu. 
+	                    There are two sections in this page: one where you give badges, the Assign Badges section, and one where you take badges, the Remove Badges section. 
+	                    It should be noted that ONLY Manual Badges can be assigned to/removed from students manually.
+	                    In the Assign Badges section, select the student you wish to be assigned a badge in the Select Student drop-down menu. 
+	                    Then, select their respective badge in the Select Badge drop-down menu. 
+	                    Click Assign Badge to add the Manual Badge to the student. </p>
+	                    <p style = "text-indent:40px"><b>Removing Badges from Students: </b> To remove badges from students, first scroll down to the Remove Badges section of the Add Badges to Students page. 
+	                    All students who have manual badges along with the badges they have are listed here. 
+	                    To remove them, simply select all the badges you wish to remove and from which students. 
+	                    Then, click Delete Badge to properly remove the badges.</p>
+	                    </span>
+	                  <hr>
+	                </li>
+	 
+	                <li>
+	                  <p>&nbsp;</p>
+	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp; <b>How do I Create Time-Period Based Badges?</b>
+	                    <span><p style = "text-indent:40px"> In the Game Features menu, hover over Badges and click on Time-Period Based Badges in the side menu to be taken to the Add New Time Based Badge page. 
+	                    The Badge Name, Description, and Image all serve the same purposes as with previous badges. 
+	                    The primary difference here is the Time-Period conditions. 
+	                    These are not unlike Rule Conditions, but much more streamlined to simplify the process. </p>
+	                    <p style = "text-indent:40px"> There are four Condition options that require attention: Give To, Number of Students, Time Period, and the Condition section.</br> 
+	                    The <b>Give To</b> option allows Instructors to give the badge to either a number of top students (Top #), all students, or randomly. </br> 
+	                    The <b>Number of Students</b> option only appears if the Top # option is selected and sets the number of students who will earn the badge. </br> 
+	                    The <b>Time Period</b> drop-down menu specifies how often the badge will be awarded to students (i.e. Daily, Weekly, etc.).</br>  
+	                    The <b>Condition</b> section functions much like a Rule Condition, but with fewer, more specific options. </br> 
+	                    The Operator and Threshold function the same as with Rule Conditions. 
+	                    Once all parameters are set, click Create Badge to add the new Time-Period Based Badge.</p></span>
+	                  
+	                </li>
+                  </ul>
                   </div>
                 </li>
                 <li>
@@ -786,9 +791,12 @@
                 </li>
                 <li>
                   <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is Virtual Currency?</div>
+                    <i class="material-icons">question_answer</i>What Do I need to Know about Virtual Currency?</div>
                   <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">Virtual Currency (VC) is digital currency awarded to students for completing tasks and meeting specific conditions set by the Instructor. 
+                  <ul>
+	                <li>
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What is Virtual Currency?</b>
+                    <span><p style = "text-indent:40px; margin-top: 1ex">Virtual Currency (VC) is digital currency awarded to students for completing tasks and meeting specific conditions set by the Instructor. 
                     The main purpose of Virtual Currency is to provide an incentive for students to complete course work and routinely track their progress. 
                     Virtual Currency can be spent on some course-related goods at the discretion of the Instructor, such as Deadline Extensions, Assignment Re-submissions, Extra Credit, Lowest Grade Replacement, and a great host of other benefits. 
                     As with Badges, there are three different types of Virtual Currency Earning Rules: Automatic, Manual, and Time-Period Based. 
@@ -798,28 +806,24 @@
                     Locate Virtual Currency Configuration, then click the Enable Virtual Currency option. 
                     Finally, click the Save option at the bottom of the page. 
                     The Virtual Currency menu option will now appear under the Game Features menu.</p></span>
-                    </span>
-                  </div>
+                    <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create an Automatic Virtual Currency Earning Rule?</div>
-                  <div class="collapsible-body">
-                    <span>In the Game Features menu, hover over Virtual Currency and then select Automatic Earning Rules. 
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Create an Automatic Virtual Currency Earning Rule?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency and then select Automatic Earning Rules. 
                     Here you can view/modify all Automatic Earning rules that you have created so far along the amount of currency they award. 
                     Click the Add New Automatic Virtual Currency Rule button to be taken to the Automatic Rule Creation page. 
                     The Rule Name and Rule Description fields give the rule a name and provide a description for the conditions for earning the currency, respectively. 
                     The Award Frequency specifies whether the currency will be awarded once per Challenge, Topic, Activity, Category, or Just Once Ever. 
                     To define Rule Conditions, follow the guidelines discussed in How do I create a Rule. 
                     The Course Bucks Earned With this Rule field simply assigns the amount of Course Bucks that will be earned by the student once the Rule Conditions are met. 
-                    Click the Create Rule button to add the Automatic Rule to the Automatic VC Rules page.</span>
-                  </div>
+                    Click the Create Rule button to add the Automatic Rule to the Automatic VC Rules page.</p></span>
+                    <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create Earning Rules for Assigning Virtual Currency Manually ?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px"><b> Creating a Manual VC Earning Rule: </b>In the Game Features menu, hover over Virtual Currency and then select Manual Earning Rules. 
+                  <p>&nbsp;</p>
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Create Earning Rules for Assigning Virtual Currency Manually?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex"><b> Creating a Manual VC Earning Rule: </b>In the Game Features menu, hover over Virtual Currency and then select Manual Earning Rules. 
                     Here you can view/modify all Manual Earning Rules that you have created and the amount of currency they award. 
                     Click the Create New Manual Earning Rule button to be taken to the Manual Rule Creation page. 
                     The Rule Name, Rule Description, and Course Bucks Earned serve the same purposes as with Automatic VC Earning Rules. 
@@ -832,13 +836,12 @@
                     You have two options: to <b>Add Virtual Currency</b> to the student's current amount or to <b>Set Virtual Currency</b>, in which case the amount you enter will replace the total current amount for that student.
                     You shall select a rule which describes the change you made from the drop-down menu of the Manual Earning Rules previously created by you. This description along with the Virtual Currency specified will appear in the Earning Transactions page for students. 
                     Click Add Currency at the bottom of the page to add VC to your desired students.</p></span>
-                  </div>
+                    <hr>
                 </li>
-                <li><p style = "text-indent:40px">
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create a Time-Period Based Virtual Currency Earning Rule?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">In the Game Features menu, hover over Virtual Currency and then select Time-Period Earning Rules. 
+                <li>
+                  <p>&nbsp;</p>
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Create a Time-Period Based Virtual Currency Earning Rule?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency and then select Time-Period Earning Rules. 
                     Here you can view/modify all Time-Period rules created so far and the amount of currency they award. 
                     Click the Create New Periodic Earning Rule button to be taken to the Time-Period Rule Creation page.                     
                     The Rule Name, Rule Description, and Course Bucks Earned serve the same purposes as with previous VC Earning Rules. 
@@ -851,14 +854,12 @@
                     The <b>Condition</b> section functions much like a Rule Condition, but with fewer, more specific options. 
                     The Operator and Threshold function the same as with Rule Conditions.        
                     Once all parameters are set, click Create Rule to add the new Time-Period Rule to the Periodic Virtual Currency Rules page.</p></span>
-                    </span>
-                  </div>
+                    <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Set Spending Rules/Create Course Shop?</div>
-                  <div class="collapsible-body">
-                    <span>When you create a Spending Rule, you are adding an item that students can purchase in your very own Course Shop. 
+                  <p>&nbsp;</p>
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Set Spending Rules/Create Course Shop?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">When you create a Spending Rule, you are adding an item that students can purchase in your very own Course Shop. 
                     In the Game Features menu, hover over Virtual Currency and then select Spending Rules to go to the Course Shop page. 
                     Here you can view all the items available for purchase in the Course Shop, their price in Course Bucks, and their limit of purchases for each student. 
                     Click the Create Spending Rule button to be taken to the Spending Rule Creation page. 
@@ -866,14 +867,13 @@
                     The VC Amount option simply sets the price of the item while the Limit option sets how many times the item can be purchased by the student (during the entire course). 
                     Once a student purchases an item in the Course Shop, the Instructor gets a notification and must approve the transaction. 
                     To do this, follow the steps outlined in How do I approve/reject Student Transactions? 
-                    Click Save to add the new item to the Course Shop. </span>
-                  </div>
+                    Click Save to add the new item to the Course Shop. </p></span>
+                    <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Approve/Reject Student Transactions?</div>
-                  <div class="collapsible-body">
-                    <span>In the Game Features menu, hover over Virtual Currency and then select Student Transactions. 
+                  <p>&nbsp;</p>
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Approve/Reject Student Transactions?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency and then select Student Transactions. 
                     Here you will view all the purchasing transactions that students have made, which are active (not completed). 
                     If you want to review the Completed Transactions, click on the View Completed Transactions button.
                     For each item a student has purchased in the Course Shop, you will see the name, description (Spending Rule), Date of Purchase, Cost, and Status 'Requested'. 
@@ -885,62 +885,51 @@
                     'Complete' - this indicates that the Instructor has completed the requested action;
                     'Reverted' - this indicates that the Instructor has not approved the purchase and has returned the spent Course Bucks back to the Student Account. 
                     The reason for this shall be described in the field 'Note to Student'. The changed status of the transaction will be displayed on the Student Transactions page. 
-                    Click the Update button to update the status of the transaction. </span>
+                    Click the Update button to update the status of the transaction. </p></span>
+                  </li>
+                  </ul>                    
                   </div>
                 </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col m12" id="Duels">
-          <div class="card">
-            <div class="card-content">
-              <ul class="collapsible expandable">
-                <li>
+               <li>
                   <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is Dueling?
+                    <i class="material-icons">question_answer</i>What Do I Need to Know about Dueling?
                   </div>
                   <div class="collapsible-body">
-                    <span>Dueling is a gamification feature that allows students to challenge each other to obtain higher scores on assignments for Virtual Currency. 
+                  <ul>
+	                <li>
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What is Dueling</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">Dueling is a gamification feature that allows students to challenge each other to obtain higher scores on assignments for Virtual Currency. 
                     Dueling is entirely up to the students, with very little Instructor involvement in the process. 
-                    The primary goal of Dueling is to provide students with an incentive and increase their competitiveness in a course. </span>
-                  </div>
+                    The primary goal of Dueling is to provide students with an incentive and increase their competitiveness in a course. </p></span>
+                  <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Enable Duels?</div>
-                  <div class="collapsible-body">
-                    <span>Duels are a gamification feature that is disabled by default. 
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Enable Duels?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">Duels are a gamification feature that is disabled by default. 
                     If you wish to enable Duels, ensure that gamification is enabled. 
                     Then, in the Game Features menu select Gamification Configuration. 
-                    Locate the Challenging Classmates section and then find the option to enable the feature. </span>
-                  </div>
+                    Locate the Challenging Classmates section and then find the option to enable the feature. </p></span>
+                  <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>Are Students Obligated to Accept Challenges?</div>
-                  <div class="collapsible-body">
-                    <span>No. If a student declines or doesn’t respond to another student’s challenge, the duel is void and no Virtual Currency is awarded.</span>
-                  </div>
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>Are Students Obligated to Accept Challenges?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">No. If a student declines or doesn’t respond to another student’s challenge, the duel is void and no Virtual Currency is awarded.</p></span>
+                  <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What Challenges can Students Duel Over?</div>
-                  <div class="collapsible-body">
-                    <span>Students can only duel over Warm-Up Challenges they have not completed. 
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What Challenges can Students Duel Over?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">Students can only duel over Warm-Up Challenges they have not completed. 
                     Also, students cannot select specific challenges; instead, challenges are selected at random by challenge Topic (ex. Addition, Multiplication). 
-                    If either student has completed a challenge, it is automatically ineligible to be available for the duel.</span>
-                  </div>
+                    If either student has completed a challenge, it is automatically ineligible to be available for the duel.</p></span>
+                  <hr>
                 </li>
                 <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What Role does the Instructor Play in Duels?</div>
-                  <div class="collapsible-body">
-                    <span>The only roles the Instructor has is creating the Warm-Up Challenges students take and setting how much VC is awarded to students for participation and victory. 
+                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What Role does the Instructor Play in Duels?</b>
+                    <span><p style = "text-indent:40px; margin: 1ex">The only roles the Instructor has is creating the Warm-Up Challenges students take and setting how much VC is awarded to students for participation and victory. 
                     To set the amounts, go to the Game Features menu and select Gamification Configuration. 
                     Navigate to the Classmates Challenges option. 
                     Click Enable the use of duels and call-outs and click Save to enable Duels. 
-                    The option for challenging students will now appear on the students’ side.</span>
+                    The option for challenging students will now appear on the students’ side.</p></span>
                   </div>
                 </li>
               </ul>

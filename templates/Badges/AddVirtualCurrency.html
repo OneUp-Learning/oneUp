@@ -13,7 +13,7 @@
     <main>
         <div class="row center-align">
             <div class="col s12">
-                <h3>Add Virtual Currency</h3>
+                <h3>Assign Virtual Currency</h3>
             </div>
         </div>
         <div class="row">
@@ -39,13 +39,14 @@
                                         <td>{{studentCurrencyVC}}</td>
                                         <td>
                                             <p>
-                                                <input class="with-gap" name="{{studentID}}_type" type="radio" checked value="set" id="{{studentID}}_type_set" />
-                                                <label for="{{studentID}}_type_set">Set Virtual Currency</label>
+                                                <input class="with-gap" name="{{studentID}}_type" type="radio" value="combine" id="{{studentID}}_type_combine" checked/>
+                                                <label for="{{studentID}}_type_combine">Add Virtual Currency</label>
                                             </p>
                                             <p>
-                                                <input class="with-gap" name="{{studentID}}_type" type="radio" value="combine" id="{{studentID}}_type_combine" />
-                                                <label for="{{studentID}}_type_combine">Combine Virtual Currency</label>
+                                                <input class="with-gap" name="{{studentID}}_type" type="radio" value="set" id="{{studentID}}_type_set" />
+                                                <label for="{{studentID}}_type_set">Set Virtual Currency</label>
                                             </p>
+                                            
                                         </td>
                                         <td>
                                             <input type="number" name="{{studentID}}_Value" id="{{studentID}}_Value"
