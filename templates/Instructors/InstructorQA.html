@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -396,10 +395,10 @@
                   </div>
                   <div class="collapsible-body">
                     <span>Dynamic problems are problems created with Lua code that have far more versatility than static problems. 
-                    Instructors can create dynamic problems that have randomly generated questions, or use external tools, such as compilers and interpreters, to generate questions. 
+                    Instructors can create dynamic problems which have random elements to questions.  In some cases, they might also create static questions with dynamic grading when there are many different correct answers possible.  This includes support for using external tools such as compilers and interpreters as part of the grading process so that you can grade simple programming problems even when there are many possible variations on the solution. 
                     There are two types of dynamic problems: Templates and Raw Lua.
-                    A Template problem allows instructors to configure the setup of a problem and then later specify the details of the problem. 
-                    A Raw Lua problem is more flexible than Template, but require programming in Lua. Instructors should use Raw Lua problems if they want specific results from their code.
+                    A Template problem allows instructors to enter the formatted text of a problem and only fill in specific details dynamically using values set up in the code portion. 
+                    A Raw Lua problem is more flexible than Template, but requires more programming in Lua. Instructors should use Raw Lua problems only if they are trying build a problem where the text or structure is likely to vary radically between the different randomized instances.  We expect that this will be quite rare.
                     Most things can be done with Template problems. 
                     </span>
                   </div>
@@ -419,20 +418,20 @@
                     <p style = "text-indent:40px">The four distinct sections require more nuance: Add Dependency, Dependent Libraries, Set-Up Code, and Template. 
                     Instructors can add any Lua Libraries that they have uploaded as dependencies by clicking the Add Dependency drop-down menu and selecting their desired library. 
                     The new dependency will appear in the Dependant Libraries section. 
-                    Lua code is used to set up any needed variables and perform any complex should be included in the Set-Up Code section. 
+                    Lua code is used to set up any needed variables and perform any computations needed including computing the answer that the student answer will be checked against.  It should be included in the Set-Up Code section. 
                     The problem itself should be below. 
                     </p>
-                    <p style = "text-indent:40px">To display a variable in the Problem Area, it must be enclosed in pipes enclosed in brackets (ex. [|x|]). To include Lua code, it must be enclosed curly braces enclosed in brackets (ex. [{Some code for your thoughts}]). 
-                    A piece of code that must be included in the problem is the <b>make_answer</b> function which is used to create answer blanks. 
+                    <p style = "text-indent:40px">To display a variable in the Problem Area, it must be enclosed in pipes (vertical lines) enclosed in brackets (ex. [|x|]). To include Lua code, it must be enclosed in curly braces enclosed in brackets (ex. [{Some code for your thoughts}]). 
+                    A piece of code that must be included at least in the problem is the <b>make_answer</b> function which is used to create answer blanks.  If this is omitted, students will not be able to answer the generated question.  More than one answer blank can be included in a single problem. 
                     The make_answer function takes five arguments: The name of the answer blank (displayed to students when describing their results), 
                     the type of answer blank, the size, the answer checking function to be used (several of which are provided), and the maximum amount of points the student can receive for the answer blank. A
-                    n example make_answer is provided when creating a Template problem in the Template section. 
+                    simple example make_answer is provided when creating a Template problem in the Template section. 
                     </p>
                     <p style = "text-indent:40px">Instructors can create multi-part problems, where the next part is dependant on the previous one. 
                     Simply click the Add Part button to add an additional Template section. 
                     Instructors can also test their problems before creating them in by clicking the Try Out Question button at the bottom of the page. 
                     The Random Seed field affects any random variables that the Instructor might have included. 
-                    When the same Random Seed is used, the same problem will be generated. 
+                    When the same Random Seed is used, the same problem will be generated.  This can be used to debug problems if students see a version of the problem with an error and to check that variations of the problem are correctly being generated and graded.
                     Click Save to add the problem to the problem pool.
                     </p>
                     </span>
@@ -451,8 +450,8 @@
                     Click the blue Help button with a “?” mark on the top right-hand side of the Problem Info to show the documentation for Raw Lua problems.
                     </p>
                     <p style = "text-indent:40px">It should be noted that Templated problems and Raw Lua have practically the same capabilities. 
-                    Instructors should Raw Lua if they want something very specific for their problem to do. 
-                    Anything done in Raw Lua can generally be done in Templated problems.
+                    We expect that instructors will usually only use Raw Lua problems when they are building a very complex problem where the structure of the problem instances might vary wildly so that they can't write a single template.
+                    Anything done in Raw Lua can generally be done in Templated problems, and this is the recommended approach.
                     </p>
                     <p style = "text-indent:40px">There are four sections that require attention: Add Dependency, Dependent Libraries, Number of Parts, and Code. 
                     Both Add Dependency and Dependent Libraries function exactly as they do with Templated problems, allowing Instructors to add any Lua libraries they have uploaded. 
