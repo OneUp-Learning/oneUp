@@ -91,6 +91,9 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 
                 status = goalStatus(progressPercent, endDate)
                 goal_status.append(status)
+                
+                if (utcDate() >= endDate):
+                    index += 1
     
       
     # The range part is the index numbers.
@@ -126,7 +129,7 @@ def goalStatus(progressPercent, endDate):
     if (progressPercent >= 100):
         return "Completed"
     elif (utcDate() >= endDate):
-        return "Missed"
+        return "Not Achieved"
     else:
         return "In Progress"
     

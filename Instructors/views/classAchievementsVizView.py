@@ -125,13 +125,14 @@ def classAchievementsViz(request):
                 endDate = g.timestamp + timedelta(days=7)
                 if (glview.goalStatus(progressPercent, endDate) == "Completed"):
                     completed += 1
-                if (glview.goalStatus(progressPercent, endDate) == "Missed"):
+                if (glview.goalStatus(progressPercent, endDate) == "Not Achieved"):
                     failed += 1
-                    
-            user_Names.append(str(student.user.first_name+' '+student.user.last_name))   
-            goals_Created.append(created)
-            goals_Completed.append(completed)
-            goals_Failed.append(failed)
+            
+            if (created):        
+                user_Names.append(str(student.user.first_name+' '+student.user.last_name))   
+                goals_Created.append(created)
+                goals_Completed.append(completed)
+                goals_Failed.append(failed)
         
         print(students)
         print(user_Names)

@@ -8,10 +8,10 @@
       <style type="text/css">
       	
       	.goalindicator {
-      		margin-left: 150px;
-      		martin-right: 150px;
-      		width: 150px;
-      		height: 150px;	
+			margin-left: 500px;
+			margin-right: 500px;
+      		width: 100px;
+      		height: 100px;	
       	}
       
       </style>
@@ -69,26 +69,26 @@
                   </div>
                </div>
             {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal %}
-            <div class="col s12 m6">
+            <div class="col s12">
                      <div class="card-panel center-align">                     	
 						<table>
                            <thead>
-                              <th>Latest Goal</th>
+                              <th>Goals</th>
                            </thead>
                            <tbody>
-                           {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                          
-                              <tr><td class="center-align">{{goal_Type}}</td></tr>
-                              <tr>
-		                           <td>
-		                           	<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
-		                           </td>
-		                      </tr>
-		                      <tr><td class="center-align">Due: {{end_date}}</td></tr>
-                              {% empty %} 
-                              <tr>
+                           	<tr class="row">
+                           		{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                          
+	                              <td style="text-align: center">
+	                              	<div>
+	                              		<span>{{goal_Type}}</span>
+			                           	<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
+			                      		<span>Due: {{end_date}}</span>
+			                      	</div>
+			                      </td>
+                              	{% empty %} 
                                  <td class="center-align"><i>No Goals Created Yet</i></td>
-                              </tr>
-                              {% endfor %}
+                              	{% endfor %}
+                           	</tr>
                            </tbody>
                         </table>                        
                         <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
@@ -211,7 +211,7 @@
       }
     });
     bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-    bar.text.style.fontSize = '2rem';
+    bar.text.style.fontSize = '1rem';
     
     bar.animate(1.0);  // Number from 0.0 to 1.0
     }
