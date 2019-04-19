@@ -224,7 +224,7 @@ def virtualCurrencyShopView(request):
             # Send notification to Instructor that student has bought item from shop
             instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=currentCourse).first()
             instructor = instructorCourse.instructorID
-            notify.send(None, recipient=instructor.user, actor=student.user, verb= student.user.first_name +' '+student.user.last_name+ ' spent '+str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID)}))
+            notify.send(None, recipient=instructor, actor=student.user, verb= student.user.first_name +' '+student.user.last_name+ ' spent '+str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID)}))
             
             st_crs.virtualCurrencyAmount -= total
             st_crs.save()
