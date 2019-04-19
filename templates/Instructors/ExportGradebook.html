@@ -6,14 +6,14 @@
 
 <script>
 
-function isSelected():
+function isSelected()
 	{
 		
 			//var x = document.getElementById('serious').checked;
 		   //if(x= false)
 			if(exportGradebook.checkbox.checked == false)
 			{
-				alert('You must select one or all categories to Download/Export!');
+				alert('You must select at least one or all categories to Download/Export!');
 				return false;
 			}
 		return true;
@@ -72,12 +72,14 @@ function isSelected():
 									
 									<p style="padding-top: .5cm"></p>
 									
-									<p>
+
+									<!-- <p>
 									  <input type="checkbox" class="filled-in" name="selected" value="notGraded" id="notGraded" />
 									  <label for="notGraded" value="notGraded">NOT Graded Activities</label>
 									</p>
-									
+									 
 									<p style="padding-top: .5cm"></p>
+									-->
 								
 								</div>
 								<div class="card-action right-align">
