@@ -568,7 +568,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             student.virtualCurrencyAmount -= vcRuleAmount 
                             instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
                             instructor = instructorCourse.instructorID
-                            notify.send(None, recipient=instructor.user, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency')
+                            notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency')
                         else:
                             #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
                             print("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
