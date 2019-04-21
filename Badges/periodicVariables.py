@@ -343,7 +343,7 @@ def award_students(students, course, badge_id=None, virtual_currency_amount=None
                 student_profile.virtualCurrencyAmount += virtual_currency_amount
                 student_profile.save()
                 # Notify student of VC award 
-                notify.send(None, recipient=student.user, actor=student.user, verb='You won '+str(virtual_currency_amount)+' virtual bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
+                notify.send(None, recipient=student.user, actor=student.user, verb='You won '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
 
 def get_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Retrieves the last time a periodic task has ran. 

@@ -467,7 +467,7 @@ def getScoreDifferenceFromPreviousActivity(course, student, activity):
 
 def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student, activity):
     ''' This system variable calculates the score difference from the activity provided and 
-        the previous activies based on the average of the previous activities and the activity
+        the previous activies based on the average of the previous activities percentages and the activity
         category for the student. The previous activities are selected if the activity deadline 
         is less than or equal to the activity provied deadline as well as the activity provided category.
 
@@ -483,8 +483,8 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
     studentActivites = StudentActivities.objects.filter(courseID = course, activityID__in = activitiesWithCategory, studentID = student, graded = True).order_by('-activityID__deadLine')
     if studentActivites.exists():
         latestAttempt = studentActivites.first()
-        # Calculate the total of the earlier activities scores
-        total = sum(int(act.activityScore) for act in studentActivites[1:])
+        # Calculate the total of the earlier activities by percentage
+        total = sum(int(getPercentageOfActivityScore(course, student, act)) for act in studentActivites[1:])
         count = studentActivites.count()-1
         if count <= 0:
             print("Total: " + str(total))
