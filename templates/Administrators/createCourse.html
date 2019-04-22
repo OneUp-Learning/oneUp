@@ -81,21 +81,25 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select id="instructors" name="instructorName" {%if view%}readonly{%endif%}>
-                              <option value="" disabled selected>Choose Instructor</option>
+                              <select id="instructors" name="instructorName" {%if view%}readonly{%endif%} multiple>
+                              <option value="" disabled selected>Choose Instructor(s)</option>
                               {% for instructor in instructors %}
                               <option id="{{instructor.username}}" value="{{instructor}}">{{instructor}}</option>
                               {% endfor %}
                               </select>
-                              <label>Instructor</label>
+                              <label>Instructor(s)</label>
+                              {% if instructorNames %}
                               <script  type="text/javascript"> 
                                  window.onload = function() {
-                                 	if ("{{instructorName}}" !== "")  {
-                                 	document.getElementById("{{instructorName}}").selected = true;
+                                    let names = {{instructorNames|safe}};
+                                    names.forEach(name => {
+                                 	   document.getElementById(name).selected = true;
+                                        
+                                    });
                                     $("#instructors").material_select();
-                                 	} 
                                  }
                               </script> 
+                              {% endif %}
                            </div>
                         </div>
                         <div class="row">

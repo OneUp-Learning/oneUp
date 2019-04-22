@@ -351,6 +351,10 @@ class CourseConfigParams(models.Model):
     thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
     
     streaksUsed = models.BooleanField(default = False)                 ##
+    
+    ## Student Goal Setting
+    studCanChangeGoal = models.BooleanField(default = True)    ## Allows student to change the visibility of goals component
+    
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -386,7 +390,8 @@ class CourseConfigParams(models.Model):
         +str(self.vcCallout)+","\
         +str(self.vcDuel)+","\
         +str(self.vcDuelMaxBet)+","\
-        +str(self.vcDuelParticipants)+","
+        +str(self.vcDuelParticipants)+","\
+        +str(self.studCanChangeGoal)+","
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)

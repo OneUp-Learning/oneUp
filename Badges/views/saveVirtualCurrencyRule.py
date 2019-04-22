@@ -72,8 +72,11 @@ def SaveVirtualCurrencyRule(request):
             vcRuleDescription = request.POST['ruleDescription'] # The entered Rule Description
             print("rule description: "+str(vcRuleDescription))
 
-            vcRuleAmount = request.POST['ruleAmount'] # The entered Virtual Currency amount
-                
+            # The custom earning rule amounts are not being used since 
+            # Add VC to student transaction takes care of the amount
+            # vcRuleAmount = request.POST['ruleAmount'] # The entered Virtual Currency amount
+            vcRuleAmount = 0
+
             if isRuleCustom == True:                    
                 # Save rule information to the VirtualCurrencyRuleInfo Table
                 vcRuleInfo.courseID = currentCourse
@@ -116,7 +119,6 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.vcRuleDescription = vcRuleDescription
                 vcRuleInfo.vcRuleAmount = -1                # Added on 01/18/18  by DD
                 vcRuleInfo.vcRuleType = True # Earning type
-                vcRuleInfo.vcRuleAmount = -1                # Added on 01/18/18  by DD
                 vcRuleInfo.awardFrequency = int(request.POST['awardFrequency'])
                 vcRuleInfo.save()
 

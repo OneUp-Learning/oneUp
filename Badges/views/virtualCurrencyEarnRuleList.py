@@ -33,6 +33,7 @@ def virtualCurrencyEarnRuleList(request):
     if 'isRuleCustom' in request.GET:
         vcRuleID = [] 
         vcRuleName = []
+        vcRuleDescription = []
         vcAmount = []
         position = []
         isRuleCustom = request.GET['isRuleCustom'] in ['true', 'True']
@@ -45,10 +46,13 @@ def virtualCurrencyEarnRuleList(request):
                 # Rules that are considered 'Earning' have vcRuleType as True
                 vcRuleID.append(rule.vcRuleID)
                 vcRuleName.append(rule.vcRuleName)
+                # The custom earning rule amounts are not being used since 
+                # Add VC to student transaction takes care of the amount 
                 vcAmount.append(rule.vcRuleAmount)
+                vcRuleDescription.append(rule.vcRuleDescription)
                 position.append(rule.vcRulePosition)
                 
-            context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcAmount, position)
+            context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcRuleDescription, vcAmount, position)
         else:
             vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
             
@@ -57,13 +61,14 @@ def virtualCurrencyEarnRuleList(request):
                 if rule.vcRuleType == True:
                     vcRuleID.append(rule.vcRuleID)
                     vcRuleName.append(rule.vcRuleName)
+                    vcRuleDescription.append(rule.vcRuleDescription)
                     position.append(rule.vcRulePosition)
                     if (ActionArguments.objects.filter(ruleID=rule.ruleID).exists()):
                         vcAmount.append(ActionArguments.objects.get(ruleID=rule.ruleID).argumentValue)
                     else:
                         vcAmount.append(0)
                             
-            context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcAmount, position)
+            context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcRuleDescription,vcAmount, position)
             
         context_dict['isRuleCustom'] = isRuleCustom
         context_dict['numRules'] = len(vcRuleID)
