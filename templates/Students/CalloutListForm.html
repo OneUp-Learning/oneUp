@@ -45,7 +45,7 @@
                         <select id="create-type">
                            <option value="" disabled selected>Select Challenge Type</option>
                            <option value="/oneUp/students/DuelChallengeCreate">Duel</option>
-                           <option value="/oneUp/students/CalloutCreate">Individual Call out</option>
+                           <option value="/oneUp/students/CalloutCreate">Call Out</option>
                            <!--<option value="/oneUp/students/ClassChallengeCreate">Class Call out</option>-->
                         </select>
                     </div>
@@ -69,46 +69,46 @@
                   <ul class="collapsible" data-collapsible="expandable">
                     
                      <li>
-                        <div class="collapsible-header active"><i class="material-icons">layers</i>Sent Duels&nbsp;&nbsp;
-                        </div>
+                        <div class="collapsible-header active"><i class="material-icons">layers</i>Sent Duels&nbsp;&nbsp;</div>
                         <div class="collapsible-body">
                            <ul class="collection">
                            <table class="responsive-table" style="width:100%">
                            
-                    <tbody>
-			              {% for i, sent_chall, is_editable, vcBet, status, challengee_avatar, challenger_avatar, topic, w_l in sent_duel_challenges %}
-			              <tr>
-			                <td>{{sent_chall.duelChallengeName}}</td>
-                      <td>{{status}}</td>
-                      {% if sent_chall.hasEnded %}
-                      <td>Completed</td>
-                      {% elif sent_chall.hasStarted %}
-                      <td>Started</td>
-                      {% else %}
-                      <td>Not Started</td>
-                      {% endif %}
-                      <!--<td>{{vcBet}} VC</td>-->
-                      <td>{{topic}}</td>
-                      <td>{{w_l}}</td>
+                          <tbody>
+                          {% for i, sent_chall, is_editable, vcBet, status, challengee_avatar, challenger_avatar, topic, w_l in sent_duel_challenges %}
+                          <tr>
+                            <td>{{sent_chall.duelChallengeName}}</td>
+                            <td>{{status}}</td>
+                            {% if sent_chall.hasEnded %}
+                            <td>Completed</td>
+                            {% elif sent_chall.hasStarted %}
+                            <td>Started</td>
+                            {% else %}
+                            <td>Not Started</td>
+                            {% endif %}
+                            <!--<td>{{vcBet}} VC</td>-->
+                            <td>{{topic}}</td>
+                            <td>{{w_l}}</td>
 
-                      <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}"></td>
-                      
-                      <td>
-                        <a class="waves-effect waves-light btn" data-position="right" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{sent_chall.duelChallengeID}}"><i class="material-icons left">visibility</i>View</a>        
-                      </td>
-			              </tr>
-			              
-			              {% empty %}
-			              <tr>
-			                <td class="center-align" colspan="4"><i>No Sent duel challenges</i></td>
-			              </tr>
-			              {% endfor %}
-			            </tbody>
-                     </table>
-                      </ul>
-               </div>
+                            <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}"></td>
+                            
+                            <td>
+                              <a class="waves-effect waves-light btn" data-position="right" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{sent_chall.duelChallengeID}}"><i class="material-icons left">visibility</i>View</a>        
+                            </td>
+                          </tr>
+                          
+                          {% empty %}
+                          <tr>
+                            <td class="center-align" colspan="4"><i>No Sent duel challenges</i></td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                          </table>
+                        
+                         </div>
+                    </li>
               
-               
+              
                     
                   <li>
                      <div class="collapsible-header"><i class="material-icons">layers</i>Requested Duels&nbsp;&nbsp;
@@ -116,48 +116,148 @@
                      <div class="collapsible-body">
                         <ul class="collection">
                         <table class="responsive-table" style="width:100%">
-                        
-                 <tbody>
-                 {% for i, requested_chall, vcBet, status, has_accepted, challengee_avatar, challenger_avatar, topic, w_l in requested_duel_challenges %}
-                 <tr>
-                   <td>{{requested_chall.duelChallengeName}}</td>
-                   <td>{{status}}</td>
-                   {% if requested_chall.hasEnded %}
-                   <td>Completed</td>
-                   {% elif requested_chall.hasStarted %}
-                   <td>Started</td>
-                   {% else %}
-                   <td>Not Started</td>
-                   {% endif %}
-                   <td>{{topic}}</td>
-                   <td>{{w_l}}</td>
+                                    
+                            <tbody>
+                            {% for i, requested_chall, vcBet, status, has_accepted, challengee_avatar, challenger_avatar, topic, w_l in requested_duel_challenges %}
+                            <tr>
+                              <td>{{requested_chall.duelChallengeName}}</td>
+                              <td>{{status}}</td>
+                              {% if requested_chall.hasEnded %}
+                              <td>Completed</td>
+                              {% elif requested_chall.hasStarted %}
+                              <td>Started</td>
+                              {% else %}
+                              <td>Not Started</td>
+                              {% endif %}
+                              <td>{{topic}}</td>
+                              <td>{{w_l}}</td>
 
-                   <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}"></td>
+                              <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}"></td>
+                                        
+                              <td>
+                                <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{requested_chall.duelChallengeID}}"><i class="material-icons left">visibility</i>View</a>        
+                              </td>
+                              
+                              
+                            </tr>
                             
-                   <td>
-                    <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{requested_chall.duelChallengeID}}"><i class="material-icons left">visibility</i>View</a>        
-                   </td>
-                  
+                            {% empty %}
+                            <tr>
+                              <td class="center-align" colspan="4"><i>No requested duel challenges</i></td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                              </table>
+                              
                    
-                 </tr>
-                 
-                 {% empty %}
-                 <tr>
-                   <td class="center-align" colspan="4"><i>No requested duel challenges</i></td>
-                 </tr>
-                 {% endfor %}
-               </tbody>
-                  </table>
-                   </ul>
-            </div>
+                      </div>
+            </li>
            
+            <li>
+                     <div class="collapsible-header"><i class="material-icons">layers</i>Sent Call Outs&nbsp;&nbsp;</div>
+                     <div class="collapsible-body">
+                        <ul class="collection">
+                        <table class="responsive-table" style="width:100%">
+                                    
+                            <tbody>
+              
+                            {% for sent_call_out, sent_time_left, call_out_avatar, topic in sent_call_outs %}
+                            <tr>
+                               <td>{{sent_call_out.challengeID.challengeName}}</td>
+                              <td>{{sent_call_out.sendTime}}</td>
+                              <td>{{sent_call_out.endTime}}</td>
+                              
+                              <td>{{topic}}</td>
+
+                              {% if sent_call_out.hasEnded %}
+                                <td>Ended</td>
+                              {% elif sent_time_left > 0 %}
+                                <td>On Going</td>
+                              {% else %}
+                                <td>Expired</td>
+                              {% endif %}
+
+                              <td>&nbsp &nbsp</td>
+                  
+                              {% if sent_call_out.isIndividual %}
+                                <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{call_out_avatar}}"></td>
+                              {% else %}  
+                                <td>Class</td>     
+                              {% endif %}  
+                              <td>
+                                <a class="waves-effect waves-light btn" href="/oneUp/students/CalloutDescription?call_out_id={{sent_call_out.calloutID}}&is_sent_call_out=True"><i class="material-icons left">visibility</i>View</a>        
+                              </td>
+                              
+                              
+                            </tr>
+                            
+                            {% empty %}
+                            <tr>
+                              <td class="center-align" colspan="4"><i>No sent call outs</i></td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                              </table>
+                              
+                   
+                      </div>
+            </li>
+
+            <li>
+                     <div class="collapsible-header"><i class="material-icons">layers</i>Requested Call Outs&nbsp;&nbsp;</div>
+                     <div class="collapsible-body">
+                        <ul class="collection">
+                        <table class="responsive-table" style="width:100%">
+                                    
+                            <tbody>
+                            {% for reqeusted_call_out, requested_time_left, requested_avatar, topic in requested_call_outs %}
+                            <tr>
+                              <td>{{reqeusted_call_out.calloutID.challengeID.challengeName}}</td>
+                              <td>{{reqeusted_call_out.calloutID.sendTime}}</td>
+                              <td>{{reqeusted_call_out.calloutID.endTime}}</td>
+                              
+                              <td>{{topic}}</td>
+
+                              {% if reqeusted_call_out.calloutID.hasEnded %}
+                                <td>Ended</td>
+                              {% elif requested_time_left > 0 %}
+                                <td>On Going</td>
+                              {% else %}
+                                <td>Expired</td>
+                              {% endif %}
+                  
+                              {% if reqeusted_call_out.calloutID.isIndividual %}
+                                <td>Individual</td>
+                              {% else %}  
+                                <td>Class</td>     
+                              {% endif %}  
+                              <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{requested_avatar}}"></td>
+
+                              <td>
+                                <a class="waves-effect waves-light btn" href="/oneUp/students/CalloutDescription?call_out_participant_id={{reqeusted_call_out.id}}&participant_id={{reqeusted_call_out.participantID.user.id}}"><i class="material-icons left">visibility</i>View</a>        
+                              </td>
+                              
+                            </tr>
+                            
+                            {% empty %}
+                            <tr>
+                              <td class="center-align" colspan="4"><i>No requested call outs</i></td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                              </table>
+                              
+                   
+                      </div>
+            </li>
+
             </ul>
                <div class="card-action right-align">   
                      <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome?userID={{user}}&courseID={{course_id}}"><i class="material-icons left">navigate_before</i>Back</a>
                      
                </div>
             </div>
-            
+          </div>
          </div>
          </div>
   </main>

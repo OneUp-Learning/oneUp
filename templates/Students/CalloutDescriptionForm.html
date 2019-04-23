@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+      {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12 m10 offset-m1">
+               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{call_out.challengeID.challengeName}}</h3>
+            </div>
+         </div> 
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  {% csrf_token %}        
+                     <div class="card-content">
+                        {% if call_out.isIndividual %}
+                            <div class="section">
+                                <h5><b>Call Out Details</b></h5>
+                                <p>{{message}}</p>
+                            </div> 
+                                <ul style="font-size: 16px;">
+                                    
+                                    <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Send Time: </b></span>
+                                                <span>{{call_out.sendTime}}</span>
+                                    </li>
+                                    
+                                    <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>End Time: </b></span>
+                                                <span>{{call_out.endTime}}</span>
+                                    </li>
+
+                                    {% if call_out_vc > 0%}
+                                        <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Participation Award (VC): </b></span>
+                                                    <span>{{call_out_vc}}</span>
+                                        </li>
+                                    {% endif %}
+
+                                    <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Status: </b></span>
+                                                <span>{% if call_out.hasEnded %} Ended {% else %} In progress {% endif %}</span>
+                                    </li>
+
+                                    {% if not call_out.hasEnded %}
+                                        <li>
+                                            <span>&nbsp &nbsp&nbsp &nbsp<b>Call out finish in: </b></span>
+                                            <span id="count_down"></span>
+                                            
+                                            <script>
+                                                // This script is for count down time 
+                                                var duration = {{time_left}};
+                                                var duration_milli = duration * 1000;
+                                                var countDownDate = new Date(duration_milli).getTime() + new Date().getTime();
+                                        
+                                                var x = setInterval(function() {
+                                        
+                                                    // Get now's date and time
+                                                    var now = new Date().getTime();
+                                        
+                                                    // Find the distance between now and the count down date + now
+                                                    var distance = countDownDate-now;
+                                        
+                                                    // Time calculations for days, hours, minutes and seconds
+                                                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                                        
+                                                    if(days != 0 )
+                                                        document.getElementById("count_down").innerHTML = days + "d " + hours + "h "
+                                                        + minutes + "m " + seconds + "s ";
+                                                    else if(hours != 0)
+                                                        document.getElementById("count_down").innerHTML = hours + "h "
+                                                        + minutes + "m " + seconds + "s ";
+                                                    else
+                                                        document.getElementById("count_down").innerHTML = minutes + "m " + seconds + "s ";
+                                        
+                                                    // If the count down is over, write Expired 
+                                                    if (distance < 0) {
+                                                        clearInterval(x);
+                                                        document.getElementById("count_down").innerHTML = "Expired";
+                                                    }
+                                                }, 1000);
+                                            </script> 
+                                        </li>
+                                    {% endif %}
+
+                                     <li>
+                                            <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                    </li>
+
+                                    {% if is_sent_call_out %}
+                                        <li >
+                                                    <P>Your details: </P>
+                                        </li>
+                                    {% else %}
+                                        <li >
+                                                    <P>Sender's details: </P>
+                                        </li>
+                                    {% endif %}
+
+                                        <li>
+                                                <span >&nbsp &nbsp &nbsp &nbsp<img class="circle" width="30" height="30" src="{{sender_avatar}}"></span>
+                                        </li>
+                                        
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Score: </b></span>
+                                                <span>{{sender_score}} / {{test_score}}</span>
+                                        </li>
+
+                                        <li>
+                                            <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                        </li>
+                                        
+                                    {% if is_sent_call_out %}
+                                        <li >
+                                                <P>Participant details: </P>
+                                        </li>
+                                    {% else %}
+                                        <li >
+                                                <P>Your details: </P>
+                                        </li>
+                                    {% endif %}
+
+                                        <li>
+                                                <span >&nbsp &nbsp&nbsp &nbsp<img class="circle" width="30" height="30" src="{{participant_avatar}}"></span>
+                                        </li>
+                                        
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Score: </b></span>
+                                                <span>{{participant_score}} / {{test_score}}</span>
+                                        </li>
+
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Submitted: </b></span>
+                                                <span>{% if submission_status %} Submitted {% else %} Not submitted {% endif %}</span>
+                                        </li>
+
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Submit Time: </b></span>
+                                                <span>{{submit_time}}</span>
+                                        </li>
+                                </ul>
+
+                        {% else %}
+                            <div class="section">
+                                <h5><b>Call Out Details</b></h5>
+                                <p>{{message}}</p>
+                            </div> 
+                                 <ul style="font-size: 16px;">
+
+                                    <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Send Time: </b></span>
+                                                <span>{{call_out.sendTime}}</span>
+                                    </li>
+                                    
+                                    <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>End Time: </b></span>
+                                                <span>{{call_out.endTime}}</span>
+                                    </li>
+
+                                    {% if call_out_vc > 0%}
+                                        <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Participation Award (VC): </b></span>
+                                                    <span>{{call_out_vc}}</span>
+                                        </li>
+                                    {% endif %}
+
+                                    <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Status: </b></span>
+                                                <span>{% if call_out.hasEnded %} Ended {% else %} In progress {% endif %}</span>
+                                    </li>
+
+                                    {% if not call_out.hasEnded %}
+                                        <li>
+                                            <span>&nbsp &nbsp&nbsp &nbsp<b>Call out finish in: </b></span>
+                                            <span id="count_down"></span>
+                                            
+                                            <script>
+                                                // This script is for count down time 
+                                                var duration = {{time_left}};
+                                                var duration_milli = duration * 1000;
+                                                var countDownDate = new Date(duration_milli).getTime() + new Date().getTime();
+                                        
+                                                var x = setInterval(function() {
+                                        
+                                                    // Get now's date and time
+                                                    var now = new Date().getTime();
+                                        
+                                                    // Find the distance between now and the count down date + now
+                                                    var distance = countDownDate-now;
+                                        
+                                                    // Time calculations for days, hours, minutes and seconds
+                                                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                                        
+                                                    if(days != 0 )
+                                                        document.getElementById("count_down").innerHTML = days + "d " + hours + "h "
+                                                        + minutes + "m " + seconds + "s ";
+                                                    else if(hours != 0)
+                                                        document.getElementById("count_down").innerHTML = hours + "h "
+                                                        + minutes + "m " + seconds + "s ";
+                                                    else
+                                                        document.getElementById("count_down").innerHTML = minutes + "m " + seconds + "s ";
+                                        
+                                                    // If the count down is over, write Expired 
+                                                    if (distance < 0) {
+                                                        clearInterval(x);
+                                                        document.getElementById("count_down").innerHTML = "Expired";
+                                                    }
+                                                }, 1000);
+                                            </script> 
+                                        </li>
+                                    {% endif %}
+
+                                    <li>
+                                            <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                    </li>
+
+                                    {% if is_sent_call_out %}
+                                        <li >
+                                                    <P>Your details: </P>
+                                        </li>
+                                    {% else %}
+                                        <li >
+                                                    <P>Sender details: </P>
+                                        </li>
+                                    {% endif %}
+
+                                        <li>
+                                                <span >&nbsp &nbsp &nbsp &nbsp<img class="circle" width="30" height="30" src="{{sender_avatar}}"></span>
+                                        </li>
+                                        
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Score: </b></span>
+                                                <span>{{sender_score}} / {{test_score}}</span>
+                                        </li>
+
+                                        <li>
+                                            <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                        </li>
+                                  
+                                    {% if not is_sent_call_out %}
+                                        <li >
+                                                <P>Your details: </P>
+                                        </li>
+
+                                        <li>
+                                                <span >&nbsp &nbsp&nbsp &nbsp<img class="circle" width="30" height="30" src="{{participant_avatar}}"></span>
+                                        </li>
+                                        
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Score: </b></span>
+                                                <span>{{participant_score}} / {{test_score}}</span>
+                                        </li>
+
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Submitted: </b></span>
+                                                <span>{% if submission_status %} Submitted {% else %} Not submitted {% endif %}</span>
+                                        </li>
+
+                                        <li >
+                                                <span>&nbsp &nbsp&nbsp &nbsp<b>Submit Time: </b></span>
+                                                <span>{{submit_time}}</span>
+                                        </li>
+
+                                    {% endif %}
+
+                                        
+                                        <li>
+                                            <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                        </li>
+
+                                        <li >
+                                                <P>Class participants' details: </P>
+                                        </li>
+
+                                        {% for participant_avatar, call_out_participant, submit_time, participant_score, submission_status, winning_status in class_call_outs%}
+                                            <li>
+                                                <span >&nbsp &nbsp&nbsp &nbsp<img class="circle" width="30" height="30" src="{{participant_avatar}}"></span>
+                                            </li>
+                                            
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Score: </b></span>
+                                                    <span>{{participant_score}} / {{test_score}}</span>
+                                            </li>
+
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Submitted: </b></span>
+                                                    <span>{% if submission_status %} Submitted {% else %} Not submitted {% endif %}</span>
+                                            </li>
+
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Submit Time: </b></span>
+                                                    <span>{{submit_time}}</span>
+                                            </li>
+
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Winning Status: </b></span>
+                                                    <span>{{winning_status}}</span>
+                                            </li>
+
+                                            <li>
+                                                <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                            </li>
+                                        {% endfor %}
+
+                                </ul>
+                                
+                    {% endif %}         
+                               
+                   <div class="card-action">
+                        <div class="row right-align">
+                            <!--  <a class="btn waves-effect waves-light add_more">Add More Files</a>   -->
+                            {% if not is_sent_call_out and not call_out_participant.hasSubmitted and not call_out.hasEnded%}
+                                
+                                <a class="btn waves-effect waves-light" href="/oneUp/students/ChallengeDescription?challengeID={{call_out.studentChallenge.challengeID.challengeID}}&isWarmup=True&isCallout=True&calloutID={{call_out.calloutID}}">
+                                <i class="material-icons right">send</i>Take</a>
+                                     
+                            {% endif %}
+                            <a class="btn waves-effect waves-light" href="/oneUp/students/Callouts"><i class="material-icons left">navigate_before</i>Back</a> 										  						
+                        </div>
+                    </div>
+                 
+               </div>
+            </div>
+         </div>
+        
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

@@ -251,6 +251,7 @@ class StudentConfigParams(models.Model):
     displayClassAverage = models.BooleanField(default=True) 
     displayClassRanking = models.BooleanField(default=True)
     participateInDuel = models.BooleanField(default=True)
+    participateInCallout = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
     
     def __str__(self):
@@ -261,7 +262,9 @@ class StudentConfigParams(models.Model):
         +str(self.displayLeaderBoard) +","                      
         +str(self.displayClassSkills) +","                      
         +str(self.displayClassAverage) +","                     
-        +str(self.displayClassRanking)    
+        +str(self.displayClassRanking) +","
+        +str(self.participateInCallout) +","
+        +str(self.particiapateInDuel) 
 
 class PeriodicallyUpdatedleaderboards(models.Model):
     periodicLeaderboardID = models.AutoField(primary_key=True)
@@ -342,7 +345,16 @@ class CalloutParticipants(models.Model):
     def __str__(self):
         return "calloutID: "+str(self.calloutID)+", participantID: "+str(self.participantID)+", courseID: "+str(self.courseID)+", hasSubmitted: "+str(self.hasSubmitted)+", hasWon: "+str(self.hasWon)
 
+class CalloutStats(models.Model):
+    calloutID = models.ForeignKey(Callouts, on_delete=models.CASCADE, verbose_name="the related Callout", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    studentChallenge =  models.ForeignKey(StudentChallenges, on_delete=models.CASCADE, verbose_name="the related student challenge", db_index=True)
+    calloutVC = models.IntegerField()
+    submitTime = models.DateTimeField(auto_now_add=True, verbose_name="Send Timestamp", db_index=True) # record submit time if there is any submit
 
+    def __str__(self):
+        return "calloutID: "+str(self.calloutID)+", studentID: "+str(self.studentID)+", courseID: "+str(self.courseID)+", student challenge: "+str(self.studentChallenge) +", callout vc: "+str(self.calloutID) + ", submit time "+ str(self.submitTime)
 
 class StudentStreaks(models.Model):
     studentStreakID = models.AutoField(primary_key=True)

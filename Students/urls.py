@@ -38,7 +38,8 @@ from Students.views.studentNotifications import studentNotifications, updateNoti
 from Students.views.studentQA import studentQA
 from Students.views.leaderboardView import LeaderboardView
 from Students.views.switchToInstructorView import switchToInstructorView
-from Students.views.calloutsView import callouts_list, duel_challenge_create, duel_challenge_accept, duel_challenge_description, duel_challenge_delete, validate_duel_challenge_creation, get_create_duel_topics_difficulties
+from Students.views.duelChallengeView import callouts_list, duel_challenge_create, duel_challenge_accept, duel_challenge_description, duel_challenge_delete, validate_duel_challenge_creation, get_create_duel_topics_difficulties
+from Students.views.calloutsView import callout_create, get_class_callout_qualified_challenges, get_individual_callout_qualified_challenges, callout_description
 from Students.views.resetPasswordView import validateResetPassword
 from Students.views.leaderboardInfoView import leaderboardInfoView
 
@@ -91,6 +92,12 @@ urlpatterns = [
         name='ValidateDuelChallengeCreate'),
     url(r'^GetCreateDuelTopicsDifficulty', get_create_duel_topics_difficulties,
         name='GetCreateDuelTopicsDifficulty'),
+    url(r'^CalloutCreate', callout_create, name="CalloutCreate"),
+    url(r'ClassCalloutQualifiedChallenges', get_class_callout_qualified_challenges,
+        name="ClassCalloutQualifiedChallenges"),
+    url(r'IndividualCalloutQualifiedChallenges', get_individual_callout_qualified_challenges,
+        name='IndividualCalloutQualifiedChallenges'),
+    url(r'CalloutDescription', callout_description, name="CalloutDescription"),
     url(r'^ValidateResetPassword', validateResetPassword,
         name='ValidateResetPassword')
 

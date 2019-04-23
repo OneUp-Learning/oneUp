@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+   </head>
+   <body>
+    {% include 'stheading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>Create Callout</h3>
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
+               <p id='header_error' name ='header_error' class="red-text"></p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <form name="calloutForm" id="calloutForm"  action="/oneUp/students/CalloutCreate" method="POST">
+                  {% csrf_token %}
+                  <div class="card">
+                     <div class="card-content">
+                        
+                        {% comment %} 
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input placeholder="Name" value="{{callName}}" name="callName" id="callName" type="text" class="validate" pattern=".*\S+.*" required>
+                              <label for="callName"><span class= "red-text">*</span> Callout Name</label>
+                           </div>
+                        </div>
+                        <div class="row"> 
+                        {% endcomment %}
+
+                      
+                        <div class="row">
+                           <div class="input-field col s18 m6">
+                              <select  name="callout_type" id="callout_type" form="calloutForm" onChange="selectCalloutType(this.value)" required>
+                                 <option value="individual"  id="individual" name="individual" >Individual Call Out</option>
+                                 <option value="class_callout"  id="class_callout" name="class_callout" >Class Call Out</option>
+                              </select>
+                              <label for="callout_type_lable"><span class= "red-text">*</span> Select Call Out Type</label>
+                           </div>
+                        </div>
+                        
+                     
+                        <div class="row" id="participant_sel", name="participant_sel">
+                           <div class="input-field col s2" id="participant_div" name="participant_div">
+                              <select class="icons" name="participant_id" id="participant_id" form="calloutForm" onChange="selectAv('av', this.value), individual_callout_qualified_challenges()" required>
+                                <!-- {% if challengees_range %}
+                                   <option name= "def_av" value="def_av">Not selected</option>
+                                {% endif %}  -->
+                                {% for i, avatar, participant, id_av in participants_range %}
+                                   <option value={{id_av}}  id="participant_id_av" name="participant_id_av"  data-icon="{{avatar}}"  class="circle"></option>
+                                {% endfor %}
+                              </select>
+                              <label  for="participant_sel" style="text-align: right;"><span class= "red-text">*</span> Select Participant's Avatar</label>
+                          </div>
+                             <div class="input-field col s2" id="selected_avatar" name="selected_avatar">
+                               <img  width="30px" height="30px"  src="{{first_avatar}}" id="av" class="circle" >
+                             </div>
+                        </div>
+                       
+
+                       <div class="row">
+
+                                <div class="input-field col s16 m6" id="challenge_div" >
+                                        <select name='challenge_id' id="challenge_id" required>
+                                          
+                                         {%if challenges|length > 1%}
+                                             <option disabled >Choose</option>
+                                          {%endif%}
+
+                                          {% for challenge in challenges %}
+                                                  
+                                                  <option value="{{challenge.challengeID.challengeID}}" > {{challenge.challengeID.challengeName}}</option>
+                                                 {% empty %}
+                                                     <option  disabled >No qualified challenge for call out at this moment</option>
+                                              
+                                          {% endfor %}
+                                        </select>
+                                          <label for="topic"><span class= "red-text">*</span> Select Challenge</label>
+                                          <p id="random_chall_error" name="random_chall_error" class= "red-text"></p>
+                                 
+                                </div>
+
+                        </div>
+                     </div>
+                     <div class="card-action right-align">
+                           
+                        <button  class="waves-effect waves-light btn modal-trigger" href="#modal_confirm" type="submit" name="submit" id="submit" >Confirm
+                        <i class="material-icons right">send</i>
+                        </button>
+                        <div id="modal_confirm" class="modal">
+                            <div class="modal-content">
+                              <P>...
+                                  Are sure you want to submit?</P>
+                            </div>
+                            <div class="modal-footer">
+                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                              <!--class="modal-action modal-close waves-effect waves-light btn"-->
+                              <button href="#!" class="modal-action modal-close waves-effect waves-light btn" type="submit" name="submit"
+                                value="Submit">Submit
+                            </button>
+                            </div>
+                          </div>
+                        <a class="waves-effect waves-light btn" href="/oneUp/students/Callouts"><i class="material-icons left">close</i>Cancel</a>                                                                  
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+   <script>
+
+   
+   function selectAv(imageId, newImage)
+   {
+ 	  id_av = newImage.split("---")
+ 	  document.getElementById(imageId).src = id_av[1];
+ 	  
+   }
+
+   function selectCalloutType(value)
+   {
+      if(value == "class_callout")
+      {
+         //$('#participant_sel').material_select();
+         //$("#participant_sel").empty().html(' ');
+
+         $('#participant_sel').hide();
+       
+         $('#challenge_id').material_select();
+         $("#challenge_id").empty().html(' ');
+
+         $.get( "/oneUp/students/ClassCalloutQualifiedChallenges" ,function( data ) {
+         
+               var j = 0;
+               for (challenge in data.challenges) {
+                  j++;
+                  chall_id = data.challenges[challenge].split('---');
+                  $('#challenge_id').append('<option value=' + chall_id[0] + '>' + chall_id[1] + ' </option>');
+                  $("#challenge_id").material_select('update');
+               }
+
+               if (j == 0)
+               {
+                  $('#challenge_id').append('<option  disabled >No warm up challenge at this moment</option>');
+                  $("#challenge_id").material_select('update');
+               }
+
+         });
+
+      }
+      else{
+         individual_callout_qualified_challenges()
+      }
+
+   }
+
+   function individual_callout_qualified_challenges()
+   {
+         var id_av_str = $('#participant_id').find(":selected").val();
+         id_av = id_av_str.split("---")
+         participant_id = id_av[0]
+
+         $('#participant_sel').show();
+
+         $('#challenge_id').material_select();
+         $("#challenge_id").empty().html(' ');
+         
+         $.get( "/oneUp/students/IndividualCalloutQualifiedChallenges?participant_id="+participant_id ,function( data ) {
+         
+               var j = 0;
+               for (challenge in data.challenges) {
+                  j++;
+                  chall_id = data.challenges[challenge].split('---');
+                  $('#challenge_id').append('<option value=' + chall_id[0] + '>' + chall_id[1] + ' </option>');
+                  $("#challenge_id").material_select('update');
+               }
+
+               if (j == 0)
+               {
+                  $('#challenge_id').append('<option  disabled >No warm up challenge at this moment</option>');
+                  $("#challenge_id").material_select('update');
+               }
+
+
+         });
+   }
+   
+   </script>
+</html>
