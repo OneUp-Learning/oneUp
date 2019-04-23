@@ -16,6 +16,7 @@ from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
 from Instructors.models import CoursesSkills, Skills
+from Students.views.studentCourseHomeView import courseBadges
 
 
 @login_required
@@ -62,7 +63,7 @@ def LeaderboardView(request):
         studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
         context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
         context_dict["classSkillsDisplayed"]= studentConfigParams.displayClassSkills
-        
+        context_dict['courseBadges'] = courseBadges(currentCourse, context_dict)
            
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.visitedLeaderboardPage, request, sID, None)
