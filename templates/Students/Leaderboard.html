@@ -14,13 +14,34 @@
          <div class="row">
          <div class="col s12 m10 offset-m1">
             <div class="row">
-            {% if  classSkillsDisplayed and displayClassSkills %}
-               <div class="col s12 m12">
-             {% else %}
-             	<div class="col s12 m12">
-             {% endif %}
+                  {% if displayBadges and ccparams.badgesUsed%}                
+                  <div class="row">
+                        <div class="col s12">
+                           <div class="card-panel">
+                              <table>
+                                 <thead>
+                                    <th>Latest Badges</th>
+                                 </thead>
+                                 <tbody>
+                                    <tr>
+                                       <td>
+                                          {% for i,studentBadgeID,studentID,badgeID, badgeName, badgeImage,avatarImage in badgesInfo %}    
+                                          <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px"data-tooltip="{{badgeName}}" />
+                                          <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+                                          &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                                          {% empty %}
+                                          <i>No badges earned</i>
+                                          {% endfor %}
+                                       </td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+                     {% endif %}
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %} 
-                  <div class="col s12 m2">
+                  <div class="col s12 m3">
                   <div class="card-panel">
                   <table>
                     <caption><h5>{{leaderboardNames}}</h5></caption>
@@ -45,8 +66,8 @@
                   {% endfor %}
                   </div>
                </div>
-               {% if classSkillsDisplayed and displayClassSkills and ccparams.gamificationUsed %}                    
-               <div class="col s12 m4">
+               {% if classSkillsDisplayed and displayClassSkills and ccparams.gamificationUsed and ccparams.classSkillsDisplayed %}                    
+               <div class="col s12 m4 offset-m1">
                   <div class="card-panel">
                      <table>
                         <thead>
@@ -77,32 +98,6 @@
                </div>
                {% endif %}
             </div>
-            {% if displayBadges %}                
-            <div class="row ">
-                  <div class="col s12">
-                     <div class="card-panel">
-                        <table>
-                           <thead>
-                              <th>Latest Badges</th>
-                           </thead>
-                           <tbody>
-                              <tr>
-                                 <td>
-                                    {% for i,studentBadgeID,studentID,badgeID, badgeName, badgeImage,avatarImage, user in badgesInfo %}    
-                                    <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="70px" height="70px"data-tooltip="{{badgeName}}" />
-                                    <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
-                                    &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                                    {% empty %}
-                                    <i>No badges earned</i>
-                                    {% endfor %}
-                                 </td>
-                              </tr>
-                           </tbody>
-                        </table>
-                     </div>
-                  </div>
-               </div>
-               {% endif %}
             </div>
          </div>
       </main>
