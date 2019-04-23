@@ -940,7 +940,8 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     xpWeightAPoints = 0
     ccparamsList = CourseConfigParams.objects.filter(courseID=course)
     
-
+    # If result only, we only want to search from the start of the course
+    # else, we will search based on howFarBack (see below)
     if result_only:
         date_time = time_period['datetime']
         date_time = date_time()
@@ -972,9 +973,9 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(date_time))
     
-    xpSeriousMaxScore = True # Specify if the xp should be calculated based on max score or first attempt
+    # Specify if the xp should be calculated based on max score or first attempt
+    xpSeriousMaxScore = True 
     xpWarmupMaxScore = True
-
     if len(ccparamsList) >0:
         cparams = ccparamsList[0]
         xpWeightSP=cparams.xpWeightSP
@@ -991,43 +992,46 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     ### for calculating only xp.
     ### Oumar
     ###
-        if not context_dict is None:
-            cparams = ccparamsList[0]
-            context_dict['badgesUsed'] = str(cparams.badgesUsed)
-            context_dict['levelingUsed'] = str(cparams.levelingUsed)
-            context_dict['leaderboardUsed'] = str(cparams.leaderboardUsed)
-            context_dict['classSkillsDisplayed'] = str(cparams.classSkillsDisplayed)
-            context_dict['virtualCurrencyUsed'] = cparams.virtualCurrencyUsed
-       
-    # get the serious challenges for this course
-    earnedScorePoints = 0 
-    totalScorePoints = 0    
-    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True, isVisible=True)
     if not context_dict is None:
-        print("context dict is not         none")
+        cparams = ccparamsList[0]
+        context_dict['badgesUsed'] = str(cparams.badgesUsed)
+        context_dict['levelingUsed'] = str(cparams.levelingUsed)
+        context_dict['leaderboardUsed'] = str(cparams.leaderboardUsed)
+        context_dict['classSkillsDisplayed'] = str(cparams.classSkillsDisplayed)
+        context_dict['virtualCurrencyUsed'] = cparams.virtualCurrencyUsed
+       
+    # SERIOUS CHALLENGES
+    # Get the earned points
+    earnedSeriousChallengePoints = 0 
+
+    if not context_dict is None:
+        print("context dict is not none")
         chall_name = []
         score = []
         total = []
         challavg = []
 
+    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True)
     for challenge in courseChallenges:
         seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-        if not startOfTime:
+
+        if not startOfTime and seriousChallenge.exists():
             seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
+
+        # Get the scores for this challenge then either add the max score
+        # or the first score to the earned points variable
         gradeID  = []    
         if xpSeriousMaxScore:                           
             for serious in seriousChallenge:
                 gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
+            if gradeID:
+                earnedSeriousChallengePoints += max(gradeID)           
         elif seriousChallenge.exists():
             gradeID.append(int(seriousChallenge.first().getScoreWithBonus())) 
-                                
-        if(gradeID):
-            if xpSeriousMaxScore:
-                earnedScorePoints += max(gradeID)
-            else:
-                earnedScorePoints += gradeID[0]
-            totalScorePoints += float(challenge.totalScore)
+            if gradeID:
+                earnedSeriousChallengePoints += gradeID[0]
 
+        # Setup data for rendering this challenge in html (bar graph stuff)
         if not context_dict is None:
             chall_name.append(challenge.challengeName)
             challavg.append(classResults.classAverChallengeScore(
@@ -1038,21 +1042,25 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
                     score.append(max(gradeID))
                 else:
                     score.append(gradeID[0])
-
+                # Total possible points for challenge
                 total.append(float(seriousChallenge[0].challengeID.getCombinedScore()))
             else:
                 score.append(0)
-                total.append(0.0)
-                
-    totalScorePointsSeriousChallenge = earnedScorePoints * xpWeightSChallenge / 100      # max grade for this challenge
-    print("total score points serious", totalScorePointsSeriousChallenge)
+                total.append(0)
+    
+    # Weighting the total serious challenge points to be used in calculation of the XP Points  
+    weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
+    print("total score points serious", weightedSeriousChallengePoints)
     
     if not context_dict is None:
         totalPointsSeriousChallenges = sum(total)
         context_dict['challenge_range'] = list(zip(range(1, len(courseChallenges)+1), chall_name, score, total))
         context_dict['challengeWithAverage_range'] = list(zip(range(1, len(courseChallenges)+1), chall_name, score, total, challavg))
 
-    # get the warm up challenges for this course
+    # WARMUP CHALLENGES
+    # Get the earned points
+    earnedWarmupChallengePoints = 0 
+
     if not context_dict is None:
         chall_Name = []
         total = []
@@ -1061,33 +1069,32 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         warmUpMinScore = []
         warmUpSumScore = []
         warmUpSumPossibleScore = []
-
-    earnedScorePoints = 0 
-    totalScorePoints = 0   
     
-    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False, isVisible=True)
+    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False)
     for challenge in courseChallenges:
         
         warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-        if not startOfTime:
+
+        if not startOfTime and warmupChallenge.exists():
             warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
+
+        # Get the scores for this challenge then either add the max score
+        # or the first score to the earned points variable
         gradeID  = []           
         if xpWarmupMaxScore:                          
             for warmup in warmupChallenge:
                 gradeID.append(int(warmup.testScore)) 
+            if gradeID:
+                earnedWarmupChallengePoints += max(gradeID)
         elif warmupChallenge.exists():
             gradeID.append(int(warmupChallenge.first().testScore))
-                               
-        if(gradeID):
-            if xpWarmupMaxScore:
-                earnedScorePoints += max(gradeID)
-            else:
-                earnedScorePoints += gradeID[0]
+            if gradeID:
+                earnedWarmupChallengePoints += gradeID[0]
 
-            totalScorePoints += challenge.totalScore
-        
+        # Setup data for rendering this challenge in html (bar graph stuff)
         if not context_dict is None and warmupChallenge:
             chall_Name.append(challenge.challengeName)
+            # total possible points for challenge
             total.append(warmupChallenge[0].challengeID.totalScore)
             noOfAttempts.append(warmupChallenge.count())
             
@@ -1111,9 +1118,9 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
             containerHeight = 100
             containerHeight += len(chall_Name) * 60
             
-            
-    totalScorePointsWarmupChallenge = earnedScorePoints * xpWeightWChallenge / 100      # max grade for this challenge
-    print("points warmup chal", totalScorePointsWarmupChallenge) 
+    # Weighting the total warmup challenge points to be used in calculation of the XP Points  
+    weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
+    print("points warmup chal xp weighted", weightedWarmupChallengePoints) 
 
     if not context_dict is None:
         totalWCEarnedPoints = sum(warmUpSumScore)
@@ -1124,28 +1131,39 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         context_dict['totalWCEarnedPoints'] = totalWCEarnedPoints
         context_dict['totalWCPossiblePoints'] = totalWCPossiblePoints
 
-    # get the activity points for this course
+    # ACTIVITIES
+    # Get the earned points
     earnedActivityPoints = 0
-    totalActivityPoints = 0
+    total = []
 
     courseActivities = Activities.objects.filter(courseID=course)
     for activity in courseActivities:
         studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
-        if not startOfTime:
+        if not startOfTime and studentActivities.exists():
             studentActivities = studentActivities.filter(timestamp=date_time)
-            
+        
+        # Get the scores for this challenge then add the max score
+        # to the earned points variable
         gradeID  = []                            
         for studentActivity in studentActivities:
             gradeID.append(int(studentActivity.getScoreWithBonus())) 
                                
-        if(gradeID):
+        if gradeID:
             earnedActivityPoints += max(gradeID)
-            totalActivityPoints += studentActivity.activityID.points
-            
-    totalScorePointsActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
-    print("activity points total", totalScorePointsActivityPoints)
-     # SKILL POINTS
-    totalScorePointsSP = 0      # to be used in calculation of the XP Points     
+        if studentActivities.exists():
+             total.append(float(studentActivities[0].activityID.points))
+
+    # Weighting the total activity points to be used in calculation of the XP Points  
+    weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
+    totalPointsActivities = sum(total)
+    print("activity points earned", earnedActivityPoints)
+    print("activity points total weighted", weightedActivityPoints)
+    print("activity points total", totalPointsActivities)
+
+    # SKILL POINTS
+    # Get the earned points
+    earnedSkillPoints = 0
+
     skill_Name = []                
     skill_Points = []
     skill_ClassAvg = []
@@ -1162,7 +1180,8 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         if not sp:  
             skill_Points.append(0)                     
         else:    
-            # find the max score for this challenge if there are several attempts                
+            # Get the scores for this challenge then add the max score
+            # to the earned points variable               
             gradeID  = []
             
             for p in sp:
@@ -1170,7 +1189,8 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
                 print("skillPoints", p.skillPoints)   
             
             sumSkillPoints = sum(gradeID,0)                
-            totalScorePointsSP += sumSkillPoints
+            earnedSkillPoints += sumSkillPoints
+
             skill_Points.append(sumSkillPoints)
             skill_ClassAvg.append(classResults.skillClassAvg(
                 skill.skillID, course))
@@ -1184,25 +1204,26 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
             zip(range(1, len(skill_Name)+1), skill_Name, skill_ClassAvg))
 
 
-    # weighting the total skill points to be used in calculation of the XP Points     
-    print("totalScorePointsSP: ", totalScorePointsSP)              
-    totalScorePointsSkillPointsWeighted = totalScorePointsSP * xpWeightSP / 100   
+    # Weighting the total skill points to be used in calculation of the XP Points     
+    print("earnedSkillPoints: ", earnedSkillPoints)              
+    weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
     
+    # Return the xp and/or required variables
     if gradeWarmup:
-        xp = round(totalScorePointsWarmupChallenge,0)
+        xp = round(weightedWarmupChallengePoints,0)
         print("warmup ran")
     elif gradeSerious:
-        xp = round(totalScorePointsSeriousChallenge,0)
+        xp = round(weightedSeriousChallengePoints,0)
         print("serious ran")
     elif seriousPlusActivity:
-        xp = round((totalScorePointsSeriousChallenge  + totalScorePointsActivityPoints),0)
+        xp = round((weightedSeriousChallengePoints  + weightedActivityPoints),0)
         print("serious plus activity ran")
     else:
-        xp = round((totalScorePointsSeriousChallenge + totalScorePointsWarmupChallenge  + totalScorePointsActivityPoints + totalScorePointsSkillPointsWeighted),0)
+        xp = round((weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints),0)
         print("xp has ran")
     
     if not context_dict is None:
-        return context_dict , xp, totalScorePointsSeriousChallenge, totalScorePointsWarmupChallenge, earnedActivityPoints, totalScorePointsSkillPointsWeighted, totalScorePointsActivityPoints, totalPointsSeriousChallenges
+        return context_dict , xp, weightedSeriousChallengePoints, weightedWarmupChallengePoints, weightedActivityPoints, weightedSkillPoints, earnedSeriousChallengePoints, earnedWarmupChallengePoints, earnedActivityPoints, earnedSkillPoints, totalPointsSeriousChallenges, totalPointsActivities
     
     return (studentId,xp)
 
