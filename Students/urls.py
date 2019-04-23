@@ -29,7 +29,7 @@ from Students.views.preferencesView import preferencesView
 from Students.views.resetPasswordView import resetPasswordView
 from Students.views.studentCourseHomeView import StudentCourseHome
 from Students.views.studentHomeView import StudentHome
-from Students.views.transactionsView import transactionsView
+from Students.views.transactionsView import transactionsView, filterTransactions
 from Students.views.transactionNotesView import transactionNotesView
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
@@ -72,6 +72,7 @@ urlpatterns = [
     url(r'^StudentHome', StudentHome, name='StudentHome'),
     url(r'^Transactions', transactionsView, name='Transactions'),
     url(r'^TransactionNotes', transactionNotesView, name='Transaction Notes'),
+    url(r'^filterTransactions', filterTransactions, name="Filter Transactions"),
     url(r'^VirtualCurrencyRules', VirtualCurrencyDisplay,
         name='Virtual Currency Rule List'),
     url(r'^VirtualCurrencyShop', virtualCurrencyShopView,

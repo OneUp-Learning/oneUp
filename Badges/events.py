@@ -156,7 +156,20 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.activitySubmission):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
-        
+
+    # Duels Events
+    if(eventID == Event.duelAccepted):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+    if(eventID == Event.duelLost):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+    if(eventID == Event.duelSent):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+    if(eventID == Event.duelWon):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
         
 #     if(eventID == Event.seeClassAverage):
 #         eventEntry.objectType = ObjectTypes.form
