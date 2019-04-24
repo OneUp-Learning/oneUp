@@ -92,7 +92,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 status = goalStatus(progressPercent, endDate)
                 goal_status.append(status)
                 
-                if (utcDate() >= endDate):
+                if (utcDate() <= endDate):
                     index += 1
     
       
@@ -118,10 +118,13 @@ def goalTypeToString(gt):
 
 def calculateProgress(initialGoalTarget, goalType, course, student, target):
     gcv = goalCreateView
+    print("Type passed to calc: ", goalType)
     
     newProgress = gcv.goalProgressFxn(goalType, course, student)
     
     progressPercent = ((newProgress - initialGoalTarget) / target) * 100
+    
+    print(progressPercent)
     
     return round(progressPercent, 0)
 

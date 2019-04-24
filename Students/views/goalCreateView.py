@@ -27,6 +27,7 @@ def goalCreate(request):
     # The context contains information such as the client's machine details, for example.
  
     context_dict, currentCourse = studentInitialContextDict(request)
+    genums = Goal.goals    
 
     if request.POST:
 
@@ -39,11 +40,12 @@ def goalCreate(request):
         
         goal.courseID = currentCourse
         goal.studentID = context_dict['student'] #get student ID
-        goal.goalType = request.POST['goalType']    
-        goal.targetedNumber = int(request.POST['targetedNumber'])
+        goal.goalType = request.POST['goalType']
+        goal.targetedNumber = request.POST['targetedNumber']
         goal.timestamp = utcDate()
+        
           
-        goal.progressToGoal = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)     
+        goal.progressToGoal = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)    
         
         goal.save();  #Writes to database.    
                 
@@ -57,7 +59,6 @@ def goalCreate(request):
             # If studentGoalId is specified then we load for editing.
             if 'studentGoalID' in request.GET:
                 goal = StudentGoalSetting.objects.get(pk=int(request.GET['studentGoalID']))
-                genums = Goal.goals
                 # Copy all of the attribute values into the context_dict to
                 # display them on the page.
                 context_dict['studentGoalID'] = request.GET['studentGoalID']
@@ -68,31 +69,33 @@ def goalCreate(request):
     return render(request,'Students/GoalsCreationForm.html', context_dict)
 
 def goalProgressFxn(goalType, course, student):
-    print (goalType)    
-    if goalType == Goal.warmup10:
+    goalType = str(goalType)
+    print (goalType)
+    if goalType == str(Goal.warmup10):
         return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
-    if goalType == Goal.warmup70:
+    if goalType == str(Goal.warmup70):
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan70Percent(course, student)
-    if goalType == Goal.warmup80:
+    if goalType == str(Goal.warmup80):
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan80Percent(course, student)
-    if goalType == Goal.warmup90:
+    if goalType == str(Goal.warmup90):
+        print ("I ran 90")
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student)
-    if goalType == Goal.streak10:
+    if goalType == str(Goal.streak10):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken30Percent(course, student, goalType)
-    if goalType == Goal.streak70:
+    if goalType == str(Goal.streak70):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken70Percent(course, student, goalType)
-    if goalType == Goal.streak80:
+    if goalType == str(Goal.streak80):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken80Percent(course, student, goalType)
-    if goalType == Goal.streak90:
+    if goalType == str(Goal.streak90):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken90Percent(course, student, goalType)
-    if goalType == Goal.courseBucks:
+    if goalType == str(Goal.courseBucks):
         studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
         return studentReg.virtualCurrencyAmount
-    if goalType == Goal.courseXP:
+    if goalType == str(Goal.courseXP):
         time_period = TimePeriods.timePeriods[1503]
-        s_id, xp = studentScore(student, course, 0, time_period, 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
+        id, xp = studentScore(student, course, 0, time_period, 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
         return xp
-    if goalType == Goal.courseBadges:
+    if goalType == str(Goal.courseBadges):
         return systemVariables.getNumberOfBadgesEarned(course, student)
     
     
