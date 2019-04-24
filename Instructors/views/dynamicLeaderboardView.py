@@ -29,17 +29,6 @@ def dynamicLeaderboardView(request):
     context_dict = createTimePeriodContext(context_dict)
     
     if request.method == 'GET':
-        doesXPLeaderBoardExist = LeaderboardsConfig.objects.filter(courseID=currentCourse, isXpLeaderboard=True).exists()
-        xpLeaderboard = LeaderboardsConfig.objects.filter(courseID=currentCourse, isXpLeaderboard=True).first()
-        if xpLeaderboard:
-            context_dict["xpLeaderboardID"] = xpLeaderboard.leaderboardID
-            context_dict['leaderboardName'] = xpLeaderboard.leaderboardName
-            context_dict['leaderboardDescription'] = xpLeaderboard.leaderboardDescription
-            context_dict["numStudentsDisplayed"]= xpLeaderboard.numStudentsDisplayed
-            context_dict['timePeriodUpdateInterval'] = xpLeaderboard.timePeriodUpdateInterval
-            context_dict['periodicVariable'] = xpLeaderboard.periodicVariable
-            context_dict['displayOnCourseHomePage'] = xpLeaderboard.displayOnCourseHomePage
-            
         #now we can create our data for all the dynamic leaderboards
         leaderboardID = []
         leaderboardName = []
@@ -83,19 +72,7 @@ def dynamicLeaderboardView(request):
         
         context_dict['num_tables'] = leaderboardCount
         print(leaderboardID ,isContinous, howFarBack,homePageCheckboxes,leaderboardName,leaderboardDescription, timePeriodUpdateInterval, periodicVariable, numStudentsDisplayed )
-        context_dict['leaderboard'] = zip(range(0,leaderboardCount),leaderboardID ,isContinous, howFarBack,homePageCheckboxes,leaderboardName,leaderboardDescription, timePeriodUpdateInterval, periodicVariable, numStudentsDisplayed )
-        ccparams = context_dict['ccparams']
-        
-        if ccparams:
-            context_dict['ccpID'] = ccparams.ccpID
-            
-            context_dict["xpWeightSChallenge"]=ccparams.xpWeightSChallenge
-            context_dict["xpWeightWChallenge"]=ccparams.xpWeightWChallenge
-            context_dict["xpWeightSP"]=ccparams.xpWeightSP
-            context_dict["xpWeightAPoints"]=ccparams.xpWeightAPoints
-            context_dict['xpCalculateSeriousByMaxScore'] = ccparams.xpCalculateSeriousByMaxScore
-            context_dict['xpCalculateWarmupByMaxScore'] = ccparams.xpCalculateWarmupByMaxScore
-            
+        context_dict['leaderboard'] = zip(range(0,leaderboardCount),leaderboardID ,isContinous, howFarBack,homePageCheckboxes,leaderboardName,leaderboardDescription, timePeriodUpdateInterval, periodicVariable, numStudentsDisplayed )            
                    
         return render(request,'Instructors/DynamicLeaderboard.html', context_dict)
     
@@ -106,20 +83,6 @@ def dynamicLeaderboardView(request):
             deleteLeaderboards = request.POST.getlist('delete[]')
             #print("deleteLeaderboards",deleteLeaderboards)
             deleteLeaderboardConfigObjects(deleteLeaderboards)   
-        
-        #id of the xp table
-        if 'xpLeaderboardID' in request.POST and (request.POST['studentsShown'] != ''):
-            if request.POST['xpLeaderboardID']:
-                leaderboard = LeaderboardsConfig.objects.get(leaderboardID=request.POST['xpLeaderboardID'])
-            else:
-                leaderboard = createXPLeaderboard(currentCourse, request)
-            leaderboard.leaderboardDescription = request.POST['leaderboardDescription']
-            leaderboard.numStudentsDisplayed = int(request.POST['studentsShown'])
-            leaderboard.isXpLeaderboard = True
-            leaderboard.displayOnCourseHomePage = True
-            leaderboard.courseID = currentCourse
-            #print("xp board", leaderboard)
-            leaderboard.save()
         
         #now we need to cyle though the data for the dynamically generated tables
         
@@ -199,28 +162,7 @@ def dynamicLeaderboardView(request):
             leaderboard.periodicVariable = int(periodicVariableSelected[index])    
             index= index + 1
         
-        createPeriodicTasksForObjects(leaderboardObjects, oldPeriodicVariableForLeaderboard)
-
-        if "ccpID" in request.POST:
-            if request.POST['ccpID']:
-                ccparams = CourseConfigParams.objects.get(pk=int(request.POST['ccpID']))
-            else:
-                # Create new Config Parameters
-                ccparams = CourseConfigParams()
-                ccparams.courseID = currentCourse
-            if 'studentsShown' in request.POST and request.POST['studentsShown']:
-                ccpStudentsShown = int(request.POST['studentsShown'])
-                ccparams.numStudentsDisplayed = ccpStudentsShown
-            ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
-            ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
-            ccparams.xpWeightSP = request.POST.get('xpWeightSP')
-            ccparams.xpWeightAPoints = request.POST.get('xpWeightAPoints')
-            ccparams.xpCalculateSeriousByMaxScore = request.POST.get('xpCalculateSeriousByMaxScore')
-            ccparams.xpCalculateWarmupByMaxScore = request.POST.get('xpCalculateWarmupByMaxScore')
-            ccparams.leaderboardUpdateFreq = 1
-            
-            ccparams.save()
-        
+        createPeriodicTasksForObjects(leaderboardObjects, oldPeriodicVariableForLeaderboard)        
 
         return redirect('/oneUp/instructors/dynamicLeaderboard')
     
@@ -263,7 +205,7 @@ def createXPLeaderboard(currentCourse, request):
 
     if 'leaderboardDescription' in request.POST:
         xpLeaderboard.leaderboardDescription = request.POST['leaderboardDescription']
-    if 'studentsShown' in request.POST and (request.POST['studentsShown'] != ''):
+    if 'numStudentsDisplayed' in request.POST and request.POST['numStudentsDisplayed'] != 0:
         xpLeaderboard.numStudentsDisplayed = int()
 
     xpLeaderboard.leaderboardName = "XP Leaderboard"

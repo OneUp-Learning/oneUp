@@ -92,8 +92,8 @@ def get_periodic_variable_results(variable_index, period_index, course_id):
     time_period = TimePeriods.timePeriods[period_index]
     # Get the course object and periodic variable
     course = get_course(course_id)
-    # Get all the students in this course
-    students = StudentRegisteredCourses.objects.filter(courseID=course)
+    # Get all the students in this course except test students
+    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     rank = []
     # Evaluate each student based on periodic variable function
     for student_in_course in students:
