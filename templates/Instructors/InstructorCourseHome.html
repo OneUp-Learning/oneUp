@@ -89,7 +89,7 @@
                 </div>
             </div>
             {% endif %}
-            {% if leaderboardUsed %}    
+            {% if leaderboardUsed and gamificationUsed %}    
                 <div class="col s12 m12">
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
                   <div class="col s12">
