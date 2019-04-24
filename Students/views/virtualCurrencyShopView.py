@@ -8,7 +8,10 @@ from Badges.models import VirtualCurrencyRuleInfo, ActionArguments, RuleEvents, 
 from Badges.enums import Action, Event, ObjectTypes, dict_dict_to_zipped_list
 from Badges.events import register_event
 from Instructors.constants import unlimited_constant
+from notify.signals import notify
+from Instructors.models import InstructorRegisteredCourses
 import logging
+import json
 import copy
 
 @login_required
@@ -217,6 +220,12 @@ def virtualCurrencyShopView(request):
                             studentVCTransaction.objectID = int(request.POST['challengeFor'+rule.vcRuleName])
                         studentVCTransaction.status = 'Requested'
                         studentVCTransaction.save()
+
+            # Send notification to Instructor that student has bought item from shop
+            instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=currentCourse).first()
+            instructor = instructorCourse.instructorID
+            notify.send(None, recipient=instructor, actor=student.user, verb= student.user.first_name +' '+student.user.last_name+ ' spent '+str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID)}))
+            
             st_crs.virtualCurrencyAmount -= total
             st_crs.save()
             return redirect("/oneUp/students/Transactions.html")

@@ -48,14 +48,14 @@ def achievements(request):
         curentStudentConfigParams.displayBadges)
 
     time_period = TimePeriods.timePeriods[1503]
-    context_dict, xp, totalScorePointsSeriousChallenge, totalScorePointsWarmupChallenge, earnedActivityPoints, totalScorePointsSkillPointsWeighted, totalScorePointsActivityPoints, totalPointsSeriousChallenges = studentScore(
+    context_dict, xp, weightedSeriousChallengePoints, weightedWarmupChallengePoints, weightedActivityPoints, weightedSkillPoints, earnedSeriousChallengePoints, earnedWarmupChallengePoints, earnedActivityPoints, earnedSkillPoints, totalPointsSeriousChallenges, totalPointsActivities = studentScore(
         studentId, currentCourse, 0, time_period, 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=context_dict)
     context_dict['studentXP_range'] = xp
 
     # print("xp", xp, earnedPointsSeriousChallengesWeighted, totalScorePointsWCWeighted,
     #      totalScorePointsSPWeighted, earnedActivityPointsWeighted)
 
-    context_dict['studentUngradedChallengesPPoints_range'] = totalScorePointsSkillPointsWeighted
+    context_dict['studentUngradedChallengesPPoints_range'] = weightedSkillPoints
     # End Vendhan Changes
 
  # PROGRESS BAR
@@ -67,8 +67,8 @@ def achievements(request):
     for stone in milestones:
         totalMilestonePoints += stone.points
 
-    currentEarnedPoints = totalScorePointsSeriousChallenge + earnedActivityPoints
-    currentTotalPoints = totalPointsSeriousChallenges + totalScorePointsActivityPoints
+    currentEarnedPoints = earnedSeriousChallengePoints + earnedActivityPoints
+    currentTotalPoints = totalPointsSeriousChallenges + totalPointsActivities
     missedPoints = currentTotalPoints - currentEarnedPoints
     if not currentTotalPoints == 0:
         projectedEarnedPoints = round(
