@@ -1277,7 +1277,7 @@ class SystemVariable():
         timeSpentOnChallenges:{
             'index': timeSpentOnChallenges,
             'name':'timeSpentOnChallenges',
-            'displayName':'Time Spent On Challenges',
+            'displayName':'Time Spent On Challenges (Minutes)',
             'description':'The total time in minutes a student has spent completing challenges',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
@@ -1316,7 +1316,7 @@ class SystemVariable():
         timeSpentOnQuestions:{
             'index': timeSpentOnQuestions,
             'name':'timeSpentOnQuestions',
-            'displayName':'Time Spent On Questions',
+            'displayName':'Time Spent On Questions (Minutes)',
             'description':'The total time in minutes a student has spent completing questions',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endQuestion], #I'm not sure this makes sense - Keith
