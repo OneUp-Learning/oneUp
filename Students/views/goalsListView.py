@@ -92,7 +92,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 status = goalStatus(progressPercent, endDate)
                 goal_status.append(status)
                 
-                if (utcDate() <= endDate):
+                if (utcDate() >= endDate):
                     index += 1
     
       

@@ -8,10 +8,18 @@
       <style type="text/css">
       	
       	.goalindicator {
-			margin-left: 500px;
-			margin-right: 500px;
+      		position: relative;
+      		margin-left: 35%;
+      		margin-right: 35%;
       		width: 100px;
-      		height: 100px;	
+      		height: 100px;
+      		border: solid
+      	}
+      	
+      	.goalbars { 
+      		text-align: center;
+      		position: relative;    
+      		border: solid
       	}
       
       </style>
@@ -78,8 +86,8 @@
                            <tbody>
                            	<tr class="row">
                            		{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                          
-	                              <td style="text-align: center">
-	                              	<div>
+	                              <td>
+	                              	<div class="goalbars" style="">
 	                              		<span>{{goal_Type}}</span>
 			                           	<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
 			                      		<span>Due: {{end_date}}</span>
