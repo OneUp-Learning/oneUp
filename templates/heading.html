@@ -266,8 +266,11 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
-                    <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
-                   	<li><a class="waves-effect" href="/oneUp/instructors/attendanceStreaks">Attendance Streaks</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/attendanceStreaks">Attendance Streaks</a></li>
+                    {% if ccparams.gamificationUsed and ccparams.leaderboardUsed %}
+                    <li><a class="waves-effect" href="/oneUp/instructors/leaderboard">Course Leaderboard</a></li>
+                    {% endif %}
+                    <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>                    
                 </ul>
             </li>
             <li>
@@ -275,10 +278,13 @@
                 <ul id="coursecontent" class="dropdown-content">
                     <li><a class="waves-effect" href="/oneUp/instructors/activitiesList">Activities</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/challengesList">Serious Challenges</a></li>
-                    <li><a class="waves-effect" href="/oneUp/instructors/warmUpChallengeList">Warm-Up Challenges</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/warmUpChallengeList">Warm-Up Challenges</a></li>						<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Course Leaderboard</a></li>
+
                     <li><a class="waves-effect" href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/imageList">Images</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/luaLibUploadView">Libraries for Dynamic Problems</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>
                 </ul>
             </li>
             <li>
