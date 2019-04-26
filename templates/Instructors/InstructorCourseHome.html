@@ -89,8 +89,11 @@
                 </div>
             </div>
             {% endif %}
+            <div class="row">
             {% if leaderboardUsed and gamificationUsed %}    
                 <div class="col s12 m12">
+                    <div class="row" style="display: flex;">
+                    <div class="col s12 m6"></div>
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
                   <div class="col s12">
                   <div class="card-panel">
@@ -116,12 +119,16 @@
                   {% endfor %}
                    <div class="col s12 m6"></div>
                   </div>
-                  </div>
+                </div>
                   {% endif %}
                 </div>
             <div class="row">
-                {% if classSkillsDisplayed and gamificationUsed %}                
-                <div class="col s12 m4 offset-m1">
+                {% if classSkillsDisplayed and gamificationUsed %}
+                <div class="col s12 m12">
+                <div class="row" style="display: flex;">
+                <div class="col s12 m6"></div>
+               
+                <div class="col s12">
                     <div class="card-panel">
                     <table>
                     <caption><h5>Skills Board</h5></caption>
@@ -151,9 +158,11 @@
                     </table>
                     </div>
                   </div>
+                  <div class="col s12 m6"></div>
+                </div>
+              </div>
                   {% endif %}                  
             </div>         
-            </div>
             </div>
         </main>
        {% include 'footer.html' %}
