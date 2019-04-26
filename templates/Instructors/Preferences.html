@@ -48,9 +48,10 @@
             action="/oneUp/instructors/preferences" method="POST">
             {% csrf_token %}
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
+            <input type="hidden" name="xpLeaderboardID" value="{{xpLeaderboardID}}">
             <div class="row">
-                <div class="col s12 m8 offset-m2 cards-container">
-                    <div class="col s12"
+                <div class="col s12 m8 offset-m2 cards-container" style="height: 1980px;">
+                        <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
                             <div class="card-content">
@@ -66,6 +67,87 @@
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s12" 
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Calculating Total XP Points</span>
+                                <div class="row">
+                                    <div class="input-field col s10">
+                                        <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge"
+                                            id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
+                                        <label for="s_challenge_weight">Weight of <i>serious challenge points (in %
+                                                )</i></label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge"
+                                            id="w_challenge_weight" maxlength="3" type="number" min="0" max="100">
+                                        <label for="w_challenge_weight">Weight of <i>warmup challenge points (in %
+                                                )</i></label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight"
+                                            maxlength="3" type="number" class="validate" min="0" max="100">
+                                        <label for="s_points_weight">Weight of <i>skill points (in % )</i></label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight"
+                                            maxlength="3" type="number" min="0" max="100">
+                                        <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Serious Challenges</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
+                                                id="xpSeriousMaxScore" value="True"
+                                                {% if xpCalculateSeriousByMaxScore == True %} checked {%endif%} />
+                                            <label for="xpSeriousMaxScore">Calculate XP by max score</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
+                                                value="False" id="xpSeriousFirstAttempt"
+                                                {% if xpCalculateSeriousByMaxScore == False %} checked {%endif%} />
+                                            <label for="xpSeriousFirstAttempt">Calculate XP by first attempt</label>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Warmup Challenges</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
+                                                id="xpWarmupMaxScore" value="True"
+                                                {% if xpCalculateWarmupByMaxScore == True %} checked {%endif%} />
+                                            <label for="xpWarmupMaxScore">Calculate XP by max score</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
+                                                value="False" id="xpWarmupFirstAttempt"
+                                                {% if xpCalculateWarmupByMaxScore == False %} checked {%endif%} />
+                                            <label for="xpWarmupFirstAttempt">Calculate XP by first attempt</label>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -124,6 +206,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
@@ -145,42 +228,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Thresholds for Challenge Difficulty</span>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>From <i>easy</i> to <i>medium</i></p>
-                                        </div>
-                                    </div>
-                                    <div class="input-field col s12 inline">
-
-                                        <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium"
-                                            id="threshold_1" maxlength="3" type="number" min="0" max="100" required>
-
-                                        <label for="threshold_1">Threshold</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>From <i>medium</i> to <i>high</i></p>
-                                        </div>
-                                    </div>
-                                    <div class="input-field col s12 inline">
-                                        <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty"
-                                            id="threshold_2" maxlength="3" type="number" min="0" max="100" required>
-                                        <label for="threshold_2">Threshold</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                    
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
@@ -266,9 +314,32 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>  
 
-                    <div class="col s12" style="height: 7px;"><br /></div>
+                    <!-- <div class="col s12" style="height: 5px;"><br /></div> -->
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">XP Leaderboard</span>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                    <input id="leaderboardDescription" value="{{leaderboardDescription}}"
+                                        name="leaderboardDescription" type="text" class="validate">
+                                    <label for="leaderboardDescription"
+                                        >Leaderboard Description</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                    <input id="studentsShown" value="{{numStudentsDisplayed}}" name="numStudentsDisplayed" type="number" min="0">
+                                    <label for="studentsShown" >Number of Students Shown</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
@@ -300,6 +371,42 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Thresholds for Challenge Difficulty</span>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>From <i>easy</i> to <i>medium</i></p>
+                                        </div>
+                                    </div>
+                                    <div class="input-field col s12 inline">
+
+                                        <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium"
+                                            id="threshold_1" maxlength="3" type="number" min="0" max="100" required>
+
+                                        <label for="threshold_1">Threshold</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>From <i>medium</i> to <i>high</i></p>
+                                        </div>
+                                    </div>
+                                    <div class="input-field col s12 inline">
+                                        <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty"
+                                            id="threshold_2" maxlength="3" type="number" min="0" max="100" required>
+                                        <label for="threshold_2">Threshold</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>    
+
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
@@ -329,6 +436,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
@@ -396,6 +504,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- <div class="col s12" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                             <div class="card">
                                 <div class="card-content">
@@ -416,11 +525,10 @@
                                 </div>
                             </div>
                         </div> -->
-
                 </div>
             </div>
             <div class="row">
-                <div class="col s12 m4 offset-m2">
+                <div class="col s12 m4 offset-m2 ">
                     <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i
                             class="material-icons right">done</i></button>
                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i
