@@ -112,8 +112,8 @@ def getUniqueChallengesGreaterThanPercentage(course, student, isGraded, percenta
     challenges = Challenges.objects.filter(courseID=course, isGraded=isGraded)
     for challenge in challenges:
         # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
-        if percentage > percentage:
+        percent_of_max_score = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percent_of_max_score > percentage:
             challengesGreaterThan += 1
     return challengesGreaterThan
     
