@@ -16,7 +16,7 @@ from Students.models import StudentRegisteredCourses, StudentChallenges, Student
 from Badges.enums import Event, ObjectTypes
 from Badges.systemVariables import SystemVariable, calculate_system_variable
 from Students.views.avatarView import checkIfAvatarExist
-#from termios import CRPRNT
+from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
 from django.contrib.auth.models import User
 

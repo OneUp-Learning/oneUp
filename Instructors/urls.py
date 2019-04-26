@@ -42,6 +42,7 @@ from Instructors.views.importStudentsView import importStudents
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
+from Instructors.views.instructorQA import instructorQA
 
 from Instructors.views.matchingView import matchingForm
 from Instructors.views.milestoneCreateView import milestoneCreateView
@@ -141,6 +142,7 @@ urlpatterns = [
     url(r'^importStudents',importStudents,name='importStudents'),
     url(r'^instructorCourseHome',instructorCourseHome,name='instructorCourseHome'),
     url(r'^instructorHome',instructorHome,name='instructorHome'), 
+    url(r'^instructorQA',instructorQA,name='instructorQA'),
     url(r'^milestonesList',milestoneList, name='milestoneList'),    
     url(r'^preferences',preferencesView, name='preferencesView'),
     url(r'^reorderChallenges', reorderChallenges, name='reorderChallenges'),       
