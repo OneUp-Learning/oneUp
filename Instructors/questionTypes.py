@@ -471,7 +471,7 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
             if correctAnswerIndex == userAnswerIndex:
                 userScore = userScore + valuePerAnswer
 
-    qdict['user_points'] = userScore
+    qdict['user_points'] = round(userScore, 2)
     qdict['user_answers'] = userAnswers
     return qdict
 
