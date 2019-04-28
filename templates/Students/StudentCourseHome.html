@@ -8,19 +8,19 @@
       <style type="text/css">
       	
       	.goalindicator {
-      		position: relative;
-      		margin-left: 35%;
-      		margin-right: 35%;
+/*       		position: relative; */
+/*       		margin-left: 30% auto; */
+/*       		margin-right: 45% auto; */
       		width: 100px;
       		height: 100px;
-      		border: solid
       	}
       	
-      	.goalbars { 
-      		text-align: center;
-      		position: relative;    
-      		border: solid
-      	}
+/*       	.goalbars {  */
+/*       		width: 70%; */
+/*       		text-align: center;  */
+/*       		border: solid; */
+/*       		align: center; */
+/*       	} */
       
       </style>
       
@@ -77,31 +77,63 @@
                   </div>
                </div>
             {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal %}
+            <div class="row">
             <div class="col s12">
-                     <div class="card-panel center-align">                     	
-						<table>
-                           <thead>
-                              <th>Goals</th>
-                           </thead>
-                           <tbody>
-                           	<tr class="row">
-                           		{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                          
-	                              <td>
-	                              	<div class="goalbars" style="">
-	                              		<span>{{goal_Type}}</span>
-			                           	<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
-			                      		<span>Due: {{end_date}}</span>
-			                      	</div>
-			                      </td>
-                              	{% empty %} 
-                                 <td class="center-align"><i>No Goals Created Yet</i></td>
-                              	{% endfor %}
-                           	</tr>
-                           </tbody>
-                        </table>                        
-                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
-                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
-                     </div>
+            
+            	<div class="card-panel">
+            	  <table>
+            	    <thead>
+                        <th>Goals</th>
+                    </thead>
+                    <tbody>
+                    <tr><td>
+            		<div class="row" style="display: flex;">
+            		  <div class="col s12 m6"></div>
+            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                           
+                          <div class="col s12">
+                            <div class="card-panel">
+                            	<span>{{goal_Type}}</span>
+                           		<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
+                      			<span>Due: {{end_date}}</span>
+                      		</div>
+                      		</div>
+                         {% empty %} 
+                            <div class="center-align"><i>No Goals Created Yet</i></div>
+                         {% endfor %}
+
+            	      <div class="col s12 m6"></div>
+            		</div>
+            		</td></tr>
+            		</tbody>
+            	  </table>
+            	</div>
+            	
+            	
+<!--                      <div class="card-panel center-align">                     	
+<!-- 						<table>
+<!--                            <thead> -->
+<!--                               <th>Goals</th> -->
+<!--                            </thead> -->
+<!--                            <tbody> -->
+<!--                            	<tr class="row"> -->
+<!--                            		{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                           -->
+<!-- 	                              <td> -->
+<!-- 	                              	<div class="goalbars" style=""> -->
+<!-- 	                              		<span>{{goal_Type}}</span> -->
+<!-- 			                           	<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div> -->
+<!-- 			                      		<span>Due: {{end_date}}</span> -->
+<!-- 			                      	</div> -->
+<!-- 			                      </td> -->
+<!--                               	{% empty %}  -->
+<!--                                  <td class="center-align"><i>No Goals Created Yet</i></td> -->
+<!--                               	{% endfor %} -->
+<!--                            	</tr> -->
+<!--                            </tbody> -->
+<!--                         </table>                         -->
+<!--                         <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a> -->
+<!--                         <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a> -->
+<!--                      </div> -->
+                  </div>
                   </div>
             {% endif %}
             {% if displayBadges and ccparams.gamificationUsed %}                            
