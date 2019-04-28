@@ -23,7 +23,11 @@ from Students.views.studentCourseHomeView import courseBadges
 
 
 def LeaderboardView(request):
- 
+    return leaderboardData(request, 0)
+def InstructorLeaderboardView(request):
+    return leaderboardData(request, 1)
+
+def leaderboardData(request, instructorOrStudent):
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated
     if request.user.is_authenticated:
@@ -69,5 +73,8 @@ def LeaderboardView(request):
     register_event(Event.visitedLeaderboardPage, request, sID, None)
     print("User visited Leaderboard page was registered for the student in the request")
     
-    return render(request,'Students/Leaderboard.html', context_dict)           
-        
+    if instructorOrStudent == 0:
+        return render(request,'Students/Leaderboard.html', context_dict)
+    
+    if instructorOrStudent == 1:
+        return render(request,'Instructors/Leaderboard.html', context_dict)

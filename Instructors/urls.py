@@ -88,7 +88,7 @@ from Instructors.views.attendanceStreaks import attendanceStreaks
 
 from Instructors.views.challengeClassmatesReport import challenge_classmates_report, duel_challenge_report
 
-
+from Students.views.leaderboardView import InstructorLeaderboardView
 
 admin.autodiscover()
 
@@ -190,4 +190,5 @@ urlpatterns = [
     url(r'^attendanceStreaks', attendanceStreaks, name="attendanceStreaks"),
     url(r'^challengeClassmatesReport', challenge_classmates_report, name="challengeClassmatesReport"),
     url(r'^DuelChallengeReport', duel_challenge_report, name="DuelChallengeReport"),
+    url(r'^leaderboard', InstructorLeaderboardView, name="instructorLeaderboard"),
 ]

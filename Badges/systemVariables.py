@@ -112,8 +112,8 @@ def getUniqueChallengesGreaterThanPercentage(course, student, isGraded, percenta
     challenges = Challenges.objects.filter(courseID=course, isGraded=isGraded)
     for challenge in challenges:
         # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
-        if percentage > percentage:
+        percent_of_max_score = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percent_of_max_score > percentage:
             challengesGreaterThan += 1
     return challengesGreaterThan
     
@@ -1472,7 +1472,7 @@ class SystemVariable():
         timeSpentOnChallenges:{
             'index': timeSpentOnChallenges,
             'name':'timeSpentOnChallenges',
-            'displayName':'Time Spent On Challenges',
+            'displayName':'Time Spent On Challenges (Minutes)',
             'description':'The total time in minutes a student has spent completing challenges',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
@@ -1511,7 +1511,7 @@ class SystemVariable():
         timeSpentOnQuestions:{
             'index': timeSpentOnQuestions,
             'name':'timeSpentOnQuestions',
-            'displayName':'Time Spent On Questions',
+            'displayName':'Time Spent On Questions (Minutes)',
             'description':'The total time in minutes a student has spent completing questions',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endQuestion], #I'm not sure this makes sense - Keith
