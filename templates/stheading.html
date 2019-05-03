@@ -86,10 +86,32 @@
             removeDupes(notification_box_desktop);
             removeDupes(notification_box_mobile);
         }
-    
+		function limitNotifications(limit){
+            // Limit notifications on both mobile and desktop sides
+            var notification_box_desktop = $('#notifications-desktop');
+            var notification_box_mobile = $('#notifications-mobile');
+
+            function limitNotificationsInBox(notification_box){
+                var notifications = notification_box.children();
+                var size = notifications.length;
+
+                if(size <= limit) return;
+
+                var stop_index = size - limit;
+                for(var i = size-1; i > stop_index; i--){
+                    notifications[i].parentNode.removeChild(notifications[i]);
+                }
+                
+            }
+
+            limitNotificationsInBox(notification_box_desktop);
+            limitNotificationsInBox(notification_box_mobile);
+        }
         function countNotifications(){
-            // Get number of notifications which is double becuase of the mobile nav so divide it back down
-            
+            // Limit the number of notifications 
+            limitNotifications(8);
+			
+			// Get number of notifications which is double becuase of the mobile nav so divide it back down
             let numItems = Math.max(Math.trunc($('.navNotifications').length/2.0), 0);
 			
 			// Desktop/Tablet element
