@@ -42,11 +42,8 @@ from Instructors.views.importStudentsView import importStudents
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
-<<<<<<< HEAD
 from Instructors.views.instructorQA import instructorQA
-=======
 from Instructors.views.instructorNotifications import instructorNotifications, updateNotificationTable
->>>>>>> notification_page
 
 from Instructors.views.matchingView import matchingForm
 from Instructors.views.milestoneCreateView import milestoneCreateView
