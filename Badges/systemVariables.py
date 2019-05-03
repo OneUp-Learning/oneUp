@@ -112,8 +112,8 @@ def getUniqueChallengesGreaterThanPercentage(course, student, isGraded, percenta
     challenges = Challenges.objects.filter(courseID=course, isGraded=isGraded)
     for challenge in challenges:
         # Get the highest percentage correct from challenge. Also checks to see if student has taken that challenge
-        percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
-        if percentage > percentage:
+        percent_of_max_score = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+        if percent_of_max_score > percentage:
             challengesGreaterThan += 1
     return challengesGreaterThan
     
@@ -467,7 +467,7 @@ def getScoreDifferenceFromPreviousActivity(course, student, activity):
 
 def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student, activity):
     ''' This system variable calculates the score difference from the activity provided and 
-        the previous activies based on the average of the previous activities and the activity
+        the previous activies based on the average of the previous activities percentages and the activity
         category for the student. The previous activities are selected if the activity deadline 
         is less than or equal to the activity provied deadline as well as the activity provided category.
 
@@ -483,8 +483,8 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
     studentActivites = StudentActivities.objects.filter(courseID = course, activityID__in = activitiesWithCategory, studentID = student, graded = True).order_by('-activityID__deadLine')
     if studentActivites.exists():
         latestAttempt = studentActivites.first()
-        # Calculate the total of the earlier activities scores
-        total = sum(int(act.activityScore) for act in studentActivites[1:])
+        # Calculate the total of the earlier activities by percentage
+        total = sum(int(getPercentageOfActivityScore(course, student, act)) for act in studentActivites[1:])
         count = studentActivites.count()-1
         if count <= 0:
             print("Total: " + str(total))
@@ -1277,7 +1277,7 @@ class SystemVariable():
         timeSpentOnChallenges:{
             'index': timeSpentOnChallenges,
             'name':'timeSpentOnChallenges',
-            'displayName':'Time Spent On Challenges',
+            'displayName':'Time Spent On Challenges (Minutes)',
             'description':'The total time in minutes a student has spent completing challenges',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
@@ -1316,7 +1316,7 @@ class SystemVariable():
         timeSpentOnQuestions:{
             'index': timeSpentOnQuestions,
             'name':'timeSpentOnQuestions',
-            'displayName':'Time Spent On Questions',
+            'displayName':'Time Spent On Questions (Minutes)',
             'description':'The total time in minutes a student has spent completing questions',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endQuestion], #I'm not sure this makes sense - Keith

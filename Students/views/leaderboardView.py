@@ -16,18 +16,19 @@ from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
 from Instructors.models import CoursesSkills, Skills
+from Students.views.studentCourseHomeView import courseBadges
 
 
 @login_required
 
 
 def LeaderboardView(request):
- 
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated
     if request.user.is_authenticated:
         context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
+        if not instructor:
+            sID = Student.objects.get(user=request.user)
 
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
@@ -62,11 +63,9 @@ def LeaderboardView(request):
         studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
         context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
         context_dict["classSkillsDisplayed"]= studentConfigParams.displayClassSkills
-        
+        context_dict['courseBadges'] = courseBadges(currentCourse, context_dict)
            
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.visitedLeaderboardPage, request, sID, None)
     print("User visited Leaderboard page was registered for the student in the request")
-    
-    return render(request,'Students/Leaderboard.html', context_dict)           
-        
+    return render(request,'Students/Leaderboard.html', context_dict)

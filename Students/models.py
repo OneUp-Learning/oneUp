@@ -256,15 +256,7 @@ class StudentConfigParams(models.Model):
     displayGoal = models.BooleanField(default=True)
     
     def __str__(self):
-        return str(self.scpID)  +","
-        +str(self.courseID) +","
-        +str(self.studentID) +","
-        +str(self.displayBadges) +","                           
-        +str(self.displayLeaderBoard) +","                      
-        +str(self.displayClassSkills) +","                      
-        +str(self.displayClassAverage) +","                     
-        +str(self.displayClassRanking) +","
-        +str(self.displayGoal)   
+        return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +",displayBadges:"+str(self.displayBadges) +",displayLeaderboard:"+str(self.displayLeaderBoard) +",displayClassSkills"+str(self.displayClassSkills) +",displayClassAverage:"+str(self.displayClassAverage) +",displayClassRanking:"+str(self.displayClassRanking) +",displayGoal:"+str(self.displayGoal)+",participateInDuel:"+str(self.participateInDuel)+",courseBucks:"+str(self.courseBucks)   
 
 class PeriodicallyUpdatedleaderboards(models.Model):
     periodicLeaderboardID = models.AutoField(primary_key=True)

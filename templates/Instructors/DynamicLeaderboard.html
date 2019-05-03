@@ -1,260 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-   <script>
-      /* Should always hold the number of answers displayed. */
-      var numLeaderTables = {{num_tables}};
-      var numberOfItems = 0;
-      
-      
-      /* Adds a new blank answer */
-      function addAnswer() {
-      
-        /* If there are only two answers, we've hidden the remove button
-           now we're adding a new answer, so we show it again. */
-        if(numLeaderTables >= 0) {
-         //enable the usage of remove button
-          document.getElementById('removeLeaderboard').classList.remove('disabled');
-        }
-      
-        /* Increment the javascript variable */
-        numLeaderTables++;
-      
-        /* Update the number which will be returned to python */
-        document.getElementById('numLeaderTables').value=numLeaderTables;
-      
-        /* Construct a new answer blank. */
-        
-        var id = numLeaderTables;
-        var newElement =  "<div name='leaderboard' id='leaderboard_"+id+"'>\n"+
-    	"<input type='hidden' name='leaderboardID[]' value='none'>\n"+
-        "<div class='row'>\n"+
-           "<div class='col s12 m9 offset-m1'>\n"+
-              "<div class='card'>\n"+
-                 "<div class='card-content'>\n"+
-                    "<div class='row'>\n"+
-                       "<div class='input-field col s12'>\n"+
-                          "<input id='leaderboardName_"+id+"' value='' name='leaderboardName[]' type='text' class='validate'>\n"+
-                          "<label for='leaderboardName_"+id+"' >Leaderboard Name</label>\n"+
-                       "</div>\n"+
-                       "<div class='input-field col s12'>\n"+
-                          "<textarea id='leaderboardDescription_"+id+"' name='leaderboardDescription[]' class='materialize-textarea' type='text' class='validate'></textarea>\n"+
-                          "<label for='leaderboardDescription_"+id+"' >Leaderboard Description</label>\n"+
-                       "</div>\n"+
-                       "</div>\n"+
-                    "<div class = 'row'>\n"+
-                    "<div class='input-field col s3'>\n"+
-                    "<input id='studentsShown_"+id+"' value='' name='studentsShown[]' type='number' required class='validate'>\n"+
-                    "<label for='studentsShown_"+id+"' >Number of Students Shown</label>\n"+
-                    "</div>\n"+
-                          "<div class='col s6'>\n"+
-                          "<input name='homePagecheckbox' class='checkbox' type='checkbox' id='home_"+id+"'>\n"+
-                          "<label for='home_"+id+"'>Display on Home Page</label>\n"+
-                          "<input name='home[]' type='hidden' id='home_"+id+"_hidden'>\n"+
-                          "</div>\n"+
-                       
-                          "</div>\n"+
-
-                          "<div class = 'row'>\n"+
-                            "<div class='col s12'>\n"+
-                             "<p>Frequency of Leaderboard Update:</p>\n"+
-                             "</div>\n"+
-                             "</div>\n"+
-                    "<div class = 'row'>\n"+
-                       "<div  id='timePeriod_"+id+"' class='col s3'>\n"+
-                          "<label for='timePeriodSelected_"+id+"'>Leaderboard Update:</label>\n"+
-                          "<select id='timePeriodSelected_"+id+"' onchange='checkIfContinousSelected(timePeriodSelected_"+id+", timePeriod_"+id+", "+id+")' name='timePeriodSelected[]'>\n"+
-                          {% for timePeriod in timePeriods %}
-                          "<option value='{{timePeriod.index}}' {% if timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>\n"+
-                          {% endfor %}
-                          "</select>\n"+
-                          "</div>\n"+
-                          "<div id='continuousTimePeriodSelectedDiv_"+id+"' class='col s3'>\n"+
-                          "<label for='continuousTimePeriodSelected_"+id+"'>Time Period Back:</label>\n"+
-                          "<select id='continuousTimePeriodSelected_"+id+"' name='howFarBackTimePeriodSelected_[]'>\n"+
-                          "<option value='1500' >Day</option>\n"+
-                          "<option value='1501' >Week</option>\n"+
-                          "<option value='1502' >From Start of Semester</option>\n"+
-                          "</select>\n"+
-                          "</div>\n"+
-                          "<div class='col s6'>\n"+
-                          "<label>Periodic Variable:</label>\n"+
-                          "<select id='periodicVariableSelected_"+id+"' name='periodicVariableSelected[]'>\n"+
-                          {% for periodicVariable in periodicVariables %}
-                          "<option value='{{periodicVariable.index}}' {% if periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>\n"+
-                          {% endfor %}
-                          "</select>\n"+
-                       "</div>\n"+
-                       "</div>\n"+
-                       "</div>\n"+
-                       "</div>\n"+
-                       "</div>\n"+
-                       "</div>\n"+
-                       "</div>\n";
-                
-        /* And put it in place. */
-        var node = document.createTextNode(newElement);
-        if (numLeaderTables){
-         var previous = document.getElementById('leaderboard');
-        }
-        else{
-         var previous = document.getElementById('leaderboard_'+ numLeaderTables);
-         }
-        previous.insertAdjacentHTML('afterEnd',newElement);
-        
-        
-        console.log(numLeaderTables)
-        $('select').material_select();
-      }
-      
-      /* Removes the bottom answer */
-      function removeAnswer() {
-        /* Remove last answer blank. */
-        var lastAnswer = document.getElementById("leaderboard_"+(numLeaderTables));
-        lastAnswer.parentElement.removeChild(lastAnswer);
-      
-        /* Decrement js variable */
-        numLeaderTables--;
-      
-        /* Update the number which will be returned to python */ 
-        document.getElementById('numLeaderTables').value = numLeaderTables;
-      
-        /* If we're down to just two answers, hide the button which
-           removes answers */
-        if (numLeaderTables <= {{num_tables}}) {
-          document.getElementById('removeLeaderboard').classList.add('disabled');
-        }
-        console.log(numLeaderTables);
-        $('select').material_select();
-      }
-      
-      function getNumTables(){
-    	createCheckBoxData();
-      	var leaderboards = document.getElementsByName( 'leaderboard' );
-      	document.getElementById('numLeaderTables').value = leaderboards.length;
-      }
-      
-      function createCheckBoxData(){
-    	setHiddenDataForCheckbox('homePagecheckbox');
-      	console.log("ran");
-      }
-      
-     function setHiddenDataForCheckbox(checkboxName){
-   	  var checkBoxes = document.getElementsByName(checkboxName);
-             for (var i = 0; i < checkBoxes.length; i++) {
-            	 var id = checkBoxes[i].id;
-                 if ( checkBoxes[i].checked ==  true) {
-                	 document.getElementById(id+"_hidden").value = true;
-                 }else{
-                	 document.getElementById(id+"_hidden").value = false;
-                 }
-             }
-     }
-     
-     function makeSureTheresOnlyOneTimeBackSelector(selectedItem,whereIsSelect, currentID){
- 		var continousTimePeriodSelect = "<div id='continuousTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
-         "<label for='continuousTimePeriodSelected_"+currentID+"'>Time Period Back:</label>\n"+
-         "<select id='continuousTimePeriodSelected_"+currentID+"' name='howFarBackTimePeriodSelected_[]'>\n"+
-         "<option value='1500' >Day</option>\n"+
-         "<option value='1501' >Week</option>\n"+
-         "<option value='1502' >From Start of Semester</option>\n"+
-         "</select>\n"+
-         "</div>\n";
-         
-         var weeklyTimePeriodSelect = "<div id='weeklyTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
-         "<label for='weeklyTimePeriodSelected_"+currentID+"'>Leaderboard Update:</label>\n"+
-         "<select id='weeklyTimePeriodSelected_"+currentID+"' name='howFarBackTimePeriodSelected_[]'>\n"+
-         "<option value='1501' >Weekly on Sundays at Midnight</option>\n"+
-         "<option value='1502' >Only once at Midnight</option>\n"+
-         "</select>\n"+
-         "</div>\n";
- 		
- 		//we are enabling the continous, so check if its already there to avoid enabling
- 		//if theres the one for weekly, disable it a
- 		if(selectedItem == "continous"){
- 			//if weekly is present, remove it
- 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
- 				weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
-       			whereIsSelect.parentElement.removeChild(weeklySelect);
- 			}
- 			
- 			//then check if continous is not there, if it is not there add it
- 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) == null){
- 				whereIsSelect.insertAdjacentHTML('afterEnd',continousTimePeriodSelect);
- 			}
- 			if(document.getElementById("emptyHowFarBack_" + currentID) != null){
- 				emptyHowFarBack = document.getElementById("emptyHowFarBack_" + currentID);
- 				emptyHowFarBack.parentNode.removeChild(emptyHowFarBack);
- 			}
- 		}
- 		
- 		
- 		if(selectedItem == "weekly"){
- 
- 			//if continous is present, remove it
- 			if (document.getElementById("continuousTimePeriodSelectedDiv_{{i}}"+currentID) != null ){
- 				continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_{{i}}"+currentID);
- 				whereIsSelect.parentElement.removeChild(continousSelect);
- 			}
- 			
- 			//check if weekly is not here, if it is not here add it
- 			if (document.getElementById("weeklyTimePeriodSelected_"+currentID) == null){
- 				whereIsSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
- 			}
- 			if(document.getElementById("emptyHowFarBack_" + currentID) != null){
- 				emptyHowFarBack = document.getElementById("emptyHowFarBack_" + currentID);
- 				emptyHowFarBack.parentNode.removeChild(emptyHowFarBack);
- 			}
- 			
- 		}
- 		
- 		//the default case is where we have switched anything else and we must remove it
- 		if(selectedItem == "default"){
- 			if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
- 			weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
- 			console.log(weeklySelect);
- 			console.log(whereIsSelect.parentElement);
- 			whereIsSelect.parentElement.removeChild(weeklySelect);
- 			}
- 			if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
-   			continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
-   			whereIsSelect.parentElement.removeChild(continousSelect);
- 			}
- 		}
- 		
- 		$('select').material_select();
-      }
-     
-     //check if continous for weekly has been selected
-     function checkIfContinousSelected(selectID, whereIsContinuousSelect, currentID){
-        
-    	 //switch on the value of the select
-        switch($(selectID).val()){
-        	case "0":
-        		console.log("case 0");
-        		makeSureTheresOnlyOneTimeBackSelector("continous", whereIsContinuousSelect, currentID);
-        		break;
-        	case "1501":
-        		console.log("case weekly");
-        		makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect, currentID);
-        		break;
-        	default:
-        		makeSureTheresOnlyOneTimeBackSelector("default",whereIsContinuousSelect, currentID);
-        		break;
-        }
-     }
-     
-     function deleteButton(id){
-    	 document.getElementById("deleteInput").value = id;
-    	 document.getElementById("deleteForm").submit();
-     }
-   </script>
    <head>{% include 'scripts.html' %}</head>
    <body>
       {% include 'heading.html' %}
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Dynamic Leaderboards</h3>
+               <h3>Leaderboards</h3>
             </div>
          </div>
          <form name="question" id="actForm" enctype="multipart/form-data"
@@ -262,103 +14,14 @@
             {% csrf_token %} 
             <input type="hidden" name="numLeaderTables" id="numLeaderTables" value="">
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
-            <input type="hidden" name="xpLeaderboardID" value="{{xpLeaderboardID}}">     
             <div name="leaderboard" id="leaderboard">
                <!-- Leaderboard container -->
-               <div class="row">
-                  <div class="col s8 m5 offset-m1">
-                     <div class="card">
-                        <div class="card-content">
-                           <span class="card-title">XP Leaderboard</span>
-                           <div class="row">
-                              <div class="input-field col s12">
-                                 <input id="leaderboardDescription" value="{{leaderboardDescription}}"
-                                    name="leaderboardDescription" type="text" class="validate">
-                                 <label for="leaderboardDescription"
-                                    >Leaderboard Description</label>
-                              </div>
-                           </div>
-                           <div class="row">
-                              <div class="input-field col s12">
-                                 <input id="studentsShown" value="{{numStudentsDisplayed}}" name="studentsShown" type="text">
-                                 <label for="studentsShown" >Number of Students Shown</label>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="col s12 m4">
-                     <div class="card">
-                        <div class="card-content">
-                           <span class="card-title">Calculating Total XP Points</span>
-                           <div class="row">
-                              <div class="input-field col s10">
-                                 <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge" id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
-                                 <label for="s_challenge_weight">Weight of <i>serious challenge points (in % )</i></label>
-                              </div>
-                           </div>
-                           <div class="row">
-                              <div class="input-field col s12">
-                                 <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge" id="w_challenge_weight" maxlength="3" type="number"  min="0" max="100">
-                                 <label for="w_challenge_weight">Weight of <i>warmup challenge points (in % )</i></label>
-                              </div>
-                           </div>
-                           <div class="row">
-                              <div class="input-field col s12">
-                                 <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight" maxlength="3" type="number" class="validate" min="0" max="100">
-                                 <label for="s_points_weight">Weight of <i>skill points (in % )</i></label>
-                              </div>
-                           </div>
-                           <div class="row">
-                              <div class="input-field col s12">
-                                 <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight" maxlength="3" type="number" min="0" max="100">
-                                 <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
-                              </div>
-                           </div>
-                           <div class="row">
-                              <div class="row">
-                                    <div class="col s12">
-                                        <p>Serious Challenges</p>
-                                    </div>
-                                </div>
-                              <div class="row">
-                              <p>
-                                  <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio" id="xpSeriousMaxScore" value="True" {% if xpCalculateSeriousByMaxScore == True %} checked {%endif%} />
-                                  <label for="xpSeriousMaxScore">Calculate XP by max score</label>
-                              </p>
-                              <p>
-                                  <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio" value="False" id="xpSeriousFirstAttempt" {% if xpCalculateSeriousByMaxScore == False %} checked {%endif%} />
-                                  <label for="xpSeriousFirstAttempt">Calculate XP by first attempt</label>
-                              </p>
-                           </div>
-                          </div>
-                          <div class="row">
-                           <div class="row">
-                                 <div class="col s12">
-                                     <p>Warmup Challenges</p>
-                                 </div>
-                             </div>
-                           <div class="row">
-                           <p>
-                               <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio" id="xpWarmupMaxScore" value="True" {% if xpCalculateWarmupByMaxScore == True %} checked {%endif%} />
-                               <label for="xpWarmupMaxScore">Calculate XP by max score</label>
-                           </p>
-                           <p>
-                               <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio" value="False" id="xpWarmupFirstAttempt" {% if xpCalculateWarmupByMaxScore == False %} checked {%endif%} />
-                               <label for="xpWarmupFirstAttempt">Calculate XP by first attempt</label>
-                           </p>
-                        </div>
-                       </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
             </div>
             {% for i, leaderboardID, isContinous, continousHowFarBack, displayOnHomePage,leaderboardName,leaderboardDescription, timePeriodID,  periodicVariableID, numStudentsDisplayed in leaderboard %}            
             <div name='leaderboard' id='leaderboard_{{i}}'>
             	<input type="hidden" name="leaderboardID[]" value="{{leaderboardID}}">
                <div class='row'>
-                  <div class='col s10 m9 offset-m1'>
+                  <div class='col s10 m8 offset-m2'>
                      <div class='card'>
                         <div class='card-content'>
                         
@@ -454,10 +117,10 @@
             <div class="row">
                <div class="col s12 m10 offset-m1"></div>
                <div class="right-align col s12 m9 offset-m1">
-                  <a id="removeLeaderboard" class="waves-effect waves-light btn"
+                  <a id="removeLeaderboard" class="waves-effect waves-light btn disabled"
                      onclick="removeAnswer();"><i class="material-icons left">remove</i>Remove Last
                   Leaderboard</a> 
-                  <a id="addLeaderboard" class="waves-effect waves-light btn" onclick="addAnswer();">
+                  <a id="addLeaderboard" class="waves-effect waves-light btn" onclick="addAnswer(false);">
                      <i class="material-icons left">toys</i>Add Leaderboard</a>
                   <button class="btn waves-effect waves-light" type="submit"
                      onclick="getNumTables();" name="submit">
@@ -478,4 +141,254 @@
       </main>
       {% include 'footer.html' %}
    </body>
+   <script>
+         /* Should always hold the number of answers displayed. */
+         var numLeaderTables = {{num_tables}};
+         var numberOfItems = 0;
+         
+         // Add a blank leaderboard if there are none created for this course
+         if(numLeaderTables == 0){
+            addAnswer(true);
+         }
+         /* Adds a new blank answer */
+         function addAnswer(force) {
+         
+           /* If there are only two answers, we've hidden the remove button
+              now we're adding a new answer, so we show it again. */
+           if(force == false && numLeaderTables >= 0) {
+            //enable the usage of remove button
+             document.getElementById('removeLeaderboard').classList.remove('disabled');
+           }
+         
+           /* Increment the javascript variable */
+           numLeaderTables++;
+         
+           /* Update the number which will be returned to python */
+           document.getElementById('numLeaderTables').value=numLeaderTables;
+         
+           /* Construct a new answer blank. */
+           
+           var id = numLeaderTables;
+           var newElement =  "<div name='leaderboard' id='leaderboard_"+id+"'>\n"+
+          "<input type='hidden' name='leaderboardID[]' value='none'>\n"+
+           "<div class='row'>\n"+
+              "<div class='col s12 m8 offset-m2'>\n"+
+                 "<div class='card'>\n"+
+                    "<div class='card-content'>\n"+
+                       "<div class='row'>\n"+
+                          "<div class='input-field col s12'>\n"+
+                             "<input id='leaderboardName_"+id+"' value='' name='leaderboardName[]' type='text' class='validate'>\n"+
+                             "<label for='leaderboardName_"+id+"' >Leaderboard Name</label>\n"+
+                          "</div>\n"+
+                          "<div class='input-field col s12'>\n"+
+                             "<textarea id='leaderboardDescription_"+id+"' name='leaderboardDescription[]' class='materialize-textarea' type='text' class='validate'></textarea>\n"+
+                             "<label for='leaderboardDescription_"+id+"' >Leaderboard Description</label>\n"+
+                          "</div>\n"+
+                          "</div>\n"+
+                       "<div class = 'row'>\n"+
+                       "<div class='input-field col s3'>\n"+
+                       "<input id='studentsShown_"+id+"' value='' name='studentsShown[]' type='number' required class='validate'>\n"+
+                       "<label for='studentsShown_"+id+"' >Number of Students Shown</label>\n"+
+                       "</div>\n"+
+                             "<div class='col s6'>\n"+
+                             "<input name='homePagecheckbox' class='checkbox' type='checkbox' id='home_"+id+"'>\n"+
+                             "<label for='home_"+id+"'>Display on Home Page</label>\n"+
+                             "<input name='home[]' type='hidden' id='home_"+id+"_hidden'>\n"+
+                             "</div>\n"+
+                          
+                             "</div>\n"+
+   
+                             "<div class = 'row'>\n"+
+                               "<div class='col s12'>\n"+
+                                "<p>Frequency of Leaderboard Update:</p>\n"+
+                                "</div>\n"+
+                                "</div>\n"+
+                       "<div class = 'row'>\n"+
+                          "<div  id='timePeriod_"+id+"' class='col s3'>\n"+
+                             "<label for='timePeriodSelected_"+id+"'>Leaderboard Update:</label>\n"+
+                             "<select id='timePeriodSelected_"+id+"' onchange='checkIfContinousSelected(timePeriodSelected_"+id+", timePeriod_"+id+", "+id+")' name='timePeriodSelected[]'>\n"+
+                             {% for timePeriod in timePeriods %}
+                             "<option value='{{timePeriod.index}}' {% if timePeriodID == timePeriod.index %}selected{% endif %}>{{timePeriod.displayName}}</option>\n"+
+                             {% endfor %}
+                             "</select>\n"+
+                             "</div>\n"+
+                             "<div id='continuousTimePeriodSelectedDiv_"+id+"' class='col s3'>\n"+
+                             "<label for='continuousTimePeriodSelected_"+id+"'>Time Period Back:</label>\n"+
+                             "<select id='continuousTimePeriodSelected_"+id+"' name='howFarBackTimePeriodSelected_[]'>\n"+
+                             "<option value='1500' >Day</option>\n"+
+                             "<option value='1501' >Week</option>\n"+
+                             "<option value='1502' >From Start of Semester</option>\n"+
+                             "</select>\n"+
+                             "</div>\n"+
+                             "<div class='col s6'>\n"+
+                             "<label>Periodic Variable:</label>\n"+
+                             "<select id='periodicVariableSelected_"+id+"' name='periodicVariableSelected[]'>\n"+
+                             {% for periodicVariable in periodicVariables %}
+                             "<option value='{{periodicVariable.index}}' {% if periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>\n"+
+                             {% endfor %}
+                             "</select>\n"+
+                          "</div>\n"+
+                          "</div>\n"+
+                          "</div>\n"+
+                          "</div>\n"+
+                          "</div>\n"+
+                          "</div>\n"+
+                          "</div>\n";
+                   
+           /* And put it in place. */
+           var node = document.createTextNode(newElement);
+           if (numLeaderTables){
+            var previous = document.getElementById('leaderboard');
+           }
+           else{
+            var previous = document.getElementById('leaderboard_'+ numLeaderTables);
+            }
+           previous.insertAdjacentHTML('afterEnd',newElement);
+           
+           
+           console.log(numLeaderTables)
+           $('select').material_select();
+         }
+         
+         /* Removes the bottom answer */
+         function removeAnswer() {
+           /* Remove last answer blank. */
+           var lastAnswer = document.getElementById("leaderboard_"+(numLeaderTables));
+           lastAnswer.parentElement.removeChild(lastAnswer);
+         
+           /* Decrement js variable */
+           numLeaderTables--;
+         
+           /* Update the number which will be returned to python */ 
+           document.getElementById('numLeaderTables').value = numLeaderTables;
+         
+           /* If we're down to just one leaderboard disable the remove button */
+           if (numLeaderTables-1 <= {{num_tables}}) {
+             document.getElementById('removeLeaderboard').classList.add('disabled');
+           }
+           console.log(numLeaderTables);
+           $('select').material_select();
+         }
+         
+         function getNumTables(){
+          createCheckBoxData();
+            var leaderboards = document.getElementsByName( 'leaderboard' );
+            document.getElementById('numLeaderTables').value = leaderboards.length;
+         }
+         
+         function createCheckBoxData(){
+          setHiddenDataForCheckbox('homePagecheckbox');
+            console.log("ran");
+         }
+         
+        function setHiddenDataForCheckbox(checkboxName){
+           var checkBoxes = document.getElementsByName(checkboxName);
+                for (var i = 0; i < checkBoxes.length; i++) {
+                   var id = checkBoxes[i].id;
+                    if ( checkBoxes[i].checked ==  true) {
+                       document.getElementById(id+"_hidden").value = true;
+                    }else{
+                       document.getElementById(id+"_hidden").value = false;
+                    }
+                }
+        }
+        
+        function makeSureTheresOnlyOneTimeBackSelector(selectedItem,whereIsSelect, currentID){
+          var continousTimePeriodSelect = "<div id='continuousTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
+            "<label for='continuousTimePeriodSelected_"+currentID+"'>Time Period Back:</label>\n"+
+            "<select id='continuousTimePeriodSelected_"+currentID+"' name='howFarBackTimePeriodSelected_[]'>\n"+
+            "<option value='1500' >Day</option>\n"+
+            "<option value='1501' >Week</option>\n"+
+            "<option value='1502' >From Start of Semester</option>\n"+
+            "</select>\n"+
+            "</div>\n";
+            
+            var weeklyTimePeriodSelect = "<div id='weeklyTimePeriodSelectedDiv_"+currentID+"' class='col s3'>\n"+
+            "<label for='weeklyTimePeriodSelected_"+currentID+"'>Leaderboard Update:</label>\n"+
+            "<select id='weeklyTimePeriodSelected_"+currentID+"' name='howFarBackTimePeriodSelected_[]'>\n"+
+            "<option value='1501' >Weekly on Sundays at Midnight</option>\n"+
+            "<option value='1502' >Only once at Midnight</option>\n"+
+            "</select>\n"+
+            "</div>\n";
+          
+          //we are enabling the continous, so check if its already there to avoid enabling
+          //if theres the one for weekly, disable it a
+          if(selectedItem == "continous"){
+             //if weekly is present, remove it
+             if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+                weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+                   whereIsSelect.parentElement.removeChild(weeklySelect);
+             }
+             
+             //then check if continous is not there, if it is not there add it
+             if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) == null){
+                whereIsSelect.insertAdjacentHTML('afterEnd',continousTimePeriodSelect);
+             }
+             if(document.getElementById("emptyHowFarBack_" + currentID) != null){
+                emptyHowFarBack = document.getElementById("emptyHowFarBack_" + currentID);
+                emptyHowFarBack.parentNode.removeChild(emptyHowFarBack);
+             }
+          }
+          
+          
+          if(selectedItem == "weekly"){
+    
+             //if continous is present, remove it
+             if (document.getElementById("continuousTimePeriodSelectedDiv_{{i}}"+currentID) != null ){
+                continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_{{i}}"+currentID);
+                whereIsSelect.parentElement.removeChild(continousSelect);
+             }
+             
+             //check if weekly is not here, if it is not here add it
+             if (document.getElementById("weeklyTimePeriodSelected_"+currentID) == null){
+                whereIsSelect.insertAdjacentHTML('afterEnd',weeklyTimePeriodSelect);
+             }
+             if(document.getElementById("emptyHowFarBack_" + currentID) != null){
+                emptyHowFarBack = document.getElementById("emptyHowFarBack_" + currentID);
+                emptyHowFarBack.parentNode.removeChild(emptyHowFarBack);
+             }
+             
+          }
+          
+          //the default case is where we have switched anything else and we must remove it
+          if(selectedItem == "default"){
+             if (document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID) != null){
+             weeklySelect = document.getElementById("weeklyTimePeriodSelectedDiv_"+currentID);
+             console.log(weeklySelect);
+             console.log(whereIsSelect.parentElement);
+             whereIsSelect.parentElement.removeChild(weeklySelect);
+             }
+             if (document.getElementById("continuousTimePeriodSelectedDiv_"+currentID) != null ){
+               continousSelect = document.getElementById("continuousTimePeriodSelectedDiv_"+currentID);
+               whereIsSelect.parentElement.removeChild(continousSelect);
+             }
+          }
+          
+          $('select').material_select();
+         }
+        
+        //check if continous for weekly has been selected
+        function checkIfContinousSelected(selectID, whereIsContinuousSelect, currentID){
+           
+           //switch on the value of the select
+           switch($(selectID).val()){
+              case "0":
+                 console.log("case 0");
+                 makeSureTheresOnlyOneTimeBackSelector("continous", whereIsContinuousSelect, currentID);
+                 break;
+              case "1501":
+                 console.log("case weekly");
+                 makeSureTheresOnlyOneTimeBackSelector("weekly", whereIsContinuousSelect, currentID);
+                 break;
+              default:
+                 makeSureTheresOnlyOneTimeBackSelector("default",whereIsContinuousSelect, currentID);
+                 break;
+           }
+        }
+        
+        function deleteButton(id){
+           document.getElementById("deleteInput").value = id;
+           document.getElementById("deleteForm").submit();
+        }
+      </script>
 </html>
