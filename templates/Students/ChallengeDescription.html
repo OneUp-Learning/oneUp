@@ -35,17 +35,20 @@
                         {% else %}
                         <p class="flow-text">Difficulty: <b>{{challengeDifficulty}}</b></p>
                         <p class="flow-text">Time Limit (Minutes): <b>{{timeLimit}}</b></p>
+
                         {% if isDuel %}	
                         <p class="flow-text">Remaining Attempts: <b>1</b></p>
                         <p>This is your only attempt!!!</p>
                         {% else %}
-                        <p class="flow-text">Remaining Attempts: <b>{{more_attempts}}</b></p>	
+                           {% if last_attempt %}<!--if student has only 1 attempt left, then this message is displayed-->
+                           <p class="flow-text">Remaining Attempts: <b>1</b></p>
+                           <p class="flow-text">{{last_attempt}}</p>
+                           {% else %}
+                           <p class="flow-text">Remaining Attempts: <b>{{more_attempts}}</b></p>
+                           {% endif %}	
                         {% endif %}
                         
-                        {% if last_attempt %}<!--if student has only 1 attempt left, then this message is displayed-->
-                        <p class="flow-text">Remaining Attempts: <b>1</b></p>
-                        <p>{{last_attempt}}</p>
-                        {% endif %}
+                        
                         <blockquote>
                            <b>Note:</b> If you navigate away from the challenge page before submitting the challenge, you will lose all entered information and will not be allowed to resubmit this attempt.
                         </blockquote>
