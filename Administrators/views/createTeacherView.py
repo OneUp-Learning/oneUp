@@ -13,11 +13,13 @@ from oneUp.auth import createTeachers, checkPermBeforeView, teachers
 from django.contrib.auth.models import User
 from Badges.systemVariables import logger
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+from django.contrib.auth.decorators import login_required, user_passes_test
+from oneUp.decorators import adminsCheck
 
+
+@login_required
+@user_passes_test(adminsCheck,login_url='/oneUp/home',redirect_field_name='')
 def createTeacherView(request):
-    checkPermBeforeView(createTeachers,request,createTeacherViewUnchecked)
-
-def createTeacherViewUnchecked(request):
     context_dict = {}
     
     context_dict["logged_in"]=request.user.is_authenticated
@@ -48,7 +50,7 @@ def createTeacherViewUnchecked(request):
                 
                 student = Student.objects.filter(user=instructor)
                 if student:
-                    student = student[0]
+                    student = student[0].user
                     student.first_name = firstname
                     student.last_name = lastname
                     if not pword.startswith('bcrypt'):
@@ -60,7 +62,7 @@ def createTeacherViewUnchecked(request):
             if instructorEmails and instructorEmails[0].email != request.POST['iEmailPrev']:
                 errorList.append("Instructor email is taken.")
             if len(errorList) == 0: # The username and email are unique
-                instructor = instructors[0]
+                instructor = User.objects.filter(groups__name="Teachers", username=request.POST['iUsernamePrev']).first()
                 instructor.username = uname
                 instructor.first_name = firstname
                 instructor.last_name = lastname
@@ -71,7 +73,7 @@ def createTeacherViewUnchecked(request):
                 
                 student = Student.objects.filter(user=instructor)
                 if student:
-                    student = student[0]
+                    student = student[0].user
                     student.first_name = firstname
                     student.last_name = lastname
                     if not pword.startswith('bcrypt'):

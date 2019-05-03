@@ -20,7 +20,7 @@ import re
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 from oneUp.decorators import instructorsCheck     
-
+from oneUp.ckeditorUtil import config_ck_editor
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def templateDynamicQuestionForm(request):
@@ -134,7 +134,8 @@ def templateDynamicQuestionForm(request):
         return redirectVar
     
     elif request.method == 'GET':
-        
+        if 'view' in request.GET:
+            context_dict['view'] = request.GET['view']
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
         context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
         context_dict['checkInitalTemplateTextPart'] = True
@@ -195,6 +196,8 @@ def templateDynamicQuestionForm(request):
     
     if 'questionId' in request.POST:         
             return redirect('challengesView')
+
+    context_dict['ckeditor'] = config_ck_editor()
             
     return render(request,'Instructors/TemplateDynamicQuestionForm.html', context_dict)
 

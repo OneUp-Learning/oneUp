@@ -26,7 +26,7 @@
       <main>
          <div class="row center-align">
             <div class="col s12">
-               <h3>Create New Progressive Unlocking Rule</h3>
+               <h3>Create/Edit Progressive Unlocking Rule</h3>
             </div>
          </div>
          <form name="addNewPRule" action="/oneUp/badges/ProgressiveUnlocking" method="POST" onsubmit=" return condOnSubmit();">
@@ -58,10 +58,13 @@
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
-                            <select name="ruleObjectType" id="ruleTypes" onchange="getObjects()">
+                            <select name="ruleObjectType" id="ruleTypes" onchange="getObjects()" required>
+                            {% if edit %}
+                                <option value= {{type.string}} >{{type.string}}</option> 
+                            {% endif %}
                                 {% for type in filter %}
                                     {% if type.string == ruleTypeString or type.string == 'ActivityCategory' %}
-                                       <option value={{type.string}} selected>{{type.string}}</option>
+                                       <option value={{type.string}}>{{type.string}}</option>
                                     {% else %}
                                        <option value={{type.string}}>{{type.string}}</option>
                                     {% endif %}
@@ -87,7 +90,11 @@
                                        <option value={{obj.pk}} >{{obj.activityName}}</option>
                                     {%endif%}
                                   {% elif ruleType == 1306 %}
-                                    <option selected value={{obj.pk}} >{{obj.topicID.topicName}}</option>}
+                                    {% if pRule.objectID == obj.pk %}
+                                       <option selected value={{obj.pk}} >{{obj.topicID.topicName}}</option>
+                                    {% else %}
+                                       <option value={{obj.pk}} >{{obj.topicID.topicName}}</option>
+                                    {% endif %}
                                   {% elif ruleType == 1307 %}
                                      {% if pRule.objectID == obj.pk %}
                                        <option selected value={{obj.pk}} >{{obj.name}}</option>}

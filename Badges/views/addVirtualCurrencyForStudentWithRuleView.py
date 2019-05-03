@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
-from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrency
+from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
 from Badges.systemVariables import logger
 
 
@@ -17,7 +17,10 @@ def addVirtualCurrencyForStudentWithRuleView(request):
             studentCurrencyVC = []
             for studentobj in students:
                 studentID.append(studentobj.studentID)
-                studentName.append(studentobj.studentID.user.get_full_name())
+                if studentobj.studentID.isTestStudent:
+                    studentName.append(studentobj.studentID.user.get_full_name() + " (Test Student)")
+                else:
+                    studentName.append(studentobj.studentID.user.get_full_name())
                 studentCurrencyVC.append(studentobj.virtualCurrencyAmount)
             
             rules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID = course)
@@ -40,6 +43,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
             for studentobj in students:
                 studentValAttribute = str(studentobj.studentID) + '_Value'
                 studentRuleAttribute = str(studentobj.studentID) + '_Rule'
+                accumulative_type = request.POST.get(str(studentobj.studentID) + '_type')
                 
                 if request.POST[studentValAttribute] == '' or request.POST[studentRuleAttribute] == '':
                     continue
@@ -48,12 +52,17 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 vcAmount = int(request.POST[studentValAttribute])
                 if vcAmount < 0:
                     vcAmount = 0
-                    
-                studentobj.virtualCurrencyAmount += vcAmount
+
+                if accumulative_type == 'set':
+                    studentobj.virtualCurrencyAmount = vcAmount
+                elif accumulative_type == 'combine':
+                    studentobj.virtualCurrencyAmount += vcAmount
+                
                 studentobj.save()
                 
                 ruleCustom = VirtualCurrencyCustomRuleInfo.objects.get(courseID = course, vcRuleID = int(request.POST[studentRuleAttribute]))
-                studentVC = StudentVirtualCurrency()
+                studentVC = StudentVirtualCurrencyRuleBased()
+                studentVC.courseID = course
                 studentVC.studentID = studentobj.studentID
                 studentVC.vcRuleID = ruleCustom
                 studentVC.value = vcAmount

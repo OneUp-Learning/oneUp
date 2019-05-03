@@ -150,6 +150,19 @@ def classAchievements(request):
 
     context_dict['challenge_range'] = zip(range(1,num_challs+activities.count()+1),chall_Name)
     #context_dict['activityGrade_range'] = zip(range(0,len(allActivityGrade)),allActivityGrade)
-    context_dict['user_range'] = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)), key=lambda tup: tup[2])
+
+    ##    context_dict['user_range'] = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)))
+    
+    student_list = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)),key=lambda tup:tup[2])
+
+    ##we have to find the index for the test student and remove them from the sorted list
+    test_index = [y[1] for y in student_list].index('Test')
+    test_student_ob = student_list[test_index]
+    del student_list[test_index]
+
+    ##then we insert them back into the list at the very end where they belong
+    student_list.append(test_student_ob)
+
+    context_dict['user_range'] = student_list
 
     return render(request,'Instructors/ClassAchievements.html', context_dict)

@@ -1,7 +1,6 @@
 #import nltk
 from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
 from Instructors.constants import unspecified_topic_name
-from Badges.models import CourseConfigParams
 from Badges.enums import ObjectTypes
 import re
 import string
@@ -364,19 +363,36 @@ def addTopicsToChallenge(challenge, topics, unspecified_topic, currentCourse):
             challTopic.topicID = unspecified_topic
             challTopic.save()
 # Sets up the logged_in, username, and course_Name entries in the context_dict and then returns it along with the currentCourse if any.
-def initialContextDict(request):
+
+def initialContextDict(request, user=None, session=None):
+
+    from Badges.models import CourseConfigParams
     context_dict = {}
-    context_dict["logged_in"] = request.user.is_authenticated
-    if request.user.is_authenticated:
-        context_dict["username"] = request.user.username
-        
-    if 'currentCourseID' in request.session:
-        context_dict['course_id'] = request.session['currentCourseID']
-        currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-        context_dict['course_Name'] = currentCourse.courseName
+    if user and session:
+        context_dict['logged_in'] = user.is_authenticated
+
+        if user.is_authenticated:
+            context_dict["username"] = user.username
+            
+        if 'currentCourseID' in session:
+            context_dict['course_id'] = session['currentCourseID']
+            currentCourse = Courses.objects.get(pk=int(session['currentCourseID']))
+            context_dict['course_Name'] = currentCourse.courseName
+        else:
+            currentCourse = None
+            context_dict['course_Name'] = 'Not Selected'
     else:
-        currentCourse = None
-        context_dict['course_Name'] = 'Not Selected'
+        context_dict["logged_in"] = request.user.is_authenticated
+        if request.user.is_authenticated:
+            context_dict["username"] = request.user.username
+            
+        if 'currentCourseID' in request.session:
+            context_dict['course_id'] = request.session['currentCourseID']
+            currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+            context_dict['course_Name'] = currentCourse.courseName
+        else:
+            currentCourse = None
+            context_dict['course_Name'] = 'Not Selected'
         
     context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
         
@@ -394,7 +410,7 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     
     dt = datetime.strptime(date, form)
     
-    print("Converted Time to UTC: " , dt.replace(tzinfo=timezone.utc))
+    print("Converted Time to UTC: " , dt.astimezone(pytz.utc))
     return dt.replace(tzinfo=timezone.utc)  
 
 def localizedDate(request, date_str, date_format, timezone=None):

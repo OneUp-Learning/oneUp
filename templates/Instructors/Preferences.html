@@ -1,83 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
+
+<head>
     {% include 'scripts.html' %}
-   </head>
-   <body>
-        {% include 'heading.html' %}
-        <main>
-            <div class="row center-align">
-                <div class="col s12">
-                    <h3>Course Gamification Configuration</h3>
-                </div>
+    <style>
+        .cards-container {
+            column-break-inside: avoid;
+            column-gap: 0;
+        }
+
+
+        @media only screen and (max-width : 600px) {
+            .cards-container {
+                -webkit-column-count: 1;
+                -moz-column-count: 1;
+                column-count: 1;
+            }
+        }
+
+        @media only screen and (min-width : 601px) {
+            .cards-container {
+                -webkit-column-count: 2;
+                -moz-column-count: 2;
+                column-count: 2;
+            }
+        }
+
+        @media only screen and (min-width : 993px) {
+            .cards-container {
+                -webkit-column-count: 3;
+                -moz-column-count: 3;
+                column-count: 2;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Course Gamification Configuration</h3>
             </div>
-            <form name="CourseConfigParam" onsubmit="return checkIfBadgesNumberIsZero()" action="/oneUp/instructors/preferences" method="POST">
-            {% csrf_token %} 
+        </div>
+        <form name="CourseConfigParam" onsubmit="return checkIfBadgesNumberIsZero()"
+            action="/oneUp/instructors/preferences" method="POST">
+            {% csrf_token %}
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
+            <input type="hidden" name="xpLeaderboardID" value="{{xpLeaderboardID}}">
             <div class="row">
-                <div class="col s12 m4 offset-m2">
-                    <div class="card">
-                        <div class="card-content">
-                            <span class="card-title">Calculating Total XP Points</span>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge" id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
-                                    <label for="s_challenge_weight">Weight of <i>serious challenge points (in % )</i></label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge" id="w_challenge_weight" maxlength="3" type="number"  min="0" max="100">
-                                    <label for="w_challenge_weight">Weight of <i>warmup challenge points (in % )</i></label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight" maxlength="3" type="number" class="validate" min="0" max="100">
-                                    <label for="s_points_weight">Weight of <i>skill points (in % )</i></label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight" maxlength="3" type="number" min="0" max="100">
-                                    <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
+                <div class="col s12 m8 offset-m2 cards-container" style="height: 1980px;">
+                        <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Course Leaderboard Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Leaderboard
+                                            {% if leaderboardUsed %}
+                                            <input name="leaderboardUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="leaderboardUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col s12 m4">
-                    <div class="card">
-                        <div class="card-content">
-                            <span class="card-title">Thresholds for Challenge Difficulty</span>
-                            <div class="row">
+
+                    <div class="col s12" 
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Calculating Total XP Points</span>
                                 <div class="row">
-                                    <div class="col s12">
-                                        <p>From <i>easy</i> to <i>medium</i></p>
+                                    <div class="input-field col s10">
+                                        <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge"
+                                            id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
+                                        <label for="s_challenge_weight">Weight of <i>serious challenge points (in %
+                                                )</i></label>
                                     </div>
                                 </div>
-                                <div class="input-field col s12 inline">
-                                    <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium" id="threshold_1" maxlength="3" type="number" min="0" max="100">
-                                    <label for="threshold_1">Threshold</label>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="row">
-                                    <div class="col s12">
-                                        <p>From <i>medium</i> to <i>high</i></p>
+                                    <div class="input-field col s12">
+                                        <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge"
+                                            id="w_challenge_weight" maxlength="3" type="number" min="0" max="100">
+                                        <label for="w_challenge_weight">Weight of <i>warmup challenge points (in %
+                                                )</i></label>
                                     </div>
                                 </div>
-                                <div class="input-field col s12 inline">
-                                    <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty" id="threshold_2" maxlength="3" type="number" min="0" max="100">
-                                    <label for="threshold_2">Threshold</label>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight"
+                                            maxlength="3" type="number" class="validate" min="0" max="100">
+                                        <label for="s_points_weight">Weight of <i>skill points (in % )</i></label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight"
+                                            maxlength="3" type="number" min="0" max="100">
+                                        <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Serious Challenges</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
+                                                id="xpSeriousMaxScore" value="True"
+                                                {% if xpCalculateSeriousByMaxScore == True %} checked {%endif%} />
+                                            <label for="xpSeriousMaxScore">Calculate XP by max score</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
+                                                value="False" id="xpSeriousFirstAttempt"
+                                                {% if xpCalculateSeriousByMaxScore == False %} checked {%endif%} />
+                                            <label for="xpSeriousFirstAttempt">Calculate XP by first attempt</label>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Warmup Challenges</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
+                                                id="xpWarmupMaxScore" value="True"
+                                                {% if xpCalculateWarmupByMaxScore == True %} checked {%endif%} />
+                                            <label for="xpWarmupMaxScore">Calculate XP by max score</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
+                                                value="False" id="xpWarmupFirstAttempt"
+                                                {% if xpCalculateWarmupByMaxScore == False %} checked {%endif%} />
+                                            <label for="xpWarmupFirstAttempt">Calculate XP by first attempt</label>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                    <div class="col s12 m4 offset-m2">
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Skills Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Display skill points on the leaderboard
+                                            {% if classSkillsDisplayed %}
+                                            <input name="classSkillsDisplayed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="classSkillsDisplayed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input value="{{numStudentBestSkillsDisplayed}}"
+                                                name="numStudentBestSkillsDisplayed" id="skills_top_students"
+                                                maxlength="3" type="number" min="0" max="100" required>
+                                            <label for="skills_top_students">Number of top students to be displayed for
+                                                each skill</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Streak Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Streaks
+                                            {% if streaksUsed %}
+                                            <input name="streaksUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="streaksUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Avatars Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable the use of Avatars
+                                            {% if avatarUsed %}
+                                            <input name="avatarUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="avatarUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">Student Configuration</span>
@@ -148,68 +301,35 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col s12 m4">
+                    </div>  
+
+                    <!-- <div class="col s12" style="height: 5px;"><br /></div> -->
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
                             <div class="card-content">
-                                <span class="card-title">Course Leaderboard Configuration</span>
+                                <span class="card-title">XP Leaderboard</span>
                                 <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Leaderboard
-                                            {% if leaderboardUsed %}
-                                            <input name="leaderboardUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="leaderboardUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
+                                    <div class="input-field col s12">
+                                    <input id="leaderboardDescription" value="{{leaderboardDescription}}"
+                                        name="leaderboardDescription" type="text" class="validate">
+                                    <label for="leaderboardDescription"
+                                        >Leaderboard Description</label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{numStudentsDisplayed}}" name="numStudentsDisplayed" id="lb_top_students" maxlength="3" type="number" min="0" max="100">
-                                        <label for="lb_top_students">Number of top students to be displayed on the leaderboard</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input value="{{leaderboardUpdateFreq}}" name="leaderboardUpdateFreq" id="lb_update_freq" maxlength="3" type="number" min="0" max="100">
-                                        <label for="lb_update_freq">Leaderboard update frequency (in days)</label>
+                                    <input id="studentsShown" value="{{numStudentsDisplayed}}" name="numStudentsDisplayed" type="number" min="0">
+                                    <label for="studentsShown" >Number of Students Shown</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col s12 m4 offset-m2">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Skills Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Display skill points on the leaderboard
-                                            {% if classSkillsDisplayed %}
-                                            <input name="classSkillsDisplayed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="classSkillsDisplayed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input value="{{numStudentBestSkillsDisplayed}}" name="numStudentBestSkillsDisplayed" id="skills_top_students" maxlength="3" type="number" min="0" max="100">
-                                        <label for="skills_top_students">Number of top students to be displayed for each skill</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col s12 m4">
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">Badges Configuration</span>
@@ -218,26 +338,64 @@
                                         <label>
                                             Enable the use of badges
                                             {% if badgesUsed %}
-                                            <input id="badgesUsed" name="badgesUsed" type="checkbox" checked>
+                                            <input name="badgesUsed" type="checkbox" checked>
                                             {% else %}
-                                            <input id="badgesUsed" name="badgesUsed" type="checkbox">
+                                            <input name="badgesUsed" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed" id="badges_recent" maxlength="3" type="number" min="0" max="100">
-                                        <label for="badges_recent">Number of recent badges to be displayed on the leaderboard</label>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed"
+                                                id="badges_recent" maxlength="3" type="number" min="0" max="100"
+                                                required>
+                                            <label for="badges_recent">Number of recent badges to be displayed on the
+                                                leaderboard</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col s12 m4 offset-m2">
+                    
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Thresholds for Challenge Difficulty</span>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>From <i>easy</i> to <i>medium</i></p>
+                                        </div>
+                                    </div>
+                                    <div class="input-field col s12 inline">
+
+                                        <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium"
+                                            id="threshold_1" maxlength="3" type="number" min="0" max="100" required>
+
+                                        <label for="threshold_1">Threshold</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>From <i>medium</i> to <i>high</i></p>
+                                        </div>
+                                    </div>
+                                    <div class="input-field col s12 inline">
+                                        <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty"
+                                            id="threshold_2" maxlength="3" type="number" min="0" max="100" required>
+                                        <label for="threshold_2">Threshold</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>    
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">Virtual Currency Configuration</span>
@@ -253,60 +411,21 @@
                                             <span class="lever secondary-content"></span>
                                         </label>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3" type="number" min="0" max="100">
-                                        <label for="vc_added">Increase the virtual currency of all students by ($$)</label>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3"
+                                                type="number" min="0" max="100" required>
+                                            <label for="vc_added">Increase the virtual currency of all students by
+                                                ($$)</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col s12 m4">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Leveling Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Leveling
-                                            {% if levelingUsed %}
-                                            <input name="levelingUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="levelingUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col s12 m4 offset-m2">
-                        <div class="card">
-                            <div class="card-content">
-                                <span class="card-title">Avatars Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable the use of Avatars
-                                            {% if avatarUsed %}
-                                            <input name="avatarUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="avatarUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                   
-                    <div class="col s12 m4">
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">Classmates Challenges</span>
@@ -324,44 +443,101 @@
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Allow students to bet virtual currency in duels
+                                            {% if betVC %}
+                                            <input name="betVC" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="betVC" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{vc_duel}}" name="vc_duel" id="vc_duel" maxlength="7" type="number" min="0" max="100" >
+                                        <input value="{{vc_duel}}" name="vc_duel" id="vc_duel" maxlength="7"
+                                            type="number" min="0" max="100" required>
                                         <label for="vc_due">Amount of virtual currency rewarded to duel winners</label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7" type="number" min="0" max="100" >
-                                        <label for="vc_callout">Amount of virtual currency rewarded to call-outs participants</label>
+                                        <input value="{{vc_duel_participants}}" name="vc_duel_participants"
+                                            id="vc_duel_participants" maxlength="7" type="number" min="0" max="100"
+                                            required>
+                                        <label for="vc_due_participants">Amount of virtual currency rewarded to duel
+                                            participants</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{vc_duel_max_bet}}" name="vc_duel_max_bet" id="vc_duel_max_bet"
+                                            maxlength="7" type="number" min="0" max="100" required>
+                                        <label for="vc_duel_max_bet">Maximum amount of virtual currency allowed for
+                                            betting</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7"
+                                            type="number" min="0" max="100" required>
+                                        <label for="vc_callout">Amount of virtual currency rewarded to call-outs
+                                            participants</label>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- <div class="col s12" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                            <div class="card">
+                                <div class="card-content">
+                                    <span class="card-title">Leveling Configuration</span>
+                                    <div class="row">
+                                        <div class="switch col s12">
+                                            <label>
+                                                Enable Leveling
+                                                {% if levelingUsed %}
+                                                <input name="levelingUsed" type="checkbox" checked>
+                                                {% else %}
+                                                <input name="levelingUsed" type="checkbox">
+                                                {% endif %}
+                                                <span class="lever secondary-content"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
                 </div>
-              
-                <div class="row">
-                    <div class="col s12 m4 offset-m8">
-                        <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i class="material-icons right">done</i></button> 
-                        <a class="waves-effect waves-light btn"  href="/oneUp/instructors/instructorCourseHome"><i class="material-icons right">close</i>Cancel</a>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m4 offset-m2 ">
+                    <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i
+                            class="material-icons right">done</i></button>
+                    <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i
+                            class="material-icons right">close</i>Cancel</a>
                 </div>
-            </form>
-            <script>
-    function checkIfBadgesNumberIsZero() {
-    	if (document.getElementById('badgesUsed').checked 
-        		&& document.getElementById('badges_recent').value == 0){
-            var answer = confirm("Are you sure you wish to have zero badges displayed?")
-            if (answer) {
-    			return true;
-    		}
-    		else {
-    			return false;
-    		}
-        }
-    }
-</script>
-        </main>
-        {% include 'footer.html' %}
-    </body>
+            </div>
+        </form>
+        <script>
+            function checkIfBadgesNumberIsZero() {
+                if (document.getElementById('badgesUsed').checked &&
+                    document.getElementById('badges_recent').value == 0) {
+                    var answer = confirm("Are you sure you wish to have zero badges displayed?")
+                    if (answer) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        </script>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
 </html>

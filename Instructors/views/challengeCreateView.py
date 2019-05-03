@@ -17,6 +17,7 @@ from datetime import datetime
 from oneUp.logger import logger
 
 from oneUp.decorators import instructorsCheck     
+from oneUp.ckeditorUtil import config_ck_editor
 
 import re
 
@@ -195,7 +196,10 @@ def challengeCreateView(request):
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)
         
-        create_due_date_process(request, challenge.challengeID, challenge.dueDate, request.session['django_timezone'])
+        if challenge.dueDate != default_date:
+            create_due_date_process(request, challenge.challengeID, challenge.dueDate, request.session['django_timezone'])
+        else:
+            print("No due date selected")
         
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
@@ -341,6 +345,7 @@ def challengeCreateView(request):
     else:
         view = 0
     context_dict['view'] = view == 1
+    context_dict['ckeditor'] = config_ck_editor()
     return render(request,'Instructors/ChallengeCreateForm.html', context_dict)     #edit
    
 

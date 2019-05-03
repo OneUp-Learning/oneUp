@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
-from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking
+from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking,  LeaderboardsConfig
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
@@ -56,6 +56,7 @@ class StudentRegisteredCourses(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     avatarImage= models.CharField(max_length=200, default='')    
     virtualCurrencyAmount = models.IntegerField(default=0)
+    attendanceStreakStartDate = models.DateTimeField(default = datetime.now)
     def __str__(self):
         return str(self.studentID) + "," + str(self.courseID)
     
@@ -127,14 +128,32 @@ class StudentBadges(models.Model):
 
 class StudentVirtualCurrency(models.Model):
     studentVcID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
-    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, on_delete=models.CASCADE, verbose_name="the virtual currency rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
+    vcName = models.CharField(max_length=300, null=True, blank=True)  
+    vcDescription = models.CharField(max_length=4000, null=True, blank=True)
+    def __str__(self):              
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
+class StudentVirtualCurrencyRuleBased(StudentVirtualCurrency):
+    vcRuleID = models.ForeignKey(VirtualCurrencyCustomRuleInfo, related_name="vcrule", on_delete=models.SET_NULL, verbose_name="the virtual currency rule", db_index=True, null=True, blank=True)
 
     def __str__(self):              
-        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentVcID) +"," + str(self.studentID) +"," + str(self.timestamp)
+    
+class StudentGoalSetting(models.Model):
+    studentGoalID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
+    goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
+    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
+    targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
+    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
+
+    def __str__(self):              
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.courseID) +"," +str(self.goalType) +"," + str(self.timestamp) +"," + str(self.targetedNumber) + "," + str(self.progressToGoal)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -234,9 +253,21 @@ class StudentConfigParams(models.Model):
     displayClassRanking = models.BooleanField(default=True)
     participateInDuel = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
+    displayGoal = models.BooleanField(default=True)
     
     def __str__(self):
-        return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +","+str(self.displayBadges) +","+str(self.displayLeaderBoard) +","+str(self.displayClassSkills) +","+str(self.displayClassAverage) +","+str(self.displayClassRanking) 
+        return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +",displayBadges:"+str(self.displayBadges) +",displayLeaderboard:"+str(self.displayLeaderBoard) +",displayClassSkills"+str(self.displayClassSkills) +",displayClassAverage:"+str(self.displayClassAverage) +",displayClassRanking:"+str(self.displayClassRanking) +",displayGoal:"+str(self.displayGoal)+",participateInDuel:"+str(self.participateInDuel)+",courseBucks:"+str(self.courseBucks)   
+
+class PeriodicallyUpdatedleaderboards(models.Model):
+    periodicLeaderboardID = models.AutoField(primary_key=True)
+    leaderboardID = models.ForeignKey(LeaderboardsConfig, on_delete=models.CASCADE, verbose_name="the related leaderboard configuration object", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    studentPoints = models.IntegerField(default=0)
+    studentPosition = models.IntegerField(default=0)
+      
+    def __str__(self):              
+        return str(self.periodicLeaderboardID)+", LeaderboardID: "+str(self.leaderboardID) + ", StudentID: "+str(self.studentID)+", Points: "+str(self.studentPoints)+", Position: "+str(self.studentPosition)
+    
 
 class StudentLeaderboardHistory(models.Model):
     id = models.AutoField(primary_key=True)
@@ -263,7 +294,7 @@ class DuelChallenges(models.Model):
     acceptTime = models.DateTimeField(auto_now_add=True, verbose_name="Accept Timestamp", db_index=True)
     startTime = models.IntegerField(default=1440) # time in minutes, Default 24 hours
     timeLimit = models.IntegerField(default=120)  # time in minutes, Default 1 hour
-    customMessage = models.CharField(max_length=600, default='')
+    customMessage = models.CharField(max_length=6000, default='')
     status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
@@ -273,6 +304,19 @@ class Winners(models.Model):
     DuelChallengeID = models.ForeignKey(DuelChallenges, on_delete=models.CASCADE, verbose_name="the related Duel", db_index=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+
+class StudentStreaks(models.Model):
+    studentStreakID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    streakStartDate = models.DateTimeField(null=True, blank=True, verbose_name="The date the streak reset on")
+    streakType = models.IntegerField(default=0)
+    objectID = models.IntegerField(default=0)
+    currentStudentStreakLength = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return "StreakID: " + str(self.studentStreakID) + " studentID: " + str(self.studentID) + " courseID: " + str(self.courseID) + " streakStartDate:" + str(self.streakStartDate)
+        + " streakType: " + str(self.streakType) + " objectID:" + str(self.objectID) + " currentStudentStreakLength" + str(self.currentStudentStreakLength)
     
     
 class StudentProgressiveUnlocking(models.Model):

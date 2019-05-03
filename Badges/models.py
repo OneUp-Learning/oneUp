@@ -176,7 +176,7 @@ class PeriodicBadges(BadgesInfo):
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
-    
+    resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the badge.'''
         self.periodicTask.delete()
@@ -184,7 +184,6 @@ class PeriodicBadges(BadgesInfo):
 
     def __str__(self):
         return "Badge #{} : {}".format(self.badgeID, self.badgeName)
-
 # Virtual Currency Table for both automatically and manually handled VC rules
 class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleID = models.AutoField(primary_key=True)
@@ -216,15 +215,14 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
-
+    resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the rule.'''
         self.periodicTask.delete()
         super().delete(*args, **kwargs)
-
     def __str__(self):
         return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
-
+    
 # Dates Table
 class Dates(models.Model):
     dateID = models.AutoField(primary_key=True)
@@ -281,12 +279,15 @@ class LeaderboardsConfig(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     leaderboardName = models.CharField(max_length=300) # e.g. test score, number of attempts 
     leaderboardDescription = models.CharField(max_length=10000)
-    leaderboardUsed = models.BooleanField(default=False)              ##
-    numStudentsDisplayed = models.IntegerField(default=0)             ## This is used to display the number of students in the leaderboard dashboard html table
-    timePeriodUpdateInterval = models.IntegerField(default=1500)                  # The Time Period index set for updating this leaderboard
-    leaderboardDisplayPage = models.BooleanField(default=False)       # true=display on course home page; false=display on leaderbordas page 
-    studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
-
+    isContinous = models.BooleanField(default=False)
+    isXpLeaderboard = models.BooleanField(default=False)
+    numStudentsDisplayed = models.IntegerField(default=0) 
+    periodicVariable = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
+    timePeriodUpdateInterval = models.IntegerField(default=0000)                  # The Time Period index set for updating this leaderboard
+    displayOnCourseHomePage = models.BooleanField(default=False)       # true=display on course home page; false=display on leaderbordas page 
+    lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
+    howFarBack = models.IntegerField(default=0000)
     def __str__(self):              
         return "Leaderboard#"+str(self.leaderboardID)+":"+str(self.leaderboardName)   
    
@@ -302,17 +303,23 @@ class CourseConfigParams(models.Model):
 
     levelingUsed = models.BooleanField(default=False)                 ##
     
+    # Duels related
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
+    betVC = models.BooleanField(default=True)                         ## Allow the bet of virtual currency in duels
+    vcDuelParticipants = models.IntegerField(default=0)               ## Amount of virtual currency rewarded to duel participants
     vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
+    vcDuelMaxBet = models.IntegerField(default=3)                     ## Max Amount of betting virtual currency 
     vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
-
-    progressBarUsed = models.BooleanField(default=True)              ## This is the progress bar in the student achievements page
-
-    seriousChallengesGrouped = models.BooleanField(default=False)    ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side
+     
+    progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page
+    
+    chatUsed = models.BooleanField(default=True)                      ## This will enable or disable the chat feature 
+    
+    seriousChallengesGrouped = models.BooleanField(default=False)     ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side
 
     leaderboardUsed = models.BooleanField(default=False)              ##
     studCanChangeLeaderboardVis = models.BooleanField(default=False)  ##
-    numStudentsDisplayed = models.IntegerField(default=0)              ## This is used to display the number of studentss in the leaderboard dashboard html table
+    numStudentsDisplayed = models.IntegerField(default=0)             ## This is used to display the number of studentss in the leaderboard dashboard html table
 
     classSkillsDisplayed = models.BooleanField(default=False)         ## The classSkillsDisplayed is only for dashboard purposes for the instructor
     studCanChangeClassSkillsVis = models.BooleanField(default=False)  ## The classSkillsDisplayed is only for dashboard purposes for the student
@@ -335,14 +342,30 @@ class CourseConfigParams(models.Model):
     xpWeightWChallenge = models.IntegerField(default=0)               ## XP Weights for Warm up Challenges
     xpWeightAPoints    = models.IntegerField(default=0)               ## XP Weights for Activity Points
 
+    xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by 
+                                                                      ## max score of scores or by the first attempt score
+    xpCalculateWarmupByMaxScore = models.BooleanField(default=False)  ## Same as preivous but for warmup challenges
+
     ## Levels of Difficulties for the course
     thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium
     thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
-
+    
+    streaksUsed = models.BooleanField(default = False)                 ##
+    
+    ## Student Goal Setting
+    studCanChangeGoal = models.BooleanField(default = True)    ## Allows student to change the visibility of goals component
+    
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
         +str(self.numBadgesDisplayed) +"," \
+        +str(self.levelingUsed) +"," \
+        +str(self.classmatesChallenges) +"," \
+        +str(self.vcDuel) +"," \
+        +str(self.vcCallout) +"," \
+        +str(self.progressBarUsed) +"," \
+        +str(self.chatUsed) +"," \
+        +str(self.seriousChallengesGrouped) +"," \
         +str(self.levelingUsed) +"," \
         +str(self.leaderboardUsed) +"," \
         +str(self.numStudentsDisplayed) +"," \
@@ -359,7 +382,16 @@ class CourseConfigParams(models.Model):
         +str(self.xpWeightSP) +"," \
         +str(self.xpWeightSChallenge) +"," \
         +str(self.xpWeightWChallenge) +"," \
-        +str(self.xpWeightAPoints) +"," 
+        +str(self.xpWeightAPoints) +"," \
+        +str(self.xpCalculateSeriousByMaxScore)+"," \
+        +str(self.xpCalculateWarmupByMaxScore)+"," \
+        +str(self.classmatesChallenges)+","\
+        +str(self.betVC)+","\
+        +str(self.vcCallout)+","\
+        +str(self.vcDuel)+","\
+        +str(self.vcDuelMaxBet)+","\
+        +str(self.vcDuelParticipants)+","\
+        +str(self.studCanChangeGoal)+","
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
@@ -400,3 +432,10 @@ class ProgressiveUnlocking(models.Model):
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
 
+class AttendanceStreakConfiguration(models.Model):
+    streakConfigurationID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
+    daysofClass = models.CharField(max_length=75)#days of the week that are class scheduled for semester
+    daysDeselected = models.CharField(max_length=20000)#the days that were removed from the class schedule
+    def __str__(self):              
+        return str(self.streakConfigurationID)+","+str(self.courseID)+","+str(self.daysofClass) +","+ str(self.daysDeselected)

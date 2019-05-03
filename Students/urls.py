@@ -26,9 +26,10 @@ from Students.views.coursePerformanceView import CoursePerformance
 
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
+from Students.views.resetPasswordView import resetPasswordView
 from Students.views.studentCourseHomeView import StudentCourseHome
 from Students.views.studentHomeView import StudentHome
-from Students.views.transactionsView import transactionsView
+from Students.views.transactionsView import transactionsView, filterTransactions
 from Students.views.transactionNotesView import transactionNotesView
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
@@ -37,8 +38,9 @@ from Students.views.studentNotifications import studentNotifications, updateNoti
 from Students.views.studentQA import studentQA
 from Students.views.leaderboardView import LeaderboardView
 from Students.views.switchToInstructorView import switchToInstructorView
-from Students.views.calloutsView import callouts_list, duel_challenge_create, duel_challenge_accept, duel_challenge_description, duel_challenge_delete,validate_duel_challenge_creation
-
+from Students.views.calloutsView import callouts_list, duel_challenge_create, duel_challenge_accept, duel_challenge_description, duel_challenge_delete,validate_duel_challenge_creation, get_create_duel_topics_difficulties
+from Students.views.resetPasswordView import validateResetPassword
+from Students.views.leaderboardInfoView import leaderboardInfoView
 
 admin.autodiscover()
 
@@ -61,14 +63,17 @@ urlpatterns = [
     url(r'^CoursePerformance',CoursePerformance,name='CoursePerformance'),
     url(r'^Preferences',preferencesView, name='preferencesView'), 
     url(r'^Logout', LogoutView, name='Logout'),       
+    url(r'^ResetPassword', resetPasswordView, name='ResetPassword'),
     url(r'^StudentCourseHome',StudentCourseHome, name='StudentCourseHome'),
     url(r'^StudentHome',StudentHome, name='StudentHome'),
     url(r'^Transactions',transactionsView, name='Transactions'),
     url(r'^TransactionNotes',transactionNotesView, name='Transaction Notes'),
+    url(r'^filterTransactions', filterTransactions, name="Filter Transactions"),
     url(r'^VirtualCurrencyRules',VirtualCurrencyDisplay, name='Virtual Currency Rule List'),
     url(r'^VirtualCurrencyShop',virtualCurrencyShopView, name='Virtual Current Shop'),
     url(r'^EarnedVCTransactions', earnedTransactionsView, name='Earned Virtual Currency Transactions'),
     url(r'^StudentQA', studentQA, name='Student QA'),
+    url(r'^LeaderboardInfo',leaderboardInfoView, name='LeaderboardInfo'),
     url(r'^Leaderboard',LeaderboardView, name='Leaderboard'),
     url(r'^switchView', switchToInstructorView, name="switchToInstructorView"),
     url(r'^Callouts',callouts_list, name='Callouts'),
@@ -77,6 +82,8 @@ urlpatterns = [
     url(r'^DuelChallengeDescription', duel_challenge_description, name='DuelChallengeDescription'),
     url(r'^DuelChallengeDelete', duel_challenge_delete, name='DuelChallengeDelete'),
     url(r'^ValidateDuelChallengeCreate', validate_duel_challenge_creation, name='ValidateDuelChallengeCreate' ),
+    url(r'^GetCreateDuelTopicsDifficulty', get_create_duel_topics_difficulties, name='GetCreateDuelTopicsDifficulty' ),
+    url(r'^ValidateResetPassword', validateResetPassword, name='ValidateResetPassword')
     
     # url(r'^oneUp/students/', include('Students.urls')),   
     # url(r'^blog/', include('blog.urls')),

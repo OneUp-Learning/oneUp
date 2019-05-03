@@ -4,13 +4,7 @@
       {% include 'scripts.html' %}
       <script>
          $( document ).ready(function(){
-             var endDate = $('#endTime').bootstrapMaterialDatePicker({
-               weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
-             });
-             
-             var deadLine = $('#deadLine').bootstrapMaterialDatePicker({
-                 weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
-               });
+            
            
             /* var startDate = $('#startTime').bootstrapMaterialDatePicker({
                weekStart: 0, format: 'MM/DD/YYYY hh:mm A', shortTime : true
@@ -68,90 +62,105 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s18 m6">
-                              <label for="startTime"><span class= "red-text">*</span> Minute(s) The Challenge Starts After Acceptance</label> 
-                              <input placeholder="minutes (minimum 5)" value="{{startTime}}" name="startTime" id="startTime" maxlength="6" type="number" class="validate" min="1" step="any" required>
+                              <label for="startTime"><span class= "red-text">*</span> Minute The Challenge Starts After Acceptance</label> 
+                              <input placeholder="minutes (minimum 5)" value="{{startTime}}" name="startTime" id="startTime" maxlength="4" type="number" class="validate" min="5" step="any" required>
                               <!--<input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">-->
                            </div>
                            <div class="input-field col s18 m6">
-                              <label for="timeLimit"><span class= "red-text">*</span> Time Limit</label>
-                              <input placeholder="minutes (minimum 5)" value="{{timeLimit}}" name="timeLimit" id="timeLimit" maxlength="6" type="number" class="validate" min="1" step="any" required> 
+                              <label for="timeLimit"><span class= "red-text">*</span> Time Limit In Minutes</label>
+                              <input placeholder="minutes (minimum 5)" value="{{timeLimit}}" name="timeLimit" id="timeLimit" maxlength="4" type="number" class="validate" min="5" step="any" required> 
                               <!--<input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime">-->
                            </div>
 
                         </div>
+                        {% if not challengees_range %}
                         <div class="row">
-                             <div class="input-field col s2" id="challengee_id">
-                              <select class="icons" name="challengee_id" form="duelChallForm" required>
-                                <!--<option value="{{currentStudent}}" selected>{{currentAvatar}}</option>
-                                <table>
-                                 <tbody>-->
-                                {% for i, challengee_id, avatar, challengee in challengees_range %}
-                                    <!--{% if avatar != currentAvatar %}-->
-                                       <!--<option value={{challengee_id}} id="challengee_id" name="challengee_id"> <li><p class="center-align"><img class="circle" width="100" height="100" src="{{avatar}}"></p></li>
-                                       </option>
-                                       
-                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id" > {{challengee.studentID.user.first_name}}</option>-->
-                                       <option value={{challengee_id}} id="challengee_id" name="challengee_id"  data-icon="{{avatar}}"  class="circle"></option>
-                     
-                                       <!--<label for="a{{i}}"><img alt="Avatar Image" width="76px" height="76px" src="/{{avatar}}"></label>        
-                                                     <option img alt="Avatar Image" class="circle" width="35" height="35" src="{{avatar}}" {{challengee.studentID.user.first_name}}</option>
-                                    {% endif %}-->
-                                 
-                                {% endfor %}
-                              
-                                
-                              </select>
-                               <label  for="challengee_id"><span class= "red-text">*</span> Select Challengee</label>
-                          </div>
-                         
+                        <div>
+                            <label  for="challengee_id"><span class= "red-text">*</span> Select Challengee's Avatar</label>
+                           <p>No challengees at this time</p>
                         </div>
+                        </div>
+                        {% else %}
+                        
                         <div class="row">
+                        
+                        <div class="input-field col s2" id="challengee_div">
+                              <select class="icons" name="challengee_id" id="challengee_id" form="duelChallForm" onChange="selectAv('av', this.value); getTopics(this.value)" required>
+                                <!-- {% if challengees_range %}
+                                   <option name= "def_av" value="def_av">Not selected</option>
+                                {% endif %}  -->
+                                {% for i, challengee_id, avatar, challengee, id_av in challengees_range %}
+                                   <option value={{id_av}}  id="challengee_id_av" name="challengee_id_av"  data-icon="{{avatar}}"  class="circle"></option>
+                                {% endfor %}
+                              </select>
+                              <label  for="challengee_sel" style="text-align: right;"><span class= "red-text">*</span> Select Challengee's Avatar</label>
+                              
+                          </div>
+                          
+                             <div class="input-field col s2" id="selected_avatar">
+                               <img  width="30px" height="30px"  src="{{first_avatar}}" id="av" class="circle" >
+                             </div>
+                        </div>
+                        {% endif %}
+                       <div class="row">
 
-                                <div class="input-field col s16 m6" id="topic">
-                                        <select name="topic" form="duelChallForm">
-                                          <!--<option value="{{currentStudent}}" selected>{{currentAvatar}}</option>-->
-                                          {%if course_topics%}
-                                          <option name= "topic" value="Any" >Any</option>
+                                <div class="input-field col s16 m6" id="topic_div" >
+                                        <select name='topic' id="topic"  onChange="getDifficulties(this.value)" required>
+                                          
+                                          {%if course_topics|length > 1%}
+                                             <option value="Any" >Any</option>
                                           {%endif%}
+
                                           {% for topic in course_topics %}
-                                                  <!--{% if avatar != currentAvatar %}-->
-                                                  <option value={{topic.topicID.topicID}} name="topic"> {{topic.topicID.topicName}}</option>
-                                                 
-                                                 <!-- <option img alt="Avatar Image" class="circle" width="35" height="35" src="{{avatar}}"</option>
-                                                  {% endif %}-->
+                                                  
+                                                  <option value="{{topic.topicID.topicID}}" > {{topic.topicID.topicName}}</option>
+                                                 {% empty %}
+                                                     <option  disabled >No topic for you and your opponent at this moment</option>
+                                              
                                           {% endfor %}
                                         </select>
-                                          <label for="topic"><span class= "red-text"></span> Select Topic</label>
+                                          <label for="topic"><span class= "red-text">*</span> Select Topic</label>
                                           <p id="random_chall_error" name="random_chall_error" class= "red-text"></p>
                                  
                                 </div>
 
                                 <div class="input-field col s16 m6">
-                                   <select name="difficulty" {%if view%}readonly{%endif%}>
-                                      <!--<option value="" disabled selected>Choose Difficulty</option>-->
-                                      <option id= "Any" value="Any" {%if view%}disabled{%endif%}>Any</option>
-                                      <option id= "Easy" value="Easy" {%if view%}disabled{%endif%}>Easy</option>
-                                      <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
-                                      <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
+                                   <select name="difficulty" id="difficulty" required >
+                              
+                                      {%if difficulty_set|length > 1%}
+                                          <option  value="Any" >Any</option>
+                                      {%endif%}
+                                      
+                                      {% for difficulty in difficulty_set %}
+                                                  
+                                            <option value="{{difficulty}}" > {{difficulty}}</option>
+                                            {% empty %}
+                                                 <option disabled > No difficulty</option>
+                                           
+                                      {% endfor %}
                                    </select>
-                                   <label>Select Difficulty</label>
+                                   <label><span class= "red-text">*</span> Select Difficulty</label>
                                  </div>
                              </div>
+                        {% if is_bet_vc %}
                         <div class="row">
                            <div class="col s12">
                               <input name="isBetting" type="checkbox" id="isBetting" {% if isBetting %} checked {% endif %}/>
                               <label for="isBetting">Bet An Amount of Virtual Currency</label>
+                              
                            </div>
                         </div>
                         
                         <div class="row">
                             <div class="input-field col s12">
-                               <input placeholder="Amount" value="{{vcBetting}}" name="vcBetting" id="vcBetting" maxlength="4" type="number" class="validate" min="0" step="any" required>
+                               <input placeholder="Amount" value="{{vcBetting}}" name="vcBetting" id="vcBetting" maxlength="4" type="number" class="validate" min="0" max="{{max_bet}}" step="any" required>
                                <label for="vcBetting"><span class= "red-text">*</span> Virtual Currency Amount</label>
                                <p id="challenger_vc_error" name="challenger_vc_error" class= "red-text"></p>
                                <p id="challengee_vc_error" name="challengee_vc_error" class= "red-text"></p>
+                               <p id="vc_error" name="vc_error" class= "red-text"></p>
                               </div>
                          </div>
+                        {% endif %}
                      </div>
                      <div class="card-action right-align">
                            
@@ -161,7 +170,7 @@
                         <div id="modal_confirm" class="modal">
                             <div class="modal-content">
                               <P>Upon submission, if bet of virtual currency is checked, you are agreeing the specified amount of 
-                                  Vitual Currency will be withdrawn from your account and put at stake. 
+                                  Virtual Currency will be withdrawn from your account and put at stake. 
                                   In case of a tie or request denial, your Virtual Currency will be reimbursed. 
                                   The system will randomly select a challenge that was not completed by you nor 
                                   your opponent based on specified topic and difficulty. To win the Duel, 
@@ -187,11 +196,118 @@
       {% include 'footer.html' %}
    </body>
    <script>
+
+   function getTopics(id_av_str){
+
+            id_av = id_av_str.split("---")
+            challengee_id = id_av[0]
+            $('#topic').material_select();
+            $("#topic").empty().html(' ');
+            $('#difficulty').material_select();
+            $("#difficulty").empty().html(' ');
+
+            $.get( "/oneUp/students/GetCreateDuelTopicsDifficulty?challengee="+challengee_id ,function( data ) {
+              
+               // get object size 
+               i = 0;
+               for (course_topic in data.course_topics) {
+                     i += 1;
+                     }
+               
+               if (i > 1)
+                  $('#topic').append('<option value="Any" > Any </option>');
+               
+               for (course_topic in data.course_topics) {
+                     topic = data.course_topics[course_topic];
+                     id_name = topic.split('---');
+                     id = id_name[0];
+                     name = id_name[1];
+                     $('#topic').append('<option value=' + id + '>' + name + ' </option>');
+                     $("#topic").material_select('update');
+               }
+
+               if (i == 0)
+               {
+                  $('#topic').append('<option  disabled >No topic for you and your opponent at this moment</option>');
+                  $("#topic").material_select('update');
+               }
+
+               // get object size 
+               j = 0
+               for (difficulty in data.difficulty_set) {
+                  j ++;
+               }
+
+               if (j > 1)
+                  $('#difficulty').append('<option value="Any" > Any </option>');
+               
+               for (difficulty in data.difficulty_set) {
+                     diff = data.difficulty_set[difficulty];
+                     $('#difficulty').append('<option value=' + diff + '>' + diff + ' </option>');
+                     $("#difficulty").material_select('update');
+               }
+
+               if (j == 0)
+               {
+                  $('#difficulty').append('<option  disabled >No difficulty</option>');
+                  $("#difficulty").material_select('update');
+               }
+
+           });
+   }
+   
+   function getDifficulties(topic_id)
+   {
+  
+      var id_av_str = $('#challengee_id').find(":selected").val();
+      id_av = id_av_str.split("---")
+      challengee_id = id_av[0]
+
+      $('#difficulty').material_select();
+      $("#difficulty").empty().html(' ');
+
+      $.get( "/oneUp/students/GetCreateDuelTopicsDifficulty?challengee="+challengee_id+"&topicID="+topic_id ,function( data ) {
+         
+               
+               // get object size 
+               j = 0
+               for (difficulty in data.difficulty_set) {
+                  j ++;
+               }
+
+               if (j > 1)
+                  $('#difficulty').append('<option value="Any" > Any </option>');
+               
+               for (difficulty in data.difficulty_set) {
+                     diff = data.difficulty_set[difficulty];
+                     $('#difficulty').append('<option value=' + diff + '>' + diff + ' </option>');
+                     $("#difficulty").material_select('update');
+               }
+
+               if (j == 0)
+               {
+                  $('#difficulty').append('<option  disabled >No difficulty</option>');
+                  $("#difficulty").material_select('update');
+               }
+
+      });
+              
+
+   }
+   
+   function selectAv(imageId, newImage)
+   {
+ 	  id_av = newImage.split("---")
+ 	  document.getElementById(imageId).src = id_av[1];
+ 	  
+   }
+   
    $("#duelChallForm").on('submit', function(e){
       $('#header_error').html("");
       $('#random_chall_error').html("");
       $('#challengee_vc_error').html("");
       $('#challenger_vc_error').html("");
+      $('#vc_error').html("");
 
       $.ajax({
     		  	url: "/oneUp/students/ValidateDuelChallengeCreate", 
@@ -201,16 +317,19 @@
    		        data: $("#duelChallForm").serialize(),
    		        success: function(error){
                     let status = true;
-   		        	if(error.random_chall_error.length > 0){
-                       e.preventDefault();
-   		        		status = false ;
-   		        		$('#random_chall_error').html(error.random_chall_error[0]);
-   		        	}
+                    
+   		        if(error.random_chall_error.length > 0){
+                    e.preventDefault();
+   		            status = false ;
+   		        	$('#random_chall_error').html(error.random_chall_error[0]);
+   		        		
+   		        }
    		        
                   if(error.challengee_vc_error.length > 0){
                      e.preventDefault();
                      status = false;
-                     $('#challengee_vc_error').html(error.challengee_vc_error[0])
+                     $('#challengee_vc_error').html(error.challengee_vc_error[0]);
+                     
                   }
 
                   if(error.challenger_vc_error.length > 0){
@@ -218,10 +337,18 @@
                      status = false;
                      $('#challenger_vc_error').html(error.challenger_vc_error[0]);
                   }
+                  
+                  if(error.max_vc_error.length > 0){
+                      e.preventDefault();
+                      status = false;
+                      $('#vc_error').html(error.max_vc_error[0]);
+                      
+                      
+                   }
 
                   if(!status){
                      e.preventDefault();
-                     $('#header_error').html('Please correct errors');
+                     $('#header_error').html('Please correct error(s)');
                   }
                   
       		  }

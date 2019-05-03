@@ -19,7 +19,7 @@
    <body>
         {% include 'heading.html' %}
         <main>
-            <div class="row center-align">
+            <div class="row center-align" style="margin-bottom: 0;">
                 <div class="col s12">
                     <h3>Course Configuration</h3>
                 </div>
@@ -27,7 +27,7 @@
             <form name="CourseConfigParam" action="/oneUp/instructors/courseConfiguration" method="POST">
             {% csrf_token %} 
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
-            <div class="row">
+            <div class="row" style="margin-bottom: 0;">
                 <div class="col s12 m4 offset-m4">
                     <div class="card">
                         <div class="card-content">
@@ -49,7 +49,7 @@
                     </div>
                 </div>
             </div>
-              <div class="row">
+              <div class="row" style="margin-bottom: 0;">
                 <div class="col s12 m4 offset-m4">
                     <div class="card">
                         <div class="card-content">
@@ -68,7 +68,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row" style="margin-bottom: 0;">
                 <div class="col s12 m4 offset-m4">
                     <div class="card">
                         <div class="card-content">
@@ -90,7 +90,7 @@
                     </div>
                 </div>
               </div>
-            <div class="row">
+            <div class="row" style="margin-bottom: 0;">
                 <div class="col s12 m4 offset-m4">
                     <div class="card">
                         <div class="card-content">
@@ -103,6 +103,28 @@
                                         <input name="progressBarUsed" type="checkbox" checked>
                                         {% else %}
                                         <input name="progressBarUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <div class="row" style="margin-bottom: 0;">
+                <div class="col s12 m4 offset-m4">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Set Chat</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Chat Support
+                                        {% if chatUsed %}
+                                        <input name="chatUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="chatUsed" type="checkbox">
                                         {% endif %}
                                         <span class="lever secondary-content"></span>
                                     </label>

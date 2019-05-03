@@ -6,11 +6,11 @@ import sys
 
 ##GMM import Regular Expression, re
 import re,string
-
+import pytz
 from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Students.models import DuelChallenges
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import utcDate, localizedDate
 from Instructors.constants import unlimited_constant
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
@@ -20,6 +20,7 @@ from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
 from locale import currency
 from django.db.models.functions.window import Lead
+from oneUp.ckeditorUtil import config_ck_editor
 
 def makeSerializableCopyOfDjangoObjectDictionary(obj):
     dict = obj.__dict__.copy()
@@ -66,8 +67,14 @@ def ChallengeSetup(request):
                     context_dict['testDuration'] = challenge.timeLimit
                     context_dict['isDuel'] = False
 
-                starttime = utcDate()
+                # starttime = utcDate()
+                # context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+                
+                # Use timezone to convert date to current timzone set in settings.py
+                tz = pytz.timezone(request.session['django_timezone'])
+                starttime = tz.localize(datetime.now()).astimezone(tz)
                 context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+
                 attemptId = 'challenge:'+challengeId + '@' + starttime.strftime("%m/%d/%Y %I:%M:%S %p")
                 
                 sessionDict['challengeId']=challengeId
@@ -115,6 +122,7 @@ def ChallengeSetup(request):
             
         register_event(Event.startChallenge,request,None,challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)
-        
+       
+        context_dict['ckeditor'] = config_ck_editor()
     return render(request,'Students/ChallengeSetup.html', context_dict)
 

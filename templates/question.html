@@ -7,7 +7,6 @@
 		showcorrect - a boolean reflects whether or not the correct answer should be displayed
 		instructorview - a boolean which reflects whether or not we're in the instructor view (show points for problem)
 {% endcomment %}
-
 {% if i != 1 %}
 	<div class="divider"></div>
 {% endif %}
@@ -165,35 +164,33 @@
 {% elif q.type == questionTypes.essay %}
 	<div class="row">
 	   <div class="col s12">
-	      <textarea style="border:solid 1px rgba(128, 128, 128, 0.5)" name="{{i}}-ans" rows="10" cols="90"></textarea>
-	      <script type="text/javascript">
-	         CKEDITOR.config.autoParagraph = false;
-	         CKEDITOR.replace("{{q.questionID}}");
-	      </script>
+				<div class="django-ckeditor-widget" data-field-id="{{i}}-ans">
+						<textarea style="border:solid 1px rgba(128, 128, 128, 0.5)" name="{{i}}-ans" rows="2" cols="70" data-processed="0" data-config="{{ ckeditor.config }}" data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" data-id="{{i}}-ans" data-type="ckeditortype"></textarea>
+				  </div>
 	   </div>
 	</div>
 	{# If this is called with Graded, something has gone wrong #}
 
 {% elif q.type == questionTypes.parsons %}
 	{% if instructorview %}
-             <div class="row">
+      <div class="row">
        	<div class="col s18 l9 m6">
-       	{% for count,correct_answer in q.correct_answers %}
-          <div id="model_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.questionID}}" id="setupCode{{q.questionID}}">{{q.modelSolution}}</textarea></div>
+					 <div id="model_editor{{q.questionID}}" class="editor" ><textarea style="height: 200px; width: 550px">{{q.model_solution|safe}}</textarea>
+					 </div>
           <script>
-             var editor = ace.edit("model_editor{{question.questionID}}");
+             var editor= ace.edit("model_editor{{q.questionID}}");
              editor.setTheme("ace/theme/chrome");
              editor.session.setMode("ace/mode/java");
-             editor.setReadOnly(true);
+				 editor.setReadOnly(true);
+				 console.log(editor);
           </script>
-          {% endfor %}
        </div>
        </div>								
 
 	{% elif graded %}
 		<div class="row">
 	        <div class="col s12">
-	           <div id="student_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.questionID}}" id="setupCode{{q.questionID}}">{{q.student_solution}}</textarea></div>
+	           <div id="student_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" >{{q.student_solution|safe}}</textarea></div>
 		           <script>
 		              var editor = ace.edit("student_editor{{q.questionID}}");
 		              editor.setTheme("ace/theme/chrome");
@@ -213,7 +210,7 @@
 	              				var editor = ace.edit("model_editor{{q.questionID}}");
 	              				editor.setTheme("ace/theme/chrome");
 	              				editor.session.setMode("ace/mode/java");
-	              				editor.setReadOnly(true);
+	              				editor.setReadOnly(True);
 	           				</script>
 	           			</div>
             		</div>
@@ -322,7 +319,7 @@
 					      		var lineIndentation = [];
 					      		
 					      		for (i = 0; i < studentCodeLineObjects.length; i++) {
-					      			studentCode.push(studentCodeLineObjects[i].code);
+					      			studentCode.push(studentCodeLineObjects[i].orig);
 					      			lineIndentation.push(studentCodeLineObjects[i].indent);
 					      		}
 					      		
@@ -370,8 +367,7 @@
 			</div>
 		</div>
 		{# KI: /div tags didn't match number of divs, so I added some #}
-		</div>
-		</div>
+		{# GGM: /div turns out we can just delete the remaining two divs #}
 	{% endif %}
 	
 {% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}

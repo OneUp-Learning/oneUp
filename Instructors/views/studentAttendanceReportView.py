@@ -113,7 +113,7 @@ def generateDatesList(startDate, endDate, isPresent):
     count = 0
     step = timedelta(days=1)
     while startDate <= endDate:
-        if(isPresent[0][count] != "clear"):
+        if(isPresent != None and isPresent[0][count] != "clear"):
             dates.append(str(startDate.month) +"/"+str(startDate.day))
         
         count += 1
