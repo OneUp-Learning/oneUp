@@ -104,8 +104,11 @@
                   <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
                   <input type="hidden" name="challengeId" value="{{challengeID}}">
                   {% if isDuel %}
-                    <input type="hidden" name="isDuel" value="{{isDuel}}">
-                    <input type="hidden" name="duelID" value="{{duelID}}">
+                     <input type="hidden" name="isDuel" value="{{isDuel}}">
+                     <input type="hidden" name="duelID" value="{{duelID}}">
+                  {% elif isCallout %}
+                     <input type="hidden" name="calloutPartID" value="{{calloutPartID}}">
+                     <input type="hidden" name="isCallout" value="{{isCallout}}">
                   {% endif %}
                   <div class="card">
                      <div class="card-content">
@@ -117,6 +120,8 @@
                         <input type="submit" id="submit_hidden" name="submit_hidden" style="display:none;">
                         {% if isDuel %}
                         <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Duel</a>
+                        {% elif isCallout %}
+                        <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Call Out</a>
                         {% else %}
                         <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm2"><i class="material-icons right">send</i>Submit Challenge</a>
                         {% endif %}

@@ -153,11 +153,23 @@ class Event():
     classAttendance = 870
     activitySubmission = 871
 
+    #             #              #
+    # Challenge Classmates Events#
+   
+    # Duel 
     duelSent = 872
     duelAccepted = 873
     duelWon = 874
     duelLost = 875
-    
+
+    # Call Outs
+    calloutSent = 876
+    calloutRequested = 877
+    calloutWon = 878
+    calloutLost = 879
+     #             #              #
+
+
     events = {
               startChallenge: {
                         'index': startChallenge,
@@ -440,6 +452,34 @@ class Event():
                         'name':'duelLost',
                         'displayName':'duelLost',
                         'description':'when a student lose a duel',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            calloutSent: {
+                        'index': calloutSent,
+                        'name':'calloutSent',
+                        'displayName':'calloutSent',
+                        'description':'when a student sends a call out',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            calloutRequested: {
+                        'index': calloutRequested,
+                        'name':'calloutRequested',
+                        'displayName':'calloutRequested',
+                        'description':'when a student get requested a call out',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            calloutWon: {
+                        'index': calloutWon,
+                        'name':'calloutWon',
+                        'displayName':'calloutWon',
+                        'description':'when a student wins a call out',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            calloutLost: {
+                        'index': calloutLost,
+                        'name':'calloutLost',
+                        'displayName':'calloutLost',
+                        'description':'when a student loses a call out',
                         'isVirtualCurrencySpendRule':False
                         },
 #               seeClassAverage: {
