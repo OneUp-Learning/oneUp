@@ -17,7 +17,206 @@ from Instructors.views.courseInfoView import courseInformation
 from django.http import JsonResponse
 
 from Badges.enums import Event
-from Badges.events import register_event, register_event_simple
+from Badges.events import register_event_simple
+
+app = Celery('Students', broker='amqp://localhost')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+
+@app.task
+def end_call_out(call_out_id, course_id):
+    ''' This function ends a call out if it has not ended yet'''
+
+    course = Courses.objects.get(courseID=course_id)
+    call_out = Callouts.objects.get(calloutID=call_out_id, courseID=course)
+    call_out.hasEnded = True
+    call_out.save()
+
+
+def evaluator(call_out, sender_stat, call_out_participant, participant_id, current_course, participant_chall, already_taken=False):
+    '''This function evaluates a call out manually, in class call out case, this function
+       evaluates the highest already taken challenge score against the sender's score 
+       if warm up challenge has already been taken by participant '''
+
+    # if call out has ended, then abord
+    if call_out.hasEnded:
+        return
+
+    def reward_sender(sender_stat, current_course, call_out):
+        '''Reward Sender when participant participates'''
+
+        if sender_stat.calloutVC > 0:
+            vc_winner = StudentRegisteredCourses.objects.get(
+                studentID=call_out.sender, courseID=current_course)
+            # sender gets the callout participation amount of virtual currency set by teacher
+            virtualCurrencyAmount = vc_winner.virtualCurrencyAmount + sender_stat.calloutVC
+            vc_winner.virtualCurrencyAmount = virtualCurrencyAmount
+            vc_winner.save()
+
+            # save earning transaction
+            w_student_vc = StudentVirtualCurrency()
+            w_student_vc.courseID = current_course
+            w_student_vc.studentID = call_out.sender
+            w_student_vc.objectID = 0
+            w_student_vc.value = sender_stat.calloutVC
+            w_student_vc.vcName = "Callout "+call_out.challengeID.challengeName
+            w_student_vc.vcDescription = "Virtual currency for sending the individual call out, " + \
+                call_out.challengeID.challengeName
+            w_student_vc.save()
+
+    # If the warmup challenge has been taken by participant
+    # check if participant has performed the same or better
+    # if yes, then reward participant and terminate participation,
+    # if not, then give participant a chance to retake the warmup challenge
+
+    if already_taken:
+        participant_score = participant_chall.testScore
+
+        if participant_score >= sender_stat.studentChallenge.testScore:
+
+            # Add neccessary fields for callout stats
+            call_out_stat = CalloutStats()
+            call_out_stat.calloutID = call_out
+            call_out_stat.courseID = current_course
+            call_out_stat.calloutVC = sender_stat.calloutVC
+            call_out_stat.studentID = participant_id
+            call_out_stat.studentChallenge = participant_chall
+            call_out_stat.submitTime = participant_chall.endTimestamp
+
+            # Save Calloutstats object
+            call_out_stat.save()
+
+            call_out_participant.hasSubmitted = True
+            call_out_participant.hasWon = True
+            call_out_participant.save()
+
+            # Reward participant
+            if sender_stat.calloutVC > 0:
+                vc_winner = StudentRegisteredCourses.objects.get(
+                    studentID=participant_id, courseID=current_course)
+                # participant gets the call out participation award amount of virtual currency set by teacher
+                virtualCurrencyAmount = vc_winner.virtualCurrencyAmount + sender_stat.calloutVC
+                vc_winner.virtualCurrencyAmount = virtualCurrencyAmount
+                vc_winner.save()
+
+                # save earning transaction
+                w_student_vc = StudentVirtualCurrency()
+                w_student_vc.courseID = current_course
+                w_student_vc.studentID = participant_id
+                w_student_vc.objectID = 0
+                w_student_vc.value = sender_stat.calloutVC
+                w_student_vc.vcName = "Callout "+call_out.challengeID.challengeName
+                w_student_vc.vcDescription = "You have perfomed the same as or better than the sender in the call out, " + \
+                    call_out.challengeID.challengeName
+                w_student_vc.save()
+
+            # Check if any participant has participated in the class call out
+            if not call_out.isIndividual:
+                stats = CalloutStats.objects.filter(calloutID=call_out)
+                # only reward sender once when there is only one participant and the sender the callout stats table
+                if len(stats) == 2:
+                    reward_sender(sender_stat, current_course, call_out)
+
+            # Notify participant about the call out
+            notify.send(None, recipient=participant_id.user, actor=participant_id.user,
+                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course)}))
+
+            # mini req for calloutSent event
+            mini_req = {
+                'currentCourseID': current_course.pk,
+                'user': participant_id.user.username,
+            }
+            # register event
+            register_event_simple(Event.calloutWon, mini_req,
+                                  objectId=call_out_stat.calloutID.calloutID)
+
+    else:
+
+        participant_score = participant_chall.testScore
+
+        # Add neccessary fields for callout stats
+        call_out_stat = CalloutStats()
+        call_out_stat.calloutID = call_out
+        call_out_stat.courseID = current_course
+        call_out_stat.calloutVC = sender_stat.calloutVC
+        call_out_stat.studentID = participant_id
+        call_out_stat.studentChallenge = participant_chall
+
+        # Save Calloutstats object
+        call_out_stat.save()
+
+        call_out_participant.hasSubmitted = True
+
+        if call_out.isIndividual:
+
+            # Reward Sender when participant participates
+            reward_sender(sender_stat, current_course, call_out)
+
+            call_out.hasEnded = True
+            call_out.save()
+
+        if participant_score >= sender_stat.studentChallenge.testScore:
+
+            call_out_participant.hasWon = True
+            call_out_participant.hasSubmitted = True
+            call_out_participant.save()
+
+            # Reward participant
+            if sender_stat.calloutVC > 0:
+                vc_winner = StudentRegisteredCourses.objects.get(
+                    studentID=participant_id, courseID=current_course)
+                # participant gets the call out participation award amount of virtual currency set by teacher
+                virtualCurrencyAmount = vc_winner.virtualCurrencyAmount + sender_stat.calloutVC
+                vc_winner.virtualCurrencyAmount = virtualCurrencyAmount
+                vc_winner.save()
+
+                # save earning transaction
+                w_student_vc = StudentVirtualCurrency()
+                w_student_vc.courseID = current_course
+                w_student_vc.studentID = participant_id
+                w_student_vc.objectID = 0
+                w_student_vc.value = sender_stat.calloutVC
+                w_student_vc.vcName = "Callout "+call_out.challengeID.challengeName
+                w_student_vc.vcDescription = "You have perfomed the same as or better than the sender in the call out, " + \
+                    call_out.challengeID.challengeName
+                w_student_vc.save()
+
+             # Check if any participant has participated in the class call out
+            if not call_out.isIndividual:
+                stats = CalloutStats.objects.filter(calloutID=call_out)
+                # only reward sender once when there is only one participant and the sender the callout stats table
+                if len(stats) == 2:
+                    reward_sender(sender_stat, current_course, call_out)
+
+            # Notify participant about the call out
+            notify.send(None, recipient=participant_id.user, actor=participant_id.user,
+                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course)}))
+
+            # mini req for calloutSent event
+            mini_req = {
+                'currentCourseID': current_course.pk,
+                'user': participant_id.user.username,
+            }
+            # register event
+            register_event_simple(Event.calloutWon, mini_req,
+                                  objectId=call_out_stat.calloutID.calloutID)
+        else:
+            call_out_participant.hasWon = False
+            call_out_participant.hasSubmitted = True
+            call_out_participant.save()
+
+            # Notify participant about the call out
+            notify.send(None, recipient=participant_id.user, actor=participant_id.user,
+                        verb="You have loast the call out "+call_out.challengeID.challengeName, nf_type='callout lost', extra=json.dumps({"course": str(current_course)}))
+
+            # mini req for calloutSent event
+            mini_req = {
+                'currentCourseID': current_course.pk,
+                'user': participant_id.user.username,
+            }
+            # register event
+            register_event_simple(Event.calloutLost, mini_req,
+                                  participant_id.user, objectId=call_out_stat.calloutID.calloutID)
 
 
 @login_required
@@ -77,6 +276,15 @@ def callout_create(request):
         # Save Calloutstats object
         call_out_stat.save()
 
+        # mini req for calloutSent event
+        mini_req = {
+            'currentCourseID': current_course.pk,
+            'user': student_id.user.username,
+        }
+        # register event
+        register_event_simple(Event.calloutSent, mini_req,
+                              objectId=call_out_stat.calloutID.calloutID)
+
         # if the callout is individual then retrieve particapant id from request, get participant object and save it to CalloutParticipants table
         if callout.isIndividual:
             id_av = request.POST['participant_id'].split("---")
@@ -100,14 +308,16 @@ def callout_create(request):
 
             # Notify participant about the call out
             notify.send(None, recipient=participant_stud.user, actor=participant_stud.user,
-                        verb="You have recieved an individual call out, ", nf_type='individual callout invitation', extra=json.dumps({"course": str(current_course)}))
+                        verb="You have recieved an individual call out", nf_type='individual callout invitation', extra=json.dumps({"course": str(current_course)}))
 
-            # for event
+            # mini req for calloutSent event
             mini_req = {
                 'currentCourseID': current_course.pk,
-                'user': participant_stud.user.username,
+                'user': participant_stud.user.username
             }
             # register event
+            register_event_simple(Event.calloutRequested, mini_req,
+                                  objectId=call_out_stat.calloutID.calloutID)
 
         # if it is class callout, get all participants and create CalloutParticipants object for it
         else:
@@ -134,7 +344,7 @@ def callout_create(request):
 
                         # Notify participant about the call out
                         notify.send(None, recipient=participant_stud.studentID.user, actor=participant_stud.studentID.user,
-                                    verb="You have recieved a class call out, ", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course)}))
+                                    verb="You have recieved a class call out", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course)}))
 
                         # for event
                         mini_req = {
@@ -142,6 +352,15 @@ def callout_create(request):
                             'user': participant_stud.studentID.user.username,
                         }
                         # register event
+                        register_event_simple(Event.calloutRequested, mini_req,
+                                              objectId=call_out_stat.calloutID.calloutID)
+
+                        if StudentChallenges.objects.filter(studentID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID):
+
+                            participant_chall = StudentChallenges.objects.filter(
+                                challengeID=callout.challengeID, studentID=participant_stud.studentID, courseID=current_course).latest('testScore')
+                            evaluator(callout, call_out_stat, participant, participant_stud.studentID,
+                                      current_course, participant_chall, already_taken=True)
 
                 except:
                     # Add necessary fields
@@ -155,7 +374,7 @@ def callout_create(request):
 
                     # Notify participant about the call out
                     notify.send(None, recipient=participant_stud.studentID.user, actor=participant_stud.studentID.user,
-                                verb="You have recieved a class call out, ", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course)}))
+                                verb="You have recieved a class call out", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course)}))
 
                     # for event
                     mini_req = {
@@ -163,6 +382,40 @@ def callout_create(request):
                         'user': participant_stud.studentID.user.username,
                     }
                     # register event
+                    register_event_simple(Event.calloutRequested, mini_req,
+                                          objectId=call_out_stat.calloutID.calloutID)
+
+                    if StudentChallenges.objects.filter(studenID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID):
+                        participant_chall = StudentChallenges.objects.filter(
+                            challengeID=callout.challengeID, studentID=participant_stud.studentID, courseID=current_course).latest('testScore')
+                        evaluator(callout, call_out_stat, participant, participant_stud.studentID,
+                                  current_course, participant_chall, already_taken=True)
+
+        ################################################################################################################################################
+        # End call out after specified time using celery
+        # get database end time and add 40 seconds from it to be consistent with network latency
+        #end_time = callout.endTime + timedelta(seconds=40)
+        # end_call_out.apply_async(
+        #    (callout.calloutID, current_course.courseID), eta=end_time)
+        # end_time = utcDate() + timedelta(seconds=40)
+        # print()
+        # print()
+        # print()
+        # print()
+        # print()
+        # print()
+        # print("end time ", end_time)
+        # end_call_out.apply_async(
+        #     (callout.calloutID, current_course.courseID), eta=end_time)
+        # print("end call out celery")
+        # print()
+        # print()
+        # print()
+        # print()
+        # print()
+        # print()
+        ##################################################################################################################################################
+
         return redirect('/oneUp/students/Callouts')
 
     # get list of participants randomly and exclude the sender and test students
@@ -205,8 +458,22 @@ def callout_create(request):
     context_dict['participants_range'] = zip(
         range(0, len(avatars)), avatars, participants, ids_avs)
 
-    sender_challenges = StudentChallenges.objects.filter(
+    s_challenges = StudentChallenges.objects.filter(
         courseID=current_course, studentID=student_id)
+
+    # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
+    sender_challenges = []
+    seen_challenges = set()
+    for s_c in s_challenges:
+        if not s_c.challengeID in seen_challenges:
+            s_chall = StudentChallenges.objects.filter(
+                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
+            percentage = (s_chall.testScore /
+                          s_chall.challengeID.totalScore) * 100
+            # if the sender test score for this challenge is greater than 30% then consider the challenge
+            if percentage > 30:
+                sender_challenges.append(s_chall)
+        seen_challenges.add(s_c.challengeID)
 
     participant_challenges = StudentChallenges.objects.filter(
         courseID=current_course, studentID=participants[0].studentID)
@@ -221,10 +488,16 @@ def callout_create(request):
     participant_call_outs_challenges = [
         call_out.calloutID.challengeID for call_out in participant_call_outs]
 
+    # get all sender's call_outs' challenges
+    sender_call_outs = Callouts.objects.filter(
+        sender=student_id)
+    sender_call_outs_challenges = [
+        call_out.challengeID for call_out in sender_call_outs]
+
     qualified_challenges = []
 
     for sender_challenge in sender_challenges:
-        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges:
+        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges and not sender_challenge.challengeID in sender_call_outs_challenges:
             qualified_challenges.append(sender_challenge)
 
     context_dict['challenges'] = qualified_challenges
@@ -243,12 +516,33 @@ def get_class_callout_qualified_challenges(request):
     # get all sender warmup taken challenges
     # store challenges ids and names as strings with '---' as a delimeter to get around jason serialization
     ids_names_taken_challenges = []
-    taken_challenges = StudentChallenges.objects.filter(
+    s_challenges = StudentChallenges.objects.filter(
         courseID=current_course, studentID=student_id)
 
-    for challenge in taken_challenges:
-        ids_names_taken_challenges.append(str(
-            challenge.challengeID.challengeID)+"---"+challenge.challengeID.challengeName)
+    # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
+    sender_challenges = []
+    seen_challenges = set()
+    for s_c in s_challenges:
+        if not s_c.challengeID in seen_challenges:
+            s_chall = StudentChallenges.objects.filter(
+                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
+            percentage = (s_chall.testScore /
+                          s_chall.challengeID.totalScore) * 100
+            # if the sender test score for this challenge is greater than 30% then consider the challenge
+            if percentage > 30:
+                sender_challenges.append(s_chall)
+        seen_challenges.add(s_c.challengeID)
+
+    # get all sender's call_outs' challenges
+    sender_call_outs = Callouts.objects.filter(
+        sender=student_id)
+    sender_call_outs_challenges = [
+        call_out.challengeID for call_out in sender_call_outs]
+
+    for challenge in sender_challenges:
+        if not challenge.challengeID in sender_call_outs_challenges:
+            ids_names_taken_challenges.append(str(
+                challenge.challengeID.challengeID)+"---"+challenge.challengeID.challengeName)
 
     context_dict["challenges"] = ids_names_taken_challenges
 
@@ -267,8 +561,22 @@ def get_individual_callout_qualified_challenges(request):
     # store challenges ids and names as strings with '---' as a delimeter to get around jason serialization
     ids_names_challenges = []
 
-    sender_challenges = StudentChallenges.objects.filter(
+    s_challenges = StudentChallenges.objects.filter(
         courseID=current_course, studentID=student_id)
+
+    # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
+    sender_challenges = []
+    seen_challenges = set()
+    for s_c in s_challenges:
+        if not s_c.challengeID in seen_challenges:
+            s_chall = StudentChallenges.objects.filter(
+                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
+            percentage = (s_chall.testScore /
+                          s_chall.challengeID.totalScore) * 100
+            # if the sender test score for this challenge is greater than 30% then consider the challenge
+            if percentage > 30:
+                sender_challenges.append(s_chall)
+        seen_challenges.add(s_c.challengeID)
 
     participant_id = request.GET['participant_id']
     participant_challenges = StudentChallenges.objects.filter(
@@ -284,8 +592,14 @@ def get_individual_callout_qualified_challenges(request):
     participant_call_outs_challenges = [
         call_out.calloutID.challengeID for call_out in participant_call_outs]
 
+    # get all sender's call_outs' challenges
+    sender_call_outs = Callouts.objects.filter(
+        sender=student_id)
+    sender_call_outs_challenges = [
+        call_out.challengeID for call_out in sender_call_outs]
+
     for sender_challenge in sender_challenges:
-        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges:
+        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges and not sender_challenge.challengeID in sender_call_outs_challenges:
             ids_names_challenges.append(
                 str(sender_challenge.challengeID.challengeID)+"---"+sender_challenge.challengeID.challengeName)
 
@@ -313,12 +627,19 @@ def callout_description(request):
             # initial message
             message = "This is an individual call out. "
 
+            if not call_out.hasEnded:
+                if is_sent_call_out:
+                    message += "The participant will have to perform the same or better than you to win. Please see call out details bellow. "
+                else:
+                    message += "You will have to perform the same or better than the call out sender to win. Please see call out details bellow. "
+
             # try to get participant challenge
             try:
-                participant_call_out_stat = CalloutStats.objects.filter(
-                    studentID=call_out_participant.participantID, challengeID=call_out.challengeID, courseID=current_course)
+                participant_call_out_stat = CalloutStats.objects.get(
+                    studentID=call_out_participant.participantID, calloutID=call_out, studentChallenge__challengeID=call_out.challengeID)
                 context_dict['participant_score'] = participant_call_out_stat.studentChallenge.testScore
                 context_dict['submit_time'] = participant_call_out_stat.submitTime
+                context_dict['submission_status'] = True
                 if call_out_participant.hasWon:
                     if sender_score == participant_call_out_stat.studentChallenge.testScore:
                         if is_sent_call_out:
@@ -352,8 +673,13 @@ def callout_description(request):
                                 " virtual currency."
                     if is_sent_call_out:
                         message += "Congratulation! keep up the good work. "
+
             except:
-                context_dict['submission_status'] = False
+
+                if call_out_participant.hasSubmitted:
+                    context_dict['submission_status'] = True
+                else:
+                    context_dict['submission_status'] = False
                 context_dict['participant_score'] = "-"
                 context_dict['submit_time'] = "-"
                 if is_sent_call_out and call_out.hasEnded:
@@ -371,7 +697,7 @@ def callout_description(request):
         # else get class details such student avatars, scores and submit times
         else:
             call_out_participant_objects = CalloutParticipants.objects.filter(
-                calloutID=call_out, courseID=current_course).order_by('?')
+                calloutID=call_out, courseID=current_course).order_by('?').exclude(participantID__user__id=s_id)
 
             # initial message
             message = "This is a class call out. "
@@ -381,47 +707,50 @@ def callout_description(request):
                 call_out_part = CalloutParticipants.objects.get(
                     calloutID=call_out, participantID__user__id=s_id)
 
+                if not call_out_part.hasSubmitted:
+                    message += "You will have to perform the same or better than the call out sender to win. Please see call out details bellow. "
+
                 context_dict['participant_avatar'] = StudentRegisteredCourses.objects.get(
                     studentID=call_out_part.participantID, courseID=current_course).avatarImage
-                context_dict['call_out_part'] = call_out_part
+                context_dict['call_out_participant'] = call_out_part
 
-                if call_out.hasEnded:
-
-                    try:
-                        participant_call_out_stat = CalloutStats.objects.filter(
-                            studentID=call_out_part.participantID, challengeID=call_out.challengeID, courseID=current_course)
-
-                        if call_out_part.hasWon:
-                            if sender_score == participant_call_out_stat.studentChallenge.testScore:
-                                if participant_call_out_stat.calloutVC > 0:
-                                    message += "You have performed the same as the call out sender did. Both you and sender have earned an amount of " + str(
-                                        participant_call_out_stat.calloutVC)+" virtual currency for participanting in this call out. Congratulation! keep up the good work. "
-                                else:
-                                    message += \
-                                        "You have performed the same as the call out sender did. Congratulation! keep up the good work. "
+                try:
+                    participant_call_out_stat = CalloutStats.objects.get(
+                        studentID=call_out_part.participantID, studentChallenge__challengeID=call_out.challengeID, calloutID=call_out)
+                    context_dict['participant_score'] = participant_call_out_stat.studentChallenge.testScore
+                    context_dict['submit_time'] = participant_call_out_stat.submitTime
+                    context_dict['submission_status'] = True
+                    if call_out_part.hasWon:
+                        if sender_score == participant_call_out_stat.studentChallenge.testScore:
+                            if participant_call_out_stat.calloutVC > 0:
+                                message += "You have performed the same as the call out sender did. Both you and sender have earned an amount of " + str(
+                                    participant_call_out_stat.calloutVC)+" virtual currency for participanting in this call out. Congratulation! keep up the good work. "
                             else:
-                                if participant_call_out_stat.calloutVC > 0:
-                                    message += "You have performed better than the call out sender did. Both you and sender have earned an amount of " + str(
-                                        participant_call_out_stat.calloutVC)+" virtual currency for participanting in this call out. Congratulation! keep up the good work. "
-                                else:
-                                    message += \
-                                        "You have performed better than the call out sender did. Congratulation! keep up the good work. "
+                                message += \
+                                    "You have performed the same as the call out sender did. Congratulation! keep up the good work. "
                         else:
-                            message += \
-                                "You have failed to performed the same as the call out sender did or better. The call out has ended and is now closed. "
-                    except:
+                            if participant_call_out_stat.calloutVC > 0:
+                                message += "You have performed better than the call out sender did. Both you and sender have earned an amount of " + str(
+                                    participant_call_out_stat.calloutVC)+" virtual currency for participanting in this call out. Congratulation! keep up the good work. "
+                            else:
+                                message += \
+                                    "You have performed better than the call out sender did. Congratulation! keep up the good work. "
+                    else:
+                        message += \
+                            "You have failed to performed the same as the call out sender did or better. The call out has ended and is now closed. "
+                except:
+                    if call_out.hasEnded:
                         message += "You have failed to submit the call out on time. The call out has ended and is now closed. "
-                else:
-                    message += "You have not submitted yet and the call out is still in progress. "
-
-            try:
-                participant_call_out_stat = CalloutStats.objects.filter(
-                    studentID=call_out_part.participantID, challengeID=call_out.challengeID, courseID=current_course)
-                context_dict['participant_score'] = participant_call_out_stat.studentChallenge.testScore
-                context_dict['submit_time'] = participant_call_out_stat.submitTime
-            except:
-                context_dict['participant_score'] = "-"
-                context_dict['submit_time'] = "-"
+                    else:
+                        message += "You have not submitted yet and the call out is still in progress. "
+                    context_dict['participant_score'] = "-"
+                    context_dict['submit_time'] = "-"
+                    if call_out_part.hasSubmit:
+                        context_dict['submission_status'] = True
+                    else:
+                        context_dict['submission_status'] = False
+            else:
+                message += "The participants will have to perform the same or better than you to win. "
 
             participant_avatars = []
             call_out_participants = []
@@ -443,8 +772,8 @@ def callout_description(request):
                     winning_status.append("-")
 
                 try:
-                    participant_call_out_stat = CalloutStats.objects.filter(
-                        studentID=call_out_participant.participantID, challengeID=call_out.challengeID, courseID=current_course)
+                    participant_call_out_stat = CalloutStats.objects.get(
+                        studentID=call_out_participant.participantID, studentChallenge__challengeID=call_out.challengeID, calloutID=call_out)
                     participant_scores.append(
                         participant_call_out_stat.studentChallenge.testScore)
                     submit_times.append(
@@ -458,12 +787,15 @@ def callout_description(request):
                 except:
                     participant_scores.append("-")
                     submit_times.append("-")
-                    submission_status.append(False)
+                    if call_out_participant.hasSubmitted:
+                        submission_status.append(True)
+                    else:
+                        submission_status.append(False)
 
             if is_sent_call_out:
                 if call_out.hasEnded:
                     message += award_message + "The call out has ended and is now closed. "
-                message += "See details bellow. "
+                message += "Please see call out details bellow. "
 
             context_dict['message'] = message
 
@@ -474,6 +806,7 @@ def callout_description(request):
 
     context_dict, current_course = studentInitialContextDict(request)
     student_id = context_dict['student']
+    context_dict['isWarmup'] = True
 
     # get the needed detail, sent or requested call out
 
@@ -513,6 +846,8 @@ def callout_description(request):
         participant_id = request.GET['participant_id']
         call_out_participant = CalloutParticipants.objects.get(
             id=call_out_participant_id, participantID__user__id=participant_id)
+        context_dict['call_out_participant'] = call_out_participant
+
         context_dict['participant_avatar'] = StudentRegisteredCourses.objects.get(
             studentID__user__id=participant_id, courseID=current_course).avatarImage
         call_out = call_out_participant.calloutID

@@ -10,7 +10,7 @@ def updateLeaderboard(course):
 
     for student in students:
         time_period = TimePeriods.timePeriods[1503]
-        s_id, xp = studentScore(student, course, 0, time_period, 0, result_only=True,
+        s_id, xp = studentScore(student.studentID, course, 0, time_period, 0, result_only=True,
                                 gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
 
         # get all the students that have xp

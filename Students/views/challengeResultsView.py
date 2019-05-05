@@ -10,9 +10,10 @@ from datetime import datetime
 from Instructors.views.utils import utcDate
 from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
     ChallengesQuestions
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges
+from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats
 from Students.views.utils import studentInitialContextDict
 from Students.views.duelChallengeView import duel_challenge_evaluate
+from Students.views.calloutsView import evaluator
 from Badges.events import register_event
 from Badges.event_utils import updateLeaderboard
 from Badges.enums import Event
@@ -78,6 +79,8 @@ def ChallengeResults(request):
 
         if request.POST:
 
+            studentId = Student.objects.get(user=request.user)
+
             if request.POST['challengeId'] == "":
                 # Challenge without questions
                 print('here')
@@ -85,17 +88,20 @@ def ChallengeResults(request):
                 if 'duelID' in request.POST:
                     duel_id = request.POST['duelID']
                     return redirect('/oneUp/students/DuelChallengeDescription?duelChallengeID='+duel_id)
+                elif 'calloutPartID' in request.POST:
+                    call_out_part_id = request.POST['calloutPartID']
+                    return redirect("/oneUp/students/CalloutDescription?call_out_participant_id="+call_out_part_id+"&participant_id="+studentId.user.id)
+
                 return redirect('/oneUp/students/ChallengesList')
 
             else:
-
-                studentId = Student.objects.get(user=request.user)
                 #print (studentId)
 
                 challengeId = request.POST['challengeId']
                 course = Courses.objects.get(pk=currentCourse.courseID)
                 challenge = Challenges.objects.get(pk=challengeId)
                 is_duel = False
+                is_call_out = False
                 context_dict['challengeName'] = challenge.challengeName
                 if 'duelID' in request.POST:
                     duel_id = request.POST['duelID']
@@ -105,6 +111,15 @@ def ChallengeResults(request):
                     context_dict['duelID'] = duel_id
                     context_dict['isDuel'] = True
                     context_dict['challengeName'] = duel_challenge.duelChallengeName
+                elif "calloutPartID" in request.POST:
+                    call_out_part_id = request.POST['calloutPartID']
+                    context_dict['participantID'] = studentId.user.id
+                    is_call_out = True
+                    call_out_part = CalloutParticipants.objects.get(
+                        pk=int(call_out_part_id))
+                    context_dict['isCallout'] = is_call_out
+                    context_dict['calloutPartID'] = call_out_part_id
+                    context_dict['challengeName'] = call_out_part.calloutID.challengeID.challengeName
 
                 #context_dict['instructorFeedback'] = challenge.instructorFeedback
 
@@ -212,6 +227,19 @@ def ChallengeResults(request):
                 if is_duel:
                     context_dict = duel_challenge_evaluate(
                         studentId, currentCourse, duel_challenge, context_dict)
+                elif is_call_out:
+
+                    call_out_part = CalloutParticipants.objects.get(
+                        pk=int(request.POST["calloutPartID"]))
+                    call_out = call_out_part.calloutID
+                    sender_stat = CalloutStats.objects.get(
+                        calloutID=call_out, studentID=call_out.sender)
+                    call_out_participant = CalloutParticipants.objects.get(
+                        calloutID=call_out, participantID=studentId)
+                    participant_chall = StudentChallenges.objects.filter(
+                        challengeID=call_out.challengeID, studentID=studentId, courseID=currentCourse).latest('testScore')
+                    evaluator(call_out, sender_stat, call_out_participant, studentId,
+                              currentCourse, participant_chall, already_taken=False)
 
         if request.GET:
 
@@ -226,6 +254,9 @@ def ChallengeResults(request):
             if 'duelID' in request.GET:
                 context_dict['isDuel'] = True
                 context_dict['duelID'] = request.GET['duelID']
+            elif 'calloutPartID' in request.GET:
+                context_dict['isCallout'] = True
+                context_dict['calloutPartID'] = request.POST['calloutPartID']
 
             if 'studentChallengeID' in request.GET:
                 studentChallengeId = request.GET['studentChallengeID']

@@ -320,7 +320,7 @@
                             <!--  <a class="btn waves-effect waves-light add_more">Add More Files</a>   -->
                             {% if not is_sent_call_out and not call_out_participant.hasSubmitted and not call_out.hasEnded%}
                                 
-                                <a class="btn waves-effect waves-light" href="/oneUp/students/ChallengeDescription?challengeID={{call_out.studentChallenge.challengeID.challengeID}}&isWarmup=True&isCallout=True&calloutID={{call_out.calloutID}}">
+                                <a class="btn waves-effect waves-light" href="/oneUp/students/ChallengeDescription?challengeID={{call_out.challengeID.challengeID}}&isWarmup={{isWarmup}}&isCallout={{isWarmup}}&calloutPartID={{call_out_participant.id}}">
                                 <i class="material-icons right">send</i>Take</a>
                                      
                             {% endif %}

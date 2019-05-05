@@ -150,10 +150,9 @@ class StudentGoalSetting(models.Model):
     goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
-    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
 
     def __str__(self):              
-        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.courseID) +"," +str(self.goalType) +"," + str(self.timestamp) +"," + str(self.targetedNumber) + "," + str(self.progressToGoal)
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -254,7 +253,6 @@ class StudentConfigParams(models.Model):
     participateInDuel = models.BooleanField(default=True)
     participateInCallout = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
-    displayGoal = models.BooleanField(default=True)
     
     def __str__(self):
         return str(self.scpID)  +","
@@ -267,7 +265,6 @@ class StudentConfigParams(models.Model):
         +str(self.displayClassRanking) +","
         +str(self.participateInCallout) +","
         +str(self.particiapateInDuel) 
-        +str(self.displayGoal)   
 
 class PeriodicallyUpdatedleaderboards(models.Model):
     periodicLeaderboardID = models.AutoField(primary_key=True)
@@ -367,10 +364,6 @@ class StudentStreaks(models.Model):
     streakType = models.IntegerField(default=0)
     objectID = models.IntegerField(default=0)
     currentStudentStreakLength = models.IntegerField(default=0)
-    
-    def __str__(self):
-        return "StreakID: " + str(self.studentStreakID) + " studentID: " + str(self.studentID) + " courseID: " + str(self.courseID) + " streakStartDate:" + str(self.streakStartDate)
-        + " streakType: " + str(self.streakType) + " objectID:" + str(self.objectID) + " currentStudentStreakLength" + str(self.currentStudentStreakLength)
     
     
 class StudentProgressiveUnlocking(models.Model):

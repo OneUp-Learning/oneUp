@@ -3,7 +3,7 @@ from django.shortcuts import render
 from Instructors.models import Challenges
 from Instructors.views.utils import utcDate
 from Instructors.constants import default_time_str, unlimited_constant
-from Students.models import Student, StudentChallenges, DuelChallenges
+from Students.models import Student, StudentChallenges, DuelChallenges, CalloutParticipants
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
 from time import strftime
@@ -41,6 +41,9 @@ def ChallengeDescription(request):
                 # Duel flag
                 is_duel = False
 
+                # Callout flag
+                is_callout = False
+
                 if 'isWarmup' in request.GET:
                     context_dict['isWarmup'] = request.GET['isWarmup']
 
@@ -49,6 +52,11 @@ def ChallengeDescription(request):
                         context_dict['duelID'] = duel_id
                         is_duel = True
                         context_dict['isDuel'] = is_duel
+                    elif 'calloutPartID' in request.GET:
+                        is_callout = True
+                        callout_part_id = request.GET['calloutPartID']
+                        context_dict['calloutPartID'] = callout_part_id
+                        context_dict['isCallout'] = is_callout
 
                 else:
                     context_dict['isWarmup'] = False
@@ -60,7 +68,13 @@ def ChallengeDescription(request):
                         pk=int(duel_id))
                     challenge = duel_challenge.challengeID
                     challengeId = challenge.challengeID
-
+                elif is_callout:
+                    call_out_part = CalloutParticipants.objects.get(
+                        pk=int(callout_part_id))
+                    challenge = call_out_part.calloutID.challengeID
+                    challengeId = challenge.challengeID
+                    context_dict['calloutPartID'] = call_out_part.id
+                    context_dict['participantID'] = studentId.user.id
                 else:
                     challengeId = request.GET['challengeID']
                     challenge = Challenges.objects.get(pk=int(challengeId))
@@ -78,6 +92,10 @@ def ChallengeDescription(request):
                     remaing_time = remaing_time = total_time-utcDate()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['timeLimit'] = ("%.2f" % difference_minutes)
+                elif is_callout:
+                    time_left = (call_out_part.calloutID.endTime -
+                                 utcDate()).total_seconds() / 60.0
+                    context_dict['timeLimit'] = ("%.2f" % time_left)
                 elif data == unlimited_constant:
                     context_dict['timeLimit'] = "None"
                 else:
@@ -92,7 +110,14 @@ def ChallengeDescription(request):
 
                 context_dict['challengeID'] = challengeId
                 for attr in string_attributes:
-                    context_dict[attr] = getattr(challenge, attr)
+                    if attr == 'challengeDifficulty':
+                        val = getattr(challenge, attr)
+                        if val == "":
+                            context_dict[attr] = "Unspecified"
+                        else:
+                            context_dict[attr] = val
+                    else:
+                        context_dict[attr] = getattr(challenge, attr)
 
                 # override challenge name by duel challenge name if duel challenge is true
                 if is_duel:
