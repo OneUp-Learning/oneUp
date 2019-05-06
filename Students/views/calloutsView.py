@@ -394,26 +394,9 @@ def callout_create(request):
         ################################################################################################################################################
         # End call out after specified time using celery
         # get database end time and add 40 seconds from it to be consistent with network latency
-        #end_time = callout.endTime + timedelta(seconds=40)
-        # end_call_out.apply_async(
-        #    (callout.calloutID, current_course.courseID), eta=end_time)
-        # end_time = utcDate() + timedelta(seconds=40)
-        # print()
-        # print()
-        # print()
-        # print()
-        # print()
-        # print()
-        # print("end time ", end_time)
-        # end_call_out.apply_async(
-        #     (callout.calloutID, current_course.courseID), eta=end_time)
-        # print("end call out celery")
-        # print()
-        # print()
-        # print()
-        # print()
-        # print()
-        # print()
+        end_time = callout.endTime + timedelta(seconds=40)
+        end_call_out.apply_async(
+            (callout.calloutID, current_course.courseID), eta=end_time)
         ##################################################################################################################################################
 
         return redirect('/oneUp/students/Callouts')
