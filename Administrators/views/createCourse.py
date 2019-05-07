@@ -109,7 +109,7 @@ def courseCreateView(request):
                     # Register instructors to the course (AH)
                     for instructor in instructors:
                         # If this instructor is registered for course then skip
-                        if irc.filter(instructorID = instructor).exists():
+                        if InstructorRegisteredCourses.objects.filter(instructorID = instructor).exists():
                             continue
                         else:
                             irc = InstructorRegisteredCourses()

@@ -15,9 +15,9 @@ from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
     SESSION_SERIALIZER
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-#This is used for uploading AvatarImages
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #This is for the sever
-MEDIA_URL =  '/media/' #This is for the html
+# This is used for uploading AvatarImages
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is for the sever
+MEDIA_URL = '/media/'  # This is for the html
 CKEDITOR_UPLOAD_PATH = "ckeditor/uploads/"
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = True
 CKEDITOR_RESTRICT_BY_USER = True
@@ -44,20 +44,20 @@ LOGGING = {
         },
     },
     'handlers': {
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
     },
     'root': {
         'handlers': ['console'],
         'level': LOGGING_LEVEL
-    },   
+    },
 }
 ALLOWED_HOSTS = [
-#     'oneup.wssu.edu'
-    ]
+    #     'oneup.wssu.edu'
+]
 
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
@@ -114,7 +114,7 @@ DATABASES = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS' : [ os.path.join(BASE_DIR, 'templates') ],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -129,11 +129,11 @@ TEMPLATES = [
 
 FIXTURE_DIRS = ()
 
-STATIC_PATH = os.path.join(BASE_DIR,'static')
+STATIC_PATH = os.path.join(BASE_DIR, 'static')
 
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-STATIC_URL = '/OneUp/' # You may find this is already defined as such.
+STATIC_URL = '/OneUp/'  # You may find this is already defined as such.
 
 CKEDITOR_BASEPATH = os.path.join(STATIC_ROOT, 'ThirdParty/ckeditor/ckeditor')
 
@@ -153,8 +153,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-GEOIP_DATABASE = os.path.join(BASE_DIR,'GeoLiteCity.dat')
-GEOIPV6_DATABASE = os.path.join(BASE_DIR,'GeoLiteCityv6.dat')
+GEOIP_DATABASE = os.path.join(BASE_DIR, 'GeoLiteCity.dat')
+GEOIPV6_DATABASE = os.path.join(BASE_DIR, 'GeoLiteCityv6.dat')
 
 
 # Static files (CSS, JavaScript, Images)
@@ -175,7 +175,7 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.CryptPasswordHasher',
 )
 
-LOGIN_URL='/oneUp/permission_error'
+LOGIN_URL = '/oneUp/permission_error'
 
 # Ckeditor Settings
 CKEDITOR_CONFIGS = {
@@ -186,8 +186,10 @@ CKEDITOR_CONFIGS = {
             ['Source', '-', 'Bold', 'Italic']
         ],
         'toolbar_Custom': [
-            {'name': 'document', 'items': ['Source', '-', 'Preview', 'Print', '-', 'Templates']},
-            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo']},
+            {'name': 'document', 'items': [
+                'Source', '-', 'Preview', 'Print', '-', 'Templates']},
+            {'name': 'clipboard', 'items': [
+                'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo']},
             {'name': 'editing', 'items': ['Find', 'Replace', 'SelectAll']},
             '/',
             {'name': 'basicstyles',
@@ -200,7 +202,8 @@ CKEDITOR_CONFIGS = {
             {'name': 'insert',
              'items': ['Image', 'Table', 'HorizontalRule', 'Smiley', 'EqnEditor', 'CodeSnippet', 'Markdown']},
             '/',
-            {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
+            {'name': 'styles', 'items': [
+                'Styles', 'Format', 'Font', 'FontSize']},
             {'name': 'colors', 'items': ['TextColor', 'BGColor']},
             {'name': 'about', 'items': ['About']},
         ],
@@ -216,7 +219,7 @@ CKEDITOR_CONFIGS = {
         'tabSpaces': 4,
         'codeSnippet_theme': 'default',
         'extraPlugins': ','.join([
-            'uploadimage', # the upload image feature
+            'uploadimage',  # the upload image feature
             'uploadwidget',
             'eqneditor',
             'autolink',
