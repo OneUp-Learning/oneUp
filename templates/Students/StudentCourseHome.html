@@ -91,9 +91,9 @@
 			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                           
 			                          <div class="col s12">
 			                            <div class="card-panel">
-			                            	<span>{{goal_Type}}</span>
+			                            	<span>End Date: {{end_date}}</span>
 			                           		<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
-			                      			<span>Due: {{end_date}}</span>
+			                      			<span>{{goal_Type}}</span>			                      			
 			                      		</div>
 			                      	  </div>
 			                         {% empty %} 
