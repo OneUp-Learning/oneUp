@@ -39,7 +39,7 @@
                                  <td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" max="999" value="0"></td>
                                  <td>
                                     {% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
-                                    <select name="challengeFor{{buyOpt.name}}">
+                                    <select name="challengeFor{{buyOpt.id}}">
                                        <option value="none">None</option>
                                     {% for id, name in buyOpt.challenges %}
                                         <option value="{{id}}">{{name}}</option>

@@ -23,16 +23,12 @@ from Students.views.studentCourseHomeView import courseBadges
 
 
 def LeaderboardView(request):
-    return leaderboardData(request, 0)
-def InstructorLeaderboardView(request):
-    return leaderboardData(request, 1)
-
-def leaderboardData(request, instructorOrStudent):
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated
     if request.user.is_authenticated:
         context_dict["username"]=request.user.username
-        sID = Student.objects.get(user=request.user)
+        if not instructor:
+            sID = Student.objects.get(user=request.user)
 
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
@@ -72,9 +68,4 @@ def leaderboardData(request, instructorOrStudent):
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.visitedLeaderboardPage, request, sID, None)
     print("User visited Leaderboard page was registered for the student in the request")
-    
-    if instructorOrStudent == 0:
-        return render(request,'Students/Leaderboard.html', context_dict)
-    
-    if instructorOrStudent == 1:
-        return render(request,'Instructors/Leaderboard.html', context_dict)
+    return render(request,'Students/Leaderboard.html', context_dict)

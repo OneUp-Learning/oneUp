@@ -175,6 +175,20 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.duelWon):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
+
+    # Callouts Events
+    if(eventID == Event.calloutRequested):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+    if(eventID == Event.calloutLost):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+    if(eventID == Event.calloutSent):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+    if(eventID == Event.calloutWon):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
         
 #     if(eventID == Event.seeClassAverage):
 #         eventEntry.objectType = ObjectTypes.form

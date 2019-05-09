@@ -73,9 +73,9 @@
                         </div>
                         <div class="row">
                            <div class="col s12">
-                              <label for="course_description"><span class="red-text">*</span> Course Description</label>
+                              <label for="course_description">Course Description</label>
                               <div class="django-ckeditor-widget" data-field-id="0">
-                                 <textarea name="courseDescription" id="course_description" rows="2" cols="70" {%if view%}readonly{%else%}required{%endif%} data-processed="0" data-config="{{ ckeditor.config }}" data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" data-id="course_description" data-type="ckeditortype">{{ courseDescription }}</textarea>
+                                 <textarea name="courseDescription" id="course_description" rows="2" cols="70" {%if view%}readonly{%endif%} data-processed="0" data-config="{{ ckeditor.config }}" data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" data-id="course_description" data-type="ckeditortype">{{ courseDescription }}</textarea>
                              </div>             
                            </div>
                         </div>

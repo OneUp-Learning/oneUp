@@ -581,7 +581,7 @@ def parsonsMakeAnswerList(qdict, POST):
         # ⋊ is used to maintain the indentation of the line, so that we can later remove it
         # but still keep proper indentation in each line
         #if it contains a block treat it as a unit
-        solution_string = re.sub("(?<!##)\n", "᚛¬⋊", solution_string)
+        solution_string = re.sub("(?<!##|?!.*return result;##)\n", "᚛¬⋊", solution_string)
         solution_string = re.sub(";(?!.+)", "᚛", solution_string)
         
         print("solution_stringrepr", repr(solution_string))
