@@ -150,10 +150,9 @@ class StudentGoalSetting(models.Model):
     goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
-    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
 
     def __str__(self):              
-        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.courseID) +"," +str(self.goalType) +"," + str(self.timestamp) +"," + str(self.targetedNumber) + "," + str(self.progressToGoal)
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -252,8 +251,8 @@ class StudentConfigParams(models.Model):
     displayClassAverage = models.BooleanField(default=True) 
     displayClassRanking = models.BooleanField(default=True)
     participateInDuel = models.BooleanField(default=True)
+    participateInCallout = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
-    displayGoal = models.BooleanField(default=True)
     
     def __str__(self):
         return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +",displayBadges:"+str(self.displayBadges) +",displayLeaderboard:"+str(self.displayLeaderBoard) +",displayClassSkills"+str(self.displayClassSkills) +",displayClassAverage:"+str(self.displayClassAverage) +",displayClassRanking:"+str(self.displayClassRanking) +",displayGoal:"+str(self.displayGoal)+",participateInDuel:"+str(self.participateInDuel)+",courseBucks:"+str(self.courseBucks)   
@@ -280,7 +279,6 @@ class StudentLeaderboardHistory(models.Model):
     def __str__(self):              
         return str(self.id)+", "+str(self.studentID)+", Position: "+str(self.leaderboardPosition)+", Start Timestamp: "+str(self.startTimestamp)+", End Timestamp: "+str(self.endTimestamp)                             
            
-# Duel challenge related tables
 class DuelChallenges(models.Model): 
     duelChallengeID = models.AutoField(primary_key=True)
     duelChallengeName = models.CharField(max_length=100)
@@ -298,12 +296,56 @@ class DuelChallenges(models.Model):
     status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
+
+    def __str__(self):
+        return "duelchallengeID: "+str(self.duelChallengeID)+ ", duelchallengeName: "+ str(self.duelChallengeName)+", courseID: "+str(self.courseID)+", challengeID: "+str(self.challengeID)+\
+            ", isBetting: "+str(self.isBetting)+", vcBet: "+str(self.vcBet)+", challenger: "+str(self.challenger)+", challengee: "+str(self.challengee)+", sendTime: "+str(self.sendTime)+\
+            ", acceptTime: "+str(self.acceptTime)+", startTime:"+str(self.startTime)+", timeLimit: "+str(self.timeLimit)+", customMessage: "+str(self.customMessage)+\
+            " status: "+str(self.status)+" hasStarted: "+str(self.hasStarted)+" hasEnded: "+str(self.hasEnded)
      
 # This table considers a tie as a win, it stores winners and those in ties
 class Winners(models.Model):
     DuelChallengeID = models.ForeignKey(DuelChallenges, on_delete=models.CASCADE, verbose_name="the related Duel", db_index=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+
+    def __str__(self):
+        return "duelChallengeID: "+str(self.DuelChallengeID)+", studentID: "+str(self.studentID)+", courseID: "+str(self.courseID)
+
+class Callouts(models.Model): 
+    calloutID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    challengeID = models.ForeignKey(Challenges, on_delete=models.CASCADE, verbose_name="the related challenge", db_index=True)
+    sender = models.ForeignKey(Student, related_name="sender" ,on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    sendTime = models.DateTimeField(auto_now_add=True, verbose_name="Send Timestamp", db_index=True)
+    endTime = models.DateTimeField(verbose_name="End Time", db_index=True)
+    customMessage = models.CharField(max_length=6000, default='')
+    hasEnded = models.BooleanField(default=False) # Indicates whether the callout  has ended
+    isIndividual = models.BooleanField() # Indicates whether the callout  is individual if it is true or whole class if it is not true
+
+    def __str__(self):
+        return "calloutID: "+str(self.calloutID)+", courseID: "+str(self.courseID)+", challengeID: "+str(self.challengeID)+", sender: "+str(self.sender)+", sendTime: "+str(self.sendTime)+", endTime: "+str(self.endTime)+", customMessage: "+str(self.customMessage)+", hasEnded: "+str(self.hasEnded)+",  isIndividual: "+str(self.isIndividual)
+
+class CalloutParticipants(models.Model):
+    calloutID = models.ForeignKey(Callouts, on_delete=models.CASCADE, verbose_name="the related Callout", db_index=True)
+    participantID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    hasSubmitted = models.BooleanField(default=False) # Indicates whether the callout  has submitted by student
+    hasWon = models.BooleanField(default=False) # Indicates whether the participant has won 
+
+    def __str__(self):
+        return "calloutID: "+str(self.calloutID)+", participantID: "+str(self.participantID)+", courseID: "+str(self.courseID)+", hasSubmitted: "+str(self.hasSubmitted)+", hasWon: "+str(self.hasWon)
+
+class CalloutStats(models.Model):
+    calloutID = models.ForeignKey(Callouts, on_delete=models.CASCADE, verbose_name="the related Callout", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    studentChallenge =  models.ForeignKey(StudentChallenges, on_delete=models.CASCADE, verbose_name="the related student challenge", db_index=True)
+    calloutVC = models.IntegerField()
+    submitTime = models.DateTimeField(auto_now_add=True, verbose_name="Send Timestamp", db_index=True) # record submit time if there is any submit
+
+    def __str__(self):
+        return "calloutID: "+str(self.calloutID)+", studentID: "+str(self.studentID)+", courseID: "+str(self.courseID)+", student challenge: "+str(self.studentChallenge) +", callout vc: "+str(self.calloutID) + ", submit time "+ str(self.submitTime)
 
 class StudentStreaks(models.Model):
     studentStreakID = models.AutoField(primary_key=True)
@@ -313,10 +355,6 @@ class StudentStreaks(models.Model):
     streakType = models.IntegerField(default=0)
     objectID = models.IntegerField(default=0)
     currentStudentStreakLength = models.IntegerField(default=0)
-    
-    def __str__(self):
-        return "StreakID: " + str(self.studentStreakID) + " studentID: " + str(self.studentID) + " courseID: " + str(self.courseID) + " streakStartDate:" + str(self.streakStartDate)
-        + " streakType: " + str(self.streakType) + " objectID:" + str(self.objectID) + " currentStudentStreakLength" + str(self.currentStudentStreakLength)
     
     
 class StudentProgressiveUnlocking(models.Model):

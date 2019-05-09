@@ -169,6 +169,7 @@ textarea.materialize-textarea {
 
   position: relative;
   margin-top: 1rem;
+  margin-bottom: 1em;
 
   label {
     color: $input-border-color;
@@ -188,6 +189,13 @@ textarea.materialize-textarea {
       transform: translateY(-14px) scale(.8);
       transform-origin: 0 0;
     }
+  }
+  .helper-text {
+    position: relative;
+    min-height: 18px;
+    display: block;
+    font-size: 12px;
+    color: rgba(0,0,0,0.54);
   }
 
   // Prefix Icons
