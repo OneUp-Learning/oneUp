@@ -207,3 +207,21 @@ def displayStreaks(context_dict, student, courseID):
         context_dict['VCStreakInfo'] = list(zip(range(1,len(vcType)+1), VCStreakName, vcDescription, vcAmount, VCCurrentStreakLength, vcStreakTreshhold, vcType, vcTime))
         print("context_dict['VCStreakInfo']", context_dict['VCStreakInfo'])
     return context_dict
+
+@login_required
+def Track_class_avg_button_clicks(request):
+    ##this is used to track how many times the student clicks class average
+    ##we use ajax to track the information, otherwise they'd get the page refreshed on them
+    ##and it would be "wrong".
+    from django.http import JsonResponse
+
+    context_dictionary,current_course = studentInitialContextDict(request)
+    student_id = context_dictionary['student']
+    ##if we posted data with ajax, use it, otherwise just return.
+    if request.POST:
+        register_event(Event.clickedViewAverageGrade, request, student_id, None)
+        
+        print("ajax call", context_dictionary, student_id)
+        return JsonResponse({})
+    
+    return render(request,'Students/Achievements.html', context_dictionary)
