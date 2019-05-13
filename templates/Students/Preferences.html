@@ -87,6 +87,18 @@
                                     <span class="lever secondary-content"></span>
                                 </label>
                             </div>
+                            <br />
+                            <div class="switch">
+                                <label>
+                                    Participate In Call Out
+                                    {% if participateInCallout %}
+                                    <input name="participateInCallout" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="participateInCallout" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
                             {% endif %}
                             </div>
                             <div class="card-action right-align">
