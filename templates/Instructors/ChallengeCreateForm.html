@@ -232,7 +232,7 @@
                         <div class="row">
                            <div class="input-field col s12">
                               <input value="{{timeLimit}}" name="timeLimit" id="time_limit" maxlength="4" type="number" class="validate" min="0" max="999" {%if view%}readonly{%endif%}>
-                              <label for="time_limit">Time Limit</label>
+                              <label for="time_limit">Time Limit (Minutes)</label>
                            </div>
                            <div class="col s12">
                               <input name="unlimitedTime" onchange="CheckboxTimeChange(this)" type="checkbox" id="unl_time" {% if unlimitedTime %} checked {% endif %} {%if view%}disabled{%endif%}/>

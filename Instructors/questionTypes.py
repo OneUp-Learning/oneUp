@@ -142,7 +142,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     modelSolution = Answers.objects.filter(questionID=question)
     solution_string = modelSolution[0].answerText
 
-
+    print("model solution", modelSolution)
     qdict['languageName'] = re.search(
         r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
     qdict['indentation'] = re.search(r';Indentation:([^;]+);',
@@ -471,7 +471,7 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
             if correctAnswerIndex == userAnswerIndex:
                 userScore = userScore + valuePerAnswer
 
-    qdict['user_points'] = userScore
+    qdict['user_points'] = round(userScore, 2)
     qdict['user_answers'] = userAnswers
     return qdict
 
@@ -573,7 +573,8 @@ def parsonsMakeAnswerList(qdict, POST):
     if studentSolutions != "":
         #let us begin with a good clean copy of the information
         solution_string = qdict['answerText']
-        print("solution_string", repr(solution_string))
+        print("solution_string repr", repr(solution_string))
+        print("solution_string no repr", repr(solution_string))
 
         #perform regex magic on solution string
         # logical not ¬ is the item that splits the code
@@ -581,20 +582,20 @@ def parsonsMakeAnswerList(qdict, POST):
         # ⋊ is used to maintain the indentation of the line, so that we can later remove it
         # but still keep proper indentation in each line
         #if it contains a block treat it as a unit
+        #the ᚛¬⋊ is what splits the lines
+        solution_string = re.sub("\r", "", solution_string)
         solution_string = re.sub("(?<!##)\n", "᚛¬⋊", solution_string)
         solution_string = re.sub(";(?!.+)", "᚛", solution_string)
         
-        print("solution_stringrepr", repr(solution_string))
-        print("solution_string", solution_string)
+        print("solution_stringrepr afer changes", repr(solution_string))
+        print("solution_string after changes", solution_string)
         solution_string_array = []
         solution_string_split = [x.strip() for x in solution_string.split('¬')]
         for line in solution_string_split:
-            print("line:",repr(line))
             line = re.sub("^⋊\s*(?!.*;\s*##)", "", line)
             line = re.sub("^⋊(\t\t|\s{8})(?=.*;\s*##)", "    ", line)
             line = re.sub("^⋊(\t|\s{4})(?=.*;\s*##)(?!return)", "", line)
             line = re.sub("⋊\t(?=return.*\s*##\n})", "    ", line)
-            print("line unchanged:", repr(line))
             line = re.sub("^((?!\s*return)(?=.* *##\n}))", "    ", line)
             line = re.sub("᚛", "\n", line)
             line = re.sub("⋊", "", line)

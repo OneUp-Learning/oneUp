@@ -1114,9 +1114,6 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
                 warmUpMinScore.append(0)
                 warmUpSumScore.append(0)
                 warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
-
-            containerHeight = 100
-            containerHeight += len(chall_Name) * 60
             
     # Weighting the total warmup challenge points to be used in calculation of the XP Points  
     weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
@@ -1125,7 +1122,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     if not context_dict is None:
         totalWCEarnedPoints = sum(warmUpSumScore)
         totalWCPossiblePoints = sum(warmUpSumPossibleScore)
-        context_dict['warmUpContainerHeight'] = containerHeight
+        context_dict['warmUpContainerHeight'] = 100+60*len(chall_Name)
         context_dict['studentWarmUpChallenges_range'] = list(zip(range(1, len(
             chall_Name)+1), chall_Name, total, noOfAttempts, warmUpMaxScore, warmUpMinScore))
         context_dict['totalWCEarnedPoints'] = totalWCEarnedPoints

@@ -162,7 +162,13 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 	border: none;
 	outline: 1px solid #0782C1;
 }
-
+.ck-view .helper-text {
+	position: relative;
+	min-height: 18px;
+	display: block;
+	font-size: 14px;
+	color: rgba(0,0,0,0.54);
+}
 /* Widget Styles */
 .ck-view .code-featured
 {
