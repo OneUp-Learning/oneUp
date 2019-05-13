@@ -56,14 +56,18 @@ def create_item_node(query_object, fields_to_save):
             node[field[0]] = value
     return node
 
-def create_model_instance(model, fields_to_save):
-    ''' Creates a new instance of a model with the fields set from
-        the fields_to_save argument.
+def create_model_instance(model, fields_to_save, modify=False):
+    ''' Creates a new instance of a model or modifies one  
+        with the fields set from the fields_to_save argument.
 
         field_to_save is list of tuples with field name, value, and cast specifier:
         ex. [("a", "hello", None), ("score", 4, int), ("date", dt, str)]
     '''
-    model_instance = model()
+    if modify:
+        model_instance = model
+    else:
+        model_instance = model()
+
     for field in fields_to_save:
         value = field[1]
         # Cast the value if the field requires some casting
@@ -135,11 +139,23 @@ def validateCourseExport(request):
             
             # Send message if activities-categories are not selected but activities are
             if 'activities' in request.POST and 'activities-categories' not in request.POST:
-                messages.append({'type': 'warn', 'message': 'Categories assigned in activities will not be exported. Please select Activities Categories when exporting to change this.'})
+                messages.append({'type': 'warn', 'message': 'Categories assigned in activities will not be exported. Please select Activities Categories when exporting to change this'})
             
             if ('serious-challenges' in request.POST or 'warmup-challenges' in request.POST or \
                 'unassigned-problems' in request.POST) and 'skills' not in request.POST:
-                messages.append({'type': 'warn', 'message': 'Skills assigned in problems will not be exported. Please select Skills when exporting to change this.'})
+                messages.append({'type': 'warn', 'message': 'Skills assigned in problems will not be exported. Please select Skills when exporting to change this'})
+            
+            if ('serious-challenges' in request.POST or 'warmup-challenges' in request.POST) and \
+                'topics' not in request.POST:
+                messages.append({'type': 'warn', 'message': 'Topics assigned to challenges will not be exported. Please select Topics when exporting to change this'})
+
+            if 'activities' in request.POST:
+                # Notify user about fields not being exported 
+                messages.append({'type': 'warn', 'message': 'Activities Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
+
+            if 'serious-challenges' in request.POST or 'warmup-challenges' in request.POST:
+                # Notify user about field export decisions
+                messages.append({'type': 'warn', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options will be set to Course Start Date, Course End Date, and Course End Date respectively automatically'})
 
             post_request = dict(request.POST)
 
@@ -167,7 +183,7 @@ def validateCourseExport(request):
                 # Exclude unassigned challenge since that is created by default for every course
                 serious_challenges = Challenges.objects.filter(courseID=current_course, isGraded=True).exclude(challengeName=unassigned_problems_challenge_name)
                 root_json['serious-challenges'] = challenges_to_json(serious_challenges, current_course, include_topics='topics' in request.POST, messages=messages)
-            
+
             if 'warmup-challenges' in request.POST:
                 # Exclude unassigned challenge since that is created by default for every course
                 warmup_challenges = Challenges.objects.filter(courseID=current_course, isGraded=False).exclude(challengeName=unassigned_problems_challenge_name)
@@ -226,9 +242,10 @@ def validateCourseExport(request):
             
             response['exported-json'] = root_json
 
-            ensure_directory('media/textfiles/course/json/')
-            with open('media/textfiles/course/json/export-log.json', 'w') as export_stream:
-                json.dump(messages, export_stream)
+            # Debug messages
+            # ensure_directory('media/textfiles/course/json/')
+            # with open('media/textfiles/course/json/export-log.json', 'w') as export_stream:
+            #     json.dump(messages, export_stream)
 
             return JsonResponse(response)
     
@@ -401,7 +418,7 @@ def validate_object_specifier_json(object_specifier_json, object_type, post_requ
                     # Send warning message
                     messages.append({'type': 'warn', 'message': 'Unable to find topic ids for object specifiers. Make sure topics are being exported'})
                     break
-
+                
                 for object_id in specifier['value']:
                     are_topics_being_exported = find_value_in_json('topicID', (object_id, int), search_in=root_json['topics'])
 
@@ -458,6 +475,7 @@ def validate_object_specifier_json(object_specifier_json, object_type, post_requ
                         # Send error message
                         messages.append({'type': 'error', 'message': 'Unable to find activity category id for object specifier when exporting'})
                         break
+
     elif object_type == ObjectTypes.topic:
         for specifier in object_specifier_json:
             if not specifier['value']:
@@ -482,6 +500,7 @@ def validate_object_specifier_json(object_specifier_json, object_type, post_requ
                         # Send error message
                         messages.append({'type': 'error', 'message': 'Unable to find topic id for object specifier when exporting'})
                         break
+
     elif object_type == ObjectTypes.activityCategory:
         for specifier in object_specifier_json:
             if not specifier['value']:
@@ -639,9 +658,7 @@ def challenges_to_json(challenges, current_course, include_topics=True, post_req
                 if challenge_topics.exists(): 
                     # Add to challenge details
                     challenge_details['topics'] = topics_to_json(challenge_topics, current_course, messages=[])
-            else:
-                # Show warning that challenges with topics will have its topics removed
-                pass
+
             
             # Add questions for this challenges
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
@@ -659,7 +676,7 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
     challenge_questions_jsons = []
 
     if challenge_questions.exists():
-        # Cast the points field to a str after getting value from database since it is stored as Deciaml
+        # Cast the points field to a str after getting value from database since it is stored as Decimal
         challenge_question_fields_to_save = [('points', str),]
 
         for challenge_question in challenge_questions:
@@ -708,13 +725,13 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     # Check if it is a correct answer
                     correct_answers = CorrectAnswers.objects.filter(questionID=static_question, answerID = answer)
                     if correct_answers.exists():
-                        answer_details['correct-answer'] = "yes"
+                        answer_details['correctAnswer'] = "yes"
                         
                     # Check if this answer has a matching answer
                     if challenge_question.questionID.type == QuestionTypes.matching:                                               
                         matching_answer = MatchingAnswers.objects.get(answerID=answer, questionID=static_question) 
                         if matching_answer:
-                            answer_details['matching-answer'] = matching_answer.matchingAnswerText
+                            answer_details['matchingAnswerText'] = matching_answer.matchingAnswerText
 
                     # Add answer detail to static question json list
                     static_question_answers_jsons.append(answer_details)
@@ -762,7 +779,7 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     question_libraries_jsons = []
                     for question_library in question_libraries:     
                         question_library_details = {}
-                        question_library_details['QuestionLibrary'] = question_library.library.libraryName                 
+                        question_library_details['libraryName'] = question_library.library.libraryName                 
                         question_libraries_jsons.append(question_library_details)
 
                     # Add question libraries to dynamic question details
@@ -800,9 +817,6 @@ def activities_to_json(activities, current_course, include_categories=True, post
             if include_categories:
                 # Save the activity category
                 activity_details['category'] = create_item_node(activity.category, [('categoryID', None), ('name', None),])
-            else:
-                # Show warning that activities with categories will have its categories removed
-                pass
 
             # Add the activity details to the activities json list
             activities_jsons.append(activity_details)
@@ -918,7 +932,7 @@ def periodic_model_to_json(periodic_object, periodic_fields_to_save=[('periodicV
     return create_item_node(periodic_object, periodic_fields_to_save)
 
 def topics_to_json(topics, current_course, post_request=None, root_json=None, messages=[]):
-    ''' Converts topics queryset to json '''
+    ''' Converts topics (Course Topics or Challenge Topics) queryset to json '''
 
     topics_jsons = []
 
@@ -1061,7 +1075,20 @@ def importCourse(request):
                     import_activities_categories_from_json(root_json['activities-categories'], current_course, id_map=id_map)
                     
                 if 'skills' in root_json:
-                    import_skills_from_json(root_json['skills'], current_course, id_map=id_map)
+                    import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map)
+
+                if 'activities' in root_json:
+                    import_activities_from_json(root_json['activities'], current_course, id_map=id_map)
+                
+                if 'serious-challenges' in root_json:
+                    import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map)
+                
+                if 'warmup-challenges' in root_json:
+                    import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map)
+                
+                if 'unassigned-problems' in root_json:
+                    unassigned_challenge = Challenges.objects.get(courseID=current_course, challengeName=unassigned_problems_challenge_name)
+                    import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, id_map=id_map)
                 
                 print(id_map)
 
@@ -1082,7 +1109,7 @@ def initialize_id_map():
 
     return id_map
 
-def import_topics_from_json(topics_jsons, current_course, id_map=None):
+def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_map=None):
     ''' Converts topic jsons to model '''
 
     if topics_jsons:
@@ -1113,7 +1140,7 @@ def import_topics_from_json(topics_jsons, current_course, id_map=None):
             if id_map:
                 id_map['topics'][topic_json['topicID']] = course_topic.topicID.topicID
 
-def import_activities_categories_from_json(activities_categories_jsons, current_course, id_map=None):
+def import_activities_categories_from_json(activities_categories_jsons, current_course, context_dict=None, id_map=None):
     ''' Converts activity category jsons to model '''
 
     if activities_categories_jsons:
@@ -1134,8 +1161,7 @@ def import_activities_categories_from_json(activities_categories_jsons, current_
             if id_map:
                 id_map['activities-categories'][activities_categories_json['categoryID']] = activity_category.categoryID
 
-
-def import_skills_from_json(skills_jsons, current_course, id_map=None):
+def import_course_skills_from_json(skills_jsons, current_course, context_dict=None, id_map=None):
     ''' Converts skill jsons to model '''
 
     if skills_jsons:
@@ -1166,4 +1192,270 @@ def import_skills_from_json(skills_jsons, current_course, id_map=None):
             if id_map:
                 id_map['skills'][skill_json['skillID']] = course_skill.skillID.skillID
 
-        
+def import_activities_from_json(activities_jsons, current_course, context_dict=None, id_map=None):
+    ''' Converts activity jsons to model '''
+
+    if activities_jsons:
+        for activity_json in activities_jsons:
+            # Create the activity model instance
+            activity_fields_to_save = [('activityName', activity_json['activityName'], None),
+                                        ('isGraded', activity_json['isGraded'], None),
+                                        ('description', activity_json['description'], None),
+                                        ('points', activity_json['points'], Decimal),
+                                        ('isFileAllowed', activity_json['isFileAllowed'], None),
+                                        ('uploadAttempts', activity_json['uploadAttempts'], None),
+                                        ('instructorNotes', activity_json['instructorNotes'], None),
+                                        ('author', activity_json['author'], None),
+                                        ('courseID', current_course, None),]
+
+            activity = create_model_instance(Activities, activity_fields_to_save)
+
+            # Setup category for this activity
+            if 'category' in activity_json:
+                if id_map:
+                    # Get the new category id we created by looking it up in the mapped ids dict
+                    mapped_activity_category_id = id_map['activities-categories'][activity_json['category']['categoryID']]
+
+                    # Set the activity category
+                    activity_category = ActivitiesCategory.objects.get(categoryID=mapped_activity_category_id, courseID=current_course)
+                    activity.category = activity_category
+                else:
+                    # TODO: Throw error message
+                    pass
+            else:
+                # Include the default uncategorized activity category
+                activity_category = ActivitiesCategory.objects.get(name=uncategorized_activity, courseID=current_course)
+                activity.category = activity_category
+
+            activity.save()
+
+            # Map the imported activity id to the new activity id
+            if id_map:
+                id_map['activities'][activity_json['activityID']] = activity.activityID
+
+def import_challenges_from_json(challenges_jsons, current_course, context_dict=None, id_map=None):
+    ''' Converts challenge jsons to model '''
+
+    if challenges_jsons:
+        for challenge_json in challenges_jsons:
+            # Use course config params to set the challenge
+            # start, end, and due date to course start date,
+            # course end date, and course end date respectively
+            course_config_params = None
+            if context_dict:
+                course_config_params = context_dict['ccparams']            
+            else:
+                # TODO: Throw error message
+                pass
+
+            # Create the challenge model instance
+            challenge_fields_to_save = [('challengeName', challenge_json['challengeName'], None),
+                                        ('isGraded', challenge_json['isGraded'], None),
+                                        ('numberAttempts', challenge_json['numberAttempts'], None),
+                                        ('timeLimit', challenge_json['timeLimit'], None),
+                                        ('displayCorrectAnswer', challenge_json['displayCorrectAnswer'], None),
+                                        ('displayCorrectAnswerFeedback', challenge_json['displayCorrectAnswerFeedback'], None),
+                                        ('displayIncorrectAnswerFeedback', challenge_json['displayIncorrectAnswerFeedback'], None),
+                                        ('challengeAuthor', challenge_json['challengeAuthor'], None),
+                                        ('challengeDifficulty', challenge_json['challengeDifficulty'], None),
+                                        ('challengePassword', challenge_json['challengePassword'], None),
+                                        ('startTimestamp', course_config_params.courseStartDate, None),
+                                        ('endTimestamp', course_config_params.courseEndDate, None),
+                                        ('dueDate', course_config_params.courseEndDate, None),
+                                        ('courseID', current_course, None),]
+
+            challenge = create_model_instance(Challenges, challenge_fields_to_save)
+            challenge.save()
+
+            # Map the imported challenge id to the new challenge id
+            if id_map:
+                if challenge.isGraded:
+                    id_map['serious-challenges'][challenge_json['challengeID']] = challenge.challengeID
+                else:
+                    id_map['warmup-challenges'][challenge_json['challengeID']] = challenge.challengeID
+
+            # Import the challenge questions
+            import_challenge_questions_from_json(challenge_json['challenge-questions'], challenge, current_course, context_dict=context_dict, id_map=id_map)
+
+            if 'topics' in challenge_json:
+                if id_map:
+                    for topic in challenge_json['topics']:                        
+                        # Get the new topic id we created by looking it up in the mapped ids dict
+                        mapped_topic_id = id_map['topics'][topic['topicID']]
+
+                        # We can go straight to Topics instead of Course Topics since we have mapped it
+                        # to Topics
+                        topic = Topics.objects.get(topicID=mapped_topic_id)
+                        if not topic:
+                            # TODO: Throw error
+                            pass
+
+                        challenge_topic_fields_to_save = [('topicID', topic, None), ('challengeID', challenge, None),]        
+                        challenge_topic = create_model_instance(ChallengesTopics, challenge_topic_fields_to_save)
+                        challenge_topic.save()                
+                else:
+                    # TODO: Throw error message
+                    pass
+            else:
+                # Assigned this challenge the default unspecified topic
+
+                course_topic = CoursesTopics().objects.get(courseID=current_course, topicID__topicName=unspecified_topic_name)
+                
+                if not course_topic:
+                    # TODO: Throw error message
+                    pass
+
+                challenge_topic_fields_to_save = [('topicID', course_topic.topicID, None), ('challengeID', challenge, None),]        
+                challenge_topic = create_model_instance(ChallengesTopics, challenge_topic_fields_to_save)
+                challenge_topic.save()
+
+def import_challenge_questions_from_json(challenge_question_jsons, challenge, current_course, context_dict=None, id_map=None):
+    ''' Converts challenge question jsons to model '''
+
+    if challenge_question_jsons:
+        for challenge_question_json in challenge_question_jsons:
+            # Create the challenge question model instance
+            challenge_question_fields_to_save = [('points', challenge_question_json['points'], Decimal),]
+
+            challenge_question = create_model_instance(ChallengesQuestions, challenge_question_fields_to_save)
+            
+            question_json = challenge_question_json['question']
+
+            # Find the question type
+            question_type = QuestionTypes.questionTypes[question_json['type']]['index']
+
+            if question_type == QuestionTypes.dynamic:
+                question_type_model = DynamicQuestions
+            elif question_type == QuestionTypes.templatedynamic:
+                question_type_model = TemplateDynamicQuestions
+            else:
+                question_type_model = StaticQuestions
+
+            # Create the generic question
+            question_fields_to_save = [('preview', question_json['preview'], None), 
+                                        ('instructorNotes', question_json['instructorNotes'], None), 
+                                        ('type', question_json['type'], None),
+                                        ('difficulty', question_json['difficulty'], None), 
+                                        ('author', question_json['author'], None),]
+
+            question = create_model_instance(question_type_model, question_fields_to_save)
+
+            if question_type == QuestionTypes.dynamic or question_type == QuestionTypes.templatedynamic:
+                dynamic_question_json = question_json['dynamic-question']
+
+                dynamic_question_fields_to_modify = [('numParts', dynamic_question_json['numParts'], None), 
+                                                    ('code', dynamic_question_json['code'], None),]
+
+                # Modify the question to add the dynamic question fields
+                question = create_model_instance(question, dynamic_question_fields_to_modify, modify=True)
+
+                if question_type == QuestionTypes.templatedynamic:
+
+                    if 'template-dynamic-question' in dynamic_question_json:
+                        template_dynamic_question_json = dynamic_question_json['template-dynamic-question']
+
+                        template_dynamic_question_fields_to_modify = [('templateText', template_dynamic_question_json['templateText'], None), 
+                                                                    ('setupCode', template_dynamic_question_json['setupCode'], None),]
+
+                        # Modify the question to add the template dynamic question fields
+                        question = create_model_instance(question, template_dynamic_question_fields_to_modify, modify=True)
+                        question.save()
+
+                        # Create the template text parts
+                        if 'template-text-parts' in template_dynamic_question_json:
+
+                            for template_text_part_json in template_dynamic_question_json['template-text-parts']:
+                                template_text_part_fields_to_save = [('partNumber', template_text_part_json['partNumber'], None), 
+                                                                    ('templateText', template_text_part_json['templateText'], None),
+                                                                    ('dynamicQuestion', question, None),]
+
+                                template_text_part = create_model_instance(TemplateTextParts, template_text_part_fields_to_save)
+                                template_text_part.save()
+                        else:
+                            # TODO: Throw error
+                            pass
+                    else:
+                        # TODO: Throw error
+                        pass
+                    
+                else:
+                    question.save()
+
+                # Create QuestionLibraries if any
+                if 'question-libraries' in dynamic_question_json:
+
+                    for question_library_json in dynamic_question_json['question-libraries']:
+                        # Get the lua library and link it to the question
+                        lua_library = LuaLibrary.objects.get(libarayName=question_library_json['libraryName'])
+                        question_library_fields_to_save = [('question', question, None), ('library', lua_library, None),]
+
+                        question_library = create_model_instance(QuestionLibrary, question_library_fields_to_save)
+                        question_library.save() 
+            else:
+                # Question type is static questions
+                static_question_json = question_json['static-question']
+
+                static_question_fields_to_modify = [('questionText', static_question_json['questionText'], None), 
+                                                ('correctAnswerFeedback', static_question_json['correctAnswerFeedback'], None), 
+                                                ('incorrectAnswerFeedback', static_question_json['incorrectAnswerFeedback'], None),]
+
+                question = create_model_instance(question, static_question_fields_to_modify, modify=True)
+                question.save()
+
+                if 'answers' in static_question_json:
+
+                    for answer_json in static_question_json['answers']:
+                        static_question_answers_fields_to_save = [('answerText', answer_json['answerText'], None),
+                                                                ('questionID', question, None),]
+
+                        static_question_answer = create_model_instance(Answers, static_question_answers_fields_to_save)
+                        static_question_answer.save()
+
+                        # Create the correct answer if this is the correct answer of the question
+                        if 'correctAnswer' in answer_json:
+                            correct_answers_fields_to_save = [('answerID', static_question_answer, None),
+                                                                ('questionID', question, None),]
+
+                            correct_answer = create_model_instance(CorrectAnswers, correct_answers_fields_to_save)
+                            correct_answer.save()
+                        
+                        # Create matching answers if any
+                        if 'matchingAnswerText' in answer_json:
+                            matching_answers_fields_to_save = [('answerID', static_question_answer, None),
+                                                                ('questionID', question, None),
+                                                                ('matchingAnswerText', answer_json['matchingAnswerText'], None),]
+
+                            matching_answer = create_model_instance(MatchingAnswers, matching_answers_fields_to_save)
+                            matching_answer.save()
+                else:
+                    # TODO: Throw error
+                    pass
+
+            # Create question skills if any
+            if 'skills' in challenge_question_json['question']:
+                if id_map:
+                    for question_skill_json in challenge_question_json['question']['skills']:                        
+                        # Get the new skill id we created by looking it up in the mapped ids dict
+                        mapped_skill_id = id_map['skills'][question_skill_json['skillID']]
+
+                        # We can go straight to Skills instead of Course Skills since we have mapped it
+                        # to Skills
+                        skill = Skills.objects.get(skillID=mapped_skill_id)
+                        if not skill:
+                            # TODO: Throw error
+                            pass
+
+                        question_skill_fields_to_save = [('skillID', skill, None), ('questionID', question, None),
+                                                        ('questionSkillPoints', question_skill_json['questionSkillPoints'], None),
+                                                        ('courseID', current_course, None),]        
+                        question_skill = create_model_instance(QuestionsSkills, question_skill_fields_to_save)
+                        question_skill.save()                
+                else:
+                    # TODO: Throw error message
+                    pass
+
+            # Save the challenge question
+            challenge_question_fields_to_modify = [('challengeID', challenge, None),
+                                                ('questionID', question, None),]
+            challenge_question = create_model_instance(challenge_question, challenge_question_fields_to_modify, modify=True)
+            challenge_question.save()
