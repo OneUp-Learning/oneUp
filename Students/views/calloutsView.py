@@ -216,7 +216,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             }
             # register event
             register_event_simple(Event.calloutLost, mini_req,
-                                  participant_id.user, objectId=call_out_stat.calloutID.calloutID)
+                                  objectId=call_out_stat.calloutID.calloutID)
 
 
 @login_required
@@ -275,6 +275,9 @@ def callout_create(request):
 
         # Save Calloutstats object
         call_out_stat.save()
+        print()
+        print("Saved Call Out")
+        print()
 
         # mini req for calloutSent event
         mini_req = {
@@ -385,7 +388,7 @@ def callout_create(request):
                     register_event_simple(Event.calloutRequested, mini_req,
                                           objectId=call_out_stat.calloutID.calloutID)
 
-                    if StudentChallenges.objects.filter(studenID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID):
+                    if StudentChallenges.objects.filter(studentID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID):
                         participant_chall = StudentChallenges.objects.filter(
                             challengeID=callout.challengeID, studentID=participant_stud.studentID, courseID=current_course).latest('testScore')
                         evaluator(callout, call_out_stat, participant, participant_stud.studentID,
@@ -521,6 +524,12 @@ def get_class_callout_qualified_challenges(request):
         sender=student_id)
     sender_call_outs_challenges = [
         call_out.challengeID for call_out in sender_call_outs]
+
+    sender_call_outs_parts = CalloutParticipants.objects.filter(
+        participantID=student_id)
+    for sender_call_outs_part in sender_call_outs_parts:
+        sender_call_outs_challenges.append(
+            sender_call_outs_part.calloutID.challengeID)
 
     for challenge in sender_challenges:
         if not challenge.challengeID in sender_call_outs_challenges:
@@ -728,7 +737,7 @@ def callout_description(request):
                         message += "You have not submitted yet and the call out is still in progress. "
                     context_dict['participant_score'] = "-"
                     context_dict['submit_time'] = "-"
-                    if call_out_part.hasSubmit:
+                    if call_out_part.hasSubmitted:
                         context_dict['submission_status'] = True
                     else:
                         context_dict['submission_status'] = False
