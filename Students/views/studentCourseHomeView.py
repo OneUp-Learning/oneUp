@@ -74,7 +74,6 @@ def StudentCourseHome(request):
             context_dict["displayClassAverage"]=scparams.displayClassAverage
             context_dict["displayClassSkills"]=scparams.displayClassSkills
             context_dict["displayGoal"]=scparams.displayGoal
-            
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
         context_dict = courseBadges(currentCourse, context_dict)
