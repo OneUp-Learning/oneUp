@@ -904,7 +904,7 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
 
 def rule_model_to_json(automatic_rule, automatic_rule_fields_to_save=[('actionID', None), ('awardFrequency', None),], post_request=None, root_json=None, messages=[]):
     ''' Converts a Rule to json '''
-    
+
     if automatic_rule:
         # Get the rule information
         automatic_rule_details = create_item_node(automatic_rule, automatic_rule_fields_to_save)
@@ -1119,15 +1119,15 @@ def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_
     if topics_jsons:
         for topic_json in topics_jsons:
 
-            topics = Topics.objects.filter(topicName=topic_json['topicName'])
-            # The imported topic has the same name of one of the topics in oneup system
-            if topics:
-                topic = topics[0]
-            else: 
-                # Create a new topic
-                topic_fields_to_save = [('topicName', topic_json['topicName'], None),]
-                topic = create_model_instance(Topics, topic_fields_to_save)                  
-                topic.save()
+            # topics = Topics.objects.filter(topicName=topic_json['topicName'])
+            # # The imported topic has the same name of one of the topics in oneup system
+            # if topics:
+            #     topic = topics.first()
+            # else: 
+            # Create a new topic
+            topic_fields_to_save = [('topicName', topic_json['topicName'], None),]
+            topic = create_model_instance(Topics, topic_fields_to_save)                  
+            topic.save()
 
 
             course_topics = CoursesTopics.objects.filter(topicID__topicName=topic.topicName, courseID=current_course)
@@ -1171,21 +1171,21 @@ def import_course_skills_from_json(skills_jsons, current_course, context_dict=No
     if skills_jsons:
         for skill_json in skills_jsons:
 
-            skills = Skills.objects.filter(skillName=skill_json['skillName'])
-            # The imported skill has the same name of one of the skills in oneup system
-            if skills:
-                skill = skills.first()
-            else: 
-                # Create a new skill
-                skill_fields_to_save = [('skillName', skill_json['skillName'], None),]
-                skill = create_model_instance(Skills, skill_fields_to_save)                  
-                skill.save()
+            # skills = Skills.objects.filter(skillName=skill_json['skillName'])
+            # # The imported skill has the same name of one of the skills in oneup system
+            # if skills:
+            #     skill = skills.first()
+            # else: 
+            # Create a new skill
+            skill_fields_to_save = [('skillName', skill_json['skillName'], None),]
+            skill = create_model_instance(Skills, skill_fields_to_save)                  
+            skill.save()
 
 
             course_skills = CoursesSkills.objects.filter(skillID__skillName=skill.skillName, courseID=current_course)
             # The imported skill is the same for this course
             if course_skills:  
-                course_skill = course_skills.first()                    
+                course_skill = course_skills.first()     
             else:
                 # Create a new course skill
                 course_skill_fields_to_save = [('skillID', skill, None), ('courseID', current_course, None),]
