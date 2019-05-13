@@ -855,18 +855,9 @@ def badges_to_json(badges, badge_type, current_course, post_request=None, root_j
 
             if badge_type == 'automatic':
                 automatic_badge_rule = badge.ruleID
-                automatic_badge_rule_fields_to_save = [('actionID', None), ('awardFrequency', None),]
-                # Get the rule information
-                automatic_badge_rule_details = create_item_node(automatic_badge_rule, automatic_badge_rule_fields_to_save)
 
-                # Setup Object specifier
-                automatic_badge_rule_details['objectSpecifier'] = json.loads(automatic_badge_rule.objectSpecifier)
-                # Get the rule condition string
-                automatic_badge_rule_condition = badge.ruleID.conditionID
-                automatic_badge_rule_details['condition'] = json.loads(databaseConditionToJSONString(automatic_badge_rule_condition))
-
-                if post_request:
-                    validate_rule_json(automatic_badge_rule_details, post_request, root_json=root_json, messages=messages)
+                # Get the badge rule details
+                automatic_badge_rule_details = rule_model_to_json(automatic_badge_rule, post_request=post_request, root_json=root_json, messages=messages)
 
                 badge_details['rule'] = automatic_badge_rule_details
 
@@ -895,18 +886,9 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
 
             if vc_rule_type == 'automatic':
                 automatic_vc_rule = vc_rule.ruleID
-                automatic_vc_rule_fields_to_save = [('actionID', None), ('awardFrequency', None),]
-                # Get the rule information
-                automatic_vc_rule_details = create_item_node(automatic_vc_rule, automatic_vc_rule_fields_to_save)
 
-                # Setup Object specifier
-                automatic_vc_rule_details['objectSpecifier'] = json.loads(automatic_vc_rule.objectSpecifier)
-                # Get the rule condition string
-                automatic_vc_rule_condition = vc_rule.ruleID.conditionID
-                automatic_vc_rule_details['condition'] = json.loads(databaseConditionToJSONString(automatic_vc_rule_condition))
-
-                if post_request:
-                    validate_rule_json(automatic_vc_rule_details, post_request, root_json=root_json, messages=messages)
+                # Get the vc rule details
+                automatic_vc_rule_details = rule_model_to_json(automatic_vc_rule, post_request=post_request, root_json=root_json, messages=messages)
 
                 vc_rule_details['rule'] = automatic_vc_rule_details
             
@@ -919,6 +901,28 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
             vc_rules_jsons.append(vc_rule_details)
 
     return vc_rules_jsons
+
+def rule_model_to_json(automatic_rule, automatic_rule_fields_to_save=[('actionID', None), ('awardFrequency', None),], post_request=None, root_json=None, messages=[]):
+    ''' Converts a Rule to json '''
+    
+    if automatic_rule:
+        # Get the rule information
+        automatic_rule_details = create_item_node(automatic_rule, automatic_rule_fields_to_save)
+
+        # Setup Object specifier
+        automatic_rule_object_specifier = automatic_rule.objectSpecifier
+        automatic_rule_details['objectSpecifier'] = json.loads(automatic_rule_object_specifier)
+        # Get the rule condition string
+        automatic_rule_condition = automatic_rule.conditionID
+        automatic_rule_details['condition'] = json.loads(databaseConditionToJSONString(automatic_rule_condition))
+
+        # Check to see if the conditions & specifier object ids are being exported as well
+        if post_request:
+            validate_rule_json(automatic_rule_details, post_request, root_json=root_json, messages=messages)
+
+        return automatic_rule_details
+
+    return None
 
 def periodic_model_to_json(periodic_object, periodic_fields_to_save=[('periodicVariableID', None), ('timePeriodID', None),
                                     ('periodicType', None), ('numberOfAwards', None),
