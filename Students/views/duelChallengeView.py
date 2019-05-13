@@ -534,7 +534,7 @@ def duel_challenge_create(request):
 
     context_dict['max_bet'] = ccparams.vcDuelMaxBet
     
-    if ccparams.betVC:
+    if ccparams.betVC and ccparams.virtualCurrencyUsed:
         context_dict["is_bet_vc"] = True
     else:
         context_dict["is_bet_vc"] = False

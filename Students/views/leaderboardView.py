@@ -27,8 +27,7 @@ def LeaderboardView(request):
     context_dict["logged_in"]=request.user.is_authenticated
     if request.user.is_authenticated:
         context_dict["username"]=request.user.username
-        if not instructor:
-            sID = Student.objects.get(user=request.user)
+        sID = Student.objects.get(user=request.user)
 
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
@@ -66,6 +65,7 @@ def LeaderboardView(request):
         context_dict['courseBadges'] = courseBadges(currentCourse, context_dict)
            
     #Trigger Student login event here so that it can be associated with a particular Course
-    register_event(Event.visitedLeaderboardPage, request, sID, None)
+    if not sID.isTestStudent:
+        register_event(Event.visitedLeaderboardPage, request, sID, None)
     print("User visited Leaderboard page was registered for the student in the request")
     return render(request,'Students/Leaderboard.html', context_dict)

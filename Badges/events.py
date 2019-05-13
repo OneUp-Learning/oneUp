@@ -112,6 +112,9 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.visitedLeaderboardPage):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = 0
+    if(eventID == Event.clickedViewAverageGrade):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
                 
     # Virtual Currency Events
     if(eventID == Event.instructorHelp):
