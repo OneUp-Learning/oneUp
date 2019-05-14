@@ -7,21 +7,24 @@ from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, Templ
 from Instructors.models import Activities, ActivitiesCategory
 from Instructors.models import Topics, CoursesTopics
 
-from Badges.models import BadgesInfo, Badges, PeriodicBadges, RuleEvents, Rules, Conditions
+from Badges.models import BadgesInfo, Badges, PeriodicBadges
+from Badges.models import RuleEvents, Rules, Conditions, ActionArguments, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet, ActivityCategorySet, TopicSet
 from Badges.models import VirtualCurrencyCustomRuleInfo, VirtualCurrencyRuleInfo, VirtualCurrencyPeriodicRule
 from Badges.models import LeaderboardsConfig
 from Badges.models import ProgressiveUnlocking
 from Badges.models import AttendanceStreakConfiguration
 
-from Badges.enums import AwardFrequency, ObjectTypes
-
-from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields
-from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity
-from Instructors.views.utils import initialContextDict
-from decimal import Decimal
-
-from Instructors.questionTypes import QuestionTypes
 from Badges.models import CourseConfigParams
+
+from Badges.enums import AwardFrequency, ObjectTypes, OperandTypes
+from Instructors.questionTypes import QuestionTypes
+
+from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields, operand_types_to_char, get_events_for_condition
+from Badges.periodicVariables import setup_periodic_badge
+from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity
+
+from decimal import Decimal
 
 import os
 import json
@@ -30,8 +33,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.settings import MEDIA_ROOT
 from oneUp.decorators import instructorsCheck 
 
-def str2bool(value):
-    return value in ('True', 'true') 
+
+#############################################################
+# HELPER METHODS
+#############################################################
 
 def ensure_directory(directory):
     if not os.path.exists(directory):
@@ -94,6 +99,17 @@ def find_value_in_json(key, value, search_in=None):
             return True
 
     return False
+
+def search_for_mapped_id(search_in, for_id, id_map=None):
+    ''' Searches for new mapped id given id map '''
+
+    if not id_map or search_in not in id_map:
+        return None
+    
+    if for_id not in id_map[search_in]:
+        return None
+
+    return id_map[search_in][for_id]
 
 
 #############################################################
@@ -264,7 +280,7 @@ def validate_rule_json(rule_json, post_request, root_json=None, messages=[]):
     validate_object_specifier_json(rule_json['objectSpecifier'], object_type, post_request, root_json=root_json, messages=messages)
 
     # Validate condition for this rule
-    validate_condition_json(rule_json['condition'], post_request, root_json=root_json, messages=messages)       
+    validate_condition_json(rule_json['condition'], post_request, root_json, messages=messages)       
 
 def validate_content_unlocking_rule_json(content_unlocking_rule_json, post_request, root_json=None, messages=[]):
     if not content_unlocking_rule_json:
@@ -525,7 +541,7 @@ def validate_object_specifier_json(object_specifier_json, object_type, post_requ
                         messages.append({'type': 'error', 'message': 'Unable to find activity category id for object specifier when exporting'})
                         break
 
-def validate_condition_json(condition_json, post_request, root_json=None, messages=[]):
+def validate_condition_json(condition_json, post_request, root_json, messages=[]):
     ''' Make sure the object ids (challenges, activities, topics, activitycategory) in the 
         for all/any conditions are being exported as well in the json
     '''
@@ -538,7 +554,7 @@ def validate_condition_json(condition_json, post_request, root_json=None, messag
     # ANDs and ORs contains list of ATOMs or FORs
     if condition_json['type'] == 'AND' or condition_json['type'] == 'OR':
         for condition in condition_json['subConds']:
-            validate_condition_json(condition, post_request, root_json=root_json)
+            validate_condition_json(condition, post_request, root_json)
     
     # FORs contains objects ids
     if condition_json['type'] == 'FOR':
@@ -1094,22 +1110,58 @@ def importCourse(request):
                     unassigned_challenge = Challenges.objects.get(courseID=current_course, challengeName=unassigned_problems_challenge_name)
                     import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, id_map=id_map)
                 
+                if 'automatic-badges' in root_json:
+                    import_badges_from_json(root_json['automatic-badges'], 'automatic', current_course, id_map=id_map)
+            
+                if 'manual-badges' in root_json:
+                    import_badges_from_json(root_json['manual-badges'], 'manual', current_course, id_map=id_map)
+                
+                if 'periodic-badges' in root_json:
+                    import_badges_from_json(root_json['periodic-badges'], 'periodic', current_course, id_map=id_map)
+                
+                if 'automatic-vc-rules' in root_json:
+                    pass
+                
+                if 'manual-vc-rules' in root_json:
+                    pass
+                
+                if 'periodic-vc-rules' in root_json:
+                    pass
+                
+                if 'spending-vc-rules' in root_json:
+                    pass
+
+                if 'leaderboards' in root_json:
+                    pass
+
+                if 'content-unlocking' in root_json:
+                    pass
+
+                if 'streaks' in root_json:
+                    pass                    
+                
                 print(id_map)
 
             uploaded_file.delete()        
 
         return render(request,'Instructors/CourseImport.html', context_dict)
 
-def initialize_id_map():
+def initialize_id_map(root_json):
     ''' Sets up the id mapping for conditions, challenges, etc. '''
 
     id_map = {}
-    id_map['topics'] = {}
-    id_map['activities-categories'] = {}
-    id_map['skills'] = {}
-    id_map['activities'] = {}
-    id_map['serious-challenges'] = {}
-    id_map['warmup-challenges'] = {}
+    if 'topics' in root_json:
+        id_map['topics'] = {}
+    if 'activities-categories' in root_json:
+        id_map['activities-categories'] = {}
+    if 'skills' in root_json:
+        id_map['skills'] = {}
+    if 'activities' in root_json:
+        id_map['activities'] = {}
+    if 'serious-challenges' in root_json:
+        id_map['serious-challenges'] = {}
+    if 'warmup-challenges' in root_json:
+        id_map['warmup-challenges'] = {}
 
     return id_map
 
@@ -1218,7 +1270,10 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
             if 'category' in activity_json:
                 if id_map:
                     # Get the new category id we created by looking it up in the mapped ids dict
-                    mapped_activity_category_id = id_map['activities-categories'][activity_json['category']['categoryID']]
+                    mapped_activity_category_id = search_for_mapped_id('activities-categories', activity_json['category']['categoryID'], id_map=id_map)
+                    if not mapped_activity_category_id:
+                        # TODO: Throw error
+                        pass
 
                     # Set the activity category
                     activity_category = ActivitiesCategory.objects.get(categoryID=mapped_activity_category_id, courseID=current_course)
@@ -1285,7 +1340,10 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                 if id_map:
                     for topic in challenge_json['topics']:                        
                         # Get the new topic id we created by looking it up in the mapped ids dict
-                        mapped_topic_id = id_map['topics'][topic['topicID']]
+                        mapped_topic_id = search_for_mapped_id('topics', topic['topicID'], id_map=id_map)
+                        if not mapped_topic_id:
+                            # TODO: Throw error
+                            pass
 
                         # We can go straight to Topics instead of Course Topics since we have mapped it
                         # to Topics
@@ -1440,7 +1498,10 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                 if id_map:
                     for question_skill_json in challenge_question_json['question']['skills']:                        
                         # Get the new skill id we created by looking it up in the mapped ids dict
-                        mapped_skill_id = id_map['skills'][question_skill_json['skillID']]
+                        mapped_skill_id = search_for_mapped_id('skills', question_skill_json['skillID'], id_map=id_map)
+                        if not mapped_skill_id:
+                            # TODO: Throw error
+                            pass
 
                         # We can go straight to Skills instead of Course Skills since we have mapped it
                         # to Skills
@@ -1463,3 +1524,410 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                                                 ('questionID', question, None),]
             challenge_question = create_model_instance(challenge_question, challenge_question_fields_to_modify, modify=True)
             challenge_question.save()
+
+
+def import_badges_from_json(badges_jsons, badge_type, current_course, context_dict=None, id_map=None):
+    ''' Converts a badge (Automatic, Manual, Periodic) to model '''
+
+    if badges_jsons:
+        for badge_json in badges_jsons:
+
+            # Create the badge model instance for type
+            if badge_type == 'automatic':
+                badge_type_model = Badges
+            elif badge_type == 'periodic':
+                badge_type_model = PeriodicBadges
+            else:
+                badge_type_model = BadgesInfo
+
+            badge_fields_to_save = [('badgeName', badge_json['badgeName'], None), 
+                                                ('badgeDescription', badge_json['badgeDescription'], None), 
+                                                ('badgeImage', badge_json['badgeImage'], None), 
+                                                ('manual', badge_json['manual'], None), 
+                                                ('isPeriodic', badge_json['isPeriodic'], None),
+                                                ('courseID', current_course, None),]
+
+            badge = create_model_instance(badge_type_model, badge_fields_to_save)
+
+            if badge_type == 'automatic':
+                rule_json = badge_json['rule']
+
+                # Create the condition
+                condition = import_condition_from_json(rule_json['condition'], current_course, id_map=id_map)
+                if not condition:
+                    # TODO: Throw error
+                    pass
+
+                # Update the object specifier json to include the new ids for activities, topics, challenges, categories, etc
+                # And parse object specifier to string
+                object_type = AwardFrequency.awardFrequency[rule_json['awardFrequency']]['objectType']
+                object_specifier = json.dumps(update_object_specifier_json(rule_json['objectSpecifier'], object_type, id_map=id_map))
+
+                rule_fields_to_save = [('courseID', current_course, None), ('conditionID', condition, None), ('actionID', rule_json['actionID'], None),
+                                        ('objectSpecifier', object_specifier, None), ('awardFrequency', rule_json['awardFrequency'], None),]
+
+                rule = create_model_instance(Rules, rule_fields_to_save)
+                rule.save()
+
+                # Create rule events
+                events = get_events_for_condition(condition, object_type)
+                for event, isGlobal in events:
+                    rule_event_fields_to_save = [('rule', rule, None), ('event', event, None), ('inGlobalContext', isGlobal, None),]
+                    rule_event = create_model_instance(RuleEvents, rule_event_fields_to_save)
+                    rule_event.save()
+
+                # Set the badge rule
+                badge = create_model_instance(badge, [('ruleID', rule, None), modify=True])
+                badge.save()
+
+                # Create action argument for badge
+                action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', badge.badgeID, None),]
+                
+                action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
+                action_argument.save() 
+
+            elif badge_type == 'periodic':
+                # Add the periodic fields to badge
+                periodic_badge_fields_to_update = [('periodicVariableID', badge_json['periodicVariableID'], None), ('timePeriodID', badge_json['timePeriodID'], None),
+                                                ('periodicType', badge_json['periodicType'], None), ('numberOfAwards', badge_json['numberOfAwards'], None), 
+                                                ('threshold', badge_json['threshold'], None), ('operatorType', badge_json['operatorType'], None),
+                                                ('isRandom', badge_json['isRandom'], None), ('resetStreak', badge_json['resetStreak'], None),
+                                                ('lastModified', utcDate(), None),]
+                
+                badge = create_model_instance(badge, periodic_badge_fields_to_update, modify=True)
+                badge.save()
+                
+                # Create the periodic task 
+                if badge_json['periodicType'] == 0:
+                    # TopN
+                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), number_of_top_students=int(badge.numberOfAwards), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
+                elif badge_json['periodicType'] == 2:
+                    # Random
+                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType, is_random=badge.isRandom), None),], modify=True)
+                else:
+                    # All (1)
+                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
+                
+                badge.save()
+            else:
+                # Badge is manual
+                badge.save()
+
+def update_object_specifier_json(object_specifier_json, object_type, id_map=None):
+    ''' Updates object specifier json object ids (challenges, activities, topics, activitycategory)
+        with the new mapped object ids
+    '''
+
+    def create_replaced_id_list(section, old_list):
+        ''' Helper method to replace all the ids of a list with the mapped ids from id_map '''
+
+        mapped_object_ids = []
+        for object_id in old_list:
+            # Find the mapped id
+            mapped_object_id = search_for_mapped_id(section, int(object_id), id_map=id_map)
+            
+            if not mapped_object_id:
+                # Unable to find id in section
+                return None
+
+            mapped_object_ids.append(mapped_object_id)
+
+        # Return replaced old ids with new list of ids that were mapped
+        return mapped_object_ids
+
+
+    if not object_specifier_json:
+        return None
+
+    if object_type == ObjectTypes.none:
+        pass
+    elif object_type == ObjectTypes.challenge:
+        for specifier in object_specifier_json:
+            if not specifier['value']:
+                continue
+
+            if specifier['specifier'] == 'id':
+                if 'serious-challenges' not in id_map and 'warmup-challenges' not in id_map:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Get the new mapped ids
+                mapped_object_ids = create_replaced_id_list('serious-challenges', specifier['value'])
+
+                if not mapped_object_ids:
+                    mapped_object_ids = create_replaced_id_list('warmup-challenges', specifier['value'])
+
+                    if not mapped_object_ids:
+                        # TODO: Throw error
+                        specifier['value'] = []
+                        continue
+
+                # Replace old ids with new list of ids that were mapped
+                specifier['value'] = mapped_object_ids
+
+            elif specifier['specifier'] == 'topic':
+                if 'topics' not in id_map:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+                
+                # Get the new mapped ids
+                mapped_object_ids = create_replaced_id_list('topics', specifier['value'])
+                    
+                if not mapped_object_ids:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Replace old ids with new list of ids that were mapped
+                specifier['value'] = mapped_object_ids
+        
+    elif object_type == ObjectTypes.activity:
+        for specifier in object_specifier_json:
+            if not specifier['value']:
+                continue
+
+            if specifier['specifier'] == 'id':
+                if 'activities' not in id_map:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Get the new mapped ids
+                mapped_object_ids = create_replaced_id_list('activities', specifier['value'])
+
+                if not mapped_object_ids:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Replace old ids with new list of ids that were mapped
+                specifier['value'] = mapped_object_ids
+
+            elif specifier['specifier'] == 'category':
+                if 'activities-categories' not in id_map:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Get the new mapped ids
+                mapped_object_ids = create_replaced_id_list('activities-categories', specifier['value'])
+
+                if not mapped_object_ids:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Replace old ids with new list of ids that were mapped
+                specifier['value'] = mapped_object_ids
+
+    elif object_type == ObjectTypes.topic:
+        for specifier in object_specifier_json:
+            if not specifier['value']:
+                continue
+
+            if specifier['specifier'] == 'id':
+                if 'topics' not in id_map:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Get the new mapped ids
+                mapped_object_ids = create_replaced_id_list('topics', specifier['value'])
+                    
+                if not mapped_object_ids:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Replace old ids with new list of ids that were mapped
+                specifier['value'] = mapped_object_ids
+
+    elif object_type == ObjectTypes.activityCategory:
+        for specifier in object_specifier_json:
+            if not specifier['value']:
+                continue
+
+            if specifier['specifier'] == 'id':
+                if 'activities-categories' not in id_map:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Get the new mapped ids
+                mapped_object_ids = create_replaced_id_list('activities-categories', specifier['value'])
+
+                if not mapped_object_ids:
+                    # TODO: Throw error
+                    specifier['value'] = []
+                    continue
+
+                # Replace old ids with new list of ids that were mapped
+                specifier['value'] = mapped_object_ids
+
+    return object_specifier_json
+
+
+# Take the mapping from conditions_utils.py and flip them
+# Maps the char to the corresponding operand type
+char_operand_types_map = {v: k for k, v in operand_types_to_char.items()}
+# Map of exported json allOrAny to for type
+for_type_map = {'ALL': 'FOR_ALL', 'ANY': 'FOR_ANY'}
+# Map of object type to operand set type
+object_type_map = {'activity': OperandTypes.activitySet, 'challenge': OperandTypes.challengeSet, 
+                    'topic': OperandTypes.topicSet, 'category': OperandTypes.ActivityCategorySet}
+
+def import_condition_from_json(condition_json, current_course, id_map=id_map):
+    ''' Converts a condition to model '''
+
+    if condition_json:
+        if condition_json['type'] == 'ATOM':
+            condition_fields_to_save = [('courseID', current_course, None),
+                                        ('operation', condition_json['op'], None),
+                                        ('operand1Type', OperandTypes.systemVariable, None),
+                                        ('operand1Value', condition_json['lhs'], int),]
+
+            condition = create_model_instance(Conditions, condition_fields_to_save)
+
+            operand_2_type = condition_json['rhstype']
+            
+            value_to_save = condition_json['rhsvalue']
+
+            if operand_2_type == "V" or operand_2_type == "N" or operand_2_type == "X":
+                # System Variable or Immeditate Integer or Boolean
+                operand_2_value = value_to_save
+            elif operand_2_type == "T":
+                # String Constant
+                string_constant = create_model_instance(StringConstants, [('stringValue', value_to_save, None),])
+                string_constant.save()
+                operand_2_value = string_constant.stringID
+            elif operand_2_type == "Y":
+                # Date Constant
+                date_constant = craete_model_instance(Dates, [('dateValue', utcDate(value_to_save, '%Y-%M-%d').date(), None),])
+                date_constant.save()
+                operand_2_value = date_constant.dateID
+            
+            condition_fields_to_update = [('operand2Type', char_operand_types_map[operand_2_type], None),
+                                        ('operand2Value', operand_2_value, int),]
+            # Modify condition to add the two fields
+            # Note operand_2_value will be converted to int before saving
+            condition = create_model_instance(condition, condition_fields_to_update, modify=True)
+            condition.save()
+
+            return condition
+        elif condition_json['type'] == 'AND' or condition_json['type'] == 'OR':
+            # Create the condition to hold the children conditions
+            condition_fields_to_save = [('courseID', current_course, None),
+                                        ('operation', condition_json['type'], None),
+                                        ('operand1Type', OperandTypes.conditionSet, None),
+                                        ('operand1Value', 0, None),
+                                        ('operand2Type', OperandTypes.noOperand, None),
+                                        ('operand2Value', 0, None),]
+
+            condition = create_model_instance(Conditions, condition_fields_to_save)
+            condition.save()
+            
+            # Set up condition set relationships between this condition and sub condition
+            for sub_condition_json in condition_json['subConds']:
+                # Create sub condition from json
+                sub_condition = import_condition_from_json(sub_condition_json, current_course, id_map=id_map)
+                if sub_condition:
+                    condition_set_fields_to_save = [('parentCondition', condition, None), ('conditionInSet', sub_condition, None),]
+                    condition_set = create_model_instance(ConditionSet, condition_set_fields_to_save)
+                    condition_set.save()
+
+            return condition
+        elif condition_json['type'] == 'FOR':
+            # Get the operation (FOR_ALL or FOR_ANY)
+            if not condition_json['allOrAny'] in for_type_map:
+                # TODO: Throw error
+                return None
+
+            operation = for_type_map[condition_json['allOrAny']]
+
+            if not condition_json['objectType'] in object_type_map:
+                # TODO: Throw error
+                return None
+
+            operand_1_type = object_type_map[condition_json['objectType']]
+
+            # TODO: Make condition with no atom in for
+            if 'subCond' not in condition_json:
+                # TODO: Throw warning
+                return None
+            
+            operand_2_type = OperandTypes.condition
+            operand_2_value = import_condition_from_json(condition_json['subCond'], current_course, id_map=id_map).conditionID
+
+            condition_fields_to_save = [('courseID', current_course, None),
+                                        ('operation', operation, None),
+                                        ('operand1Type', operand_1_type, None),
+                                        ('operand1Value', not condition_json['allObjects'], int), # This has a not since when exported True values actually mean 0 (see conditions_utils.py)
+                                        ('operand2Type', operand_2_type, None),
+                                        ('operand2Value', operand_2_value, int),]
+
+            condition = create_model_instance(Conditions, condition_fields_to_save)
+            condition.save()
+
+            if 'objects' in condition_json and condition_json['objects']:
+
+                if condition.operand1Type == OperandTypes.activitySet:
+                    # Create the activity set for each object id
+                    for activity_id in condition_json['objects']:
+                        mapped_activity_id = search_for_mapped_id('activities', int(activity_id), id_map=id_map)
+                        if not mapped_activity_id:
+                            # TODO: Throw error
+                            continue
+
+                        activity_set_fields_to_save = [('activity_id', mapped_activity_id, int), ('condition', condition, None),]
+                        activity_set = create_model_instance(ActivitySet, activity_set_fields_to_save)
+                        activity_set.save()
+
+                elif condition.operand1Type == OperandTypes.challengeSet:
+                    # Create the challenge set for each object id
+                    for challenge_id in condition_json['objects']:
+
+                        mapped_challenge_id = search_for_mapped_id('serious-challenges', int(challenge_id), id_map=id_map)
+                        if not mapped_challenge_id:
+                            # Try to search for id in warmup-challenges mapped section
+                            mapped_challenge_id = search_for_mapped_id('warmup-challenges', int(challenge_id), id_map=id_map)
+                        
+                        if not mapped_challenge_id:
+                            # TODO: Throw error
+                            continue
+
+                        challenge_set_fields_to_save = [('challenge_id', mapped_challenge_id, int), ('condition', condition, None),]
+                        challenge_set = create_model_instance(ChallengeSet, challenge_set_fields_to_save)
+                        challenge_set.save()
+                        
+                elif condition.operand1Type == OperandTypes.topicSet:
+                    # Create the topic set for each object id
+                    for topic_id in condition_json['objects']:
+                        mapped_topic_id = search_for_mapped_id('topics', int(topic_id), id_map=id_map)
+                        if not mapped_topic_id:
+                            # TODO: Throw error
+                            continue
+
+                        topic_set_fields_to_save = [('topic_id', mapped_topic_id, int), ('condition', condition, None),]
+                        topic_set = create_model_instance(TopicSet, topic_set_fields_to_save)
+                        topic_set.save()
+
+                elif condition.operand1Type == OperandTypes.activtiyCategorySet:
+                    # Create the activity category set for each object id
+                    for activity_category_id in condition_json['objects']:
+                        mapped_activity_category_id = search_for_mapped_id('activities-categories', int(activity_category_id), id_map=id_map)
+                        if not mapped_activity_category_id:
+                            # TODO: Throw error
+                            continue
+
+                        activity_category_set_fields_to_save = [('category_id', mapped_activity_category_id, int), ('condition', condition, None),]
+                        activity_category_set = create_model_instance(ActivityCategorySet, activity_category_set_fields_to_save)
+                        activity_category_set.save()
+                else:
+                    # TODO: Throw error
+                    return None
+
+            return condition
+
+    return None
