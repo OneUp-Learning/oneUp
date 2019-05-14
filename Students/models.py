@@ -253,7 +253,6 @@ class StudentConfigParams(models.Model):
     participateInDuel = models.BooleanField(default=True)
     participateInCallout = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
-    
     def __str__(self):
         return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +",displayBadges:"+str(self.displayBadges) +",displayLeaderboard:"+str(self.displayLeaderBoard) +",displayClassSkills"+str(self.displayClassSkills) +",displayClassAverage:"+str(self.displayClassAverage) +",displayClassRanking:"+str(self.displayClassRanking) +",displayGoal:"+str(self.displayGoal)+",participateInDuel:"+str(self.participateInDuel)+",courseBucks:"+str(self.courseBucks)   
 
