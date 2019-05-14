@@ -454,10 +454,10 @@ def callout_create(request):
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
                 courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
-            percentage = (s_chall.testScore /
-                          s_chall.challengeID.totalScore) * 100
+            percentage = (float(s_chall.testScore) /
+                          float(s_chall.challengeID.totalScore)) * 100
             # if the sender test score for this challenge is greater than 30% then consider the challenge
-            if percentage > 30:
+            if percentage > 30.0:
                 sender_challenges.append(s_chall)
         seen_challenges.add(s_c.challengeID)
 
@@ -512,10 +512,10 @@ def get_class_callout_qualified_challenges(request):
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
                 courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
-            percentage = (s_chall.testScore /
-                          s_chall.challengeID.totalScore) * 100
+            percentage = (float(s_chall.testScore) /
+                          float(s_chall.challengeID.totalScore)) * 100
             # if the sender test score for this challenge is greater than 30% then consider the challenge
-            if percentage > 30:
+            if percentage > 30.0:
                 sender_challenges.append(s_chall)
         seen_challenges.add(s_c.challengeID)
 
@@ -563,10 +563,10 @@ def get_individual_callout_qualified_challenges(request):
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
                 courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
-            percentage = (s_chall.testScore /
-                          s_chall.challengeID.totalScore) * 100
+            percentage = (float(s_chall.testScore) /
+                          float(s_chall.challengeID.totalScore)) * 100
             # if the sender test score for this challenge is greater than 30% then consider the challenge
-            if percentage > 30:
+            if percentage > 30.0:
                 sender_challenges.append(s_chall)
         seen_challenges.add(s_c.challengeID)
 
