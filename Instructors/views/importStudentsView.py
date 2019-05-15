@@ -38,21 +38,21 @@ def process_file(file_name, file_type_number):
     ##this is what reads our OneUp CSV
     if file_type_number == 1:
         for line in filePointer:
-            if(lineCount >= 2):
-                # #line = line.replace('"', '')
+                line = line.replace('\"', '')
                 line = line.strip()
                 values = line.split(',')
                 #first name, last name, email username
-                lines.append(values[0].lstrip("\""),values[1].lstrip("\""),  values[2].lstrip())
+                lines.append((values[0].lstrip(),values[1].lstrip(), values[2].lstrip()))
 
-    print(lines)
+    print("line",lines)
     return lines
 
 
-def generate_student_data(username, email, password, student_data, currentCourse, ccparams):
+def generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number):
             # Check if student is in the system already
-            if User.objects.filter(email = email).exists():
-                users_list = User.objects.filter(email = email)
+            print("student data", student_data[0][1:-1],student_data[1],password)
+            if User.objects.filter(username = username).exists():
+                users_list = User.objects.filter(username = username)
 
                 #the student is in the system, get it
                 user = users_list[0] 
@@ -61,7 +61,13 @@ def generate_student_data(username, email, password, student_data, currentCourse
             else:
             # the student is not in the system, create a user/student       
                 user = User.objects.create_user(username, email, password)
-                user.first_name = student_data[0][1:-1]
+
+                #unfortunately must have special encoding for canvas
+                if file_type_number == 0:
+                    user.first_name = student_data[0][1:-1]
+                else:
+                    user.first_name = student_data[0]
+                
                 user.last_name = student_data[1]
                 user.save()
                 
@@ -118,22 +124,25 @@ def importStudents(request):
 
             if 'email_domain_name' in request.POST:
                 email_domain = request.POST['email_domain_name']
+                #this strips out leading at sign,because its predicted someone somewhere will enter @email domain
+                email_domain = email_domain.replace('^@', '')
 
             if file_type_number == 0:
                 for student_data in students:
                     username = student_data[3] # The sutdnt username without @email domain
-                    email = student_data[3] + email_domain
+                    email = student_data[3] + "@" + email_domain
                     password = student_data[2]  # The SIS User ID found in the canvas csv file
-                    generate_student_data(username, email, password, student_data, currentCourse, ccparams)
+                    generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number)
                     print("psswd", password)
 
             if file_type_number == 1:
                 for student_data in students:
                     username = student_data[2] # The sutdnt username without @email domain
-                    email = student_data[2] + email_domain
+                    email = student_data[2] + "@" +email_domain
                     password = 1234 # The SIS User ID found in the canvas csv file
-                    generate_student_data(username, email, password, student_data, currentCourse, ccparams)
-                    print("psswd", password)
+                    print("psswd", username, email, password, student_data, currentCourse, ccparams)
+                    generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number)
+                    
 
     return redirect('createStudentListView')
             
