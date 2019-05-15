@@ -14,7 +14,7 @@ from Students.models import Student, StudentRegisteredCourses, StudentConfigPara
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck  
 
-import logging
+import logging, random
 logger = logging.getLogger(__name__)
 
 def process_file(file_name, file_type_number):
@@ -139,9 +139,9 @@ def importStudents(request):
                 for student_data in students:
                     username = student_data[2] # The sutdnt username without @email domain
                     email = student_data[2] + "@" +email_domain
-                    password = 1234 # The SIS User ID found in the canvas csv file
+                    password = random.randint(1000,500000)
                     print("psswd", username, email, password, student_data, currentCourse, ccparams)
-                    generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number)
+                    generate_student_data(username, email, str(password), student_data, currentCourse, ccparams, file_type_number)
                     
 
     return redirect('createStudentListView')
