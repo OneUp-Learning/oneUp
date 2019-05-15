@@ -265,9 +265,11 @@
                             for(var index = 0; index < messages.length; index++){
                                 let message = messages[index];
                                 if(message['type'] == 'warn'){
-                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom;' class='material-icons'>warning</i></div> "+ message['message'] +"</div></li>")
-                                } else if (message['type'] == 'error'){
-                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom;' class='material-icons'>error</i></div> "+ message['message'] +"</div></li>")
+                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: orange;' class='material-icons'>warning</i></div> "+ message['message'] +"</div></li>")
+                                } else if(message['type'] == 'info'){
+									messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: #00bcd4;' class='material-icons'>info</i></div> "+ message['message'] +"</div></li>")
+								}else if (message['type'] == 'error'){
+                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: firebrick;' class='material-icons'>error</i></div> "+ message['message'] +"</div></li>")
                                 }
                             }
                             // Show the messages

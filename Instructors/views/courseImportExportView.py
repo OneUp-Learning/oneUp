@@ -1,3 +1,5 @@
+''' Created by Austin Hodge 5-18-19 '''
+
 from django.shortcuts import redirect, render, HttpResponse
 from django.http import JsonResponse
 
@@ -14,13 +16,15 @@ from Badges.models import LeaderboardsConfig
 from Badges.models import ProgressiveUnlocking
 from Badges.models import AttendanceStreakConfiguration
 
+from Students.models import StudentRegisteredCourses, StudentProgressiveUnlocking
+
 from Badges.models import CourseConfigParams
 
-from Badges.enums import AwardFrequency, ObjectTypes, OperandTypes
+from Badges.enums import AwardFrequency, ObjectTypes, OperandTypes, Event, Action
 from Instructors.questionTypes import QuestionTypes
 
 from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields, operand_types_to_char, get_events_for_condition
-from Badges.periodicVariables import setup_periodic_badge
+from Badges.periodicVariables import setup_periodic_badge, setup_periodic_vc
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity
 
@@ -39,6 +43,8 @@ from oneUp.decorators import instructorsCheck
 #############################################################
 
 def ensure_directory(directory):
+    ''' Make sure the directory exists on the server (or locally) '''
+
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -95,7 +101,13 @@ def find_value_in_json(key, value, search_in=None):
         return False
     
     for item in search_in:
-        if item[key] == value[1](value[0]):
+        v = value[0]
+
+        # Cast the value if the field requires some casting
+        if value[1] is not None:
+            v = value[1](value[0])
+
+        if item[key] == v:
             return True
 
     return False
@@ -106,6 +118,7 @@ def search_for_mapped_id(search_in, for_id, id_map=None):
     if not id_map or search_in not in id_map:
         return None
     
+    # The id (key) to look for is not in the section to search in
     if for_id not in id_map[search_in]:
         return None
 
@@ -167,11 +180,11 @@ def validateCourseExport(request):
 
             if 'activities' in request.POST:
                 # Notify user about fields not being exported 
-                messages.append({'type': 'warn', 'message': 'Activities Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
+                messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
 
             if 'serious-challenges' in request.POST or 'warmup-challenges' in request.POST:
                 # Notify user about field export decisions
-                messages.append({'type': 'warn', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options will be set to Course Start Date, Course End Date, and Course End Date respectively automatically'})
+                messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options will be set to Course Start Date, Course End Date, and Course End Date respectively automatically'})
 
             post_request = dict(request.POST)
 
@@ -240,7 +253,8 @@ def validateCourseExport(request):
                 root_json['spending-vc-rules'] = vc_rules_to_json(spending_vc_rules, "spending", current_course, post_request=post_request, root_json=root_json, messages=messages)
 
             if 'leaderboards' in request.POST:
-                leaderboards = LeaderboardsConfig.objects.filter(courseID=current_course)
+                # Exclude XP Leaderboard since it is created in prefrences (probably should be created when course is created instead)
+                leaderboards = LeaderboardsConfig.objects.filter(courseID=current_course).exclude(isXpLeaderboard=True)
                 root_json['leaderboards'] = leaderboards_to_json(leaderboards, current_course, messages=messages)
 
             if 'content-unlocking' in request.POST:
@@ -1069,9 +1083,14 @@ def importCourse(request):
     
     if request.method == 'POST':
         if 'course' in request.FILES:
+            response = {}
+
+            # Holds the messages to display for the user in the frontend
+            messages = []
+
             course_json = request.FILES['course']
             root_json = {}
-
+            
             uploaded_file = UploadedFiles() 
             uploaded_file.uploadedFile = course_json     
             uploaded_file.uploadedFileName = course_json.name
@@ -1089,62 +1108,76 @@ def importCourse(request):
                 id_map = initialize_id_map()
                 
                 if 'topics' in root_json:
-                    import_topics_from_json(root_json['topics'], current_course, id_map=id_map)
+                    import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
 
                 if 'activities-categories' in root_json:
-                    import_activities_categories_from_json(root_json['activities-categories'], current_course, id_map=id_map)
+                    import_activities_categories_from_json(root_json['activities-categories'], current_course, id_map=id_map, messages=messages)
                     
                 if 'skills' in root_json:
-                    import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map)
+                    import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map, messages=messages)
 
                 if 'activities' in root_json:
-                    import_activities_from_json(root_json['activities'], current_course, id_map=id_map)
+                    import_activities_from_json(root_json['activities'], current_course, id_map=id_map, messages=messages)
                 
                 if 'serious-challenges' in root_json:
-                    import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map)
+                    import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
                 
                 if 'warmup-challenges' in root_json:
-                    import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map)
+                    import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
                 
                 if 'unassigned-problems' in root_json:
                     unassigned_challenge = Challenges.objects.get(courseID=current_course, challengeName=unassigned_problems_challenge_name)
-                    import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, id_map=id_map)
+                    import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, id_map=id_map, messages=messages)
                 
                 if 'automatic-badges' in root_json:
-                    import_badges_from_json(root_json['automatic-badges'], 'automatic', current_course, id_map=id_map)
+                    import_badges_from_json(root_json['automatic-badges'], 'automatic', current_course, id_map=id_map, messages=messages)
             
                 if 'manual-badges' in root_json:
-                    import_badges_from_json(root_json['manual-badges'], 'manual', current_course, id_map=id_map)
+                    import_badges_from_json(root_json['manual-badges'], 'manual', current_course, id_map=id_map, messages=messages)
                 
                 if 'periodic-badges' in root_json:
-                    import_badges_from_json(root_json['periodic-badges'], 'periodic', current_course, id_map=id_map)
+                    import_badges_from_json(root_json['periodic-badges'], 'periodic', current_course, id_map=id_map, messages=messages)
                 
                 if 'automatic-vc-rules' in root_json:
-                    pass
+                    import_vc_rules_from_json(root_json['automatic-vc-rules'], 'automatic', current_course, id_map=id_map, messages=messages)
                 
                 if 'manual-vc-rules' in root_json:
-                    pass
+                    import_vc_rules_from_json(root_json['manual-vc-rules'], 'manual', current_course, id_map=id_map, messages=messages)
                 
                 if 'periodic-vc-rules' in root_json:
-                    pass
+                    import_vc_rules_from_json(root_json['periodic-vc-rules'], 'periodic', current_course, id_map=id_map, messages=messages)
                 
                 if 'spending-vc-rules' in root_json:
-                    pass
+                    import_vc_rules_from_json(root_json['spending-vc-rules'], 'spending', current_course, id_map=id_map, messages=messages)
 
                 if 'leaderboards' in root_json:
-                    pass
+                    import_leaderboards_from_json(root_json['leaderboards'], current_course, id_map=id_map, messages=messages)
 
                 if 'content-unlocking' in root_json:
-                    pass
+                    import_content_unlocking_rules_from_json(root_json['content-unlocking'], current_course, id_map=id_map, messages=messages)
 
                 if 'streaks' in root_json:
-                    pass                    
+                    import_streaks_from_json(root_json['streaks'], current_course, id_map=id_map, messages=messages)                    
                 
                 print(id_map)
+            else:
+                messages.append({'type': 'error', 'message': 'File: {} is empty or cannot be read'.format(uploaded_file.uploadedFile.name)})
 
-            uploaded_file.delete()        
+            uploaded_file.delete()  
 
-        return render(request,'Instructors/CourseImport.html', context_dict)
+            # Get rid of duplicate messages by converting list of dicts 
+            # to set of tuples then back to list of dicts
+            messages = [dict(t) for t in {tuple(d.items()) for d in messages}]
+            response['messages'] = messages
+            
+            # Debug messages
+            # ensure_directory('media/textfiles/course/json/')
+            # with open('media/textfiles/course/json/import-log.json', 'w') as import_stream:
+            #     json.dump(messages, import_stream)
+
+            return JsonResponse(response)
+    
+    return JsonResponse({'messages': [{'type': 'error', 'message': 'Error in importing course request'}]})      
 
 def initialize_id_map(root_json):
     ''' Sets up the id mapping for conditions, challenges, etc. '''
@@ -1165,7 +1198,7 @@ def initialize_id_map(root_json):
 
     return id_map
 
-def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_map=None):
+def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts topic jsons to model '''
 
     if topics_jsons:
@@ -1196,7 +1229,7 @@ def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_
             if id_map:
                 id_map['topics'][topic_json['topicID']] = course_topic.topicID.topicID
 
-def import_activities_categories_from_json(activities_categories_jsons, current_course, context_dict=None, id_map=None):
+def import_activities_categories_from_json(activities_categories_jsons, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts activity category jsons to model '''
 
     if activities_categories_jsons:
@@ -1217,7 +1250,7 @@ def import_activities_categories_from_json(activities_categories_jsons, current_
             if id_map:
                 id_map['activities-categories'][activities_categories_json['categoryID']] = activity_category.categoryID
 
-def import_course_skills_from_json(skills_jsons, current_course, context_dict=None, id_map=None):
+def import_course_skills_from_json(skills_jsons, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts skill jsons to model '''
 
     if skills_jsons:
@@ -1248,7 +1281,7 @@ def import_course_skills_from_json(skills_jsons, current_course, context_dict=No
             if id_map:
                 id_map['skills'][skill_json['skillID']] = course_skill.skillID.skillID
 
-def import_activities_from_json(activities_jsons, current_course, context_dict=None, id_map=None):
+def import_activities_from_json(activities_jsons, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts activity jsons to model '''
 
     if activities_jsons:
@@ -1272,18 +1305,24 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
                     # Get the new category id we created by looking it up in the mapped ids dict
                     mapped_activity_category_id = search_for_mapped_id('activities-categories', activity_json['category']['categoryID'], id_map=id_map)
                     if not mapped_activity_category_id:
-                        # TODO: Throw error
-                        pass
+                        messages.append({'type': 'warn', 'message': 'Unable to find activity category id in mapped ids dictionary for activity. Activities will not include this category'})
+                        activity.save()
+                        return
 
                     # Set the activity category
                     activity_category = ActivitiesCategory.objects.get(categoryID=mapped_activity_category_id, courseID=current_course)
                     activity.category = activity_category
                 else:
-                    # TODO: Throw error message
-                    pass
+                    messages.append({'type': 'error', 'message': 'Unable to add activity categories to activities. id map not providied'})
             else:
                 # Include the default uncategorized activity category
                 activity_category = ActivitiesCategory.objects.get(name=uncategorized_activity, courseID=current_course)
+
+                if not activity_category:
+                    messages.append({'type': 'error', 'message': 'Your Course does not have a uncategorized activity category. Activities will not include this category'})
+                    activity.save()
+                    return
+
                 activity.category = activity_category
 
             activity.save()
@@ -1292,7 +1331,7 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
             if id_map:
                 id_map['activities'][activity_json['activityID']] = activity.activityID
 
-def import_challenges_from_json(challenges_jsons, current_course, context_dict=None, id_map=None):
+def import_challenges_from_json(challenges_jsons, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts challenge jsons to model '''
 
     if challenges_jsons:
@@ -1304,8 +1343,8 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
             if context_dict:
                 course_config_params = context_dict['ccparams']            
             else:
-                # TODO: Throw error message
-                pass
+                messages.append({'type': 'error', 'message': 'Couse Configuration not provided. Challenge will not be imported'})
+                return
 
             # Create the challenge model instance
             challenge_fields_to_save = [('challengeName', challenge_json['challengeName'], None),
@@ -1342,21 +1381,21 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                         # Get the new topic id we created by looking it up in the mapped ids dict
                         mapped_topic_id = search_for_mapped_id('topics', topic['topicID'], id_map=id_map)
                         if not mapped_topic_id:
-                            # TODO: Throw error
-                            pass
+                            messages.append({'type': 'warn', 'message': 'Unable to find topic id in mapped ids dictionary for challenge. Challenges will not include this topic'})
+                            continue
 
                         # We can go straight to Topics instead of Course Topics since we have mapped it
                         # to Topics
                         topic = Topics.objects.get(topicID=mapped_topic_id)
                         if not topic:
-                            # TODO: Throw error
-                            pass
+                            messages.append({'type': 'warn', 'message': 'New topic object was not created. Challenges will not include this topic'})
+                            continue
 
                         challenge_topic_fields_to_save = [('topicID', topic, None), ('challengeID', challenge, None),]        
                         challenge_topic = create_model_instance(ChallengesTopics, challenge_topic_fields_to_save)
                         challenge_topic.save()                
                 else:
-                    # TODO: Throw error message
+                    messages.append({'type': 'error', 'message': 'Unable to add topics to challenges. id map not providied'})
                     pass
             else:
                 # Assigned this challenge the default unspecified topic
@@ -1364,14 +1403,14 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                 course_topic = CoursesTopics().objects.get(courseID=current_course, topicID__topicName=unspecified_topic_name)
                 
                 if not course_topic:
-                    # TODO: Throw error message
-                    pass
+                    messages.append({'type': 'error', 'message': 'Your Course does not have a unspecified topic. Challenges will not include this topic'})
+                    return
 
                 challenge_topic_fields_to_save = [('topicID', course_topic.topicID, None), ('challengeID', challenge, None),]        
                 challenge_topic = create_model_instance(ChallengesTopics, challenge_topic_fields_to_save)
                 challenge_topic.save()
 
-def import_challenge_questions_from_json(challenge_question_jsons, challenge, current_course, context_dict=None, id_map=None):
+def import_challenge_questions_from_json(challenge_question_jsons, challenge, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts challenge question jsons to model '''
 
     if challenge_question_jsons:
@@ -1434,12 +1473,11 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                                 template_text_part = create_model_instance(TemplateTextParts, template_text_part_fields_to_save)
                                 template_text_part.save()
                         else:
-                            # TODO: Throw error
-                            pass
+                            messages.append({'type': 'error', 'message': 'Template Dynamic Question does not have any template text parts'})
+
                     else:
-                        # TODO: Throw error
-                        pass
-                    
+                        messages.append({'type': 'error', 'message': 'Tempalte Dynamic Question is not valid'})
+
                 else:
                     question.save()
 
@@ -1490,8 +1528,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                             matching_answer = create_model_instance(MatchingAnswers, matching_answers_fields_to_save)
                             matching_answer.save()
                 else:
-                    # TODO: Throw error
-                    pass
+                    messages.append({'type': 'error', 'message': 'Static Question does not have any answers'})
 
             # Create question skills if any
             if 'skills' in challenge_question_json['question']:
@@ -1500,15 +1537,15 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                         # Get the new skill id we created by looking it up in the mapped ids dict
                         mapped_skill_id = search_for_mapped_id('skills', question_skill_json['skillID'], id_map=id_map)
                         if not mapped_skill_id:
-                            # TODO: Throw error
-                            pass
+                            messages.append({'type': 'warn', 'message': 'Unable to find skill id in mapped ids dictionary for challenge question. Challenge questions will not include this skill'})
+                            continue
 
                         # We can go straight to Skills instead of Course Skills since we have mapped it
                         # to Skills
                         skill = Skills.objects.get(skillID=mapped_skill_id)
                         if not skill:
-                            # TODO: Throw error
-                            pass
+                            messages.append({'type': 'warn', 'message': 'New skill object was not created. Challenge questions will not include this skill'})
+                            continue
 
                         question_skill_fields_to_save = [('skillID', skill, None), ('questionID', question, None),
                                                         ('questionSkillPoints', question_skill_json['questionSkillPoints'], None),
@@ -1516,8 +1553,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                         question_skill = create_model_instance(QuestionsSkills, question_skill_fields_to_save)
                         question_skill.save()                
                 else:
-                    # TODO: Throw error message
-                    pass
+                    messages.append({'type': 'error', 'message': 'Unable to add skills to challenge questions. id map not providied'})
 
             # Save the challenge question
             challenge_question_fields_to_modify = [('challengeID', challenge, None),
@@ -1525,95 +1561,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
             challenge_question = create_model_instance(challenge_question, challenge_question_fields_to_modify, modify=True)
             challenge_question.save()
 
-
-def import_badges_from_json(badges_jsons, badge_type, current_course, context_dict=None, id_map=None):
-    ''' Converts a badge (Automatic, Manual, Periodic) to model '''
-
-    if badges_jsons:
-        for badge_json in badges_jsons:
-
-            # Create the badge model instance for type
-            if badge_type == 'automatic':
-                badge_type_model = Badges
-            elif badge_type == 'periodic':
-                badge_type_model = PeriodicBadges
-            else:
-                badge_type_model = BadgesInfo
-
-            badge_fields_to_save = [('badgeName', badge_json['badgeName'], None), 
-                                                ('badgeDescription', badge_json['badgeDescription'], None), 
-                                                ('badgeImage', badge_json['badgeImage'], None), 
-                                                ('manual', badge_json['manual'], None), 
-                                                ('isPeriodic', badge_json['isPeriodic'], None),
-                                                ('courseID', current_course, None),]
-
-            badge = create_model_instance(badge_type_model, badge_fields_to_save)
-
-            if badge_type == 'automatic':
-                rule_json = badge_json['rule']
-
-                # Create the condition
-                condition = import_condition_from_json(rule_json['condition'], current_course, id_map=id_map)
-                if not condition:
-                    # TODO: Throw error
-                    pass
-
-                # Update the object specifier json to include the new ids for activities, topics, challenges, categories, etc
-                # And parse object specifier to string
-                object_type = AwardFrequency.awardFrequency[rule_json['awardFrequency']]['objectType']
-                object_specifier = json.dumps(update_object_specifier_json(rule_json['objectSpecifier'], object_type, id_map=id_map))
-
-                rule_fields_to_save = [('courseID', current_course, None), ('conditionID', condition, None), ('actionID', rule_json['actionID'], None),
-                                        ('objectSpecifier', object_specifier, None), ('awardFrequency', rule_json['awardFrequency'], None),]
-
-                rule = create_model_instance(Rules, rule_fields_to_save)
-                rule.save()
-
-                # Create rule events
-                events = get_events_for_condition(condition, object_type)
-                for event, isGlobal in events:
-                    rule_event_fields_to_save = [('rule', rule, None), ('event', event, None), ('inGlobalContext', isGlobal, None),]
-                    rule_event = create_model_instance(RuleEvents, rule_event_fields_to_save)
-                    rule_event.save()
-
-                # Set the badge rule
-                badge = create_model_instance(badge, [('ruleID', rule, None), modify=True])
-                badge.save()
-
-                # Create action argument for badge
-                action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', badge.badgeID, None),]
-                
-                action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
-                action_argument.save() 
-
-            elif badge_type == 'periodic':
-                # Add the periodic fields to badge
-                periodic_badge_fields_to_update = [('periodicVariableID', badge_json['periodicVariableID'], None), ('timePeriodID', badge_json['timePeriodID'], None),
-                                                ('periodicType', badge_json['periodicType'], None), ('numberOfAwards', badge_json['numberOfAwards'], None), 
-                                                ('threshold', badge_json['threshold'], None), ('operatorType', badge_json['operatorType'], None),
-                                                ('isRandom', badge_json['isRandom'], None), ('resetStreak', badge_json['resetStreak'], None),
-                                                ('lastModified', utcDate(), None),]
-                
-                badge = create_model_instance(badge, periodic_badge_fields_to_update, modify=True)
-                badge.save()
-                
-                # Create the periodic task 
-                if badge_json['periodicType'] == 0:
-                    # TopN
-                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), number_of_top_students=int(badge.numberOfAwards), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
-                elif badge_json['periodicType'] == 2:
-                    # Random
-                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType, is_random=badge.isRandom), None),], modify=True)
-                else:
-                    # All (1)
-                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
-                
-                badge.save()
-            else:
-                # Badge is manual
-                badge.save()
-
-def update_object_specifier_json(object_specifier_json, object_type, id_map=None):
+def update_object_specifier_json(object_specifier_json, object_type, id_map=None, messages=[]):
     ''' Updates object specifier json object ids (challenges, activities, topics, activitycategory)
         with the new mapped object ids
     '''
@@ -1648,7 +1596,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
 
             if specifier['specifier'] == 'id':
                 if 'serious-challenges' not in id_map and 'warmup-challenges' not in id_map:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Challenge Object Specifier challenge ids were not found. Challenge Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1659,7 +1607,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
                     mapped_object_ids = create_replaced_id_list('warmup-challenges', specifier['value'])
 
                     if not mapped_object_ids:
-                        # TODO: Throw error
+                        messages.append({'type': 'warn', 'message': 'Unable to find challenge id in mapped ids dictionary. Challenge Specifier will be empty'})
                         specifier['value'] = []
                         continue
 
@@ -1668,7 +1616,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
 
             elif specifier['specifier'] == 'topic':
                 if 'topics' not in id_map:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Challenge Object Specifier topic ids were not found. Make sure topics were exported. Challenge Specifier will be empty'})
                     specifier['value'] = []
                     continue
                 
@@ -1676,7 +1624,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
                 mapped_object_ids = create_replaced_id_list('topics', specifier['value'])
                     
                 if not mapped_object_ids:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Unable to find topic id in mapped ids dictionary. Challenge Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1690,7 +1638,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
 
             if specifier['specifier'] == 'id':
                 if 'activities' not in id_map:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Activity Object Specifier activity ids were not found. Make sure activities were exported. Activity Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1698,7 +1646,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
                 mapped_object_ids = create_replaced_id_list('activities', specifier['value'])
 
                 if not mapped_object_ids:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Unable to find activity id in mapped ids dictionary. Activity Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1707,7 +1655,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
 
             elif specifier['specifier'] == 'category':
                 if 'activities-categories' not in id_map:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Activity Object Specifier activity categories ids were not found. Make sure activities categories were exported. Activity Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1715,7 +1663,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
                 mapped_object_ids = create_replaced_id_list('activities-categories', specifier['value'])
 
                 if not mapped_object_ids:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Unable to find activity category id in mapped ids dictionary. Activity Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1729,7 +1677,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
 
             if specifier['specifier'] == 'id':
                 if 'topics' not in id_map:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Topic Object Specifier topic ids were not found. Make sure topics were exported. Topic Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1737,7 +1685,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
                 mapped_object_ids = create_replaced_id_list('topics', specifier['value'])
                     
                 if not mapped_object_ids:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Unable to find topic id in mapped ids dictionary. Topic Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1751,7 +1699,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
 
             if specifier['specifier'] == 'id':
                 if 'activities-categories' not in id_map:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Activity Category Object Specifier activity categories ids were not found. Make sure activities categories were exported. Activity Category Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1759,7 +1707,7 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
                 mapped_object_ids = create_replaced_id_list('activities-categories', specifier['value'])
 
                 if not mapped_object_ids:
-                    # TODO: Throw error
+                    messages.append({'type': 'warn', 'message': 'Unable to find activity category id in mapped ids dictionary. Activity Category Specifier will be empty'})
                     specifier['value'] = []
                     continue
 
@@ -1776,9 +1724,9 @@ char_operand_types_map = {v: k for k, v in operand_types_to_char.items()}
 for_type_map = {'ALL': 'FOR_ALL', 'ANY': 'FOR_ANY'}
 # Map of object type to operand set type
 object_type_map = {'activity': OperandTypes.activitySet, 'challenge': OperandTypes.challengeSet, 
-                    'topic': OperandTypes.topicSet, 'category': OperandTypes.ActivityCategorySet}
+                    'topic': OperandTypes.topicSet, 'category': OperandTypes.activtiyCategorySet}
 
-def import_condition_from_json(condition_json, current_course, id_map=id_map):
+def import_condition_from_json(condition_json, current_course, id_map=None, messages=[]):
     ''' Converts a condition to model '''
 
     if condition_json:
@@ -1841,20 +1789,19 @@ def import_condition_from_json(condition_json, current_course, id_map=id_map):
         elif condition_json['type'] == 'FOR':
             # Get the operation (FOR_ALL or FOR_ANY)
             if not condition_json['allOrAny'] in for_type_map:
-                # TODO: Throw error
+                messages.append({'type': 'error', 'message': 'FOR Condition type is not valid'})
                 return None
 
             operation = for_type_map[condition_json['allOrAny']]
 
             if not condition_json['objectType'] in object_type_map:
-                # TODO: Throw error
+                messages.append({'type': 'error', 'message': 'FOR Condition object type is not valid'})
                 return None
 
             operand_1_type = object_type_map[condition_json['objectType']]
 
-            # TODO: Make condition with no atom in for
             if 'subCond' not in condition_json:
-                # TODO: Throw warning
+                messages.append({'type': 'error', 'message': 'FOR Condition does not have a sub condition'})
                 return None
             
             operand_2_type = OperandTypes.condition
@@ -1877,7 +1824,7 @@ def import_condition_from_json(condition_json, current_course, id_map=id_map):
                     for activity_id in condition_json['objects']:
                         mapped_activity_id = search_for_mapped_id('activities', int(activity_id), id_map=id_map)
                         if not mapped_activity_id:
-                            # TODO: Throw error
+                            messages.append({'type': 'error', 'message': 'Unable to find activity id in mapped ids dictionary for conditions'})
                             continue
 
                         activity_set_fields_to_save = [('activity_id', mapped_activity_id, int), ('condition', condition, None),]
@@ -1894,7 +1841,7 @@ def import_condition_from_json(condition_json, current_course, id_map=id_map):
                             mapped_challenge_id = search_for_mapped_id('warmup-challenges', int(challenge_id), id_map=id_map)
                         
                         if not mapped_challenge_id:
-                            # TODO: Throw error
+                            messages.append({'type': 'error', 'message': 'Unable to find challenge id in mapped ids dictionary for conditions'})
                             continue
 
                         challenge_set_fields_to_save = [('challenge_id', mapped_challenge_id, int), ('condition', condition, None),]
@@ -1906,7 +1853,7 @@ def import_condition_from_json(condition_json, current_course, id_map=id_map):
                     for topic_id in condition_json['objects']:
                         mapped_topic_id = search_for_mapped_id('topics', int(topic_id), id_map=id_map)
                         if not mapped_topic_id:
-                            # TODO: Throw error
+                            messages.append({'type': 'error', 'message': 'Unable to find topic id in mapped ids dictionary for conditions'})
                             continue
 
                         topic_set_fields_to_save = [('topic_id', mapped_topic_id, int), ('condition', condition, None),]
@@ -1918,16 +1865,312 @@ def import_condition_from_json(condition_json, current_course, id_map=id_map):
                     for activity_category_id in condition_json['objects']:
                         mapped_activity_category_id = search_for_mapped_id('activities-categories', int(activity_category_id), id_map=id_map)
                         if not mapped_activity_category_id:
-                            # TODO: Throw error
+                            messages.append({'type': 'error', 'message': 'Unable to find activity category id in mapped ids dictionary for conditions'})
                             continue
 
                         activity_category_set_fields_to_save = [('category_id', mapped_activity_category_id, int), ('condition', condition, None),]
                         activity_category_set = create_model_instance(ActivityCategorySet, activity_category_set_fields_to_save)
                         activity_category_set.save()
                 else:
-                    # TODO: Throw error
+                    messages.append({'type': 'error', 'message': 'FOR Condition operand 1 type is not a valid type'})
                     return None
 
             return condition
 
     return None
+
+def import_rule_json(rule_json, current_course, id_map=None, messages=[]):
+    ''' Converts a rule json to model 
+        Also creates the corresponding rule events
+    '''
+    
+    if rule_json:
+        # Create the condition
+        condition = import_condition_from_json(rule_json['condition'], current_course, id_map=id_map)
+
+        if not condition:
+            messages.append({'type': 'error', 'message': 'Failed to create condition(s). Some Automatic Badges, Automatic Earning Virtual Currency Rules, \
+                                    and Content Unlocking Rules were not imported into the course'})
+            return None
+
+        # Update the object specifier json to include the new ids for activities, topics, challenges, categories, etc
+        # And parse object specifier to string
+        object_type = AwardFrequency.awardFrequency[rule_json['awardFrequency']]['objectType']
+        object_specifier = json.dumps(update_object_specifier_json(rule_json['objectSpecifier'], object_type, id_map=id_map))
+
+        rule_fields_to_save = [('courseID', current_course, None), ('conditionID', condition, None), ('actionID', rule_json['actionID'], None),
+                                ('objectSpecifier', object_specifier, None), ('awardFrequency', rule_json['awardFrequency'], None),]
+
+        rule = create_model_instance(Rules, rule_fields_to_save)
+
+        # Create rule events
+        events = get_events_for_condition(condition, object_type)
+        for event, isGlobal in events:
+            rule_event_fields_to_save = [('rule', rule, None), ('event', event, None), ('inGlobalContext', isGlobal, None),]
+            rule_event = create_model_instance(RuleEvents, rule_event_fields_to_save)
+            rule_event.save()
+
+        return rule
+    
+    return None
+
+def import_badges_from_json(badges_jsons, badge_type, current_course, context_dict=None, id_map=None, messages=[]):
+    ''' Converts a badge (Automatic, Manual, Periodic) to model '''
+
+    if badges_jsons:
+        for badge_json in badges_jsons:
+
+            # Create the badge model instance for type
+            if badge_type == 'automatic':
+                badge_type_model = Badges
+            elif badge_type == 'periodic':
+                badge_type_model = PeriodicBadges
+            else:
+                badge_type_model = BadgesInfo
+
+            badge_fields_to_save = [('badgeName', badge_json['badgeName'], None), 
+                                                ('badgeDescription', badge_json['badgeDescription'], None), 
+                                                ('badgeImage', badge_json['badgeImage'], None), 
+                                                ('manual', badge_json['manual'], None), 
+                                                ('isPeriodic', badge_json['isPeriodic'], None),
+                                                ('courseID', current_course, None),]
+
+            badge = create_model_instance(badge_type_model, badge_fields_to_save)
+
+            if badge_type == 'automatic':
+                rule_json = badge_json['rule']
+
+                # Create the rule
+                rule = import_rule_json(rule_json, current_course, id_map=id_map, messages=messages)
+
+                # Failed to create rule so don't create the badge (error is shown in import_rule_json)
+                if rule is None:
+                    continue
+
+                rule.save()
+
+                # Set the badge rule
+                badge = create_model_instance(badge, [('ruleID', rule, None)], modify=True)
+                badge.save()
+
+                # Create action argument for badge
+                action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', badge.badgeID, str),]
+                
+                action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
+                action_argument.save() 
+
+            elif badge_type == 'periodic':
+                # Add the periodic fields to badge
+                periodic_badge_fields_to_update = [('periodicVariableID', badge_json['periodicVariableID'], None), ('timePeriodID', badge_json['timePeriodID'], None),
+                                                ('periodicType', badge_json['periodicType'], None), ('numberOfAwards', badge_json['numberOfAwards'], None), 
+                                                ('threshold', badge_json['threshold'], None), ('operatorType', badge_json['operatorType'], None),
+                                                ('isRandom', badge_json['isRandom'], None), ('resetStreak', badge_json['resetStreak'], None),
+                                                ('lastModified', utcDate(), None),]
+                
+                badge = create_model_instance(badge, periodic_badge_fields_to_update, modify=True)
+                badge.save()
+                
+                # Create the periodic task 
+                if badge_json['periodicType'] == 0:
+                    # TopN
+                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), number_of_top_students=int(badge.numberOfAwards), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
+                elif badge_json['periodicType'] == 2:
+                    # Random
+                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType, is_random=badge.isRandom), None),], modify=True)
+                else:
+                    # All (1)
+                    badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
+                
+                badge.save()
+            else:
+                # Badge is manual
+                badge.save()
+
+def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_map=None, messages=[]):
+    ''' Converts a virtual currency rule (Automatic, Manual, Periodic, Spending) to model '''
+
+    if vc_rules_jsons:
+        for vc_rule_json in vc_rules_jsons:
+
+            # Create the vc rule model instance for type
+            if vc_rule_type == 'automatic' or vc_rule_type == 'spending':
+                vc_rule_type_model = VirtualCurrencyRuleInfo
+            elif vc_rule_type == 'periodic':
+                vc_rule_type_model = VirtualCurrencyPeriodicRule
+            else:
+                vc_rule_type_model = VirtualCurrencyCustomRuleInfo
+
+            vc_rule_fields_to_save = [('vcRuleName', vc_rule_json['vcRuleName'], None), ('vcRuleDescription', vc_rule_json['vcRuleDescription'], None), 
+                                    ('vcRuleType', vc_rule_json['vcRuleType'], None), ('vcRuleAmount', vc_rule_json['vcRuleAmount'], None), 
+                                    ('vcRuleLimit', vc_rule_json['vcRuleLimit'], None), ('isPeriodic', vc_rule_json['isPeriodic'], None),
+                                    ('courseID', current_course, None),]
+
+            vc_rule = create_model_instance(vc_rule_type_model, vc_rule_fields_to_save)
+
+            if vc_rule_type == 'automatic':
+                rule_json = vc_rule_json['rule']
+
+                # Create the rule
+                rule = import_rule_json(rule_json, current_course, id_map=id_map, messages=messages)
+
+                # Failed to create rule so don't create the vc rule (error is shown in import_rule_json)
+                if rule is None:
+                    continue
+
+                rule.save()
+
+                # Set the vc rule to include new rule
+                vc_rule = create_model_instance(vc_rule, [('ruleID', rule, None)], modify=True)
+                vc_rule.save()
+
+                # Create action argument for vc rule
+                # NOTE: Argument value is set to same as when saving virtual currency earning rule (see saveVirtualCurrencyRule.py)
+                # if this value is changed, it needs to be updated here as well
+                action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', 0, str),]
+                
+                action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
+                action_argument.save() 
+
+            elif vc_rule_type == 'periodic':
+                # Add the periodic fields to vc rule
+                periodic_vc_rule_fields_to_update = [('periodicVariableID', rule_json['periodicVariableID'], None), ('timePeriodID', rule_json['timePeriodID'], None),
+                                                ('periodicType', rule_json['periodicType'], None), ('numberOfAwards', rule_json['numberOfAwards'], None), 
+                                                ('threshold', rule_json['threshold'], None), ('operatorType', rule_json['operatorType'], None),
+                                                ('isRandom', rule_json['isRandom'], None), ('resetStreak', rule_json['resetStreak'], None),
+                                                ('lastModified', utcDate(), None),]
+                
+                vc_rule = create_model_instance(vc_rule, periodic_vc_rule_fields_to_update, modify=True)
+                vc_rule.save()
+                
+                # Create the periodic task 
+                if rule_json['periodicType'] == 0:
+                    # TopN
+                    vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), number_of_top_students=int(vc_rule.numberOfAwards), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType), None),], modify=True)
+                elif rule_json['periodicType'] == 2:
+                    # Random
+                    vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType, is_random=vc_rule.isRandom), None),], modify=True)
+                else:
+                    # All (1)
+                    vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType), None),], modify=True)
+                
+                vc_rule.save()
+            elif vc_rule_type == 'spending':
+                # Create the default spending condition
+                condition_fields_to_save = [('operation', '=', None), ('operand1Type', OperandTypes.immediateInteger, None),
+                                            ('operand1Value', 1, None), ('operand2Type', OperandTypes.immediateInteger, None),
+                                            ('operand2Value', 1, None), ('courseID', current_course, None),]
+
+                condition = create_model_instance(Conditions, condition_fields_to_save)
+                condition.save()
+
+                rule_fields_to_save = [('courseID', current_course, None), ('conditionID', condition, None), 
+                                        ('actionID', Action.decreaseVirtualCurrency, None),]
+
+                rule = create_model_instance(Rules, rule_fields_to_save)
+                rule.save()
+
+                # Create rule event
+                rule_event_fields_to_save = [('rule', rule, None), ('event', Event.spendingVirtualCurrency, None),]
+                rule_event = create_model_instance(RuleEvents, rule_event_fields_to_save)
+                rule_event.save()
+
+                # Set the vc rule to include new rule
+                vc_rule = create_model_instance(vc_rule, [('ruleID', rule, None)], modify=True)
+                vc_rule.save()
+
+                # Create action argument for vc rule
+                action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', rule_json['vcRuleAmount'], str),]
+                
+                action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
+                action_argument.save()
+
+            else:
+                # vc rule is manual
+                vc_rule.save()
+
+def import_leaderboards_from_json(leaderboards_jsons, current_course, id_map=None, messages=[]):
+    ''' Converts a leaderboard to model '''
+
+    if leaderboards_jsons:
+        for leaderboard_json in leaderboards_jsons:
+
+            # Create the leaderboard model instance
+            leaderboard_fields_to_save = [('leaderboardName', leaderboard_json['leaderboardName'], None), 
+                                        ('leaderboardDescription', leaderboard_json['leaderboardDescription'], None),
+                                        ('isContinous', leaderboard_json['isContinous'], None),
+                                        ('isXpLeaderboard', leaderboard_json['isXpLeaderboard'], None), 
+                                        ('numStudentsDisplayed', leaderboard_json['numStudentsDisplayed'], None),
+                                        ('periodicVariable', leaderboard_json['periodicVariable'], None), 
+                                        ('timePeriodUpdateInterval', leaderboard_json['timePeriodUpdateInterval'], None), 
+                                        ('displayOnCourseHomePage', leaderboard_json['displayOnCourseHomePage'], None), 
+                                        ('howFarBack', leaderboard_json['howFarBack'], None),
+                                        ('lastModified', utcDate(), None),
+                                        ('courseID', current_course, None),]
+
+            leaderboard = create_model_instance(LeaderboardsConfig, leaderboard_fields_to_save)
+            leaderboard.save()
+
+            # Create periodic task for leaderboard
+            leaderboard = create_model_instance(leaderboard, [('periodicTask', setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None), None),], modify=True)
+            leaderboard.save()
+
+def import_content_unlocking_rules_from_json(content_unlocking_rules_jsons, current_course, id_map=None, messages=[]):
+    ''' Converts a content unlocking rule to model '''
+
+    if content_unlocking_rules_jsons:
+        for content_unlocking_rule_json in content_unlocking_rules_jsons:
+
+            # Create the badge model instance for type
+            content_unlocking_rule_fields_to_save = [('name', content_unlocking_rule_json['name'], None), 
+                                                    ('description', content_unlocking_rule_json['description'], None), 
+                                                    ('objectID', content_unlocking_rule_json['objectID'], None), 
+                                                    ('objectType', content_unlocking_rule_json['objectType'], None),
+                                                    ('courseID', current_course, None),]
+
+            content_unlocking_rule = create_model_instance(ProgressiveUnlocking, content_unlocking_rule_fields_to_save)
+
+            rule_json = content_unlocking_rule_json['rule']
+
+            # Create the rule
+            rule = import_rule_json(rule_json, current_course, id_map=id_map, messages=messages)
+
+            # Failed to create rule so don't create the content unlocking rule (error is shown in import_rule_json)
+            if rule is None:
+                continue
+
+            rule.save()
+
+            # Set the content unlocking rule to include new rule
+            content_unlocking_rule = create_model_instance(content_unlocking_rule, [('ruleID', rule, None)], modify=True)
+            content_unlocking_rule.save()
+
+            # Create action argument for content unlocking rule
+            action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', content_unlocking_rule.pk, str),]
+            
+            action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
+            action_argument.save() 
+
+            # Make Student objects for the content unlocking rule
+            students_registered_courses = StudentRegisteredCourses.objects.filter(courseID=current_course)
+            for students_registered_course in students_registered_courses:
+                
+                student_content_unlocking_fields_to_save = [('studentID', students_registered_course.studentID, None), ('pUnlockingRuleID', content_unlocking_rule, None), 
+                                                            ('courseID', current_course, None), ('objectID', content_unlocking_rule_json['objectID'], None),
+                                                            ('objectType', content_unlocking_rule_json['objectType'], None),]
+
+                student_content_unlocking =  create_model_instance(StudentProgressiveUnlocking, student_content_unlocking_fields_to_save)
+                student_content_unlocking.save()
+
+def import_streaks_from_json(streaks_jsons, current_course, id_map=None, messages=[]):
+    ''' Converts a streak (AttendanceStreakConfiguration) to model '''
+
+    if streaks_jsons:
+        for streak_json in streaks_jsons:
+            
+            # Create the streak model instance
+            streaks_fields_to_save = [('daysofClass', streak_json['daysofClass'], None), 
+                                    ('daysDeselected', streak_json['daysDeselected'], None),
+                                    ('courseID', current_course, None),]
+            
+            streak = create_model_instance(AttendanceStreakConfiguration, streaks_fields_to_save)
+            streak.save()
