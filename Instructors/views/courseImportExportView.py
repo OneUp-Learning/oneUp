@@ -1082,7 +1082,6 @@ def importCourse(request):
         return render(request,'Instructors/CourseImport.html', context_dict)
     
     if request.method == 'POST':
-        print(request.FILES)
         if 'course' in request.FILES:
             response = {}
 
@@ -1168,7 +1167,6 @@ def importCourse(request):
                 if 'streaks' in root_json:
                     import_streaks_from_json(root_json['streaks'], current_course, id_map=id_map, messages=messages)                    
                 
-                print(id_map)
             else:
                 messages.append({'type': 'error', 'message': 'File: {} is empty or cannot be read'.format(uploaded_file.uploadedFile.name)})
 
