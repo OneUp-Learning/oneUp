@@ -4,10 +4,79 @@
 
 {% include 'scripts.html' %}
 
+<style>
+.loader {
+    left: 50%;
+	top: 50%;
+	z-index: 4;
+    position: fixed;
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%); }
+    .loader #spinner {
+      box-sizing: border-box;
+      stroke: #3f51b5;
+      stroke-width: 3px;
+      -webkit-transform-origin: 50%;
+              transform-origin: 50%;
+      -webkit-animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite;
+              animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite; }
+  
+  @-webkit-keyframes rotate {
+    from {
+      -webkit-transform: rotate(0);
+              transform: rotate(0); }
+    to {
+      -webkit-transform: rotate(450deg);
+              transform: rotate(450deg); } }
+  
+  @keyframes rotate {
+    from {
+      -webkit-transform: rotate(0);
+              transform: rotate(0); }
+    to {
+      -webkit-transform: rotate(450deg);
+              transform: rotate(450deg); } }
+  
+  @-webkit-keyframes line {
+    0% {
+      stroke-dasharray: 2, 85.964;
+      -webkit-transform: rotate(0);
+              transform: rotate(0); }
+    50% {
+      stroke-dasharray: 65.973, 21.9911;
+      stroke-dashoffset: 0; }
+    100% {
+      stroke-dasharray: 2, 85.964;
+      stroke-dashoffset: -65.973;
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg); } }
+  
+  @keyframes line {
+    0% {
+      stroke-dasharray: 2, 85.964;
+      -webkit-transform: rotate(0);
+              transform: rotate(0); }
+    50% {
+      stroke-dasharray: 65.973, 21.9911;
+      stroke-dashoffset: 0; }
+    100% {
+      stroke-dasharray: 2, 85.964;
+      stroke-dashoffset: -65.973;
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg); } }
+
+</style>
 </head>
 <body>
 		{% include 'heading.html' %}
 	<main>
+		<div id="loader-container">
+			<div class="loader">
+				<svg viewBox="0 0 32 32" width="32" height="32">
+					<circle id="spinner" cx="16" cy="16" r="14" fill="none"></circle>
+				</svg>
+			</div>
+		</div>
 		<div class="row center-align">
 					<div class="col s12">
 						<h3>Import Course</h3>
@@ -52,6 +121,7 @@
 	  </div>
 		<script>
 			$(document).ready(function(){
+				$('#loader-container').hide();
 				$('#messages-modal').modal({
 						complete: function() { location.reload(); } // Callback for Modal close
 					}
@@ -88,44 +158,50 @@
 			});
 
 			function importCourse() {
-					$.ajax({
-							type: "POST",
-							url: "/oneUp/instructors/importCourse",
-							data: $("#import-course").serialize(),
-							success: function (response) {                     
-								 // Unbind all event listeners in case the user decides to fix errors/warnings
-								 // and export again
-								 $("#close-messages").unbind();
-								 // Set onclick listener for the continue button in the popup
-								 $("#close-messages").click(function(){location.reload();});
+				$('#loader-container').show();
+				var import_complete = function(){$('#loader-container').hide();};
+				$.ajax({
+					type: "POST",
+					url: "/oneUp/instructors/importCourse",
+					data: new FormData($("#import-course")[0]),
+					contentType: false,
+					processData:false,
+					success: function (response) {    
+						import_complete();                 
+						// Unbind all event listeners in case the user decides to fix errors/warnings
+						// and export again
+						$("#close-messages").unbind();
+						// Set onclick listener for the continue button in the popup
+						$("#close-messages").click(function(){location.reload();});
 
-								 let messages = response['messages'];
-								 
-								 // If there are no warning or error messages just go ahead and export the course json
-								 if (messages.length == 0){
-									  $("#close-messages").click();
-									  return;
-								 }
-							
-								 let messages_container = $("#messages");
-								 messages_container.empty();
+						let messages = response['messages'];
+						
+						// If there are no warning or error messages just go ahead and export the course json
+						if (messages.length == 0){
+							$("#close-messages").click();
+							return;
+						}
+				
+						let messages_container = $("#messages");
+						messages_container.empty();
 
-								 // Add the errors/warnings messages to messages container
-								 for(var index = 0; index < messages.length; index++){
-									  let message = messages[index];
-									  if(message['type'] == 'warn'){
-											messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: orange;' class='material-icons'>warning</i></div> "+ message['message'] +"</div></li>")
-									  } else if(message['type'] == 'info'){
-											messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: #00bcd4;' class='material-icons'>info</i></div> "+ message['message'] +"</div></li>")
-									  } else if (message['type'] == 'error'){
-											messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: firebrick;' class='material-icons'>error</i></div> "+ message['message'] +"</div></li>")
-									  }
-								 }
-								 // Show the messages
-								 $('#messages-modal').modal('open');
+						// Add the errors/warnings messages to messages container
+						for(var index = 0; index < messages.length; index++){
+							let message = messages[index];
+							if(message['type'] == 'warn'){
+								messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: orange;' class='material-icons'>warning</i></div> "+ message['message'] +"</div></li>")
+							} else if(message['type'] == 'info'){
+								messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: #00bcd4;' class='material-icons'>info</i></div> "+ message['message'] +"</div></li>")
+							} else if (message['type'] == 'error'){
+								messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: firebrick;' class='material-icons'>error</i></div> "+ message['message'] +"</div></li>")
 							}
-					});
-					return false;
+						}
+						// Show the messages
+						$('#messages-modal').modal('open');
+					}
+				});
+
+				return false;
 			}
 	  </script>
 	</main>

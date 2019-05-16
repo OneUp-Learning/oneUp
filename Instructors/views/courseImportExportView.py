@@ -24,7 +24,7 @@ from Badges.enums import AwardFrequency, ObjectTypes, OperandTypes, Event, Actio
 from Instructors.questionTypes import QuestionTypes
 
 from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields, operand_types_to_char, get_events_for_condition
-from Badges.periodicVariables import setup_periodic_badge, setup_periodic_vc
+from Badges.periodicVariables import setup_periodic_badge, setup_periodic_vc, setup_periodic_leaderboard
 from Instructors.views.utils import initialContextDict, utcDate
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity
 
@@ -1082,6 +1082,7 @@ def importCourse(request):
         return render(request,'Instructors/CourseImport.html', context_dict)
     
     if request.method == 'POST':
+        print(request.FILES)
         if 'course' in request.FILES:
             response = {}
 
@@ -1105,7 +1106,15 @@ def importCourse(request):
 
             if root_json:
 
-                id_map = initialize_id_map()
+                id_map = initialize_id_map(root_json)
+
+                if 'activities' in root_json:
+                    # Notify user about fields not being exported 
+                    messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date fields was not set after importing'})
+
+                if 'serious-challenges' in root_json or 'warmup-challenges' in root_json:
+                    # Notify user about field export decisions
+                    messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
                 
                 if 'topics' in root_json:
                     import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
@@ -1177,7 +1186,7 @@ def importCourse(request):
 
             return JsonResponse(response)
     
-    return JsonResponse({'messages': [{'type': 'error', 'message': 'Error in importing course request'}]})      
+    return JsonResponse({'messages': [{'type': 'error', 'message': 'Error in the request for importing a course'}]})      
 
 def initialize_id_map(root_json):
     ''' Sets up the id mapping for conditions, challenges, etc. '''
@@ -1399,8 +1408,7 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                     pass
             else:
                 # Assigned this challenge the default unspecified topic
-
-                course_topic = CoursesTopics().objects.get(courseID=current_course, topicID__topicName=unspecified_topic_name)
+                course_topic = CoursesTopics.objects.get(courseID=current_course, topicID__topicName=unspecified_topic_name)
                 
                 if not course_topic:
                     messages.append({'type': 'error', 'message': 'Your Course does not have a unspecified topic. Challenges will not include this topic'})
@@ -1583,9 +1591,9 @@ def update_object_specifier_json(object_specifier_json, object_type, id_map=None
         # Return replaced old ids with new list of ids that were mapped
         return mapped_object_ids
 
-
+    # Object specifier is [] or None
     if not object_specifier_json:
-        return None
+        return object_specifier_json
 
     if object_type == ObjectTypes.none:
         pass
@@ -1752,7 +1760,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                 operand_2_value = string_constant.stringID
             elif operand_2_type == "Y":
                 # Date Constant
-                date_constant = craete_model_instance(Dates, [('dateValue', utcDate(value_to_save, '%Y-%M-%d').date(), None),])
+                date_constant = create_model_instance(Dates, [('dateValue', utcDate(value_to_save, '%Y-%M-%d').date(), None),])
                 date_constant.save()
                 operand_2_value = date_constant.dateID
             
@@ -1902,6 +1910,7 @@ def import_rule_json(rule_json, current_course, id_map=None, messages=[]):
                                 ('objectSpecifier', object_specifier, None), ('awardFrequency', rule_json['awardFrequency'], None),]
 
         rule = create_model_instance(Rules, rule_fields_to_save)
+        rule.save()
 
         # Create rule events
         events = get_events_for_condition(condition, object_type)
@@ -1946,8 +1955,6 @@ def import_badges_from_json(badges_jsons, badge_type, current_course, context_di
                 # Failed to create rule so don't create the badge (error is shown in import_rule_json)
                 if rule is None:
                     continue
-
-                rule.save()
 
                 # Set the badge rule
                 badge = create_model_instance(badge, [('ruleID', rule, None)], modify=True)
@@ -2017,8 +2024,6 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
                 if rule is None:
                     continue
 
-                rule.save()
-
                 # Set the vc rule to include new rule
                 vc_rule = create_model_instance(vc_rule, [('ruleID', rule, None)], modify=True)
                 vc_rule.save()
@@ -2033,20 +2038,20 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
 
             elif vc_rule_type == 'periodic':
                 # Add the periodic fields to vc rule
-                periodic_vc_rule_fields_to_update = [('periodicVariableID', rule_json['periodicVariableID'], None), ('timePeriodID', rule_json['timePeriodID'], None),
-                                                ('periodicType', rule_json['periodicType'], None), ('numberOfAwards', rule_json['numberOfAwards'], None), 
-                                                ('threshold', rule_json['threshold'], None), ('operatorType', rule_json['operatorType'], None),
-                                                ('isRandom', rule_json['isRandom'], None), ('resetStreak', rule_json['resetStreak'], None),
+                periodic_vc_rule_fields_to_update = [('periodicVariableID', vc_rule_json['periodicVariableID'], None), ('timePeriodID', vc_rule_json['timePeriodID'], None),
+                                                ('periodicType', vc_rule_json['periodicType'], None), ('numberOfAwards', vc_rule_json['numberOfAwards'], None), 
+                                                ('threshold', vc_rule_json['threshold'], None), ('operatorType', vc_rule_json['operatorType'], None),
+                                                ('isRandom', vc_rule_json['isRandom'], None), ('resetStreak', vc_rule_json['resetStreak'], None),
                                                 ('lastModified', utcDate(), None),]
                 
                 vc_rule = create_model_instance(vc_rule, periodic_vc_rule_fields_to_update, modify=True)
                 vc_rule.save()
                 
                 # Create the periodic task 
-                if rule_json['periodicType'] == 0:
+                if vc_rule_json['periodicType'] == 0:
                     # TopN
                     vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), number_of_top_students=int(vc_rule.numberOfAwards), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType), None),], modify=True)
-                elif rule_json['periodicType'] == 2:
+                elif vc_rule_json['periodicType'] == 2:
                     # Random
                     vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType, is_random=vc_rule.isRandom), None),], modify=True)
                 else:
@@ -2079,7 +2084,7 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
                 vc_rule.save()
 
                 # Create action argument for vc rule
-                action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', rule_json['vcRuleAmount'], str),]
+                action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', vc_rule_json['vcRuleAmount'], str),]
                 
                 action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
                 action_argument.save()
@@ -2137,8 +2142,6 @@ def import_content_unlocking_rules_from_json(content_unlocking_rules_jsons, curr
             # Failed to create rule so don't create the content unlocking rule (error is shown in import_rule_json)
             if rule is None:
                 continue
-
-            rule.save()
 
             # Set the content unlocking rule to include new rule
             content_unlocking_rule = create_model_instance(content_unlocking_rule, [('ruleID', rule, None)], modify=True)
