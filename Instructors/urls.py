@@ -30,6 +30,8 @@ from Instructors.views.debugSysVars import getObjsForSysVar
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
 
+from Instructors.views.courseImportExportView import exportCourse, validateCourseExport, importCourse
+
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.createStudentListView import createStudentListView
@@ -122,6 +124,9 @@ urlpatterns = [
         name='classAchievementsViz'),
     url(r'^classAchievements', classAchievements, name='classAchievements'),
     url(r'^createActivity', activityCreateView, name='activityCreateView'),
+    url(r'^exportCourse', exportCourse, name='exportCourse'),
+    url(r'^validateCourseExport', validateCourseExport, name='validateCourseExport'),
+    url(r'^importCourse', importCourse, name='importCourse'),
     url(r'^courseInformation', courseInformation, name='courseInformation'),
     url(r'^createMilestone', milestoneCreateView, name='milestoneCreateView'),
     url(r'^createStudentList', createStudentListView,

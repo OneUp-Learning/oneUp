@@ -71,30 +71,27 @@
 			                <td>{{points}} Points</td>
 			                <td>
 			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-			                    data-beloworigin="true" data-activates='activity{{i}}' data-position="right" data-delay="50"
+			                    data-beloworigin="true" data-activates='activity{{activity_ID}}' data-position="right" data-delay="50"
 			                    data-tooltip="Options"><i class="material-icons">more_vert</i></a>
-			                  <form action="/oneUp/instructors/deleteActivity" method="POST">
-			                    {% csrf_token %}
-			                    <input type="hidden" name="activityID" value="{{activity_ID}}">
-			                    <ul id='activity{{i}}' class='dropdown-content'>
+			                    
+			                    <ul id='activity{{activity_ID}}' class='dropdown-content'>
 			                      <li><a href="/oneUp/instructors/createActivity?activityID={{activity_ID}}"><i class="material-icons">edit</i>Edit</a></li>
 			                      <li><a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activity_ID}}"><i class="material-icons">playlist_add</i>Assign
 			                          Points</a></li>
 			                      <li class="divider"></li>
-			                      <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+			                      <li><a class="modal-trigger" href="#modal_delete{{activity_ID}}">Delete</a></li>
 			                    </ul>
-			                    <div id="modal_delete{{i}}" class="modal">
+			                    <div id="modal_delete{{activity_ID}}" class="modal">
 			                      <div class="modal-content">
 			                        <h5>Are you sure you want to delete?</h5>
 			                      </div>
 			                      <div class="modal-footer">
 			                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-			                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
+			                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="button" onclick="deleteActivity('{{activity_ID}}')"
 			                          value="Delete">Delete
 			                        </button>
 			                      </div>
 			                    </div>
-			                  </form>
 			                </td>
 			              </tr>
 			              
@@ -122,5 +119,48 @@
   </main>
   {% include 'footer.html' %}
 </body>
-
+<script>
+    function deleteActivity(activity_id) {
+      function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+  
+      function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
+  
+      var csrftoken = getCookie('csrftoken');
+      $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+          if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        }
+      });
+      $.ajax({
+        type: "POST",
+        url: "/oneUp/instructors/deleteActivity",
+        data: {
+          'activityID': activity_id // from form
+        },
+        success: function () {
+          console.log("Deleted");
+          location.reload();
+        }
+      });
+    }
+  </script>
 </html>
