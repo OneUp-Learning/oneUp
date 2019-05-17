@@ -57,10 +57,10 @@ def imageList(request):
     images = UploadedImages.objects.filter(imageCreator=request.user)
 
     for im in images: 
-        path = os.path.join('../../media/images/uploadedInstructorImages/', im.imageFileName)          
+        path = im.imageFile.url        
         image.append(path)
         imageID.append(im.imageID)
-        imageFilePath.append('/media/images/uploadedInstructorImages/' + im.imageFileName)
+        imageFilePath.append(im.imageFile)
         imageDescription.append(im.imageDescription)
         
     context_dict['image_range'] = zip(range(1,images.count()+1),image,imageID,imageFilePath,imageDescription)

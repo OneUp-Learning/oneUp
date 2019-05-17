@@ -315,8 +315,7 @@ def imageUploadPath(instance,filename):
 class UploadedImages(models.Model):
     imageID = models.AutoField(primary_key=True)
     # image = models.ImageField(upload_to = 'images/uploadedInstructorImages', default = 'images/uploadedInstructorImages')
-    imageFile = models.FileField(max_length=500, upload_to= imageUploadPath)
-    imageFileName = models.CharField(max_length=200, default='')
+    imageFile = models.FileField(max_length=500, upload_to= 'images/uploadedInstructorImages')
     imageDescription = models.CharField(max_length=200, default='')
     imageCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
     def __str__(self):              

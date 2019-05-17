@@ -41,8 +41,7 @@ class Student(models.Model):
         return str(self.user.username)
   
 def avatarImageUploadLocation(instance,filename):
-    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
-                                ''),filename)
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), ''),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
