@@ -135,7 +135,7 @@ def importStudents(request):
             if 'email_domain_name' in request.POST:
                 email_domain = request.POST['email_domain_name']
                 #this strips out leading at sign,because its predicted someone somewhere will enter @email domain
-                email_domain = email_domain.replace('^@', '')
+                email_domain = email_domain.replace('@', '')
 
             if file_type_number == 0:
                 for student_data in students:
