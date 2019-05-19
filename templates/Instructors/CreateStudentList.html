@@ -9,20 +9,6 @@
                alert("Please choose a file.");
                return false;
             }
-
-            if (document.getElementById("email_domain_name").value == ""){
-               alert("Please enter the email domain. Example: rams.wssu.edu")
-               return false;
-            }
-            if(document.getElementById("type_checkbox").checked){
-               //1 OneUp csv
-               console.log("1");
-               document.getElementById("file_number").value = 1;
-            }else{
-               //0 canvas CSV
-               console.log("0");
-               document.getElementById("file_number").value = 0;
-            }
                     
          }
          
@@ -59,14 +45,13 @@
                            <input id='email_domain_name' name='email_domain_name' type='text' class='validate'required>
                            <label for='email_domain_name' >School Email Domain (The part after the @)</label>
                         </div>
-                        <div class="switch">
-                              <label>
-                                Canvas CSV
-                                <input id="type_checkbox" type="checkbox">
-                                <span class="lever"></span>
-                                OneUp CSV
-                              </label>
-                            </div>
+                        <div class="input-field col s3">
+                              <select id="file_type" name="file_number">
+                                 {% for i, csv_type in file_types %}
+                                 <option value="{{i}}">File Type: {{csv_type.display_name}}</option>
+                                 {% endfor %}
+                              </select>
+                           </div>
                         </div>
                      <button class="btn waves-effect waves-light" type="submit" id="Upload" name="upload" value="Import">Import
                      <i class="material-icons right">file_upload</i>

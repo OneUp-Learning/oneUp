@@ -15,7 +15,7 @@ from oneUp.decorators import instructorsCheck
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def createStudentListView(request):
-
+    print("CSV.canvas", CSV.information[CSV.canvas]['display_name'])
     context_dict, currentCourse = initialContextDict(request)
     
     userID = []
@@ -49,6 +49,20 @@ def createStudentListView(request):
                
     # The range part is the index numbers.
     context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Action, user_Avatar)), key=lambda tup: tup[3])
-               
+    context_dict['file_types'] = CSV.information.items()
     return render(request,'Instructors/CreateStudentList.html', context_dict)
 
+            
+class CSV:
+    canvas = 0
+    oneUp = 1
+    information = {
+           canvas:{
+                'index': canvas,
+                'display_name': 'Canvas'
+                },
+            oneUp:{
+                'index': oneUp,
+                'display_name': 'OneUp'
+                }
+    }

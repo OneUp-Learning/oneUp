@@ -14,7 +14,7 @@ from Students.models import Student, StudentRegisteredCourses, StudentConfigPara
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck  
 
-import logging, random
+import logging, random, secrets
 logger = logging.getLogger(__name__)
 
 def generate_secure_password():
@@ -23,10 +23,10 @@ def generate_secure_password():
     token = token.replace('(i|l|1|L|o|0|O)', '')
 
     #if it has failed with length, make a new password until we reach 16
-    while(token.len < 10):
+    while(len(token)< 10):
         token = secrets.token_urlsafe(16)
         token = token.replace('(i|l|1|L|o|0|O)', '')
-    return data
+    return token
 def process_file(file_name, file_type_number):
     ##file type 0 is canvas, it is the default
     ##file type 1 is our OneUp csv files
