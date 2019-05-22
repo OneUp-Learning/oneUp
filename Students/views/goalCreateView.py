@@ -45,7 +45,9 @@ def goalCreate(request):
         goal.timestamp = utcDate()
         
           
-        goal.progressToGoal = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)    
+        goal.progressToGoal = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)  
+
+        goal.recurringGoal = "recurringGoal" in request.POST 
         
         goal.save();  #Writes to database.    
                 

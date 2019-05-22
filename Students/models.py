@@ -151,9 +151,10 @@ class StudentGoalSetting(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
     progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
+    recurringGoal = models.BooleanField(default=True)
 
     def __str__(self):              
-        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
