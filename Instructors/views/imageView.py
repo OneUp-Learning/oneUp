@@ -18,13 +18,11 @@ from oneUp.decorators import instructorsCheck
 def imageUpload(request):
     context_dict, currentCourse = initialContextDict(request)
         
-    if request.POST and len(request.FILES) != 0:        
+    if request.POST and len(request.FILES) != 0:  
+        ##imageFile.name is the name of the file, we do not need a special field      
         imageFile = request.FILES['imagefile']
-        imageFileName = os.path.basename(imageFile.name)
-        
         imageObject = UploadedImages() 
         imageObject.imageFile = imageFile
-        imageObject.imageFileName = imageFileName
         imageObject.imageDescription = request.POST['description']
         imageObject.imageCreator = request.user
         imageObject.save()
@@ -57,10 +55,11 @@ def imageList(request):
     images = UploadedImages.objects.filter(imageCreator=request.user)
 
     for im in images: 
-        path = os.path.join('../../media/images/uploadedInstructorImages/', im.imageFileName)          
+        ##imageFile.name is the name of the file, we do not need a special field
+        path = im.imageFile.url        
         image.append(path)
         imageID.append(im.imageID)
-        imageFilePath.append('/media/images/uploadedInstructorImages/' + im.imageFileName)
+        imageFilePath.append(im.imageFile)
         imageDescription.append(im.imageDescription)
         
     context_dict['image_range'] = zip(range(1,images.count()+1),image,imageID,imageFilePath,imageDescription)

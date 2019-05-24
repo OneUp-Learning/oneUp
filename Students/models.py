@@ -41,8 +41,7 @@ class Student(models.Model):
         return str(self.user.username)
   
 def avatarImageUploadLocation(instance,filename):
-    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
-                                ''),filename)
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), ''),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
@@ -253,7 +252,7 @@ class StudentConfigParams(models.Model):
     participateInDuel = models.BooleanField(default=True)
     participateInCallout = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
-    
+    displayGoal = models.BooleanField(default=True)
     def __str__(self):
         return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +",displayBadges:"+str(self.displayBadges) +",displayLeaderboard:"+str(self.displayLeaderBoard) +",displayClassSkills"+str(self.displayClassSkills) +",displayClassAverage:"+str(self.displayClassAverage) +",displayClassRanking:"+str(self.displayClassRanking) +",displayGoal:"+str(self.displayGoal)+",participateInDuel:"+str(self.participateInDuel)+",courseBucks:"+str(self.courseBucks)   
 

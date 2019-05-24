@@ -881,6 +881,58 @@ def getNumberOfDuelsWon(course, student):
     wins = len(Winners.objects.filter(studentID=student, courseID=course))
     return wins
 
+def getNumberOfDuelsLost(course, student):
+    ''' This will return the number of duel lost the student has for every duel 
+        in the course
+    '''
+    from Students.models import DuelChallenges
+    from Students.models import Winners
+
+    duel_challenges = DuelChallenges.objects.filter(challenger=student, courseID=course)
+    duel_wins = Winners.objects.filter(studentID=student, courseID=course)
+    
+    count = 0
+    for duel_win in duel_wins:
+        if duel_win.DuelChallengeID in duel_challenges:
+            count += 1
+
+    return count
+
+def getNumberOfCalloutSent(course, student):
+    ''' This will return the number of call outs sent by a student regardless of weather sender won or not
+    '''
+    from Students.models import Callouts
+    sent = len(Callouts.objects.filter(sender=student, courseID=course))
+    return sent
+
+def getNumberOfCalloutParticipate(course, student):
+    ''' This will return the number of call outs a student has participated in sent by any other
+        student regardless of weather participant won or not.
+    '''
+    from Students.models import CalloutStats
+    return len(CalloutStats.objects.filter(studentID=student, courseID=course))
+
+def getNumberOfCalloutRequested(course, student):
+    ''' This will return the number of call outs a student has been requested, sent by any other
+        student regardless of weather participant won or not.
+    '''
+    from Students.models import CalloutParticipants
+    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course))
+    
+def getNumberOfCalloutParticipationWon(course, student):
+    ''' This will return the number of wins the student has earned for every requested call out 
+        in the course 
+    '''
+    from Students.models import CalloutParticipants
+    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course, hasWon=True))
+
+def getNumberOfCalloutParticipationLost(course, student):
+    ''' This will return the number of lost the student has for every requested call out 
+        in the course 
+    '''
+    from Students.models import CalloutParticipants
+    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course, hasWon=False, hasSubmitted=True))
+
 def getNumberOfUniqueSeriousChallengesAttempted(course, student):
     ''' Get the number of unique serious challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=True)
@@ -1032,6 +1084,13 @@ class SystemVariable():
     duelsSent = 951 # Returns the number of duels a student has sent (completed duels only)
     duelsAccepted = 952 # Returns the number of duels a student has accepted (completed duels only)
     duelsWon = 953 # Returns the number of duels a student has won
+    duelsLost = 954 # Returns the number of duels a student has lost
+    calloutSent = 955 # Returns the number of callout a student has sent
+    calloutParticipate = 956 # Returns the number of callout a student has participated in 
+    calloutParticipationWon = 957 # Returns the number of callout a student has participated in and won
+    calloutParticipationLost = 958 # Returns the number of callout a student has participated in and lost
+    calloutRequested = 959 #
+
 
     systemVariables = {
         score:{
@@ -1581,7 +1640,7 @@ class SystemVariable():
             'index': duelsSent,
             'name':'duelsSent',
             'displayName':'# of Duels Sent',
-            'description':'The total number a student has sent duels to other students',
+            'description':'The total number of duels a student has sent to other students',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.duelSent],
             },
@@ -1594,7 +1653,7 @@ class SystemVariable():
             'index': duelsAccepted,
             'name':'duelsAccepted',
             'displayName':'# of Duels Accepted',
-            'description':'The total number a student has accepted duels from other students',
+            'description':'The total number of duels a student has accepted from other students',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.duelAccepted],  
             },
@@ -1607,7 +1666,7 @@ class SystemVariable():
             'index': duelsWon,
             'name':'duelsWon',
             'displayName':'# of Duels Won',
-            'description':'The total number a student has won duels',
+            'description':'The total number of duels a student has won',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.duelWon],
             },
@@ -1615,7 +1674,85 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsWon
             },
-        },                                                        
+        },       
+        duelsLost:{
+            'index': duelsLost,
+            'name':'duelsLost',
+            'displayName':'# of Duels Lost',
+            'description':'The total number of duels a student has lost',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.duelLost],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfDuelsWon
+            },
+        },   
+        calloutSent:{
+            'index': calloutSent,
+            'name':'calloutSent',
+            'displayName':'# of Call Out Sent',
+            'description':'The total number of call out a student has sent to other students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutSent],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutSent
+            },
+        },  
+        calloutParticipate:{
+            'index': calloutParticipate,
+            'name':'calloutParticipate',
+            'displayName':'# of Call Out Participation',
+            'description':'The total number of call out a student has participated in weather they won or not',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutWon, Event.calloutLost],  
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutParticipate
+            },
+        },     
+        calloutParticipationWon:{
+            'index': calloutParticipationWon,
+            'name':'calloutParticipationWon',
+            'displayName':'# of Call Out a participant has won',
+            'description':'The total number of call out a student has won',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutWon],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutParticipationWon
+            },
+        },    
+        calloutParticipationLost:{
+            'index': calloutParticipationLost,
+            'name':'calloutParticipationLost',
+            'displayName':'# of Call Out a participant has lost',
+            'description':'The total number of call out a student has lost',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutLost],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutParticipationLost
+            },
+        },   
+        calloutRequested:{
+            'index': calloutRequested,
+            'name':'calloutRequested',
+            'displayName':'# of Call Out a participant has been reqeusted',
+            'description':'The total number of call out a student has been requested',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutRequested],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutRequested
+            },
+        },                                                                  
     }
 
 if __debug__:

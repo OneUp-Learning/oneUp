@@ -29,6 +29,7 @@ def addStudentListView(request):
     
     if 'partial_name' in request.GET:
         partial_name = request.GET['partial_name']
+        print("partialname entered", partial_name)
     
         # Note if union is used instead of |, order_by fails due to bug in Django.
         students = students.filter(Q(user__last_name__icontains=partial_name) | Q(user__first_name__icontains=partial_name) | Q(user__email__icontains=partial_name) | Q(user__username__icontains=partial_name))

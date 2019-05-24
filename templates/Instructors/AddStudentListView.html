@@ -3,6 +3,14 @@
    <head>
       {% include 'scripts.html' %}
    </head>
+   <script>
+      function perform_name_search(){
+      	console.log("name search active name_search");
+			var searchObj = document.getElementById("search");
+			searchObj.submit();
+      }
+      
+   </script>
    <body>
       {% include 'heading.html' %}
       <main>
@@ -13,56 +21,75 @@
          </div>
          <div class="row">
             <div class="col s12 m10 offset-m1">
+               <form id="search" name="search" action="/oneUp/instructors/addStudentListView" method="GET">
+						{% csrf_token %}
+						<div class="card-panel">
+                     <div class="row">
+                        <div class="input-field col s12 m12">
+                           <input id="name" type="text" name="partial_name" class="validate">
+									<label for="name">Enter first name, last name, email, or username to search</label>
+									<div class="card-action right-align">
+											<button class="waves-effect waves-light btn" onclick="perform_name_search();" type="button" id="name_search"><i class="material-icons left">search</i>Search</button>
+									</div>
+                        </div>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
                <div class="card-panel">
                   <table>
-                      <form action="addExistingStudent" method="POST" id="addForm"> {% csrf_token %}
-	                     <thead>
-	                        <tr>
-	                           <th>&nbsp;</th>
-	                           <th>First Name</th>
-	                           <th>Last Name</th>
-	                           <th>Email</th>
-	                           <th>Username</th>
-	                        </tr>
-	                     </thead>
-	                     <tbody>
-	                        {% for student in students %}
-	                        <tr>
-	                           <td><input type="checkbox" name="{{usernameprefix}}{{student.user.username}}" id="{{student.user.username}}-box" /><label for="{{student.user.username}}-box"></label></td>
-	                           <td>{{student.user.first_name}}</td>
-	                           <td>{{student.user.last_name}}</td>
-	                           <td>{{student.user.email}}</td>
-	                           <td>{{student.user.username}}</td>
-	                        </tr>
-	                        {% empty %}
-	                        <tr>
-	                           <td class="center-align" colspan="5"><i>No Students</i></td>
-	                        </tr>
-	                        {% endfor %}
-	                        {% if hide_next_page == False %}
-	                        <tr>
-	                           <td class="left-align" colspan="5"><i>...</i></td>
-                            </tr>
-                            {% endif %}
-	                     </tbody>
-	                  </table>
-	                  <div class="row">
-	                      <div class="left">
-	                      {% if hide_prev_page %}
-	            		  	<button class="btn-flat waves-effect waves-teal disabled" type="button" disabled >Prev</button>
-	            		  {% else %}
-	            		  	<a href="?page={{page|add:-1}}"><button class="btn-flat waves-effect waves-teal" type="button">Prev</button></a>
-	            		  {% endif %}
-	            		  {% if hide_next_page %}
-	            		  	<button class="btn-flat waves-effect waves-teal disabled" type="button" disabled >Next</button>
-	            		  {% else %}
-	            		  	<a href="?page={{page|add:1}}"><button class="btn-flat waves-effect waves-teal" type="button">Next</button></a>
-	            		  {% endif %}	            		  </div>
-	            		  <div class="right">
-	            		  	    <button class="btn waves-effect waves-light" type="submit" name="add">Add to Class</button>
-	            		  </div>
-            		  </div>
-	               </form>
+                     <form action="addExistingStudent" method="POST" id="addForm">
+                        {% csrf_token %}
+                        <thead>
+                           <tr>
+                              <th>&nbsp;</th>
+                              <th>First Name</th>
+                              <th>Last Name</th>
+                              <th>Email</th>
+                              <th>Username</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for student in students %}
+                           <tr>
+                              <td><input type="checkbox" name="{{usernameprefix}}{{student.user.username}}" id="{{student.user.username}}-box" /><label for="{{student.user.username}}-box"></label></td>
+                              <td>{{student.user.first_name}}</td>
+                              <td>{{student.user.last_name}}</td>
+                              <td>{{student.user.email}}</td>
+                              <td>{{student.user.username}}</td>
+                           </tr>
+                           {% empty %}
+                           <tr>
+                              <td class="center-align" colspan="5"><i>No Students</i></td>
+                           </tr>
+                           {% endfor %}
+                           {% if hide_next_page == False %}
+                           <tr>
+                              <td class="left-align" colspan="5"><i>...</i></td>
+                           </tr>
+                           {% endif %}
+                        </tbody>
+                  </table>
+                  <div class="row">
+                  <div class="left">
+                  {% if hide_prev_page %}
+                  <button class="btn-flat waves-effect waves-teal disabled" type="button" disabled >Prev</button>
+                  {% else %}
+                  <a href="?page={{page|add:-1}}"><button class="btn-flat waves-effect waves-teal" type="button">Prev</button></a>
+                  {% endif %}
+                  {% if hide_next_page %}
+                  <button class="btn-flat waves-effect waves-teal disabled" type="button" disabled >Next</button>
+                  {% else %}
+                  <a href="?page={{page|add:1}}"><button class="btn-flat waves-effect waves-teal" type="button">Next</button></a>
+                  {% endif %}	            		  </div>
+                  <div class="right">
+                  <button class="btn waves-effect waves-light" type="submit" name="add">Add to Class</button>
+                  </div>
+                  </div>
+                  </form>
                </div>
             </div>
          </div>

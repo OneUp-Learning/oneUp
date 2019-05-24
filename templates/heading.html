@@ -268,6 +268,13 @@
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges</a></li>
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills</a></li>  
     </ul>
+    <ul id="import-export" class="dropdown-content">
+        <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
+        <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
+        <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
+        <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li>
+        <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>
+    </ul>
     <ul id="virtualcurrency" class="dropdown-content"> 
         <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
         <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false">Automatic Earning Rules</a></li>
@@ -311,7 +318,9 @@
                     {% endif %}
                     <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
-                    <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>                     
+                    <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>  
+                    <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li>
+                    <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>                      
                   	<li><a class="modal-trigger" href="#reset_test_student">Reset Test Student</a></li>                   	
                 </ul>
             </li>
@@ -427,9 +436,7 @@
                                 {% if ccparams.chatUsed %}
                                 <li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
                                 {% endif %}
-                                <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
-                                <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
-                                <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
+                                <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="import-export">Import/Export<i class="material-icons right">more_vert</i></a></li>                                    
                                 <li><a class="modal-trigger" href="#reset_test_student">Reset Test Student</a></li>
                             </ul>
                         </div>

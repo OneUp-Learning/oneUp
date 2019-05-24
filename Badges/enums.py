@@ -127,6 +127,7 @@ class Event():
     visitedBadgesInfoPage = 818  # Student visited the Badge info page
     visitedVCRulesInfoPage = 819  # Student visited the Virtual Currency Info info page
     visitedLeaderboardPage = 820 #Student visited leaderoard page
+    clickedViewAverageGrade = 821 #student clicked view average grade on student achivements
     
     extendDeadlineHW = 851 # Extend the deadline of an assignment
     extendDeadlineLab = 852 # Extend the deadline of an assignment       
@@ -318,6 +319,13 @@ class Event():
                         'name': 'visitedLeaderboardPage',
                         'displayName': 'Visited class leaderboard page',
                         'description': 'Student visited the class leaderboard page',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            clickedViewAverageGrade: {
+                        'index': clickedViewAverageGrade,
+                        'name': 'clickedViewAverageGrade',
+                        'displayName': 'Student clicked on display average grade button',
+                        'description': 'Student clicked on display average grade button',
                         'isVirtualCurrencySpendRule':False
                         },
              

@@ -64,10 +64,6 @@
 
                                 <div class="input-field col s16 m6" id="challenge_div" >
                                         <select name='challenge_id' id="challenge_id" required>
-                                          
-                                         {%if challenges|length > 1%}
-                                             <option disabled >Choose</option>
-                                          {%endif%}
 
                                           {% for challenge in challenges %}
                                                   
