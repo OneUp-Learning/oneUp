@@ -38,10 +38,12 @@
 	{% if graded or instructorview %}
 	    <div class="row">
 	       <div class="col s12">
-	          <h5>Correct Answer: </h5>
-	          <blockquote style="width: -webkit-fill-available;">
-						<div class="ck-view">{{q.correct_answer_text|safe}} </div>
-	          </blockquote>
+			  {% if showcorrect or instructorview %}
+		          <h5>Correct Answer: </h5>
+		          <blockquote style="width: -webkit-fill-available;">
+							<div class="ck-view">{{q.correct_answer_text|safe}} </div>
+		          </blockquote>
+		      {% endif %}
 	          {% if graded %}
 		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 		      {% endif %}
@@ -63,14 +65,16 @@
 	{% if graded or instructorview %}
 	    <div class="row">
 	       <div class="col s12">
-	          <h5>Correct Answer(s): </h5>
-	          <blockquote style="width: -webkit-fill-available;">
-					<div class="ck-view">
-	             {% for correct_answer_text in q.correct_answer_texts %}
-	             {{correct_answer_text|safe}} <br />
-					 {% endfor %}
-					</div>
-	          </blockquote>
+			  {% if showcorrect or instructorview %}
+		          <h5>Correct Answer(s): </h5>
+		          <blockquote style="width: -webkit-fill-available;">
+						<div class="ck-view">
+		             {% for correct_answer_text in q.correct_answer_texts %}
+		             {{correct_answer_text|safe}} <br />
+						 {% endfor %}
+						</div>
+		          </blockquote>
+	          {% endif %}
    	          {% if graded %}
 		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 		      {% endif %}
@@ -116,17 +120,19 @@
 	{% if graded or instructorview %}
 	    <div class="row">
 	      <div class="col s12">
-	         <h5>Correct Answer(s): </h5>
-	         <blockquote>
-	            <div style="column-count:2;">
-	               {% for match in q.matches %}
-	               <p>{{match.current_pos}} . {{match.answerText}}</p>
-	               {% endfor %}
-	               {% for match in q.matches %}
-	               <p>{{match.matchingAnswerText}}</p>
-	               {% endfor %}
-	            </div>
-	         </blockquote>
+	      	 {% if showcorrect or instructorview %}
+		         <h5>Correct Answer(s): </h5>
+		         <blockquote>
+		            <div style="column-count:2;">
+		               {% for match in q.matches %}
+		               <p>{{match.current_pos}} . {{match.answerText}}</p>
+		               {% endfor %}
+		               {% for match in q.matches %}
+		               <p>{{match.matchingAnswerText}}</p>
+		               {% endfor %}
+		            </div>
+		         </blockquote>
+		     {% endif %}
              {% if graded %}
 		         <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 		     {% endif %}
@@ -150,10 +156,12 @@
 	{% if graded or instructorview %}
 	    <div class="row">
 	    	<div class="col s12">
-	             <h5>Correct Answer: </h5>
-	             <blockquote>
-	                {{q.correctAnswerText}}
-	             </blockquote>
+	    		 {% if showcorrect or instructorview %}
+		             <h5>Correct Answer: </h5>
+		             <blockquote>
+		                {{q.correctAnswerText}}
+		             </blockquote>
+		         {% endif %}
 	             {% if graded %}
 		             <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 		         {% endif %}
@@ -196,6 +204,7 @@
 		              editor.setReadOnly(true);
 		           </script>
 	        	</div>
+	        	{% if showcorrect %}
 		        <div class="row">
 		           <div class="col s12">
 		              <h5>Example Correct  Solution:</h5>
@@ -212,6 +221,9 @@
 	           				</script>
 	           			</div>
             		</div>
+            	{% else %}
+            	<div class="row">
+            	{% endif %}
                     <div class="row">
                     	<div class = "col s12">
 	                   		<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
