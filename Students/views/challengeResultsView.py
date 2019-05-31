@@ -103,6 +103,7 @@ def ChallengeResults(request):
                 is_duel = False
                 is_call_out = False
                 context_dict['challengeName'] = challenge.challengeName
+                context_dict['showcorrect'] = challenge.displayCorrectAnswer
                 if 'duelID' in request.POST:
                     duel_id = request.POST['duelID']
                     is_duel = True
@@ -151,7 +152,7 @@ def ChallengeResults(request):
                 studentChallenge.endTimestamp = endTime
                 # initially its zero and updated after calculation at the end
                 studentChallenge.testScore = 0
-              #  studentChallenge.instructorFeedback = instructorFeedback
+                #studentChallenge.instructorFeedback = instructorFeedback
                 studentChallenge.save()
 
                 #print(studentChallenge.endTimestamp - studentChallenge.startTimestamp)
