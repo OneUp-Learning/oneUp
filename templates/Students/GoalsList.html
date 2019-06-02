@@ -44,13 +44,13 @@ by James Cherry -->
                         </tr>
                      </thead>
                      <tbody>
-                        {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}
+                        {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed, recurring_goal in goal_range %}
                         <tr>
                            <td>{{start_date}}</td>
                            <td>{{end_date}}</td>
                            <td>{{goal_Type}}</td>
                            <td>{{targeted_Number}}</td>
-                           <td>{{goal_progress}}%</td>                          
+                           <td>{{goal_progress}}%</td>   
                            <td>
                            		{% if goal_status == "Not Achieved" %}
                            		<font color="red">{{goal_status}}</font>
@@ -60,6 +60,7 @@ by James Cherry -->
                            		{{goal_status}}
                            		{% endif %}
                            </td>
+                           <td>{{recurring_goal}}</td>  
                            <td>
                               {% if not is_teacher %}
                               <form action="/oneUp/students/GoalDelete" method="POST">

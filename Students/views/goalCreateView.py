@@ -47,7 +47,7 @@ def goalCreate(request):
           
         goal.progressToGoal = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)  
 
-        goal.recurringGoal = "recurringGoal" in request.POST 
+        goal.recurringGoal = "recurringGoal" in request.POST
         
         goal.save();  #Writes to database.    
                 
@@ -66,6 +66,7 @@ def goalCreate(request):
                 context_dict['studentGoalID'] = request.GET['studentGoalID']
                 context_dict['goalType'] = genums[goal.goalType].get('displayName')
                 context_dict['targetedNumber'] = goal.targetedNumber
+                context_dict['recurringGoal'] = goal.recurringGoal
                                 
 
     return render(request,'Students/GoalsCreationForm.html', context_dict)
@@ -80,7 +81,6 @@ def goalProgressFxn(goalType, course, student):
     if goalType == str(Goal.warmup80):
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan80Percent(course, student)
     if goalType == str(Goal.warmup90):
-        print ("I ran 90")
         return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student)
     if goalType == str(Goal.streak10):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken30Percent(course, student, goalType)

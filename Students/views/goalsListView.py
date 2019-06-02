@@ -42,6 +42,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
     targeted_Number = []
     goal_progress = []
     goal_status = []
+    recurring_goal = []
         
     goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
     
@@ -53,7 +54,8 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             studentGoal_ID.append(goal.studentGoalID) #pk
             student_ID.append(goal.studentID)
             start_date.append(goal.timestamp.strftime('%m/%d/%y'))
-            course_ID.append(goal.courseID)            
+            course_ID.append(goal.courseID) 
+             
             # if default end date (= unlimited) is stored, we don't want to display it on the webpage  
             
             edit_allowed.append(editGoal(goal.timestamp))
@@ -74,13 +76,16 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             status = goalStatus(progressPercent, endDate)
             goal_status.append(status)
             
+            recurring_goal.append(goal.recurringGoal)     
+            goalRecurrence(goal.recurringGoal) 
+            
     else: # Only shows the first three
         
         for goal in goals:                        
             if index < 1:
                 studentGoal_ID.append(goal.studentGoalID) #pk
                 student_ID.append(goal.studentID)
-                course_ID.append(goal.courseID)                
+                course_ID.append(goal.courseID)              
                 
                 edit_allowed.append(editGoal(goal.timestamp))
                 
@@ -102,7 +107,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
       
     # The range part is the index numbers.
     print (student_ID)
-    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed)
+    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed, recurring_goal)
     return context_dict
 
     
@@ -144,5 +149,11 @@ def editGoal(startDate):
         return True
     else:
         return False  
+    
+def goalRecurrence(recur):
+    if (recur):
+        print("I will be back")
+    else:
+        print("Goodbye")
     
     

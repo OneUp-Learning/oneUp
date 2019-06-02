@@ -72,9 +72,9 @@ by James Cherry -->
                               <label>
                                   Is this a recurring (weekly) goal?
                                   {% if goal.recurringGoal %}
-                                  <input name="recurringGoal" type="checkbox" checked>
-                                  {% else %}
                                   <input name="recurringGoal" type="checkbox">
+                                  {% else %}
+                                  <input name="recurringGoal" type="checkbox" checked>
                                   {% endif %}
                                   <span class="lever secondary-content"></span>
                               </label>
