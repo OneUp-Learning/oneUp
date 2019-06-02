@@ -22,6 +22,10 @@
 				the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
 			{% endif %}
 		</p>
+	{% elif error.type == 7705 %} <!-- Error in sorting.  This really shouldn't happen, but it's here for debugging our own code -->
+		<p> There was an error in sorting the answer blanks into order.
+		This happened for part number {{error.number}} and answer blank {{error.answer_name}} and the apparent result was {{error.result}}.
+		</p>
 	{% endif %}
 {% endif %}
 {% if evaluations %}

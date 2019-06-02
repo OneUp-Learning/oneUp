@@ -133,6 +133,7 @@ else:
         module_not_found = 7702
         runtime = 7703
         required_part_not_defined = 7704
+        answer_sorting_error = 7705
     
     luaModuleNotFoundRegex = re.compile("\s*module '(.*)' not found")
     luaModuleSyntaxErrorRegex = re.compile("\s*error loading module '(.*)' from file '(.*)':(.*)")
@@ -429,6 +430,7 @@ else:
                 return False
             
             question_code = '_output = ""\n'
+            question_code += '_current_part = ' + str(n) + '\n'
             question_code += '_qtext = part_'+str(n)+'_text()\n'
             question_code += 'if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end\n'
             exec_result = runtime.sys_exec(question_code)
@@ -486,7 +488,11 @@ else:
                 (success,pyanswer['seqnum'])=runtime.eval("_inputs["+str(n)+"]['"+answer_name+"']['seqnum']")
                 if not success:
                     self.updateRuntime(runtime)
-                    self.setError(evalAnswerFunc,"")
+                    self.setError({'type':LuaErrorType.answer_sorting_error,
+                                   'line':0,
+                                   'number':n,
+                                   'answer_name':answer_name,
+                                   'result':pyanswer['seqnum']},  "")
                     print("ERROR: something went wrong with sequence numbers (this should not happen)")
                     return False
                 pyanswer['name']=answer_name
