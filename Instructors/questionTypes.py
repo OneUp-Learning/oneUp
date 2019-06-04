@@ -262,8 +262,7 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
     dynamicQuestion = DynamicQuestions.objects.get(pk=question.questionID)
     qdict = basicqdict(dynamicQuestion, i, challengeId, studChallQuest)
     if not lupa_available:
-        qdict[
-            'questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+        qdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
     else:
         if studChallQuest is not None:
             seed = studChallQuest.seed
@@ -288,6 +287,7 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
             qdict['hasMultipleParts'] = True
         else:
             qdict['hasMultipleParts'] = False
+        qdict['uniqid']=i
     return qdict
 
 

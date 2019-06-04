@@ -1,0 +1,11 @@
+<script>
+{% if attemptId %}
+	var attemptId = "{{attemptId}}";
+	var inChallenge = true;
+	var inTryOut = false;
+{% else %}
+	var attemptId = "none";
+	var inChallenge = false;
+	var inTryOut = true;
+{% endif %}
+</script>

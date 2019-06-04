@@ -325,7 +325,7 @@ else:
         
     make_input =
         function (name,type,size)
-            local fullname = _uniqid..'-'..name
+            local fullname = _uniqid..'-'.._current_part..'-'..name
             local originaltype = type
             type = string.upper(type)
             _inputs[_current_part][name] = {}

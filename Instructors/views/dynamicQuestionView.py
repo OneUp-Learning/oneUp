@@ -199,8 +199,23 @@ def makeLibs(dynamicQuestion):
     return [lib.library.libraryName for lib in libs]
 
 @login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def dynamicQuestionPartAJAX(request):
+    context_dict = dict();
+    if not lupa_available:
+        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+        return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)    
+
+    if request.method == 'POST':
+        attemptId = request.POST['__attemptId']
+        inChallenge = request.POST['__inChallenge']
+        partNum = request.POST['__partNum']
+        if inChallenge:
+            # TO BE IMPLEMENTED
+        else:
+            
+
+@login_required
+def oldDynamicQuestionPartAJAX(request):
     context_dict, currentCourse = initialContextDict(request)
     if not lupa_available:
         context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"

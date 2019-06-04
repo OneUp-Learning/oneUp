@@ -91,11 +91,11 @@ def ChallengeSetup(request):
                 # Use timezone to convert date to current timzone set in settings.py
                 tz = pytz.timezone(request.session['django_timezone'])
                 starttime = tz.localize(datetime.now()).astimezone(tz)
-                context_dict['startTime'] = starttime.strftime(
-                    "%m/%d/%Y %I:%M:%S %p")
+                starttimestring = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+                context_dict['startTime'] = starttimestring
 
-                attemptId = 'challenge:'+challengeId + '@' + \
-                    starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+                attemptId = 'challenge:'+challengeId + '@' + starttimestring
+                context_dict['attemptId'] = attemptId
 
                 sessionDict['challengeId'] = challengeId
 
@@ -140,7 +140,7 @@ def ChallengeSetup(request):
                     sessionDict['questions'].append(qdict)
 
             request.session[attemptId] = sessionDict
-            print("attemptID = "+attemptId)
+            context_dict['attemptId'] = attemptId
             context_dict['question_range'] = zip(
                 range(1, len(questionObjects)+1), qlist)
 
