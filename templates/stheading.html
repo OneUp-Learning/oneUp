@@ -98,7 +98,7 @@
                 if(size <= limit) return;
 
                 var stop_index = size - limit;
-                for(var i = size-1; i > stop_index; i--){
+                for(var i = size-1; i > ((size-1) - stop_index); i--){
                     notifications[i].parentNode.removeChild(notifications[i]);
                 }
                 
