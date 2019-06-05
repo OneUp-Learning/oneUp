@@ -44,7 +44,7 @@ function getDynamicProblemPartData(idprefix) {
 		if (allInputs[i].name.startswith(idprefix)) {
 			var name = allInputs[i].name.substr(idprefix.length);
 			data[name] = allInputs[i].value;
-			
+		}
 	}
 	var allAceEditors = dynamicProblemPartDiv.getElementsByClassName("ace-editor");
 	for (var i=-; i<allAceEditors.length; i++) {
@@ -56,14 +56,36 @@ function getDynamicProblemPartData(idprefix) {
 	return data;
 }
 
+function disableDiv(name) {
+	var darkLayer = document.getElementById(name+"-darkLayer");
+	darkLayer.style.display="";
+	var element = document.getElementById(name+"-exact");
+	var descendents = element.getElementsByTagName("*");
+	var i, e;
+	for (i = 0; i < descendents.length; i++) {
+		e = descendents[i];
+		if ((e.tagName == "INPUT") || (e.tagName == "TEXTAREA") || (e.tagName == "BUTTON") || (e.tagName == "SELECT") ||
+			(e.tagName == "OPTION") || (e.tagName == "OPTGROUP") || (e.tagName == "FIELDSET")) {
+			e.disabled = "disabled";
+		}
+		if ((e.tagName == "INPUT") && (e.type.toUpperCase() == "SUBMIT")) {
+			e.value = "Submitted";
+		}
+		
+	}
+}
+
 function senddynamicquestion(button) {
 	var idprefix = button.name;
-	var nextpartidprefix = uniqid + "-" + toString(partnum+1);
+	var idParts = idprefix.split("-");
+	var uniqid = idParts[0];
+	var partNum = parseInt(idParts[1]);
 	var data = getDynamicProblemPartData(idprefix);
-	data['__attemptId'] = attemptId;
-	data['__inChallenge'] = inChallenge;
-	data['__partNum'] = partnum;
-	data['__inTryOut'] = inTryOut;
+	data['_attemptId'] = attemptId;
+	data['_inChallenge'] = inChallenge;
+	data['_inTryOut'] = inTryOut;
+	data['_partNum'] = partNum;
+	data['_uniqid'] = uniqid;
 	$.ajax({
 		url: "doDynamicQuestion",
 		type: "POST",
@@ -71,9 +93,9 @@ function senddynamicquestion(button) {
 		dataType: 'html',
 		success: function(result,textStatus, jqXHR) {
 			$("#"+idprefix+'-results').hmtl(result);
+			makeAllEditors();
+			disableDiv(idprefix);
 		}
 	});
 }
-
-
 

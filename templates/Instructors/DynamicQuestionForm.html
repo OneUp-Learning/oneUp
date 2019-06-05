@@ -10,33 +10,33 @@
     
     
     <script type="text/javascript">
+	    function testQuestion() {
+	    	data = {}
+	    	for (var i = 1; i <= numParts; i++) {
+	            data['_templateText'+i]=CKEDITOR.instances['templateTextVisible' + i].getData();
+	        }
+	    	data['_partNum']=1
+	    	data['_inittestquestion']='true'
+	    	data['_attemptId'] = attemptId;
+	    	data['_inChallenge'] = inChallenge;
+	    	data['_inTryOut'] = inTryOut;
+	        data['_seed'] = document.trial.seed.value;
+	        data['_numParts'] = document.question.numParts.value;
+	        data['_code'] = editor.getValue();
+	        data['_dependentLuaLibraries[]']=lua_lib_selected
+	    	$.ajax({
+	    		url: "doDynamicQuestion",
+	    		type: "POST",
+	    		data: data,
+	    		dataType: 'html',
+	    		success: function(result,textStatus, jqXHR) {
+	    			$("#codeResults").hmtl(result);
+	    			makeAllEditors();
+	    		}
+	    	});
+	    }
 
-    	function testQuestion() {
-    		var xmlhttp;
-			if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
-  				xmlhttp=new XMLHttpRequest();
-  			} else {// code for IE6, IE5 
-  				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  			}
-  			  			
-  			xmlhttp.open("POST","doDynamicQuestion",true);
-  			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-  			xmlhttp.onreadystatechange =
-  				function () {
-  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-  						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
-  					}
-  					makeNewEditors();
-  					makeNewReadOnlyEditors()
-  				}
-  			var formDataEncoded = '_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
-  						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
-  				         '&_code='+encodeURIComponent(editor.getValue())+'&csrfmiddlewaretoken={{ csrf_token }}';
-  			formDataEncoded = formDataEncoded + getLibsEncoded()
-  			xmlhttp.send(formDataEncoded);
-    	}
-    	
-    	function copyContentsToHidden() {
+	    function copyContentsToHidden() {
     	    document.question.code.value = editor.getValue();
     	}
     	

@@ -200,37 +200,17 @@ def makeLibs(dynamicQuestion):
 
 @login_required
 def dynamicQuestionPartAJAX(request):
-    context_dict = dict();
-    if not lupa_available:
-        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
-        return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)    
-
-    if request.method == 'POST':
-        attemptId = request.POST['__attemptId']
-        inChallenge = request.POST['__inChallenge']
-        partNum = request.POST['__partNum']
-        if inChallenge:
-            # TO BE IMPLEMENTED
-        else:
-            
-
-@login_required
-def oldDynamicQuestionPartAJAX(request):
-    context_dict, currentCourse = initialContextDict(request)
+    context_dict = {}
     if not lupa_available:
         context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
-        print(request.POST)
-        uniqid = request.POST['_uniqid']
-        if ('_testeval' in request.POST):
-            part = int(request.POST['_part'])
-            requesttype = '_testeval'
-        elif ('_eval' in request.POST):
-            part = int(request.POST['_part'])
-            requesttype = '_eval'
-        elif ('_test' in request.POST):
+        attemptId = request.POST['_attemptId']
+        inChallenge = request.POST['_inChallenge']
+        partNum = request.POST['_partNum']
+        inTryOut = request.POST['_inTryOut']
+        if ('_inittestquestion' in request.POST):
             if '_code' in request.POST:
                 code = [CodeSegment.new(CodeSegment.raw_lua,request.POST['_code'],"")]
             else:
@@ -242,23 +222,15 @@ def oldDynamicQuestionPartAJAX(request):
             seed = request.POST['_seed']
             numParts = request.POST['_numParts']
             libs = request.POST.getlist('_dependentLuaLibraries[]')
-            part = 1
-            requesttype = '_testeval'
-        elif ('_init' in request.POST):
-            print("We are in INIT")
-            questionID = request.POST['questionID']
-            seed = request.POST['seed']
-            dynamicQuestion = DynamicQuestions.objects.get(pk=questionID)
-            code = dynamicQuestion.code
-            numParts = dynamicQuestion.num_parts
-            libs = makeLibs(dynamicQuestion)
-            part = 1
-            requesttype = '_eval'
+            partNum = 1
         
-        if (part == 1):
             if ('lupaQuestions' not in request.session):
                 request.session['lupaQuestions'] = {}
-            
+                request.session['lupaQuestionCounter'] = 0
+
+            request.session['lupaQuestionCounter']=request.session['lupaQuestionCounter']+1
+            uniqid = request.session['lupaQuestionCounter']
+                     
             lupaQuestionTable = request.session['lupaQuestions']
             
             errorInLupaQuestionConstructor = False
@@ -266,16 +238,22 @@ def oldDynamicQuestionPartAJAX(request):
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
                 
-        else:
+        elif inTryOut: # We're trying out the question, but it already exists.
+            uniqid = request.POST['_uniqid']
             lupaQuestionTable = request.session['lupaQuestions']
             lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
-            
+        elif inChallenge: # We're in a challenge.  We don't need to create the question because that was done in questiontypes.py
+            uniqid = request.POST['_uniqid']
+            qdict = request.session[attemptId]["questions"][int(uniqid)]
+            lupaQuestion = LupaQuestion.createFromDump(qdict["lupaquestion"])
+        
+        if partNum > 1:            
             # And now we need to evaluate the previous answers.
             answers = {}
             for value in request.POST:
-                if (value.startswith(uniqid+"-")): 
-                    answers[value[len(uniqid)+1:]] = request.POST[value]
-            evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
+                if not value.startswith("_"): 
+                    answers[value] = request.POST[value]
+            evaluations = lupaQuestion.answerQuestionPart(partNum-1, answers)
             if lupaQuestion.error is not None:
                 context_dict['error'] = lupaQuestion.error
             
@@ -285,23 +263,20 @@ def oldDynamicQuestionPartAJAX(request):
             errorInLupaQuestionConstructor = False
         
         if not errorInLupaQuestionConstructor:
-            formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
-        else:
-            formhead = ""
-            formbody = ""
+            context_dict['questionText'] = lupaQuestion.getQuestionPart(partNum)
         if 'error' not in context_dict and lupaQuestion.error is not None:
             #print("We are setting error to:" + str(lupaQuestion.error))
             context_dict['error'] = lupaQuestion.error
         if not errorInLupaQuestionConstructor:
-            lupaQuestionTable[uniqid]=lupaQuestion.serialize()
-            request.session['lupaQuestions']=lupaQuestionTable
+            if inTryOut:
+                lupaQuestionTable[uniqid]=lupaQuestion.serialize()
+                request.session['lupaQuestions']=lupaQuestionTable
+            elif inChallenge:
+                request.session[attemptId]["questions"][int(uniqid)]["lupaquestion"]=lupaQuestion.serialize()
         
-        context_dict['formhead'] = formhead
-        context_dict['formbody'] = formbody
         context_dict['uniqid'] = uniqid
-        context_dict['part'] = part
-        context_dict['partplusone'] = part+1
-        context_dict['type'] = requesttype
+        context_dict['part'] = partNum
+        context_dict['partplusone'] = partNum+1
         print(context_dict)
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
         
