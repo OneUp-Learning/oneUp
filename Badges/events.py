@@ -543,10 +543,16 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         if actionID == Action.decreaseVirtualCurrency:
             # Decrease the student virtual currency amount
             if student.virtualCurrencyAmount >= vcRuleAmount:
-                student.virtualCurrencyAmount -= vcRuleAmount 
-                instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
-                instructor = instructorCourse.instructorID
-                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+
+                # Commented this out for now since not all shop items are reaching this point (they may not have rules)
+                # Each shop item should have a rule associated with it though. This needs to be looked into more
+
+                # student.virtualCurrencyAmount -= vcRuleAmount 
+                # instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
+                # instructor = instructorCourse.instructorID
+                # notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+
+                logger.warn("This shop item has a rule associated with it, but currency deduction and instructor notification is handled in virtualCurrencyShopView.py instead")
             else:
                 #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
                 logger.debug("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
