@@ -37,19 +37,19 @@ function makeAllEditors() {
 }
 
 function getDynamicProblemPartData(idprefix) {
-	var dynamicProblemPartDiv = document.getElementByID(idprefix+"-exact");
+	var dynamicProblemPartDiv = document.getElementById(idprefix+"-exact");
 	var allInputs = dynamicProblemPartDiv.getElementsByTagName("input");
 	var data = {}
 	for (var i=0; i<allInputs.length; i++) {
-		if (allInputs[i].name.startswith(idprefix)) {
-			var name = allInputs[i].name.substr(idprefix.length);
+		if (allInputs[i].name.startsWith(idprefix)) {
+			var name = allInputs[i].name.substr(idprefix.length+1);
 			data[name] = allInputs[i].value;
 		}
 	}
 	var allAceEditors = dynamicProblemPartDiv.getElementsByClassName("ace-editor");
-	for (var i=-; i<allAceEditors.length; i++) {
-		if (allAceEditors[i].id.startswith(idprefix)) {
-			var name = allAceEditors[i].id.substr(idprefix.length);
+	for (var i=0; i<allAceEditors.length; i++) {
+		if (allAceEditors[i].id.startsWith(idprefix)) {
+			var name = allAceEditors[i].id.substr(idprefix.length+1);
 			data[name] = aceEditors[allAceEditors[i].id].getValue();
 		}
 	}
@@ -75,8 +75,7 @@ function disableDiv(name) {
 	}
 }
 
-function senddynamicquestion(button) {
-	var idprefix = button.name;
+function senddynamicquestion(idprefix) {
 	var idParts = idprefix.split("-");
 	var uniqid = idParts[0];
 	var partNum = parseInt(idParts[1]);
@@ -84,7 +83,7 @@ function senddynamicquestion(button) {
 	data['_attemptId'] = attemptId;
 	data['_inChallenge'] = inChallenge;
 	data['_inTryOut'] = inTryOut;
-	data['_partNum'] = partNum;
+	data['_partNum'] = partNum+1;
 	data['_uniqid'] = uniqid;
 	$.ajax({
 		url: "doDynamicQuestion",
@@ -92,7 +91,7 @@ function senddynamicquestion(button) {
 		data: data,
 		dataType: 'html',
 		success: function(result,textStatus, jqXHR) {
-			$("#"+idprefix+'-results').hmtl(result);
+			$("#"+idprefix+'-results').html(result);
 			makeAllEditors();
 			disableDiv(idprefix);
 		}

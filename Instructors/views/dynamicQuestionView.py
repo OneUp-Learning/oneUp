@@ -208,23 +208,23 @@ def dynamicQuestionPartAJAX(request):
     if request.method == 'POST':
         attemptId = request.POST['_attemptId']
         inChallenge = request.POST['_inChallenge']
-        partNum = request.POST['_partNum']
+        partNum = int(request.POST['_partNum'])
         inTryOut = request.POST['_inTryOut']
+        errorInLupaQuestionConstructor = False
         if ('_inittestquestion' in request.POST):
+            numParts = int(request.POST['_numParts'])
             if '_code' in request.POST:
                 code = [CodeSegment.new(CodeSegment.raw_lua,request.POST['_code'],"")]
             else:
-                numParts = int(request.POST['_numParts'])
                 templateParts = []
                 for i in range(1,numParts+1):
                     templateParts.append(request.POST['_templateText'+str(i)])
                 code = templateToCodeSegments(request.POST['_setupCode'],templateParts)
             seed = request.POST['_seed']
-            numParts = request.POST['_numParts']
             libs = request.POST.getlist('_dependentLuaLibraries[]')
             partNum = 1
         
-            if ('lupaQuestions' not in request.session):
+            if ('lupaQuestionCounter' not in request.session):
                 request.session['lupaQuestions'] = {}
                 request.session['lupaQuestionCounter'] = 0
 
@@ -233,18 +233,21 @@ def dynamicQuestionPartAJAX(request):
                      
             lupaQuestionTable = request.session['lupaQuestions']
             
-            errorInLupaQuestionConstructor = False
-            lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
+            lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
+            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion }
+            lupaQuestionTable[uniqid] = qdict
                 
         elif inTryOut: # We're trying out the question, but it already exists.
             uniqid = request.POST['_uniqid']
             lupaQuestionTable = request.session['lupaQuestions']
-            lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
+            qdict = lupaQuestionTable[uniqid]
+            lupaQuestion = LupaQuestion.createFromDump(qdict["lupaQuestion"])
         elif inChallenge: # We're in a challenge.  We don't need to create the question because that was done in questiontypes.py
             uniqid = request.POST['_uniqid']
             qdict = request.session[attemptId]["questions"][int(uniqid)]
+            qdict['uniqid'] = uniqid # I think this is already set, but just in case, we're doing it again.
             lupaQuestion = LupaQuestion.createFromDump(qdict["lupaquestion"])
         
         if partNum > 1:            
@@ -253,30 +256,27 @@ def dynamicQuestionPartAJAX(request):
             for value in request.POST:
                 if not value.startswith("_"): 
                     answers[value] = request.POST[value]
-            evaluations = lupaQuestion.answerQuestionPart(partNum-1, answers)
+            print("\n\nDynamic Question Stuff:\n"+str(answers)+"\n\n")            
+            qdict['evaluations'] = lupaQuestion.answerQuestionPart(partNum-1, answers)
             if lupaQuestion.error is not None:
-                context_dict['error'] = lupaQuestion.error
-            
-            #starts of making the table for the web page 
-            context_dict['evaluations'] = evaluations
-            
-            errorInLupaQuestionConstructor = False
-        
+                qdict['error'] = lupaQuestion.error            
+                        
         if not errorInLupaQuestionConstructor:
-            context_dict['questionText'] = lupaQuestion.getQuestionPart(partNum)
+            qdict['questionText'] = lupaQuestion.getQuestionPart(partNum)
         if 'error' not in context_dict and lupaQuestion.error is not None:
             #print("We are setting error to:" + str(lupaQuestion.error))
-            context_dict['error'] = lupaQuestion.error
+            qdict['error'] = lupaQuestion.error
         if not errorInLupaQuestionConstructor:
             if inTryOut:
-                lupaQuestionTable[uniqid]=lupaQuestion.serialize()
+                lupaQuestionTable[uniqid]['lupaQuestion']=lupaQuestion.serialize()
                 request.session['lupaQuestions']=lupaQuestionTable
             elif inChallenge:
                 request.session[attemptId]["questions"][int(uniqid)]["lupaquestion"]=lupaQuestion.serialize()
         
+        context_dict['q'] = qdict
         context_dict['uniqid'] = uniqid
         context_dict['part'] = partNum
-        context_dict['partplusone'] = partNum+1
-        print(context_dict)
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
+
+        
         

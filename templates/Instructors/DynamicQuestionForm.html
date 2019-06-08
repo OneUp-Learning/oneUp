@@ -3,11 +3,11 @@
   <head>
     
     {% include 'scripts.html' %}  
-    {% load staticfiles %}
-    
+    {% load staticfiles %}    
     <script src="/static/js/AJAXgetquerystring.js" type="text/javascript"></script>
     <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    
+
+    {% include 'dynamicQuestionSetup.html' %}    
     
     <script type="text/javascript">
 	    function testQuestion() {
@@ -30,7 +30,7 @@
 	    		data: data,
 	    		dataType: 'html',
 	    		success: function(result,textStatus, jqXHR) {
-	    			$("#codeResults").hmtl(result);
+	    			$("#codeResults").html(result);
 	    			makeAllEditors();
 	    		}
 	    	});

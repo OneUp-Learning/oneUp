@@ -34,6 +34,7 @@
 	{% endif %}
 {% endif %}
 {% if q.evaluations %}
+<B> Evaluations Exist! </B>
     {% for answer in q.evaluations %}
     <p>	
 		{% if answer.success %}
@@ -62,8 +63,9 @@
 <div id="{{q.uniqid}}-{{part}}-exact">
   <div class="darkClassParent">
     <div id="{{q.uniqid}}-{{part}}-darkLayer" class="darkClass" style="display:none"></div>
-    {{q.questiontext|safe}}
-    {% if part > q.numParts %}
+    {{q.questionText|safe}}
+    <b>part: {{part}} numParts: {{q.numParts}}</b>
+    {% if part < q.numParts %}
       <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-{{part}}" id="{{q.uniqid}}-{{part}}-submit" onclick="senddynamicquestion(this.name)">Submit<i class="material-icons right">send</i></button></form>'
 	{% endif %}
   </div>
