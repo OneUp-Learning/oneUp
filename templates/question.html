@@ -10,9 +10,28 @@
 {% if i != 1 %}
 	<div class="divider"></div>
 {% endif %}
+{% if q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic %}
 <div class="row">
     <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
 </div>
+{% else %}
+<div class="row">
+	<h4>Question {{i}}</h4>
+	<div class="ck-view">
+		<div id="{{q.uniqid}}-1-exact">
+		  <div class="darkClassParent">
+		    <div id="{{q.uniqid}}-1-darkLayer" class="darkClass" style="display:none"></div>
+		    {{q.questionText|safe}}
+	        {% if q.hasMultipleParts %}
+		      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit<i class="material-icons right">send</i></button></form>'
+			{% endif %}
+		  </div>
+		</div>
+	</div>
+</div>
+<div id="{{q.uniqid}}-1-results">
+</div>
+{% endif %} 
 {% if instructorview %}
     <p> Total points: {{question.point|safe}}</p>
 {% endif %}

@@ -207,9 +207,9 @@ def dynamicQuestionPartAJAX(request):
 
     if request.method == 'POST':
         attemptId = request.POST['_attemptId']
-        inChallenge = request.POST['_inChallenge']
+        inChallenge = request.POST['_inChallenge']=="true"
         partNum = int(request.POST['_partNum'])
-        inTryOut = request.POST['_inTryOut']
+        inTryOut = request.POST['_inTryOut']=="true"
         errorInLupaQuestionConstructor = False
         if ('_inittestquestion' in request.POST):
             numParts = int(request.POST['_numParts'])
@@ -246,7 +246,7 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestion = LupaQuestion.createFromDump(qdict["lupaQuestion"])
         elif inChallenge: # We're in a challenge.  We don't need to create the question because that was done in questiontypes.py
             uniqid = request.POST['_uniqid']
-            qdict = request.session[attemptId]["questions"][int(uniqid)]
+            qdict = request.session[attemptId]["questions"][int(uniqid)-1]
             qdict['uniqid'] = uniqid # I think this is already set, but just in case, we're doing it again.
             lupaQuestion = LupaQuestion.createFromDump(qdict["lupaquestion"])
         
@@ -271,7 +271,7 @@ def dynamicQuestionPartAJAX(request):
                 lupaQuestionTable[uniqid]['lupaQuestion']=lupaQuestion.serialize()
                 request.session['lupaQuestions']=lupaQuestionTable
             elif inChallenge:
-                request.session[attemptId]["questions"][int(uniqid)]["lupaquestion"]=lupaQuestion.serialize()
+                request.session[attemptId]["questions"][int(uniqid)-1]["lupaquestion"]=lupaQuestion.serialize()
         
         context_dict['q'] = qdict
         context_dict['uniqid'] = uniqid

@@ -162,7 +162,7 @@ def templateDynamicQuestionForm(request):
             
             # TODO: get all matching templateTextPart objects and then add their code to the 
             # context dictionary as templateTextParts
-            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question) #get form the databse the matching question for the parts
+            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question) #get form the database the matching question for the parts
             context_dict['templateTextParts']=templateTextParts
             context_dict['checkInitalTemplateTextPart'] = False
             
