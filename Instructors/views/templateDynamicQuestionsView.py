@@ -57,9 +57,12 @@ def templateDynamicQuestionForm(request):
         question.save();  #Writes to database.
            
         #loops through and adds the multiple parts(the actual text) into to the template array   
-        templateArray = [] 
-        for i in range(1,int(request.POST['numParts'])+1): # the 1 is the start of the rang and we need to go all the way to the numparts+1
+        templateArray = []
+        partPointsArray = []
+        numTemplateParts = int(request.POST['numParts']) 
+        for i in range(1,numTemplateParts+1): # the 1 is the start of the range and we need to go all the way to the numparts (inclusive)
             templateArray.append(request.POST['templateTextVisible'+str(i)])
+            partPointsArray.append(int(request.POST['partpoints'+str(i)]))
             
         def combineCodeSegments(codeSegments):
             output = ""
@@ -83,11 +86,12 @@ def templateDynamicQuestionForm(request):
         count = int(1)
         
         #make a new object that is a part and add all the fields it needs
-        for text in templateArray:
+        for text,partpoints in zip(templateArray,partPointsArray):
             textPart = TemplateTextParts() 
             textPart.partNumber = count
             textPart.dynamicQuestion = question 
-            textPart.templateText = text 
+            textPart.templateText = text
+            textPart.pointsInPart = partpoints
             textPart.save()
             count+= 1
         
