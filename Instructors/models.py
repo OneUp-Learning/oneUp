@@ -359,6 +359,8 @@ class UploadedActivityFiles(models.Model):
 class DynamicQuestions(Questions):
     numParts = models.IntegerField(default=1)
     code = models.CharField(max_length=20000)
+    submissionsAllowed = models.IntegerField(default=1, verbose_name="Number of Submissions Allowed")
+    resubmissionPenalty = models.IntegerField(default=10, verbose_name="Resubmission penalty as an integer percentage")
 
 class TemplateDynamicQuestions(DynamicQuestions): 
     templateText = models.CharField(max_length=20000)

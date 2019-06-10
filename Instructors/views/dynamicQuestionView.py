@@ -25,11 +25,11 @@ from oneUp.ckeditorUtil import config_ck_editor
 def dynamicQuestionForm(request):
     context_dict, currentCourse = initialContextDict(request)
     
-    # In this class, these are the names of the attributes which are strings.
+    # In this view, these are the names of the attributes which are just passed through with no processing.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
-    string_attributes = ['preview','difficulty',
-                         'instructorNotes','code','numParts','author'];
+    passthrough_attributes = ['preview','difficulty',
+                         'instructorNotes','code','numParts','author','submissionsAllowed','resubmissionPenalty'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
     context_dict['tags'] = []
@@ -43,7 +43,7 @@ def dynamicQuestionForm(request):
             question = DynamicQuestions()
 
         # Copy all strings from POST to database object.
-        for attr in string_attributes:
+        for attr in passthrough_attributes:
             setattr(question,attr,request.POST[attr])
         question.questionText = ""  
         
@@ -125,7 +125,7 @@ def dynamicQuestionForm(request):
             # Copy all of the attribute values into the context_dict to
             # display them on the page.
             context_dict['questionId']=request.GET['questionId']
-            for attr in string_attributes:
+            for attr in passthrough_attributes:
                 context_dict[attr]=getattr(question,attr)
                 
             context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)

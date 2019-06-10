@@ -317,6 +317,19 @@ var testResultsVar;
                                     <div id="tags" class="chips chips-tags"></div>
                                 </div>
                             </div>
+             				<div class="row">
+             					<div class="col s12">
+                                    <h5>Submission</h5>
+                                </div>
+								<div class="col s12">
+									<input value="{{submissionsAllowed}}" name="submissionsAllowed" id="submissionsAllowed" type="number" {% if view == False %}class="validate"{%endif%} min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
+									<label for="submissionsAllowed"><span class= "red-text">*</span> Number of Submissions Allowed for Each Part</label>
+								</div>
+								<div class="col s12">
+									<input value="{{resubmissionPenalty}}" name="resubmissionPenalty" id="resubmissionPenalty" type="number" {% if view == False %}class="validate"{%endif%} min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
+									<label for="resubmissionPenalty"><span class= "red-text">*</span>Resubmission Penalty (in percent)</label>
+								</div>
+							</div>	
                             {% include "Instructors/luaLibraryDependencies.html" %}
                             <div class="row">
                                 <div class="col s12">
