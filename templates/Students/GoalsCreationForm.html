@@ -71,10 +71,10 @@ by James Cherry -->
                            <div class="switch col s12">
                               <label>
                                   Is this a recurring (weekly) goal?
-                                  {% if goal.recurringGoal %}
-                                  <input name="recurringGoal" type="checkbox">
+                                  {% if recurringGoal %}
+                                  <input name="recurringGoal" type="checkbox" checked >
                                   {% else %}
-                                  <input name="recurringGoal" type="checkbox" checked>
+                                  <input name="recurringGoal" type="checkbox" >
                                   {% endif %}
                                   <span class="lever secondary-content"></span>
                               </label>

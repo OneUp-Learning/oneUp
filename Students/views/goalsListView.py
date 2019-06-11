@@ -76,13 +76,18 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             status = goalStatus(progressPercent, endDate)
             goal_status.append(status)
             
-            recurring_goal.append(goal.recurringGoal)     
-            goalRecurrence(goal.recurringGoal) 
+            recurring_goal.append(goal.recurringGoal)    
+            
+            if (utcDate() >= endDate):
+                goalRecurrence(goal.recurringGoal, goal.courseID, goal.studentID, goal.goalType, goal.targetedNumber, goal.progressToGoal)
+                sgi = goal.studentGoalID
+                goal = StudentGoalSetting.objects.get(pk=int(sgi))
+                goal.recurringGoal = False
+                goal.save()
             
     else: # Only shows the first three
-        
         for goal in goals:                        
-            if index < 1:
+#             if index < 1:
                 studentGoal_ID.append(goal.studentGoalID) #pk
                 student_ID.append(goal.studentID)
                 course_ID.append(goal.courseID)              
@@ -101,13 +106,13 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 status = goalStatus(progressPercent, endDate)
                 goal_status.append(status)
                 
-                if (utcDate() >= endDate):
-                    index += 1
+#                 if (utcDate() >= endDate):
+#                     index += 1
     
       
     # The range part is the index numbers.
     print (student_ID)
-    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed, recurring_goal)
+    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal)
     return context_dict
 
     
@@ -150,9 +155,18 @@ def editGoal(startDate):
     else:
         return False  
     
-def goalRecurrence(recur):
+def goalRecurrence(recur, course, student, goalType, target, progress):
     if (recur):
-        print("I will be back")
+        goal = StudentGoalSetting()        
+        goal.courseID = course
+        goal.studentID = student
+        goal.goalType = goalType
+        goal.targetedNumber = target
+        goal.timestamp = utcDate()         
+        goal.progressToGoal = progress
+        goal.recurringGoal = recur       
+        goal.save();  #Writes to database.
+        print("I ran!")
     else:
         print("Goodbye")
     

@@ -67,6 +67,8 @@ def goalCreate(request):
                 context_dict['goalType'] = genums[goal.goalType].get('displayName')
                 context_dict['targetedNumber'] = goal.targetedNumber
                 context_dict['recurringGoal'] = goal.recurringGoal
+                print(goal.recurringGoal)
+                print(context_dict['recurringGoal'])
                                 
 
     return render(request,'Students/GoalsCreationForm.html', context_dict)
