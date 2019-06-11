@@ -17,6 +17,7 @@ var testResultsVar;
         	data = {}
         	for (var i = 1; i <= numParts; i++) {
                 data['_templateText'+i]=CKEDITOR.instances['templateTextVisible' + i].getData();
+                data['_partpoints'+i]=document.getElementById("partpoints"+i).value;
             }
         	data['_partNum']=1
         	data['_inittestquestion']='true'

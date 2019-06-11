@@ -3,7 +3,7 @@ import re
 import json
 from decimal import Decimal
 
-from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions
+from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Students.models import StudentChallengeQuestions
@@ -288,6 +288,15 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
         else:
             qdict['hasMultipleParts'] = False
         qdict['uniqid']=i
+        if isinstance(question,TemplateDynamicQuestions):
+            qdict['type'] = 'template'
+            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question)
+            partpoints = dict()
+            for ttp in templateTextParts:
+                partpoints[ttp.partNumber] = ttp.pointsInPart
+            qdict['partpoints'] = partpoints
+        else:
+            qdict['type'] = 'raw_lua'
     return qdict
 
 

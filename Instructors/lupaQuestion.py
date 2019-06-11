@@ -50,7 +50,7 @@ if lupa_spec is None:
             return self.error_str
         def answerQuestionPart(self,n,answer_dict):
             return self.error_str
-        def getPartWeight(self,n):
+        def getPartMaxPoints(self,n):
             return self.error_str
         def serialize(self):
             return self.error_str
@@ -516,15 +516,15 @@ else:
             
             return pyresults
         
-        def getPartWeight(self,n):
+        def getPartMaxPoints(self,n):
             runtime = self.getRuntime()
             if runtime is None:
                 return False
-            (success,weightFunc) = runtime.eval('part_'+n+'_weight')
+            (success,weightFunc) = runtime.eval('part_'+n+'_max_points')
             if not success:
                 self.setError({'type':LuaErrorType.required_part_not_defined,
                                'number':n,
-                               'function_name':'part_'+n+'_weight'},
+                               'function_name':'part_'+n+'_max_points'},
                               "")
                 return False
             if weightFunc is None:
@@ -533,7 +533,7 @@ else:
                 try:
                     result = weightFunc()
                 except LuaError as luaerr:
-                    self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_weight()')
+                    self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_max_points()')
                     self.updateRuntime(runtime)
                     return False
             self.updateRuntime(runtime)

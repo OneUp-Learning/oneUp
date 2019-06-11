@@ -215,11 +215,15 @@ def dynamicQuestionPartAJAX(request):
             numParts = int(request.POST['_numParts'])
             if '_code' in request.POST:
                 code = [CodeSegment.new(CodeSegment.raw_lua,request.POST['_code'],"")]
+                type = "raw_lua"
             else:
                 templateParts = []
+                templateMaxPoints = dict()
                 for i in range(1,numParts+1):
                     templateParts.append(request.POST['_templateText'+str(i)])
+                    templateMaxPoints[i]=int(request.POST['_partpoints'+str(i)])
                 code = templateToCodeSegments(request.POST['_setupCode'],templateParts)
+                type = "template"
             seed = request.POST['_seed']
             libs = request.POST.getlist('_dependentLuaLibraries[]')
             partNum = 1
@@ -236,7 +240,7 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
-            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion }
+            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion, "type":type, "partpoints":templateMaxPoints }
             lupaQuestionTable[uniqid] = qdict
                 
         elif inTryOut: # We're trying out the question, but it already exists.
@@ -259,8 +263,51 @@ def dynamicQuestionPartAJAX(request):
             print("\n\nDynamic Question Stuff:\n"+str(answers)+"\n\n")            
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(partNum-1, answers)
             if lupaQuestion.error is not None:
-                qdict['error'] = lupaQuestion.error            
-                        
+                qdict['error'] = lupaQuestion.error
+                
+            earnedScore = 0
+            numberIncorrect = 0
+            for eval in qdict['evaluations']:
+                if not eval['success']:
+                    numberIncorrect += 1
+                earnedScore += eval['value']
+
+            def getMaxPointsForPart(p):
+                if qdict['type'] == "raw_lua":
+                    return lupaQuestion.getPartMaxPoints(p)
+                else:
+                    print ("\n\n Tmplated Dynamic Debug" + str(qdict['partpoints'])+"\n\n")
+                    return qdict['partpoints'][str(p)] # For some reason, Django makes my integer key into a string when it gets stored in the session.  Sigh.
+            
+            totalScore = getMaxPointsForPart(partNum)
+                
+            pointsRemaining = 0
+            for i in range(partNum+1,qdict['numParts']+1):
+                pointsRemaining += getMaxPointsForPart(i)
+            
+            if numberIncorrect > 0:
+                context_dict['failure'] = {
+                    'numAnswerBlanksIncorrect':numberIncorrect,
+                    'numAnswerBlanksTotal': len(qdict['evaluations']),
+                    'pointsTotal': totalScore,
+                    'pointsEarned': earnedScore,
+                    'pointsPossible': 999999, # Need to know how many submissions for this and that hasn't been done yet.
+                    'pointsForFutureParts': pointsRemaining,
+                    'retriesRemaining': 999999 # Ditto previous comment
+                }
+                context_dict['retry'] = True
+            elif earnedScore < totalScore:
+                context_dict['partial_success'] = {
+                    'pointsTotal': totalScore,
+                    'pointsEarned': earnedScore,
+                    'pointsPossible': 999999, # Need to know how many submissions for this and that hasn't been done yet.
+                    'pointsForFutureParts': pointsRemaining,
+                    'retriesRemaining': 999999 # Ditto previous comment
+                }
+                context_dict['retry'] = True
+            else:
+                context_dict['retry'] = False
+                       
         if not errorInLupaQuestionConstructor:
             qdict['questionText'] = lupaQuestion.getQuestionPart(partNum)
         if 'error' not in context_dict and lupaQuestion.error is not None:
