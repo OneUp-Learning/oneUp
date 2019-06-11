@@ -20,6 +20,7 @@
 				pointsForFutureParts - how many points future parts are worth
 				retriesRemaining - how many resubmissions they have available
 {% endcomment %}
+{% load instructors_tags %}
 {% if q.error %}
 	<p><strong>Lua Error:</strong> 
 	{% if q.error.type == 7702 %} <!-- Module Not Found Error -->
@@ -80,39 +81,54 @@
 		You have gotten {{failure.numAnswerBlanksIncorrect}} out of {{failure.numAnswerBlanksTotal}} answer blanks incorrect for this part and
 		cannot proceed to the next part.  You have scored {{failure.pointsEarned}} out of {{failure.pointsTotal}} on this part of the problem.
 		You can retry this part, at a penalty, and earn up to {{failure.pointsPossible}} points on this part.
-		This is part {{part}} out of {{q.numParts}} for this problem.
+		You have {{failure.retriesRemaining}} retries remaining.
 		{% if part != q.numParts %}
 			There are {{failure.pointsForFutureParts}} points available to earn from later parts if you succeed at this part.
 		{% endif %}
 		You may either change your answers and resubmit to retry the part or leave them be to keep your current score.
 	</div>
 	{% elif partial_success and retry %}
-	<div>
+	<div id="{{q.uniqid}}-{{part}}-partial_success_message">
 		All of your answer blanks for this problem have been graded as correct, but you have not gotten all possible points
 		for this part.  You have scored {{partial_success.pointsEarned}} out of {{partial_success.pointsTotal}} on this part of the problem.
 		You can retry this part, at a penalty, and earn up to {{partial_success.pointsPossible}} points on this part.
+		You have {{partial_success.retriesRemaining}} retries remaining.
 		{% if part != q.numParts %}
 			There are {{partial_success.pointsForFutureParts}} points available to earn from later parts.
 		{% endif %}
 		You may either change your answers and resubmit to retry the part or press Next Part to keep your current score on this part and move on to the next part.
-	</div>	
+		<div class="card-action right-align">
+	      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-{{part}}-nextpart" id="{{q.uniqid}}-{{part}}-nextpart" 
+	      	data-partname="{{q.uniqid}}-{{part}}" onclick="shownextpart(this.dataset.partname)">Next Part<i class="material-icons right">send</i></button></form>
+	    </div>
+	</div>
+	{% elif failure %}
+		{% if failure.hadSomeRetries %}
+			<div> You have no retries remaining
+			</div>
+		{% endif %}
 	{% endif %}
 		
 {% endif %}
-<div id="{{q.uniqid}}-{{part}}-exact">
-  <div class="darkClassParent">
-    <div id="{{q.uniqid}}-{{part}}-darkLayer" class="darkClass" style="display:none"></div>
-    {% if q.numParts > 1 %}
-    	<div class="row"><b>Part {{part}}</b> of <b>{{q.numParts}}</b></div>
-    {% endif %}
-    {{q.questionText|safe}}
-    {% if part < q.numParts %}
-    <div class="card-action right-align">
-      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-{{part}}" id="{{q.uniqid}}-{{part}}-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
-    </div>
+{% if not failure %}
+	<div id="{{q.uniqid}}-{{part}}-exact" {% if partial_success and retry %}style="display:none"{% endif %}>
+	  <div class="darkClassParent">
+	    <div id="{{q.uniqid}}-{{part}}-darkLayer" class="darkClass" style="display:none"></div>
+	    {% if q.numParts > 1 %}
+	    	<div class="row"><b>Part {{part}}</b> of <b>{{q.numParts}}</b></div>
+	    {% endif %}
+	    {{q.questionText|safe}}
+	    <div class="card-action right-align">
+	      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-{{part}}" id="{{q.uniqid}}-{{part}}-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
+	    </div>
+	  </div>
+	</div>
+	
+	<div id="{{q.uniqid}}-{{part}}-results">
+	</div>
+	{% if part > 1 and not partial_success %}
+		<script>
+			disableDiv("{{q.uniqid}}-{{part|add:-1}}");
+		</script>
 	{% endif %}
-  </div>
-</div>
-
-<div id="{{q.uniqid}}-{{part}}-results">
-</div>
+{% endif %}

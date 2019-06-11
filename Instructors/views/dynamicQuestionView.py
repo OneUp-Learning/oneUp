@@ -198,6 +198,15 @@ def makeLibs(dynamicQuestion):
     libs = QuestionLibrary.objects.filter(question=dynamicQuestion)
     return [lib.library.libraryName for lib in libs]
 
+def rescale_evaluations(evals,scale):
+    for eval in evals:
+        eval['value'] *= scale
+        if 'details' in eval:
+            for detail in eval['details']:
+                detail['value'] *= scale
+                detail['max_points'] *= scale
+    return evals
+
 @login_required
 def dynamicQuestionPartAJAX(request):
     context_dict = {}
@@ -240,8 +249,16 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
-            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion, "type":type, "partpoints":templateMaxPoints }
+            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion, "dynamic_type":type, "parts":dict() }
+            for i in range(1,numParts+1):
+                qdict['parts'][str(i)] = {'submissionCount':0, 'maxpoints':Decimal(templateMaxPoints[i]) } 
+                    # It's going to make i into a string when it gets stored in the sessions anyway (not sure why),
+
             lupaQuestionTable[uniqid] = qdict
+            qdict['submissionsAllowed'] = int(request.POST['_submissionsAllowed'])
+            qdict['resubmissionPenalty'] = Decimal(request.POST['_resubmissionPenalty'])
+            qdict['point'] = Decimal(request.POST['_points'])
+            qdict['total_points'] = qdict['point']
                 
         elif inTryOut: # We're trying out the question, but it already exists.
             uniqid = request.POST['_uniqid']
@@ -262,6 +279,8 @@ def dynamicQuestionPartAJAX(request):
                     answers[value] = request.POST[value]
             print("\n\nDynamic Question Stuff:\n"+str(answers)+"\n\n")            
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(partNum-1, answers)
+            submissionCount = qdict['parts'][str(partNum-1)]['submissionCount']
+            qdict['parts'][str(partNum-1)]['submissionCount'] = submissionCount + 1
             if lupaQuestion.error is not None:
                 qdict['error'] = lupaQuestion.error
                 
@@ -273,43 +292,59 @@ def dynamicQuestionPartAJAX(request):
                 earnedScore += eval['value']
 
             def getMaxPointsForPart(p):
-                if qdict['type'] == "raw_lua":
-                    return lupaQuestion.getPartMaxPoints(p)
-                else:
-                    print ("\n\n Tmplated Dynamic Debug" + str(qdict['partpoints'])+"\n\n")
-                    return qdict['partpoints'][str(p)] # For some reason, Django makes my integer key into a string when it gets stored in the session.  Sigh.
+                if "maxpoints" in qdict['parts'][str(p)]:
+                    return qdict['parts'][str(p)]['maxpoints']
+                if qdict['dynamic_type'] == "raw_lua":
+                    qdict['parts'][str(p)]['maxpoints'] = lupaQuestion.getPartMaxPoints(p)
+                    return qdict['parts'][str(p)]['maxpoints']
             
-            totalScore = getMaxPointsForPart(partNum)
+            totalScore = getMaxPointsForPart(partNum-1)
                 
             pointsRemaining = 0
-            for i in range(partNum+1,qdict['numParts']+1):
+            for i in range(partNum,qdict['numParts']+1):
                 pointsRemaining += getMaxPointsForPart(i)
+            
+            maxTotalPointsAllParts = totalScore + pointsRemaining
+            for i in range(1,partNum-1):
+                maxTotalPointsAllParts += getMaxPointsForPart(i)
+            
+            problemScaleFactor = qdict['total_points']/maxTotalPointsAllParts
+            qdict['evaluations'] = rescale_evaluations(qdict['evaluations'],problemScaleFactor)
+            qdict['parts'][str(partNum-1)]['evaluations'] = qdict['evaluations']
+            
+            submissionCount = qdict['parts'][str(partNum-1)]['submissionCount']
+            retriesRemaining = qdict['submissionsAllowed'] - submissionCount
+            nextPenalty = Decimal(max(100 - (submissionCount * qdict["resubmissionPenalty"]),0)/100)
+            pointsPossible = nextPenalty * totalScore
+            currentPenalty = Decimal(max(100 - ((submissionCount-1) * qdict["resubmissionPenalty"]),0)/100)
             
             if numberIncorrect > 0:
                 context_dict['failure'] = {
                     'numAnswerBlanksIncorrect':numberIncorrect,
                     'numAnswerBlanksTotal': len(qdict['evaluations']),
-                    'pointsTotal': totalScore,
-                    'pointsEarned': earnedScore,
-                    'pointsPossible': 999999, # Need to know how many submissions for this and that hasn't been done yet.
-                    'pointsForFutureParts': pointsRemaining,
-                    'retriesRemaining': 999999 # Ditto previous comment
+                    'pointsTotal': totalScore*problemScaleFactor*currentPenalty,
+                    'pointsEarned': earnedScore*problemScaleFactor*currentPenalty,
+                    'pointsPossible': pointsPossible*problemScaleFactor,
+                    'pointsForFutureParts': pointsRemaining*problemScaleFactor,
+                    'retriesRemaining': retriesRemaining,
+                    'hadSomeRetries': submissionCount > 1
                 }
-                context_dict['retry'] = True
+                context_dict['retry'] = (retriesRemaining >= 1)
             elif earnedScore < totalScore:
                 context_dict['partial_success'] = {
-                    'pointsTotal': totalScore,
-                    'pointsEarned': earnedScore,
-                    'pointsPossible': 999999, # Need to know how many submissions for this and that hasn't been done yet.
-                    'pointsForFutureParts': pointsRemaining,
-                    'retriesRemaining': 999999 # Ditto previous comment
+                    'pointsTotal': totalScore*problemScaleFactor*currentPenalty,
+                    'pointsEarned': earnedScore*problemScaleFactor*currentPenalty,
+                    'pointsPossible': pointsPossible*problemScaleFactor,
+                    'pointsForFutureParts': pointsRemaining*problemScaleFactor,
+                    'retriesRemaining': retriesRemaining
                 }
-                context_dict['retry'] = True
+                context_dict['retry'] = (retriesRemaining >= 1)
             else:
                 context_dict['retry'] = False
-                       
+        
         if not errorInLupaQuestionConstructor:
             qdict['questionText'] = lupaQuestion.getQuestionPart(partNum)
+            qdict['parts'][str(partNum)]['questionText'] = qdict['questionText']
         if 'error' not in context_dict and lupaQuestion.error is not None:
             #print("We are setting error to:" + str(lupaQuestion.error))
             qdict['error'] = lupaQuestion.error

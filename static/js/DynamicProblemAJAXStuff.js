@@ -93,8 +93,13 @@ function senddynamicquestion(idprefix) {
 		success: function(result,textStatus, jqXHR) {
 			$("#"+idprefix+'-results').html(result);
 			makeAllEditors();
-			disableDiv(idprefix);
 		}
 	});
 }
+
+function shownextpart(idprefix) {
+	document.getElementById(idprefix+"-exact").style.display = "block";
+	document.getElementById(idprefix+"-partial_success_message").style.display = "none";
+}
+
 

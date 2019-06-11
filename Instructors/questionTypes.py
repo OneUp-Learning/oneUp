@@ -280,7 +280,12 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
         #                                context_qdict['error']=lupaQuest.error
         #                                return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_qdict)
 
-        qdict['questionText'] = lupaQuest.getQuestionPart(1)
+        qdict['parts'] = dict()
+        qdict['parts'][1] = dict()
+        for j in range(1,numParts+1):
+            qdict['parts'][j] = {'submissionCount':0} 
+        qdict['parts'][1]['questionText'] = lupaQuest.getQuestionPart(1)
+        qdict['questionText'] = qdict['parts'][1]['questionText']
         qdict['lupaquestion'] = lupaQuest.serialize()
         qdict['requestType'] = '_eval'
         if numParts > 1:
@@ -288,15 +293,15 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
         else:
             qdict['hasMultipleParts'] = False
         qdict['uniqid']=i
-        if isinstance(question,TemplateDynamicQuestions):
-            qdict['type'] = 'template'
+        if TemplateDynamicQuestions.objects.filter(pk=question.pk).exists():
+            qdict['dynamic_type'] = 'template'
             templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question)
-            partpoints = dict()
             for ttp in templateTextParts:
-                partpoints[ttp.partNumber] = ttp.pointsInPart
-            qdict['partpoints'] = partpoints
+                qdict['parts'][ttp.partNumber]['maxpoints'] = ttp.pointsInPart
+            print("\n\nIn Template part"+str(question.__class__)+"\n\n")
         else:
-            qdict['type'] = 'raw_lua'
+            qdict['dynamic_type'] = 'raw_lua'
+            print("\n\nNot In Template part"+str(question.__class__)+"\n\n")
     return qdict
 
 

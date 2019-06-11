@@ -520,7 +520,7 @@ else:
             runtime = self.getRuntime()
             if runtime is None:
                 return False
-            (success,weightFunc) = runtime.eval('part_'+n+'_max_points')
+            (success,weightFunc) = runtime.eval('part_'+str(n)+'_max_points')
             if not success:
                 self.setError({'type':LuaErrorType.required_part_not_defined,
                                'number':n,

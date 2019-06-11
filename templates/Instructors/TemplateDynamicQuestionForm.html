@@ -28,6 +28,9 @@ var testResultsVar;
             data['_numParts'] = numParts;
             data['_setupCode'] = editor.getValue();
             data['_dependentLuaLibraries[]']=lua_lib_selected
+            data['_submissionsAllowed']=document.question.submissionsAllowed.value;
+            data['_resubmissionPenalty']=document.question.resubmissionPenalty.value;
+            data['_points']=document.question.points.value;
         	$.ajax({
         		url: "doDynamicQuestion",
         		type: "POST",
