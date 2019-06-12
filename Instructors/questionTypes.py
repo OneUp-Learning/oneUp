@@ -281,11 +281,11 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
         #                                return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_qdict)
 
         qdict['parts'] = dict()
-        qdict['parts'][1] = dict()
+        qdict['parts']["1"] = dict()
         for j in range(1,numParts+1):
-            qdict['parts'][j] = {'submissionCount':0} 
-        qdict['parts'][1]['questionText'] = lupaQuest.getQuestionPart(1)
-        qdict['questionText'] = qdict['parts'][1]['questionText']
+            qdict['parts'][str(j)] = {'submissionCount':0} 
+        qdict['parts']["1"]['questionText'] = lupaQuest.getQuestionPart(1)
+        qdict['questionText'] = qdict['parts']["1"]['questionText']
         qdict['lupaquestion'] = lupaQuest.serialize()
         qdict['requestType'] = '_eval'
         if numParts > 1:
@@ -297,7 +297,7 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
             qdict['dynamic_type'] = 'template'
             templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question)
             for ttp in templateTextParts:
-                qdict['parts'][ttp.partNumber]['maxpoints'] = ttp.pointsInPart
+                qdict['parts'][str(ttp.partNumber)]['maxpoints'] = ttp.pointsInPart
             print("\n\nIn Template part"+str(question.__class__)+"\n\n")
         else:
             qdict['dynamic_type'] = 'raw_lua'
@@ -535,10 +535,12 @@ def dynamicMakeAnswerList(qdict, POST):
         studentAnswerList = [
             key + ":" + answers[key] for key in answers.keys()
         ]
+        return studentAnswerList
     else:
-        studentAnswerList = []
-    return studentAnswerList
-
+        studentAnswers = dict()
+        for pnum in qdict['parts']:
+            studentAnswers[pnum]=qdict['parts'][pnum]['user_answers']
+        return [json.dumps(studentAnswers)]
 
 def dynamicAnswersAndGrades(qdict, studentAnswers):
     if lupa_available:
@@ -556,7 +558,13 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
                     [eval['value'] for eval in qdict['evaluations']])
             else:
                 qdict['user_points'] = 0
-        # Multipart Problems have already been evaluated and had their points stored.
+        else:
+            answersStruct = json.loads(studentAnswers[0])
+            for i in range(1,qdict['numParts']):
+                if 'questionText' not in qdict['parts'][str(i)]:
+                    qdict['parts'][str(i)]['questionText'] = lupaQuestion.getQuestionPart(i)
+                qdict['parts'][str(i)]['user_answers'] = answersStruct[str(i)]
+                qdict['parts'][str(i)]['evaluations'] = lupaQuestion.answerQuestionPart(i,answersStruct[str(i)])
     return qdict
 
 
