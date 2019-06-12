@@ -359,16 +359,18 @@ class UploadedActivityFiles(models.Model):
 class DynamicQuestions(Questions):
     numParts = models.IntegerField(default=1)
     code = models.CharField(max_length=20000)
+    submissionsAllowed = models.IntegerField(default=1, verbose_name="Number of Submissions Allowed")
+    resubmissionPenalty = models.IntegerField(default=10, verbose_name="Resubmission penalty as an integer percentage")
 
 class TemplateDynamicQuestions(DynamicQuestions): 
     templateText = models.CharField(max_length=20000)
     setupCode = models.CharField(max_length=20000, default="")
-
     
 class TemplateTextParts(models.Model):
     partNumber = models.IntegerField(default=1)
     dynamicQuestion = models.ForeignKey(TemplateDynamicQuestions,on_delete=models.CASCADE )
     templateText = models.CharField(max_length=20000)
+    pointsInPart = models.IntegerField(default=1, verbose_name="Points in this Part")
 
 def luaLibraryUploadLocation(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'lua/uploadedLuaLibs'), filename)

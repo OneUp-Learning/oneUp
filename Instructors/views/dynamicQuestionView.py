@@ -25,11 +25,11 @@ from oneUp.ckeditorUtil import config_ck_editor
 def dynamicQuestionForm(request):
     context_dict, currentCourse = initialContextDict(request)
     
-    # In this class, these are the names of the attributes which are strings.
+    # In this view, these are the names of the attributes which are just passed through with no processing.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
-    string_attributes = ['preview','difficulty',
-                         'instructorNotes','code','numParts','author'];
+    passthrough_attributes = ['preview','difficulty',
+                         'instructorNotes','code','numParts','author','submissionsAllowed','resubmissionPenalty'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
     context_dict['tags'] = []
@@ -43,7 +43,7 @@ def dynamicQuestionForm(request):
             question = DynamicQuestions()
 
         # Copy all strings from POST to database object.
-        for attr in string_attributes:
+        for attr in passthrough_attributes:
             setattr(question,attr,request.POST[attr])
         question.questionText = ""  
         
@@ -125,7 +125,7 @@ def dynamicQuestionForm(request):
             # Copy all of the attribute values into the context_dict to
             # display them on the page.
             context_dict['questionId']=request.GET['questionId']
-            for attr in string_attributes:
+            for attr in passthrough_attributes:
                 context_dict[attr]=getattr(question,attr)
                 
             context_dict['selectedLuaLibraries'] = getLibrariesForQuestion(question)
@@ -198,95 +198,180 @@ def makeLibs(dynamicQuestion):
     libs = QuestionLibrary.objects.filter(question=dynamicQuestion)
     return [lib.library.libraryName for lib in libs]
 
+def rescale_evaluations(evals,scale):
+    for eval in evals:
+        eval['value'] *= scale
+        if 'details' in eval:
+            for detail in eval['details']:
+                detail['value'] *= scale
+                detail['max_points'] *= scale
+    return evals
+
 @login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def dynamicQuestionPartAJAX(request):
-    context_dict, currentCourse = initialContextDict(request)
+    context_dict = {}
     if not lupa_available:
-        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+        context_dict['error_message'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
-        print(request.POST)
-        uniqid = request.POST['_uniqid']
-        if ('_testeval' in request.POST):
-            part = int(request.POST['_part'])
-            requesttype = '_testeval'
-        elif ('_eval' in request.POST):
-            part = int(request.POST['_part'])
-            requesttype = '_eval'
-        elif ('_test' in request.POST):
+        attemptId = request.POST['_attemptId']
+        inChallenge = request.POST['_inChallenge']=="true"
+        partNum = int(request.POST['_partNum'])
+        inTryOut = request.POST['_inTryOut']=="true"
+        errorInLupaQuestionConstructor = False
+        if ('_inittestquestion' in request.POST):
+            numParts = int(request.POST['_numParts'])
             if '_code' in request.POST:
                 code = [CodeSegment.new(CodeSegment.raw_lua,request.POST['_code'],"")]
+                type = "raw_lua"
             else:
-                numParts = int(request.POST['_numParts'])
                 templateParts = []
+                templateMaxPoints = dict()
                 for i in range(1,numParts+1):
                     templateParts.append(request.POST['_templateText'+str(i)])
+                    templateMaxPoints[i]=int(request.POST['_partpoints'+str(i)])
                 code = templateToCodeSegments(request.POST['_setupCode'],templateParts)
+                type = "template"
             seed = request.POST['_seed']
-            numParts = request.POST['_numParts']
             libs = request.POST.getlist('_dependentLuaLibraries[]')
-            part = 1
-            requesttype = '_testeval'
-        elif ('_init' in request.POST):
-            print("We are in INIT")
-            questionID = request.POST['questionID']
-            seed = request.POST['seed']
-            dynamicQuestion = DynamicQuestions.objects.get(pk=questionID)
-            code = dynamicQuestion.code
-            numParts = dynamicQuestion.num_parts
-            libs = makeLibs(dynamicQuestion)
-            part = 1
-            requesttype = '_eval'
+            partNum = 1
         
-        if (part == 1):
-            if ('lupaQuestions' not in request.session):
+            if ('lupaQuestionCounter' not in request.session):
                 request.session['lupaQuestions'] = {}
-            
+                request.session['lupaQuestionCounter'] = 0
+
+            request.session['lupaQuestionCounter']=request.session['lupaQuestionCounter']+1
+            uniqid = request.session['lupaQuestionCounter']
+                     
             lupaQuestionTable = request.session['lupaQuestions']
             
-            errorInLupaQuestionConstructor = False
-            lupaQuestion = LupaQuestion(code,libs,seed,uniqid,numParts)
+            lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
+            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion, "dynamic_type":type, "parts":dict() }
+            for i in range(1,numParts+1):
+                qdict['parts'][str(i)] = {'submissionCount':0, 'maxpoints':Decimal(templateMaxPoints[i]) } 
+                    # It's going to make i into a string when it gets stored in the sessions anyway (not sure why),
+
+            lupaQuestionTable[uniqid] = qdict
+            qdict['submissionsAllowed'] = int(request.POST['_submissionsAllowed'])
+            qdict['resubmissionPenalty'] = Decimal(request.POST['_resubmissionPenalty'])
+            qdict['point'] = Decimal(request.POST['_points'])
+            qdict['total_points'] = qdict['point']
                 
-        else:
+        elif inTryOut: # We're trying out the question, but it already exists.
+            uniqid = request.POST['_uniqid']
             lupaQuestionTable = request.session['lupaQuestions']
-            lupaQuestion = LupaQuestion.createFromDump(lupaQuestionTable[uniqid])
+            qdict = lupaQuestionTable[uniqid]
+            lupaQuestion = LupaQuestion.createFromDump(qdict["lupaQuestion"])
+        elif inChallenge: # We're in a challenge.  We don't need to create the question because that was done in questiontypes.py
+            uniqid = request.POST['_uniqid']
+            qdict = request.session[attemptId]["questions"][int(uniqid)-1]
+            qdict['uniqid'] = uniqid # I think this is already set, but just in case, we're doing it again.
+            lupaQuestion = LupaQuestion.createFromDump(qdict["lupaquestion"])
+        
+        if partNum > 1:
+            submissionCount = qdict['parts'][str(partNum-1)]['submissionCount'] + 1
+            qdict['parts'][str(partNum-1)]['submissionCount'] = submissionCount
+            if submissionCount > qdict['submissionsAllowed']:
+                error_message = "<B>An error or some browser mischief has allowed the student to submit to a problem more times than allowed.  This additional submission will not be counter.</B>"
+                return render(request,'Instructors/DynamicQuestionAJAXResult.html',{"error_message":error_message})
             
             # And now we need to evaluate the previous answers.
             answers = {}
             for value in request.POST:
-                if (value.startswith(uniqid+"-")): 
-                    answers[value[len(uniqid)+1:]] = request.POST[value]
-            evaluations = lupaQuestion.answerQuestionPart(part-1, answers)
+                if not value.startswith("_"): 
+                    answers[value] = request.POST[value]
+            qdict['parts'][str(partNum-1)]["user_answers"] = answers
+                        
+            qdict['evaluations'] = lupaQuestion.answerQuestionPart(partNum-1, answers)
             if lupaQuestion.error is not None:
-                context_dict['error'] = lupaQuestion.error
+                qdict['error'] = lupaQuestion.error
+                
+            earnedScore = 0
+            numberIncorrect = 0
+            for eval in qdict['evaluations']:
+                if not eval['success']:
+                    numberIncorrect += 1
+                earnedScore += eval['value']
+
+            def getMaxPointsForPart(p):
+                if "maxpoints" in qdict['parts'][str(p)]:
+                    return qdict['parts'][str(p)]['maxpoints']
+                if qdict['dynamic_type'] == "raw_lua":
+                    qdict['parts'][str(p)]['maxpoints'] = lupaQuestion.getPartMaxPoints(p)
+                    return qdict['parts'][str(p)]['maxpoints']
             
-            #starts of making the table for the web page 
-            context_dict['evaluations'] = evaluations
+            totalScore = getMaxPointsForPart(partNum-1)
+                
+            pointsRemaining = 0
+            for i in range(partNum,qdict['numParts']+1):
+                pointsRemaining += getMaxPointsForPart(i)
             
-            errorInLupaQuestionConstructor = False
+            maxTotalPointsAllParts = totalScore + pointsRemaining
+            for i in range(1,partNum-1):
+                maxTotalPointsAllParts += getMaxPointsForPart(i)
+            
+            problemScaleFactor = qdict['total_points']/maxTotalPointsAllParts
+            qdict['evaluations'] = rescale_evaluations(qdict['evaluations'],problemScaleFactor)
+            qdict['parts'][str(partNum-1)]['evaluations'] = qdict['evaluations']
+            
+            retriesRemaining = qdict['submissionsAllowed'] - submissionCount
+            nextPenalty = Decimal(max(100 - (submissionCount * qdict["resubmissionPenalty"]),0)/100)
+            pointsPossible = nextPenalty * totalScore
+            currentPenalty = Decimal(max(100 - ((submissionCount-1) * qdict["resubmissionPenalty"]),0)/100)
+            
+            if numberIncorrect > 0:
+                context_dict['failure'] = {
+                    'numAnswerBlanksIncorrect':numberIncorrect,
+                    'numAnswerBlanksTotal': len(qdict['evaluations']),
+                    'pointsTotal': totalScore*problemScaleFactor*currentPenalty,
+                    'pointsEarned': earnedScore*problemScaleFactor*currentPenalty,
+                    'pointsPossible': pointsPossible*problemScaleFactor,
+                    'pointsForFutureParts': pointsRemaining*problemScaleFactor,
+                    'retriesRemaining': retriesRemaining,
+                    'hadSomeRetries': submissionCount > 1
+                }
+                context_dict['retry'] = (retriesRemaining >= 1)
+            elif earnedScore < totalScore:
+                context_dict['partial_success'] = {
+                    'pointsTotal': totalScore*problemScaleFactor*currentPenalty,
+                    'pointsEarned': earnedScore*problemScaleFactor*currentPenalty,
+                    'pointsPossible': pointsPossible*problemScaleFactor,
+                    'pointsForFutureParts': pointsRemaining*problemScaleFactor,
+                    'retriesRemaining': retriesRemaining
+                }
+                context_dict['retry'] = (retriesRemaining >= 1)
+            else:
+                context_dict['retry'] = False
         
-        if not errorInLupaQuestionConstructor:
-            formhead,formbody = makePartHTMLwithForm(lupaQuestion,part)
-        else:
-            formhead = ""
-            formbody = ""
+        if not errorInLupaQuestionConstructor and partNum <= int(qdict["numParts"]):
+            qdict['questionText'] = lupaQuestion.getQuestionPart(partNum)
+            qdict['parts'][str(partNum)]['questionText'] = qdict['questionText']
         if 'error' not in context_dict and lupaQuestion.error is not None:
             #print("We are setting error to:" + str(lupaQuestion.error))
-            context_dict['error'] = lupaQuestion.error
+            qdict['error'] = lupaQuestion.error
         if not errorInLupaQuestionConstructor:
-            lupaQuestionTable[uniqid]=lupaQuestion.serialize()
-            request.session['lupaQuestions']=lupaQuestionTable
+            if inTryOut:
+                lupaQuestionTable[uniqid]['lupaQuestion']=lupaQuestion.serialize()
+                request.session['lupaQuestions']=lupaQuestionTable
+            elif inChallenge:
+                request.session[attemptId]["questions"][int(uniqid)-1]["lupaquestion"]=lupaQuestion.serialize()
         
-        context_dict['formhead'] = formhead
-        context_dict['formbody'] = formbody
+        if inChallenge and partNum == qdict["numParts"]+1:
+            # We have just evaluated the last answer in a challenge
+            user_points = 0
+            for i in range(1,qdict["numParts"]+1):
+                for eval in qdict["parts"][str(i)]["evaluations"]:
+                    user_points += eval["value"]
+            print("\n\n Dynamic Problem stuff\nuser_points:"+str(user_points)+"\n\n")
+            qdict["user_points"] = user_points
+        
+        context_dict['q'] = qdict
         context_dict['uniqid'] = uniqid
-        context_dict['part'] = part
-        context_dict['partplusone'] = part+1
-        context_dict['type'] = requesttype
-        print(context_dict)
+        context_dict['part'] = partNum
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
+
+        
         

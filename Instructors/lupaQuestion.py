@@ -50,7 +50,7 @@ if lupa_spec is None:
             return self.error_str
         def answerQuestionPart(self,n,answer_dict):
             return self.error_str
-        def getPartWeight(self,n):
+        def getPartMaxPoints(self,n):
             return self.error_str
         def serialize(self):
             return self.error_str
@@ -133,6 +133,7 @@ else:
         module_not_found = 7702
         runtime = 7703
         required_part_not_defined = 7704
+        answer_sorting_error = 7705
     
     luaModuleNotFoundRegex = re.compile("\s*module '(.*)' not found")
     luaModuleSyntaxErrorRegex = re.compile("\s*error loading module '(.*)' from file '(.*)':(.*)")
@@ -324,7 +325,7 @@ else:
         
     make_input =
         function (name,type,size)
-            local fullname = _uniqid..'-'..name
+            local fullname = _uniqid..'-'.._current_part..'-'..name
             local originaltype = type
             type = string.upper(type)
             _inputs[_current_part][name] = {}
@@ -429,6 +430,7 @@ else:
                 return False
             
             question_code = '_output = ""\n'
+            question_code += '_current_part = ' + str(n) + '\n'
             question_code += '_qtext = part_'+str(n)+'_text()\n'
             question_code += 'if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end\n'
             exec_result = runtime.sys_exec(question_code)
@@ -486,7 +488,11 @@ else:
                 (success,pyanswer['seqnum'])=runtime.eval("_inputs["+str(n)+"]['"+answer_name+"']['seqnum']")
                 if not success:
                     self.updateRuntime(runtime)
-                    self.setError(evalAnswerFunc,"")
+                    self.setError({'type':LuaErrorType.answer_sorting_error,
+                                   'line':0,
+                                   'number':n,
+                                   'answer_name':answer_name,
+                                   'result':pyanswer['seqnum']},  "")
                     print("ERROR: something went wrong with sequence numbers (this should not happen)")
                     return False
                 pyanswer['name']=answer_name
@@ -510,15 +516,15 @@ else:
             
             return pyresults
         
-        def getPartWeight(self,n):
+        def getPartMaxPoints(self,n):
             runtime = self.getRuntime()
             if runtime is None:
                 return False
-            (success,weightFunc) = runtime.eval('part_'+n+'_weight')
+            (success,weightFunc) = runtime.eval('part_'+str(n)+'_max_points')
             if not success:
                 self.setError({'type':LuaErrorType.required_part_not_defined,
                                'number':n,
-                               'function_name':'part_'+n+'_weight'},
+                               'function_name':'part_'+n+'_max_points'},
                               "")
                 return False
             if weightFunc is None:
@@ -527,7 +533,7 @@ else:
                 try:
                     result = weightFunc()
                 except LuaError as luaerr:
-                    self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_weight()')
+                    self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_max_points()')
                     self.updateRuntime(runtime)
                     return False
             self.updateRuntime(runtime)

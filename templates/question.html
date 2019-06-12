@@ -10,13 +10,34 @@
 {% if i != 1 %}
 	<div class="divider"></div>
 {% endif %}
+{% if q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic %}
 <div class="row">
     <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
 </div>
+	        <B> HELLO! </B>
+
+{% elif not graded or not q.hasMultipleParts %}
+	<div class="row">
+		<h4>Question {{i}}</h4>
+		<div class="ck-view">
+			<div id="{{q.uniqid}}-1-exact">
+			  <div class="darkClassParent">
+			    <div id="{{q.uniqid}}-1-darkLayer" class="darkClass" style="display:none"></div>
+			    {{q.questionText|safe}}
+		        {% if q.hasMultipleParts and not graded %}
+			      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
+				{% endif %}
+			  </div>
+			</div>
+		</div>
+	</div>
+	<div id="{{q.uniqid}}-1-results">
+	</div>
+{% endif %} 
 {% if instructorview %}
     <p> Total points: {{question.point|safe}}</p>
 {% endif %}
-{% if graded %}
+{% if graded and q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic%}
 	<div class="row">
 	   <div class="col s12">
 	      <h5>Your Answer:</h5>
@@ -382,37 +403,46 @@
 	
 {% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}
 	{% if graded %}
-	    <div class="row">
-	        {% for answer_blank_name, user_answer_value in q.user_answers.items %}
-	    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
-	        {% endfor %}
-	    </div>
-	    {% if q.evaluations %}
-		    {% for answer in q.evaluations %}
-		    <p>	
-		       {% if answer.success %}
-			       <span style='color: green;'>&#10004;</span> 
-		       {% else %}
-			       <span style='color: red;'>&#10006;</span>
-		       {% endif %}
-		       You got {{answer.value}} points on answer {{answer.name}}
-		       {% if answer.details %}
-		       		<ul class="collection">
-	       			{% for detail in answer.details %}
-	       				<li class="collection-item">
-	          			{% if detail.success %}
-	          				<span style='color: green;'>&#10004;</span> 
-				  		{% else %}
-					        <span style='color: red;'>&#10006;</span> 
-				        {% endif %}
-	          			{{detail.value}}/{{detail.max_points}} points on criteria {{detail.name}}
-				       	</li>
-			       	{% endfor %}
-	    			</ul>
-    		   {% endif %}
-    		</p>
-    		{% endfor %}
-    	{% endif %}
+	    {% if q.numParts == 1 %}
+	    	<div class="row">
+				<div class="col s12">
+	      			<h5>Your Answer:</h5>
+				</div>
+			</div>
+		    <div class="row">
+		        {% for answer_blank_name, user_answer_value in q.user_answers.items %}
+		    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+		        {% endfor %}
+		    </div>
+		    {% if q.evaluations %}
+			    {% with evaluations=q.evaluations %}
+			    	{% include 'dynamicQuestionEvaluations.html' %}
+			    {% endwith %}
+	    	{% endif %}
+	    {% else %}
+	    	<div class="row">
+				<h4>Question {{i}}</h4>
+			</div>
+	    	{% for pnum, qp in q.parts.items %}
+	    		<div class="row"> <h5>Part {{pnum}} of {{q.numParts}}</h5> </div>
+	    		<div>{{qp.questionText|safe}}</div>
+	    		<div class="row">
+					<div class="col s12">
+	      				<h5>Your Answer:</h5>
+					</div>
+				</div>
+			    <div class="row">
+			        {% for answer_blank_name, user_answer_value in qp.user_answers.items %}
+			    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+			        {% endfor %}
+			    </div>
+	    		{% if qp.evaluations %}
+		    		{% with evaluations=qp.evaluations %}
+				    	{% include 'dynamicQuestionEvaluations.html' %}
+				    {% endwith %}
+				{% endif %}
+			{% endfor %}
+		{% endif %}
         <div class="row">
            <div class="col s12">
               <p>Total for this question, You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
