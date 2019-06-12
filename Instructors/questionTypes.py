@@ -556,8 +556,7 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
                     [eval['value'] for eval in qdict['evaluations']])
             else:
                 qdict['user_points'] = 0
-        else:
-            qdict['user_points'] = 0
+        # Multipart Problems have already been evaluated and had their points stored.
     return qdict
 
 

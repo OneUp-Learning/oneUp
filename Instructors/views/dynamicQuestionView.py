@@ -211,7 +211,7 @@ def rescale_evaluations(evals,scale):
 def dynamicQuestionPartAJAX(request):
     context_dict = {}
     if not lupa_available:
-        context_dict['theresult'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+        context_dict['error_message'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
     if request.method == 'POST':
@@ -271,16 +271,21 @@ def dynamicQuestionPartAJAX(request):
             qdict['uniqid'] = uniqid # I think this is already set, but just in case, we're doing it again.
             lupaQuestion = LupaQuestion.createFromDump(qdict["lupaquestion"])
         
-        if partNum > 1:            
+        if partNum > 1:
+            submissionCount = qdict['parts'][str(partNum-1)]['submissionCount'] + 1
+            qdict['parts'][str(partNum-1)]['submissionCount'] = submissionCount
+            if submissionCount > qdict['submissionsAllowed']:
+                error_message = "<B>An error or some browser mischief has allowed the student to submit to a problem more times than allowed.  This additional submission will not be counter.</B>"
+                return render(request,'Instructors/DynamicQuestionAJAXResult.html',{"error_message":error_message})
+            
             # And now we need to evaluate the previous answers.
             answers = {}
             for value in request.POST:
                 if not value.startswith("_"): 
                     answers[value] = request.POST[value]
-            print("\n\nDynamic Question Stuff:\n"+str(answers)+"\n\n")            
+            qdict['parts'][str(partNum-1)]["user_answers"] = answers
+                        
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(partNum-1, answers)
-            submissionCount = qdict['parts'][str(partNum-1)]['submissionCount']
-            qdict['parts'][str(partNum-1)]['submissionCount'] = submissionCount + 1
             if lupaQuestion.error is not None:
                 qdict['error'] = lupaQuestion.error
                 
@@ -312,7 +317,6 @@ def dynamicQuestionPartAJAX(request):
             qdict['evaluations'] = rescale_evaluations(qdict['evaluations'],problemScaleFactor)
             qdict['parts'][str(partNum-1)]['evaluations'] = qdict['evaluations']
             
-            submissionCount = qdict['parts'][str(partNum-1)]['submissionCount']
             retriesRemaining = qdict['submissionsAllowed'] - submissionCount
             nextPenalty = Decimal(max(100 - (submissionCount * qdict["resubmissionPenalty"]),0)/100)
             pointsPossible = nextPenalty * totalScore
@@ -342,7 +346,7 @@ def dynamicQuestionPartAJAX(request):
             else:
                 context_dict['retry'] = False
         
-        if not errorInLupaQuestionConstructor:
+        if not errorInLupaQuestionConstructor and partNum <= int(qdict["numParts"]):
             qdict['questionText'] = lupaQuestion.getQuestionPart(partNum)
             qdict['parts'][str(partNum)]['questionText'] = qdict['questionText']
         if 'error' not in context_dict and lupaQuestion.error is not None:
@@ -354,6 +358,15 @@ def dynamicQuestionPartAJAX(request):
                 request.session['lupaQuestions']=lupaQuestionTable
             elif inChallenge:
                 request.session[attemptId]["questions"][int(uniqid)-1]["lupaquestion"]=lupaQuestion.serialize()
+        
+        if inChallenge and partNum == qdict["numParts"]+1:
+            # We have just evaluated the last answer in a challenge
+            user_points = 0
+            for i in range(1,qdict["numParts"]+1):
+                for eval in qdict["parts"][str(i)]["evaluations"]:
+                    user_points += eval["value"]
+            print("\n\n Dynamic Problem stuff\nuser_points:"+str(user_points)+"\n\n")
+            qdict["user_points"] = user_points
         
         context_dict['q'] = qdict
         context_dict['uniqid'] = uniqid

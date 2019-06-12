@@ -71,7 +71,9 @@ function disableDiv(name) {
 		if ((e.tagName == "INPUT") && (e.type.toUpperCase() == "SUBMIT")) {
 			e.value = "Submitted";
 		}
-		
+		if (e.tagName == "BUTTON") {
+			e.disabled = true;
+		}
 	}
 }
 
@@ -100,6 +102,10 @@ function senddynamicquestion(idprefix) {
 function shownextpart(idprefix) {
 	document.getElementById(idprefix+"-exact").style.display = "block";
 	document.getElementById(idprefix+"-partial_success_message").style.display = "none";
+	idParts = idprefix.split("-");
+	previousNum = parseInt(idParts[1])-1;
+	previousId = idParts[0]+"-"+previousNum;
+	disableDiv(previousId);
 }
 
 
