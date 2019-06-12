@@ -16,4 +16,9 @@ def passed_current_time(value):
         return False
     return timezone.now() >= value
 
-    
+@register.filter
+def get_value_indexed(l, i):
+    try:
+        return l[i]
+    except:
+        return None

@@ -3,7 +3,7 @@ import re
 import json
 from decimal import Decimal
 
-from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions
+from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Students.models import StudentChallengeQuestions
@@ -262,8 +262,7 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
     dynamicQuestion = DynamicQuestions.objects.get(pk=question.questionID)
     qdict = basicqdict(dynamicQuestion, i, challengeId, studChallQuest)
     if not lupa_available:
-        qdict[
-            'questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+        qdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
     else:
         if studChallQuest is not None:
             seed = studChallQuest.seed
@@ -281,13 +280,28 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
         #                                context_qdict['error']=lupaQuest.error
         #                                return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_qdict)
 
-        qdict['questionText'] = lupaQuest.getQuestionPart(1)
+        qdict['parts'] = dict()
+        qdict['parts']["1"] = dict()
+        for j in range(1,numParts+1):
+            qdict['parts'][str(j)] = {'submissionCount':0} 
+        qdict['parts']["1"]['questionText'] = lupaQuest.getQuestionPart(1)
+        qdict['questionText'] = qdict['parts']["1"]['questionText']
         qdict['lupaquestion'] = lupaQuest.serialize()
         qdict['requestType'] = '_eval'
         if numParts > 1:
             qdict['hasMultipleParts'] = True
         else:
             qdict['hasMultipleParts'] = False
+        qdict['uniqid']=i
+        if TemplateDynamicQuestions.objects.filter(pk=question.pk).exists():
+            qdict['dynamic_type'] = 'template'
+            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question)
+            for ttp in templateTextParts:
+                qdict['parts'][str(ttp.partNumber)]['maxpoints'] = ttp.pointsInPart
+            print("\n\nIn Template part"+str(question.__class__)+"\n\n")
+        else:
+            qdict['dynamic_type'] = 'raw_lua'
+            print("\n\nNot In Template part"+str(question.__class__)+"\n\n")
     return qdict
 
 
@@ -521,10 +535,12 @@ def dynamicMakeAnswerList(qdict, POST):
         studentAnswerList = [
             key + ":" + answers[key] for key in answers.keys()
         ]
+        return studentAnswerList
     else:
-        studentAnswerList = []
-    return studentAnswerList
-
+        studentAnswers = dict()
+        for pnum in qdict['parts']:
+            studentAnswers[pnum]=qdict['parts'][pnum]['user_answers']
+        return [json.dumps(studentAnswers)]
 
 def dynamicAnswersAndGrades(qdict, studentAnswers):
     if lupa_available:
@@ -543,7 +559,12 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
             else:
                 qdict['user_points'] = 0
         else:
-            qdict['user_points'] = 0
+            answersStruct = json.loads(studentAnswers[0])
+            for i in range(1,qdict['numParts']):
+                if 'questionText' not in qdict['parts'][str(i)]:
+                    qdict['parts'][str(i)]['questionText'] = lupaQuestion.getQuestionPart(i)
+                qdict['parts'][str(i)]['user_answers'] = answersStruct[str(i)]
+                qdict['parts'][str(i)]['evaluations'] = lupaQuestion.answerQuestionPart(i,answersStruct[str(i)])
     return qdict
 
 

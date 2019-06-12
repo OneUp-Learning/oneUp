@@ -26,11 +26,11 @@ from oneUp.ckeditorUtil import config_ck_editor
 def templateDynamicQuestionForm(request):
     context_dict, currentCourse = utils.initialContextDict(request)
 
-    # In this class, these are the names of the attributes which are strings.
+    # In this view, these are the names of the attributes which are just passed through with no processing.
     # We put them in an array so that we can copy them from one item to
     # another programmatically instead of listing them out.
-    string_attributes = ['preview','difficulty',
-                         'instructorNotes','setupCode','numParts','author'];
+    passthrough_attributes = ['preview','difficulty',
+                         'instructorNotes','setupCode','numParts','author','submissionsAllowed','resubmissionPenalty'];
 
     context_dict['skills'] = utils.getCourseSkills(currentCourse)
     context_dict['tags'] = []
@@ -44,7 +44,7 @@ def templateDynamicQuestionForm(request):
             question = TemplateDynamicQuestions()
 
         # Copy all strings from POST to database object.
-        for attr in string_attributes:
+        for attr in passthrough_attributes:
             setattr(question,attr,request.POST[attr])
         
         #used to fill in info for question text 
@@ -57,9 +57,12 @@ def templateDynamicQuestionForm(request):
         question.save();  #Writes to database.
            
         #loops through and adds the multiple parts(the actual text) into to the template array   
-        templateArray = [] 
-        for i in range(1,int(request.POST['numParts'])+1): # the 1 is the start of the rang and we need to go all the way to the numparts+1
+        templateArray = []
+        partPointsArray = []
+        numTemplateParts = int(request.POST['numParts']) 
+        for i in range(1,numTemplateParts+1): # the 1 is the start of the range and we need to go all the way to the numparts (inclusive)
             templateArray.append(request.POST['templateTextVisible'+str(i)])
+            partPointsArray.append(int(request.POST['partpoints'+str(i)]))
             
         def combineCodeSegments(codeSegments):
             output = ""
@@ -83,11 +86,12 @@ def templateDynamicQuestionForm(request):
         count = int(1)
         
         #make a new object that is a part and add all the fields it needs
-        for text in templateArray:
+        for text,partpoints in zip(templateArray,partPointsArray):
             textPart = TemplateTextParts() 
             textPart.partNumber = count
             textPart.dynamicQuestion = question 
-            textPart.templateText = text 
+            textPart.templateText = text
+            textPart.pointsInPart = partpoints
             textPart.save()
             count+= 1
         
@@ -157,12 +161,12 @@ def templateDynamicQuestionForm(request):
             # Copy all of the attribute values into the context_dict to
             # display them on the page.
             context_dict['questionId']=request.GET['questionId']
-            for attr in string_attributes:
+            for attr in passthrough_attributes:
                 context_dict[attr]=getattr(question,attr)
             
             # TODO: get all matching templateTextPart objects and then add their code to the 
             # context dictionary as templateTextParts
-            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question) #get form the databse the matching question for the parts
+            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question) #get form the database the matching question for the parts
             context_dict['templateTextParts']=templateTextParts
             context_dict['checkInitalTemplateTextPart'] = False
             
