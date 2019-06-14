@@ -330,7 +330,7 @@ var testResultsVar;
 									<label for="submissionsAllowed"><span class= "red-text">*</span> Number of Submissions Allowed for Each Part</label>
 								</div>
 								<div class="col s12">
-									<input value="{{resubmissionPenalty}}" name="resubmissionPenalty" id="resubmissionPenalty" type="number" {% if view == False %}class="validate"{%endif%} min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
+									<input value="{{resubmissionPenalty}}" name="resubmissionPenalty" id="resubmissionPenalty" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
 									<label for="resubmissionPenalty"><span class= "red-text">*</span>Resubmission Penalty (in percent)</label>
 								</div>
 							</div>	

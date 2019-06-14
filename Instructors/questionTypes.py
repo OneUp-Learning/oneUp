@@ -538,9 +538,18 @@ def dynamicMakeAnswerList(qdict, POST):
         return studentAnswerList
     else:
         studentAnswers = dict()
+        submissionCount = dict()
+        lastPartSubmitted = 0
         for pnum in qdict['parts']:
-            studentAnswers[pnum]=qdict['parts'][pnum]['user_answers']
-        return [json.dumps(studentAnswers)]
+            if 'user_answers' in qdict['parts'][pnum]:
+                user_answers=qdict['parts'][pnum]['user_answers']
+            else:
+                user_answers=dict()
+            studentAnswers[pnum]=user_answers
+            submissionCount[pnum]=qdict['parts'][pnum]['submissionCount']
+            if submissionCount > 0:
+                lastPartSubmitted = max(lastPartSubmitted,int(pnum))
+        return [json.dumps({'user_answers':studentAnswers,'lastPartSubmitted':lastPartSubmitted,'submissionCount':submissionCount})]
 
 def dynamicAnswersAndGrades(qdict, studentAnswers):
     if lupa_available:
@@ -560,10 +569,10 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
                 qdict['user_points'] = 0
         else:
             answersStruct = json.loads(studentAnswers[0])
-            for i in range(1,qdict['numParts']):
+            for i in range(1,answersStruct['lastPartSubmitted']+1):
                 if 'questionText' not in qdict['parts'][str(i)]:
                     qdict['parts'][str(i)]['questionText'] = lupaQuestion.getQuestionPart(i)
-                qdict['parts'][str(i)]['user_answers'] = answersStruct[str(i)]
+                qdict['parts'][str(i)]['user_answers'] = answersStruct['user_answers'][str(i)]
                 qdict['parts'][str(i)]['evaluations'] = lupaQuestion.answerQuestionPart(i,answersStruct[str(i)])
     return qdict
 
