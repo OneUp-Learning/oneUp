@@ -249,7 +249,7 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
-            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion, "dynamic_type":type, "parts":dict() }
+            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion.serialize(), "dynamic_type":type, "parts":dict() }
             for i in range(1,numParts+1):
                 qdict['parts'][str(i)] = {'submissionCount':0, 'maxpoints':Decimal(templateMaxPoints[i]) } 
                     # It's going to make i into a string when it gets stored in the sessions anyway (not sure why),
