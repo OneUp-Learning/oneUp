@@ -66,7 +66,7 @@
 		          </blockquote>
 		      {% endif %}
 	          {% if graded %}
-		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+		          <p>You Scored: <b>{{q.user_points|floatformat:"-2"}}</b> Point(s) out of <b>{{q.total_points|floatformat:"-2"}}</b> Point(s)</p>
 		      {% endif %}
 	       </div>
 	    </div>

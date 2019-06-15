@@ -207,6 +207,11 @@ def rescale_evaluations(evals,scale):
                 detail['max_points'] *= scale
     return evals
 
+def calcResubmissionPenalty(subCount,qdict):
+    ahundred = Decimal(100)
+    return Decimal(max(ahundred - (Decimal(subCount) * Decimal(qdict["resubmissionPenalty"])),0)/ahundred)
+
+
 @login_required
 def dynamicQuestionPartAJAX(request):
     context_dict = {}
@@ -275,7 +280,7 @@ def dynamicQuestionPartAJAX(request):
             submissionCount = qdict['parts'][str(partNum-1)]['submissionCount'] + 1
             qdict['parts'][str(partNum-1)]['submissionCount'] = submissionCount
             if submissionCount > qdict['submissionsAllowed']:
-                error_message = "<B>An error or some browser mischief has allowed the student to submit to a problem more times than allowed.  This additional submission will not be counter.</B>"
+                error_message = "<B>An error or some browser mischief has allowed the student to submit to a problem more times than allowed.  This additional submission will not be counted.</B>"
                 return render(request,'Instructors/DynamicQuestionAJAXResult.html',{"error_message":error_message})
             
             # And now we need to evaluate the previous answers.
@@ -313,14 +318,14 @@ def dynamicQuestionPartAJAX(request):
             for i in range(1,partNum-1):
                 maxTotalPointsAllParts += getMaxPointsForPart(i)
             
-            problemScaleFactor = qdict['total_points']/maxTotalPointsAllParts
-            qdict['evaluations'] = rescale_evaluations(qdict['evaluations'],problemScaleFactor)
-            qdict['parts'][str(partNum-1)]['evaluations'] = qdict['evaluations']
-            
             retriesRemaining = qdict['submissionsAllowed'] - submissionCount
-            nextPenalty = Decimal(max(100 - (submissionCount * qdict["resubmissionPenalty"]),0)/100)
+            nextPenalty = calcResubmissionPenalty(submissionCount,qdict)
             pointsPossible = nextPenalty * totalScore
-            currentPenalty = Decimal(max(100 - ((submissionCount-1) * qdict["resubmissionPenalty"]),0)/100)
+            currentPenalty = calcResubmissionPenalty(submissionCount-1,qdict)
+
+            problemScaleFactor = qdict['total_points']/maxTotalPointsAllParts
+            qdict['evaluations'] = rescale_evaluations(qdict['evaluations'],problemScaleFactor*currentPenalty)
+            qdict['parts'][str(partNum-1)]['evaluations'] = qdict['evaluations']
             
             if numberIncorrect > 0:
                 context_dict['failure'] = {

@@ -27,33 +27,37 @@
 {% else %}
 	{% load instructors_tags %}
 	{% if q.error %}
-		<p><strong>Lua Error:</strong> 
-		{% if q.error.type == 7702 %} <!-- Module Not Found Error -->
-			Module not found.</p>
-			<p>The module '{{q.error.module}}' does not exist despite being referenced in 
-				{% if q.error.source == "module" %} module {{q.error.file}}
-				{% else %} the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
-				{% endif %}
-			</p>
-		{% elif q.error.type == 7704 %} <!-- Required part not defined -->
-			Required function not defined.</p>
-			<p>Each problem part must have the function <tt>{{q.error.function_name}}</tt> defined.  The code for this question does not have that function defined.
-			This can be caused either by omitting or misspelling the function in raw lua code or by certain syntax errors before the function definition
-			in either raw lua or template mode.  Unfortunately, we have no other information about the location of the error.</p>
-		{% elif q.error.type == 7701 or error.type == 7703 %} <!-- Syntax Error or Runtime Error (any sort) -->
-			{% if q.error.type == 7701 %} Syntax {% else %} Runtime {% endif %} Error in Lua code. </p>
-			<p>There was a {% if q.error.type == 7701 %} syntax {% else %} runtime {% endif %} error with message: <pre>{{error.message}}</pre></p>
-				This is on line {{error.line}} of 
-				{% if error.source == "module" %}
-					module {{error.file}}
-				{% else %}
-					the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
-				{% endif %}
-			</p>
-		{% elif error.type == 7705 %} <!-- Error in sorting.  This really shouldn't happen, but it's here for debugging our own code -->
-			<p> There was an error in sorting the answer blanks into order.
-			This happened for part number {{error.number}} and answer blank {{error.answer_name}} and the apparent result was {{error.result}}.
-			</p>
+		{% if inChallenge %}
+		An error has occurred in the execution of this problem.  Please notify your instructor.
+		{% else %}
+			<p><strong>Lua Error:</strong> 
+			{% if q.error.type == 7702 %} <!-- Module Not Found Error -->
+				Module not found.</p>
+				<p>The module '{{q.error.module}}' does not exist despite being referenced in 
+					{% if q.error.source == "module" %} module {{q.error.file}}
+					{% else %} the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
+					{% endif %}
+				</p>
+			{% elif q.error.type == 7704 %} <!-- Required part not defined -->
+				Required function not defined.</p>
+				<p>Each problem part must have the function <tt>{{q.error.function_name}}</tt> defined.  The code for this question does not have that function defined.
+				This can be caused either by omitting or misspelling the function in raw lua code or by certain syntax errors before the function definition
+				in either raw lua or template mode.  Unfortunately, we have no other information about the location of the error.</p>
+			{% elif q.error.type == 7701 or error.type == 7703 %} <!-- Syntax Error or Runtime Error (any sort) -->
+				{% if q.error.type == 7701 %} Syntax {% else %} Runtime {% endif %} Error in Lua code. </p>
+				<p>There was a {% if q.error.type == 7701 %} syntax {% else %} runtime {% endif %} error with message: <pre>{{error.message}}</pre></p>
+					This is on line {{error.line}} of 
+					{% if error.source == "module" %}
+						module {{error.file}}
+					{% else %}
+						the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
+					{% endif %}
+				</p>
+			{% elif error.type == 7705 %} <!-- Error in sorting.  This really shouldn't happen, but it's here for debugging our own code -->
+				<p> There was an error in sorting the answer blanks into order.
+				This happened for part number {{error.number}} and answer blank {{error.answer_name}} and the apparent result was {{error.result}}.
+				</p>
+			{% endif %}
 		{% endif %}
 	{% endif %}
 	{% if q.evaluations %}
@@ -61,37 +65,49 @@
 		    {% include 'dynamicQuestionEvaluations.html' %}
 		{% endwith %}
 		{% if failure and retry %}
-		<div>
-			You have gotten {{failure.numAnswerBlanksIncorrect}} out of {{failure.numAnswerBlanksTotal}} answer blanks incorrect for this part and
-			cannot proceed to the next part.  You have scored {{failure.pointsEarned}} out of {{failure.pointsTotal}} on this part of the problem.
-			You can retry this part, at a penalty, and earn up to {{failure.pointsPossible}} points on this part.
-			You have {{failure.retriesRemaining}} retries remaining.
-			{% if part != q.numParts %}
-				There are {{failure.pointsForFutureParts}} points available to earn from later parts if you succeed at this part.
-			{% endif %}
-			You may either change your answers and resubmit to retry the part or leave them be to keep your current score.
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Some Answers Incorrect</span>
+				<p>You have gotten {{failure.numAnswerBlanksIncorrect}} out of {{failure.numAnswerBlanksTotal}} answer blanks incorrect for this part and
+				cannot proceed to the next part.</p>  
+				<p>You have scored <b><font color="green">{{failure.pointsEarned|floatformat:"-2"}}</font></b> out of <b><font color="green">{{failure.pointsTotal|floatformat:"-2"}}</font></b> on this part of the problem.</p>
+				<p>You can retry this part, at a penalty, and earn up to <font color="blue">{{failure.pointsPossible|floatformat:"-2"}}</font> points on this part.</p>
+				<p>You have <span style="font-size:1.75em;color:red"><b>{{failure.retriesRemaining}}</b></span> retries remaining.</p>
+				{% if part != q.numParts %}
+					There are {{failure.pointsForFutureParts|floatformat:"-2"}} points available to earn from later parts if you succeed at this part.
+				{% endif %}
+				You may either change your answers and resubmit to retry thia part or leave them be to keep your current score.
+			</div>
 		</div>
 		{% elif partial_success and retry %}
-		<div id="{{q.uniqid}}-{{part}}-partial_success_message">
-			All of your answer blanks for this problem have been graded as correct, but you have not gotten all possible points
-			for this part.  You have scored {{partial_success.pointsEarned}} out of {{partial_success.pointsTotal}} on this part of the problem.
-			You can retry this part, at a penalty, and earn up to {{partial_success.pointsPossible}} points on this part.
-			You have {{partial_success.retriesRemaining}} retries remaining.
-			{% if part <= q.numParts %}
-				There are {{partial_success.pointsForFutureParts}} points available to earn from later parts.
-				You may either change your answers and resubmit to retry the part or press Next Part to keep your current score on this part and move on to the next part.
-				<div class="card-action right-align">
-			      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-{{part}}-nextpart" id="{{q.uniqid}}-{{part}}-nextpart" 
-			      	data-partname="{{q.uniqid}}-{{part}}" onclick="shownextpart(this.dataset.partname)">Next Part<i class="material-icons right">send</i></button>
-			    </div>
-			{% else %}
-				If you wish to retry the previous part, change your answers and press submit.  Otherwise, simply continue with the other problems on the challenge (if any)
-				and submit it normally.
-			{% endif %}
+		<div id="{{q.uniqid}}-{{part}}-partial_success_message" class="card">
+			<div class="card-content">
+				<span class="card-title">Partial Credit</span>
+				<p> All of your answer blanks for this problem have been graded as correct, but you have not gotten all possible points
+				for this part. </p>
+				<p> You have scored <b><font color="green">{{partial_success.pointsEarned|floatformat:"-2"}}</font></b> out of <b><font color="green">{{partial_success.pointsTotal|floatformat:"-2"}}</font></b> on this part of the problem. </p>
+				<p> You can retry this part, at a penalty, and earn up to <font color="blue">{{partial_success.pointsPossible|floatformat:"-2"}}</font> points on this part. </p>
+				<p> You have <span style="font-size:1.75em;color:red"><b>{{partial_success.retriesRemaining}}</b></span> retries remaining. </p>
+				{% if part <= q.numParts %}
+					<p> There are <font color="blue">{{partial_success.pointsForFutureParts|floatformat:"-2"}}</font> points available to earn from later parts. </p>
+					<p> You may either change your answers and resubmit to retry the part or press Next Part to keep your current score on this part and move on to the next part.</p>
+					<div class="card-action right-align">
+				      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-{{part}}-nextpart" id="{{q.uniqid}}-{{part}}-nextpart" 
+				      	data-partname="{{q.uniqid}}-{{part}}" onclick="shownextpart(this.dataset.partname)">Next Part<i class="material-icons right">send</i></button>
+				    </div>
+				{% else %}
+					If you wish to retry the previous part, change your answers and press submit.  Otherwise, simply continue with the other problems on the challenge (if any)
+					and submit it normally.
+				{% endif %}
+			</div>
 		</div>
 		{% elif failure %}
 			{% if failure.hadSomeRetries %}
-				<div> You have no retries remaining
+				<div class="card">
+					<div class="card-content">
+						<span class="card-title">No Retries Remaining</span>
+						All of your resubmissions for this problem part have been used up.
+					</div>
 				</div>
 			{% endif %}
 		{% endif %}
@@ -115,6 +131,11 @@
 		</div>
 	{% endif %}
 	{% if part > 1 and not partial_success and not failure %}
+		<script>
+			disableDiv("{{q.uniqid}}-{{part|add:-1}}");
+		</script>
+	{% endif %}
+	{% if failure and not retry %}
 		<script>
 			disableDiv("{{q.uniqid}}-{{part|add:-1}}");
 		</script>
