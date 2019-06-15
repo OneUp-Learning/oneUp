@@ -576,19 +576,25 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
                 qdict['user_points'] = 0
         else:
             answersStruct = json.loads(studentAnswers[0])
+            totalMaxPoints = 0
             for i in range(1,answersStruct['lastPartSubmitted']+1):
                 if 'questionText' not in qdict['parts'][str(i)]:
                     qdict['parts'][str(i)]['questionText'] = lupaQuestion.getQuestionPart(i)
                 qdict['parts'][str(i)]['user_answers'] = answersStruct['user_answers'][str(i)]
                 qdict['parts'][str(i)]['evaluations'] = lupaQuestion.answerQuestionPart(i,answersStruct['user_answers'][str(i)])
                 if qdict['dynamic_type'] == 'template':
-                    maxpoints = ttp[1].pointsInPart
+                    maxpoints = ttp.get(partNumber=i).pointsInPart
                 else:
-                    maxpoints = lupaQuestion.getPartMaxPoints(1)
-                submissionCount = answersStruct['submissionCount']
+                    maxpoints = lupaQuestion.getPartMaxPoints(i)
+                totalMaxPoints += maxpoints
+            for i in range(1,answersStruct['lastPartSubmitted']+1):                
+                submissionCount = answersStruct['submissionCount'][str(i)]
                 from Instructors.views.dynamicQuestionView import calcResubmissionPenalty
-                resubpenalty = calcResubmissionPenalty(submissionCount,qdict)
-                rescale_evaluations(qdict['evaluations'], qdict['total_points']/maxpoints*resubpenalty)
+                resubpenalty = calcResubmissionPenalty(submissionCount-1,qdict)
+                tp = qdict['total_points']
+                sf = qdict['total_points']/totalMaxPoints*resubpenalty
+                rescale_evaluations(qdict['parts'][str(i)]['evaluations'], qdict['total_points']/totalMaxPoints*resubpenalty)
+                #x = 1/0
     return qdict
 
 
