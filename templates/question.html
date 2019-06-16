@@ -14,8 +14,6 @@
 <div class="row">
     <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
 </div>
-	        <B> HELLO! </B>
-
 {% elif not graded or not q.hasMultipleParts %}
 	<div class="row">
 		<h4>Question {{i}}</h4>
@@ -24,8 +22,11 @@
 			  <div class="darkClassParent">
 			    <div id="{{q.uniqid}}-1-darkLayer" class="darkClass" style="display:none"></div>
 			    {{q.questionText|safe}}
-		        {% if q.hasMultipleParts and not graded %}
-			      <button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
+			    {% if not graded %}
+			        {% if q.hasMultipleParts or q.submissionsAllowed > 1 %}
+			        	<script>dynamicProblemPartExists.push("{{q.uniqid}}-1");</script>
+				    	<button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
+					{% endif %}
 				{% endif %}
 			  </div>
 			</div>
@@ -66,7 +67,7 @@
 		          </blockquote>
 		      {% endif %}
 	          {% if graded %}
-		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+		          <p>You Scored: <b>{{q.user_points|floatformat:"-2"}}</b> Point(s) out of <b>{{q.total_points|floatformat:"-2"}}</b> Point(s)</p>
 		      {% endif %}
 	       </div>
 	    </div>
@@ -424,22 +425,24 @@
 				<h4>Question {{i}}</h4>
 			</div>
 	    	{% for pnum, qp in q.parts.items %}
-	    		<div class="row"> <h5>Part {{pnum}} of {{q.numParts}}</h5> </div>
-	    		<div>{{qp.questionText|safe}}</div>
-	    		<div class="row">
-					<div class="col s12">
-	      				<h5>Your Answer:</h5>
+	    		{% if qp.submissionCount > 0 or pnum == "1" %}
+		    		<div class="row"> <h5>Part {{pnum}} of {{q.numParts}}</h5> </div>
+		    		<div>{{qp.questionText|safe}}</div>
+		    		<div class="row">
+						<div class="col s12">
+		      				<h5>Your Answer:</h5>
+						</div>
 					</div>
-				</div>
-			    <div class="row">
-			        {% for answer_blank_name, user_answer_value in qp.user_answers.items %}
-			    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
-			        {% endfor %}
-			    </div>
-	    		{% if qp.evaluations %}
-		    		{% with evaluations=qp.evaluations %}
-				    	{% include 'dynamicQuestionEvaluations.html' %}
-				    {% endwith %}
+				    <div class="row">
+				        {% for answer_blank_name, user_answer_value in qp.user_answers.items %}
+				    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+				        {% endfor %}
+				    </div>
+		    		{% if qp.evaluations %}
+			    		{% with evaluations=qp.evaluations %}
+					    	{% include 'dynamicQuestionEvaluations.html' %}
+					    {% endwith %}
+					{% endif %}
 				{% endif %}
 			{% endfor %}
 		{% endif %}

@@ -8,7 +8,7 @@
 	{% else %}
 		<span style='color: red;'>&#10006;</span>
 	{% endif %}
-	You got {{answer.value}} points on answer {{answer.name}}.
+	You got {{answer.value|floatformat:"-2"}} points on answer {{answer.name}}.
 	{% if answer.details %}
 		<ul class="collection">
 		{% for detail in answer.details %}
@@ -18,7 +18,7 @@
 				{% else %}
 					<span style='color: red;'>&#10006;</span> 
 				{% endif %}
-				{{detail.value}}/{{detail.max_points}} points on criteria {{detail.name}}
+				{{detail.value|floatformat:"-2"}}/{{detail.max_points|floatformat:"-2"}} points on criteria {{detail.name}}
 			</li>
 		{% endfor %}
 		</ul>
