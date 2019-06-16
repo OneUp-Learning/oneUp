@@ -77,7 +77,12 @@ function disableDiv(name) {
 	}
 }
 
-function senddynamicquestion(idprefix) {
+function nothing() {
+    return;
+}
+
+function senddynamicquestion(idprefix, callback = nothing, display = true) {
+	dynamicProblemPartSubmittedAtLeastOnce[idprefix]=true;
 	var idParts = idprefix.split("-");
 	var uniqid = idParts[0];
 	var partNum = parseInt(idParts[1]);
@@ -93,8 +98,11 @@ function senddynamicquestion(idprefix) {
 		data: data,
 		dataType: 'html',
 		success: function(result,textStatus, jqXHR) {
-			$("#"+idprefix+'-results').html(result);
-			makeAllEditors();
+			if (display) {
+				$("#"+idprefix+'-results').html(result);
+				makeAllEditors();
+			}
+			callback();
 		}
 	});
 }
@@ -106,6 +114,42 @@ function shownextpart(idprefix) {
 	previousNum = parseInt(idParts[1])-1;
 	previousId = idParts[0]+"-"+previousNum;
 	disableDiv(previousId);
+	dynamicProblemPartExists.push(idprefix);
 }
 
+var dynamicProblemPartExists = []
+var dynamicProblemPartSubmittedAtLeastOnce = {}
 
+function unsubmittedExist() {
+	var i = 0;
+	for (var i = 0; i < dynamicProblemPartExists.length; i++) {
+		if (!(dynamicProblemPartSubmittedAtLeastOnce.hasOwnProperty(dynamicProblemPartExists[i]))) {
+			console.log(dynamicProblemPartExists[i]);
+			senddynamicquestion(dynamicProblemPartExists[i]);
+		}
+	}
+}
+
+function submitAllUnsubmitted() {
+	var allUnsubmitted = [];
+	var i = 0;
+	for (var i = 0; i < dynamicProblemPartExists.length; i++) {
+		if (!(dynamicProblemPartSubmittedAtLeastOnce.hasOwnProperty(dynamicProblemPartExists[i]))) {
+			allUnsubmitted.push(dynamicProblemPartExists[i]);
+		}
+	}
+	function submitUnsubmittedOrWholeForm() {
+		if (allUnsubmitted.length == 0) {
+			formSubmit();
+		} else {
+			next = allUnsubmitted.pop();
+			senddynamicquestion(next,submitUnsubmittedOrWholeForm,false);
+		}
+	}
+	if (allUnsubmitted.length == 0) {
+		return true;
+	} else {
+		submitUnsubmittedOrWholeForm();
+		return false;
+	} 
+}

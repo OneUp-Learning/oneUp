@@ -41,7 +41,7 @@
          setTimeout("formSubmit()", limit); //if the time limit of the test has reached, the test will be submitted automatically
          
          function formSubmit() {
-             document.getElementById('submit_hidden').click()
+        	 document.getElementById("TakeTest").submit();
          };
          
       </script>
@@ -120,11 +120,11 @@
                      <div class="card-action right-align">
                         <input type="submit" id="submit_hidden" name="submit_hidden" style="display:none;">
                         {% if isDuel %}
-                        <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Duel</a>
+                        <a id="submit1" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Duel</a>
                         {% elif isCallout %}
-                        <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Call Out</a>
+                        <a id="submit2" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Call Out</a>
                         {% else %}
-                        <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm2"><i class="material-icons right">send</i>Submit Challenge</a>
+                        <a id="submit3" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm2"><i class="material-icons right">send</i>Submit Challenge</a>
                         {% endif %}
                         <div id="modal_confirm1" class="modal">
                            <div class="modal-content left-align">
@@ -133,7 +133,7 @@
                            </div>
                            <div class="modal-footer">
                               <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                              <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" id="submit" name="submit" value="Submit" onclick="copyContentsToHidden()">Submit
+                              <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" id="submit4" name="submitduel" value="Submit" onclick="copyContentsToHidden();return submitAllUnsubmitted();">Submit
                               </button>                                        
                            </div>
                         </div>
@@ -144,7 +144,7 @@
                            </div>
                            <div class="modal-footer">
                               <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                              <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" id="submit" name="submit" value="Submit" onclick="copyContentsToHidden()">Submit
+                              <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" id="submit5" name="submitchallenge" value="Submit" onclick="copyContentsToHidden();return submitAllUnsubmitted();">Submit
                               </button>                                        
                            </div>
                         </div>
@@ -177,12 +177,8 @@
                     var hiddenfield = document.getElementById(name+"-hidden");
                     hiddenfield.value = editor.getValue();
                 }
-              
-            
-                
          }
-         
-         
+
       </script>
    </body>
 </html>

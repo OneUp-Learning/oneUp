@@ -115,6 +115,9 @@
 	{% endif %}
 	{% if not failure and part <= q.numParts %}
 		<div id="{{q.uniqid}}-{{part}}-exact" {% if partial_success and retry %}style="display:none"{% endif %}>
+		  {% if not partial_success or not retry %}
+		  	<script>dynamicProblemPartExists.push("{{q.uniqid}}-{{part}}");</script>
+		  {% endif %}
 		  <div class="darkClassParent">
 		    <div id="{{q.uniqid}}-{{part}}-darkLayer" class="darkClass" style="display:none"></div>
 		    {% if q.numParts > 1 %}

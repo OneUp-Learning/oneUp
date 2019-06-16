@@ -530,11 +530,13 @@ def dynamicMakeAnswerList(qdict, POST):
         answers = {}
         for value in POST:
             indexstring = str(qdict['index'])
-            if value.startswith(indexstring + "-"):
-                answers[value[len(indexstring) + 1:]] = POST[value]
+            if value.startswith(indexstring + "-1-"):
+                answers[value[len(indexstring) + 3:]] = POST[value]
         studentAnswerList = [
             key + ":" + answers[key] for key in answers.keys()
         ]
+        storedAnswers=qdict["parts"]["1"]["user_answers"]
+        studentAnswerList.extend([key + ":" + storedAnswers[key] for key in storedAnswers.keys()])
         return studentAnswerList
     else:
         studentAnswers = dict()
@@ -565,13 +567,12 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
             qdict['user_answers'] = answers
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)
             if qdict['evaluations']:
-                qdict['user_points'] = sum(
-                    [eval['value'] for eval in qdict['evaluations']])
                 if qdict['dynamic_type'] == 'template':
-                    maxpoints = ttp[1].pointsInPart
+                    maxpoints = ttp[0].pointsInPart
                 else:
                     maxpoints = lupaQuestion.getPartMaxPoints(1)
                 rescale_evaluations(qdict['evaluations'], qdict['total_points']/maxpoints)
+                qdict['user_points'] = sum( [eval['value'] for eval in qdict['evaluations']] )
             else:
                 qdict['user_points'] = 0
         else:
@@ -582,19 +583,23 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
                     qdict['parts'][str(i)]['questionText'] = lupaQuestion.getQuestionPart(i)
                 qdict['parts'][str(i)]['user_answers'] = answersStruct['user_answers'][str(i)]
                 qdict['parts'][str(i)]['evaluations'] = lupaQuestion.answerQuestionPart(i,answersStruct['user_answers'][str(i)])
+            for i in range(1,qdict['numParts']+1):
                 if qdict['dynamic_type'] == 'template':
                     maxpoints = ttp.get(partNumber=i).pointsInPart
                 else:
                     maxpoints = lupaQuestion.getPartMaxPoints(i)
                 totalMaxPoints += maxpoints
+            user_points = 0
             for i in range(1,answersStruct['lastPartSubmitted']+1):                
                 submissionCount = answersStruct['submissionCount'][str(i)]
+                qdict['parts'][str(i)]['submissionCount']=submissionCount
                 from Instructors.views.dynamicQuestionView import calcResubmissionPenalty
                 resubpenalty = calcResubmissionPenalty(submissionCount-1,qdict)
                 tp = qdict['total_points']
                 sf = qdict['total_points']/totalMaxPoints*resubpenalty
                 rescale_evaluations(qdict['parts'][str(i)]['evaluations'], qdict['total_points']/totalMaxPoints*resubpenalty)
-                #x = 1/0
+                user_points += sum( [eval['value'] for eval in qdict['parts'][str(i)]['evaluations']] )
+            qdict['user_points'] = user_points
     return qdict
 
 
