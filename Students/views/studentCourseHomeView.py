@@ -44,7 +44,7 @@ def StudentCourseHome(request):
         context_dict['is_test_student'] = sID.isTestStudent
         if sID.isTestStudent:
             context_dict["username"]="Test Student"
-            
+                
     if 'currentCourseID' in request.session:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
@@ -81,7 +81,6 @@ def StudentCourseHome(request):
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.userLogin, request, None, None)
     print("User Login event was registered for the student in the request")
-    
     return render(request,'Students/StudentCourseHome.html', context_dict)          
 
 def courseBadges(currentCourse, context_dict):

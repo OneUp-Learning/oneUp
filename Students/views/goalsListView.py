@@ -87,8 +87,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             
     else: # Only shows the first three
         for goal in goals:                        
-#             if index < 1:
-                print("Im in course home!")
+            if index < 1:
                 studentGoal_ID.append(goal.studentGoalID) #pk
                 student_ID.append(goal.studentID)
                 course_ID.append(goal.courseID)              
@@ -107,8 +106,10 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 status = goalStatus(progressPercent, endDate)
                 goal_status.append(status)
                 
-#                 if (utcDate() >= endDate):
-#                     index += 1    
+                recurring_goal.append(goal.recurringGoal)
+                
+                if (utcDate() <= endDate):
+                    index += 1    
       
     # The range part is the index numbers.
     print (student_ID)

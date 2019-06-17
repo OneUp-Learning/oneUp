@@ -88,9 +88,9 @@
 		                    <tr><td>
 			            		<div class="row" style="display: flex;">
 			            		  <div class="col s12 m6"></div>
-			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed in goal_range %}                                                           
+			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal in goal_range %}                                                           
 			                          <div class="col s12">
-			                            <div class="card-panel">
+			                            <div class="card-panel" style="height:90%">
 			                            	<span>End Date: {{end_date}}</span>
 			                           		<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
 			                      			<span>{{goal_Type}}</span>			                      			
