@@ -40,19 +40,11 @@ by James Cherry -->
                            <div class="input-field col s12">
                               <select name="goalType" id="goalType" class="validate" required>
                                  {% if studentGoalID %}
-                                 <option value={{goalType}}>{{goalType}}</option>
+                                 	<option value={{goalType}}>{{goalName}}</option>
                                  {% endif %}
-                                 <option value=1600>Warm Ups with any score</option>
-                                 <option value=1602>Warm Ups at 70% or higher</option>
-                                 <option value=1604>Warm Ups at 80% or higher</option>
-                                 <option value=1606>Warm Ups at 90% or higher</option>
-                                 <option value=1610>Streak with any score</option>
-                                 <option value=1612>Streak at 70% or higher</option> 
-                                 <option value=1614>Streak at 80% or higher</option> 
-                                 <option value=1616>Streak at 90% or higher</option> 
-                                 <option value=1620>Course Bucks</option>
-                                 <option value=1630>Course XP</option>
-                                 <option value=1640>Course Badges</option>                                  
+                                 {% for i,goal_type,goal_display in goaltype_range %}
+                                 	<option value={{goal_type}}>{{goal_display}}</option>
+                                 {% endfor %}                               
                               </select>
                               <label for="goalType" style="font-size:1em"><span class= "red-text">*</span> What is your goal: </label>
                            </div>

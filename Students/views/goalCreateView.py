@@ -27,8 +27,15 @@ def goalCreate(request):
     # The context contains information such as the client's machine details, for example.
  
     context_dict, currentCourse = studentInitialContextDict(request)
-    genums = Goal.goals    
-
+    genums = Goal.goals
+    
+    goal_type = []
+    goal_display = []
+    
+    for g in genums:
+        goal_type.append(genums[g].get('index'))
+        goal_display.append(genums[g].get('displayName'))  
+    
     if request.POST:
 
         # Get the activity from the DB for editing or create a new announcement  
@@ -55,8 +62,8 @@ def goalCreate(request):
 
     ######################################
     # request.GET 
-    else:
-        if request.GET:
+    elif request.GET:
+            
                             
             # If studentGoalId is specified then we load for editing.
             if 'studentGoalID' in request.GET:
@@ -64,12 +71,23 @@ def goalCreate(request):
                 # Copy all of the attribute values into the context_dict to
                 # display them on the page.
                 context_dict['studentGoalID'] = request.GET['studentGoalID']
-                context_dict['goalType'] = genums[goal.goalType].get('displayName')
+                context_dict['goalType'] = genums[goal.goalType].get('index')
+                context_dict['goalName'] = genums[goal.goalType].get('displayName')
                 context_dict['targetedNumber'] = goal.targetedNumber
                 context_dict['recurringGoal'] = goal.recurringGoal
                 print(goal.recurringGoal)
-                print(context_dict['recurringGoal'])
-                                
+                print(context_dict['recurringGoal'])        
+    
+    else:
+        goal_type = []
+        goal_display = []
+    
+        for g in genums:
+            goal_type.append(genums[g].get('index'))
+            goal_display.append(genums[g].get('displayName'))
+            
+        context_dict['goaltype_range'] = zip(range(1,len(genums)+1),goal_type,goal_display)
+                                    
 
     return render(request,'Students/GoalsCreationForm.html', context_dict)
 
