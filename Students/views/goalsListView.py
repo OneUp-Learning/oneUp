@@ -79,7 +79,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             recurring_goal.append(goal.recurringGoal)    
             
             if (utcDate() >= endDate):
-                goalRecurrence(goal.recurringGoal, goal.courseID, goal.studentID, goal.goalType, goal.targetedNumber, goal.progressToGoal)
+                goalRecurrence(goal.recurringGoal, goal.courseID, goal.studentID, goal.goalType, goal.targetedNumber, goal.progressToGoal, endDate)
                 sgi = goal.studentGoalID
                 goal = StudentGoalSetting.objects.get(pk=int(sgi))
                 goal.recurringGoal = False
@@ -156,19 +156,18 @@ def editGoal(startDate):
     else:
         return False  
     
-def goalRecurrence(recur, course, student, goalType, target, progress):
+def goalRecurrence(recur, course, student, goalType, target, progress, endDate):
     if (recur):
         goal = StudentGoalSetting()        
         goal.courseID = course
         goal.studentID = student
         goal.goalType = goalType
         goal.targetedNumber = target
-        goal.timestamp = utcDate()         
+        goal.timestamp = endDate  
+        print("Goal endDate is: ", endDate) 
+        print("New goal start date is: ", goal.timestamp)      
         goal.progressToGoal = progress
         goal.recurringGoal = recur       
         goal.save();  #Writes to database.
-        print("I ran!")
-    else:
-        print("Goodbye")
     
     
