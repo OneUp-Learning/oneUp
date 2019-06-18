@@ -34,7 +34,9 @@ def goalCreate(request):
     
     for g in genums:
         goal_type.append(genums[g].get('index'))
-        goal_display.append(genums[g].get('displayName'))  
+        goal_display.append(genums[g].get('displayName'))
+        
+    context_dict['goaltype_range'] = zip(range(1,len(genums)+1),goal_type,goal_display)  
     
     if request.POST:
 
@@ -78,15 +80,8 @@ def goalCreate(request):
                 print(goal.recurringGoal)
                 print(context_dict['recurringGoal'])        
     
-    else:
-        goal_type = []
-        goal_display = []
     
-        for g in genums:
-            goal_type.append(genums[g].get('index'))
-            goal_display.append(genums[g].get('displayName'))
-            
-        context_dict['goaltype_range'] = zip(range(1,len(genums)+1),goal_type,goal_display)
+        
                                     
 
     return render(request,'Students/GoalsCreationForm.html', context_dict)
