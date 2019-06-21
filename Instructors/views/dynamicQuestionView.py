@@ -254,7 +254,10 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
+                tempError = lupaQuestion.error
             qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion.serialize(), "dynamic_type":type, "parts":dict() }
+            if errorInLupaQuestionConstructor:
+                qdict['error'] = tempError
             for i in range(1,numParts+1):
                 qdict['parts'][str(i)] = {'submissionCount':0, 'maxpoints':Decimal(templateMaxPoints[i]) } 
                     # It's going to make i into a string when it gets stored in the sessions anyway (not sure why),
@@ -270,12 +273,17 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestionTable = request.session['lupaQuestions']
             qdict = lupaQuestionTable[uniqid]
             lupaQuestion = LupaQuestion.createFromDump(qdict["lupaQuestion"])
+            if lupaQuestion.error is not None:
+                qdict['error'] = lupaQuestion.error
+                
         elif inChallenge: # We're in a challenge.  We don't need to create the question because that was done in questiontypes.py
             uniqid = request.POST['_uniqid']
             qdict = request.session[attemptId]["questions"][int(uniqid)-1]
             qdict['uniqid'] = uniqid # I think this is already set, but just in case, we're doing it again.
             lupaQuestion = LupaQuestion.createFromDump(qdict["lupaquestion"])
-        
+            if lupaQuestion.error is not None:
+                qdict['error'] = lupaQuestion.error
+                
         if partNum > 1:
             submissionCount = qdict['parts'][str(partNum-1)]['submissionCount'] + 1
             qdict['parts'][str(partNum-1)]['submissionCount'] = submissionCount
@@ -306,6 +314,8 @@ def dynamicQuestionPartAJAX(request):
                     return qdict['parts'][str(p)]['maxpoints']
                 if qdict['dynamic_type'] == "raw_lua":
                     qdict['parts'][str(p)]['maxpoints'] = lupaQuestion.getPartMaxPoints(p)
+                    if lupaQuestion.error is not None:
+                        qdict['error'] = lupaQuestion.error 
                     return qdict['parts'][str(p)]['maxpoints']
             
             totalScore = getMaxPointsForPart(partNum-1)
@@ -376,6 +386,7 @@ def dynamicQuestionPartAJAX(request):
         context_dict['q'] = qdict
         context_dict['uniqid'] = uniqid
         context_dict['part'] = partNum
+        print(str(qdict['error']))
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
         

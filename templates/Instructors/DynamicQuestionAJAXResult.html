@@ -43,14 +43,14 @@
 				<p>Each problem part must have the function <tt>{{q.error.function_name}}</tt> defined.  The code for this question does not have that function defined.
 				This can be caused either by omitting or misspelling the function in raw lua code or by certain syntax errors before the function definition
 				in either raw lua or template mode.  Unfortunately, we have no other information about the location of the error.</p>
-			{% elif q.error.type == 7701 or error.type == 7703 %} <!-- Syntax Error or Runtime Error (any sort) -->
+			{% elif q.error.type == 7701 or q.error.type == 7703 %} <!-- Syntax Error or Runtime Error (any sort) -->
 				{% if q.error.type == 7701 %} Syntax {% else %} Runtime {% endif %} Error in Lua code. </p>
-				<p>There was a {% if q.error.type == 7701 %} syntax {% else %} runtime {% endif %} error with message: <pre>{{error.message}}</pre></p>
-					This is on line {{error.line}} of 
-					{% if error.source == "module" %}
-						module {{error.file}}
+				<p>There was a {% if q.error.type == 7701 %} syntax {% else %} runtime {% endif %} error with message: <pre>{{q.error.message}}</pre></p>
+					This is on line {{q.error.line}} of 
+					{% if q.error.source == "module" %}
+						module {{q.error.file}}
 					{% else %}
-						the following code segment: {% include 'Instructors/CodeSegmentError.html' %}
+						the following code segment: {% with error=q.error %} {% include 'Instructors/CodeSegmentError.html' %} {% endwith %}
 					{% endif %}
 				</p>
 			{% elif error.type == 7705 %} <!-- Error in sorting.  This really shouldn't happen, but it's here for debugging our own code -->

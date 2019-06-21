@@ -162,7 +162,7 @@ else:
                     error['source'] = 'module'
                     error['module'] = mse_matches.group(1)
                     error['module_file'] = mse_matches.group(2) # this should be the same as the file, but we record it here, just in case.
-                    print("MODULE ERROR MESSAGE:\n"+errstr+"\n\n")
+                    #print("MODULE ERROR MESSAGE:\n"+errstr+"\n\n")
                     main_matches = re.match(luaMainErrorRegex,errstr.splitlines()[1])
                 else:
                     error['type'] = LuaErrorType.runtime
