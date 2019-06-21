@@ -239,7 +239,7 @@
 	              				var editor = ace.edit("model_editor{{q.questionID}}");
 	              				editor.setTheme("ace/theme/chrome");
 	              				editor.session.setMode("ace/mode/java");
-	              				editor.setReadOnly(True);
+	              				editor.setReadOnly(true);
 	           				</script>
 	           			</div>
             		</div>
@@ -320,7 +320,7 @@
 					       });
 					       
 					       //on click display the contents of the student error log
-					       $("#submit").click(function(event){
+					       $(".challengesubmitbutton").click(function(event){
 					       	
 					       	submit_clicked_{{q.questionID}} = true;
 					       	//we click the link here too, and it should not be counted against the student
