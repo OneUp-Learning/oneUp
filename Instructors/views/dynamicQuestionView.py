@@ -386,7 +386,6 @@ def dynamicQuestionPartAJAX(request):
         context_dict['q'] = qdict
         context_dict['uniqid'] = uniqid
         context_dict['part'] = partNum
-        print(str(qdict['error']))
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
 
         
