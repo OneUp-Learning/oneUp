@@ -13,13 +13,18 @@ from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses, Topics
 import json
-from oneUp.settings import CELERY_ENABLED
+from oneUp.settings import CELERY_ENABLED, DATABASES
 from Badges.tasks import process_event_offline
 
-from django.db import transaction, OperationalError
-from psycopg2.extensions import TransactionRollbackError
-
+postgres_enabled = False
+if len([db for (name,db) in DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
+    postgres_enabled = True
 transaction_retry_count = 50
+from django.db import transaction, OperationalError
+if postgres_enabled:
+    from psycopg2.extensions import TransactionRollbackError
+else:
+    TransactionRollbackError = "Dummy Value which won't match things later"
 
 import logging
 logger = logging.getLogger(__name__)
@@ -577,26 +582,31 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
             
         if actionID == Action.decreaseVirtualCurrency:
             # Decrease the student virtual currency amount
-            for retries in range(0,transaction_retry_count):
-                try:
-                    with transaction.atomic():
-                        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
-                        if student.virtualCurrencyAmount >= vcRuleAmount:
-                            student.virtualCurrencyAmount -= vcRuleAmount 
-                            instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
-                            instructor = instructorCourse.instructorID
-                            notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency')
-                        else:
-                            #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
-                            print("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
-                        student.save()
-                except OperationalError as e:
-                    if e.__cause__.__class__ == TransactionRollbackError:
-                        continue
-                    else:
-                        raise
-                else:
-                    break
+            
+            # Commented this out for now since not all shop items are reaching this point (they may not have rules)
+            # Each shop item should have a rule associated with it though. This needs to be looked into more
+
+#             for retries in range(0,transaction_retry_count):
+#                 try:
+#                     with transaction.atomic():
+#                         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+            if student.virtualCurrencyAmount >= vcRuleAmount:
+#                             student.virtualCurrencyAmount -= vcRuleAmount 
+#                             instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
+#                             instructor = instructorCourse.instructorID
+#                             notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency')
+                logger.warn("This shop item has a rule associated with it, but currency deduction and instructor notification is handled in virtualCurrencyShopView.py instead")
+            else:
+#                            #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
+                print("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
+#                         student.save()
+#                 except OperationalError as e:
+#                     if e.__cause__.__class__ == TransactionRollbackError:
+#                         continue
+#                     else:
+#                         raise
+#                 else:
+#                     break
             return
 
 chosenObjectSpecifierFields = {
