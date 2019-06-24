@@ -19,6 +19,7 @@ from oneUp.decorators import instructorsCheck
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 from oneUp.ckeditorUtil import config_ck_editor
+from datetime import datetime
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -255,7 +256,8 @@ def dynamicQuestionPartAJAX(request):
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
                 tempError = lupaQuestion.error
-            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion.serialize(), "dynamic_type":type, "parts":dict() }
+            now = datetime.utcnow()
+            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion.serialize(), "dynamic_type":type, "parts":dict(), 'creation':now.strftime("%m/%d/%Y %I:%M:%S %p") }
             if errorInLupaQuestionConstructor:
                 qdict['error'] = tempError
             for i in range(1,numParts+1):
@@ -267,7 +269,19 @@ def dynamicQuestionPartAJAX(request):
             qdict['resubmissionPenalty'] = Decimal(request.POST['_resubmissionPenalty'])
             qdict['point'] = Decimal(request.POST['_points'])
             qdict['total_points'] = qdict['point']
-                
+            
+            # We also take a moment or two to clear out old dynamic questions we were trying out.  Anything more than a week old gets
+            # killed
+            for k,v in list(request.session['lupaQuestions'].items()):
+                if 'creation' in request.session['lupaQuestions'][k]:
+                    creationtime = datetime.strptime(request.session['lupaQuestions'][k]['creation'],"%m/%d/%Y %I:%M:%S %p")
+                    delta = now-creationtime
+                    if delta.days > 8:
+                        del request.session['lupaQuestions'][k]
+                else:
+                    # So old that it predates the change to recording creation times.
+                    del request.session['lupaQuestions'][k]
+                            
         elif inTryOut: # We're trying out the question, but it already exists.
             uniqid = request.POST['_uniqid']
             lupaQuestionTable = request.session['lupaQuestions']
