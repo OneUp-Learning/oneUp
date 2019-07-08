@@ -262,9 +262,15 @@ CKEDITOR_CONFIGS = {
 }
 
 # For chat/celery
-rabbitmq_username = getpass.getuser()
-with open('oneUp/rabbitmq_password') as f:
-    rabbitmq_password = f.read().strip()
+if os.path.exists("~/rabbitmqpasswd"):
+    rabbitmq_username = getpass.getuser()
+    with open('~/rabbitmqpasswd') as f:
+        rabbitmq_password = f.read().strip()
+    rabbitmq_vhostname = rabbitmq_username
+else:
+    rabbitmq_username = "guest"
+    rabbitmq_password = "guest"
+    rabbitmq_vhostname = ""
 
 # Chat app settings
 ASGI_APPLICATION = 'oneUp.routing.application'
@@ -272,7 +278,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_rabbitmq.core.RabbitmqChannelLayer",
         "CONFIG": {
-            "host": 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/asgi',
+            "host": "amqp://"+rabbitmq_username+":"+rabbitmq_password+"@localhost/asgi"+rabbitmq_vhostname,
         },
     },
 }
@@ -288,7 +294,7 @@ REST_FRAMEWORK = {
 SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
 
 # Celery Settings
-CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/'+rabbitmq_username
+CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/'+rabbitmq_vhostname
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_IMPORTS = ['Badges.periodicVariables']

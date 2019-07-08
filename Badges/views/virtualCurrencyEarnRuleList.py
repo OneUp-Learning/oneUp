@@ -78,8 +78,8 @@ def virtualCurrencyEarnRuleList(request):
 @login_required
 def reorderVirtualCurrencyEarnRules(request):
     context_dict,currentCourse = initialContextDict(request);
-    
-    if request.POST['isRuleCustom'] == 'True':
+
+    if request.POST['isRuleCustom'] == 'true':
         vcRulesCustom = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
         for rule in vcRulesCustom:
             if str(rule.vcRuleID) in request.POST:
