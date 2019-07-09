@@ -52,6 +52,8 @@ if lupa_spec is None:
             return self.error_str
         def getPartMaxPoints(self,n):
             return self.error_str
+        def getPartExamleAnswers(self,n):
+            return self.error_str
         def serialize(self):
             return self.error_str
         def setError(self,result, current_code):
@@ -65,6 +67,7 @@ else:
     
     from lupa import LuaRuntime
     from lupa import LuaError
+    from lupa import lua_type
     from uuid import uuid4
     import re
     import json
@@ -538,6 +541,33 @@ else:
                     return False
             self.updateRuntime(runtime)
             return result
+        
+        def getPartExamleAnswers(self,n):
+            runtime = self.getRuntime()
+            if runtime is None:
+                return False
+            (success,exampleDictFunc) = runtime.eval('part_'+str(n)+'_example_answers')
+            if not success:
+                # The part_n_example_answers function is optional.  If we do not find it defined, we simply return an empty dictionary
+                return dict()
+            if exampleDictFunc is None:
+                return dict()
+            try:
+                result = exampleDictFunc()
+            except LuaError as luaerr:
+                self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_max_points')
+                self.updateRuntime(runtime)
+                return False
+            self.updateRuntime(runtime)
+            
+            def pyDictFromLuaTable(lt):
+                output = dict(lt)
+                for k in output:
+                    if lua_type(output[k])=='table':
+                        output[k]=pyDictFromLuaTable(output[k])
+                return output
+            
+            return pyDictFromLuaTable(result)
         
         def serialize(self):
             return json.dumps(self.__dict__)
