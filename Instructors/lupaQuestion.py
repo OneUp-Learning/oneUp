@@ -52,7 +52,7 @@ if lupa_spec is None:
             return self.error_str
         def getPartMaxPoints(self,n):
             return self.error_str
-        def getPartExamleAnswers(self,n):
+        def getPartExampleAnswers(self,n):
             return self.error_str
         def serialize(self):
             return self.error_str
@@ -542,7 +542,7 @@ else:
             self.updateRuntime(runtime)
             return result
         
-        def getPartExamleAnswers(self,n):
+        def getPartExampleAnswers(self,n):
             runtime = self.getRuntime()
             if runtime is None:
                 return False
