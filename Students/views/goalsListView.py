@@ -108,7 +108,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 
                 recurring_goal.append(goal.recurringGoal)
                 
-                if (utcDate() <= endDate):
+                if (utcDate() >= endDate):
                     index += 1    
       
     # The range part is the index numbers.
