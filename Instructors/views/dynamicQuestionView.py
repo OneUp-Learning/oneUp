@@ -212,7 +212,6 @@ def calcResubmissionPenalty(subCount,qdict):
     ahundred = Decimal(100)
     return Decimal(max(ahundred - (Decimal(subCount) * Decimal(qdict["resubmissionPenalty"])),0)/ahundred)
 
-
 @login_required
 def dynamicQuestionPartAJAX(request):
     context_dict = {}
@@ -315,7 +314,7 @@ def dynamicQuestionPartAJAX(request):
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(partNum-1, answers)
             if lupaQuestion.error is not None:
                 qdict['error'] = lupaQuestion.error
-                
+                            
             earnedScore = 0
             numberIncorrect = 0
             for eval in qdict['evaluations']:
@@ -350,6 +349,8 @@ def dynamicQuestionPartAJAX(request):
             problemScaleFactor = qdict['total_points']/maxTotalPointsAllParts
             qdict['evaluations'] = rescale_evaluations(qdict['evaluations'],problemScaleFactor*currentPenalty)
             qdict['parts'][str(partNum-1)]['evaluations'] = qdict['evaluations']
+            qdict['sampleCorrect'] = lupaQuestion.getPartExampleAnswers(partNum-1)
+            qdict['parts'][str(partNum-1)]['sampleCorrect'] = qdict['sampleCorrect']
             
             if numberIncorrect > 0:
                 context_dict['failure'] = {
@@ -394,7 +395,7 @@ def dynamicQuestionPartAJAX(request):
             for i in range(1,qdict["numParts"]+1):
                 for eval in qdict["parts"][str(i)]["evaluations"]:
                     user_points += eval["value"]
-            print("\n\n Dynamic Problem stuff\nuser_points:"+str(user_points)+"\n\n")
+            #print("\n\n Dynamic Problem stuff\nuser_points:"+str(user_points)+"\n\n")
             qdict["user_points"] = user_points
         
         context_dict['q'] = qdict

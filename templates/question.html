@@ -415,6 +415,16 @@
 		    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
 		        {% endfor %}
 		    </div>
+		    {% if showcorrect %}
+   		    <div class="row">
+				<h5>Example Correct Answer: </h5>
+					{% for ansName, text in q.sampleCorrect.items %}
+						<b>{{ansName}}</b> : {{text|safe}}<br>
+					{% empty %}
+						No example correct answer provided by instructor.<br>
+					{% endfor %}
+			</div>
+			{% endif %}
 		    {% if q.evaluations %}
 			    {% with evaluations=q.evaluations %}
 			    	{% include 'dynamicQuestionEvaluations.html' %}
@@ -438,6 +448,16 @@
 				    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
 				        {% endfor %}
 				    </div>
+	    		    {% if showcorrect %}
+   		       		    <div class="row">
+						<h5>Example Correct Answer: </h5>
+							{% for ansName, text in qp.sampleCorrect.items %}
+								<b>{{ansName}}</b> : {{text|safe}}<br>
+							{% empty %}
+								No example correct answer provided by instructor.<br>
+							{% endfor %}
+						</div>
+					{% endif %}
 		    		{% if qp.evaluations %}
 			    		{% with evaluations=qp.evaluations %}
 					    	{% include 'dynamicQuestionEvaluations.html' %}
@@ -453,4 +473,5 @@
         </div>
     {% endif %}
     {# There's no else case because we don't need to show any answers when there's no grading. #}
+	
 {% endif %}
