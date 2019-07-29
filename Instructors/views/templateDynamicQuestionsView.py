@@ -289,6 +289,7 @@ def templateToCodeSegments(setupCode,templateArray):
         code = ""
         code += 'part_'+str(count)+'_max_points = _part_max_points('+str(count)+')\n'
         code += 'evaluate_answer_'+str(count)+' = _evaluate_answer('+str(count)+')\n'
+        code += 'part_'+str(count)+'_example_answers = _part_example_answers('+str(count)+')\n'
         code += '''
 part_'''+str(count)+'''_text = function ()
     _part = '''+str(count)+'''

@@ -416,10 +416,14 @@
 		        {% endfor %}
 		    </div>
 		    {% if showcorrect %}
-			<h5>Correct Answer: </h5>
-				{% for ansName, text in q.sampleCorrect %}
-					{{ansName}}:{{text|safe}}<br>
-				{% endfor %}
+   		    <div class="row">
+				<h5>Example Correct Answer: </h5>
+					{% for ansName, text in q.sampleCorrect.items %}
+						<b>{{ansName}}</b> : {{text|safe}}<br>
+					{% empty %}
+						No example correct answer provided by instructor.<br>
+					{% endfor %}
+			</div>
 			{% endif %}
 		    {% if q.evaluations %}
 			    {% with evaluations=q.evaluations %}
@@ -445,10 +449,14 @@
 				        {% endfor %}
 				    </div>
 	    		    {% if showcorrect %}
-						<h5>Correct Answer: </h5>
-							{% for ansName, text in qp.sampleCorrect %}
-								{{ansName}}:{{text|safe}}<br>
+   		       		    <div class="row">
+						<h5>Example Correct Answer: </h5>
+							{% for ansName, text in qp.sampleCorrect.items %}
+								<b>{{ansName}}</b> : {{text|safe}}<br>
+							{% empty %}
+								No example correct answer provided by instructor.<br>
 							{% endfor %}
+						</div>
 					{% endif %}
 		    		{% if qp.evaluations %}
 			    		{% with evaluations=qp.evaluations %}

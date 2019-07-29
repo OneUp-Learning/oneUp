@@ -395,7 +395,7 @@ def dynamicQuestionPartAJAX(request):
             for i in range(1,qdict["numParts"]+1):
                 for eval in qdict["parts"][str(i)]["evaluations"]:
                     user_points += eval["value"]
-            print("\n\n Dynamic Problem stuff\nuser_points:"+str(user_points)+"\n\n")
+            #print("\n\n Dynamic Problem stuff\nuser_points:"+str(user_points)+"\n\n")
             qdict["user_points"] = user_points
         
         context_dict['q'] = qdict
