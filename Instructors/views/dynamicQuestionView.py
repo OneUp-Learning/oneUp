@@ -247,7 +247,7 @@ def dynamicQuestionPartAJAX(request):
                 request.session['lupaQuestionCounter'] = 0
 
             request.session['lupaQuestionCounter']=request.session['lupaQuestionCounter']+1
-            uniqid = request.session['lupaQuestionCounter']
+            uniqid = str(request.session['lupaQuestionCounter'])
                      
             lupaQuestionTable = request.session['lupaQuestions']
             
@@ -275,6 +275,7 @@ def dynamicQuestionPartAJAX(request):
                 if 'creation' in request.session['lupaQuestions'][k]:
                     creationtime = datetime.strptime(request.session['lupaQuestions'][k]['creation'],"%m/%d/%Y %I:%M:%S %p")
                     delta = now-creationtime
+                    print("\n\n\nLupa Session Stuff\nCreation:"+str(creationtime)+"\nnow:"+str(now)+"\ndelta.day:"+str(delta.days)+"\n\n")
                     if delta.days > 8:
                         del request.session['lupaQuestions'][k]
                 else:

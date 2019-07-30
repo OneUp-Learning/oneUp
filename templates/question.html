@@ -11,22 +11,34 @@
 	<div class="divider"></div>
 {% endif %}
 {% if q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic %}
-<div class="row">
-    <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
-</div>
+	<div class="row">
+	    <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
+	</div>
 {% elif not graded or not q.hasMultipleParts %}
 	<div class="row">
 		<h4>Question {{i}}</h4>
+		{% if q.hasMultipleParts %}
+			<div class="row"> <h5>Part <b>1</b> of <b>{{q.numParts}}</b></h5> </div>
+		{% endif %}
 		<div class="ck-view">
 			<div id="{{q.uniqid}}-1-exact">
 			  <div class="darkClassParent">
 			    <div id="{{q.uniqid}}-1-darkLayer" class="darkClass" style="display:none"></div>
-			    {{q.questionText|safe}}
+			    {% if graded %}
+			    	<div class="card"><div class="card-content">
+			    {% endif %}
+			    	{{q.questionText|safe}}
+			    {% if graded %}
+				    </div></div>
+				{% endif %}
+				
 			    {% if not graded %}
 			        {% if q.hasMultipleParts or q.submissionsAllowed > 1 %}
 			        	<script>dynamicProblemPartExists.push("{{q.uniqid}}-1");</script>
 				    	<button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
 					{% endif %}
+				{% else %}
+		    		<script>disableInputsInside(document.getElementById("{{q.uniqid}}-1-exact"));</script>
 				{% endif %}
 			  </div>
 			</div>
@@ -437,7 +449,12 @@
 	    	{% for pnum, qp in q.parts.items %}
 	    		{% if qp.submissionCount > 0 or pnum == "1" %}
 		    		<div class="row"> <h5>Part {{pnum}} of {{q.numParts}}</h5> </div>
-		    		<div>{{qp.questionText|safe}}</div>
+ 		   			<div class="card">
+			    		<div id="qtext-{{i}}-{{pnum}}" class="card-content">
+		    				{{qp.questionText|safe}}
+		    			</div>
+		    		</div>
+		    		<script>disableInputsInside(document.getElementById("qtext-{{i}}-{{pnum}}"));</script>
 		    		<div class="row">
 						<div class="col s12">
 		      				<h5>Your Answer:</h5>
