@@ -302,7 +302,8 @@
                 a.download = fileName;
                 a.click();
                 URL.revokeObjectURL(a.href);
-                location.reload()
+                Materialize.toast("Course Exported!", 4000);
+                // setTimeout(() => { location.reload();}, 4000)
             }
         </script>
     </main>
