@@ -279,16 +279,30 @@
                   return false;
             }
             function exportCourse(json) {
-                //   console.log('Exporting');
-                  $.ajax({
-                        type: "POST",
-                        url: "/oneUp/instructors/exportCourse",
-                        data:  {'exported-json': JSON.stringify(json)},
-                        success: function () {
-                            // console.log("Success!");
-                            location.reload();
-                        }
-                  });
+                // console.log('Exporting');
+                var exported_json = JSON.stringify(json);
+                // Download the json file
+                download(exported_json, 'course-{{course_Name}}-{{version}}.json', 'text/plain');
+
+                // Uncomment for exporting to media folder
+                // $.ajax({
+                //     type: "POST",
+                //     url: "/oneUp/instructors/exportCourse",
+                //     data:  {'exported-json': exported_json},
+                //     success: function () {
+                //         // console.log("Success!");
+                //         location.reload();
+                //     }
+                // });
+            }
+            function download(content, fileName, contentType) {
+                var a = document.createElement("a");
+                var file = new Blob([content], {type: contentType});
+                a.href = URL.createObjectURL(file);
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(a.href);
+                location.reload()
             }
         </script>
     </main>
