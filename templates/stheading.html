@@ -224,8 +224,8 @@
 			{% if ccparams.gamificationUsed and ccparams.avatarUsed %}
 			<li><p class="center-align"><img class="circle" width="100" height="100" src="{{avatar}}"></p></li>
 			{% endif %}
-			<li><p class="center-align">Welcome, {{username}}</p></li>            
-			<li><p class="center-align">Course: {{course_Name}}</p></li>
+			<li><p style="padding-left: 16px; padding-right: 8px">Welcome, {{username}}</p></li>            
+			<li><p style="padding-left: 16px; padding-right: 8px">Course: {{course_Name}}</p></li>
 			<li class="divider"></li>
 			<li><a href="/oneUp/administrators/courses?is_student=True">Change Course</a></li>
 			<li><a href="/oneUp/students/Logout">Logout</a></li>
@@ -339,7 +339,7 @@
 						<a href="#!user"><img class="circle" src="{{avatar}}"></a>
 						{% endif %}
 						<a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
-						<a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
+						<a href="#!course"><span class="white-text email">Course: {{course_Name}}</span></a>
 					  </div>
 				</li>   
 				{% endif %}             
@@ -420,7 +420,7 @@
 						</li>
 						{% if is_test_student %}
 				           <li>
-				                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to instructor view"  href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >
+				                <a id='switchview'  style="padding-left: 16px !important" class='dropdown-button tooltipped' data-tooltip="Switch to instructor view"  href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >
 				                    <i class='material-icons'>visibility</i> 
 				                </a>
 				            </li>

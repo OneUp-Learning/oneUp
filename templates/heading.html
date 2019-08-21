@@ -257,8 +257,8 @@
     </form>
 
     <ul id="account" class="dropdown-content">
-        <li><p class="center-align">Welcome, {{username}}</p></li>            
-        <li><p class="center-align">Course: {{course_Name}}</p></li>
+        <li><p style="padding-left: 16px; padding-right: 8px">Welcome, {{username}}</p></li>            
+        <li><p style="padding-left: 16px; padding-right: 8px">Course: {{course_Name}}</p></li>
         <li class="divider"></li>
         <li><a class="waves-effect" href="/oneUp/administrators/courses">Change Course</a></li>
         <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>
@@ -272,8 +272,8 @@
         <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
         <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
         <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
-        <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li>
-        <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>
+        <!-- <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li> -->
+        <!-- <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li> -->
     </ul>
     <ul id="virtualcurrency" class="dropdown-content"> 
         <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
@@ -319,8 +319,8 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>  
-                    <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li>
-                    <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>                      
+                    <!-- <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li> -->
+                    <!-- <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>                       -->
                   	<li><a class="modal-trigger" href="#reset_test_student">Reset Test Student</a></li>                   	
                 </ul>
             </li>
@@ -419,7 +419,7 @@
                     </div>
                     <a href="#!user"><img class="circle" src="/static/images/avatars/anonymous.png"></a>
                     <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
-                    <a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
+                    <a href="#!course"><span class="white-text email">Course: {{course_Name}}</span></a>
                   </div>
             </li>   
             {% endif %}             
@@ -516,7 +516,7 @@
                         </div>
                     </li>
                     <li>
-		                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true&courseID={{courseId}}" >
+		                <a id='switchview' style="padding-left: 16px !important" class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true&courseID={{courseId}}" >
 		                    <i class='material-icons'>visibility</i> 
 		                </a>
 		            </li>
