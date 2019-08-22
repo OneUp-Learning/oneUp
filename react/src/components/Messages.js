@@ -19,7 +19,7 @@ class Messages extends Component{
   constructor(props){
     super(props);
     this.state = {
-      messages: [],
+      messages: this.props.messages,
     };
   }
   componentDidMount() {
@@ -27,9 +27,12 @@ class Messages extends Component{
   }
 
   componentDidUpdate(prevProps) {
+    
     if (prevProps.messages !== this.props.messages) {
       this.processMessages();
+      this.setState({messages: this.props.messages})
     }
+
   }
   clearTimestamps(){
     for(var index = this.props.messages.length-1; index >= 0; index--){

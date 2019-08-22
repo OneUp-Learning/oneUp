@@ -29,7 +29,7 @@ class Message extends Component{
             display: 'inline',
             marginRight: '8px',
             letterSpacing: '0',
-            fontSize: '18px'
+            fontSize: '1.3rem'
         }
         const emptyNameStyle = {
             marginRight: '0px'
@@ -44,9 +44,9 @@ class Message extends Component{
             <Grid style={gridStyle} noSpacing={true}>
                 <Cell align={'top'} size={12}><div className="md-title md-font-bold" style={is_user ? nameStyle : emptyNameStyle}>
                     {is_user ? this.props.data.user.username : ""}</div>
-                    <div style={{display: 'inline'}} className="md-font-light">{moment(this.props.data.timestamp).fromNow()}</div>
+                    <div style={{display: 'inline', fontSize: '1.1rem !important'}} className="md-font-light">{moment(this.props.data.timestamp).fromNow()}</div>
                 </Cell>
-                <Cell size={12} align={'top'} style={{fontSize: 'large'}}><Twemoji text={this.props.data.message} /></Cell>
+                <Cell size={12} align={'top'} style={{fontSize: '1.5rem'}}><Twemoji text={this.props.data.message} /></Cell>
             </Grid>
         );
         return(
