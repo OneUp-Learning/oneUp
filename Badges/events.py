@@ -545,15 +545,15 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             print("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
                             return
                                     
-                    studVCRec = StudentVirtualCurrencyRuleBased()
-                    studVCRec.courseID = courseID
-                    studVCRec.studentID = student.studentID
-                    if rule.awardFrequency == AwardFrequency.justOnce:
-                        studVCRec.objectID = 0
-                    else:
-                        studVCRec.objectID = objID
-                    studVCRec.vcRuleID = vcRule
-                    studVCRec.save()
+                        studVCRec = StudentVirtualCurrencyRuleBased()
+                        studVCRec.courseID = courseID
+                        studVCRec.studentID = student.studentID
+                        if rule.awardFrequency == AwardFrequency.justOnce:
+                            studVCRec.objectID = 0
+                        else:
+                            studVCRec.objectID = objID
+                        studVCRec.vcRuleID = vcRule
+                        studVCRec.save()
             except OperationalError as e:
                 if e.__cause__.__class__ == TransactionRollbackError:
                     continue
