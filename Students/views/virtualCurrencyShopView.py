@@ -210,14 +210,14 @@ def virtualCurrencyShopView(request):
                         # else:
                         
                         studentVCTransaction.studentEvent = register_event(Event.spendingVirtualCurrency, request, student, buyOption['id'])
-                        print(request.POST['challengeFor'+str(rule.vcRuleID)])
-                        print(request.POST)
-                        if request.POST['challengeFor'+str(rule.vcRuleID)] == "none":
+                        challenge_for_id = 'challengeFor'+str(rule.vcRuleID)
+
+                        if not challenge_for_id in request.POST or request.POST[challenge_for_id] == "none":
                             studentVCTransaction.objectType = ObjectTypes.virtualCurrencySpendRule
                             studentVCTransaction.objectID = buyOption['id']
                         else:
                             studentVCTransaction.objectType = ObjectTypes.challenge
-                            studentVCTransaction.objectID = int(request.POST['challengeFor'+str(rule.vcRuleID)])
+                            studentVCTransaction.objectID = int(request.POST[challenge_for_id])
                         studentVCTransaction.status = 'Requested'
                         studentVCTransaction.save()
 
