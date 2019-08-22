@@ -29,7 +29,7 @@ class Message extends Component{
             display: 'inline',
             marginRight: '8px',
             letterSpacing: '0',
-            fontSize: '24px'
+            fontSize: '18px'
         }
         const emptyNameStyle = {
             marginRight: '0px'
