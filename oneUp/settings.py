@@ -69,7 +69,7 @@ LOGGING = {
     },
 }
 
-ALLOWED_HOSTS = ['oneup.wssu.edu']
+ALLOWED_HOSTS = ['oneup.wssu.edu','0.0.0.0']
 
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
