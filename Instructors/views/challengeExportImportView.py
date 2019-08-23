@@ -198,6 +198,11 @@ def exportChallenges(request):
                     el_dqnumParts.text = str(dynamicQuestion.numParts)
                     el_dqcode = SubElement(el_dynamicQuestion, 'code')
                     el_dqcode.text = dynamicQuestion.code
+                    el_dqsubmissionsAllowed = SubElement(el_dynamicQuestion, 'submissionsAllowed')
+                    el_dqsubmissionsAllowed.text = str(dynamicQuestion.submissionsAllowed)
+                    el_dqresubmissionPenalty = SubElement(el_dynamicQuestion, 'resubmissionPenalty')
+                    el_dqresubmissionPenalty.text = str(dynamicQuestion.resubmissionPenalty)
+
            
                     # TemplateDynamicQuestions
                     templateDynamicQuestions = TemplateDynamicQuestions.objects.filter(questionID=int(question.questionID))
@@ -221,6 +226,8 @@ def exportChallenges(request):
                                 el_partNumber.text = str(templateTextPart.partNumber)
                                 el_templateText = SubElement(el_templateTextPart, 'templateText')
                                 el_templateText.text = templateTextPart.templateText
+                                el_pointsInPart = SubElement(el_templateTextPart, 'pointsInPart')
+                                el_pointsInPart.text = str(templateTextPart.pointsInPart)
          
                     # QuestionLibrary
                     questionLibraries = QuestionLibrary.objects.filter(question=question)
@@ -459,7 +466,9 @@ def importChallenges(uploadedFileName, currentCourse):
                 print("In Dynamic question")  
                                 
                 question.numParts = int(el_dynamicQuestion.find('numParts').text)
-                question.code = el_dynamicQuestion.find('code').text    
+                question.code = el_dynamicQuestion.find('code').text
+                question.submissionsAllowed = int(el_dynamicQuestion.find('submissionsAllowed').text)
+                question.resubmissionPenalty = int(el_dynamicQuestion.find('resubmissionPenalty').text)
                 
                 question.save()                        
                 #print('dynamicQuestion.code: ', question.code)  
@@ -498,6 +507,7 @@ def importChallenges(uploadedFileName, currentCourse):
                             templateTextPart.partNumber = int(el_templateTextPart.find('partNumber').text)
                             templateTextPart.dynamicQuestion = question
                             templateTextPart.templateText = el_templateTextPart.find('templateText').text
+                            templateTextPart.pointsInPart = int(el_templateTextPart.find('pointsInPart').text)
                             templateTextPart.save()                    
                             print('templateTextPart.templateText: ', templateTextPart.templateText)
                                       
