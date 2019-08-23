@@ -1037,8 +1037,6 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, stu
     print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
     return numberOfChall
 
-
-
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity

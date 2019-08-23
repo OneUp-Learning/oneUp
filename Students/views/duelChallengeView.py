@@ -412,7 +412,7 @@ def callouts_list(request):
                 topic_names += chall_topic.topicID.topicName + "   "
             requested_topics.append(topic_names)
             
-            if sent_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = requested_chall):
+            if requested_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = requested_chall):
                 requested_w_l.append("Not Submitted")
             elif Winners.objects.filter(DuelChallengeID = requested_chall, studentID = student_id):
                 requested_w_l.append("Won")

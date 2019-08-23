@@ -496,6 +496,95 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, practices)
 
+def calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, percentage, unique_id=None, award_type=None, result_only=False):
+    ''' Utility function for getting the number of days of unique warmup challenges that a student completed with a score > percentage'''
+    from Instructors.models import Challenges
+    from Students.models import StudentChallenges
+    from decimal import Decimal
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
+    
+    last_ran = None
+    # Get the last time this periodic variable has ran
+    if not result_only:
+        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
+    # Check against only Warm-up challenges
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    
+    # The amount of days
+    days = 0
+
+    # If there are no Warm-up challenges then we just say the student didn't complete anything
+    if not challenges.exists():
+        return (student, days)
+    
+    # If this is first time running, set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous challenges from beginning of time
+    if not last_ran:
+        if award_type == 'badge':
+            periodic_badge = PeriodicBadges.objects.get(badgeID=unique_id, courseID=course)
+            last_ran = periodic_badge.lastModified
+        elif award_type == 'vc':
+            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
+            last_ran = periodicVC.lastModified
+        elif award_type == 'leaderboard':
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            last_ran = periodic_leaderboard.lastModified
+        elif result_only:
+            date_time = time_period['datetime']
+            if date_time:
+                last_ran = date_time()
+            else:
+                last_ran = None
+
+    for challenge in challenges:
+        # Get the student completed Warm-up challenges (Endtimestamp is not null if it is complete)
+        studentChallenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=challenge.challengeID).exclude(endTimestamp__isnull=True)
+        # Only get the student challenges since last ran
+        if last_ran:
+            studentChallenges = studentChallenges.filter(endTimestamp__gte=last_ran)
+
+        if studentChallenges.exists():
+            # Get the total possible score (Note: total score is Decimal type) for this challenge
+            total_score_possible = challenge.getCombinedScore()
+            # Get the highest score out of the student attempts for this challenge (Note: test score is Decimal type)
+            highest_score = max([warmup.getScore() for warmup in studentChallenges])
+            print("Highest score: {}".format(highest_score))
+            print("possible score {}".format(total_score_possible))
+
+            # If the total possible score is not set then skip this Warm-up challenge
+            if total_score_possible <= 0:
+                continue
+            # Calculate the percentage
+            student_percentage = (highest_score/total_score_possible) * Decimal(100)
+            print("student percentage {}".format(student_percentage))
+            print("percentage {}".format(Decimal(percentage)))
+            # Say this challenge is counted for if the student score percentage is greater than 80%
+            if student_percentage > Decimal(percentage):
+                days += 1
+
+    #print("Course: {}".format(course))
+    #print("Student: {}".format(student))
+    #print("Periodic Variable: {}".format(periodic_variable))
+    #print("Last Ran: {}".format(last_ran))
+    print("Unique Warm-ups: {}".format(days))
+
+    # Set this as the last time this task has ran
+    if not result_only:
+        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    print("end - {}".format(days))
+    return (student, days)
+
+def calculate_number_of_days_of_unique_warmups_greater_than_90(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    ''' This will return the number of days of unique warmup challenges that a student completed with a 
+        score > 70%'''
+
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 90.0, unique_id, award_type, result_only)
+
+def calculate_number_of_days_of_unique_warmups_greater_than_70(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+    ''' This will return the number of days of unique warmup challenges that a student completed with a 
+        score > 90%'''
+
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 70.0, unique_id, award_type, result_only)
+
 def calculate_unique_warmups(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the number of unique Warm-up challenges the student has completed
         with a score greater than 70%.
@@ -1310,6 +1399,9 @@ class PeriodicVariables:
     challenge_streak = 1408
     warmup_challenge_greater_or_equal_to_40 = 1409
     warmup_challenge_greater_or_equal_to_70 = 1410
+    number_of_days_of_unique_warmups_90 = 1411
+    number_of_days_of_unique_warmups_70 = 1412
+
     
     periodicVariables = {
         highest_earner: {
@@ -1399,6 +1491,22 @@ class PeriodicVariables:
             'displayName': 'Challenge Streak',
             'description': 'Challenge Streak',
             'function': calculate_student_challenge_streak,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        number_of_days_of_unique_warmups_90: {
+            'index': number_of_days_of_unique_warmups_90,
+            'name': 'number_of_days_of_unique_warmups_90',
+            'displayName': 'Number Of Days Of Unique Warmup Challenges Score > 90%',
+            'description': 'The number of days of unique warmup challenges students completed with a score greater than 90%. The student scores only includes the student score, adjustment, and curve.',
+            'function': calculate_number_of_days_of_unique_warmups_greater_than_90,
+            'task_type': 'Badges.periodicVariables.periodic_task',
+        },
+        number_of_days_of_unique_warmups_70: {
+            'index': number_of_days_of_unique_warmups_70,
+            'name': 'number_of_days_of_unique_warmups_70',
+            'displayName': 'Number Of Days Of Unique Warmup Challenges Score > 70%',
+            'description': 'The number of days of unique warmup challenges students completed with a score greater than 70%. The student scores only includes the student score, adjustment, and curve.',
+            'function': calculate_number_of_days_of_unique_warmups_greater_than_70,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
     }
