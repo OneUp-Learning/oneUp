@@ -135,6 +135,8 @@ def get_transactions(context_dict, course, student, t_type='all'):
             # If the transaction has a rule attached, get the information from that rule
             if hasattr(stud_VCrule, 'studentvirtualcurrencyrulebased'):
                 vcrule = stud_VCrule.studentvirtualcurrencyrulebased.vcRuleID
+                if not vcrule:
+                    continue
                 if stud_VCrule.courseID == course and vcrule.vcRuleType:
                     name.append(vcrule.vcRuleName)
                     description.append(vcrule.vcRuleDescription)
