@@ -197,6 +197,9 @@ def virtualCurrencyShopView(request):
                         studentVCTransaction = StudentVirtualCurrencyTransactions()
                         studentVCTransaction.student = student
                         studentVCTransaction.course = currentCourse
+                        studentVCTransaction.name = rule.vcRuleName
+                        studentVCTransaction.description = rule.vcRuleDescription
+                        studentVCTransaction.amount = rule.vcRuleAmount
                         
                         # RULE BASED VC NOT USED
                         # Object ID is challenge ID for certain events

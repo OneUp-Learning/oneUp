@@ -4,7 +4,6 @@ from django.utils import timezone
 from datetime import timedelta
 import json
 import random
-import logging
 from _datetime import date
 from celery.bin.result import result
 
@@ -228,6 +227,7 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
     ''' Filters out students based on parameters if they are not None.
         number_of_top_students: gets the top number of students wanted
         threshold & operator_type: gets the students which are above/at a threshold
+                                    threshold can be a value or a string (max, avg, etc)
         is_random: randomly chooses a student. Can be paired with threshold.
     '''
 
@@ -238,7 +238,14 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             '=' : lambda x, y : x == y
         }
         # Filter students based on if their result passes the threshold
-        students = [(student, val) for student, val in students if operatorType[operator_type](val, threshold)]
+        if not threshold in ['avg', 'max']:
+            students = [(student, val) for student, val in students if operatorType[operator_type](val, int(threshold))]
+        else:
+            if threshold == 'max':
+                students = [(student, val) for student, val in students if operatorType[operator_type](val, max(students, key=lambda item:item[1])[1])]
+            elif threshold == 'avg':
+                avg = round(sum([val for _, val in students])/len(students), 1)
+                students = [(student, val) for student, val in students if operatorType[operator_type](val, avg)]
 
         if number_of_top_students and students:
             # Sort the students
@@ -650,6 +657,7 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     if not result_only:
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, unique_warmups)
+
 def calculate_student_attendance_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     print("Calculating student_attendance_streak") 
     #this one is best ran with daily time period
@@ -779,6 +787,7 @@ def calculate_serious_challenge_and_activity_rankings(course, student, periodic_
     if not result_only:
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
+
 def calculate_student_challenge_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     print("Calculating student challenge streak") 
     from Students.models import StudentStreaks, StudentChallenges
@@ -854,6 +863,7 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     if not result_only:
         set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
+
 def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
@@ -879,6 +889,7 @@ def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
         return 1
     else:
         return 0
+
 def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, unique_id, award_type, result_only):
     print("Calculating student challenge >= streak") 
     from Students.models import StudentStreaks, StudentChallenges
@@ -1117,7 +1128,6 @@ def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_
     return calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
-    
 def calculate_warmup_challenge_greater_or_equal_to_70_by_day(course, student, periodic_variable, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage_over_span_of_days(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
 def calculate_warmup_challenge_greater_or_equal_to_40_by_day(course, student, periodic_variable, unique_id=None, award_type=None, result_only=False):
@@ -1436,6 +1446,22 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         return context_dict , xp, weightedSeriousChallengePoints, weightedWarmupChallengePoints, weightedActivityPoints, weightedSkillPoints, earnedSeriousChallengePoints, earnedWarmupChallengePoints, earnedActivityPoints, earnedSkillPoints, totalPointsSeriousChallenges, totalPointsActivities
     
     return (studentId,xp)
+
+def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*', tz=settings.TIME_ZONE):
+    from django.conf import settings
+    if settings.CURRENTLY_MIGRATING:
+        return None
+    schedules = CrontabSchedule.objects.filter(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year, timezone=tz)
+    if schedules.exists():
+        if len(schedules) > 1:
+            schedule_keep = schedules.first()
+            CrontabSchedule.objects.exclude(pk__in=schedule_keep).delete()
+            return schedule_keep
+        else:
+            return schedules.first()
+    else:
+        schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year, timezone=tz)
+        return schedule
 
 class TimePeriods:
     from django.utils import timezone
