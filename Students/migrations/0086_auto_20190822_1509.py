@@ -21,7 +21,7 @@ def migrate_student_transactions(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Students', '0001_initial'),
+        ('Students', '0085_studentconfigparams_displaygoal'),
     ]
 
     operations = [
