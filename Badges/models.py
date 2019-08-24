@@ -171,7 +171,7 @@ class PeriodicBadges(BadgesInfo):
     timePeriodID = models.IntegerField() # The Time Period index set for this badge
     periodicType = models.IntegerField(default=0) # The type of selected: TopN (0), All(1), Random(2)
     numberOfAwards = models.IntegerField(default=1, null=True) # The top number of students to award this badge to
-    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
@@ -288,8 +288,14 @@ class LeaderboardsConfig(models.Model):
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     howFarBack = models.IntegerField(default=0000)
+    def delete(self, *args, **kwargs):
+        ''' Custom delete method which deletes the PeriodicTask object before deleting the leaderboard config.'''
+        self.periodicTask.delete()
+        super().delete(*args, **kwargs)
+
     def __str__(self):              
         return "Leaderboard#"+str(self.leaderboardID)+":"+str(self.leaderboardName)   
+
    
 class CourseConfigParams(models.Model):
     ccpID = models.AutoField(primary_key=True)
