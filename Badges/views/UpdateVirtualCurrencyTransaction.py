@@ -70,7 +70,10 @@ def updateVirtualCurrencyTransaction(request):
                 context_dict['description'] = rule.vcRuleDescription
                 context_dict['purchaseDate'] = transaction.studentEvent.timestamp
                 context_dict['total'] = rule.vcRuleAmount
-                context_dict['student'] = transaction.student
+                student_name = transaction.student.user.get_full_name()
+                if transaction.student.isTestStudent:
+                    student_name += " (Test Student)"
+                context_dict['student'] = student_name
                 context_dict['status'] = transaction.status
                 context_dict['instructorNote'] = transaction.instructorNote
                 context_dict['noteForStudent'] = transaction.noteForStudent
