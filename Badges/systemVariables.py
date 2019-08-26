@@ -1691,8 +1691,8 @@ class SystemVariable():
         calloutSent:{
             'index': calloutSent,
             'name':'calloutSent',
-            'displayName':'# of Call Out Sent',
-            'description':'The total number of call out a student has sent to other students',
+            'displayName':'# of Call Outs Sent',
+            'description':'The total number of call outs a student has sent to other students',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutSent],
             },
@@ -1704,7 +1704,7 @@ class SystemVariable():
         calloutParticipate:{
             'index': calloutParticipate,
             'name':'calloutParticipate',
-            'displayName':'# of Call Out Participation',
+            'displayName':'# of Call Outs Participation',
             'description':'The total number of call out a student has participated in weather they won or not',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutWon, Event.calloutLost],  
@@ -1717,8 +1717,8 @@ class SystemVariable():
         calloutParticipationWon:{
             'index': calloutParticipationWon,
             'name':'calloutParticipationWon',
-            'displayName':'# of Call Out a participant has won',
-            'description':'The total number of call out a student has won',
+            'displayName':'# of Call Outs a participant has won',
+            'description':'The total number of call outs a student has won',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutWon],
             },
@@ -1730,8 +1730,8 @@ class SystemVariable():
         calloutParticipationLost:{
             'index': calloutParticipationLost,
             'name':'calloutParticipationLost',
-            'displayName':'# of Call Out a participant has lost',
-            'description':'The total number of call out a student has lost',
+            'displayName':'# of Call Outs a participant has lost',
+            'description':'The total number of call outs a student has lost',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutLost],
             },
@@ -1743,8 +1743,8 @@ class SystemVariable():
         calloutRequested:{
             'index': calloutRequested,
             'name':'calloutRequested',
-            'displayName':'# of Call Out a participant has been reqeusted',
-            'description':'The total number of call out a student has been requested',
+            'displayName':'# of Call Outs a participant has requested',
+            'description':'The total number of call outs a student has requested',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutRequested],
             },
@@ -1774,6 +1774,6 @@ if __debug__:
         assert len([obj for obj in eventsList if obj not in functionsList]) == 0, "System variable structure has an event entry for an object type for which it has no function. %s " % sysVarName
         assert len([obj for obj in functionsList if obj not in eventsList]) == 0, "System variable structure has a functions entry for an object type for which it has no events entry. %s " % sysVarName
         if ObjectTypes.none in eventsList:
-            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the globabl scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
+            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the global scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
 
     assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."
