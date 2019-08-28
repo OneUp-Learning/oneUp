@@ -68,6 +68,6 @@ def ChallengesTaken(request):
                     total.append(item.challengeID.totalScore)
                             
                 # The range part is the index numbers.
-            context_dict['challenge_range'] = zip(range(1,studentChallenges.count()+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)
+            context_dict['challenge_range'] = sorted(list(zip(range(1,studentChallenges.count()+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)), key=lambda item: item[5], reverse=True)
 
     return render(request,'Students/ChallengesTaken.html', context_dict)
