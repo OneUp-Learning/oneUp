@@ -17,7 +17,10 @@ def addBadgeManuallyView(request):
             studentName= []
             for studentobj in students:
                 studentID.append(studentobj.studentID)
-                studentName.append(studentobj.studentID.user.get_full_name())
+                name = studentobj.studentID.user.get_full_name()
+                if studentobj.studentID.isTestStudent:
+                    name += " (Test Student)"
+                studentName.append(name)
             
             badges = BadgesInfo.objects.filter(courseID = course , manual=True)
             customRules = [r for r in badges]

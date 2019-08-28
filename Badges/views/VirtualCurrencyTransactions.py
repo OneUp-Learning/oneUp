@@ -80,7 +80,10 @@ def virtualCurrencyTransactions(request):
                 description.append(rule.vcRuleDescription)
                 purchaseDate.append(transaction.studentEvent.timestamp)
                 total.append(rule.vcRuleAmount)
-                student.append(transaction.student)
+                student_name = transaction.student.user.get_full_name()
+                if transaction.student.isTestStudent:
+                    student_name += " (Test Student)"
+                student.append(student_name)
                 status.append(transaction.status)
                 transactionID.append(transaction.transactionID)
             

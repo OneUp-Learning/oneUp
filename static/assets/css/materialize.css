@@ -5029,6 +5029,7 @@ button.btn-floating {
   opacity: 0;
   position: absolute;
   z-index: 999;
+  transform: translateZ(10px); 
   will-change: width, height;
 }
 .dropdown-content li {

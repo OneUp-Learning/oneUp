@@ -135,11 +135,10 @@ def classAchievements(request):
         #gradeTotal.append(("%0.2f" %sum(activityGrade)))
         
     for u in users:
+        first_Name.append(u.user.first_name)
         if u.isTestStudent:
-            first_Name.append("Test")
-            last_Name.append("Student")
+            last_Name.append(u.user.last_name + " (Test Student)")
         else:
-            first_Name.append(u.user.first_name)
             last_Name.append(u.user.last_name)
         
     for c in challenges:
@@ -156,13 +155,14 @@ def classAchievements(request):
     student_list = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)),key=lambda tup:tup[2])
 
     ##we have to find the index for the test student and remove them from the sorted list
-    test_index = [y[1] for y in student_list].index('Test')
-    test_student_ob = student_list[test_index]
-    del student_list[test_index]
-
     ##then we insert them back into the list at the very end where they belong
-    student_list.append(test_student_ob)
+    ## updated to work with multiple test students
+    test_indexes = [index for index, y in enumerate(student_list) if "(Test Student)" in y[2]]
 
+    for i in test_indexes:
+        student_list.append(student_list[i])
+    student_list = [x for i,x in enumerate(student_list) if not i in test_indexes]
+    
     context_dict['user_range'] = student_list
 
     return render(request,'Instructors/ClassAchievements.html', context_dict)
