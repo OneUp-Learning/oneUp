@@ -11,9 +11,24 @@
 	<div class="divider"></div>
 {% endif %}
 {% if q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic %}
+	{% if q.type == questionTypes.multipleChoice %}
 	<div class="row">
-	    <h4>Question {{i}}</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
-	</div>
+			<h4>Problem {{i}} (Multiple Choice)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.multipleAnswers %}
+	<div class="row">
+			<h4>Problem {{i}} (Multiple Answer)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.matching %}
+	<div class="row">
+			<h4>Problem {{i}} (Matching)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.trueFalse %}
+	<div class="row">
+			<h4>Problem {{i}} (True/False)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% endif %}
+	
 {% elif not graded or not q.hasMultipleParts %}
 	<div class="row">
 		<h4>Question {{i}}</h4>
@@ -150,7 +165,7 @@
 	<div class="row">
 	   <div class="col s12">
 		  {% for j,answer in q.answers_with_count %}
-		  <h6><b>Item {{j}}:</b></h6>
+		  <h6><b>Question {{j}}:</b></h6>
 		  <p>{{answer.answerText}}</p>
 		  <br />
 	      {% endfor %}
@@ -193,7 +208,7 @@
 					<div class="card-action">
 						<select name="{{i}}-{{match.current_pos}}" style="color: white">
 							{% for k in match.answers_count %}
-							<option value="{{k}}">Item {{k}}</option>
+							<option value="{{k}}">Question {{k}}</option>
 							{% endfor %}
 						 </select>
 					</div>
