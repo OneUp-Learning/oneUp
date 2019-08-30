@@ -261,7 +261,7 @@ class Announcements(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
-    subject = models.CharField(max_length=25, default="")
+    subject = models.CharField(max_length=100, default="")
     message = models.CharField(max_length=1000, default="")
     def __str__(self):              
         return str(self.announcementID)+","+str(self.authorID)+","+str(self.startTimestamp)

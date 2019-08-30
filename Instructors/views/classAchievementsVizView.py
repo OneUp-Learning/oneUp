@@ -5,6 +5,7 @@ from Instructors.models import Challenges, CoursesSkills
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentChallenges, StudentCourseSkills, StudentRegisteredCourses
 from oneUp.decorators import instructorsCheck  
+from Instructors.constants import unassigned_problems_challenge_name
     
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
@@ -93,9 +94,9 @@ def classAchievementsViz(request):
                             
         #Displaying the list of challenges from database
         if serious:
-            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).exclude(challengeName=unassigned_problems_challenge_name)
         else:
-            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False) 
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False).exclude(challengeName=unassigned_problems_challenge_name)
                              
         for challenge in challenges:
 #            userScores = []

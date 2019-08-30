@@ -7,10 +7,13 @@ from Instructors.models import Challenges, Activities
 from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, Event, ObjectTypes
 from datetime import datetime
+from django.utils import formats, timezone
+import pytz
 #import logging
 
 @login_required
 def transactionNotesView(request):
+
  
     context_dict,course = studentInitialContextDict(request)
     #logger = logging.getLogger(__name__)
@@ -69,10 +72,14 @@ def transactionNotesView(request):
     #     context_dict['description'] = event['description']
 
     rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
-    context_dict['name'] = rule.vcRuleName
-    context_dict['description'] = rule.vcRuleDescription
-    context_dict['purchaseDate'] = transaction.studentEvent.timestamp
-    context_dict['total'] = rule.vcRuleAmount
+    context_dict['name'] = transaction.name
+    context_dict['description'] = transaction.description
+    # Need to format the datetime object to be like it shows in the html file
+    # This will mimick what django does to render dates on the frontend
+    # Since the data is being returned as JSON for filtering
+    time = transaction.studentEvent.timestamp.replace(tzinfo=pytz.UTC)    
+    context_dict['purchaseDate'] = formats.date_format(time.astimezone(timezone.get_current_timezone()), "DATETIME_FORMAT")
+    context_dict['total'] = transaction.amount
     context_dict['status'] = transaction.status
     context_dict['noteForStudent'] = transaction.noteForStudent
 

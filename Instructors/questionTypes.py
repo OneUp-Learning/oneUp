@@ -473,11 +473,14 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
                         break
                 if userAnswerIndex != 0:
                     break
+            # Get the user answer text based on the choice they selected (userAnswerIndex)
+            answerText = [answers[1]['answerText'] for answers in qdict['answers_with_count'] if answers[0] == userAnswerIndex]
             userAnswers.append({
                 'answerNumber':
                 userAnswerIndex,
-                'answerText':
-                MatchingAnswers.objects.get(pk=parts[0]).answerID.answerText
+                'answerText': answerText[0]
+                # This was getting the correct matching answer and not the user answer they selected
+                # MatchingAnswers.objects.get(pk=parts[0]).answerID.answerText
             })
             if correctAnswerIndex == userAnswerIndex:
                 userScore = userScore + valuePerAnswer
