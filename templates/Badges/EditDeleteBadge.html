@@ -50,7 +50,7 @@
                            <div class="col s12 m3">
                            <!-- GGM added required to the input so we require a badge image selection -->
                               <input name="badgeImage" type="radio" id="Badge{{i}}" value="{{image}}" required {% if badge.badgeImage == image %}checked{% endif %}/>
-                              <label for="Badge{{i}}"><img alt="Badge Image" width="85px" height="85px" src="/{{image}}">*</label>
+                              <label for="Badge{{i}}"><img alt="Badge Image" width="85px" height="85px" src="/{{image}}"></label>
                            </div>
                            {% endfor %}
                         </div>

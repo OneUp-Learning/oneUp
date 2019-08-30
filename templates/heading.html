@@ -257,8 +257,8 @@
     </form>
 
     <ul id="account" class="dropdown-content">
-        <li><p class="center-align">Welcome, {{username}}</p></li>            
-        <li><p class="center-align">Course: {{course_Name}}</p></li>
+        <li><p style="padding-left: 16px; padding-right: 8px">Welcome, {{username}}</p></li>            
+        <li><p style="padding-left: 16px; padding-right: 8px">Course: {{course_Name}}</p></li>
         <li class="divider"></li>
         <li><a class="waves-effect" href="/oneUp/administrators/courses">Change Course</a></li>
         <li><a class="waves-effect" href="/oneUp/students/Logout">Logout</a></li>
@@ -272,8 +272,8 @@
         <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
         <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
         <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
-        <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li>
-        <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>
+        <!-- <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li> -->
+        <!-- <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li> -->
     </ul>
     <ul id="virtualcurrency" class="dropdown-content"> 
         <li><a class="waves-effect" href="/oneUp/badges/VirtualCurrencySpendRuleList">Spending Rules</a></li>
@@ -319,8 +319,8 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>  
-                    <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li>
-                    <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>                      
+                    <!-- <li><a class="waves-effect" href="/oneUp/instructors/exportCourse">Export Course</a></li> -->
+                    <!-- <li><a class="waves-effect" href="/oneUp/instructors/importCourse">Import Course</a></li>                       -->
                   	<li><a class="modal-trigger" href="#reset_test_student">Reset Test Student</a></li>                   	
                 </ul>
             </li>
@@ -333,7 +333,9 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                    {% if ccparams.gamificationUsed and ccparams.streaksUsed %}
                     <li><a class="waves-effect" href="/oneUp/instructors/attendanceStreaks">Attendance Streaks</a></li>
+                    {% endif %}
                     {% if ccparams.gamificationUsed and ccparams.leaderboardUsed %}
                     <li><a class="waves-effect" href="/oneUp/instructors/instructorLeaderboard">Course Leaderboard</a></li>
                     {% endif %}
@@ -361,18 +363,26 @@
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?serious">Serious Challenges Visualization</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges Visualization</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills Visualization</a></li>
-                    <li><a class="waves-effect" href="/oneUp/instructors/challengeClassmatesReport">Challenge Classmates Report</a>
+                    {% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
+                    <li><a class="waves-effect" href="/oneUp/instructors/challengeClassmatesReport">Challenge Classmates Report</a></li>
+                    {% endif %}
                 </ul>
             </li>
             {% if ccparams.gamificationUsed %}
             <li>
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="gamefeats">Game Features</a>
                 <ul id="gamefeats" class="dropdown-content dropdown-nested">
+                    {% if ccparams.badgesUsed %}
                     <li><a class="dropdown-button-badges" href="#!" data-activates="badges">Badges</a></li>
+                    {% endif %}
+                    {% if ccparams.virtualCurrencyUsed %}
                     <li><a class="dropdown-button-vc" href="#!" data-activates="virtualcurrency" >Virtual Currency</a></li>
-                    <!--<li><a class="waves-effect" href="">Leveling</a></li> -->
-                    <li><a class="waves-effect" href="/oneUp/instructors/dynamicLeaderboard">Leaderboards</a></li>                   
-                    <li><a class="waves-effect" href="/oneUp/badges/ProgressiveUnlocking">Content Unlocking</a></li>                    
+                    {% endif %}
+                    {% if ccparams.leaderboardUsed %}
+                    <li><a class="waves-effect" href="/oneUp/instructors/dynamicLeaderboard">Leaderboards</a></li>    
+                    {% endif %}               
+                    
+                    <li><a class="waves-effect" href="/oneUp/badges/ProgressiveUnlocking">Content Unlocking</a></li>   
                     <li><a class="waves-effect" href="/oneUp/instructors/debugSysVars">Debug System Variables</a></li>
                     <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
                 </ul>
@@ -419,7 +429,7 @@
                     </div>
                     <a href="#!user"><img class="circle" src="/static/images/avatars/anonymous.png"></a>
                     <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
-                    <a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
+                    <a href="#!course"><span class="white-text email">Course: {{course_Name}}</span></a>
                   </div>
             </li>   
             {% endif %}             
@@ -451,7 +461,9 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/createStudentListView">Students</a></li>
+                                {% if ccparams.gamificationUsed and ccparams.streaksUsed %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/attendanceStreaks">Attendance Streaks</a></li>
+                                {% endif %}
                                 {% if ccparams.gamificationUsed and ccparams.leaderboardUsed %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/leaderboard">Course Leaderboard</a></li>
                                 {% endif %}
@@ -480,10 +492,10 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/studentSummary">Students Summary</a></li>                                                              
                                 <li><a class="waves-effect" href="/oneUp/instructors/studentAttendance">Student Attendance</a></li>
-                                <li><a class="waves-effect" href="/oneUp/instructors/challengeClassmatesReport">Challenge Classmates Report</a>
-                                <li>
-                                    <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="visualization">Visualization<i class="material-icons right">more_vert</i></a></li>                                    
-                                </li>
+                                {% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
+                                <li><a class="waves-effect" href="/oneUp/instructors/challengeClassmatesReport">Challenge Classmates Report</a><li>
+                                {% endif %}
+                                <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="visualization">Visualization<i class="material-icons right">more_vert</i></a></li>
                             </ul>
                         </div>
                     </li>
@@ -492,11 +504,17 @@
                         <a class="collapsible-header"><i class="material-icons">extension</i>Game Features</a>
                         <div class="collapsible-body">
                             <ul>
+                                {% if ccparams.badgesUsed %}
                                 <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="badges-mobile">Badges<i class="material-icons right">more_vert</i></a></li>
-                                <li><a class="waves-effect" href="/oneUp/instructors/debugSysVars">Debug System Variables</a></li>
-                                <li><a class="waves-effect" href="/oneUp/badges/ProgressiveUnlocking">Content Unlocking</a></li>
-                                <li><a class="waves-effect" href="/oneUp/instructors/dynamicLeaderboard">Leaderboards</a></li>                   
+                                {% endif %}
+                                {% if ccparams.leaderboardUsed %}    
+                                <li><a class="waves-effect" href="/oneUp/instructors/dynamicLeaderboard">Leaderboards</a></li>  
+                                {% endif %}     
+                                {% if ccparams.virtualCurrencyUsed %}            
                                 <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency-mobile">Virtual Currency<i class="material-icons right">more_vert</i></a></li>
+                                {% endif %}
+                                <li><a class="waves-effect" href="/oneUp/badges/ProgressiveUnlocking">Content Unlocking</a></li>
+                                <li><a class="waves-effect" href="/oneUp/instructors/debugSysVars">Debug System Variables</a></li>
                                 <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
                         </div>
                     </li>
@@ -516,7 +534,7 @@
                         </div>
                     </li>
                     <li>
-		                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true&courseID={{courseId}}" >
+		                <a id='switchview' style="padding-left: 16px !important" class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true&courseID={{courseId}}" >
 		                    <i class='material-icons'>visibility</i> 
 		                </a>
 		            </li>

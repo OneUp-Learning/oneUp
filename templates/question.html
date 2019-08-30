@@ -11,22 +11,49 @@
 	<div class="divider"></div>
 {% endif %}
 {% if q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic %}
-<div class="row">
-    <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
-</div>
+	{% if q.type == questionTypes.multipleChoice %}
+	<div class="row">
+			<h4>Problem {{i}} (Multiple Choice)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.multipleAnswers %}
+	<div class="row">
+			<h4>Problem {{i}} (Multiple Answer)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.matching %}
+	<div class="row">
+			<h4>Problem {{i}} (Matching)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.trueFalse %}
+	<div class="row">
+			<h4>Problem {{i}} (True/False)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% endif %}
+	
 {% elif not graded or not q.hasMultipleParts %}
 	<div class="row">
 		<h4>Question {{i}}</h4>
+		{% if q.hasMultipleParts %}
+			<div class="row"> <h5>Part <b>1</b> of <b>{{q.numParts}}</b></h5> </div>
+		{% endif %}
 		<div class="ck-view">
 			<div id="{{q.uniqid}}-1-exact">
 			  <div class="darkClassParent">
 			    <div id="{{q.uniqid}}-1-darkLayer" class="darkClass" style="display:none"></div>
-			    {{q.questionText|safe}}
+			    {% if graded %}
+			    	<div class="card"><div class="card-content">
+			    {% endif %}
+			    	{{q.questionText|safe}}
+			    {% if graded %}
+				    </div></div>
+				{% endif %}
+				
 			    {% if not graded %}
 			        {% if q.hasMultipleParts or q.submissionsAllowed > 1 %}
 			        	<script>dynamicProblemPartExists.push("{{q.uniqid}}-1");</script>
 				    	<button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
 					{% endif %}
+				{% else %}
+		    		<script>disableInputsInside(document.getElementById("{{q.uniqid}}-1-exact"));</script>
 				{% endif %}
 			  </div>
 			</div>
@@ -36,7 +63,8 @@
 	</div>
 {% endif %} 
 {% if instructorview %}
-    <p> Total points: {{question.point|safe}}</p>
+	<p><b>Total points: {{question.point|safe}}</b></p>
+	<br />
 {% endif %}
 {% if graded and q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic%}
 	<div class="row">
@@ -105,55 +133,117 @@
 	{% endif %}
 
 {% elif q.type == questionTypes.matching %}
+	<style>
+        .cards-container {
+			-webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+			page-break-inside: avoid; /* Firefox */
+			break-inside: avoid;
+        }
+		.card .select-wrapper, .card .select-wrapper .caret {
+			color: white;
+		}
+		.card .select-wrapper input.select-dropdown {
+			border-bottom-color: white
+		}
+
+        @media only screen and (max-width : 600px) {
+            .cards-container {
+                -webkit-column-count: 1;
+                -moz-column-count: 1;
+                column-count: 1;
+            }
+        }
+
+        @media only screen and (min-width : 601px) {
+            .cards-container {
+                -webkit-column-count: 2;
+                -moz-column-count: 2;
+                column-count: 2;
+            }
+        }
+    </style>
 	<div class="row">
-	   <div class="col s12 m6">
-	      {% for j,answer in q.answers_with_count %}
-	      <p>{{j}} . {{answer.answerText}}</p>
+	   <div class="col s12">
+		  {% for j,answer in q.answers_with_count %}
+		  <h6><b>Question {{j}}:</b></h6>
+		  <p>{{answer.answerText}}</p>
+		  <br />
 	      {% endfor %}
 	   </div>
 	</div>
 	{% if graded %}
-       	<div class="row">
-           <div class="col s6">
-              {% for user_answer in q.user_answers %}
-              <p>{{user_answer.answerNumber}} . {{user_answer.answerText}}</p>
-              {% endfor %}
-           </div>
-           <div class="col s6">
-              {% for match in q.matches %}
-              <p>{{match.matchingAnswerText}}</p>
-              {% endfor %}
-           </div>
-        </div>
+		<div class="row">
+			
+				<div class="col s12 cards-container" >
+						{% for match in q.matches %}
+						
+					  <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
+						<div class="card-content white-text">
+							<span class="card-title">Choice {{match.current_pos}}</span>
+							<p>{{match.matchingAnswerText}}</p>
+						</div>
+						<div class="card-action" style="color: white;">
+							<span class="card-title">Your Answer</span>
+							{% for user_answer in q.user_answers %}
+							{% if forloop.counter ==  forloop.parentloop.counter %}
+							<p>{{user_answer.answerText}}</p>
+							{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				
+			</div>
 	{% else %}
 		<div class="row">
-		   {% for match in q.matches %}
-		   <div class="input-field col s12 m4">
-		      <select name="{{i}}-{{match.current_pos}}" id={{match.current_pos}}/>
-		         {% for k in match.answers_count %}
-		         <option value="{{k}}">{{k}}</option>
-		         {% endfor %}
-		      </select>
-		      <label for="{{match.current_pos}}">{{match.matchingAnswerText}}</label>
-		   </div>
-		   {% endfor %}
+			
+			<div class="col s12 cards-container" >
+					{% for match in q.matches %}
+			  	<div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
+					<div class="card-content white-text">
+						<span class="card-title">Choice {{match.current_pos}}</span>
+						<p>{{match.matchingAnswerText}}</p>
+					</div>
+					<div class="card-action">
+						<select name="{{i}}-{{match.current_pos}}" style="color: white">
+							{% for k in match.answers_count %}
+							<option value="{{k}}">Question {{k}}</option>
+							{% endfor %}
+						 </select>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			
 		</div>
 	{% endif %}
 	{% if graded or instructorview %}
+	
 	    <div class="row">
 	      <div class="col s12">
 	      	 {% if showcorrect or instructorview %}
-		         <h5>Correct Answer(s): </h5>
-		         <blockquote>
-		            <div style="column-count:2;">
-		               {% for match in q.matches %}
-		               <p>{{match.current_pos}} . {{match.answerText}}</p>
-		               {% endfor %}
-		               {% for match in q.matches %}
-		               <p>{{match.matchingAnswerText}}</p>
-		               {% endfor %}
-		            </div>
-		         </blockquote>
+				 <h5>Correct Answer(s): </h5>
+				 <blockquote>
+				 <div class="row">
+			
+						<div class="col s12 cards-container" >
+								{% for match in q.matches %}
+							  <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
+								<div class="card-content white-text">
+									<span class="card-title">Choice {{match.current_pos}}</span>
+									<p>{{match.matchingAnswerText}}</p>
+								</div>
+								<div class="card-action" style="color: white;">
+									<span class="card-title">Correct Answer</span>
+									<p>{{match.answerText}}</p>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+						
+					</div>
+				 </blockquote>
 		     {% endif %}
              {% if graded %}
 		         <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
@@ -415,6 +505,16 @@
 		    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
 		        {% endfor %}
 		    </div>
+		    {% if showcorrect %}
+   		    <div class="row">
+				<h5>Example Correct Answer: </h5>
+					{% for ansName, text in q.sampleCorrect.items %}
+						<b>{{ansName}}</b> : {{text|safe}}<br>
+					{% empty %}
+						No example correct answer provided by instructor.<br>
+					{% endfor %}
+			</div>
+			{% endif %}
 		    {% if q.evaluations %}
 			    {% with evaluations=q.evaluations %}
 			    	{% include 'dynamicQuestionEvaluations.html' %}
@@ -427,7 +527,12 @@
 	    	{% for pnum, qp in q.parts.items %}
 	    		{% if qp.submissionCount > 0 or pnum == "1" %}
 		    		<div class="row"> <h5>Part {{pnum}} of {{q.numParts}}</h5> </div>
-		    		<div>{{qp.questionText|safe}}</div>
+ 		   			<div class="card">
+			    		<div id="qtext-{{i}}-{{pnum}}" class="card-content">
+		    				{{qp.questionText|safe}}
+		    			</div>
+		    		</div>
+		    		<script>disableInputsInside(document.getElementById("qtext-{{i}}-{{pnum}}"));</script>
 		    		<div class="row">
 						<div class="col s12">
 		      				<h5>Your Answer:</h5>
@@ -438,6 +543,16 @@
 				    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
 				        {% endfor %}
 				    </div>
+	    		    {% if showcorrect %}
+   		       		    <div class="row">
+						<h5>Example Correct Answer: </h5>
+							{% for ansName, text in qp.sampleCorrect.items %}
+								<b>{{ansName}}</b> : {{text|safe}}<br>
+							{% empty %}
+								No example correct answer provided by instructor.<br>
+							{% endfor %}
+						</div>
+					{% endif %}
 		    		{% if qp.evaluations %}
 			    		{% with evaluations=qp.evaluations %}
 					    	{% include 'dynamicQuestionEvaluations.html' %}
@@ -453,4 +568,5 @@
         </div>
     {% endif %}
     {# There's no else case because we don't need to show any answers when there's no grading. #}
+	
 {% endif %}

@@ -11,6 +11,7 @@ from Badges.events import register_event
 from Badges.enums import Event, dict_dict_to_zipped_list
 
 from datetime import datetime
+import pytz
 #import logging
 
 @login_required
@@ -88,7 +89,7 @@ def filterTransactions(request):
     return JsonResponse({'transactions': transactions})
 
 def get_transactions(context_dict, course, student, t_type='all'):
-    from django.utils import formats
+    from django.utils import formats, timezone
 
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=course)         
     currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount
@@ -109,24 +110,42 @@ def get_transactions(context_dict, course, student, t_type='all'):
         transactions = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event=Event.spendingVirtualCurrency).order_by('-studentEvent__timestamp')
 
         for transaction in transactions:
-            rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
-            if rule:
-                name.append(rule.vcRuleName)
-                description.append(rule.vcRuleDescription)
-                date.append(transaction.studentEvent.timestamp)
-                total.append(rule.vcRuleAmount)
-                status.append(transaction.status)
-                transactionID.append(transaction.transactionID)
-                transaction_type.append("Purchase")
-                # Show what challenge the transaction was for
-                if transaction.objectType == ObjectTypes.challenge:
-                    challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
-                    if challenge:
-                        challenges.append(challenge.challengeName)
-                    else:
-                        challenges.append(None)
+            # rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
+            # if rule:
+            #     name.append(rule.vcRuleName)
+            #     description.append(rule.vcRuleDescription)
+            #     date.append(transaction.studentEvent.timestamp)
+            #     total.append(rule.vcRuleAmount)
+            #     status.append(transaction.status)
+            #     transactionID.append(transaction.transactionID)
+            #     transaction_type.append("Purchase")
+            #     # Show what challenge the transaction was for
+            #     if transaction.objectType == ObjectTypes.challenge:
+            #         challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
+            #         if challenge:
+            #             challenges.append(challenge.challengeName)
+            #         else:
+            #             challenges.append(None)
+            #     else:
+            #         challenges.append(None)
+
+            
+            name.append(transaction.name)
+            description.append(transaction.description)
+            date.append(transaction.studentEvent.timestamp)
+            total.append(transaction.amount)
+            status.append(transaction.status)
+            transactionID.append(transaction.transactionID)
+            transaction_type.append("Purchase")
+            # Show what challenge the transaction was for
+            if transaction.objectType == ObjectTypes.challenge:
+                challenge = Challenges.objects.filter(courseID = course, challengeID = transaction.objectID).first()
+                if challenge:
+                    challenges.append(challenge.challengeName)
                 else:
                     challenges.append(None)
+            else:
+                challenges.append(None)
 
     if t_type == 'earned' or t_type == 'all':
         # Get all the transactions that the student has earned 
@@ -135,6 +154,8 @@ def get_transactions(context_dict, course, student, t_type='all'):
             # If the transaction has a rule attached, get the information from that rule
             if hasattr(stud_VCrule, 'studentvirtualcurrencyrulebased'):
                 vcrule = stud_VCrule.studentvirtualcurrencyrulebased.vcRuleID
+                if not vcrule:
+                    continue
                 if stud_VCrule.courseID == course and vcrule.vcRuleType:
                     name.append(vcrule.vcRuleName)
                     description.append(vcrule.vcRuleDescription)
@@ -168,6 +189,7 @@ def get_transactions(context_dict, course, student, t_type='all'):
     transactions_formatted = []
     for transaction in transactions:
         tuple_list = list(transaction)
-        tuple_list[3] = formats.date_format(tuple_list[3], "DATETIME_FORMAT")
+        time = tuple_list[3].replace(tzinfo=pytz.UTC)   
+        tuple_list[3] = formats.date_format(time.astimezone(timezone.get_current_timezone()), "DATETIME_FORMAT")
         transactions_formatted.append(tuple_list)
     return transactions_formatted

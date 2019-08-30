@@ -137,14 +137,16 @@ def exportCourse(request):
     '''
 
     context_dict, current_course = initialContextDict(request)
-       
+
+    context_dict['version'] = "1.0"
+
     if request.method == 'GET':
         return render(request,'Instructors/CourseExport.html', context_dict)
     
     if request.method == 'POST':
         root_json = json.loads(request.POST.get('exported-json', ''))
         # Only export json if the json contains items other than the version number
-        if len(root_json) > 1:
+        if 'version' in root_json and len(root_json) > 1:
             ensure_directory('media/textfiles/course/json/')
             with open('media/textfiles/course/json/course-{}-{}.json'.format(current_course.courseName, root_json['version']), 'w') as export_stream:
                 json.dump(root_json, export_stream)
@@ -1305,6 +1307,7 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
                                         ('courseID', current_course, None),]
 
             activity = create_model_instance(Activities, activity_fields_to_save)
+            uncategorized_activity_category = ActivitiesCategory.objects.get(name=uncategorized_activity, courseID=current_course)
 
             # Setup category for this activity
             if 'category' in activity_json:
@@ -1313,8 +1316,15 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
                     mapped_activity_category_id = search_for_mapped_id('activities-categories', activity_json['category']['categoryID'], id_map=id_map)
                     if not mapped_activity_category_id:
                         messages.append({'type': 'warn', 'message': 'Unable to find activity category id in mapped ids dictionary for activity. Activities will not include this category'})
-                        activity.save()
-                        return
+                        # Try to assign this activity to the uncategorized activity
+                        if not uncategorized_activity_category:
+                            activity.delete()
+                            return
+                        else:
+                            activity.category = uncategorized_activity_category
+                            activity.save()
+
+                        continue
 
                     # Set the activity category
                     activity_category = ActivitiesCategory.objects.get(categoryID=mapped_activity_category_id, courseID=current_course)
@@ -1323,14 +1333,12 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
                     messages.append({'type': 'error', 'message': 'Unable to add activity categories to activities. id map not providied'})
             else:
                 # Include the default uncategorized activity category
-                activity_category = ActivitiesCategory.objects.get(name=uncategorized_activity, courseID=current_course)
-
-                if not activity_category:
+                if not uncategorized_activity_category:
                     messages.append({'type': 'error', 'message': 'Your Course does not have a uncategorized activity category. Activities will not include this category'})
-                    activity.save()
+                    activity.delete()
                     return
 
-                activity.category = activity_category
+                activity.category = uncategorized_activity_category
 
             activity.save()
 
@@ -1403,7 +1411,6 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                         challenge_topic.save()                
                 else:
                     messages.append({'type': 'error', 'message': 'Unable to add topics to challenges. id map not providied'})
-                    pass
             else:
                 # Assigned this challenge the default unspecified topic
                 course_topic = CoursesTopics.objects.get(courseID=current_course, topicID__topicName=unspecified_topic_name)

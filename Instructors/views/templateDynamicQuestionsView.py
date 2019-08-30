@@ -141,7 +141,7 @@ def templateDynamicQuestionForm(request):
         if 'view' in request.GET:
             context_dict['view'] = request.GET['view']
         context_dict['luaLibraries'] = getAllLuaLibraryNames();
-        context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10)}]"
+        context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10,r1+r2)}]"
         context_dict['checkInitalTemplateTextPart'] = True
         
         if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
@@ -248,9 +248,11 @@ def templateToCodeSegments(setupCode,templateArray):
             
         _answer_checkers = {}
         _pts = {}
-        make_answer = function(name,type,size,checker,pts)
+        _sampleans = {}
+        make_answer = function(name,type,size,checker,pts,sampleans)
             _answer_checkers[_part][name] = checker
             _pts[_part][name] = pts
+            _sampleans[_part][name] = sampleans
             print(make_input(name,type,size))            
         end
         _part_max_points = function(part)
@@ -271,6 +273,11 @@ def templateToCodeSegments(setupCode,templateArray):
                 return results
             end
         end
+        _part_example_answers = function(part)
+            return function()
+                return _sampleans[part]
+            end
+        end
     '''
     code_segments.append(CodeSegment.new(CodeSegment.system_lua,sys_code,""))
     code_segments.append(CodeSegment.new(CodeSegment.template_setup_code,
@@ -282,12 +289,13 @@ def templateToCodeSegments(setupCode,templateArray):
         code = ""
         code += 'part_'+str(count)+'_max_points = _part_max_points('+str(count)+')\n'
         code += 'evaluate_answer_'+str(count)+' = _evaluate_answer('+str(count)+')\n'
+        code += 'part_'+str(count)+'_example_answers = _part_example_answers('+str(count)+')\n'
         code += '''
 part_'''+str(count)+'''_text = function ()
     _part = '''+str(count)+'''
     _answer_checkers[_part] = {}
     _pts[_part] = {}
-    
+    _sampleans[_part] = {}
     output = ""
     '''
 

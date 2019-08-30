@@ -56,10 +56,7 @@ function getDynamicProblemPartData(idprefix) {
 	return data;
 }
 
-function disableDiv(name) {
-	var darkLayer = document.getElementById(name+"-darkLayer");
-	darkLayer.style.display="";
-	var element = document.getElementById(name+"-exact");
+function disableInputsInside(element) {
 	var descendents = element.getElementsByTagName("*");
 	var i, e;
 	for (i = 0; i < descendents.length; i++) {
@@ -75,6 +72,15 @@ function disableDiv(name) {
 			e.disabled = true;
 		}
 	}
+}
+
+function disableDiv(name) {
+	var darkLayer = document.getElementById(name+"-darkLayer");
+	if (darkLayer) {
+		darkLayer.style.display="";
+	}
+	var element = document.getElementById(name+"-exact");
+	disableInputsInside(element);
 }
 
 function nothing() {
