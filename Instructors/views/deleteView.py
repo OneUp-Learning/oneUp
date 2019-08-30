@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 
-from Students.models import Student, StudentRegisteredCourses
+from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.views.utils import initialContextDict
@@ -174,8 +174,12 @@ def deleteStudent(request):
                 # KI: Changed this so that the user is not actually deleted.  This is in order to make certain that we
                 # preserve the student data.  Once a student is in no courses, they should not be able to do anything in
                 # the system.
-                student_course = StudentRegisteredCourses.objects.get(studentID=student, courseID=int(request.session['currentCourseID']))
+                currentCourseID = int(request.session['currentCourseID'])
+                student_course = StudentRegisteredCourses.objects.filter(studentID=student, courseID=currentCourseID)
+                student_config_params = StudentConfigParams.objects.filter(studentID=student, courseID=currentCourseID)
                 student_course.delete()
+                student_config_params.delete()
+
                 message = "Student "+str(u.first_name)+ " "+str(u.last_name)+" was successfully deleted from this course"
                         
         except User.DoesNotExist:
