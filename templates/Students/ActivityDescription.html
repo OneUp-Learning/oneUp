@@ -39,14 +39,18 @@
                         </div>
                         <div>
                         <ul style="font-size: 16px;">
-                        	<li >
-                        		<span><b>Due </b></span>
-                        		<span>{{activity.deadLine}}</span>
-                        	</li>
+                           {% if hasDueDate %}
+                              <li >
+                                 <span><b>Due: </b></span>
+                                 <span>{{activity.deadLine}}</span>
+                              </li>
+                           {% endif %}
+                           {% if activity.isGraded %}
                         	<li>
-                        		<span><b>Points </b></span>
+                        		<span><b>Points: </b></span>
                         		<span>{{activity.points}}</span>
                         	</li>
+                           {% endif %}
                         </ul>
                         </div>
                         <!--  <div class="section">
@@ -112,6 +116,7 @@
                      
                     
                    {% endif %}
+                  {% if canUpload %}
                    <h5>Your Comment</h5>
                    <div class="section">
                      <textarea placeholder="Comments..." name="comment" id="comment" class="materialize-textarea" style="line-height: 20px;  font-size: 14px; ">{{comment}}</textarea>
@@ -130,6 +135,7 @@
                             <a class="btn waves-effect waves-light" href="/oneUp/students/ActivityList"><i class="material-icons left">navigate_before</i>Back</a> 										  						
                         </div>
                     </div>
+                    {% endif %}
                   </form>
                </div>
             </div>
