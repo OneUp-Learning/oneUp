@@ -64,11 +64,19 @@
                            <table class="responsive-table">
                            
                            <tbody>
-			              {% for i, activity_ID, activityName, description, points, activityPosition in activities %}
+			              {% for i, activityID, activityName, description, points, activityPosition in activities %}
 			              <tr>
-			                <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activityName}}</td>
-			                <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{description}}</td>
-			                <td>{{points}} Points</td>
+			                <td><div class="col s12">{{activityName}}</div></td>
+			                <td><div class="col s12">{{description}}</div></td>
+			                <td><div class="col s12">{{points}} Points</div></td>
+					<td>
+					  <div class="col s12">
+					    <input placeholder="Position" value="{{activityPosition}}" name="activityPositions" id="chall_position" maxlength="4"
+						   type="number" class="validate" min="0" required>
+					    <input type="hidden" value="{{activityID}}" name="activityIDs">
+					  </div>
+					</td>
+
 			                <td>
 			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 			                    data-beloworigin="true" data-activates='activity{{activity_ID}}' data-position="right" data-delay="50"
