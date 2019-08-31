@@ -245,7 +245,11 @@ def parsonsForm(request):
                     context_dict['q_skill_points'] = int('1')
     
                     # Extract the skill                                        
-                    context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)                    
+                    context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)   
+
+            print("loaded feedback")
+            context_dict['incorrectAnswerFeedback'] = question.correctAnswerFeedback
+            context_dict['incorrectAnswerFeedback'] = question.incorrectAnswerFeedback
 
         if 'questionId' in request.POST:         
             return redirect('challengesView')
