@@ -104,7 +104,11 @@ def ChallengeSetup(request):
                 # context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
 
                 # Use timezone to convert date to current timzone set in settings.py
-                tz = pytz.timezone(request.session['django_timezone'])
+                if 'django_timezone' in request.session:
+                    timezone = request.session['django_timezone']
+                else:
+                    timezone = 'EST'
+                tz = pytz.timezone(timezone)
                 starttime = tz.localize(datetime.now()).astimezone(tz)
                 starttimestring = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
                 context_dict['startTime'] = starttimestring
