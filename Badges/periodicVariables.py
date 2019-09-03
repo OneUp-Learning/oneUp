@@ -206,7 +206,7 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
         rank = filter_students(rank, number_of_top_students, threshold, operator_type, is_random)
         print("Filtered: {}".format(rank))
         # Give award to students
-        award_students(rank, course, badge_id, virtual_currency_amount)
+        award_students(rank, course, unique_id, badge_id, virtual_currency_amount)
     elif save_results:
         if is_leaderboard:
             # Sort the students
@@ -313,12 +313,12 @@ def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
 
         
     
-def award_students(students, course, badge_id=None, virtual_currency_amount=None):
+def award_students(students, course, unique_id, badge_id=None, virtual_currency_amount=None):
     ''' Awards students a badge or virtual currency or both.'''
 
     from notify.signals import notify  
-    from Students.models import StudentBadges, StudentRegisteredCourses
-    from Badges.models import BadgesInfo
+    from Students.models import StudentBadges, StudentRegisteredCourses, StudentVirtualCurrency
+    from Badges.models import BadgesInfo, VirtualCurrencyPeriodicRule
     from Instructors.views.utils import utcDate
 
     for student, result in students:
@@ -349,6 +349,17 @@ def award_students(students, course, badge_id=None, virtual_currency_amount=None
                 student_profile = StudentRegisteredCourses.objects.get(courseID=course, studentID=student)
                 student_profile.virtualCurrencyAmount += virtual_currency_amount
                 student_profile.save()
+                
+                periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
+
+                transaction = StudentVirtualCurrency()
+                transaction.courseID = course
+                transaction.studentID = student
+                transaction.objectID = 0
+                transaction.vcName = periodicVC.vcRuleName
+                transaction.vcDescription = periodicVC.vcRuleDescription
+                transaction.value = virtual_currency_amount
+                transaction.save()
                 # Notify student of VC award 
                 notify.send(None, recipient=student.user, actor=student.user, verb='You won '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
 
