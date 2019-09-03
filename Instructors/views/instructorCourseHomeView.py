@@ -31,10 +31,10 @@ def lineno():
 def courseLeaderboard(currentCourse, context_dict):
 
     # Check if there are students in this course
-    st_crs = StudentRegisteredCourses.objects.filter(
+    students_registered_in_course = StudentRegisteredCourses.objects.filter(
         courseID=currentCourse).exclude(studentID__isTestStudent=True)
 
-    if st_crs:
+    if students_registered_in_course:
         if currentCourse:
             ccparamsList = CourseConfigParams.objects.filter(
                 courseID=currentCourse)
@@ -61,24 +61,24 @@ def courseLeaderboard(currentCourse, context_dict):
             date_N_days_ago = datetime.now() - timedelta(days=N)
 
             students = []
-            for st_c in st_crs:
+            for student_in_course in students_registered_in_course:
                 # all students in the course
-                students.append(st_c.studentID)
+                students.append(student_in_course.studentID)
 
-            # Displaying the list of challenges from database
-            badges = StudentBadges.objects.all().order_by('-timestamp')
+            # Displaying the badges for this one class from database
+            badges = StudentBadges.objects.filter(badgeID__courseID=currentCourse).order_by('-timestamp')
             print("badges")
             print(badges)
             for badge in badges:
-                if (badge.studentID in students) and (badge.badgeID.courseID == currentCourse):
+                if (badge.studentID in students):
                     studentBadgeID.append(badge.studentBadgeID)
                     studentID.append(badge.studentID)
                     badgeID.append(badge.badgeID)
                     badgeName.append(badge.badgeID.badgeName)
                     badgeImage.append(badge.badgeID.badgeImage)
-                    st_crs = StudentRegisteredCourses.objects.get(
+                    students_registered_in_course = StudentRegisteredCourses.objects.get(
                         studentID=badge.studentID, courseID=currentCourse)
-                    avatarImage.append(checkIfAvatarExist(st_crs))
+                    avatarImage.append(checkIfAvatarExist(students_registered_in_course))
                     student = badge.studentID
                     if not (student.user.first_name and student.user.last_name):
                         studentUser.append(student.user)
