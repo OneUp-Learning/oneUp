@@ -46,6 +46,7 @@ function displayResetStreakCheckbox(){
 	}
 }
 </script>
+
 <body>
 	{% include 'heading.html' %}
 	<main>
@@ -224,6 +225,7 @@ function displayResetStreakCheckbox(){
 	</main>
 	{% include 'footer.html' %}
 </body>
+
 <script>
 	$(document).ready(function() {
 		var show = false;
@@ -245,6 +247,16 @@ function displayResetStreakCheckbox(){
 			$('#threshold_select').prop('disabled', function(i, v) { return !v; });
 			$('#threshold_select').material_select();
 		})
+
+		var descriptions = [];
+		{% for periodicVariable in periodicVariables %}
+		descriptions.push('{{periodicVariable.description|safe}}');
+		{% endfor %}
+		var periodic_variables = $('#periodicVariableSelected').siblings()[2].children;
+		for(var i = 0; i < periodic_variables.length; i++){
+			$(periodic_variables[i]).addClass('tooltipped').attr('data-position', 'bottom').attr('data-tooltip', descriptions[i]);
+		}
+		$('.tooltipped').tooltip();
 	});
 </script>
 <script>
