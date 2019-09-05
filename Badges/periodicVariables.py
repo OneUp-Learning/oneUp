@@ -252,8 +252,11 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             students.sort(key=lambda tup: tup[1])
             # Check if what we want is greater than the number of students
             if len(students) >= number_of_top_students:
-                # Only select the top number of students
-                students = students[:number_of_top_students]
+                # Get the top n (number_of_top_students) unique values to handle ties
+                top_values = sorted(set([val for student, val in students]))
+                top_values = top_values[:number_of_top_students]
+                # Only select the students if their value is in the top_values
+                students = [(student, val) for student, val in students if val in top_values]
         elif is_random and students:
             # If random, choose one student and remove everyone else
             random.shuffle(students)
