@@ -4,1016 +4,1444 @@
 <head>
   {% include 'scripts.html' %}
 
-  <body>
-    {% include 'instructorQAheading.html' %}
-    <main>
-      <div class="row center-align">
-        <div class="col s12">
-          <h3>Instructor Q&A</h3>
+<body>
+
+  {% include 'heading.html' %}
+  <div class="nav-content">
+    <ul class="tabs tabs-transparent" style="background-color:#5b74fc;">
+      <li class="tab"><a class="active" href="#CourseInformation">Course Information</a></li>
+      <li class="tab"><a href="#CourseContent">Course Content</a></li>
+      <li class="tab"><a href="#Problems">Problems</a></li>
+      <li class="tab"><a href="#CourseTools">Course Tools</a></li>
+      <li class="tab"><a href="#CourseReports">Course Reports</a></li>
+      <li class="tab"><a href="#GameFeatures">Game Features</a></li>
+    </ul>
+  </div>
+  <main>
+    <div class="row center-align">
+      <div class="col s12">
+        <h3>Instructor Q&A</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m12" id="CourseInformation">
+        <div class="card">
+          <div class="card-content">
+            <ul class="collapsible expandable">
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How Can I Create a Course?
+                </div>
+                <div class="collapsible-body">
+                  <span>In OneUp only the administrator can create courses and assign instructors to the courses.
+                    If you wish to have a course, please contact the OneUp administrator.</span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What’s a Course Description and How Do I Make One?</div>
+                <div class="collapsible-body">
+                  <span>The Course Description is a brief explanation of the content and activities of a course.
+                    To create one, in the Course Information menu select Course Description.
+                    Simply enter the description that is appropriate for the course and click Save.</span>
+                </div>
+              </li>
+              <!-- GGM added leaderboard QA, and a dynamic selector to ensure students cant access leaderboard page without enabling it in preferences -->
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Course Topics?</div>
+                <div class="collapsible-body">
+                  <span>Course Topics are the topics that are covered in the course.
+                    You can think of them as of chapters in a course textbook.
+                    Course topics are used to classify the warm-up challenges, so the students can find easily practice
+                    quizzes for the topic they wish to practice.
+                    To create a new Topic, in the Course Information menu select Course Topics.
+                    Click on Add New Topic and enter a name and, optionally, a position.
+                    The topics appear on the Topics list, sorted by the specified positions.
+                    When creating a warm-up challenge later, you can specify the course topic to which it belongs.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Activity Categories?</div>
+                <div class="collapsible-body">
+                  <span>Activity Categories play a role similar to Course Topics but are specifically for course
+                    activities (such as labs, assignments, etc., which are not automatically graded by the system).
+                    Activity Categories are used to classify course activities, so the students can find easily the
+                    activity they are looking for.
+                    To create one, in the Course Information menu select Activity Categories.
+                    Click on Add New Category and simply enter a name (i.e. Lab, Homework, etc.).
+                    After clicking Submit, the new category will appear in the Activity Categories List.
+                    When creating a new course activity later, you can assign it to one of the created activity
+                    categories.</span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Targeted Skills?</div>
+                <div class="collapsible-body">
+                  <span>Targeted Skills are exactly skills that are targeted in the specific course.
+                    You can use the learning objectives in your course as targeted skills.
+                    Skills are linked to problems (at the time of creation of the problems), as students learn skills as
+                    they complete problems.
+                    To create a Skill, in the Course Information menu select Targeted Skills.
+                    Click on Add New Skill and enter a name.
+                    After clicking Create, the new skill will be available to be assigned to problems.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Course Milestones?
+                </div>
+                <div class="collapsible-body">
+                  <span>Course Milestones describe all of the required work in the class and how much (course points)
+                    each category is worth in total.
+                    The total of all milestones shall be equal to the maximum earnable amount of course points in the
+                    course (e.g. 100, or 1000, …).
+                    The course milestones are used in the creation of the Progress Bar, which is displayed on the
+                    student learning dashboard.
+                    To create a new Course Milestone, in the Course Information menu select Course Milestones.
+                    Click on Add New Milestone and enter the name, description, and the maximum total of points for your
+                    Milestone.
+                    After clicking Create, the new Milestone will appear in the list.
+                    If you don’t define Course Milestones, you have to disable the Progress Bar, which is shown in the
+                    Students/Achievements page.
+                    You can do that by going to the Course Information menu and select Course Configuration.
+                    Then disable the Progress Bar by turning the switch off.</span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How are Students Added to Courses?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">Students do not create their own accounts, Instructors must make it for
+                      them. To do so, in the Course Information menu select Students.
+                      On this page, Instructors can view their students’ names, email, and the time of their most recent
+                      online activity.
+                      To add a new student, click on the Add New Student button to be taken to the Add New Student page.
+                      Simply fill in the student’s name, email, User Id, and create a password for them.
+                      Instructors are responsible for providing students their OneUp passwords.
+                      Click Submit to add the student to the course. </p>
+                    <p style="text-indent:40px; margin-top: 1ex">
+                      Alternatively, you can import a file with students' registration information.
+                      You should be sure to select the format for the imported file and to enter the email domain for
+                      your university (the part after the @ sign) .
+                      Currently there are two supported file formats:
+                      <ul style="text-indent:60px">
+                        <li>* <b>CANVAS</b> format: A file, exported from the CANVAS LMS: simply go to CANVA Grades,
+                          export (in the standard CSV format) and save the file on your computer.
+                          Then in OneUP's Create Student page choose the option "Import from CANVAS", and upload the
+                          previously exported file.
+                        </li>
+                        <li>* <b>OneUp</b> format: A file in CSV (Comma Separated Values) format: you can prepare such
+                          file in any spreadsheet program (e.g. Excel) and save it in the CSV format.
+                          The spreadsheet has to have 3 columns: First name, Last name, and the local part (the part
+                          before the @ sign) of the student university email.
+                          Instructors should enter the domain for the email (the part after the @ sign) in the provided
+                          field. In this case you should choose the OneUp format for the file.
+                        </li>
+                      </ul>
+                    </p>
+                    <p style="text-indent:40px; margin-top: 1ex">
+                      If you wish to add students that are already registered in other OneUp courses, then click on the
+                      Add Existing Student button to be taken to the Add Students page.
+                      Simply select which students you wish to add to your course and click the Add to Class button.
+                    </p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are the Course Configuration Options?
+                </div>
+                <div class="collapsible-body">
+                  <span>In the Course Information menu, select Course Configuration to view the variety of options
+                    available for configuring the course.
+                    Course Availability makes the course available to students and is enabled by default.
+                    The Set Duration option is used to set the start and end date of the course.
+                    Once the Course End Date has passed, the course will no longer be available to students, even if
+                    Course Availability is enabled.
+                    The option Display Serious Challenges by Topics simply groups the challenges by Topics instead of
+                    the order in which they were created.
+                    The Progress Bar is used to track students progress in the course that works in tandem with Course
+                    Milestones.
+                    If no Course Milestones are defined, then the Progress Bar has no purpose, thus the option for it
+                    shall be disabled.
+                    Course Gamification is a completely optional feature to instructors that is disabled by default.
+                    Once enabled, a Game Features drop-down menu will appear in the instructor’s main menu which will
+                    allow you to configure the desired gamification features.</span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Attendance Streaks?
+                </div>
+                <div class="collapsible-body">
+                  <span>A streak is a concept for informing users (through a number or other indicator) how many
+                    consecutive days they have completed a targeted action.
+                    OneUp supports streaks and the instructor can define class attendance streaks by setting what are
+                    the course 'consecutive' dates when the students have to be in attendance.
+                    To set an Attendance Streak, go to the Course Information menu and select Attendance Streaks. Note
+                    that this option is displayed only if you have enabled Streak Configuration in the Course
+                    Gamification Configuration page (under the Game Features menu).
+                    On the Student Attendance Streak Configuration page first select the days of the class and click the
+                    Submit button under the list of days.
+                    On the displayed calendar, you will see class dates added to the attendance streak. You can further
+                    adjust the streak dates by un-selecting specific dates during the semester on which there will be no
+                    classes.
+                    The calendar will update with the days you selected/unselected and will now have a streak label.
+                    Now click the Submit button under the calendar to create the streak.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col s12 m12" id="CourseInformation">
-          <div class="card">
-            <div class="card-content">
-              <ul class="collapsible expandable">
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How Can I Create A Course?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>In OneUp only the administrator can create courses and assign instructors to the courses. 
-                    If you wish to have a course, please contact the OneUp administrator.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What’s A Course Description and How Do I Make One?</div>
-                  <div class="collapsible-body">
-                    <span>The Course Description is a brief explanation of the content and activities of a course. 
-                    To create one, in the Course Information menu select Course Description. 
-                    Simply enter the description that is appropriate for the course and click Save.</span>
-                  </div>
-                </li>
-                <!-- GGM added leaderboard QA, and a dynamic selector to ensure students cant access leaderboard page without enabling it in preferences -->
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Course Topics?</div>
-                  <div class="collapsible-body">
-                    <span>Course Topics are the topics that are covered in the course. 
-                    You can think of them as of chapters in a course textbook. 
-                    Course topics are used to classify the warm-up challenges, so the students can find easily practice quizzes for the topic they wish to practice. 
-                    To create a new Topic, in the Course Information menu select Course Topics. 
-                    Click on Add New Topic and enter a name and, optionally, a position. 
-                    The topics appear on the Topics list, sorted by the specified positions.
-                    When creating a warm-up challenge later, you can specify the course topic to which it belongs. </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Activity Categories?</div>
-                  <div class="collapsible-body">
-                    <span>Activity Categories play a role similar to Course Topics but are specifically for course activities (such as labs, assignments, etc., which are not automatically graded by the system).                    
-                    Activity Categories are used to classify course activities, so the students can find easily the activity they are looking for. 
-                    To create one, in the Course Information menu select Activity Categories. 
-                    Click on Add New Category and simply enter a name (i.e. Lab, Homework, etc.). 
-                    After clicking Submit, the new category will appear in the Activity Categories List.
-                    When creating a new course activity later, you can assign it to one of the created activity categories.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Targeted Skills?</div>
-                  <div class="collapsible-body">
-                    <span>Targeted Skills are exactly skills that are targeted in the specific course. 
-                    You can use the learning objectives in your course as targeted skills. 
-                    Skills are linked to problems (at the time of creation of the problems), as students learn skills as they complete problems. 
-                    To create a Skill, in the Course Information menu select Targeted Skills. 
-                    Click on Add New Skill and enter a name. 
-                    After clicking Create, the new skill will be available to be assigned to problems.
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Course Milestones?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>Course Milestones describe all of the required work in the class and how much (course points) each category is worth in total.
-                     The total of all milestones shall be equal to the maximum earnable amount of course points in the course (e.g.  100, or 1000, …). 
-                     The course milestones are used in the creation of the Progress Bar, which is displayed on the student learning dashboard. 
-                     To create a new Course Milestone, in the Course Information menu select Course Milestones. 
-                     Click on Add New Milestone and enter the name, description, and the maximum total of points for your Milestone. 
-                     After clicking Create, the new Milestone will appear in the list. 
-                     If you don’t define Course Milestones, you have to disable the Progress Bar, which is shown in the Students/Achievements page. 
-                     You can do that by going to the Course Information menu and select Course Configuration. 
-                    Then disable the Progress Bar by turning the switch off.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How are students added to OneUp course?</div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">Students do not create their own accounts, Instructors must make it for them. To do so, in the Course Information menu select Students. 
-                    On this page, Instructors can view their students’ names, email, and the time of their most recent online activity. 
-                    To add a new student, click on the Add New Student button to be taken to the Add New Student page. 
-                    Simply fill in the student’s name, email, User Id, and create a password for them. 
-                    Instructors are responsible for providing students their OneUp passwords. 
-                    Click Submit to add the student to the course. </p>
-                    <p style = "text-indent:40px; margin-top: 1ex">
-                    Alternatively, you can import a file with students' registration information. 
-                    You should be sure to select the format for the imported file and to enter the email domain for your university (the part after the @ sign) . 
-                    Currently there are two supported file formats:
-                    <ul style = "text-indent:60px">
-                    <li>* <b>CANVAS</b> format: A file, exported from the CANVAS LMS: simply go to CANVA Grades, export (in the standard CSV format) and save the file on your computer. 
-                    Then in OneUP's Create Student page choose the option "Import from CANVAS", and upload the previously exported file.
-                    </li>
-                    <li>* <b>OneUp</b> format: A file in CSV (Comma Separated Values) format: you can prepare such file in any spreadsheet program (e.g. Excel) and save it in the CSV format. 
-                    The spreadsheet has to have 3 columns: First name, Last name, and the local part (the part before the @ sign) of the student university email. 
-                    Instructors should enter the domain for the email (the part after the @ sign) in the provided field. In this case you should choose the OneUp format for the file.
-					</li>
-					</ul>
-					</p>
-					<p style = "text-indent:40px; margin-top: 1ex">
-                    If you wish to add students that are already registered in other OneUp courses, then click on the Add Existing Student button to be taken to the Add Students page. 
-                    Simply select which students you wish to add to your course and click the Add to Class button.                    
+      <div class="col m12" id="CourseContent">
+        <div class="card">
+          <div class="card-content">
+            <ul class="collapsible expandable">
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What’s the Difference Between Warm-Up and Serious
+                  Challenges?
+                </div>
+                <div class="collapsible-body">
+                  <span>In OneUp, course tests and quizzes are 'challenges' and the questions included in them are
+                    'problems'.
+                    Challenges are divided into two types.
+                    Warm-up Challenges are primarily for student practice and do not directly contribute to the course
+                    grade.
+                    Typically the students can take a warm-up challenge as many times as needed to get a correct answer.
+                    The scores of the Warm-Ups are not shown in the Gradebook.
+                    By contrast, Serious Challenges are typically scheduled graded course exams or quizzes (as included
+                    in course syllabus).
+                    The primary idea being that the warm-up challenges should prepare the students for the serious
+                    challenges.
+                    Both types of challenges are automatically checked and the student is shown a score which reflects
+                    their performance.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I Create Challenges?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">In the Course Content menu, select either Warm-Up or Serious Challenges.
+                      Click the Add New Challenge button to be taken to the Create Challenge page.
+                      After creating a name for the challenge, there are a plethora of configuration options available
+                      to Instructors.
+                      The Difficulty option has three options: Easy, Medium, and Hard. While selecting a difficulty is
+                      optional, it will categorize the challenges created.
+                      The option to Randomize Problems will make problems appear in a random order when taken by
+                      students instead of the order that they are added to the challenge. </p>
+                    <p style="text-indent:40px">Instructors can set Availability constraints including visibility,
+                      attempts, time limit, and password-lock.
+                      By default the challenge will be visible to students, but the date range of that visibility and
+                      the due date for the challenge can be set.
+                      If a challenge is past its due date but still within the visible date range, it will still be
+                      available to students.
+                      Also by default, the number of attempts and the time limit are unlimited, but can be restricted.
+                      It should be noted that the time limit is in minutes, not seconds. </p>
+                    <p style="text-indent:40px">Instructors can password lock a challenge.
+                      Simply create and confirm a password and distribute it to students as deemed necessary.</p>
+                    <p style="text-indent:40px"> The Curve is the amount of points that will be added automatically to
+                      each student's' score after they take the challenge.
+                      The option 'Possible points for a manually graded section of the challenge' allows the instructor
+                      to create a serious challenge with two parts:
+                      one consisting of OneUp problems which will be automatically scored and another of questions given
+                      (e.g. on paper) to the students, which the instructor will grade.
+                      After the grading, the instructor has to enter for each student the points scored on the manually
+                      graded part in the corresponding field in the Adjustment page.
+                      To go to this page, click on Adjustment in the menu besides the corresponding challenge (on the
+                      page displaying the list of challenges).</p>
+                    <p style="text-indent:40px"> The Topics drop-down menu displays the course topics previously created
+                      by the instructor. This option allows connecting the challenge to a particular course topic.
+                      If no topic is selected for the challenge, it will default to Unspecified, which will
+                      automatically place it in the Miscellaneous section.
+                      It is highly recommended that Topics are assigned to the warm-up challenges for ease of
+                      findability. </p>
+                    <p style="text-indent:40px">Instructors also have the option to attach their own Tags to challenges.
+                      Attaching Tags allows challenges to be searched for by those Tags.
+                      The Feedback Options let Instructors determine how much feedback students get for each challenge.
+                      By default, the Display Correct Answers option is enabled, which shows the students the correct
+                      answers after they complete the challenge.
+                      Both the Correct and Incorrect Answer Feedback are disabled, for the feedback has to be specified
+                      for each problem in the challenge.
+                      After clicking Save, a new, empty challenge will be created.
+                      You then need to create problems for this challenge.</p>
+                  </span>
+                </div>
+              </li>
+              <!-- GGM added leaderboard QA, and a dynamic selector to ensure students cant access leaderboard page without enabling it in preferences -->
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What is an Activity?</div>
+                <div class="collapsible-body">
+                  <span>An Activity is an assignment given to the students, which will not be automatically scored by
+                    the system, but will be graded by the instructor.
+                    The instructor can upload files for the students to complete assignments and students can submit
+                    files for the instructor to grade.
+                    Instructors can upload as many files as necessary, set how many upload attempts students are
+                    allowed, and set what category the Activity belongs to (i.e. Labs, Homework, etc.).</span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I Create an Activity?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">In the Course Content menu select Activities, then click the Add New
+                      Activity button to be taken to the Create Activity page.
+                      After setting the Activity name, instructors can add a description that specifies the instructions
+                      for the Activity. </p>
+                    <p style="text-indent:40px">The Default Points are the amount of points possible for the student to
+                      obtain.
+                      The Display Date range and Due Date specify how long the activity will be available and when is
+                      the submission deadline for the activity, respectively.
+                      The Activity Category selection option allows assigning the activity a specific category.
+                      Activity Categories can be defined by following the steps outlined in What are Activity Categories
+                      (under Course Information).
+                      If no category is selected, it will default to Uncategorized.
+                      The instructor has the option to decide if the Activity is graded and to allow students to upload
+                      files.
+                      The Activity Graded option simply allows the Activity to be graded by the Instructor. Graded
+                      activities are shown in the GradeBook.</p>
+                    <p style="text-indent:40px">Enabling students to upload files means that instructors will be able to
+                      download student file submissions and grade them accordingly.
+                      Note that if the option to allow student uploads is not checked, the students will only be able to
+                      submit comments!
+                      Instructors can also restrict the amount of Upload Attempts, restricting to a certain amount of
+                      submission attempts.
+                      Instructors can upload their own files for the student to download to complete the Activity.
+                      If they wish to add more than one file, they can simply click the Add Another File to select
+                      another file to upload.
+                      After clicking Save, the new Activity will appear on the Activities list.</p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Problems and the Problem Pool?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">OneUp problems are questions or problems with answers that can be
+                      automatically checked for correctness. OneUp supports a plethora of problem types: Multiple
+                      Choice, True/False, Multiple Answers, Matching, Parson's Problems, and Dynamic problems.
+                      Problems can be assigned Targeted Skills, Difficulty, and Feedback to students.
+                      <p style="text-indent:40px">Problems are designed to be included in Challenges.
+                        They can be created either directly in a specific Challenge, or on the Problems page. In the
+                        latter case, they are stored in the OneUp Problem Pool (for later use) and are not assigned to
+                        any Challenge.
+                        The Problems page displays all such 'unassigned' problems.</p>
+                      <p style="text-indent:40px">The problems in the Problem Pool are not ready for use just yet.
+                        A problem from the pool must be assigned to a Challenge first, then students will be able to
+                        access it.
+                        Once the problem is assigned, it is removed from the Problem pool and can be accessed via the
+                        Challenge.
+                        Problems can only be assigned points when they are added to a particular Challenge.
+                        If no points are assigned at that stage, the system will give zero points to the student for
+                        this problem.</p>
+                      <p style="text-indent:40px">When you delete a problem from a Challenge, it is not removed from the
+                        database, but returns to the Problem Pool ready for reassignment.
+                        If you wish to truly Delete a problem, it must be deleted from the Problem Pool. </p>
+                  </span>
+
+
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I create a Problem?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">In the Course Content menu, select Problems.
+                      Here you will see the pool of already created problems, which are not assigned to any challenge.
+                      Click the Create Problem and select which type of problem you wish to create.
+                      The required information varies for every problem type, but most of the parameters are universal.
+                      The Problem Preview is the name the Instructor sets for the problem that is not seen by the
+                      student but is shown in the list of problems.
+                      The Problem Text contains either the the problem itself or instructions for the problem and is
+                      shown to the students.
+                      The Difficulty option has three options: Easy, Medium, and Hard.
+                      Like with challenges, selecting a difficulty is optional but helps categorize problems.
+                      For Parson problems, increasing the difficulty increases the amount of distractors shown to
+                      students (see Problems/How to Create a Parson's Problem).
                     </p>
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are the Course Configuration options?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>In the Course Information menu, select Course Configuration to view the variety of options available for configuring the course. 
-                    Course Availability makes the course available to students and is enabled by default. 
-                    The Set Duration option is used to set the start and end date of the course. 
-                    Once the Course End Date has passed, the course will no longer be available to students, even if Course Availability is enabled. 
-                    The option Display Serious Challenges by Topics  simply groups the challenges by Topics instead of the order in which they were created. 
-                    The Progress Bar is used to track students progress in the course that works in tandem with Course Milestones. 
-                    If no Course Milestones are defined, then the Progress Bar has no purpose, thus the option for it shall be disabled. 
-                    Course Gamification  is a completely optional feature to instructors that is disabled by default. 
-                    Once enabled, a Game Features drop-down menu will appear in the instructor’s main menu which will allow you to configure the desired gamification features.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Attendance Streaks?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>A streak is a concept for informing users (through a number or other indicator) how many consecutive days they have completed a targeted action. 
-                    OneUp supports streaks and the instructor can define class attendance streaks by setting what are the course 'consecutive' dates when the students have to be in attendance.  
-                    To set an Attendance Streak, go to the Course Information menu and select Attendance Streaks. Note that this option is displayed only if you have enabled Streak Configuration in the Course Gamification Configuration page (under the Game Features menu). 
-                    On the Student Attendance Streak Configuration page first select the days of the class and click the Submit button under the list of days.
-                    On the displayed calendar, you will see  class dates added to the attendance streak. You can further adjust the streak dates by un-selecting specific dates during the semester on which there will be no classes. 
-                    The calendar will update with the days you selected/unselected and will now have a streak label.
-                     Now click the Submit button under the calendar to create the streak.</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
+                    <p style="text-indent:40px">If Gamification is enabled, Skills can be added to problems along with
+                      the amount of Skill Points earned for the Skills.
+                      The skill points indicate how the problem contributes to increasing the level of student mastery
+                      of related skills.
+                      Instructors can choose to write feedback for when students answer the problem correctly and
+                      incorrectly. They can also write notes for themselves in the Instructor’s Notes.
+                      The author of the problem, by default, is the Instructor who creates the problem, but this can be
+                      changed if desired. In particular, if the instructor enters somebody else's problem, here they can
+                      acknowledge the authorship.
+                    </p>
+                    <p style="text-indent:40px">Tags can be attached to problems.
+                      Attaching Tags further categorizes the problem and can make searching Problems simpler. </p>
+                    <p style="text-indent:40px">After clicking Save, the new Problem will be added to the Problem Pool,
+                      ready to be included in a Challenge.
+                      It should be noted that points are not assigned to a Problem when created in the Problems section.
+                      Such points are assigned when the Problem is added to a particular Challenge.
+                    </p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How Can I Add Problems to a Challenge?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">In the Course Content menu, select either Warm-Up or Serious Challenges.
+                      On the Challenge page, click on the menu (three vertical dots) beside the challenge to which you
+                      want to add problems.
+                      Select Problems. On the Problems for Challenge page, you can either click on the Create Problem
+                      button to create a new problem which will be automatically added to this Challenge, or click on
+                      the Search Problems button.</p>
+                    <p style="text-indent:40px">If you click on the Search Problems button, this will bring you to the
+                      Search Problems page.
+                      Here you can select different filters for searching problems from the Problem Pool (Unassigned
+                      Problems) or from any other Challenge that you have created: by course topic, by problem type, by
+                      level of difficulty, by related skills, or by tags.
+                      Select the desired filter and click on Search.</p>
+                    <p style="text-indent:40px">On the search result page you will see a list of all problems satisfying
+                      the search criteria. Select the problems that you wish to add to your challenge.
+                      For each selected problem enter the points for this problems in the challenge.
+                      Before selecting a problem, you may see it by clicking on the View button.
+                      When ready, click on the Add To Challenge button and the selected problems will be added to the
+                      challenge.</p>
+                    <p style="text-indent:40px">Note that if you select problems from the Problem Pool, they will be
+                      removed from the pool after being added to the challenge.
+                      However, if you select problems from another challenge, they will not be removed from that
+                      challenge.
+                      Instead, copies of the problems will be created in the new challenge.</p>
+                  </span>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
-        <div class="col m12" id="CourseContent">
-          <div class="card">
-            <div class="card-content">
-              <ul class="collapsible expandable">
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What’s the Difference Between Warm-Up and Serious Challenges?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>In OneUp, course tests and quizzes are 'challenges' and the questions included in them are 'problems'. 
-                    Challenges are divided into two types.  
-                    Warm-up Challenges are primarily for student practice and do not directly contribute to the course grade.  
-                    Typically the students can take a warm-up challenge as many times as needed to get a correct answer.  
-                    The scores of the Warm-Ups are not shown in the Gradebook. 
-                    By contrast, Serious Challenges are typically scheduled graded course exams or quizzes (as included in course syllabus).
-                    The primary idea being that the warm-up challenges should prepare the students for the serious challenges.   
-                    Both types of challenges are automatically checked and the student is shown a score which reflects their performance.           
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create Challenges?</div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">In the Course Content menu, select either Warm-Up or Serious Challenges. 
-                    Click the Add New Challenge button to be taken to the Create Challenge page. 
-                    After creating a name for the challenge, there are a plethora of configuration options available to Instructors. 
-                    The Difficulty option has three options: Easy, Medium, and Hard. While selecting a difficulty is optional, it will categorize the challenges created. 
-                    The option to Randomize Problems will make problems appear in a random order when taken by students instead of the order that they are added to the challenge. </p>
-                    <p style = "text-indent:40px">Instructors can set Availability constraints including visibility, attempts, time limit, and password-lock. 
-                    By default the challenge will be visible to students, but the date range of that visibility and the due date for the challenge can be set. 
-                    If a challenge is past its due date but still within the visible date range, it will still be available to students. 
-                    Also by default, the number of attempts and the time limit are unlimited, but can be restricted. 
-                    It should be noted that the time limit is in minutes, not seconds. </p>
-                    <p style = "text-indent:40px">Instructors can password lock a challenge.
-                     Simply create and confirm a password and distribute it to students as deemed necessary.</p> 
-                    <p style = "text-indent:40px"> The Curve is the amount of points that will be added automatically to each student's' score after they take the challenge. 
-                    The option 'Possible points for a manually graded section of the challenge' allows the instructor to create a serious challenge with two parts: 
-                    one consisting of OneUp problems which will be automatically scored and another of questions given (e.g. on paper) to the students, which the instructor will grade. 
-                    After the grading, the instructor has to enter for each student the points scored on the manually graded part in the corresponding field in the Adjustment page.
-                    To go to this page, click on Adjustment in the menu besides the corresponding challenge (on the page displaying the list of challenges).</p>
-                    <p style = "text-indent:40px"> The Topics drop-down menu displays the course topics previously created by the instructor. This option allows connecting the challenge to a particular course topic. 
-                     If no topic is selected for the challenge, it will default to Unspecified, which will automatically place it in the Miscellaneous section. 
-                     It is highly recommended that Topics are assigned to the warm-up challenges for ease of findability. </p>
-                    <p style = "text-indent:40px">Instructors also have the option to attach their own Tags to challenges. 
-                    Attaching Tags allows challenges to be searched for by those Tags. 
-                    The Feedback Options let Instructors determine how much feedback students get for each challenge. 
-                    By default, the Display Correct Answers option is enabled, which shows the students the correct answers after they complete the challenge. 
-                    Both the Correct and Incorrect Answer Feedback are disabled, for the feedback has to be specified for each problem in the challenge. 
-                    After clicking Save, a new, empty challenge will be created. 
-                    You then need to create problems for this challenge.</p>
-                    </span>
-                  </div>
-                </li>
-                <!-- GGM added leaderboard QA, and a dynamic selector to ensure students cant access leaderboard page without enabling it in preferences -->
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is an Activity?</div>
-                  <div class="collapsible-body">
-                    <span>An Activity is an assignment given to the students, which will not be automatically scored by the system, but will be graded by the instructor. 
-                    The instructor can upload files for the students to complete assignments and students can submit files for the instructor to grade. 
-                    Instructors can upload as many files as necessary, set how many upload attempts students are allowed, and set what category the Activity belongs to (i.e. Labs, Homework, etc.).</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create an Activity?</div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">In the Course Content menu select Activities, then click the Add New Activity button to be taken to the Create Activity page. 
-                    After setting the Activity name, instructors can add a description that specifies the instructions for the Activity. </p>
-                    <p style = "text-indent:40px">The Default Points are the amount of points possible for the student to obtain. 
-                    The Display Date range and Due Date specify how long the activity will be available and when is the submission deadline for the activity, respectively. 
-                    The Activity Category selection option allows assigning the activity a specific category. 
-                    Activity Categories can be defined by following the steps outlined in What are Activity Categories (under Course Information). 
-                    If no category is selected, it will default to Uncategorized. 
-                    The instructor has the option to decide if the Activity is graded and to allow students to upload files. 
-                    The Activity Graded option simply allows the Activity to be graded by the Instructor. Graded activities are shown in the GradeBook.</p>
-                    <p style = "text-indent:40px">Enabling students to upload files means that instructors will be able to download student file submissions and grade them accordingly. 
-                    Note that if the option to allow student uploads is not checked, the students will only be able to submit comments! 
-                    Instructors can also restrict the amount of Upload Attempts, restricting to a certain amount of submission attempts. 
-                    Instructors can upload their own files for the student to download to complete the Activity. 
-                    If they wish to add more than one file, they can simply click the Add Another File to select another file to upload.  
-                    After clicking Save, the new Activity will appear on the Activities list.</p>
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Problems and Problem Pool?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">OneUp problems are questions or problems with answers that can be automatically checked for correctness. OneUp supports a plethora of problem types: Multiple Choice, True/False, Multiple Answers, Matching, Parson's Problems, and Dynamic problems. 
-                    Problems can be assigned Targeted Skills, Difficulty, and Feedback to students.
-                    <p style = "text-indent:40px">Problems are designed to be included in Challenges. 
-                    They can be created either directly in a specific Challenge, or on the Problems page. In the latter case, they are stored in the OneUp Problem Pool (for later use) and are not assigned to any Challenge.
-                    The Problems page displays all such 'unassigned' problems.</p>
-                    <p style = "text-indent:40px">The problems in the Problem Pool are not ready for use just yet. 
-                    A problem from the pool must be assigned to a Challenge first, then students will be able to access it. 
-                    Once the problem is assigned, it is removed from the Problem pool and can be accessed via the Challenge. 
-                    Problems can only be assigned points when they are added to a particular Challenge. 
-                    If no points are assigned at that stage, the system will give zero points to the student for this problem.</p>
-                    <p style = "text-indent:40px">When you delete a problem from a Challenge, it is not removed from the database, but returns to the Problem Pool ready for reassignment. 
-                    If you wish to truly Delete a problem, it must be deleted from the Problem Pool. </p></span>
-                    
-                  
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I create a Problem?</div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">In the Course Content menu, select Problems. 
-                    Here you will see the pool of already created problems, which are not assigned to any challenge. 
-                    Click the Create Problem and select which type of problem you wish to create. 
-                    The required information varies for every problem type, but most of the parameters are universal.
-                     The Problem Preview is the name the Instructor sets for the problem that is not seen by the student but is shown in the list of problems. 
-                     The Problem Text contains either the the problem itself or instructions for the problem and is shown to the students. 
-                     The Difficulty option has three options: Easy, Medium, and Hard. 
-                     Like with challenges, selecting a difficulty is optional but helps categorize problems. 
-                     For Parson problems, increasing the difficulty increases the amount of distractors shown to students (see Problems/How to Create a Parson's Problem). 
-                    </p>
-                    <p style = "text-indent:40px">If Gamification is enabled, Skills can be added to problems along with the amount of Skill Points earned for the Skills. 
-                    The skill points indicate how the problem contributes to increasing the level of student mastery of related skills. 
-                    Instructors can choose to write feedback for when students answer the problem correctly and incorrectly. They can also write notes for themselves in the Instructor’s Notes. 
-                    The author of the problem, by default, is the Instructor who creates the problem, but this can be changed if desired. In particular, if the instructor enters somebody else's problem, here they can acknowledge the authorship.
-                    </p>
-                    <p style = "text-indent:40px">Tags can be attached to problems. 
-                    Attaching Tags further categorizes the problem and can make searching Problems simpler. </p>
-                    <p style = "text-indent:40px">After clicking Save, the new Problem will be added to the Problem Pool, ready to be included in a Challenge. 
-                    It should be noted that points are not assigned to a Problem when created in the Problems section. Such points are assigned when the Problem is added to a particular Challenge.                    
-                    </p>
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How Can I Add Problems to a Challenge?</div>
-                  <div class="collapsible-body">
-                    <span> <p style = "text-indent:40px">In the Course Content menu, select either Warm-Up or Serious Challenges. 
-                    On the Challenge page, click on the menu (three vertical dots) beside the challenge to which you want to add problems. 
-                    Select Problems. On the Problems for Challenge page, you can either click on the Create Problem button to create a new problem which will be automatically added to this Challenge, or click on the Search Problems button.</p>
-                    <p style = "text-indent:40px">If you click on the Search Problems button, this will bring you to the Search Problems page. 
-                    Here you can select different filters for searching problems from the Problem Pool (Unassigned Problems) or from any other Challenge that you have created: by course topic, by problem type, by level of difficulty, by related skills, or by tags.
-					Select the desired filter and click on Search.</p>
-					<p style = "text-indent:40px">On the search result page you will see a list of all problems satisfying the search criteria. Select the problems that you wish to add to your challenge. 
-					For each selected problem enter the points for this problems in the challenge.
-					Before selecting a problem, you may see it by clicking on the View button.
-					When ready, click on the Add To Challenge button and the selected problems will be added to the challenge.</p> 
-					<p style = "text-indent:40px">Note that if you select problems from the Problem Pool, they will be removed from the pool after being added to the challenge.
-					However, if you select problems from another challenge, they will not be removed from that challenge.
-					Instead, copies of the problems will be created in the new challenge.</p>
-					</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          </div>
-          <div class="col s12 m12" id="Problems">
-          <div class="card">
-            <div class="card-content">
-              <ul class="collapsible expandable">
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Static Problems?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>Static problems are those problems whose solution is known exactly by the instructor at the time of creation.  
-                    These include common problem types such as multiple-choice, true/false, multiple answers, and matching problems.  </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How to Create a True/False Problem?</div>
-                  <div class="collapsible-body">
-                    <span>True/False problems ask students if a statement is true or false. 
-                    To create one, go to the Course Content menu and select Problems. 
-                    Click Create Problem and select True/False. 
-                    With the exception of the Problem Answer field, follow the guidelines in How do I create a Problem to create the problem.  
-                    For the Problem Answer field, simply select whether the answer is True or False. 
+      </div>
+      <div class="col s12 m12" id="Problems">
+        <div class="card">
+          <div class="card-content">
+            <ul class="collapsible expandable">
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Static Problems?
+                </div>
+                <div class="collapsible-body">
+                  <span>Static problems are those problems whose solution is known exactly by the instructor at the time
+                    of creation.
+                    These include common problem types such as multiple-choice, true/false, multiple answers, and
+                    matching problems. </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How to Create a True/False Problem?</div>
+                <div class="collapsible-body">
+                  <span>True/False problems ask students if a statement is true or false.
+                    To create one, go to the Course Content menu and select Problems.
+                    Click Create Problem and select True/False.
+                    With the exception of the Problem Answer field, follow the guidelines in How do I create a Problem
+                    to create the problem.
+                    For the Problem Answer field, simply select whether the answer is True or False.
                     Click Save to add the problem to the pool.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How to Create a Multiple Choice Problem?</div>
-                  <div class="collapsible-body">
-                    <span>Multiple Choice problems require students to select a single answer from a set of possible answers. 
-                    To create one, go to the Course Content menu and select Problems. 
-                    Click Create Problem and select Multiple Choice. 
-                    With the exception of the Problem Answer field, follow guidelines in How do I create a Problem to create the problem. 
-                    For the Problem Answer field, fill in the possible answers and select which is the correct one. 
-                    There must be a minimum of two possible answers, but the instructor can add as many as they desire. 
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How to Create a Multiple Choice Problem?</div>
+                <div class="collapsible-body">
+                  <span>Multiple Choice problems require students to select a single answer from a set of possible
+                    answers.
+                    To create one, go to the Course Content menu and select Problems.
+                    Click Create Problem and select Multiple Choice.
+                    With the exception of the Problem Answer field, follow guidelines in How do I create a Problem to
+                    create the problem.
+                    For the Problem Answer field, fill in the possible answers and select which is the correct one.
+                    There must be a minimum of two possible answers, but the instructor can add as many as they desire.
                     Fill in the rest of the required information and click Save to add the problem to the pool.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How to Create a Multiple Answers Problem?</div>
-                  <div class="collapsible-body">
-                    <span>Multiple Answers problems allow students to select multiple answers from a set of possible answers. 
-                    To create one, go to the Course Content menu and select Problems. 
-                    Click Create Problem and select Multiple Answers. 
-                    With the exception of the Problem Answer field, follow guidelines in How do I create a Problem to create the problem. 
-                    For the Problem Answer field, fill in the possible answers and select which ones are correct. 
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How to Create a Multiple Answers Problem?</div>
+                <div class="collapsible-body">
+                  <span>Multiple Answers problems allow students to select multiple answers from a set of possible
+                    answers.
+                    To create one, go to the Course Content menu and select Problems.
+                    Click Create Problem and select Multiple Answers.
+                    With the exception of the Problem Answer field, follow guidelines in How do I create a Problem to
+                    create the problem.
+                    For the Problem Answer field, fill in the possible answers and select which ones are correct.
                     There must be a minimum of two possible answers, but the instructor can add as many as they desire.
                     Fill in the rest of the required information and click Save to add the problem to the pool.
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How to Create a Matching Problem?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">Matching problems require students to match questions with their corresponding answers. 
-                    To create one, go to the Course Content menu and select Problems. Click Create Problem and select Matching. 
-                    With the exception of the Problem Answer fields, follow the guidelines in How do I create a Problem to create the problem. 
-                    It is important to note that when you type a Matching Answer for Question X, that it only matches with that Question X. 
-                    There must be a minimum of two Problem Answer fields, but the instructor can add as many as they desire.                    
-                    The Questions are scrambled automatically when displayed to the student. 
-                    Even though they are not displayed in the same position, the Answer for Question 1 still matches with Question 1, etc.
-					</p>
-                   <p style = "text-indent:40px">The Questions are displayed to the student as a numbered list (in random order) with corresponding drop-down menus for selecting the appropriate Answers. 
-                   The first Answer menu matches to whichever Question is the first in the displayed list (not necessarily the first Question set by you).                     
-                   Click Save to add the problem to the pool.</p> 
-                   </span>
-                  </div>
-                </li>                
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How to Create a Parson's Problem?
-                  </div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">Parson's problems are puzzles that require students to arrange given lines of code in the correct order.  
-                    To create one, follow the steps to create a Problem and select Parson's Problem.  
-                    With the exception of the answer fields, follow guidelines in How do I create a Problem.</p> 
-                    <p style = "text-indent:40px">There are several fields specific to the Parson's problems. 
-                    First, the instructor has to select the programming language (currently Java and Python are supported). Java is the default one.
-                    The choice for Code Indentation determines whether the student solution will be checked for a correct indentation.</p> 
-                    <p style = "text-indent:40px">In the Model Solution area the instructor has to enter a correct solution of the problem - the lines and blocks of code which will be given to the student to arrange. 
-                    To combine two consecutive code lines in a block, which will be dragged by the student as one unit, type ' ##' at the end of the first line.
-                    You have to combine in blocks code lines, such as assignment statements and closing brackets ('}'), which can be arranged correctly in different ways.
-                    Otherwise the system may mark a correct student solution as wrong.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How to Create a Matching Problem?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">Matching problems require students to match questions with their
+                      corresponding answers.
+                      To create one, go to the Course Content menu and select Problems. Click Create Problem and select
+                      Matching.
+                      With the exception of the Problem Answer fields, follow the guidelines in How do I create a
+                      Problem to create the problem.
+                      It is important to note that when you type a Matching Answer for Question X, that it only matches
+                      with that Question X.
+                      There must be a minimum of two Problem Answer fields, but the instructor can add as many as they
+                      desire.
+                      The Questions are scrambled automatically when displayed to the student.
+                      Even though they are not displayed in the same position, the Answer for Question 1 still matches
+                      with Question 1, etc.
                     </p>
-                    <p style = "text-indent:40px">In addition to the correct code lines for solving the problem, the instructor may include ‘distractors’. Distractors are code lines which do not belong to the correct solution and should not be dragged to the solution area.
-                    A distractor is indicated by typing '#distractor' at the end of the code line, e.g. '   i--; #distractor'.
-                    One key difference in the typical problem setup is that Difficulty serves a greater purpose here. 
-                    The system automatically selects how many of the provided distractors should be shown to the student based on the specified level of problem difficulty.                   
-                    As Difficulty increases, the more distractors will be shown to the students. </p>
-                    <p style = "text-indent:40px"> <!--For a far more detailed explanation of how Parson’s Problems work, please refer to the Parson Probelm’s Manual.--> 
-                    Fill in the required information and click Save to add the problem to the pool.<p></span>
-                  </div>
-                </li>
+                    <p style="text-indent:40px">The Questions are displayed to the student as a numbered list (in random
+                      order) with corresponding drop-down menus for selecting the appropriate Answers.
+                      The first Answer menu matches to whichever Question is the first in the displayed list (not
+                      necessarily the first Question set by you).
+                      Click Save to add the problem to the pool.</p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How to Create a Parson's Problem?
+                </div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">Parson's problems are puzzles that require students to arrange given
+                      lines of code in the correct order.
+                      To create one, follow the steps to create a Problem and select Parson's Problem.
+                      With the exception of the answer fields, follow guidelines in How do I create a Problem.</p>
+                    <p style="text-indent:40px">There are several fields specific to the Parson's problems.
+                      First, the instructor has to select the programming language (currently Java and Python are
+                      supported). Java is the default one.
+                      The choice for Code Indentation determines whether the student solution will be checked for a
+                      correct indentation.</p>
+                    <p style="text-indent:40px">In the Model Solution area the instructor has to enter a correct
+                      solution of the problem - the lines and blocks of code which will be given to the student to
+                      arrange.
+                      To combine two consecutive code lines in a block, which will be dragged by the student as one
+                      unit, type ' ##' at the end of the first line.
+                      You have to combine in blocks code lines, such as assignment statements and closing brackets
+                      ('}'), which can be arranged correctly in different ways.
+                      Otherwise the system may mark a correct student solution as wrong.
+                    </p>
+                    <p style="text-indent:40px">In addition to the correct code lines for solving the problem, the
+                      instructor may include ‘distractors’. Distractors are code lines which do not belong to the
+                      correct solution and should not be dragged to the solution area.
+                      A distractor is indicated by typing '#distractor' at the end of the code line, e.g. ' i--;
+                      #distractor'.
+                      One key difference in the typical problem setup is that Difficulty serves a greater purpose here.
+                      The system automatically selects how many of the provided distractors should be shown to the
+                      student based on the specified level of problem difficulty.
+                      As Difficulty increases, the more distractors will be shown to the students. </p>
+                    <p style="text-indent:40px">
+                      <!--For a far more detailed explanation of how Parson’s Problems work, please refer to the Parson Probelm’s Manual.-->
+                      Fill in the required information and click Save to add the problem to the pool.<p>
+                  </span>
+                </div>
+              </li>
 
-                <!--Create a Separate section for Dynamic Problems later-->
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Dynamic problems?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>Dynamic problems are problems created with Lua code that have far more versatility than static problems. 
-                    Instructors can create dynamic problems which have random elements to questions.  In some cases, they might also create static questions with dynamic grading when there are many different correct answers possible.  This includes support for using external tools such as compilers and interpreters as part of the grading process so that you can grade simple programming problems even when there are many possible variations on the solution. 
+              <!--Create a Separate section for Dynamic Problems later-->
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Dynamic problems?
+                </div>
+                <div class="collapsible-body">
+                  <span>Dynamic problems are problems created with Lua code that have far more versatility than static
+                    problems.
+                    Instructors can create dynamic problems which have random elements to questions. In some cases, they
+                    might also create static questions with dynamic grading when there are many different correct
+                    answers possible. This includes support for using external tools such as compilers and interpreters
+                    as part of the grading process so that you can grade simple programming problems even when there are
+                    many possible variations on the solution.
                     There are two types of dynamic problems: Templates and Raw Lua.
-                    A Template problem allows instructors to enter the formatted text of a problem and only fill in specific details dynamically using values set up in the code portion. 
-                    A Raw Lua problem is more flexible than Template, but requires more programming in Lua. Instructors should use Raw Lua problems only if they are trying build a problem where the text or structure is likely to vary radically between the different randomized instances.  We expect that this will be quite rare.
-                    Most things can be done with Template problems. 
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How to Create a Dynamic (Template) Problem?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">Templated dynamic questions allow instructors to write questions and evaluate answers programmatically using Lua code. 
-                    To create one, go to the Course Content menu and select Problems. 
-                    Click Create Problem and select Dynamic (Template). 
-                    The first part of the problem setup has standard configuration options of a Problem (Problem Preview, Skills, etc.). 
-                    Click the blue Help button with a “?” mark on the top right-hand side of the Problem Info to show help for Template problems.
+                    A Template problem allows instructors to enter the formatted text of a problem and only fill in
+                    specific details dynamically using values set up in the code portion.
+                    A Raw Lua problem is more flexible than Template, but requires more programming in Lua. Instructors
+                    should use Raw Lua problems only if they are trying build a problem where the text or structure is
+                    likely to vary radically between the different randomized instances. We expect that this will be
+                    quite rare.
+                    Most things can be done with Template problems.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How to Create a Dynamic (Template) Problem?
+                </div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">Templated dynamic questions allow instructors to write questions and
+                      evaluate answers programmatically using Lua code.
+                      To create one, go to the Course Content menu and select Problems.
+                      Click Create Problem and select Dynamic (Template).
+                      The first part of the problem setup has standard configuration options of a Problem (Problem
+                      Preview, Skills, etc.).
+                      Click the blue Help button with a “?” mark on the top right-hand side of the Problem Info to show
+                      help for Template problems.
                     </p>
-                    <p style = "text-indent:40px">The four distinct sections require more nuance: Add Dependency, Dependent Libraries, Set-Up Code, and Template. 
-                    Instructors can add any Lua Libraries that they have uploaded as dependencies by clicking the Add Dependency drop-down menu and selecting their desired library. 
-                    The new dependency will appear in the Dependant Libraries section. 
-                    Lua code is used to set up any needed variables and perform any computations needed including computing the answer that the student answer will be checked against.  It should be included in the Set-Up Code section. 
-                    The problem itself should be below. 
+                    <p style="text-indent:40px">The four distinct sections require more nuance: Add Dependency,
+                      Dependent Libraries, Set-Up Code, and Template.
+                      Instructors can add any Lua Libraries that they have uploaded as dependencies by clicking the Add
+                      Dependency drop-down menu and selecting their desired library.
+                      The new dependency will appear in the Dependant Libraries section.
+                      Lua code is used to set up any needed variables and perform any computations needed including
+                      computing the answer that the student answer will be checked against. It should be included in the
+                      Set-Up Code section.
+                      The problem itself should be below.
                     </p>
-                    <p style = "text-indent:40px">To display a variable in the Problem Area, it must be enclosed in pipes (vertical lines) enclosed in brackets (ex. [|x|]). To include Lua code, it must be enclosed in curly braces enclosed in brackets (ex. [{Some code for your thoughts}]). 
-                    A piece of code that must be included at least in the problem is the <b>make_answer</b> function which is used to create answer blanks.  If this is omitted, students will not be able to answer the generated question.  More than one answer blank can be included in a single problem. 
-                    The make_answer function takes five arguments: The name of the answer blank (displayed to students when describing their results), 
-                    the type of answer blank, the size, the answer checking function to be used (several of which are provided), and the maximum amount of points the student can receive for the answer blank. A
-                    simple example make_answer is provided when creating a Template problem in the Template section. 
+                    <p style="text-indent:40px">To display a variable in the Problem Area, it must be enclosed in pipes
+                      (vertical lines) enclosed in brackets (ex. [|x|]). To include Lua code, it must be enclosed in
+                      curly braces enclosed in brackets (ex. [{Some code for your thoughts}]).
+                      A piece of code that must be included at least in the problem is the <b>make_answer</b> function
+                      which is used to create answer blanks. If this is omitted, students will not be able to answer the
+                      generated question. More than one answer blank can be included in a single problem.
+                      The make_answer function takes five arguments: The name of the answer blank (displayed to students
+                      when describing their results),
+                      the type of answer blank, the size, the answer checking function to be used (several of which are
+                      provided), and the maximum amount of points the student can receive for the answer blank. A
+                      simple example make_answer is provided when creating a Template problem in the Template section.
                     </p>
-                    <p style = "text-indent:40px">Instructors can create multi-part problems, where the next part is dependant on the previous one. 
-                    Simply click the Add Part button to add an additional Template section. 
-                    Instructors can also test their problems before creating them in by clicking the Try Out Question button at the bottom of the page. 
-                    The Random Seed field affects any random variables that the Instructor might have included. 
-                    When the same Random Seed is used, the same problem will be generated.  This can be used to debug problems if students see a version of the problem with an error and to check that variations of the problem are correctly being generated and graded.
-                    Click Save to add the problem to the problem pool.
+                    <p style="text-indent:40px">Instructors can create multi-part problems, where the next part is
+                      dependant on the previous one.
+                      Simply click the Add Part button to add an additional Template section.
+                      Instructors can also test their problems before creating them in by clicking the Try Out Question
+                      button at the bottom of the page.
+                      The Random Seed field affects any random variables that the Instructor might have included.
+                      When the same Random Seed is used, the same problem will be generated. This can be used to debug
+                      problems if students see a version of the problem with an error and to check that variations of
+                      the problem are correctly being generated and graded.
+                      Click Save to add the problem to the problem pool.
                     </p>
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How to Create a Dynamic (Raw Lua) Problem?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">Dynamic problems allow instructors to write problems and evaluate answers programmatically using Lua code. 
-                    To create one, go to the Course Content menu and select Problems. 
-                    Click Create Problem and select Dynamic (Raw Lua). 
-                    The first part of the problem setup has standard configuration options of a Problem (Problem Preview, Skills, etc.). 
-                    Click the blue Help button with a “?” mark on the top right-hand side of the Problem Info to show the documentation for Raw Lua problems.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How to Create a Dynamic (Raw Lua) Problem?
+                </div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">Dynamic problems allow instructors to write problems and evaluate
+                      answers programmatically using Lua code.
+                      To create one, go to the Course Content menu and select Problems.
+                      Click Create Problem and select Dynamic (Raw Lua).
+                      The first part of the problem setup has standard configuration options of a Problem (Problem
+                      Preview, Skills, etc.).
+                      Click the blue Help button with a “?” mark on the top right-hand side of the Problem Info to show
+                      the documentation for Raw Lua problems.
                     </p>
-                    <p style = "text-indent:40px">It should be noted that Templated problems and Raw Lua have practically the same capabilities. 
-                    We expect that instructors will usually only use Raw Lua problems when they are building a very complex problem where the structure of the problem instances might vary wildly so that they can't write a single template.
-                    Anything done in Raw Lua can generally be done in Templated problems, and this is the recommended approach.
+                    <p style="text-indent:40px">It should be noted that Templated problems and Raw Lua have practically
+                      the same capabilities.
+                      We expect that instructors will usually only use Raw Lua problems when they are building a very
+                      complex problem where the structure of the problem instances might vary wildly so that they can't
+                      write a single template.
+                      Anything done in Raw Lua can generally be done in Templated problems, and this is the recommended
+                      approach.
                     </p>
-                    <p style = "text-indent:40px">There are four sections that require attention: Add Dependency, Dependent Libraries, Number of Parts, and Code. 
-                    Both Add Dependency and Dependent Libraries function exactly as they do with Templated problems, allowing Instructors to add any Lua libraries they have uploaded. 
-                    The Number of Parts is a function similar to the Add Part button in Templated problems. 
-                    If you wish for a multi-part problem, it must be manually specified by entering the amount of parts in the field. 
-                    The Code section is where the problem is made using Lua Code. 
-                    The code, when run, should define the following: part_1_text, evaluate_answer_1, and part_1_max_points.  
+                    <p style="text-indent:40px">There are four sections that require attention: Add Dependency,
+                      Dependent Libraries, Number of Parts, and Code.
+                      Both Add Dependency and Dependent Libraries function exactly as they do with Templated problems,
+                      allowing Instructors to add any Lua libraries they have uploaded.
+                      The Number of Parts is a function similar to the Add Part button in Templated problems.
+                      If you wish for a multi-part problem, it must be manually specified by entering the amount of
+                      parts in the field.
+                      The Code section is where the problem is made using Lua Code.
+                      The code, when run, should define the following: part_1_text, evaluate_answer_1, and
+                      part_1_max_points.
                     </p>
-                    <p style = "text-indent:40px">The <b>part_1_text</b> function takes no input and produces a string which represents the HTML for the first problem. 
-                    If you have more than one part to this problem, you should also define similar functions call part_2_text, part_3_text, etc. 
-                    The <b>evaluate_answer_1</b> function takes in a table which maps the names of the form inputs from part 1 to values which are the answers provided for those form inputs by the user. 
-                    It returns a table which maps the names of the form inputs to a table containing two values: “success”, which maps to a boolean indicating whether or not the answer was sufficient to continue to the next part and "value", which maps to a floating point number indicating how many points were awarded for that answer. 
-                    The <b>part_1_max_points</b> function takes no input, but returns a table which maps the name of each input to the maximum possible number of points a student could earn for that problem. 
-                    An example of proper Raw Lua code is in the Code section when creating the problem.
+                    <p style="text-indent:40px">The <b>part_1_text</b> function takes no input and produces a string
+                      which represents the HTML for the first problem.
+                      If you have more than one part to this problem, you should also define similar functions call
+                      part_2_text, part_3_text, etc.
+                      The <b>evaluate_answer_1</b> function takes in a table which maps the names of the form inputs
+                      from part 1 to values which are the answers provided for those form inputs by the user.
+                      It returns a table which maps the names of the form inputs to a table containing two values:
+                      “success”, which maps to a boolean indicating whether or not the answer was sufficient to continue
+                      to the next part and "value", which maps to a floating point number indicating how many points
+                      were awarded for that answer.
+                      The <b>part_1_max_points</b> function takes no input, but returns a table which maps the name of
+                      each input to the maximum possible number of points a student could earn for that problem.
+                      An example of proper Raw Lua code is in the Code section when creating the problem.
                     </p>
-                    <p style = "text-indent:40px">As with Template problems, Instructors can test their problems before creating them by pressing the Try Out Question button at the bottom of the page. 
-                    The Random Seed field affects any random variables that the Instructor might have included. 
-                    Click Save to add the problem to the problem pool.	
+                    <p style="text-indent:40px">As with Template problems, Instructors can test their problems before
+                      creating them by pressing the Try Out Question button at the bottom of the page.
+                      The Random Seed field affects any random variables that the Instructor might have included.
+                      Click Save to add the problem to the problem pool.
                     </p>
-                    </span>
-                  </div>
-                </li>
-              </ul>
-            </div>
+                  </span>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
-          <div class="col m12" id="CourseTools">
-          <div class="card">
-            <div class="card-content">
-              <ul class="collapsible expandable">
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create An Announcement?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>In the Course Tools menu select Announcements. 
-                    Select Add New Announcement to be taken to the Create Announcement page. 
-                    There are three fields: Announcement Subject, Announcement Message, and Announcement Expiration. 
-                    The Announcement Subject is the headline of the announcement, the Announcement Message is the description, and the Announcement Expiration is the set date that the Announcement will no longer be visible. 
+      </div>
+      <div class="col m12" id="CourseTools">
+        <div class="card">
+          <div class="card-content">
+            <ul class="collapsible expandable">
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I Create an Announcement?
+                </div>
+                <div class="collapsible-body">
+                  <span>In the Course Tools menu select Announcements.
+                    Select Add New Announcement to be taken to the Create Announcement page.
+                    There are three fields: Announcement Subject, Announcement Message, and Announcement Expiration.
+                    The Announcement Subject is the headline of the announcement, the Announcement Message is the
+                    description, and the Announcement Expiration is the set date that the Announcement will no longer be
+                    visible.
                     After filling out all fields, click Create to post the Announcement. </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Mark Students for Attendance?</div>
-                  <div class="collapsible-body">
-                    <span>In the Course Tools menu select Set Student Attendance. 
-                    Instructors can select any date where they wish to modify student attendance. 
-                    You can mark individual students, mark all students, and unmark all students for attendance. 
-                    Click Save to update your changes to attendance. 
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I Mark Students for Attendance?</div>
+                <div class="collapsible-body">
+                  <span>In the Course Tools menu select Set Student Attendance.
+                    Instructors can select any date where they wish to modify student attendance.
+                    You can mark individual students, mark all students, and unmark all students for attendance.
+                    Click Save to update your changes to attendance.
                     You can view overall Student Attendance in the Course Reports menu under Student Attendance.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How Can I Import/Export Challenges?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">Instructors can export OneUp challenges from one course as an XML file and then import them in another course. 
-                    To export challenges, select Export Challenges in the Course Tools menu. 
-                    Select all the challenges you wish to export and click Export to download the resulting XML file. 
-                    All Challenges and Problems  will be retained and ready to be imported. </p>
-                    <p style = "text-indent:40px">To import previously exported challenges, in the Course Tools menu select Import Challenges. 
-                    Select the file and click Import. 
-                    All Challenges, Problems, Skills and Topics, will automatically be interpreted and integrated into the course. 
-                    The Course Start Date and End Date will be set as the start date and end date for an imported challenge visibility.
-                    The challenge availability will be set to 'Unavailable'. </p>
-                    <p style = "text-indent:40px">After importing challenges, remember to edit their start/end/due dates and availability and review their other parameters.</p>
-                     </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Export My GradeBook?</div>
-                  <div class="collapsible-body">
-                    <span>In the Course Tools menu select Export GradeBook. 
-                    Instructors have the option to select which of several categories to export: Serious Challenges, Warm-Up Challenges, Graded Activities. 
-                    They can also choose which score to be exported for the selected categories: Highest, Lowest, Latest, or Earliest Score.  
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How Can I Import/Export Challenges?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">Instructors can export OneUp challenges from one course as an XML file
+                      and then import them in another course.
+                      To export challenges, select Export Challenges in the Course Tools menu.
+                      Select all the challenges you wish to export and click Export to download the resulting XML file.
+                      All Challenges and Problems will be retained and ready to be imported. </p>
+                    <p style="text-indent:40px">To import previously exported challenges, in the Course Tools menu
+                      select Import Challenges.
+                      Select the file and click Import.
+                      All Challenges, Problems, Skills and Topics, will automatically be interpreted and integrated into
+                      the course.
+                      The Course Start Date and End Date will be set as the start date and end date for an imported
+                      challenge visibility.
+                      The challenge availability will be set to 'Unavailable'. </p>
+                    <p style="text-indent:40px">After importing challenges, remember to edit their start/end/due dates
+                      and availability and review their other parameters.</p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I Export My GradeBook?</div>
+                <div class="collapsible-body">
+                  <span>In the Course Tools menu select Export GradeBook.
+                    Instructors have the option to select which of several categories to export: Serious Challenges,
+                    Warm-Up Challenges, Graded Activities.
+                    They can also choose which score to be exported for the selected categories: Highest, Lowest,
+                    Latest, or Earliest Score.
                     Click Export to download the resulting CSV file.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is the Student View and the Test Student?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">The student view allows instructors to view their course from a student’s perspective. 
-                    Instructor features are unavailable and the instructor can take challenges as a student.  
-                    This feature is useful for seeing if all defined features in the course are working to their desired specifications. 
-                    The student view works by using a Test Student that acts as a regular student enrolled in the course. </p>
-                    <p style = "text-indent:40px">Instructors can switch to Student View and back by double clicking on the Student View icon on the menu bar (displayed as an eye). 
-                    To reset all data for the Test Student (results of taken challenges, awarded badges and virtual currency, etc. ), go to the Course Tools menu and click Reset Test Student.
-                   </p> </span>
-                  </div>
-                </li>
-                
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is OneUp Chat and How It Works?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px"> OneUp Chat is an online chatroom for OneUp that allows Instructors and Students of a course to communicate outside of the classroom. 
-                    Though it’s primary use is to allow students to ask Instructors questions, it has great versatility. 
-                    Instructors can create live discussion channels, have students post questions to different channels to be answered during class, and create channels for different groups for group projects. </span>
-                    </p> 
-                    <p style = "text-indent:40px">To Enable the Chat feature in OneUp, in the Course Information menu, select Course Configuration. 
-                    Then, navigate to the option to Set Chat. Click Enable Chat Support and then click Save at the bottom of the page. 
-                    The Chat option will appear under the Game Features menu. </p> 
-                    <p style = "text-indent:40px">After enabling the Chat tool, you can use it by selecting Chat in the Course Tools menu. 
-                    To Create a Channel, press the ‘+’ button next to the Create Channel label. 
-                    A pop-up will appear with the options to set the name of the channel, the topic, and inclusivity of the channel. 
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What is the Student View and the Test Student?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">The student view allows instructors to view their course from a
+                      student’s perspective.
+                      Instructor features are unavailable and the instructor can take challenges as a student.
+                      This feature is useful for seeing if all defined features in the course are working to their
+                      desired specifications.
+                      The student view works by using a Test Student that acts as a regular student enrolled in the
+                      course. </p>
+                    <p style="text-indent:40px">Instructors can switch to Student View and back by double clicking on
+                      the Student View icon on the menu bar (displayed as an eye).
+                      To reset all data for the Test Student (results of taken challenges, awarded badges and virtual
+                      currency, etc. ), go to the Course Tools menu and click Reset Test Student.
+                    </p>
+                  </span>
+                </div>
+              </li>
+
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What is OneUp Chat and How It Works?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px"> OneUp Chat is an online chatroom for OneUp that allows Instructors and
+                      Students of a course to communicate outside of the classroom.
+                      Though it’s primary use is to allow students to ask Instructors questions, it has great
+                      versatility.
+                      Instructors can create live discussion channels, have students post questions to different
+                      channels to be answered during class, and create channels for different groups for group projects.
+                  </span>
+                  </p>
+                  <p style="text-indent:40px">To Enable the Chat feature in OneUp, in the Course Information menu,
+                    select Course Configuration.
+                    Then, navigate to the option to Set Chat. Click Enable Chat Support and then click Save at the
+                    bottom of the page.
+                    The Chat option will appear under the Game Features menu. </p>
+                  <p style="text-indent:40px">After enabling the Chat tool, you can use it by selecting Chat in the
+                    Course Tools menu.
+                    To Create a Channel, press the ‘+’ button next to the Create Channel label.
+                    A pop-up will appear with the options to set the name of the channel, the topic, and inclusivity of
+                    the channel.
                     Click Create to add the Channel.
-                    Currently, only Instructors can create channels for students to participate in. 
-                    Different channels are denoted by the ‘#’ symbol and can be switched between freely.</p> 
-                    <p style = "text-indent:40px"> Note that students are anonymous to each other in the Chat. 
-                    Only the Instructor can see student names in all channels. 
-                    The students are presented with their Avatars.</p> 
-					<p style = "text-indent:40px"> You can use Emojis in your messages! Be cool and hip with the kids! Yo! Yo!</p>
-					</span>
-                  </div>
-                </li>               
-              </ul>
-            </div>
+                    Currently, only Instructors can create channels for students to participate in.
+                    Different channels are denoted by the ‘#’ symbol and can be switched between freely.</p>
+                  <p style="text-indent:40px"> Note that students are anonymous to each other in the Chat.
+                    Only the Instructor can see student names in all channels.
+                    The students are presented with their Avatars.</p>
+                  <p style="text-indent:40px"> You can use Emojis in your messages! Be cool and hip with the kids! Yo!
+                    Yo!</p>
+                  </span>
+                </div>
+              </li>
+            </ul>
           </div>
-        </div>      
-        
-        <div class="col m12" id="CourseReports">
-          <div class="card">
-            <div class="card-content">
-              <ul class="collapsible expandable">
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I View Student Scores?
-                  </div>
-                  <div class="collapsible-body">
-                    <span>In the Course Reports menu select Student Scores. 
-                    Click on the menu (three vertical dots) beside the student whose information you wish to view. 
-                    You can select to see Student's Skills, Activities, Warm-Up Challenges, Serious Challenges, and even the student's Learning DashBoard.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What are Class Scores?</div>
-                  <div class="collapsible-body">
-                    <span>Class Scores (GradeBook) shows all grades students have made on all graded course assignments (if entered by the instructor). 
-                    In the Course Reports menu select Class Scores to view the page. 
-                    You can export the Gradebook by going to Course Tools in the menu and selecting Export GradeBook.</span>
-                  </div>
-                </li>
-                <!-- GGM added LeaderBoard QA, and a dynamic selector to ensure students can't access LeaderBoard page without enabling it in preferences -->
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is the Students Summary?</div>
-                  <div class="collapsible-body">
-                    <span>The Students Summary page displays aggregated information for overall participation of the students in the course, including their accumulated points from taking Serious Challenges and Graded Assignments, 
-                    how many distinct Warm-Up Challenges they have taken and how many times they have taken them  (number of attempts), how many Experience Points (XP) they have, 
-                    their current Virtual Currency amount and a timestamp of their last action in OneUp. This is perhaps one of the most useful summary pages for the instructors. 
+        </div>
+      </div>
+
+      <div class="col m12" id="CourseReports">
+        <div class="card">
+          <div class="card-content">
+            <ul class="collapsible expandable">
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I View Student Scores?
+                </div>
+                <div class="collapsible-body">
+                  <span>In the Course Reports menu select Student Scores.
+                    Click on the menu (three vertical dots) beside the student whose information you wish to view.
+                    You can select to see Student's Skills, Activities, Warm-Up Challenges, Serious Challenges, and even
+                    the student's Learning DashBoard.</span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What are Class Scores?</div>
+                <div class="collapsible-body">
+                  <span>Class Scores (GradeBook) shows all grades students have made on all graded course assignments
+                    (if entered by the instructor).
+                    In the Course Reports menu select Class Scores to view the page.
+                    You can export the Gradebook by going to Course Tools in the menu and selecting Export
+                    GradeBook.</span>
+                </div>
+              </li>
+              <!-- GGM added LeaderBoard QA, and a dynamic selector to ensure students can't access LeaderBoard page without enabling it in preferences -->
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What is the Students Summary?</div>
+                <div class="collapsible-body">
+                  <span>The Students Summary page displays aggregated information for overall participation of the
+                    students in the course, including their accumulated points from taking Serious Challenges and Graded
+                    Assignments,
+                    how many distinct Warm-Up Challenges they have taken and how many times they have taken them (number
+                    of attempts), how many Experience Points (XP) they have,
+                    their current Virtual Currency amount and a timestamp of their last action in OneUp. This is perhaps
+                    one of the most useful summary pages for the instructors.
                     The link to the page is in the Course Reports menu.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is Student Attendance?</div>
-                  <div class="collapsible-body">
-                    <span>The Student Attendance report simply displays which dates students were present in class. 
-                    The instructor can change the range of dates as they wish. 
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What is Student Attendance?</div>
+                <div class="collapsible-body">
+                  <span>The Student Attendance report simply displays which dates students were present in class.
+                    The instructor can change the range of dates as they wish.
                     The page is in the Course Reports menu.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>Serious/Warm-Up Challenges Visualization</div>
-                  <div class="collapsible-body">
-                    <span>The challenge visualization pages show student performance in the course challenges in the form of bar graphs. 
-                    For each student, three bar graphs are shown - Maximum Score, Average Score and Minimum Score for the corresponding challenge. 
-                    Each of these bars can be hidden/shown by clicking on its name. 
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>Serious/Warm-Up Challenges Visualization</div>
+                <div class="collapsible-body">
+                  <span>The challenge visualization pages show student performance in the course challenges in the form
+                    of bar graphs.
+                    For each student, three bar graphs are shown - Maximum Score, Average Score and Minimum Score for
+                    the corresponding challenge.
+                    Each of these bars can be hidden/shown by clicking on its name.
                     The pages are in the Course Reports menu.</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>Skills Visualization</div>
-                  <div class="collapsible-body">
-                    <span>The skills visualization page shows the Skill Points for each individual student for each Skill defined by the instructor in this course. 
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>Skills Visualization</div>
+                <div class="collapsible-body">
+                  <span>The skills visualization page shows the Skill Points for each individual student for each Skill
+                    defined by the instructor in this course.
                     The page is in the Course Reports menu.</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
-        <div class="col m12" id="GameFeatures">
-          <div class="card">
-            <div class="card-content">
-              <ul class="collapsible expandable">
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How is Gamification Implemented and What Are Rules?
-                  </div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px">The OneUp platform includes a game engine which is responsible for executing Rules defined by the instructor.
-                    The Rules specify under what Conditions (based on challenges, activities and skills) specific game elements will be applied. 
-                    The Rules have the format <i>IF condition THEN  action </i>, for example, <i>IF a student completes more than 20 challenges THEN award her a badge</i>.</p>                  
-                    <p style = "text-indent:40px">After a student's interaction with OneUp, the game engine checks the rules to see if specific conditions are met. 
-                    If they are, then the corresponding actions specified by the Instructor occur. 
-                    These actions can vary: a Badge is awarded, Virtual Currency is awarded, a new Challenge is unlocked, etc. 
-                    While sounding complex and intimidating, creating Rule Conditions can be simply thought of as specifying a Boolean expression.</p>
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>How do I Create a Rule?</div>
-                  <div class="collapsible-body">
-                    <span>
-                    <p style = "text-indent:40px">If you are creating a Badge, setting Virtual Currency Earning Rules, or configuring Progressive Unlocking, you will need to specify the Rule Conditions. 
-                    The Rule Conditions section is always found at the bottom of the page. 
-                    A simple Rule Condition (Atom Condition) consists of two parts, which will be compared. 
-                    For example, a Condition would read like this: <i>The percent of student score for Challenge X is more than or equal to 75</i>. </p>
-                    <p style = "text-indent:40px">The Rule Conditions section is a drag-and-drop interface: drag a condition type (Atom, OR, or Forall) into the dotted rectangle to begin modifying it. 
-                    Note the small <b>AND</b> followed by another dotted rectangle. 
-                    This is for when you want multiple conditions to be true in order for the rule to fire (i.e. x = 2 AND y = 3).   
-                    There are three condition types: <b>Atom, OR,</b> and <b>Forall.</b> </p>
-                    <p style = "text-indent:40px">The <b>Atom</b> condition is a single conditional statement (i.e. if (x = 5) would only be true if x = 5). 
-                    Atom is the primary condition type, for they can apply to most situations.
-                     By default, an Atom condition type is the first condition in the Rule Conditions section. 
-                     The Atom condition has three parameters: the Variable, the Operator, and the Threshold. 
-                     The Variable is the specific condition that is being checked (i.e. student percentage score on a challenge). 
-                     The Operator can be one of five options: greater than (>), less than (<), equal to (=), greater than or equal to (>=), and less than or equal to (<=). 
-                     The operators function just as they do mathematically. 
-                     The Threshold simply specifies the value to which the Variable will be compared. 
-                     By default, the Threshold is a number, but if the Value checkbox is unchecked, the Instructor can choose another variable to compare to the first. </p>
-                    <p style = "text-indent:40px">The <b>OR</b> condition specifies that when one of two or more conditions are true then the entire condition would be true (i.e. the statement if (x < 2) OR (x > 4) would be true if x = 1 or 5). 
-                    OR is useful if the Instructor desires multiple ways to satisfy a condition. </p>
-                    <p style = "text-indent:40px">The <b>Forall</b> condition allows Instructors to specify how broad the rule is. 
-                    There are three selectors in Forall: For, Of the following, and Items to add. 
-                    The 'Of the following' selector allows the Instructor to select the objects to be considered for the condition: Challenges, Activities, Topics, and Categories (Activity Categories). 
-                    The 'Items to add' selector allows the Instructor to add one or more items of the type specified in the 'Of the following' selector. 
-                    The checkbox next to the 'Items to add' selector will select all of the items of the selected type if checked (i.e All Activities). 
-                    The For selector simply specifies whether <b>each</b> or <b>all</b> of the specified selections shall be considered.                     
-                    At the bottom of the Forall condition is included a dotted rectangle. 
-                    You have to drag an Atom or OR condition there. The dragged Atom or OR condition will work just the same, but with the added restrictions set by the Instructor. 
-                    Once an Atom condition is placed, the available variables in the drop-down menu become more specific depending on the item type selected in the 'Of the following' selector.</p> 
-                    <p style = "text-indent:40px">To remove a condition from the area, drag it to the <b>Trash</b> box at the upper left of the section.</p>
-                    </span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What Do I need to know about Badges?</div>
-                  <div class="collapsible-body">
+      </div>
+      <div class="col m12" id="GameFeatures">
+        <div class="card">
+          <div class="card-content">
+            <ul class="collapsible expandable">
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How is Gamification Implemented and What are Rules?
+                </div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">The OneUp platform includes a game engine which is responsible for
+                      executing Rules defined by the instructor.
+                      The Rules specify under what Conditions (based on challenges, activities and skills) specific game
+                      elements will be applied.
+                      The Rules have the format <i>IF condition THEN action </i>, for example, <i>IF a student completes
+                        more than 20 challenges THEN award her a badge</i>.</p>
+                    <p style="text-indent:40px">After a student's interaction with OneUp, the game engine checks the
+                      rules to see if specific conditions are met.
+                      If they are, then the corresponding actions specified by the Instructor occur.
+                      These actions can vary: a Badge is awarded, Virtual Currency is awarded, a new Challenge is
+                      unlocked, etc.
+                      While sounding complex and intimidating, creating Rule Conditions can be simply thought of as
+                      specifying a Boolean expression.</p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How do I Create a Rule?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px">If you are creating a Badge, setting Virtual Currency Earning Rules, or
+                      configuring Progressive Unlocking, you will need to specify the Rule Conditions.
+                      The Rule Conditions section is always found at the bottom of the page.
+                      A simple Rule Condition (Atom Condition) consists of two parts, which will be compared.
+                      For example, a Condition would read like this: <i>The percent of student score for Challenge X is
+                        more than or equal to 75</i>. </p>
+                        <br />
+                    <p style="text-indent:40px">The Rule Conditions section is a drag-and-drop interface: drag a
+                      condition type (Atom, OR, or Forall) into the dotted rectangle to begin modifying it.
+                      Note the small <b>AND</b> followed by another dotted rectangle.
+                      This is for when you want multiple conditions to be true in order for the rule to fire (i.e. x = 2
+                      AND y = 3).
+                      There are three condition types: <b>Atom, OR,</b> and <b>Forall.</b> </p>
+                      <br />
+                    <p style="text-indent:40px">The <b>Atom</b> condition is a single conditional statement (i.e. if (x
+                      = 5) would only be true if x = 5).
+                      Atom is the primary condition type, for they can apply to most situations.
+                      By default, an Atom condition type is the first condition in the Rule Conditions section.
+                      The Atom condition has three parameters: the Variable, the Operator, and the Threshold.
+                      The Variable is the specific condition that is being checked (i.e. student percentage score on a
+                      challenge).
+                      The Operator can be one of five options: greater than (>), less than (<), equal to (=), greater
+                        than or equal to (>=), and less than or equal to (<=). The operators function just as they do
+                          mathematically. The Threshold simply specifies the value to which the Variable will be
+                          compared. By default, the Threshold is a number, but if the Value checkbox is unchecked, the
+                          Instructor can choose another variable to compare to the first. </p> <p
+                          style="text-indent:40px">The <b>OR</b> condition specifies that when one of two or more
+                          conditions are true then the entire condition would be true (i.e. the statement if (x < 2) OR
+                            (x> 4) would be true if x = 1 or 5).
+                            OR is useful if the Instructor desires multiple ways to satisfy a condition. </p>
+                            <br />
+                    <p style="text-indent:40px">The <b>Forall</b> condition allows Instructors to specify how broad the
+                      rule is.
+                      There are three selectors in Forall: For, Of the following, and Items to add.
+                      The 'Of the following' selector allows the Instructor to select the objects to be considered for
+                      the condition: Challenges, Activities, Topics, and Categories (Activity Categories).
+                      The 'Items to add' selector allows the Instructor to add one or more items of the type specified
+                      in the 'Of the following' selector.
+                      The checkbox next to the 'Items to add' selector will select all of the items of the selected type
+                      if checked (i.e All Activities).
+                      The For selector simply specifies whether <b>each</b> or <b>all</b> of the specified selections
+                      shall be considered.
+                      At the bottom of the Forall condition is included a dotted rectangle.
+                      You have to drag an Atom or OR condition there. The dragged Atom or OR condition will work just
+                      the same, but with the added restrictions set by the Instructor.
+                      Once an Atom condition is placed, the available variables in the drop-down menu become more
+                      specific depending on the item type selected in the 'Of the following' selector.</p>
+                      <br />
+                    <p style="text-indent:40px">To remove a condition from the area, drag it to the <b>Trash</b> box at
+                      the upper left of the section.</p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I need to know about Badges?</div>
+                <div class="collapsible-body">
                   <ul>
-	                <li>
-	                    <p></p>
-	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What are Badges?</b><br />
-	                    <span><p style = "text-indent:40px">Badges are a form of an award a student can receive for completing tasks specified by the Instructor. 
-	                    There are three types of Badges: Automatic, Manual, and Time-Period based. 
-	                    Automatic Badges are awarded according to Rule Conditions defined by the Instructor.
-	                     Manual Badges are badges with no conditions that are assigned manually to individual students by the instructor. 
-	                     Time-Period Based Badges are automatically awarded at specific time intervals to students who meet certain conditions (i.e. students with a 5-day attendance streak). 
-	                     The main purpose of Badges is to give students a sense of achievement and progress as they advance through the course. 
-	                     Badges that students earn are shown in their Achievements page and the Latest Badges section of the Course Home page.</p></span>
-	
-	                     <hr>
-	                </li>
-	                <li>
-	                  <p>&nbsp;</p>
-	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;  <b>How do I Create Automatic Badges?</b>	                 
-	                    <span><p style = "text-indent:40px">In the Game Features menu, hover over Badges and then click on Automatic & Manual Badges in the side menu. 
-	                    You will be taken to the Badges page, where you can view the badges you have already created and modify them. 
-	                    Click Add New Badge to be taken to the Badge creation page. 
-	                    The Badge Name and Badge Description fields give the badge a name and provide a description for the conditions for earning the badge, respectively. 
-	                    The Badge Image section allows the Instructor to pick the image for the badge from a collection of available images. 
-	                    The same badge image can be used for multiple badges. 
-	                    The Award Frequency option specifies whether to award the badge just once, or once per Challenge, Activity, Topic, or Category. 
-	                    To define Rule Conditions for the Badge, follow the guidelines discussed in How do I create a Rule. 
-	                    Click Create to add the Badge to the Badges page.</p> </span>	                  
-	                   <hr>
-	                </li>
-		               
-	                <li>
-	    				<p>&nbsp;</p>
-	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp; <b>How do I Create/Assign/Remove Manual Badges?</b>   
-	                    <span>
-	                    <p style = "text-indent:40px">Manual Badges are much simpler to create than their automatic counterpart, as they do not require Rule Conditions. 
-	                    They allow the instructor to create Badges for cases in which it is not possible to define a Rule Condition that can be automatically checked (for example, if there is no necessary information in the system). 
-	                    In the Game Features menu, hover over Badges and then click on Automatic & Manual Badges in the side menu. 
-	                    <p style = "text-indent:40px"><b>Create Manual Badges: </b>In the Badges page, scroll down until you see the Manual Badges section. 
-	                    Click Add New Manual Badge to be taken to the Badge creation page. 
-	                    As with Automatic Badges, the Badge Name and Badge Description fields give the badge a name and provide a description for the conditions for earning the badge, respectively. 
-	                    Select an image for the badge in the Badge Image section and then click Create to add the new Manual Badge. </p>
-	                     <p style = "text-indent:40px"><b>Assigning Badges to Students: </b>Because Manual Badges do not have any Rule Conditions, which students and when receive them is entirely to the discretion of the Instructor. 
-	                    In the Game Features menu, hover over Badges and then click on Add Badges to Students in the side menu. 
-	                    There are two sections in this page: one where you give badges, the Assign Badges section, and one where you take badges, the Remove Badges section. 
-	                    It should be noted that ONLY Manual Badges can be assigned to/removed from students manually.
-	                    In the Assign Badges section, select the student you wish to be assigned a badge in the Select Student drop-down menu. 
-	                    Then, select their respective badge in the Select Badge drop-down menu. 
-	                    Click Assign Badge to add the Manual Badge to the student. </p>
-	                    <p style = "text-indent:40px"><b>Removing Badges from Students: </b> To remove badges from students, first scroll down to the Remove Badges section of the Add Badges to Students page. 
-	                    All students who have manual badges along with the badges they have are listed here. 
-	                    To remove them, simply select all the badges you wish to remove and from which students. 
-	                    Then, click Delete Badge to properly remove the badges.</p>
-	                    </span>
-	                  <hr>
-	                </li>
-	 
-	                <li>
-	                  <p>&nbsp;</p>
-	                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp; <b>How do I Create Time-Period Based Badges?</b>
-	                    <span><p style = "text-indent:40px"> In the Game Features menu, hover over Badges and click on Time-Period Based Badges in the side menu to be taken to the Add New Time Based Badge page. 
-	                    The Badge Name, Description, and Image all serve the same purposes as with previous badges. 
-	                    The primary difference here is the Time-Period conditions. 
-	                    These are not unlike Rule Conditions, but much more streamlined to simplify the process. </p>
-	                    <p style = "text-indent:40px"> There are four Condition options that require attention: Give To, Number of Students, Time Period, and the Condition section.</br> 
-	                    The <b>Give To</b> option allows Instructors to give the badge to either a number of top students (Top #), all students, or randomly. </br> 
-	                    The <b>Number of Students</b> option only appears if the Top # option is selected and sets the number of students who will earn the badge. </br> 
-	                    The <b>Time Period</b> drop-down menu specifies how often the badge will be awarded to students (i.e. Daily, Weekly, etc.).</br>  
-	                    The <b>Condition</b> section functions much like a Rule Condition, but with fewer, more specific options. </br> 
-	                    The Operator and Threshold function the same as with Rule Conditions. 
-	                    Once all parameters are set, click Create Badge to add the new Time-Period Based Badge.</p></span>
-	                  
-	                </li>
+                    <li>
+                      <p></p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are Badges?</b><br />
+                      <span>
+                        <p style="text-indent:40px">Badges are a form of an award a student can receive for completing
+                          tasks specified by the Instructor.
+                          There are three types of Badges: Automatic, Manual, and Time-Period based.
+                          Automatic Badges are awarded according to Rule Conditions defined by the Instructor.
+                          Manual Badges are badges with no conditions that are assigned manually to individual students
+                          by the instructor.
+                          Time-Period Based Badges are automatically awarded at specific time intervals to students who
+                          meet certain conditions (i.e. students with a 5-day attendance streak).
+                          The main purpose of Badges is to give students a sense of achievement and progress as they
+                          advance through the course.
+                          Badges that students earn are shown in their Achievements page and the Latest Badges section
+                          of the Course Home page.</p>
+                      </span>
+
+                      <hr>
+                    </li>
+                    <li>
+                      <p>&nbsp;</p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp; <b style="vertical-align: middle;">How do I Create Automatic
+                        Badges?</b>
+                      <span>
+                        <p style="text-indent:40px">In the Game Features menu, hover over Badges and then click on
+                          Automatic & Manual Badges in the side menu.
+                          You will be taken to the Badges page, where you can view the badges you have already created
+                          and modify them.
+                          Click Add New Badge to be taken to the Badge creation page.
+                          The Badge Name and Badge Description fields give the badge a name and provide a description
+                          for the conditions for earning the badge, respectively.
+                          The Badge Image section allows the Instructor to pick the image for the badge from a
+                          collection of available images.
+                          The same badge image can be used for multiple badges.
+                          The Award Frequency option specifies whether to award the badge just once, or once per
+                          Challenge, Activity, Topic, or Category.
+                          To define Rule Conditions for the Badge, follow the guidelines discussed in How do I create a
+                          Rule.
+                          Click Create to add the Badge to the Badges page.</p>
+                      </span>
+                      <hr>
+                    </li>
+
+                    <li>
+                      <p>&nbsp;</p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp; <b style="vertical-align: middle;">How do I Create/Assign/Remove
+                        Manual Badges?</b>
+                      <span>
+                        <p style="text-indent:40px">Manual Badges are much simpler to create than their automatic
+                          counterpart, as they do not require Rule Conditions.
+                          They allow the instructor to create Badges for cases in which it is not possible to define a
+                          Rule Condition that can be automatically checked (for example, if there is no necessary
+                          information in the system).
+                          In the Game Features menu, hover over Badges and then click on Automatic & Manual Badges in
+                          the side menu.
+                          <p style="text-indent:40px"><b>Create Manual Badges: </b>In the Badges page, scroll down until
+                            you see the Manual Badges section.
+                            Click Add New Manual Badge to be taken to the Badge creation page.
+                            As with Automatic Badges, the Badge Name and Badge Description fields give the badge a name
+                            and provide a description for the conditions for earning the badge, respectively.
+                            Select an image for the badge in the Badge Image section and then click Create to add the
+                            new Manual Badge. </p>
+                          <p style="text-indent:40px"><b>Assigning Badges to Students: </b>Because Manual Badges do not
+                            have any Rule Conditions, which students and when receive them is entirely to the discretion
+                            of the Instructor.
+                            In the Game Features menu, hover over Badges and then click on Add Badges to Students in the
+                            side menu.
+                            There are two sections in this page: one where you give badges, the Assign Badges section,
+                            and one where you take badges, the Remove Badges section.
+                            It should be noted that ONLY Manual Badges can be assigned to/removed from students
+                            manually.
+                            In the Assign Badges section, select the student you wish to be assigned a badge in the
+                            Select Student drop-down menu.
+                            Then, select their respective badge in the Select Badge drop-down menu.
+                            Click Assign Badge to add the Manual Badge to the student. </p>
+                          <p style="text-indent:40px"><b>Removing Badges from Students: </b> To remove badges from
+                            students, first scroll down to the Remove Badges section of the Add Badges to Students page.
+                            All students who have manual badges along with the badges they have are listed here.
+                            To remove them, simply select all the badges you wish to remove and from which students.
+                            Then, click Delete Badge to properly remove the badges.</p>
+                      </span>
+                      <hr>
+                    </li>
+
+                    <li>
+                      <p>&nbsp;</p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp; <b style="vertical-align: middle;">How do I Create Time-Period
+                        Based Badges?</b>
+                      <span>
+                        <p style="text-indent:40px"> In the Game Features menu, hover over Badges and click on
+                          Time-Period Based Badges in the side menu to be taken to the Add New Time Based Badge page.
+                          The Badge Name, Description, and Image all serve the same purposes as with previous badges.
+                          The primary difference here is the Time-Period conditions.
+                          These are not unlike Rule Conditions, but much more streamlined to simplify the process. </p>
+                        <p style="text-indent:40px"> There are four Condition options that require attention: Give To,
+                          Number of Students, Time Period, and the Condition section.</br>
+                          The <b>Give To</b> option allows Instructors to give the badge to either a number of top
+                          students (Top #), all students, or randomly. </br>
+                          The <b>Number of Students</b> option only appears if the Top # option is selected and sets the
+                          number of students who will earn the badge. </br>
+                          The <b>Time Period</b> drop-down menu specifies how often the badge will be awarded to
+                          students (i.e. Daily, Weekly, etc.).</br>
+                          The <b>Condition</b> section functions much like a Rule Condition, but with fewer, more
+                          specific options. </br>
+                          The Operator and Threshold function the same as with Rule Conditions.
+                          Once all parameters are set, click Create Badge to add the new Time-Period Based Badge.</p>
+                      </span>
+
+                    </li>
                   </ul>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What is Progressive Unlocking and How to Use It?</div>
-                  <div class="collapsible-body">
-                    <span><p style = "text-indent:40px"> Progressive Unlocking is a gamification feature that gives the Instructors the ability to lock certain content from students until specific conditions are met. 
-                    There are a plethora of possible conditions, including if a certain score is reached on certain challenges or all challenges from a specific topic are completed. 
-                    The primary purpose of this feature is to have students complete challenges/activities in a specific order or after achieving a certain level of mastery of a course topic.</p> 
-                    <p style = "text-indent:40px">In the Game Features menu, click Progressive Unlocking and then click the Create New Rule button to be taken to the Create Unlocking Rule page. 
-                    The Unlocking Rule Name and the Unlocking Rule Description fields provide the name of the rule and a description of the requirements for fulfilling the rule’s conditions, respectively. 
-                    The Object Type drop-down menu specifies what type of objects are going to be locked by the rule: Serious Challenges, Warm-Up Challenges, Activities, Topics, or Activity Categories. 
-                    Once the Object Type is selected, Instructors can select which objects of the selected type to be locked in the Object Selection field. 
-                    For guidance on setting the Rule Conditions for the Rule, refer to How do I create a Rule. 
-                    Once all parameters and field are set, click Save to add the Rule to Progressive Unlocking Page. </p></span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What Do I need to Know about Virtual Currency?</div>
-                  <div class="collapsible-body">
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What is Progressive Unlocking and How to Use It?</div>
+                <div class="collapsible-body">
+                  <span>
+                    <p style="text-indent:40px"> Progressive Unlocking is a gamification feature that gives the
+                      Instructors the ability to lock certain content from students until specific conditions are met.
+                      There are a plethora of possible conditions, including if a certain score is reached on certain
+                      challenges or all challenges from a specific topic are completed.
+                      The primary purpose of this feature is to have students complete challenges/activities in a
+                      specific order or after achieving a certain level of mastery of a course topic.</p>
+                    <p style="text-indent:40px">In the Game Features menu, click Progressive Unlocking and then click
+                      the Create New Rule button to be taken to the Create Unlocking Rule page.
+                      The Unlocking Rule Name and the Unlocking Rule Description fields provide the name of the rule and
+                      a description of the requirements for fulfilling the rule’s conditions, respectively.
+                      The Object Type drop-down menu specifies what type of objects are going to be locked by the rule:
+                      Serious Challenges, Warm-Up Challenges, Activities, Topics, or Activity Categories.
+                      Once the Object Type is selected, Instructors can select which objects of the selected type to be
+                      locked in the Object Selection field.
+                      For guidance on setting the Rule Conditions for the Rule, refer to How do I create a Rule.
+                      Once all parameters and field are set, click Save to add the Rule to Progressive Unlocking Page.
+                    </p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I need to Know about Virtual Currency?</div>
+                <div class="collapsible-body">
                   <ul>
-	                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What is Virtual Currency?</b>
-                    <span><p style = "text-indent:40px; margin-top: 1ex">Virtual Currency (VC) is digital currency awarded to students for completing tasks and meeting specific conditions set by the Instructor. 
-                    The main purpose of Virtual Currency is to provide an incentive for students to complete course work and routinely track their progress. 
-                    Virtual Currency can be spent on some course-related goods at the discretion of the Instructor, such as Deadline Extensions, Assignment Re-submissions, Extra Credit, Lowest Grade Replacement, and a great host of other benefits. 
-                    As with Badges, there are three different types of Virtual Currency Earning Rules: Automatic, Manual, and Time-Period Based. 
-                    Manual earning rules are rules with no conditions. 
-                    Time-Period Based rules are awarded at specific time intervals to students who meet certain conditions (i.e. students with a 5-day attendance streak).</p> 
-                    <p style = "text-indent:40px">In order to use Virtual Currency in your course, you have to enable it: Go to the Game Features menu and select Gamification Configuration. 
-                    Locate Virtual Currency Configuration, then click the Enable Virtual Currency option. 
-                    Finally, click the Save option at the bottom of the page. 
-                    The Virtual Currency menu option will now appear under the Game Features menu.</p></span>
-                    <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Create an Automatic Virtual Currency Earning Rule?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency and then select Automatic Earning Rules. 
-                    Here you can view/modify all Automatic Earning rules that you have created so far along the amount of currency they award. 
-                    Click the Add New Automatic Virtual Currency Rule button to be taken to the Automatic Rule Creation page. 
-                    The Rule Name and Rule Description fields give the rule a name and provide a description for the conditions for earning the currency, respectively. 
-                    The Award Frequency specifies whether the currency will be awarded once per Challenge, Topic, Activity, Category, or Just Once Ever. 
-                    To define Rule Conditions, follow the guidelines discussed in How do I create a Rule. 
-                    The Course Bucks Earned With this Rule field simply assigns the amount of Course Bucks that will be earned by the student once the Rule Conditions are met. 
-                    Click the Create Rule button to add the Automatic Rule to the Automatic VC Rules page.</p></span>
-                    <hr>
-                </li>
-                <li>
-                  <p>&nbsp;</p>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Create Earning Rules for Assigning Virtual Currency Manually?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex"><b> Creating a Manual VC Earning Rule: </b>In the Game Features menu, hover over Virtual Currency and then select Manual Earning Rules. 
-                    Here you can view/modify all Manual Earning Rules that you have created and the amount of currency they award. 
-                    Click the Create New Manual Earning Rule button to be taken to the Manual Rule Creation page. 
-                    The Rule Name, Rule Description, and Course Bucks Earned serve the same purposes as with Automatic VC Earning Rules. 
-                    Note that there are no Rule Conditions for the Manual Rule. 
-                    Click Create Rule to create the Manual Earning Rule.</p>
-                    
-                    <p style = "text-indent:40px"><b>To Assign VC Manually</b> to Students: In the Game Features menu, there is a Virtual Currency submenu. 
-                    Select Add Virtual Currency to Students. 
-                    Here you can view how much Virtual Currency each student has and can change the amount they have. 
-                    You have two options: to <b>Add Virtual Currency</b> to the student's current amount or to <b>Set Virtual Currency</b>, in which case the amount you enter will replace the total current amount for that student.
-                    You shall select a rule which describes the change you made from the drop-down menu of the Manual Earning Rules previously created by you. This description along with the Virtual Currency specified will appear in the Earning Transactions page for students. 
-                    Click Add Currency at the bottom of the page to add VC to your desired students.</p></span>
-                    <hr>
-                </li>
-                <li>
-                  <p>&nbsp;</p>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Create a Time-Period Based Virtual Currency Earning Rule?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency and then select Time-Period Earning Rules. 
-                    Here you can view/modify all Time-Period rules created so far and the amount of currency they award. 
-                    Click the Create New Periodic Earning Rule button to be taken to the Time-Period Rule Creation page.                     
-                    The Rule Name, Rule Description, and Course Bucks Earned serve the same purposes as with previous VC Earning Rules. 
-                    The primary difference here is the Time-Period conditions. 
-                    These are not unlike Rule Conditions, but much more streamlined to simplify the process. </p>
-                    <p style = "text-indent:40px"> There are four Condition options that require attention: Give To, Number of Students, Time Period, and the Condition section. 
-                    The <b>Give To</b> option allows Instructors to give the VC to either a number of top students (Top #), all students, or randomly. 
-                    The <b>Number of Students</b> option only appears if the Top # option is selected and sets the number of students who will earn the VC. 
-                    The <b>Time Period</b> drop-down menu specifies how often the VC will be awarded to students (i.e. Daily, Weekly, etc.). 
-                    The <b>Condition</b> section functions much like a Rule Condition, but with fewer, more specific options. 
-                    The Operator and Threshold function the same as with Rule Conditions.        
-                    Once all parameters are set, click Create Rule to add the new Time-Period Rule to the Periodic Virtual Currency Rules page.</p></span>
-                    <hr>
-                </li>
-                <li>
-                  <p>&nbsp;</p>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Set Spending Rules/Create Course Shop?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">When you create a Spending Rule, you are adding an item that students can purchase in your very own Course Shop. 
-                    In the Game Features menu, hover over Virtual Currency and then select Spending Rules to go to the Course Shop page. 
-                    Here you can view all the items available for purchase in the Course Shop, their price in Course Bucks, and their limit of purchases for each student. 
-                    Click the Create Spending Rule button to be taken to the Spending Rule Creation page. 
-                    The Rule Name and Rule Description fields assign the rule a name and give a description of what the item is or does when purchased, respectively. 
-                    The VC Amount option simply sets the price of the item while the Limit option sets how many times the item can be purchased by the student (during the entire course). 
-                    Once a student purchases an item in the Course Shop, the Instructor gets a notification and must approve the transaction. 
-                    To do this, follow the steps outlined in How do I approve/reject Student Transactions? 
-                    Click Save to add the new item to the Course Shop. </p></span>
-                    <hr>
-                </li>
-                <li>
-                  <p>&nbsp;</p>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Approve/Reject Student Transactions?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency and then select Student Transactions. 
-                    Here you will view all the purchasing transactions that students have made, which are active (not completed). 
-                    If you want to review the Completed Transactions, click on the View Completed Transactions button.
-                    For each item a student has purchased in the Course Shop, you will see the name, description (Spending Rule), Date of Purchase, Cost, and Status 'Requested'. 
-                    You have to approve each purchase request: click the Update button on the selected transaction to be taken to the Update Transaction page. 
-                    Here, you can add two types of notes: a Note (feedback) to the Student and a note for yourself (Instructor’s Note). 
-                    Then update appropriately the Transaction Status by selecting an option from the Set Status drop-down menu. 
-                    The status can be:  'Requested' (this is the initial status assigned to the transaction after it was made); 
-                    'In Progress' - this indicates that the Instructor has reviewed the purchase and is in progress of completing the requested action;
-                    'Complete' - this indicates that the Instructor has completed the requested action;
-                    'Reverted' - this indicates that the Instructor has not approved the purchase and has returned the spent Course Bucks back to the Student Account. 
-                    The reason for this shall be described in the field 'Note to Student'. The changed status of the transaction will be displayed on the Student Transactions page. 
-                    Click the Update button to update the status of the transaction. </p></span>
-                  </li>
-                  </ul>                    
-                  </div>
-                </li>
-               <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What Do I Need to Know about Dueling?
-                  </div>
-                  <div class="collapsible-body">
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What is Virtual Currency?</b>
+                      <span>
+                        <p style="text-indent:40px; margin-top: 1ex">Virtual Currency (VC) is digital currency awarded
+                          to students for completing tasks and meeting specific conditions set by the Instructor.
+                          The main purpose of Virtual Currency is to provide an incentive for students to complete
+                          course work and routinely track their progress.
+                          Virtual Currency can be spent on some course-related goods at the discretion of the
+                          Instructor, such as Deadline Extensions, Assignment Re-submissions, Extra Credit, Lowest Grade
+                          Replacement, and a great host of other benefits.
+                          As with Badges, there are three different types of Virtual Currency Earning Rules: Automatic,
+                          Manual, and Time-Period Based.
+                          Manual earning rules are rules with no conditions.
+                          Time-Period Based rules are awarded at specific time intervals to students who meet certain
+                          conditions (i.e. students with a 5-day attendance streak).</p>
+                        <p style="text-indent:40px">In order to use Virtual Currency in your course, you have to enable
+                          it: Go to the Game Features menu and select Gamification Configuration.
+                          Locate Virtual Currency Configuration, then click the Enable Virtual Currency option.
+                          Finally, click the Save option at the bottom of the page.
+                          The Virtual Currency menu option will now appear under the Game Features menu.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How do I Create an Automatic
+                        Virtual Currency Earning Rule?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency
+                          and then select Automatic Earning Rules.
+                          Here you can view/modify all Automatic Earning rules that you have created so far along the
+                          amount of currency they award.
+                          Click the Add New Automatic Virtual Currency Rule button to be taken to the Automatic Rule
+                          Creation page.
+                          The Rule Name and Rule Description fields give the rule a name and provide a description for
+                          the conditions for earning the currency, respectively.
+                          The Award Frequency specifies whether the currency will be awarded once per Challenge, Topic,
+                          Activity, Category, or Just Once Ever.
+                          To define Rule Conditions, follow the guidelines discussed in How do I create a Rule.
+                          The Course Bucks Earned With this Rule field simply assigns the amount of Course Bucks that
+                          will be earned by the student once the Rule Conditions are met.
+                          Click the Create Rule button to add the Automatic Rule to the Automatic VC Rules page.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <p>&nbsp;</p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How do I Create Earning Rules
+                        for Assigning Virtual Currency Manually?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex"><b> Creating a Manual VC Earning Rule: </b>In the Game
+                          Features menu, hover over Virtual Currency and then select Manual Earning Rules.
+                          Here you can view/modify all Manual Earning Rules that you have created and the amount of
+                          currency they award.
+                          Click the Create New Manual Earning Rule button to be taken to the Manual Rule Creation page.
+                          The Rule Name, Rule Description, and Course Bucks Earned serve the same purposes as with
+                          Automatic VC Earning Rules.
+                          Note that there are no Rule Conditions for the Manual Rule.
+                          Click Create Rule to create the Manual Earning Rule.</p>
+
+                        <p style="text-indent:40px"><b>To Assign VC Manually</b> to Students: In the Game Features menu,
+                          there is a Virtual Currency submenu.
+                          Select Add Virtual Currency to Students.
+                          Here you can view how much Virtual Currency each student has and can change the amount they
+                          have.
+                          You have two options: to <b>Add Virtual Currency</b> to the student's current amount or to
+                          <b>Set Virtual Currency</b>, in which case the amount you enter will replace the total current
+                          amount for that student.
+                          You shall select a rule which describes the change you made from the drop-down menu of the
+                          Manual Earning Rules previously created by you. This description along with the Virtual
+                          Currency specified will appear in the Earning Transactions page for students.
+                          Click Add Currency at the bottom of the page to add VC to your desired students.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <p>&nbsp;</p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How do I Create a Time-Period
+                        Based Virtual Currency Earning Rule?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency
+                          and then select Time-Period Earning Rules.
+                          Here you can view/modify all Time-Period rules created so far and the amount of currency they
+                          award.
+                          Click the Create New Periodic Earning Rule button to be taken to the Time-Period Rule Creation
+                          page.
+                          The Rule Name, Rule Description, and Course Bucks Earned serve the same purposes as with
+                          previous VC Earning Rules.
+                          The primary difference here is the Time-Period conditions.
+                          These are not unlike Rule Conditions, but much more streamlined to simplify the process. </p>
+                        <p style="text-indent:40px"> There are four Condition options that require attention: Give To,
+                          Number of Students, Time Period, and the Condition section.
+                          The <b>Give To</b> option allows Instructors to give the VC to either a number of top students
+                          (Top #), all students, or randomly.
+                          The <b>Number of Students</b> option only appears if the Top # option is selected and sets the
+                          number of students who will earn the VC.
+                          The <b>Time Period</b> drop-down menu specifies how often the VC will be awarded to students
+                          (i.e. Daily, Weekly, etc.).
+                          The <b>Condition</b> section functions much like a Rule Condition, but with fewer, more
+                          specific options.
+                          The Operator and Threshold function the same as with Rule Conditions.
+                          Once all parameters are set, click Create Rule to add the new Time-Period Rule to the Periodic
+                          Virtual Currency Rules page.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <p>&nbsp;</p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How do I Set Spending
+                        Rules/Create Course Shop?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">When you create a Spending Rule, you are adding an item
+                          that students can purchase in your very own Course Shop.
+                          In the Game Features menu, hover over Virtual Currency and then select Spending Rules to go to
+                          the Course Shop page.
+                          Here you can view all the items available for purchase in the Course Shop, their price in
+                          Course Bucks, and their limit of purchases for each student.
+                          Click the Create Spending Rule button to be taken to the Spending Rule Creation page.
+                          The Rule Name and Rule Description fields assign the rule a name and give a description of
+                          what the item is or does when purchased, respectively.
+                          The VC Amount option simply sets the price of the item while the Limit option sets how many
+                          times the item can be purchased by the student (during the entire course).
+                          Once a student purchases an item in the Course Shop, the Instructor gets a notification and
+                          must approve the transaction.
+                          To do this, follow the steps outlined in How do I approve/reject Student Transactions?
+                          Click Save to add the new item to the Course Shop. </p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <p>&nbsp;</p>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How do I Approve/Reject Student
+                        Transactions?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">In the Game Features menu, hover over Virtual Currency
+                          and then select Student Transactions.
+                          Here you will view all the purchasing transactions that students have made, which are active
+                          (not completed).
+                          If you want to review the Completed Transactions, click on the View Completed Transactions
+                          button.
+                          For each item a student has purchased in the Course Shop, you will see the name, description
+                          (Spending Rule), Date of Purchase, Cost, and Status 'Requested'.
+                          You have to approve each purchase request: click the Update button on the selected transaction
+                          to be taken to the Update Transaction page.
+                          Here, you can add two types of notes: a Note (feedback) to the Student and a note for yourself
+                          (Instructor’s Note).
+                          Then update appropriately the Transaction Status by selecting an option from the Set Status
+                          drop-down menu.
+                          The status can be: 'Requested' (this is the initial status assigned to the transaction after
+                          it was made);
+                          'In Progress' - this indicates that the Instructor has reviewed the purchase and is in
+                          progress of completing the requested action;
+                          'Complete' - this indicates that the Instructor has completed the requested action;
+                          'Reverted' - this indicates that the Instructor has not approved the purchase and has returned
+                          the spent Course Bucks back to the Student Account.
+                          The reason for this shall be described in the field 'Note to Student'. The changed status of
+                          the transaction will be displayed on the Student Transactions page.
+                          Click the Update button to update the status of the transaction. </p>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Dueling?
+                </div>
+                <div class="collapsible-body">
                   <ul>
-	                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What is Dueling</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">Dueling is a gamification feature that allows students to challenge each other to obtain higher scores on assignments for Virtual Currency. 
-                    Dueling is entirely up to the students, with very little Instructor involvement in the process. 
-                    The primary goal of Dueling is to provide students with an incentive and increase their competitiveness in a course. </p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Enable Duels?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">Duels are a gamification feature that is disabled by default. 
-                    If you wish to enable Duels, ensure that gamification is enabled. 
-                    Then, in the Game Features menu select Gamification Configuration. 
-                    Locate the Challenging Classmates section and then find the option to enable the feature. 
-                    You can also desable the use of Virtual Currency in Duels, set a Virtual Currency amount to reward students who participate in Duels, and also those who win. </p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>Are Students Obligated to Accept Challenges?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">No. If a student declines or doesn’t respond to another student’s challenge, the duel is void and no Virtual Currency is awarded.</p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What Challenges can Students Duel Over?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">Students can only duel over Warm-Up Challenges they have not completed. 
-                    Also, students cannot select specific challenges; instead, challenges are selected at random by challenge Topic (ex. Addition, Multiplication). 
-                    If either student has completed a challenge, it is automatically ineligible to be available for the duel.</p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What Role does the Instructor Play in Duels?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">The only roles the Instructor has is creating the Warm-Up Challenges students take and setting how much VC is awarded to students for participation and victory. 
-                    To set the amounts, go to the Game Features menu and select Gamification Configuration. 
-                    Navigate to the Classmates Challenges option. 
-                    Click Enable the use of duels and call-outs and click Save to enable Duels. 
-                    The option for challenging students will now appear on the students’ side.</p></span>
-                  </div>
-                </li>
-                <li>
-                  <div class="collapsible-header">
-                    <i class="material-icons">question_answer</i>What Do I Need to Know about Call Out?
-                  </div>
-                  <div class="collapsible-body">
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What is Dueling</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">Dueling is a gamification feature that allows students
+                          to challenge each other to obtain higher scores on assignments for Virtual Currency.
+                          Dueling is entirely up to the students, with very little Instructor involvement in the
+                          process.
+                          The primary goal of Dueling is to provide students with an incentive and increase their
+                          competitiveness in a course. </p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How do I Enable Duels?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">Duels are a gamification feature that is disabled by
+                          default.
+                          If you wish to enable Duels, ensure that gamification is enabled.
+                          Then, in the Game Features menu select Gamification Configuration.
+                          Locate the Challenging Classmates section and then find the option to enable the feature.
+                          You can also desable the use of Virtual Currency in Duels, set a Virtual Currency amount to
+                          reward students who participate in Duels, and also those who win. </p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">Are Students Obligated to Accept
+                        Challenges?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">No. If a student declines or doesn’t respond to another
+                          student’s challenge, the duel is void and no Virtual Currency is awarded.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What Challenges can Students
+                        Duel Over?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">Students can only duel over Warm-Up Challenges they
+                          have not completed.
+                          Also, students cannot select specific challenges; instead, challenges are selected at random
+                          by challenge Topic (ex. Addition, Multiplication).
+                          If either student has completed a challenge, it is automatically ineligible to be available
+                          for the duel.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What Role does the Instructor
+                        Play in Duels?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">The only roles the Instructor has is creating the
+                          Warm-Up Challenges students take and setting how much VC is awarded to students for
+                          participation and victory.
+                          To set the amounts, go to the Game Features menu and select Gamification Configuration.
+                          Navigate to the Classmates Challenges option.
+                          Click Enable the use of duels and call-outs and click Save to enable Duels.
+                          The option for challenging students will now appear on the students’ side.</p>
+                      </span>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Call Out?
+                </div>
+                <div class="collapsible-body">
                   <ul>
-	                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What is Call Out</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">Call Out is a gamification feature that allows students to Call Out their classmates to obtain the same or higher scores on assignments and get rewarded Virtual Currency if it is set by Instructor. 
-                              Whether or not students want to participate in Call Out is entirely up to them, with very little Instructor involvement in the process.
-                              The primary goal of call out is to provide students with an incentive and increase their competitiveness in a course. </p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How do I Enable Call Out?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">Call Out are a gamification feature that is disabled by default. 
-                    If you wish to enable Call Out, ensure that gamification is enabled. 
-                    Then, in the Game Features menu select Gamification Configuration. 
-                    Locate the Challenging Classmates section and then find the option to enable the Call Out feature. You can also set a Virtual Currency amount to reward students who participate in Call Out.</p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>Are student obligated to participate in Call Out?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">No. Students can ignore Call Out requests or desable their participation in Call Out in the prefrences setting.</p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What are the different types of Call Out and how do they work?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">There are two types of Call Out: <strong>Individual</strong> and <strong>Class</strong> Call Out. In a Individual Call Out, 
-                    Call Out sender selects one of the warmup challenges that they have completed (warmup challenges completed by the participant they are calling out and warmup challenges used in previous 
-                    call outs are excluded) and the participant they are calling Out; if there is a virtual currency particpation reward set by Instructor, the Call Out sender will receive the 
-                    award only if participant participates and the participant will receive the award only if they perform the same or better than the Call Out sender which is consider a win for the paricipant. 
-                    In a Class Call Out, Call Out sender selects one of the warmup challenges that you have completed and the Call Out will be sent to the whole class. Any student who participates in Call Out and 
-                    has already completed the warmup challenge selected and has performed the same or better than the Call Out sender, they will be considered winner and will receive participation award if there is any. The Call Out will be closed for them.
-                              </p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>What Role does the Instructor Play in Call Out?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">The participant(s) will have one attempt and a week to complete the Call Out.</p></span>
-                  <hr>
-                </li>
-                <li>
-                    <i class="material-icons">question_answer</i>&nbsp;&nbsp;&nbsp;<b>How many attempts does a Call Out have and how long does a Call Out take before it expires?</b>
-                    <span><p style = "text-indent:40px; margin: 1ex">The only roles the Instructor has is creating the Warm-Up Challenges students take and setting how much Virctual Currency is awarded to students for participation. 
-                    To set the amounts, go to the Game Features menu and select Gamification Configuration. 
-                    Navigate to the Classmates Challenges option. 
-                    Click Enable the use of duels and call-outs and click Save to enable Call Out. 
-                    The option for challenging students will now appear on the students’ side.</p></span>
-                  </div>
-                </li>
-              </ul>
-            </div>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What is Call Out</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">Call Out is a gamification feature that allows students
+                          to Call Out their classmates to obtain the same or higher scores on assignments and get
+                          rewarded Virtual Currency if it is set by Instructor.
+                          Whether or not students want to participate in Call Out is entirely up to them, with very
+                          little Instructor involvement in the process.
+                          The primary goal of call out is to provide students with an incentive and increase their
+                          competitiveness in a course. </p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How do I Enable Call Out?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">Call Out are a gamification feature that is disabled by
+                          default.
+                          If you wish to enable Call Out, ensure that gamification is enabled.
+                          Then, in the Game Features menu select Gamification Configuration.
+                          Locate the Challenging Classmates section and then find the option to enable the Call Out
+                          feature. You can also set a Virtual Currency amount to reward students who participate in Call
+                          Out.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">Are Students Obligated to
+                        Participate in a Call Out?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">No. Students can ignore Call Out requests or desable
+                          their participation in Call Out in the prefrences setting.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are The Different Types of
+                        Call Out and How Do They Work?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">There are two types of Call Out:
+                          <strong>Individual</strong> and <strong>Class</strong> Call Out. In a Individual Call Out,
+                          Call Out sender selects one of the warmup challenges that they have completed (warmup
+                          challenges completed by the participant they are calling out and warmup challenges used in
+                          previous
+                          call outs are excluded) and the participant they are calling Out; if there is a virtual
+                          currency particpation reward set by Instructor, the Call Out sender will receive the
+                          award only if participant participates and the participant will receive the award only if they
+                          perform the same or better than the Call Out sender which is consider a win for the
+                          paricipant.
+                          In a Class Call Out, Call Out sender selects one of the warmup challenges that you have
+                          completed and the Call Out will be sent to the whole class. Any student who participates in
+                          Call Out and
+                          has already completed the warmup challenge selected and has performed the same or better than
+                          the Call Out sender, they will be considered winner and will receive participation award if
+                          there is any. The Call Out will be closed for them.
+                        </p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What Role Does The Instructor
+                        Play in Call Out?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">The participant(s) will have one attempt and a week to
+                          complete the Call Out.</p>
+                      </span>
+                      <hr>
+                    </li>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How Many Attempts Does a Call
+                        Out Have and How Long Does a Call Out Take Before it Expires?</b>
+                      <span>
+                        <p style="text-indent:40px; margin: 1ex">The only roles the Instructor has is creating the
+                          Warm-Up Challenges students take and setting how much Virctual Currency is awarded to students
+                          for participation.
+                          To set the amounts, go to the Game Features menu and select Gamification Configuration.
+                          Navigate to the Classmates Challenges option.
+                          Click Enable the use of duels and call-outs and click Save to enable Call Out.
+                          The option for challenging students will now appear on the students’ side.</p>
+                      </span>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
-    </main>
-    {% include 'footer.html' %}
-  </body>
+      </div>
+  </main>
+  {% include 'footer.html' %}
+</body>
 
 </html>
