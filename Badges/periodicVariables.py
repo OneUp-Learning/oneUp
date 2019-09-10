@@ -244,7 +244,13 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             students = [(student, val) for student, val in students if operatorType[operator_type](val, int(threshold))]
         else:
             if threshold == 'max':
-                students = [(student, val) for student, val in students if operatorType[operator_type](val, max(students, key=lambda item:item[1])[1])]
+                max_val = max(students, key=lambda item:item[1])[1]
+                # If the max value is 0 or less then we should not award any students
+                if max_val <= 0:
+                    students = []
+                    return students
+
+                students = [(student, val) for student, val in students if operatorType[operator_type](val, max_val)]
             elif threshold == 'avg':
                 avg = round(sum([val for _, val in students])/len(students), 1)
                 students = [(student, val) for student, val in students if operatorType[operator_type](val, avg)]
@@ -781,11 +787,7 @@ def calculate_serious_challenge_rankings(course, student, periodic_variable, tim
     return studentScore(student, course, periodic_variable, time_period, unique_id,result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    # TODO: This method needs to be fixed
     return studentScore(student, course, periodic_variable, time_period, unique_id ,result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
-
-    
-    return (student, total)
 
 def calculate_student_challenge_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     print("Calculating student challenge streak") 
@@ -1556,7 +1558,7 @@ class PeriodicVariables:
             'index': xp_ranking,
             'name': 'xp_ranking',
             'displayName': 'Student Rankings via XP',
-            'description': 'Retrieves the Xp for all students in a class',
+            'description': 'Retrieves the XP for all students in a class',
             'function': calculate_student_xp_rankings,
             'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
@@ -1596,7 +1598,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_40,
             'name': 'Warmup challenge >= 40%',
             'displayName': 'Warmup Challenge Streak Score >= 40%',
-            'description': 'Warmup Challenge Streak Score >= 40%',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40%',
             'function': calculate_warmup_challenge_greater_or_equal_to_40,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1604,7 +1606,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_70,
             'name': 'Warmup challenge >= 70%',
             'displayName': 'Warmup Challenge Streak Score >= 70%',
-            'description': 'Warmup Challenge Streak Score >= 70%',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70%',
             'function': calculate_warmup_challenge_greater_or_equal_to_70,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1612,7 +1614,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_70_by_day,
             'name': 'Warmup challenge >= 70%',
             'displayName': 'Warmup Challenge Streak Score >= 70% over a period of time',
-            'description': 'Warmup Challenge Streak Score >= 70% over a period of time',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_70_by_day,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1620,7 +1622,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_40_by_day,
             'name': 'Warmup challenge >= 40%',
             'displayName': 'Warmup Challenge Streak Score >= 40% over a period of time',
-            'description': 'Warmup Challenge Streak Score >= 40% over a period of time',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_40_by_day,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1628,7 +1630,7 @@ class PeriodicVariables:
             'index': challenge_streak,
             'name': 'challenge_streak',
             'displayName': 'Challenge Streak',
-            'description': 'Challenge Streak',
+            'description': 'The number of challenges a student has completed while the student has a streak',
             'function': calculate_student_challenge_streak,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
