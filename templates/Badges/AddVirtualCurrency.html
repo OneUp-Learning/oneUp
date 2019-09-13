@@ -2,11 +2,48 @@
 <html lang="en">
 
 <head>
-
     {% include 'scripts.html' %}
-
 </head>
+<script>
+    function clearDisabled(){
+        var inputs = document.getElementsByClassName('input-fields');
+        //console.log(inputs);
+        for(var i=0;i<inputs.length;i++){
+            console.log(inputs[i]);
+            inputs[i].removeAttribute('readonly');
+            inputs[i].removeAttribute('disabled');
+        }
+        
 
+    }
+function checkAmount(option,studentID){
+    var selectedOption = option.selectedOptions[0];
+    console.log(studentID);
+    var inputField=document.getElementById(studentID+"_Value");
+    if(selectedOption.hasAttribute('data-vcamount')){
+        var vcValue = selectedOption.getAttribute('data-vcamount');
+        
+        console.log(inputField);
+        if (parseInt(vcValue)> 0){
+            inputField.value=vcValue;
+            inputField.setAttribute("readonly",true);
+            inputField.setAttribute("disabled",true);
+        }
+        else{
+            inputField.removeAttribute("readonly");
+            inputField.removeAttribute("disabled");
+            inputField.value='';
+
+        }
+        
+    } else {
+        inputField.removeAttribute("readonly");
+        inputField.removeAttribute("disabled");
+        inputField.value='';
+    }
+    
+}
+</script>
 <body>
 
     {% include 'heading.html' %}
@@ -19,7 +56,7 @@
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
-                    <form id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
+                    <form onsubmit="clearDisabled()" id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
                         <div class="card-content">
                             {% csrf_token %}
                             <table>
@@ -49,15 +86,19 @@
                                             
                                         </td>
                                         <td>
-                                            <input type="number" name="{{studentID}}_Value" id="{{studentID}}_Value"
-                                                min="0" />
+                                        
+                                
+                                        	 <input class="input-fields" type="number" name="{{studentID}}_Value" id="{{studentID}}_Value"
+                                                min="0"/>
+                                        
                                         </td>
                                         <td>
                                             <div class="select-wrapper">
-                                                <select name="{{studentID}}_Rule">
+                                                <select onchange="checkAmount(this,'{{studentID}}')" name="{{studentID}}_Rule">
                                                     <option value="" selected>Select Earn Rule</option>
-                                                    {% for ruleID, ruleName in rules %}
-                                                    <option id="{{ruleID}}" value="{{ruleID}}">{{ruleName}}</option>
+                                                    {% for ruleID, ruleName,vcRuleAmount in rules %}
+                                                    
+                                                    <option  data-vcAmount="{{vcRuleAmount}}" id="{{ruleID}}" value="{{ruleID}}">{{ruleName}}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
@@ -75,7 +116,7 @@
                         <div class="card-action right-align">
                             <div class="row">
                                 <div class="col s12">
-                                    <button class="btn waves-effect waves-light" type="submit" id="create"
+                                    <button  class="btn waves-effect waves-light" type="submit" id="create"
                                         name="create">Add Currency
                                         <i class="material-icons right">send</i>
                                     </button>

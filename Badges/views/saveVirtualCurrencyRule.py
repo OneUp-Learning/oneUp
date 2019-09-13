@@ -77,12 +77,15 @@ def SaveVirtualCurrencyRule(request):
 
             # The entered Virtual Currency amount
             #vcRuleAmount = 0
-            if 'varyCheck' in request.POST:
+            if 'varyCheck' in request.POST: #checks whether the amount varies checkbox is checked
                 vcRuleAmount=0      
+                vcAmountVaries = request.POST['varyCheck'] #sets the state of the checkbox into the context dict
                 
             else:
                 vcRuleAmount = request.POST['ruleAmount'] 
-
+                vcAmountVaries = ""
+                context_dict["vcAmount"] = vcRuleAmount
+                print(context_dict['vcAmount'])
             if isRuleCustom == True:                    
                 # Save rule information to the VirtualCurrencyRuleInfo Table
                 vcRuleInfo.courseID = currentCourse
@@ -90,6 +93,10 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.vcRuleType = True
                 vcRuleInfo.vcRuleDescription = vcRuleDescription
                 vcRuleInfo.vcRuleAmount = vcRuleAmount
+                if vcAmountVaries:
+                    vcRuleInfo.vcAmountVaries = True
+                else:
+                    vcRuleInfo.vcAmountVaries = False
                 vcRuleInfo.save()
             else:
                 if 'edit' in request.POST:

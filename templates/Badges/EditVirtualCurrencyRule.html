@@ -6,13 +6,36 @@
    
    
    <script>
- function valueChanged(){
-	 if($('.checkbox').is(":checked"))
+ /*function valueChanged(){
+	 if($('.checkbox').is(":checked")){
+		 
 		 $("#rule_amt").hide();
+		 
+	 }
 	 else
 		 $("#rule_amt").show();
 	  
+ }*/
+ document.addEventListener('DOMContentLoaded', function(){
+	 var amountVaries = document.getElementById("rule_varies");
+	 var ruleAmt=document.getElementById("rule_amt");
+	 if(amountVaries.checked)
+		 ruleAmt.style.display ="none";
+		 
+ },false);
+ function valueChanged(){
+	 var rule_amt = document.getElementById("rule_amt")
+	 var rule_amount = document.getElementById("rule_amount");
+	 var rule_varies = document.getElementById("rule_varies");
+	 if(rule_varies.checked){
+		 rule_amount.required=false;
+		 rule_amt.style.display ="none";
+		
+	 }else{
+		 rule_amt.style.display ="block"; 
+	 }
  }
+ 
 </script>
    
    <body>
@@ -45,14 +68,16 @@
                            <label for="rule_description"><span class= "red-text">*</span> Rule Description</label><br><br><br>
                         </div>
                      </div>
+                     {%if isRuleCustom == True %}
                      <div class="row">
                         
                         
-                       	<input class="checkbox" name="varyCheck" type="checkbox" id="rule_varies" onchange="valueChanged()" style="padding:0;"/> <!-- hides the rule amount field when checked -->
+                       	<input class="checkbox" name="varyCheck" type="checkbox" id="rule_varies" onchange="valueChanged()" {{vcAmountVaries}} style="padding:0;"/> <!-- hides the rule amount field when checked -->
                        	 <label for="rule_varies">Virtual Currency Award Varies</label>
                         
                         
                      </div>
+                     {% endif %}
                       <div class="row" id='rule_amt'>
                         <div class="input-field col s12">
                            <input value="{{vcAmount}}" name="ruleAmount" id="rule_amount" maxlength="4" type="number" class="validate" min="0" max="999" step="any" required>
