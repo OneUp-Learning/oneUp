@@ -185,6 +185,7 @@ def ChallengeResults(request):
                         question, studentAnswerList)
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
+                    
                     if 'seed' in question:
                         seed = question['seed']
                     else:
@@ -192,10 +193,15 @@ def ChallengeResults(request):
                     studentChallengeQuestion = saveChallengeQuestion(
                         studentChallenge, question['questionID'], question['user_points'], question['total_points'], "", seed)
 
+                    static_question = StaticQuestions.objects.get(questionID=question['questionID'])
+
                     # Award skills if the answer was correct.
                     if question['user_points'] == question['total_points']:
+                        question['feedback'] = static_question.correctAnswerFeedback
                         saveSkillPoints(
                             question['id'], currentCourse, studentId, studentChallengeQuestion)
+                    else:
+                        question['feedback'] = static_question.incorrectAnswerFeedback
 
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
@@ -314,6 +320,7 @@ def ChallengeResults(request):
                     q, i, challengeId, studentChallengeQuestion)
                 questDict['total_points'] = challenge_questions.get(
                     questionID=q).questionTotal
+
 
                 studentAnswers = StudentChallengeAnswers.objects.filter(
                     studentChallengeQuestionID=challenge_question)

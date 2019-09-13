@@ -210,7 +210,7 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     timePeriodID = models.IntegerField() # The Time Period index set for this rule
     periodicType = models.IntegerField(default=0) # The type of selected: TopN (0), All(1), Random(2)
     numberOfAwards = models.IntegerField(default=1, null=True) # The top number of students to award this rule to
-    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting

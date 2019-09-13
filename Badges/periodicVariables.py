@@ -199,6 +199,8 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     for student_in_course in students:
         rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, unique_id=unique_id, award_type=award_type))
 
+    # Set this as the last time this task has ran
+    set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
 
     print("Results: {}".format(rank))
     # Filter out students based on periodic badge/vc rule settings
@@ -242,7 +244,13 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             students = [(student, val) for student, val in students if operatorType[operator_type](val, int(threshold))]
         else:
             if threshold == 'max':
-                students = [(student, val) for student, val in students if operatorType[operator_type](val, max(students, key=lambda item:item[1])[1])]
+                max_val = max(students, key=lambda item:item[1])[1]
+                # If the max value is 0 or less then we should not award any students
+                if max_val <= 0:
+                    students = []
+                    return students
+
+                students = [(student, val) for student, val in students if operatorType[operator_type](val, max_val)]
             elif threshold == 'avg':
                 avg = round(sum([val for _, val in students])/len(students), 1)
                 students = [(student, val) for student, val in students if operatorType[operator_type](val, avg)]
@@ -252,13 +260,17 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             students.sort(key=lambda tup: tup[1])
             # Check if what we want is greater than the number of students
             if len(students) >= number_of_top_students:
-                # Only select the top number of students
-                students = students[:number_of_top_students]
+                # Get the top n (number_of_top_students) unique values to handle ties
+                top_values = sorted(set([val for student, val in students]))
+                top_values = top_values[:number_of_top_students]
+                # Only select the students if their value is in the top_values
+                students = [(student, val) for student, val in students if val in top_values]
         elif is_random and students:
             # If random, choose one student and remove everyone else
             random.shuffle(students)
             students = random.sample(students, 1)
     return students
+
 def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
     #"saving results", rank, leaderboardConfigID, course)
     from Students.models import PeriodicallyUpdatedleaderboards
@@ -311,8 +323,6 @@ def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
             leaderboard.studentPosition = -1
             leaderboard.save()
 
-        
-    
 def award_students(students, course, unique_id, badge_id=None, virtual_currency_amount=None):
     ''' Awards students a badge or virtual currency or both.'''
 
@@ -376,6 +386,7 @@ def get_last_ran(unique_id, variable_index, award_type, course_id):
 
     last_ran = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id)).last_run_at
     return last_ran
+
 def set_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Sets periodic task last time ran datefield. It is not updated accurately by itself.'''
     from Instructors.views.utils import utcDate
@@ -431,13 +442,10 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
    
     print("Course: {}".format(course))
     print("Student: {}".format(student))
-    # print("Periodic Variable: {}".format(periodic_variable))
+    print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
 
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
 
 def calculate_student_warmup_practice(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
@@ -502,9 +510,6 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
     print("Last Ran: {}".format(last_ran))
     print("Practices: {}".format(practices))
 
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, practices)
 
 def calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, percentage, unique_id=None, award_type=None, result_only=False):
@@ -513,7 +518,7 @@ def calculate_number_of_days_of_unique_warmups(course, student, periodic_variabl
     from Students.models import StudentChallenges
     from decimal import Decimal
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
-    
+
     last_ran = None
     # Get the last time this periodic variable has ran
     if not result_only:
@@ -577,10 +582,6 @@ def calculate_number_of_days_of_unique_warmups(course, student, periodic_variabl
     #print("Periodic Variable: {}".format(periodic_variable))
     #print("Last Ran: {}".format(last_ran))
     print("Unique Warm-ups: {}".format(days))
-
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     print("end - {}".format(days))
     return (student, days)
 
@@ -664,9 +665,6 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     print("Last Ran: {}".format(last_ran))
     print("Unique Warm-ups: {}".format(unique_warmups))
 
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, unique_warmups)
 
 def calculate_student_attendance_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
@@ -777,9 +775,6 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
 
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     return (student, total)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
@@ -793,11 +788,6 @@ def calculate_serious_challenge_rankings(course, student, periodic_variable, tim
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     return studentScore(student, course, periodic_variable, time_period, unique_id ,result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
-
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
-    return (student, total)
 
 def calculate_student_challenge_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     print("Calculating student challenge streak") 
@@ -870,9 +860,7 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
 
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    
     return (student, total)
 
 def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
@@ -1013,9 +1001,7 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
 
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    
     return (student, total)
     
 def calculate_student_challenge_streak_for_percentage_over_span_of_days(percentage, course, student, periodic_variable, time_period, unique_id, award_type, result_only):
@@ -1131,34 +1117,20 @@ def calculate_student_challenge_streak_for_percentage_over_span_of_days(percenta
     print("Last Ran: {}".format(last_ran))
     print("Total Earnings: {}".format(total))
 
-    # Set this as the last time this task has ran
-    if not result_only:
-        set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    
     return (student, total)
+
 def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+
 def calculate_warmup_challenge_greater_or_equal_to_70_by_day(course, student, periodic_variable, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage_over_span_of_days(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+
 def calculate_warmup_challenge_greater_or_equal_to_40_by_day(course, student, periodic_variable, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage_over_span_of_days(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
-
-def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'):
-    from django.conf import settings
-    if settings.CURRENTLY_MIGRATING:
-        return None
-    schedules = CrontabSchedule.objects.filter(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
-    if schedules.exists():
-        if len(schedules) > 1:
-            schedule_keep = schedules.first()
-            CrontabSchedule.objects.exclude(pk__in=schedule_keep).delete()
-            return schedule_keep
-        else:
-            return schedules.first()
-    else:
-        schedule = CrontabSchedule.objects.create(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year)
-        return schedule
                 
 def studentScore(studentId, course, periodic_variable, time_period, unique_id, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict = None):
     
@@ -1459,9 +1431,12 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
     return (studentId,xp)
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*', tz=settings.TIME_ZONE):
+    ''' This will get the crontab schedule if it exists and if not it will create it and return it '''
     from django.conf import settings
+
     if settings.CURRENTLY_MIGRATING:
         return None
+        
     schedules = CrontabSchedule.objects.filter(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month, month_of_year=month_of_year, timezone=tz)
     if schedules.exists():
         if len(schedules) > 1:
@@ -1583,7 +1558,7 @@ class PeriodicVariables:
             'index': xp_ranking,
             'name': 'xp_ranking',
             'displayName': 'Student Rankings via XP',
-            'description': 'Retrieves the Xp for all students in a class',
+            'description': 'Retrieves the XP for all students in a class',
             'function': calculate_student_xp_rankings,
             'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
@@ -1623,7 +1598,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_40,
             'name': 'Warmup challenge >= 40%',
             'displayName': 'Warmup Challenge Streak Score >= 40%',
-            'description': 'Warmup Challenge Streak Score >= 40%',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40%',
             'function': calculate_warmup_challenge_greater_or_equal_to_40,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1631,7 +1606,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_70,
             'name': 'Warmup challenge >= 70%',
             'displayName': 'Warmup Challenge Streak Score >= 70%',
-            'description': 'Warmup Challenge Streak Score >= 70%',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70%',
             'function': calculate_warmup_challenge_greater_or_equal_to_70,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1639,7 +1614,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_70_by_day,
             'name': 'Warmup challenge >= 70%',
             'displayName': 'Warmup Challenge Streak Score >= 70% over a period of time',
-            'description': 'Warmup Challenge Streak Score >= 70% over a period of time',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_70_by_day,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1647,7 +1622,7 @@ class PeriodicVariables:
             'index': warmup_challenge_greater_or_equal_to_40_by_day,
             'name': 'Warmup challenge >= 40%',
             'displayName': 'Warmup Challenge Streak Score >= 40% over a period of time',
-            'description': 'Warmup Challenge Streak Score >= 40% over a period of time',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_40_by_day,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
@@ -1655,7 +1630,7 @@ class PeriodicVariables:
             'index': challenge_streak,
             'name': 'challenge_streak',
             'displayName': 'Challenge Streak',
-            'description': 'Challenge Streak',
+            'description': 'The number of challenges a student has completed while the student has a streak',
             'function': calculate_student_challenge_streak,
             'task_type': 'Badges.periodicVariables.periodic_task',
         },
