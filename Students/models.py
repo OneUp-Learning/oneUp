@@ -369,4 +369,4 @@ class StudentProgressiveUnlocking(models.Model):
     isFullfilled = models.BooleanField(verbose_name='Did the student fullfill the unlocking rule', default=False)
     
     def __str__(self):
-        return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.ojbectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)
+        return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.objectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)
