@@ -294,24 +294,18 @@ def getMinActivityScore(course, student, activity):
     return scores.earliest('activityScore').activityScore
 
 def getAverageTestScore(course, student, challenge):    
-    ''' INCOMPLETE
-        This will return the average challenge score for a course
-    '''
-    #return the average score of the a challenge
-    #Note that average test score includes testScore + curve and the scoreAdjustment
+    ''' Return the average class score for a challenge of a course '''
     
     from Students.models import StudentRegisteredCourses
     
-    maxScores = 0.0
+    sum_max_scores = 0.0
+    students = StudentRegisteredCourses.objects.filter(courseID=course)
+    for _student in students:
+        score = getMaxTestScore(course, _student, challenge)
+        sum_max_scores += score
     
-    allScores = getTestScores(course,student,challenge)
-    if allScores.exists():
-        maxScore = allScores.latest('testScore').getScore()
-        
-        maxScores += float(maxScore)
-        
-    return maxScores/StudentRegisteredCourses.objects.filter(courseID=course).count()
-    
+    return sum_max_scores / len(students)
+            
 def getAverageActivityScore(course,student, activity):
     ''' Return the average score of an activity for a course'''
     scores = getAllActivityScores(course, activity)
@@ -1166,7 +1160,7 @@ class SystemVariable():
             'index': averageTestScore,
             'name':'averageTestScore',
             'displayName':'Average Test Score',
-            'description':'Average Test Score.',
+            'description':'The students average for a challenge. Using the best score from each student',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.endChallenge,Event.adjustment],
             },
@@ -1283,7 +1277,7 @@ class SystemVariable():
             'index': dateOfFirstChallengeSubmission,
             'name':'dateOfFirstChallengeSubmission',
             'displayName':'Date of First Challenge Submission',
-            'description':'The date on which the student has submitted a particular challenge for the first time',
+            'description':'The date on which the student has completed a particular challenge for the first time',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.startChallenge],
             },
@@ -1309,7 +1303,7 @@ class SystemVariable():
             'index': seriousChallengeReachedDueDate,
             'name': 'seriousChallengeReachedDueDate',
             'displayName': 'Serious Challenge Has Reached Due Date',
-            'description': 'The serious challenge due date has reached',
+            'description': 'True if the serious challenge due date has been reached, otherwise false',
             'eventsWhichCanChangeThis': {
                 ObjectTypes.challenge: [Event.challengeExpiration],
             },
@@ -1322,7 +1316,7 @@ class SystemVariable():
             'index': isWarmUp,
             'name': 'isWarmUp',
             'displayName': 'Is WarmUp Challenge',
-            'description': 'True if the challenge in question is a warmup challenge, false if serious',
+            'description': 'True if the challenge in question is a warmup challenge else it is false since the challenge is of Serious Type',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.endChallenge],
             },
@@ -1413,7 +1407,7 @@ class SystemVariable():
             'index': consecutiveDaysWarmUpChallengesTaken30Percent,
             'name':'consecutiveDaysWarmUpChallengesTaken30Percent',
             'displayName':'Consecutive Days Warm Up Challenge Taken (at least 30% correct)',
-            'description':'The number of consecutive days a student has taken a particular warm-up challenge (at least 30% correct).',
+            'description':'The number of consecutive days an student has taken a particular warm-up challenge with at least 30% correct.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge , Event.adjustment],
             },
@@ -1426,7 +1420,7 @@ class SystemVariable():
             'index': consecutiveDaysWarmUpChallengesTaken75Percent,
             'name':'consecutiveDaysWarmUpChallengesTaken75Percent',
             'displayName':'Consecutive Days Warm Up Challenge Taken (at least 75% correct)',
-            'description':'The number of consecutive days a student has taken a particular warm-up challenge (at least 75% correct).',
+            'description':'The number of consecutive days an student has taken a particular warm-up challenge with at least 75% correct.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
             },
@@ -1439,7 +1433,7 @@ class SystemVariable():
             'index': numDaysSubmissionEarlier,
             'name':'numDaysSubmissionEarlier',
             'displayName':'Number of Days Submission Earlier',
-            'description':'The number of days a submission is turned in earlier than the stated deadline',
+            'description':'The number of days an student submission is turned in earlier than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge],
                 ObjectTypes.activity: [Event.activitySubmission],
@@ -1454,7 +1448,7 @@ class SystemVariable():
             'index': numDaysSubmissionLate,
             'name':'numDaysSubmissionLate',
             'displayName':'Number of Days Submission Late',
-            'description':'The number of days a submission is turned in later than the stated deadline',
+            'description':'The number of days an student submission is turned in later than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge],
                 ObjectTypes.activity: [Event.activitySubmission],
@@ -1508,7 +1502,7 @@ class SystemVariable():
             'index': uniqueSeriousChallengesAttempted,
             'name':'uniqueSeriousChallengesAttempted',
             'displayName':'Unique Serious Challenges Completed',
-            'description':'The number of unique serious challenges completed by the student.',
+            'description':'The number of serious challenges that a student has attempted at least once.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
@@ -1521,7 +1515,7 @@ class SystemVariable():
             'index': uniqueWarmupChallengesAttempted,
             'name':'uniqueWarmupChallengesAttempted',
             'displayName':'Unique Warmup Challenges Completed',
-            'description':'The number of unique warmup challenges completed by the student.',
+            'description':'The number of warmup challenges that a student has attempted at least once.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
@@ -1689,8 +1683,8 @@ class SystemVariable():
         calloutSent:{
             'index': calloutSent,
             'name':'calloutSent',
-            'displayName':'# of Call Out Sent',
-            'description':'The total number of call out a student has sent to other students',
+            'displayName':'# of Call Outs Sent',
+            'description':'The total number of call outs a student has sent to other students',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutSent],
             },
@@ -1702,8 +1696,8 @@ class SystemVariable():
         calloutParticipate:{
             'index': calloutParticipate,
             'name':'calloutParticipate',
-            'displayName':'# of Call Out Participation',
-            'description':'The total number of call out a student has participated in weather they won or not',
+            'displayName':'# of Call Outs Participation',
+            'description':'The total number of call outs a student has participated in weather they won or not',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutWon, Event.calloutLost],  
             },
@@ -1715,8 +1709,8 @@ class SystemVariable():
         calloutParticipationWon:{
             'index': calloutParticipationWon,
             'name':'calloutParticipationWon',
-            'displayName':'# of Call Out a participant has won',
-            'description':'The total number of call out a student has won',
+            'displayName':'# of Call Outs a participant has won',
+            'description':'The total number of calls out a student has won',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutWon],
             },
@@ -1728,8 +1722,8 @@ class SystemVariable():
         calloutParticipationLost:{
             'index': calloutParticipationLost,
             'name':'calloutParticipationLost',
-            'displayName':'# of Call Out a participant has lost',
-            'description':'The total number of call out a student has lost',
+            'displayName':'# of Call Outs a participant has lost',
+            'description':'The total number of call outs a student has lost',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutLost],
             },
@@ -1741,8 +1735,8 @@ class SystemVariable():
         calloutRequested:{
             'index': calloutRequested,
             'name':'calloutRequested',
-            'displayName':'# of Call Out a participant has been reqeusted',
-            'description':'The total number of call out a student has been requested',
+            'displayName':'# of Call Outs a participant has been reqeusted',
+            'description':'The total number of call outs a student has been requested',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutRequested],
             },

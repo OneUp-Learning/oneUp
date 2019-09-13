@@ -27,6 +27,10 @@
 	<div class="row">
 			<h4>Problem {{i}} (True/False)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 		</div>
+	{% elif q.type == questionTypes.parsons %}
+	<div class="row">
+			<h4>Problem {{i}} (Parsons)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
 	{% endif %}
 	
 {% elif not graded or not q.hasMultipleParts %}
