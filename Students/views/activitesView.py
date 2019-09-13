@@ -149,13 +149,20 @@ def category_activities(category, studentId, current_course):
         # Progessive Unlocking
         try:
             oType = ObjectTypes.activity
-            studentUnlocking = StudentProgressiveUnlocking.objects.get(
+            studentUnlockings = StudentProgressiveUnlocking.objects.filter(
                 studentID=studentId, courseID=current_course, objectType=oType, objectID=act.pk)
-            unlockingRule = ProgressiveUnlocking.objects.get(
+            unlockingRules = ProgressiveUnlocking.objects.filter(
                 courseID=current_course, objectType=oType, objectID=act.pk)
-            isUnlocked.append(studentUnlocking.isFullfilled)
-            unlockDescript.append(unlockingRule.description)
-            print(unlockingRule)
+
+            for studentUnlocked in studentUnlockings:
+                if studentUnlocked.isFullfilled:
+                    isUnlocked.append(studentUnlocked.isFullfilled)
+                    break
+            for unlockingRule in unlockingRules:
+                if unlockingRule.description:
+                    unlockDescript.append(unlockingRule.description)
+                    break
+
         except ObjectDoesNotExist:
             isUnlocked.append(True)
             unlockDescript.append('hi')
