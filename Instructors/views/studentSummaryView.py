@@ -49,7 +49,7 @@ def studentSummary(request):
     # default time
     courseActivities = Activities.objects.filter(courseID=currentCourse)
     courseWarmupChallenges = Challenges.objects.filter(
-        courseID=currentCourse, isGraded=False, isVisible=True)
+        courseID=currentCourse, isGraded=False)
 
     studentEvents = [Event.startChallenge, Event.endChallenge, Event.userLogin, Event.studentUpload, Event.spendingVirtualCurrency,
                      Event.visitedDashboard, Event.visitedEarnedVCpage, Event.visitedBadgesInfoPage, Event.visitedSpendedVCpage,
