@@ -331,6 +331,10 @@ class CourseConfigParams(models.Model):
     studCanChangeClassSkillsVis = models.BooleanField(default=False)  ## The classSkillsDisplayed is only for dashboard purposes for the student
     numStudentBestSkillsDisplayed = models.IntegerField(default=0)    ## This is used to display the number of students in the Skills dashboard html table
 
+    
+    contentUnlockingDisplayed  = models.BooleanField(default=False)         ## The contentUnlockingDisplayed is only for displaying in menu for the instructor
+    debugSystemVariablesDisplayed  = models.BooleanField(default=False) ## The debugSystemVariablesDisplayed is only for displaying in menu for the instructor
+    
     ## Other fields for rule based configurations
     virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
     virtualCurrencyAdded = models.IntegerField(default=0)             # Amount of course bucks given by the instructor to all students
