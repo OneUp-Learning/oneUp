@@ -5,7 +5,7 @@
     {% include 'scripts.html' %}
 </head>
 <script>
-    function clearDisabled(){
+    function clearDisabled(){ // function to clear the disabled fields when the form is submitted
         var inputs = document.getElementsByClassName('input-fields');
         //console.log(inputs);
         for(var i=0;i<inputs.length;i++){
@@ -18,12 +18,12 @@
     }
 function checkAmount(option,studentID){
     var selectedOption = option.selectedOptions[0];
-    console.log(studentID);
+    //console.log(studentID);
     var inputField=document.getElementById(studentID+"_Value");
     if(selectedOption.hasAttribute('data-vcamount')){
         var vcValue = selectedOption.getAttribute('data-vcamount');
         
-        console.log(inputField);
+        //console.log(inputField);
         if (parseInt(vcValue)> 0){
             inputField.value=vcValue;
             inputField.setAttribute("readonly",true);

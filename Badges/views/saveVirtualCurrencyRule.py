@@ -82,10 +82,10 @@ def SaveVirtualCurrencyRule(request):
                 vcAmountVaries = request.POST['varyCheck'] #sets the state of the checkbox into the context dict
                 
             else:
-                vcRuleAmount = request.POST['ruleAmount'] 
+                vcRuleAmount = request.POST['ruleAmount'] #gets the rule amount if not varied
                 vcAmountVaries = ""
                 context_dict["vcAmount"] = vcRuleAmount
-                print(context_dict['vcAmount'])
+              #  print(context_dict['vcAmount'])
             if isRuleCustom == True:                    
                 # Save rule information to the VirtualCurrencyRuleInfo Table
                 vcRuleInfo.courseID = currentCourse
@@ -93,7 +93,7 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.vcRuleType = True
                 vcRuleInfo.vcRuleDescription = vcRuleDescription
                 vcRuleInfo.vcRuleAmount = vcRuleAmount
-                if vcAmountVaries:
+                if vcAmountVaries: #saves the state of the manual rule vary checkbox into the model
                     vcRuleInfo.vcAmountVaries = True
                 else:
                     vcRuleInfo.vcAmountVaries = False

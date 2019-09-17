@@ -16,14 +16,14 @@
 		 $("#rule_amt").show();
 	  
  }*/
- document.addEventListener('DOMContentLoaded', function(){
+ document.addEventListener('DOMContentLoaded', function(){ // during edit function checks for the state of the checkbox and hides the field appropriately
 	 var amountVaries = document.getElementById("rule_varies");
 	 var ruleAmt=document.getElementById("rule_amt");
 	 if(amountVaries.checked)
 		 ruleAmt.style.display ="none";
 		 
  },false);
- function valueChanged(){
+ function valueChanged(){ //function makes the appropriate field changes to the page onchange of checkbox
 	 var rule_amt = document.getElementById("rule_amt")
 	 var rule_amount = document.getElementById("rule_amount");
 	 var rule_varies = document.getElementById("rule_varies");
