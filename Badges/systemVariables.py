@@ -1766,6 +1766,6 @@ if __debug__:
         assert len([obj for obj in eventsList if obj not in functionsList]) == 0, "System variable structure has an event entry for an object type for which it has no function. %s " % sysVarName
         assert len([obj for obj in functionsList if obj not in eventsList]) == 0, "System variable structure has a functions entry for an object type for which it has no events entry. %s " % sysVarName
         if ObjectTypes.none in eventsList:
-            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the globabl scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
+            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the global scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
 
     assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."

@@ -355,6 +355,7 @@ def multipleChoiceAnswersAndGrades(qdict, studentAnswers):
         qdict['user_points'] = qdict['total_points']
     else:
         qdict['user_points'] = 0
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -415,6 +416,7 @@ def multipleAnswerAddAnswersAndGrades(qdict, studentAnswers):
         'answerNumber': i,
         'answerText': x['answerText']
     } for i, x in userAnswers]
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -487,6 +489,7 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
 
     qdict['user_points'] = round(userScore, 2)
     qdict['user_answers'] = userAnswers
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -505,6 +508,7 @@ def trueFalseAddAnswersAndGrades(qdict, studentAnswers):
 
     if not studentAnswers:
         qdict['user_points'] = 0
+        qdict = addFeedback(qdict)
         return qdict
     studentAnswerValue = str(studentAnswers[0])
     qdict['user_answer'] = {
@@ -515,6 +519,7 @@ def trueFalseAddAnswersAndGrades(qdict, studentAnswers):
         qdict['user_points'] = qdict['total_points']
     else:
         qdict['user_points'] = 0
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -803,6 +808,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
                 studentGrade = 0
     
         qdict['user_points'] = round(Decimal(studentGrade), 2)
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -846,6 +852,13 @@ def parsonsCorrectAnswers(qdict):
     qdict['model_solution'] = answer
     return qdict
 
+def addFeedback(qdict):
+    static_question = StaticQuestions.objects.get(questionID=qdict['questionID'])
+    if qdict['user_points'] == qdict['total_points']:
+        qdict['feedback'] = static_question.correctAnswerFeedback
+    else:
+        qdict['feedback'] = static_question.incorrectAnswerFeedback
+    return qdict
 
 questionTypeFunctions = {
     QuestionTypes.multipleChoice: {

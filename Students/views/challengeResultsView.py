@@ -193,15 +193,9 @@ def ChallengeResults(request):
                     studentChallengeQuestion = saveChallengeQuestion(
                         studentChallenge, question['questionID'], question['user_points'], question['total_points'], "", seed)
 
-                    static_question = StaticQuestions.objects.get(questionID=question['questionID'])
-
                     # Award skills if the answer was correct.
                     if question['user_points'] == question['total_points']:
-                        question['feedback'] = static_question.correctAnswerFeedback
-                        saveSkillPoints(
-                            question['id'], currentCourse, studentId, studentChallengeQuestion)
-                    else:
-                        question['feedback'] = static_question.incorrectAnswerFeedback
+                        saveSkillPoints(question['id'], currentCourse, studentId, studentChallengeQuestion)
 
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
@@ -210,8 +204,7 @@ def ChallengeResults(request):
                         studentChallengeAnswers.save()
 
                 # The sort on the next line should be unnecessary, but better safe than sorry
-                context_dict['questions'] = sorted(
-                    questions, key=lambda q: q['index'])
+                context_dict['questions'] = sorted(questions, key=lambda q: q['index'])
                 context_dict['total_user_points'] = totalStudentScore
                 context_dict['total_possible_points'] = totalPossibleScore
 
