@@ -74,11 +74,18 @@ def SaveVirtualCurrencyRule(request):
 
             # The custom earning rule amounts are not being used since 
             # Add VC to student transaction takes care of the amount
-            if isRuleCustom:
-                vcRuleAmount = 0
-            else:
-                vcRuleAmount = request.POST['ruleAmount'] # The entered Virtual Currency amount
 
+            # The entered Virtual Currency amount
+            #vcRuleAmount = 0
+            if 'varyCheck' in request.POST: #checks whether the amount varies checkbox is checked
+                vcRuleAmount=0      
+                vcAmountVaries = request.POST['varyCheck'] #sets the state of the checkbox into the context dict
+                
+            else:
+                vcRuleAmount = request.POST['ruleAmount'] #gets the rule amount if not varied
+                vcAmountVaries = ""
+                context_dict["vcAmount"] = vcRuleAmount
+              #  print(context_dict['vcAmount'])
             if isRuleCustom == True:                    
                 # Save rule information to the VirtualCurrencyRuleInfo Table
                 vcRuleInfo.courseID = currentCourse
@@ -86,6 +93,10 @@ def SaveVirtualCurrencyRule(request):
                 vcRuleInfo.vcRuleType = True
                 vcRuleInfo.vcRuleDescription = vcRuleDescription
                 vcRuleInfo.vcRuleAmount = vcRuleAmount
+                if vcAmountVaries: #saves the state of the manual rule vary checkbox into the model
+                    vcRuleInfo.vcAmountVaries = True
+                else:
+                    vcRuleInfo.vcAmountVaries = False
                 vcRuleInfo.save()
             else:
                 if 'edit' in request.POST:
