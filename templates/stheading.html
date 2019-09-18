@@ -63,6 +63,7 @@
             // If notification deleted from desktop remove from mobile side as well and vice versa
             var notification_box_desktop = $('#notifications-desktop');
             var notification_box_mobile = $('#notifications-mobile');
+			var notifiation_div_page = $('#noti-div')
 
 			var notification_id = $notification.attr("data-id");
             function removeAll(notification_box, id){
@@ -71,8 +72,21 @@
                 });
             }
 
+            function removeNoti(notifiation_div_page, id){
+                
+				$('#'+id).remove();
+
+				console.log("come to noti");
+
+            }
+
             removeAll(notification_box_desktop, notification_id);
             removeAll(notification_box_mobile, notification_id);
+			var is_stud_notification_page = {{is_stud_notification_page}}
+			var is_display_active_noti = {{is_display_active_noti}}
+			if (is_stud_notification_page == 1 && is_display_active_noti == 1){
+				removeNoti(notifiation_div_page, notification_id);
+			}
         }
         var removeDuplicates = function(){
             // Fixes weird bug with notifications. Once notification is created it can create more than one at a time.
