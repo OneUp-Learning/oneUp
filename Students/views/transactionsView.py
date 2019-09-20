@@ -164,11 +164,14 @@ def get_transactions(context_dict, course, student, t_type='all'):
                     if vcrule.vcRuleAmount != -1:
                         total.append(stud_VCrule.value)
                     else:
-                        avcr = VirtualCurrencyRuleInfo.objects.get(vcRuleID=vcrule.vcRuleID)
-                        if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
-                            total.append(ActionArguments.objects.get(ruleID=avcr.ruleID).argumentValue)
+                        avcr = VirtualCurrencyRuleInfo.objects.filter(vcRuleID=vcrule.vcRuleID).first()
+                        if avcr:
+                            if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
+                                total.append(ActionArguments.objects.get(ruleID=avcr.ruleID).argumentValue)
+                            else:
+                                total.append(0)   
                         else:
-                            total.append(0)   
+                            total.append(stud_VCrule.value)
             else:
                 name.append(stud_VCrule.vcName)
                 description.append(stud_VCrule.vcDescription)
