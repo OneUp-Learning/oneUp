@@ -149,7 +149,7 @@ def reorderActivities(request):
     context_dict, currentCourse = initialContextDict(request)
     if request.POST: 
         
-        activityPositions = request.POST.getlist('activityPosition[]')
+        activityPositions = request.POST.getlist('activityPositions[]')
         activityIDs = request.POST.getlist('activityID[]')
         activityIDsAndPositions = zip(activityIDs,activityPositions)
         
