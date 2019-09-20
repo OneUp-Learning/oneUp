@@ -13,6 +13,7 @@ from Instructors.constants import default_time_str
 from datetime import datetime
 import os
 from oneUp.decorators import instructorsCheck
+from decimal import *
 
 
 @login_required
@@ -40,8 +41,11 @@ def activityCreateView(request):
 
         # Copy all strings from POST to database object.
         for attr in string_attributes:
-            if attr == "points" and not attr in request.POST:
-                setattr(activity, attr, 0.0)
+            if attr == "points":
+                if "points" in request.POST and request.POST[attr]:
+                    setattr(activity, attr, request.POST[attr])
+                else:
+                    setattr(activity, attr, Decimal(0.0))
             else:
                 setattr(activity, attr, request.POST[attr])
 
