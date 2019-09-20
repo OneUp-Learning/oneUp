@@ -778,18 +778,18 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     return (student, total)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only,  gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False)
+    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False)
+    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
     
 def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id,result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False)
+    return studentScore(student, course, periodic_variable, time_period, unique_id,result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False, award_type=award_type)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id ,result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True)
+    return studentScore(student, course, periodic_variable, time_period, unique_id ,result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True, award_type=award_type)
 
-def calculate_student_challenge_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def calculate_student_challenge_streak(course, student, periodic_variable, time_period, unique_id=None, award_type="leaderboard", result_only=False):
     print("Calculating student challenge streak") 
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
@@ -1132,7 +1132,7 @@ def calculate_warmup_challenge_greater_or_equal_to_70_by_day(course, student, pe
 def calculate_warmup_challenge_greater_or_equal_to_40_by_day(course, student, periodic_variable, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage_over_span_of_days(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
                 
-def studentScore(studentId, course, periodic_variable, time_period, unique_id, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict = None):
+def studentScore(studentId, course, periodic_variable, time_period, unique_id, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict = None, award_type=None):
     
     from Badges.models import CourseConfigParams, LeaderboardsConfig
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
@@ -1154,7 +1154,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         startOfTime = True
             
     else:
-        date_time = get_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID) 
+        date_time = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID) 
         
         if not date_time:
             periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course.courseID)
@@ -1169,7 +1169,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
             else:
                 date_time = None
             
-        set_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID)
+        # set_last_ran(unique_id, periodic_variable['index'], "leaderboard", course.courseID)
         startOfTime = False
         
     
@@ -1536,23 +1536,20 @@ class PeriodicVariables:
             'displayName': 'Highest Virtual Currency Earner',
             'description': 'Calculates the highest earner(s) of students based on the virtual currency they have earned',
             'function': calculate_student_earnings,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         student_warmup_pratice: {
             'index': student_warmup_pratice,
             'name': 'student_warmup_pratice',
             'displayName': 'Number of Warmup Challenges Practiced',
-            'description': 'The amount of times students practiced any warmup challenges',
+            'description': 'The total amount a student has completed any warmup challenges. Including multiple attempts',
             'function': calculate_student_warmup_practice,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         unique_warmups: {
             'index': unique_warmups,
             'name': 'unique_warmups',
             'displayName': 'Warmup Challenges Score (greater than 70% correct)',
-            'description': 'The number of warmup challenges students completed with a score greater than 70%. The student scores only includes the student score, adjustment, and curve.',
+            'description': 'The number of unique warmup challenges a student has completed with a score greater than 70%. The student score only includes the student challenge score, adjustment, and curve.',
             'function': calculate_unique_warmups,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         xp_ranking: {
             'index': xp_ranking,
@@ -1560,39 +1557,34 @@ class PeriodicVariables:
             'displayName': 'Student Rankings via XP',
             'description': 'Retrieves the XP for all students in a class',
             'function': calculate_student_xp_rankings,
-            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
         warmup_challenges: {
             'index': warmup_challenges,
             'name': 'warmup_challenges',
             'displayName': 'Student Rankings via Warmup Challenges',
-            'description': 'Retrieves the warmup_challenges and creates a ranking for all students in a class',
+            'description': 'Retrieves the warmup challenges points for all students in a class',
             'function': calculate_warmup_rankings,
-            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
         serious_challenge: {
             'index': serious_challenge,
             'name': 'serious_challenge',
             'displayName': 'Student Rankings via Serious Challenges',
-            'description': 'Retrieves the Serious Challenges and creates a ranking for all students in a class',
+            'description': 'Retrieves the serious challenges points for all students in a class',
             'function': calculate_serious_challenge_rankings,
-            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
         serious_challenges_and_activities: {
             'index': serious_challenges_and_activities,
             'name': 'serious_challenges_and_activities',
             'displayName': 'Student Rankings via Serious Challenges and Activities',
-            'description': 'Retrieves the Serious Challenges and Activities and creates a ranking for all students in a class',
+            'description': 'Retrieves the serious challenges and activities points for all students in a class',
             'function': calculate_serious_challenge_and_activity_rankings,
-            'task_type': 'Leaderboard.periodicVariables.periodic_task',
         },
         attendance_streak: {
             'index': attendance_streak,
             'name': 'attendance_streak',
             'displayName': 'Student Attendance Streak',
-            'description': 'Retrieves the student attendance so far',
+            'description': 'Retrieves the student attendance streak of the number of days marked as present',
             'function': calculate_student_attendance_streak,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         warmup_challenge_greater_or_equal_to_40: {
             'index': warmup_challenge_greater_or_equal_to_40,
@@ -1600,7 +1592,6 @@ class PeriodicVariables:
             'displayName': 'Warmup Challenge Streak Score >= 40%',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40%',
             'function': calculate_warmup_challenge_greater_or_equal_to_40,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         warmup_challenge_greater_or_equal_to_70: {
             'index': warmup_challenge_greater_or_equal_to_70,
@@ -1608,7 +1599,6 @@ class PeriodicVariables:
             'displayName': 'Warmup Challenge Streak Score >= 70%',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70%',
             'function': calculate_warmup_challenge_greater_or_equal_to_70,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         warmup_challenge_greater_or_equal_to_70_by_day: {
             'index': warmup_challenge_greater_or_equal_to_70_by_day,
@@ -1616,7 +1606,6 @@ class PeriodicVariables:
             'displayName': 'Warmup Challenge Streak Score >= 70% over a period of time',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_70_by_day,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         warmup_challenge_greater_or_equal_to_40_by_day: {
             'index': warmup_challenge_greater_or_equal_to_40_by_day,
@@ -1624,7 +1613,6 @@ class PeriodicVariables:
             'displayName': 'Warmup Challenge Streak Score >= 40% over a period of time',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_40_by_day,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         challenge_streak: {
             'index': challenge_streak,
@@ -1632,7 +1620,6 @@ class PeriodicVariables:
             'displayName': 'Challenge Streak',
             'description': 'The number of challenges a student has completed while the student has a streak',
             'function': calculate_student_challenge_streak,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         number_of_days_of_unique_warmups_90: {
             'index': number_of_days_of_unique_warmups_90,
@@ -1640,7 +1627,6 @@ class PeriodicVariables:
             'displayName': 'Number Of Days Of Unique Warmup Challenges Score > 90%',
             'description': 'The number of days of unique warmup challenges students completed with a score greater than 90%. The student scores only includes the student score, adjustment, and curve.',
             'function': calculate_number_of_days_of_unique_warmups_greater_than_90,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
         number_of_days_of_unique_warmups_70: {
             'index': number_of_days_of_unique_warmups_70,
@@ -1648,13 +1634,12 @@ class PeriodicVariables:
             'displayName': 'Number Of Days Of Unique Warmup Challenges Score > 70%',
             'description': 'The number of days of unique warmup challenges students completed with a score greater than 70%. The student scores only includes the student score, adjustment, and curve.',
             'function': calculate_number_of_days_of_unique_warmups_greater_than_70,
-            'task_type': 'Badges.periodicVariables.periodic_task',
         },
     }
 
 if __debug__:
     # Check for mistakes in the periodicVariables enum, such as duplicate id numbers
-    periodic_variable_fields = ['index','name','displayName','description','function','task_type']
+    periodic_variable_fields = ['index','name','displayName','description','function']
     
     periodic_variable_names = [pv for pv in PeriodicVariables.__dict__ if pv[:1] != '_' and pv != 'periodicVariables']
     periodic_variable_set = set()
