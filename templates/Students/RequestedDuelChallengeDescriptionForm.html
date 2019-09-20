@@ -24,6 +24,7 @@
      
    </head>
    <body>
+     {% include 'stheading.html' %}
 
       <form id="refresh" name="refresh" action="/oneUp/students/DuelChallengeDescription?duelChallengeID={{requested_duel_challenge.duelChallengeID}}&sTime=0" method="GET">
         <input type="hidden" name="duelChallengeID" id="duelChallengeID" value ="{{requested_duel_challenge.duelChallengeID}}">
@@ -304,9 +305,14 @@
                         </div>
                         {% endif %}
  
+                    <!--<P> 
+                    istaken: {{isTaken}} , isAccepted: {{isAccepted}}, hasEnded: {{hasEnded}}, requested_duel_challenge.hasStarted: {{requested_duel_challenge.hasStartedq}}
+                    </p> -->
                    <div class="card-action">
                         <div class="row right-align">
                             <!--  <a class="btn waves-effect waves-light add_more">Add More Files</a>   -->
+
+
                             {% if not hasEnded  %}
                                 {% if requested_duel_challenge.hasStarted %}
                                     {% if not isTaken %}

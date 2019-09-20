@@ -191,6 +191,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleDescription = models.CharField(max_length=4000)
     vcRuleType = models.BooleanField(default=True) # True: earning , False: spending    
     vcRuleAmount = models.IntegerField()
+    vcAmountVaries = models.BooleanField(default=False) #for manual-rule checkbox
     vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     isPeriodic = models.BooleanField(default=False) # this is info for a periodic virtual currency
@@ -331,6 +332,10 @@ class CourseConfigParams(models.Model):
     studCanChangeClassSkillsVis = models.BooleanField(default=False)  ## The classSkillsDisplayed is only for dashboard purposes for the student
     numStudentBestSkillsDisplayed = models.IntegerField(default=0)    ## This is used to display the number of students in the Skills dashboard html table
 
+    
+    contentUnlockingDisplayed  = models.BooleanField(default=False)         ## The contentUnlockingDisplayed is only for displaying in menu for the instructor
+    debugSystemVariablesDisplayed  = models.BooleanField(default=False) ## The debugSystemVariablesDisplayed is only for displaying in menu for the instructor
+    
     ## Other fields for rule based configurations
     virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
     virtualCurrencyAdded = models.IntegerField(default=0)             # Amount of course bucks given by the instructor to all students
