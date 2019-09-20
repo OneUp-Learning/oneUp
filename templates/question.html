@@ -307,209 +307,183 @@
 	</div>
 	{# If this is called with Graded, something has gone wrong #}
 
-{% elif q.type == questionTypes.parsons %}
+	{% elif q.type == questionTypes.parsons %}
 	{% if instructorview %}
-      <div class="row">
-			<div class="col s12">
-       	<div id="model_editor{{q.questionID}}" style="height: 20em;" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70">{{q.model_solution}}</textarea></div>
-			<script>
-            var editor= ace.edit("model_editor{{q.questionID}}");
-            editor.setTheme("ace/theme/chrome");
-            editor.session.setMode("ace/mode/java");
-				editor.setReadOnly(true);
-			</script>
-			</div>
-       </div>								
+	<div class="row">
+	  <div class="col s12">
+       	    <div id="model_editor{{q.questionID}}" style="height: 20em;" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70">{{q.model_solution}}</textarea></div>
+	    <script>
+              var editor= ace.edit("model_editor{{q.questionID}}");
+              editor.setTheme("ace/theme/chrome");
+              editor.session.setMode("ace/mode/java");
+	      editor.setReadOnly(true);
+	    </script>
+	  </div>
+	</div>								
 
 	{% elif graded %}
-		<div class="row">
-	        <div class="col s12">
-	           <div id="student_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" >{{q.student_solution|safe}}</textarea></div>
-		           <script>
-		              var editor = ace.edit("student_editor{{q.questionID}}");
-		              editor.setTheme("ace/theme/chrome");
-		              editor.session.setMode("ace/mode/java");
-		              editor.setReadOnly(true);
-		           </script>
-	        	</div>
-	        	{% if showcorrect %}
-		        <div class="row">
-		           <div class="col s12">
-		              <h5>Example Correct  Solution:</h5>
-		           </div>
-		        </div>
-		        <div class="row">
-			        <div class="col s12">
-			    		<div id="model_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.questionID}}">{{q.model_solution}}</textarea></div>
-	           				<script>
-	              				var editor = ace.edit("model_editor{{q.questionID}}");
-	              				editor.setTheme("ace/theme/chrome");
-	              				editor.session.setMode("ace/mode/java");
-	              				editor.setReadOnly(true);
-	           				</script>
-	           			</div>
-            		</div>
-            	{% else %}
-            	<div class="row">
-            	{% endif %}
-                    <div class="row">
-                    	<div class = "col s12">
-	                  <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
-			</div>
-			<div class = "col s12">
-			  <p><b>Feedback: </b> {{q.feedback}}</p>
-			</div>
-		    </div>
-              	</div>
-	{% else %}
-		<div class="row">
-		   <div>
-		      <div id="{{q.questionID}}_sortableTrash" class="sortable-code"></div>
-		      	<div id="{{q.questionID}}_sortable" class="sortable-code"></div>
-			      <input type="hidden" name="{{i}}lineNo" id="{{q.questionID}}_lineNo" value="">
-			      <input type="hidden" name="{{i}}errorDescription" id="{{q.questionID}}_errorDescription" value="">
-			      <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
-			      <input type="hidden" name="{{i}}lineIndent" id="{{q.questionID}}_lineIndent" value="">
-			      <input type="hidden" name="{{i}}correctLineCount" id="{{q.questionID}}_correctLineCount" value="">
-			      <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
-			      <div style="clear:both;"></div>
-			      <p>
-			      {% if warmUp == 1%}
-			         <a href="#{{q.questionID}}" id="newInstanceLink_{{q.questionID}}">New instance</a>
-			         <a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
-			      {% endif %}
-			      </p>
-			      <script>
-			           //initial will hold the parson problem text, preformatted by django
-			      	   var initial_{{q.questionID}} = '{{q.model_solution}}' 
-		            
-					   //variable to get the errors statements that have been generated
-					   var logged_errors_{{q.questionID}} = [];
-					   var countFeedbackButtonClicks_{{q.questionID}} = 0;
-					   var submit_clicked_{{q.questionID}} = false;
-					   var isGraded = false;
-					   var displayCorrectAnswerFeedback = false;
-					   var displayIncorrectAnswerFeedback = false;
-					   
-					   
-					   function displayErrors{{q.questionID}}(fb_{{q.questionID}}) {
-					       if(fb_{{q.questionID}}.errors.length > 0) {
-					       	{% if warmUp == 1%}
-					           alert(fb_{{q.questionID}}.errors[0]);
-					           {% endif %}
-					           console.log("Caller: {{q.questionID}}" );
-							   logged_errors_{{q.questionID}}.push(errors);
-					
-					       }else{
-					       	if(submit_clicked_{{q.questionID}} == false){
-					       		countFeedbackButtonClicks_{{q.questionID}}--;
-					       	}
-					       }
-					   } 
-					
-					
-					   $(document).ready(function(){
-					   	   
-					       var parson_{{q.questionID}} = new ParsonsWidget({
-					           'sortableId': '{{q.questionID}}_sortable',
-					           'trashId': '{{q.questionID}}_sortableTrash',
-					           'max_wrong_lines': {{q.distractorCount}},
-					           'feedback_cb' : displayErrors{{q.questionID}},
-					           'programmingLang': "{{q.languageName}}"
-					           
-					       });
-					       parson_{{q.questionID}}.init(initial_{{q.questionID}});
-					       parson_{{q.questionID}}.shuffleLines();
-					       $("#newInstanceLink_{{q.questionID}}").click(function(event){
-					           event.preventDefault();
-					           parson_{{q.questionID}}.shuffleLines();
-					       });
-					       $("#feedbackLink_{{q.questionID}}").click(function(event){
-					       	feedbackFunction_{{q.questionID}}();
-					       });
-					       
-					       //on click display the contents of the student error log
-					       $(".challengesubmitbutton").click(function(event){
-					       	
-					       	submit_clicked_{{q.questionID}} = true;
-					       	//we click the link here too, and it should not be counted against the student
-					       	{% if warmUp == 1%}
-					       	console.log("warmup is 1");
-					       	document.getElementById("feedbackLink_{{q.questionID}}").click();
-					       	{% else %}
-					       		console.log("Feeback Function activated!");
-					       		feedbackFunction_{{q.questionID}}();
-					       	{% endif %}
-					
-					       	console.log("Parson problem: {{q.questionID}}:");
-					       	console.log("submit clicked");
-					      		
-					       	console.log("logged errors: ");
-					      		console.log(logged_errors_{{q.questionID}});
-					      		
-					      		console.log("incorrect lines!");
-					      		console.log(incorrectLines);
-					      		
-					      		console.log("student code lines objects!");
-					      		console.log(studentCodeLineObjects);
-					      		
-					      		//access the student code line objects
-					      		//peel away the object notation to get at the
-					      		//student's code text representation
-					      		var studentCode = [];
-					      		var lineIndentation = [];
-					      		
-					      		for (i = 0; i < studentCodeLineObjects.length; i++) {
-					      			studentCode.push(studentCodeLineObjects[i].orig);
-					      			lineIndentation.push(studentCodeLineObjects[i].indent);
-					      		}
-					      		
-					      		console.log("Student code!");
-					      		console.log(studentCode);
-					      		
-					      		console.log("Line indent!");
-					      		console.log(lineIndentation);
-					      		
-					      		console.log("Feedback click count");
-					      		console.log(countFeedbackButtonClicks_{{q.questionID}});
-					      		
-					      		$("#{{q.questionID}}_lineNo").val(incorrectLines);
-					      		$("#{{q.questionID}}_errorDescription").val(logged_errors_{{q.questionID}});
-					      		$("#{{q.questionID}}_studentSol").val(studentCode);
-					      		$("#{{q.questionID}}_lineIndent").val(lineIndentation);
-					      		$("#{{q.questionID}}_correctLineCount").val(parson_{{q.questionID}}.model_solution.length);
-					      		$("#{{q.questionID}}_feedBackButtonClickCount").val(countFeedbackButtonClicks_{{q.questionID}});
-					      	});
-					      		
-					       function feedbackFunction_{{q.questionID}}(){
-					   		event.preventDefault();
-					           //this has to be cleared because otherwise they'll retain data
-					           errors = [], log_errors = [];
-					           studentCodeLineObjects = [];
-					           incorrectLines = [];
-					           
-					           console.log("Submit Clicked state:")
-					           console.log(submit_clicked_{{q.questionID}});
-					           
-					           if(submit_clicked_{{q.questionID}} == false){
-					           	countFeedbackButtonClicks_{{q.questionID}}++;
-					           	console.log("Feeback click state:")
-					           	console.log(countFeedbackButtonClicks_{{q.questionID}});
-					           	
-					           }
-					           console.log("Get Feedback: {{q.questionID}}");
-					           console.log(parson_{{q.questionID}}.getFeedback());
-					           console.log(logged_errors_{{q.questionID}});
-					           submit_clicked_{{q.questionID}} = false;
-					   	   }
-					   });
-					   
-		          </script>
-			</div>
-		</div>
-		{# KI: /div tags didn't match number of divs, so I added some #}
-		{# GGM: /div turns out we can just delete the remaining two divs #}
-	{% endif %}
+	<div class="row">
+	  <div class="col s12">
+	    <div id="student_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" >{{q.student_solution|safe}}</textarea></div>
+	    <script>
+	      var editor = ace.edit("student_editor{{q.questionID}}");
+	      editor.setTheme("ace/theme/chrome");
+	      editor.session.setMode("ace/mode/java");
+	      editor.setReadOnly(true);
+	    </script>
+	  </div>
+	  {% if showcorrect %}
+	  <div class="row">
+	    <div class="col s12">
+	      <h5>Example Correct  Solution:</h5>
+	    </div>
+	  </div>
+	  <div class="row">
+	    <div class="col s12">
+	      <div id="model_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.questionID}}">{{q.model_solution}}</textarea></div>
+	      <script>
+	        var editor = ace.edit("model_editor{{q.questionID}}");
+	        editor.setTheme("ace/theme/chrome");
+	        editor.session.setMode("ace/mode/java");
+	        editor.setReadOnly(true);
+	      </script>
+	    </div>
+          </div>
+          {% else %}
+          <div class="row">
+            {% endif %}
+            <div class="row">
+              <div class = "col s12">
+	        <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+	      </div>
+	      <div class = "col s12">
+		<p><b>Feedback: </b> {{q.feedback}}</p>
+	      </div>
+	    </div>
+          </div>
+	  {% else %}
+	  <div class="row">
+	    <div>
+	      <div id="{{q.questionID}}_sortableTrash" class="sortable-code"></div>
+	      <div id="{{q.questionID}}_sortable" class="sortable-code"></div>
+	      <input type="hidden" name="{{i}}lineNo" id="{{q.questionID}}_lineNo" value="">
+	      <input type="hidden" name="{{i}}errorDescription" id="{{q.questionID}}_errorDescription" value="">
+	      <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
+	      <input type="hidden" name="{{i}}lineIndent" id="{{q.questionID}}_lineIndent" value="">
+	      <input type="hidden" name="{{i}}correctLineCount" id="{{q.questionID}}_correctLineCount" value="">
+	      <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
+	      <div style="clear:both;"></div>
+	      <p>
+		{% if warmUp == 1%}
+		<a href="#{{q.questionID}}" id="newInstanceLink_{{q.questionID}}">New instance</a>
+		<a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
+		{% endif %}
+	      </p>
+	      <script>
+		//initial will hold the parson problem text, preformatted by django
+		var initial_{{q.questionID}} = '{{q.model_solution}}' 
+		
+		//variable to get the errors statements that have been generated
+		var logged_errors_{{q.questionID}} = [];
+		var countFeedbackButtonClicks_{{q.questionID}} = 0;
+		var submit_clicked_{{q.questionID}} = false;
+		var isGraded = false;
+		
+		function displayErrors{{q.questionID}}(fb_{{q.questionID}}) {
+		    if(fb_{{q.questionID}}.errors.length > 0) {
+			
+			{% if warmUp == 1%}
+			//if this is a warmup we should alert
+			if (submit_clicked_{{q.questionID}} == false)
+			    alert(fb_{{q.questionID}}.errors[0]);
+			{% endif %}
+
+			//log the errors anyway they are neede for grading
+			logged_errors_{{q.questionID}}.push(errors);
+			
+		    }else{
+			//we need to decrement the feebackbutton click count
+			//because we click it for the student and it should not
+			//count against them
+			if(submit_clicked_{{q.questionID}} == false){
+			    countFeedbackButtonClicks_{{q.questionID}}--;
+			}
+		    }
+		} 
+		
+		
+		$(document).ready(function(){
+		    //initalization
+		    var parson_{{q.questionID}} = new ParsonsWidget({
+			'sortableId': '{{q.questionID}}_sortable',
+			'trashId': '{{q.questionID}}_sortableTrash',
+			'max_wrong_lines': {{q.distractorCount}},
+			'feedback_cb' : displayErrors{{q.questionID}},
+			'programmingLang': "{{q.languageName}}"
+			
+		    });
+
+		    parson_{{q.questionID}}.init(initial_{{q.questionID}});
+		    parson_{{q.questionID}}.shuffleLines();
+
+		    //the new instance link shuffles the lines for the student
+		    $("#newInstanceLink_{{q.questionID}}").click(function(event){
+			event.preventDefault();
+			parson_{{q.questionID}}.shuffleLines();
+		    });
+
+		    $("#feedbackLink_{{q.questionID}}").click(function(event){
+			feedbackFunction_{{q.questionID}}();
+		    });
+		    
+		    $(".challengesubmitbutton").click(function(event){
+			submit_clicked_{{q.questionID}} = true;
+			feedbackFunction_{{q.questionID}}();
+				
+			//access the student code line objects
+			//peel away the object notation to get at the
+			//student's code text representation
+			var studentCode = [];
+			var lineIndentation = [];
+			
+			for (i = 0; i < studentCodeLineObjects.length; i++) {
+			    studentCode.push(studentCodeLineObjects[i].orig);
+			    lineIndentation.push(studentCodeLineObjects[i].indent);
+			}
+			
+			$("#{{q.questionID}}_lineNo").val(incorrectLines);
+			$("#{{q.questionID}}_errorDescription").val(logged_errors_{{q.questionID}});
+			$("#{{q.questionID}}_studentSol").val(studentCode);
+			$("#{{q.questionID}}_lineIndent").val(lineIndentation);
+			$("#{{q.questionID}}_correctLineCount").val(parson_{{q.questionID}}.model_solution.length);
+			$("#{{q.questionID}}_feedBackButtonClickCount").val(countFeedbackButtonClicks_{{q.questionID}});
+		    });
+		    
+		    function feedbackFunction_{{q.questionID}}(){
+			event.preventDefault();
+			//this has to be cleared because otherwise they'll retain data
+			errors = [], log_errors = [];
+			studentCodeLineObjects = [];
+			incorrectLines = [];
+			
+			if(!!submit_clicked_{{q.questionID}})
+			    parson_{{q.questionID}}.showFeedback(false);
+			else{
+			    countFeedbackButtonClicks_{{q.questionID}}++;
+			    parson_{{q.questionID}}.showFeedback(true);
+			}
+			
+			parson_{{q.questionID}}.getFeedback();
+			submit_clicked_{{q.questionID}} = false;
+		    }
+		});
+		
+	      </script>
+	    </div>
+	  </div>
+	  {# KI: /div tags didn't match number of divs, so I added some #}
+	  {# GGM: /div turns out we can just delete the remaining two divs #}
+	  {% endif %}
 	
 {% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}
 	{% if graded %}
