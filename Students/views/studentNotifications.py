@@ -40,15 +40,19 @@ def studentNotifications(request):
 
         if(request.GET['ID'] == "1"):
             context_dict['ID'] = 1
+            context_dict['is_display_active_noti'] = 1
         elif(request.GET['ID'] == "2"):
             context_dict['ID'] = 2
+            context_dict['is_display_active_noti'] = 0
         else:
             context_dict['ID'] = 0
+            context_dict['is_display_active_noti'] = 0
 
     else:
         print('ID is 0')
         context_dict['ID'] = 1
 
+    context_dict['is_stud_notification_page'] = 1
     context_dict['request'] = request
 
     return render(request, 'notifications/all.html', context_dict)

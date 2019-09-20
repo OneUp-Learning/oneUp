@@ -878,7 +878,8 @@ def call_out_list(student_id, current_course):
     # Callouts.objects.all().delete()
 
     # Get call outs that the student has sent
-    call_outs = Callouts.objects.filter(sender=student_id)
+    call_outs = Callouts.objects.filter(
+        sender=student_id, courseID=current_course)
 
     sent_call_outs = []
     sent_avatars_or_whole_class = []
@@ -908,7 +909,7 @@ def call_out_list(student_id, current_course):
 
     # Get requested call outs
     call_out_participants = CalloutParticipants.objects.filter(
-        participantID=student_id)
+        participantID=student_id, courseID=current_course)
 
     requested_call_outs = []
     requested_times_left = []
