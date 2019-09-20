@@ -25,9 +25,14 @@ def EditVirtualCurrencyRule(request):
             isRuleCustom = request.GET['isRuleCustom'] in ['true', 'True']
             logger.debug("[GET] isRuleCustom " + str(isRuleCustom))
             if isRuleCustom == True:
+               
                 rule = VirtualCurrencyCustomRuleInfo.objects.get(vcRuleID=vcRuleID, courseID=currentCourse)
                 context_dict["vcAmount"] = rule.vcRuleAmount
-                
+                if rule.vcAmountVaries:
+                    context_dict["vcAmountVaries"] = "checked"
+                else:
+                    context_dict["vcAmountVaries"]=""
+                    
                 context_dict = setUpContextDictForConditions(context_dict,currentCourse,None)
 
             else:

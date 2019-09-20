@@ -53,8 +53,9 @@ def VirtualCurrencyDisplay(request):
             else:
                 # The custom earning rule amounts are not being used since 
                 # Add VC to student transaction takes care of the amount
-                # value = rule.vcRuleAmount   # manually handled rule
-                value = "Varies"
+                value = rule.vcRuleAmount
+                # manually handled rule
+                #value = "Varies"
             vcEarningRuleAmount.append(value)
             countEarningRules = countEarningRules+1  
                   

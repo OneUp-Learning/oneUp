@@ -41,9 +41,9 @@
 								<thead>
 									<th>Name</th>
 									<th>Description</th>
-									{% if isRuleCustom == False %}
+									
 									<th>Amount</th>
-									{% endif %}
+									
 									<th>Rule Position</th>
 									<th><span class="badge">{{numRules}}</span></th>
 								</thead>
@@ -52,9 +52,12 @@
 									<tr>
 										<td>{{vcRuleName}}</td>
 										<td>{{vcRuleDescription}}</td>
-										{% if isRuleCustom == False %}
+										{%if isRuleCustom == True and vcAmount == 0 %}
+										<td>Varies</td>
+										{% else %}
 										<td>{{vcAmount}}</td>
 										{% endif %}
+										
 										<td>
 											<div class="input-field col s6">
 												<input placeholder="Position" value="{{position}}" name="{{vcRuleID}}" id="rulePosition" maxlength="4" type="number"

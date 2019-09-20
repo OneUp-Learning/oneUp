@@ -94,7 +94,7 @@
         <div class="col s12">
         	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=0">All Notifications</a>
         	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=1">Active Notifications</a>
-        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=2">Deleted Notifications</a>
+        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=2">Dismissed Notifications</a>
 		</div>
 		</div>
 		<div class="row">
@@ -111,15 +111,17 @@
    				<th style="padding-left: 100px">Options</th>
    			</tr>
    			
-   			{% if ID == 0 %}
-   				{% render_notifications using request.user.notifications.all %}
-   				
-   			{% elif ID == 1 %}
-				{% user_notifications %}   				
-   			{% elif ID == 2 %}
-   				{% render_notifications using request.user.notifications.deleted %}
-   			<div class="divider"></div>
-            {% endif %}	
+			<div id="noti-div" >
+				{% if ID == 0 %}
+					{% render_notifications using request.user.notifications.all %}
+					
+				{% elif ID == 1 %}
+					{% user_notifications %}   				
+				{% elif ID == 2 %}
+					{% render_notifications using request.user.notifications.deleted %}
+				<div class="divider"></div>
+				{% endif %}	
+			</div>
    			</table>
    			</div>
    			</div>                              

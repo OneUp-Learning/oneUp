@@ -41,19 +41,14 @@
 {% include_notify_js_variables %}
 <script src="{% static "notify/notifyX.js" %}"></script>
 <script>
-        var read_notifications = false;
-		var unread_notifications = 0;
         var updateSuccess = function (response) {
             var notification_box_desktop = $('#notifications-desktop');
             var notification_box_mobile = $('#notifications-mobile');
             var notifications = response.notifications;
             var course_id = '{{course_id}}';
-            read_notifications = false;
             $.each(notifications, function (i, notification) {
 				let notification_data = JSON.parse(notification.data);
 				// console.log(notification_data);
-                unread_notifications += 1;
-                unread_notifications = Math.min(unread_notifications, 6);
 				if(notification_data['course'] == course_id){
 					notification_box_desktop.prepend(notification.html);
 					notification_box_mobile.prepend(notification.html);
@@ -68,7 +63,7 @@
             // If notification deleted from desktop remove from mobile side as well and vice versa
             var notification_box_desktop = $('#notifications-desktop');
             var notification_box_mobile = $('#notifications-mobile');
-
+            
             var notification_id = $notification.attr("data-id");
 
             function removeAll(notification_box, id){
@@ -79,6 +74,7 @@
 
             removeAll(notification_box_desktop, notification_id);
             removeAll(notification_box_mobile, notification_id);
+    
         }
         var removeDuplicates = function(){
             // Fixes weird bug with notifications. Once notification is created it can create more than one at a time.
@@ -124,13 +120,13 @@
         }
         function countNotifications(){
             // Limit the number of notifications 
-            limitNotifications(6);
+            limitNotifications(8);
 
             // Get number of notifications which is double becuase of the mobile nav so divide it back down
             let numItems = Math.max(Math.trunc($('.navNotifications').length/2.0), 0);
 
             // Desktop/Tablet element
-            // let tooltip_element = $("#notification-count-desktop");
+            let tooltip_element = $("#notification-count-desktop");
             // Mobile element
             let badge_element = document.getElementById("notification-count-mobile");
 
@@ -158,14 +154,15 @@
             if(numItems == 0){
                 // Set tooltip count and change icon to signal no notifications
                 
-                // tooltip_element.attr('data-tooltip', "No Notifications");
-                // // tooltip_element.children(":first").html('notifications');
-				// tooltip_element.children(":first").removeClass("notification-icon-notify");
-				// tooltip_element.children(":first").addClass("notification-icon");
-                // tooltip_element.tooltip();
+                tooltip_element.attr('data-tooltip', "No Notifications");
                 
-                // $(".notification-badge").addClass("hide");
+                // tooltip_element.children(":first").html('notifications');
+                tooltip_element.children(":first").removeClass("notification-icon-notify");
+                tooltip_element.children(":first").addClass("notification-icon");
+                tooltip_element.tooltip();
                 
+                $(".notification-badge").addClass("hide");
+
                 // Create no notification element for desktop view
                 desktop_notifications = document.getElementById("notifications-desktop");
                 // Remove unwanted default notification which is <b>no notifications yet</b>
@@ -181,7 +178,7 @@
                 }
 
                 // Hide badge for mobile view
-                // badge_element.style.display = "none";
+                badge_element.style.display = "none";
                 
                 // Create no notification element for mobile view
                 mobile_notifications = document.getElementById("notifications-mobile");
@@ -197,6 +194,7 @@
                     mobile_notifications.appendChild(x, mobile_notifications);
                 }
                 
+                
     
             } else {
                 // Remove the no-notification elements
@@ -206,33 +204,26 @@
                     element.parentNode.parentNode.removeChild(element.parentNode);                    
                 }
 
-                // // Set tooltip count and change icon to signal notifications
-                // tooltip_element.attr('data-tooltip', numItems + " New");
-                // // tooltip_element.children(":first").html('notifications_active');
-				// tooltip_element.children(":first").removeClass("notification-icon");
-                // tooltip_element.children(":first").addClass("notification-icon-notify");
-                // tooltip_element.tooltip();
+                // Set tooltip count and change icon to signal notifications
+                tooltip_element.attr('data-tooltip', numItems + " New");
+                
+                // tooltip_element.children(":first").html('notifications_active');
+                tooltip_element.children(":first").removeClass("notification-icon");
+                tooltip_element.children(":first").addClass("notification-icon-notify");
+                tooltip_element.tooltip();
+
+                $(".notification-badge").removeClass("hide").html(numItems);
+
+                // Show badge for mobile view and set count 
+                badge_element.style.display = "block";
+                badge_element.textContent= numItems;
                 
             }
-            if(unread_notifications > 0){
-				$(".notification-badge").removeClass("hide").html(unread_notifications);
-				$('#notification-count-desktop').children(":first").addClass("notification-icon-notify")
-				$('#notification-count-desktop').children(":first").removeClass("notification-icon")
-				// Show badge for mobile view and set count 
-                badge_element.style.display = "block";
-                badge_element.textContent= unread_notifications;
-			} else {
-				$(".notification-badge").addClass("hide");
-				$('#notification-count-desktop').children(":first").removeClass("notification-icon-notify")
-				$('#notification-count-desktop').children(":first").addClass("notification-icon")
-				// Hide badge for mobile view
-                badge_element.style.display = "none";
-			}
+            
         }
         
         $(document).ready(function() {
             countNotifications();
-            unread_notifications = Math.max(Math.trunc($('.navNotifications').length/2.0), 0);
             $('.tooltipped').tooltip({delay: 50});
             $('.dropdown-button-badges').dropdown({
                 hover: true, // Activate on hover
@@ -247,10 +238,6 @@
                 alignment: 'right' // Displays dropdown with edge aligned to the left of button
                 }
             );
-            $('#notifications-mobile-link, #notification-count-desktop').click(() => {
-				read_notifications = true;
-				unread_notifications = 0;
-			});
             
         });	
         
@@ -409,7 +396,7 @@
                 <a class="waves-effect" href="/oneUp/instructors/instructorQA">Help</a>
             </li>
             <li>
-                <a id='notification-count-desktop' class='dropdown-button' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
+                <a id='notification-count-desktop' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
                     <i class='material-icons notification-icon'>notifications</i> <!-- This needs to be linked to an actual notification page -->
                     <small class="notification-badge hide"></small>
                 </a>
