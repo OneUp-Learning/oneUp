@@ -365,7 +365,8 @@
 	  <div class="row">
 	    <div>
 	      <div id="{{q.questionID}}_sortableTrash" class="sortable-code"></div>
-	      <div id="{{q.questionID}}_sortable" class="sortable-code"></div>
+		  <div id="{{q.questionID}}_sortable" class="sortable-code"></div>
+		  <input type="hidden" name="parsonProblem" value="{{q.questionID}}">
 	      <input type="hidden" name="{{i}}lineNo" id="{{q.questionID}}_lineNo" value="">
 	      <input type="hidden" name="{{i}}errorDescription" id="{{q.questionID}}_errorDescription" value="">
 	      <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
@@ -409,17 +410,17 @@
 			    countFeedbackButtonClicks_{{q.questionID}}--;
 			}
 		    }
-		} 
+		}
 		
-		
+		var parson_{{q.questionID}};
 		$(document).ready(function(){
 		    //initalization
-		    var parson_{{q.questionID}} = new ParsonsWidget({
-			'sortableId': '{{q.questionID}}_sortable',
-			'trashId': '{{q.questionID}}_sortableTrash',
-			'max_wrong_lines': {{q.distractorCount}},
-			'feedback_cb' : displayErrors{{q.questionID}},
-			'programmingLang': "{{q.languageName}}"
+		    parson_{{q.questionID}} = new ParsonsWidget({
+				'sortableId': '{{q.questionID}}_sortable',
+				'trashId': '{{q.questionID}}_sortableTrash',
+				'max_wrong_lines': {{q.distractorCount}},
+				'feedback_cb' : displayErrors{{q.questionID}},
+				'programmingLang': "{{q.languageName}}"
 			
 		    });
 
@@ -428,43 +429,30 @@
 
 		    //the new instance link shuffles the lines for the student
 		    $("#newInstanceLink_{{q.questionID}}").click(function(event){
-			event.preventDefault();
-			parson_{{q.questionID}}.shuffleLines();
+				event.preventDefault();
+				parson_{{q.questionID}}.shuffleLines();
 		    });
 
 		    $("#feedbackLink_{{q.questionID}}").click(function(event){
-			feedbackFunction_{{q.questionID}}();
+				feedbackFunction_{{q.questionID}}();
 		    });
 		    
 		    $(".challengesubmitbutton").click(function(event){
-			submit_clicked_{{q.questionID}} = true;
-			feedbackFunction_{{q.questionID}}();
+				submit_clicked_{{q.questionID}} = true;
+				feedbackFunction_{{q.questionID}}();
+					
+				parson_{{q.questionID}}.generateStudentCodeAndIndentation();
 				
-			//access the student code line objects
-			//peel away the object notation to get at the
-			//student's code text representation
-			var studentCode = [];
-			var lineIndentation = [];
-			
-			for (i = 0; i < studentCodeLineObjects.length; i++) {
-			    studentCode.push(studentCodeLineObjects[i].orig);
-			    lineIndentation.push(studentCodeLineObjects[i].indent);
-			}
-			
-			$("#{{q.questionID}}_lineNo").val(incorrectLines);
-			$("#{{q.questionID}}_errorDescription").val(logged_errors_{{q.questionID}});
-			$("#{{q.questionID}}_studentSol").val(studentCode);
-			$("#{{q.questionID}}_lineIndent").val(lineIndentation);
-			$("#{{q.questionID}}_correctLineCount").val(parson_{{q.questionID}}.model_solution.length);
-			$("#{{q.questionID}}_feedBackButtonClickCount").val(countFeedbackButtonClicks_{{q.questionID}});
+				$("#{{q.questionID}}_lineNo").val(incorrectLines);
+				$("#{{q.questionID}}_errorDescription").val(logged_errors_{{q.questionID}});
+				$("#{{q.questionID}}_studentSol").val(parson_{{q.questionID}}.studentCode);
+				$("#{{q.questionID}}_lineIndent").val(parson_{{q.questionID}}.lineIndentation);
+				$("#{{q.questionID}}_correctLineCount").val(parson_{{q.questionID}}.model_solution.length);
+				$("#{{q.questionID}}_feedBackButtonClickCount").val(countFeedbackButtonClicks_{{q.questionID}});
 		    });
 		    
 		    function feedbackFunction_{{q.questionID}}(){
 			event.preventDefault();
-			//this has to be cleared because otherwise they'll retain data
-			errors = [], log_errors = [];
-			studentCodeLineObjects = [];
-			incorrectLines = [];
 			
 			if(!!submit_clicked_{{q.questionID}})
 			    parson_{{q.questionID}}.showFeedback(false);
