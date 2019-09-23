@@ -388,27 +388,17 @@
 		var logged_errors_{{q.questionID}} = [];
 		var countFeedbackButtonClicks_{{q.questionID}} = 0;
 		var submit_clicked_{{q.questionID}} = false;
-		var isGraded = false;
 		
 		function displayErrors{{q.questionID}}(fb_{{q.questionID}}) {
 		    if(fb_{{q.questionID}}.errors.length > 0) {
 			
 			{% if warmUp == 1%}
-			//if this is a warmup we should alert
-			if (submit_clicked_{{q.questionID}} == false)
+			if(!submit_clicked_{{q.questionID}})
 			    alert(fb_{{q.questionID}}.errors[0]);
 			{% endif %}
 
-			//log the errors anyway they are neede for grading
+			//log the errors we need them for grading
 			logged_errors_{{q.questionID}}.push(errors);
-			
-		    }else{
-			//we need to decrement the feebackbutton click count
-			//because we click it for the student and it should not
-			//count against them
-			if(submit_clicked_{{q.questionID}} == false){
-			    countFeedbackButtonClicks_{{q.questionID}}--;
-			}
 		    }
 		}
 		
@@ -437,32 +427,11 @@
 				feedbackFunction_{{q.questionID}}();
 		    });
 		    
-		    $(".challengesubmitbutton").click(function(event){
-				submit_clicked_{{q.questionID}} = true;
-				feedbackFunction_{{q.questionID}}();
-					
-				parson_{{q.questionID}}.generateStudentCodeAndIndentation();
-				
-				$("#{{q.questionID}}_lineNo").val(incorrectLines);
-				$("#{{q.questionID}}_errorDescription").val(logged_errors_{{q.questionID}});
-				$("#{{q.questionID}}_studentSol").val(parson_{{q.questionID}}.studentCode);
-				$("#{{q.questionID}}_lineIndent").val(parson_{{q.questionID}}.lineIndentation);
-				$("#{{q.questionID}}_correctLineCount").val(parson_{{q.questionID}}.model_solution.length);
-				$("#{{q.questionID}}_feedBackButtonClickCount").val(countFeedbackButtonClicks_{{q.questionID}});
-		    });
-		    
 		    function feedbackFunction_{{q.questionID}}(){
-			event.preventDefault();
-			
-			if(!!submit_clicked_{{q.questionID}})
-			    parson_{{q.questionID}}.showFeedback(false);
-			else{
-			    countFeedbackButtonClicks_{{q.questionID}}++;
-			    parson_{{q.questionID}}.showFeedback(true);
-			}
-			
-			parson_{{q.questionID}}.getFeedback();
-			submit_clicked_{{q.questionID}} = false;
+				event.preventDefault();
+				countFeedbackButtonClicks_{{q.questionID}}++;
+				parson_{{q.questionID}}.showFeedback(true);
+				parson_{{q.questionID}}.getFeedback();
 		    }
 		});
 		
