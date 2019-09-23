@@ -31,7 +31,7 @@
                   </table>
                   <div class="row center-align">
                       <div class="col s12">
-                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/announcementList"><i class="material-icons right">navigate_next</i>View Announcements</a>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/announcementList"><i class="material-icons right">navigate_next</i>View All Announcements</a>
                       </div>
                   </div>
                   </div>
@@ -50,14 +50,14 @@
                          </tr>
                       {% empty %}
                       <tr>
-                        <td class="center-align"><i>No Upcoming Serious Challenges</i></td>
+                        <td class="center-align"><i>No upcoming serious challenges</i></td>
                       </tr>
                       {% endfor %}
                     </tbody>
                   </table>
                   <div class="row center-align">
                       <div class="col s12">
-                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengesList"><i class="material-icons right">navigate_next</i>View Serious Challenges</a>
+                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengesList"><i class="material-icons right">navigate_next</i>View All Serious Challenges</a>
                       </div>
                   </div>
                   </div>
@@ -73,13 +73,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>
-                               {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage, user in badgesInfo %}                                                       
-                               <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="46px" height="46px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
+                            <td style="display: flex; flex-wrap: wrap;">
+                               {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage, user in badgesInfo %}  
+                               <div style="padding-right: 16px">                                                     
+                               <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px" height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
                                <img class="tooltipped" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50" data-tooltip="{{user}}">
-                               &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                               </div>
                                {% empty %}
-                               <i>No badges earned</i>
+                               <i class="center-align" style="flex: 1;">No students with badges</i>
                                {% endfor %}
                             </td>
                          </tr>

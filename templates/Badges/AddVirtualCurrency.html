@@ -6,6 +6,7 @@
 </head>
 <script>
     function clearDisabled(){ // function to clear the disabled fields when the form is submitted
+        if (preSubmit() == false) return false;
         var inputs = document.getElementsByClassName('input-fields');
         //console.log(inputs);
         for(var i=0;i<inputs.length;i++){
@@ -15,6 +16,28 @@
         }
         
 
+    }
+    function preSubmit(){
+        // Provides feedback to user if they select an earning rule but forgot to choose VC amount or
+        // they chose VC amount but didn't select any earning rule
+        var input_fields = document.querySelectorAll('.input-fields');
+        for(let i = 0; i < input_fields.length; i++){
+            let field = input_fields[i];
+           let student = field.id.split("_")[0];
+           let select = document.getElementsByName(`${student}_Rule`)[0];
+
+           if(field.value != "" && select.selectedOptions[0].value == ""){
+               Materialize.toast("Select a Manual Earning Rule", 4000)
+               // prevent form submit
+               return false;
+           } 
+           if(field.value == "" && select.selectedOptions[0].value != ""){
+               Materialize.toast("Input Virtual Currency Amount", 4000)
+               return false;
+           } 
+        }
+        return true;
+        
     }
 function checkAmount(option,studentID){
     var selectedOption = option.selectedOptions[0];
@@ -56,7 +79,7 @@ function checkAmount(option,studentID){
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
-                    <form onsubmit="clearDisabled()" id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
+                    <form onsubmit="return clearDisabled()" id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
                         <div class="card-content">
                             {% csrf_token %}
                             <table>

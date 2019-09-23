@@ -4,6 +4,8 @@ from Instructors.views.utils import initialContextDict
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
 from Badges.systemVariables import logger
+from notify.signals import notify  
+import json
 
 
 @login_required
@@ -42,6 +44,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
         elif request.method == 'POST':
             logger.debug(request.POST)
             students = StudentRegisteredCourses.objects.filter(courseID = course)
+            
             for studentobj in students:
                 studentValAttribute = str(studentobj.studentID) + '_Value'
                 studentRuleAttribute = str(studentobj.studentID) + '_Rule'
@@ -54,7 +57,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 vcAmount = int(request.POST[studentValAttribute])
                 if vcAmount < 0:
                     vcAmount = 0
-
+                prev_amount = studentobj.virtualCurrencyAmount
                 if accumulative_type == 'set':
                     studentobj.virtualCurrencyAmount = vcAmount
                 elif accumulative_type == 'combine':
@@ -67,9 +70,22 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 studentVC.courseID = course
                 studentVC.studentID = studentobj.studentID
                 studentVC.vcRuleID = ruleCustom
-                studentVC.value = vcAmount
+                
+                if accumulative_type == 'set':
+                    studentVC.value = vcAmount - prev_amount
+                else:
+                    studentVC.value = vcAmount
                 studentVC.save()
-                logger.debug(studentobj.studentID)
+
+                virtual_currency_amount = abs(vcAmount)
+                if accumulative_type == 'set':
+                    virtual_currency_amount = abs(prev_amount - studentobj.virtualCurrencyAmount)
+
+                if prev_amount > studentobj.virtualCurrencyAmount:
+                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You lost '+str(virtual_currency_amount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
+                elif prev_amount < studentobj.virtualCurrencyAmount:
+                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You earned '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
+                
             
             return redirect('AddVirtualCurrency.html')
             
