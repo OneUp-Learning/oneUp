@@ -61,6 +61,7 @@ def searchQuestions(request):
     for i in range(0, num_challenges):
         qchallengeName.append(challenges[i].challengeName)
         qchallengeID.append(challenges[i].challengeID)
+        #flags imported problems to check if contain parsons for serious challenges
         if ChallengesQuestions.objects.filter(challengeID=challenges[i].challengeID, questionID__type=8).exists():
             hasParsons.append("8")
         else:
