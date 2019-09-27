@@ -1483,11 +1483,11 @@ class TimePeriods:
         timePeriods[daily_test] = {
             'index': daily_test,
             'name': 'daily_test',
-            'displayName': 'Every other 2 Minutes (For Testing)',
+            'displayName': 'Every other Day (For Testing)',
             'schedule': get_or_create_schedule(
-                        minute='*/2', hour='*', day_of_week='*', 
+                        minute='59', hour='23', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.now() - timedelta(minutes=4),
+            'datetime': lambda: timezone.now() - timedelta(days=1),
             'frequency': 2,
         }
 class PeriodicVariables:
