@@ -185,7 +185,7 @@ def ChallengeResults(request):
                         question, studentAnswerList)
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
-                    
+
                     if 'seed' in question:
                         seed = question['seed']
                     else:
@@ -195,7 +195,8 @@ def ChallengeResults(request):
 
                     # Award skills if the answer was correct.
                     if question['user_points'] == question['total_points']:
-                        saveSkillPoints(question['id'], currentCourse, studentId, studentChallengeQuestion)
+                        saveSkillPoints(
+                            question['id'], currentCourse, studentId, studentChallengeQuestion)
 
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
@@ -204,7 +205,8 @@ def ChallengeResults(request):
                         studentChallengeAnswers.save()
 
                 # The sort on the next line should be unnecessary, but better safe than sorry
-                context_dict['questions'] = sorted(questions, key=lambda q: q['index'])
+                context_dict['questions'] = sorted(
+                    questions, key=lambda q: q['index'])
                 context_dict['total_user_points'] = totalStudentScore
                 context_dict['total_possible_points'] = totalPossibleScore
 
@@ -241,7 +243,7 @@ def ChallengeResults(request):
                         challengeID=call_out.challengeID, studentID=studentId, courseID=currentCourse).latest('testScore')
                     evaluator(call_out, sender_stat, call_out_participant, studentId,
                               currentCourse, participant_chall, already_taken=False)
-                
+
                 # At this point, we've gotten all the information out of the entry in the session for this challenge.
                 # To save space, we are going to remove it.  Otherwise, the number of session entries keeps piling up until
                 # the session size gets ridiculous.
@@ -313,7 +315,6 @@ def ChallengeResults(request):
                     q, i, challengeId, studentChallengeQuestion)
                 questDict['total_points'] = challenge_questions.get(
                     questionID=q).questionTotal
-
 
                 studentAnswers = StudentChallengeAnswers.objects.filter(
                     studentChallengeQuestionID=challenge_question)

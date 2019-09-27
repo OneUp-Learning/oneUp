@@ -129,21 +129,21 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
 
         If badge_id is provided the student(s) will be given a badge.
         If virtual_currency_amount is provied the student(s) will be given virtual currency.
-        Both can be provied to give both to student(s).
+        Threshold can be either: max, avg, or some string number
 
-        Note: unique_id is either PeriodicBadgeID(badgeID) or VirtualCurrencyPeriodicRuleID(vcRuleID)
-        Note: operator_type is string and is_random is a boolean. Everything else should be an integer
+        Note: unique_id is either PeriodicBadgeID(badgeID) or VirtualCurrencyPeriodicRuleID(vcRuleID) or leaderboard id
+        Note: operator_type is string, is_random is a boolean, and threshold is a string. Everything else should be an integer
         None: if number_of_top_students and is_random is null then all is assumed (see number 4)
     '''
     from Students.models import StudentRegisteredCourses, PeriodicallyUpdatedleaderboards
+    from Badges.models import CourseConfigParams
 
     # Get the periodic variable and time period
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     time_period = TimePeriods.timePeriods[period_index]
 
-    # Get the course
     course = get_course(course_id)
-
+    
     # Set the award type used for finding Periodic Task object
     award_type = ""
     if badge_id:
@@ -154,21 +154,37 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
         award_type += "leaderboard"
 
     unique_str = str(unique_id)+"_"+award_type
+
+    print("RUNNING PV - {} - {} - {}".format(periodic_variable['name']+'_'+unique_str, time_period['name'], course.courseName))
+
+    # Get the course
+    today = datetime.now(tz=timezone.utc).date()
+    course_config = CourseConfigParams.objects.get(courseID=course)
+    if course_config.courseStartDate > today or course_config.courseEndDate < today:
+        print("Today: {} Course End Date: {} Course Start Date: {}".format(today,course_config.courseEndDate,course_config.courseStartDate ))
+        periodic_task = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id))
+        periodic_task.delete()
+        print("DELETE OLD PV - {} - {} - {}".format(periodic_variable['name']+'_'+unique_str, time_period['name'], course.courseName))
+        return
+
     # Aquire the lock for the task 
     lock_id = "lock-{}".format(periodic_variable['name']+'_'+unique_str)
     with memcache_lock(lock_id, app.oid) as acquired:
         if not acquired:
+            print("NO LOCK PV - {} - {} - {}".format(periodic_variable['name']+'_'+unique_str, time_period['name'], course.courseName))
             return
     
     periodic_task = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id))
     total_runs = periodic_task.total_run_count
-    print("TOTAL RUNS {}".format(total_runs))
+    print("TOTAL RUNS {} ({})".format(total_runs, periodic_variable['name']+'_'+unique_str))
     # Handle beginning of time period
     if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
         # If it has ran once then return and set it not to run anymore
         if total_runs >= 1:
             periodic_task.enabled = False
             periodic_task.save()
+            PeriodicTasks.changed(periodic_task)
+            print("END COMPLETE PV - {} - {} - {}".format(periodic_variable['name']+'_'+unique_str, time_period['name'], course.courseName))
             return
     # Check for frequency to see handle every N days/month/week etc
     # ex. biweekly
@@ -178,26 +194,19 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     # ...
     
     if total_runs % time_period['frequency'] != 0:
+        print("SKIP PV - {} - {} - {}".format(periodic_variable['name']+'_'+unique_str, time_period['name'], course.courseName))
         periodic_task.total_run_count += 1
         periodic_task.save()
+        PeriodicTasks.changed(periodic_task)
         return
-
-    # Handle beginning of time period
-    if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
-        unique_str = str(unique_id)+"_"+award_type
-        periodic_task = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id))
-        total_runs = periodic_task.total_run_count
-        if total_runs >= 1:
-            periodic_task.enabled = False
-            periodic_task.save()
-            return
 
     # Get all the students in this course, exclude test student
     students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     rank = []
+    last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     # Evaluate each student based on periodic variable function
     for student_in_course in students:
-        rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, unique_id=unique_id, award_type=award_type))
+        rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, last_ran = last_ran, unique_id=unique_id, award_type=award_type))
 
     # Set this as the last time this task has ran
     set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
@@ -206,7 +215,7 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     # Filter out students based on periodic badge/vc rule settings
     if not is_leaderboard and not save_results:
         rank = filter_students(rank, number_of_top_students, threshold, operator_type, is_random)
-        print("Filtered: {}".format(rank))
+        print("Final Filtered ({}, {}, {}, {}): {}".format(number_of_top_students, threshold, operator_type, is_random, rank))
         # Give award to students
         award_students(rank, course, unique_id, badge_id, virtual_currency_amount)
     elif save_results:
@@ -224,6 +233,8 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
                 savePeriodicLeaderboardResults(rank,unique_id, course)
     periodic_task.total_run_count += 1
     periodic_task.save()
+    PeriodicTasks.changed(periodic_task)
+    print("END COMPLETE PV - {} - {} - {}".format(periodic_variable['name']+'_'+unique_str, time_period['name'], course.courseName))
 
 def filter_students(students, number_of_top_students, threshold, operator_type, is_random):
     ''' Filters out students based on parameters if they are not None.
@@ -271,58 +282,6 @@ def filter_students(students, number_of_top_students, threshold, operator_type, 
             students = random.sample(students, 1)
     return students
 
-def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
-    #"saving results", rank, leaderboardConfigID, course)
-    from Students.models import PeriodicallyUpdatedleaderboards
-    from Badges.models import LeaderboardsConfig
-  
-    leaderboardConfigID = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
-    #"leaderboardConfigID", leaderboardConfigID)
-    #"rank", rank)
-   
-    #we must filter out the test student
-    studentsPlusScores = []
-    for student in rank:
-        if not student[0].isTestStudent:
-            studentsPlusScores.append(student)
-    index = 1
-    
-    studentsWithoutZeroes = []
-    #filter out the zero point scores if any
-    for student in studentsPlusScores:
-        if student[1] != 0 or student[1] != 0.0:
-            studentsWithoutZeroes.append(student)
-    
-    studentsPlusScores = studentsWithoutZeroes
-    #iterate over the list of studentsplusscores and make the records or update existing records
-    for student in studentsPlusScores:
-        #"currentStudent", student,"index" ,index)
-        leaderboardRecord = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])
-        #"leaderboard", leaderboardRecord)
-        
-        if leaderboardRecord:
-            #we have a record so we should update", leaderboardRecord[0])
-            leaderboard = leaderboardRecord[0]
-            leaderboard.studentID = student[0]
-            leaderboard.studentPoints = student[1]
-            leaderboard.studentPosition = index
-        else:
-            #"creating a new one since we dont have a record for"
-            leaderboard = PeriodicallyUpdatedleaderboards()
-            leaderboard.leaderboardID = leaderboardConfigID
-            leaderboard.studentID = student[0]
-            leaderboard.studentPoints = student[1]
-            leaderboard.studentPosition = index
-        leaderboard.save()
-        index = index + 1
-    #remaining records should be set to zero   
-    leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])  
-    if index <= len(leaderboardRecords):
-        for leaderboard in leaderboardRecords[index:]:
-            #"setting -1 to records after our index, no student can be -1")
-            leaderboard.studentPosition = -1
-            leaderboard.save()
-
 def award_students(students, course, unique_id, badge_id=None, virtual_currency_amount=None):
     ''' Awards students a badge or virtual currency or both.'''
 
@@ -337,7 +296,7 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
             # Check if student has earned this badge
             studentBadges = StudentBadges.objects.filter(studentID = student, badgeID = badge_id)
             if studentBadges.exists():
-                logger.debug("Badge already earned")
+                print("Badge already earned")
                 return
 
             # If the badge has not already been earned, then award it 
@@ -401,7 +360,59 @@ def set_last_ran(unique_id, variable_index, award_type, course_id):
     task.save()
     PeriodicTasks.changed(task)
 
-def calculate_student_earnings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def savePeriodicLeaderboardResults(rank,leaderboardConfigID,course):
+    #"saving results", rank, leaderboardConfigID, course)
+    from Students.models import PeriodicallyUpdatedleaderboards
+    from Badges.models import LeaderboardsConfig
+  
+    leaderboardConfigID = LeaderboardsConfig.objects.get(leaderboardID=int(leaderboardConfigID))
+    #"leaderboardConfigID", leaderboardConfigID)
+    #"rank", rank)
+   
+    #we must filter out the test student
+    studentsPlusScores = []
+    for student in rank:
+        if not student[0].isTestStudent:
+            studentsPlusScores.append(student)
+    index = 1
+    
+    studentsWithoutZeroes = []
+    #filter out the zero point scores if any
+    for student in studentsPlusScores:
+        if student[1] != 0 or student[1] != 0.0:
+            studentsWithoutZeroes.append(student)
+    
+    studentsPlusScores = studentsWithoutZeroes
+    #iterate over the list of studentsplusscores and make the records or update existing records
+    for student in studentsPlusScores:
+        #"currentStudent", student,"index" ,index)
+        leaderboardRecord = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])
+        #"leaderboard", leaderboardRecord)
+        
+        if leaderboardRecord:
+            #we have a record so we should update", leaderboardRecord[0])
+            leaderboard = leaderboardRecord[0]
+            leaderboard.studentID = student[0]
+            leaderboard.studentPoints = student[1]
+            leaderboard.studentPosition = index
+        else:
+            #"creating a new one since we dont have a record for"
+            leaderboard = PeriodicallyUpdatedleaderboards()
+            leaderboard.leaderboardID = leaderboardConfigID
+            leaderboard.studentID = student[0]
+            leaderboard.studentPoints = student[1]
+            leaderboard.studentPosition = index
+        leaderboard.save()
+        index = index + 1
+    #remaining records should be set to zero   
+    leaderboardRecords = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=int(leaderboardConfigID.leaderboardID), studentID=student[0])  
+    if index <= len(leaderboardRecords):
+        for leaderboard in leaderboardRecords[index:]:
+            #"setting -1 to records after our index, no student can be -1")
+            leaderboard.studentPosition = -1
+            leaderboard.save()
+
+def calculate_student_earnings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the student earnings of virtual currency since the last period.
         Earnings are defined by only what virtual currency they gained and not spent.'''
     
@@ -409,11 +420,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
     from Students.models import StudentVirtualCurrency
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
 
-    # print("result only", result_only)
-    # Get the last time this periodic variable has ran if not getting results only (leaderboards)
-    if not result_only:
-        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
-    else:
+    if result_only:
         date_time = time_period['datetime']
         if date_time:
             last_ran = date_time()
@@ -448,7 +455,7 @@ def calculate_student_earnings(course, student, periodic_variable, time_period, 
 
     return (student, total)
 
-def calculate_student_warmup_practice(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def calculate_student_warmup_practice(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the number of times the student has practiced Warm-up challenges. This includes the
         number of times the student has completed the same challenge.
         Ex. Warm-up Challenge A: practiced 10 times
@@ -460,11 +467,7 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
     from Instructors.models import Challenges
     from Students.models import StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
-
-    last_ran = None
-    # Get the last time this periodic variable has ran
-    if not result_only:
-        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
+   
     # Check aganist only Warm-up challenges
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     # The amount of times the student has practice Warm-up challenges
@@ -488,8 +491,7 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
         elif result_only:
             date_time = time_period['datetime']
             if date_time:
-                
-                p = date_time()
+                last_ran = date_time()
             else:
                 last_ran = None
 
@@ -512,17 +514,15 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
 
     return (student, practices)
 
-def calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, percentage, unique_id=None, award_type=None, result_only=False):
+def calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, percentage, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' Utility function for getting the number of days of unique warmup challenges that a student completed with a score > percentage'''
+
+    print("Calculating number of days of unique warmups completed with score > {}%".format(percentage))
     from Instructors.models import Challenges
     from Students.models import StudentChallenges
     from decimal import Decimal
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
-
-    last_ran = None
-    # Get the last time this periodic variable has ran
-    if not result_only:
-        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
+    
     # Check against only Warm-up challenges
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     
@@ -577,27 +577,26 @@ def calculate_number_of_days_of_unique_warmups(course, student, periodic_variabl
             if student_percentage > Decimal(percentage):
                 days += 1
 
-    #print("Course: {}".format(course))
-    #print("Student: {}".format(student))
-    #print("Periodic Variable: {}".format(periodic_variable))
-    #print("Last Ran: {}".format(last_ran))
+    print("Course: {}".format(course))
+    print("Student: {}".format(student))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(last_ran))
     print("Unique Warm-ups: {}".format(days))
-    print("end - {}".format(days))
     return (student, days)
 
-def calculate_number_of_days_of_unique_warmups_greater_than_90(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def calculate_number_of_days_of_unique_warmups_greater_than_90(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This will return the number of days of unique warmup challenges that a student completed with a 
         score > 70%'''
 
-    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 90.0, unique_id, award_type, result_only)
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 90.0, last_ran, unique_id, award_type, result_only)
 
-def calculate_number_of_days_of_unique_warmups_greater_than_70(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def calculate_number_of_days_of_unique_warmups_greater_than_70(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This will return the number of days of unique warmup challenges that a student completed with a 
         score > 90%'''
 
-    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 70.0, unique_id, award_type, result_only)
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 70.0, last_ran, unique_id, award_type, result_only)
 
-def calculate_unique_warmups(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def calculate_unique_warmups(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the number of unique Warm-up challenges the student has completed
         with a score greater than 70%.
     '''
@@ -606,10 +605,7 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
     from Students.models import StudentChallenges
     from decimal import Decimal
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
-    last_ran = None
-    # Get the last time this periodic variable has ran
-    if not result_only:
-        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
+      
     # Check aganist only Warm-up challenges
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     # The amount of unique Warm-up challenges with a score greater than 60%
@@ -655,7 +651,7 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
                 continue
             # Calculate the percentage
             percentage = (highest_score/total_score_possible) * Decimal(100)
-            # Say this challenge is counted for if the student score percentage is greater than 80%
+            # Say this challenge is counted for if the student score percentage is greater than 70%
             if percentage > Decimal(70.0):
                 unique_warmups += 1
 
@@ -667,7 +663,7 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, un
 
     return (student, unique_warmups)
 
-def calculate_student_attendance_streak(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
+def calculate_student_attendance_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     print("Calculating student_attendance_streak") 
     #this one is best ran with daily time period
     #weekly will work but cause it to ignore the extra attendance days unless set up properly.
@@ -677,16 +673,6 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     from Instructors.models import AttendanceStreakConfiguration
     from datetime import datetime, timedelta
     import ast
-    
-    # Get the last time this periodic variable has ran if not getting results only (leaderboards)
-    if not result_only:
-        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
-    else:
-        date_time = time_period['datetime']
-        if date_time:
-            last_ran = date_time()
-        else:
-            last_ran = None
             
     treshold = 0
     resetStreak = False
@@ -777,19 +763,19 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
 
     return (student, total)
 
-def calculate_student_xp_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
+def calculate_student_xp_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
     
-def calculate_warmup_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id, result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
+def calculate_warmup_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
     
-def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id,result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False, award_type=award_type)
+def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False, award_type=award_type)
     
-def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id ,result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True, award_type=award_type)
+def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return studentScore(student, course, periodic_variable, time_period, unique_id , last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True, award_type=award_type)
 
-def calculate_student_challenge_streak(course, student, periodic_variable, time_period, unique_id=None, award_type="leaderboard", result_only=False):
+def calculate_student_challenge_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type="leaderboard", result_only=False):
     print("Calculating student challenge streak") 
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
@@ -889,7 +875,7 @@ def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
     else:
         return 0
 
-def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, unique_id, award_type, result_only):
+def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only):
     print("Calculating student challenge >= streak") 
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
@@ -897,9 +883,6 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
     from Instructors.models import Challenges
 
     percentage = percentage *.01
-        # Get the last time this periodic variable has ran
-    if not result_only:
-        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
     # Check aganist only Warm-up challenges
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     # The amount of unique Warm-up challenges with a score greater than 60%
@@ -1004,16 +987,13 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
     
     return (student, total)
     
-def calculate_student_challenge_streak_for_percentage_over_span_of_days(percentage, course, student, periodic_variable, time_period, unique_id, award_type, result_only):
+def calculate_student_challenge_streak_for_percentage_over_span_of_days(percentage, course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only):
     from Students.models import StudentStreaks, StudentChallenges
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
     from datetime import datetime
     from Instructors.models import Challenges
 
     percentage = percentage *.01
-        # Get the last time this periodic variable has ran
-    if not result_only:
-        last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)    
     # Check aganist only Warm-up challenges
     challenges = Challenges.objects.filter(courseID=course, isGraded=False)
     # The amount of unique Warm-up challenges with a score greater than 60%
@@ -1120,19 +1100,19 @@ def calculate_student_challenge_streak_for_percentage_over_span_of_days(percenta
     
     return (student, total)
 
-def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
 
-def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, unique_id=None, award_type=None, result_only=False):
-    return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
 
-def calculate_warmup_challenge_greater_or_equal_to_70_by_day(course, student, periodic_variable, unique_id=None, award_type=None, result_only=False):
-    return calculate_student_challenge_streak_for_percentage_over_span_of_days(70,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+def calculate_warmup_challenge_greater_or_equal_to_70_by_day(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return calculate_student_challenge_streak_for_percentage_over_span_of_days(70,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
 
-def calculate_warmup_challenge_greater_or_equal_to_40_by_day(course, student, periodic_variable, unique_id=None, award_type=None, result_only=False):
-    return calculate_student_challenge_streak_for_percentage_over_span_of_days(40,course, student, periodic_variable, time_period, unique_id, award_type, result_only)
+def calculate_warmup_challenge_greater_or_equal_to_40_by_day(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    return calculate_student_challenge_streak_for_percentage_over_span_of_days(40,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
                 
-def studentScore(studentId, course, periodic_variable, time_period, unique_id, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict = None, award_type=None):
+def studentScore(studentId, course, periodic_variable, time_period, unique_id, last_ran=None, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict = None, award_type=None):
     
     from Badges.models import CourseConfigParams, LeaderboardsConfig
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
@@ -1154,7 +1134,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, r
         startOfTime = True
             
     else:
-        date_time = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID) 
+        date_time = last_ran 
         
         if not date_time:
             periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course.courseID)
@@ -1464,22 +1444,12 @@ class TimePeriods:
     beginning_of_time = 1503 # Runs only once
     daily_test = 1599
     timePeriods = {
-        daily_test:{
-            'index': daily_test,
-            'name': 'daily_test',
-            'displayName': 'Every 2 Minutes (For Testing)',
-            'schedule': get_or_create_schedule(
-                        minute='*', hour='*', day_of_week='*', 
-                        day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.now() - timedelta(minutes=2),
-            'frequency': 1,
-        },
         daily:{
             'index': daily,
             'name': 'daily',
             'displayName': 'Daily at Midnight',
             'schedule': get_or_create_schedule(
-                        minute='0', hour='0', day_of_week='*', 
+                        minute='59', hour='23', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.now() - timedelta(days=1),
             'frequency': 1,
@@ -1488,7 +1458,7 @@ class TimePeriods:
             'index': weekly,
             'name': 'weekly',
             'displayName': 'Weekly on Sundays at Midnight',
-            'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
+            'schedule': get_or_create_schedule(minute="59", hour="23", day_of_week='0'),
             'datetime': lambda: timezone.now() - timedelta(days=7),
             'frequency': 1,
         },
@@ -1496,7 +1466,7 @@ class TimePeriods:
             'index': biweekly,
             'name': 'biweekly',
             'displayName': 'Every Two Weeks on Sundays at Midnight',
-            'schedule': get_or_create_schedule(minute="0", hour="0", day_of_week='0'),
+            'schedule': get_or_create_schedule(minute="59", hour="23", day_of_week='0'),
             'datetime': lambda: timezone.now() - timedelta(days=14),
             'frequency': 2,
         },
@@ -1504,11 +1474,22 @@ class TimePeriods:
             'index': beginning_of_time,
             'name': 'beginning_of_time',
             'displayName': 'Only once at Midnight',
-            'schedule': get_or_create_schedule(minute="0", hour="0"),
+            'schedule': get_or_create_schedule(minute="59", hour="23"),
             'datetime': lambda: None,
             'frequency': 1,
         }
     }
+    if __debug__:
+        timePeriods[daily_test] = {
+            'index': daily_test,
+            'name': 'daily_test',
+            'displayName': 'Every other Day (For Testing)',
+            'schedule': get_or_create_schedule(
+                        minute='59', hour='23', day_of_week='*', 
+                        day_of_month='*', month_of_year='*'),
+            'datetime': lambda: timezone.now() - timedelta(days=1),
+            'frequency': 2,
+        }
 class PeriodicVariables:
     '''PeriodicVariables enum starting at 1400.'''
     
@@ -1588,28 +1569,28 @@ class PeriodicVariables:
         },
         warmup_challenge_greater_or_equal_to_40: {
             'index': warmup_challenge_greater_or_equal_to_40,
-            'name': 'Warmup challenge >= 40%',
+            'name': 'warmup_challenge_gte_40',
             'displayName': 'Warmup Challenge Streak Score >= 40%',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40%',
             'function': calculate_warmup_challenge_greater_or_equal_to_40,
         },
         warmup_challenge_greater_or_equal_to_70: {
             'index': warmup_challenge_greater_or_equal_to_70,
-            'name': 'Warmup challenge >= 70%',
+            'name': 'warmup_challenge_gte_70',
             'displayName': 'Warmup Challenge Streak Score >= 70%',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70%',
             'function': calculate_warmup_challenge_greater_or_equal_to_70,
         },
         warmup_challenge_greater_or_equal_to_70_by_day: {
             'index': warmup_challenge_greater_or_equal_to_70_by_day,
-            'name': 'Warmup challenge >= 70%',
+            'name': 'warmup_challenge_gte_70_by_day',
             'displayName': 'Warmup Challenge Streak Score >= 70% over a period of time',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_70_by_day,
         },
         warmup_challenge_greater_or_equal_to_40_by_day: {
             'index': warmup_challenge_greater_or_equal_to_40_by_day,
-            'name': 'Warmup challenge >= 40%',
+            'name': 'warmup_challenge_gte_40_by_day',
             'displayName': 'Warmup Challenge Streak Score >= 40% over a period of time',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40% over a period of time',
             'function': calculate_warmup_challenge_greater_or_equal_to_40_by_day,
@@ -1650,8 +1631,11 @@ if __debug__:
         assert periodic_variable_number in PeriodicVariables.periodicVariables, "Periodic variable number created without corresponding structure in periodicVariables dictionary.  %s = %i " % (periodic_variable_name, periodic_variable_number)
        
         dictEntry = PeriodicVariables.periodicVariables[periodic_variable_number]
+        
         for field in periodic_variable_fields:
             assert field in dictEntry, "Periodic variable structure missing expected field.  %s missing %s" % (periodic_variable_name,field)
+        
+        assert ' ' not in dictEntry['name'], "Periodic variable structure name field must not have spaces.  (%s)" % (periodic_variable_name)
 
         assert periodic_variable_number == dictEntry['index'], "Periodic variable structure index field must match periodic variable number. %s -> %i != %i" % (periodic_variable_name, periodic_variable_number, dictEntry['index'])
 

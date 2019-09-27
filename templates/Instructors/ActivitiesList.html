@@ -41,8 +41,23 @@
 				<div class="col s12 m10 offset-m1">
           <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity"><i class="material-icons left">toys</i>Add
             New Activity</a> 
-            <button class="btn waves-effect waves-light" type="submit" name="submit">Reorder Activities
-						<i class="material-icons right">reorder</i>
+
+
+            <a id="submit" class="waves-effect waves-light btn modal-trigger"
+            href="#modal_confirm"><i class="material-icons right">reorder</i>Reorder Activities</a>
+            <div id="modal_confirm" class="modal">
+                <div class="modal-content left-align">
+                   <h5>Are you sure you want to submit?</h5>
+                   <p>Activities should be globally ordered (across categories).</p>
+                </div>
+                <div class="modal-footer">
+                   <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                      style="color: #00bcd4">Cancel</a>
+                   <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit"
+                      id="submit" name="submitchallenge" value="Submit">Submit
+                   </button>
+                </div>
+             </div>
 			</button>
    	</div>
    	</div>
@@ -128,6 +143,9 @@
   {% include 'footer.html' %}
 </body>
 <script>
+  function activityGlobalOrder(){
+    alert("Are you sure that the activity numbers are globally ordered?");
+  }
     function deleteActivity(activity_id) {
       function getCookie(name) {
         var cookieValue = null;

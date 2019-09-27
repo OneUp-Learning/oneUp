@@ -23,9 +23,10 @@ from locale import currency
 from django.db.models.functions.window import Lead
 from oneUp.ckeditorUtil import config_ck_editor
 
+
 def remove_old_challenge_session_entries(session):
     sessionitems = list(session.items())
-    for k,v in sessionitems:
+    for k, v in sessionitems:
         # We want to make sure this really matches an attempt which we added.
         # AttemptIds all have the form "challenge:NUM@DATETIME" where NUM is the actual
         # challenge number and DATETIME is the actual date and time it was started.
@@ -34,10 +35,11 @@ def remove_old_challenge_session_entries(session):
             challpart = parts[0]
             datepart = parts[1]
             if challpart[:10] == 'challenge:':
-                date = datetime.strptime(datepart,"%m/%d/%Y %I:%M:%S %p")
+                date = datetime.strptime(datepart, "%m/%d/%Y %I:%M:%S %p")
                 delta = datetime.utcnow() - date
                 if delta.days > 30:
                     del session[k]
+
 
 def makeSerializableCopyOfDjangoObjectDictionary(obj):
     dict = obj.__dict__.copy()
@@ -74,7 +76,7 @@ def ChallengeSetup(request):
                     context_dict['isduration'] = True
                     total_time = duel_challenge.acceptTime + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
-                            minutes=duel_challenge.timeLimit)+timedelta(seconds=20)
+                            minutes=duel_challenge.timeLimit)
                     remaing_time = total_time-utcDate()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['testDuration'] = difference_minutes
@@ -104,7 +106,8 @@ def ChallengeSetup(request):
                 # context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
 
                 # Use timezone to convert date to current timzone set in settings.py
-                tz = pytz.timezone(request.session.get('django_timezone','EST'))
+                tz = pytz.timezone(request.session.get(
+                    'django_timezone', 'EST'))
                 starttime = tz.localize(datetime.now()).astimezone(tz)
                 starttimestring = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
                 context_dict['startTime'] = starttimestring
