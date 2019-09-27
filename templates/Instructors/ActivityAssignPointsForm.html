@@ -42,11 +42,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for i, student_ID, student_Name, student_Points, student_Bonus, student_Feedback, File_Name in assignedActivityPoints_range %}
+                                    {% for i, student_ID, student_first_name, student_last_name, student_Points, student_Bonus, student_Feedback, File_Name in assignedActivityPoints_range %}
                                     <input type="hidden" id="{{student_ID}}_points_graded" class="isGraded" value="False">
                                     <tr>
                                         <td>
-                                            <p>{{student_Name}} {% if File_Name%}
+                                            <p>{{student_first_name}} {{student_last_name}}{% if File_Name%}
                                                 <blockquote><a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">file_download</i>Download File</a></blockquote>
                                             </p>
                                             {% else %} <blockquote>No file available</blockquote></p>

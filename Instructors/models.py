@@ -242,7 +242,7 @@ class Activities(models.Model):
     description = models.CharField(max_length=200, default="")
     points =  models.DecimalField(decimal_places=3, max_digits=6, default=0)
     isGraded = models.BooleanField(default=False,verbose_name = "Activity points will be added to the course grade")
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)  
+    courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)
     uploadAttempts = models.IntegerField(default=0)
     instructorNotes = models.CharField(max_length=300, default="")
