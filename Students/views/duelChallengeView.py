@@ -17,7 +17,8 @@ from celery import Celery
 import json
 from Instructors.views.courseInfoView import courseInformation
 from Students.views.calloutsView import call_out_list
-
+from Instructors.constants import unspecified_topic_name, default_time_str
+from Students.models import Student
 from Badges.enums import Event
 from Badges.events import register_event, register_event_simple
 
@@ -434,6 +435,30 @@ def convert_time_to_int(time):
     hh,mm = time.split(":")
     return int(hh)*60+int(mm)
 
+def get_challenger_challengee_duel_challs(student_id, challengee_id, current_course):
+    '''get the challenger's and challengee's duel warm up challenges'''
+
+    challenger_duels_as_challenger = DuelChallenges.objects.filter(challenger = student_id, courseID=current_course)
+    challenger_duels_as_challengee = DuelChallenges.objects.filter(challengee = student_id, courseID=current_course)
+
+    challengee_duels_as_challenger = DuelChallenges.objects.filter(challenger=challengee_id, courseID=current_course)
+    challengee_duels_as_challengee = DuelChallenges.objects.filter(challengee=challengee_id, courseID=current_course)
+
+    if not challenger_duels_as_challenger and not challenger_duels_as_challengee and not challengee_duels_as_challenger and not challengee_duels_as_challengee:
+        return ([],[])
+    challenger_duels = list(challenger_duels_as_challenger) + list(challenger_duels_as_challengee)
+    challenger_duels_challs = []
+    for challenger_duel in challenger_duels:
+        challenger_duels_challs.append(challenger_duel.challengeID)
+         
+    
+    challengee_duels = list(challengee_duels_as_challenger) + list(challengee_duels_as_challengee)
+    challengee_duels_challs = []
+    for challengee_duel in challengee_duels:
+        challengee_duels_challs.append(challengee_duel.challengeID)
+    
+    return (challenger_duels_challs, challengee_duels_challs)
+
 def get_random_challenge(topic, difficulty, current_course, student_id, challengee):
     '''get_challenge returns a random challenge based on specified topic and difficulty'''
 
@@ -444,10 +469,19 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
         print("topic nameeeeee", topic_obj.topicName)
         course_topics = CoursesTopics.objects.filter(courseID=current_course, topicID=topic_obj)
 
+    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+
     challenges_list = []
     for crs_t in course_topics:
         challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID)
         for chall_t in challenges_topics:
+             # if warmup is not available, then skip it
+            if not chall_t.challengeID.isVisible:
+                continue
+            # if warmup has a display date, the skip it
+            if chall_t.challengeID.endTimestamp != default_date:
+                continue
+
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=challengee) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id):
                 if not chall_t.challengeID.isGraded:
@@ -466,22 +500,11 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
 
     duel_challenges = []
     # Make sure challenges are not picked by any duel before 
-    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
-    challenger_duels_challs = []
-    for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
-        
-    challengee_duels = DuelChallenges.objects.filter(challengee= challengee)
-    challengee_duels_challs = []
-    for challengee_duel in challengee_duels:
-        challenger_duels_challs.append(challengee_duel.challengeID)
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, challengee, current_course)
         
     for chall in challenges_list:
         if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
             duel_challenges.append(chall)
-
-    print("challenges")
-    print(duel_challenges)
 
     if duel_challenges:
 
@@ -553,7 +576,15 @@ def duel_challenge_create(request):
     challenges_list = []
     chall_topics = []
     challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     for chall_t in challenges_topics:
+            # if warmup is not available, then skip it
+            if not chall_t.challengeID.isVisible:
+                continue
+            # if warmup has a display date, the skip it
+            if chall_t.challengeID.endTimestamp != default_date:
+                continue
+
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=reg_students[0].studentID) :
                 if not chall_t.challengeID.isGraded:
@@ -562,16 +593,10 @@ def duel_challenge_create(request):
                         challenges_list.append(chall_t.challengeID)
                         chall_topics.append(chall_t)
  
-    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
-    challenger_duels_challs = []
-    for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
-         
-    challengee_duels = DuelChallenges.objects.filter(challengee = reg_students[0].studentID)
-    challengee_duels_challs = []
-    for challengee_duel in challengee_duels:
-        challengee_duels_challs.append(challengee_duel.challengeID)
-         
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, reg_students[0].studentID, current_course)
+
+    print("challenger creat", challenger_duels_challs)
+    print("challengee creat", challengee_duels_challs)
     topic_ids = []
     for chall, chall_topic in zip(challenges_list, chall_topics):
         if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
@@ -635,7 +660,6 @@ def duel_challenge_create(request):
         
         try:
             topic_obj = Topics.objects.get(topicID=int(topic))
-            print("topic nameeeeee", topic_obj.topicName)
             topic_name = topic_obj.topicName
         except:
             topic_name = 'Any'
@@ -761,8 +785,15 @@ def get_create_duel_topics_difficulties(request):
     else:
         challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
        
+    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
 
     for chall_t in challenges_topics:
+             # if warmup is not available, then skip it
+            if not chall_t.challengeID.isVisible:
+                continue
+            # if warmup has a display date, the skip it
+            if chall_t.challengeID.endTimestamp != default_date:
+                continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :
                 if not chall_t.challengeID.isGraded:
@@ -770,18 +801,9 @@ def get_create_duel_topics_difficulties(request):
                     if ChallengesQuestions.objects.filter(challengeID=chall_t.challengeID):
                         challenges_list.append(chall_t.challengeID)
                         chall_topics.append(chall_t)
- 
-
-    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
-    challenger_duels_challs = []
-    for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
-         
-    challengee_duels = DuelChallenges.objects.filter(challengee__user__id=challengee_id)
-    challengee_duels_challs = []
-    for challengee_duel in challengee_duels:
-        challengee_duels_challs.append(challengee_duel.challengeID)
-         
+    
+    challengee_id = Student.objects.get(user__id=challengee_id)
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, challengee_id, current_course)
     topic_ids = []
     i=0
     for chall, chall_topic in zip(challenges_list, chall_topics):
@@ -914,13 +936,13 @@ def duel_challenge_description(request):
             winners = Winners.objects.filter(DuelChallengeID=duel_challenge)
             
             if len(winners) == 0:
-                message +="Both you and opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
+                message +="Both you and your opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
                 if duel_challenge.isBetting:
-                    message +=" You and opponent are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency each."
+                    message +=" You and your opponent are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency each."
             elif len(winners)==2:
-                message +="You and opponent are both winners of this duel."
+                message +="You and your opponent are both winners of this duel."
                 if duel_challenge.isBetting:
-                    message +=" You and opponent are reimbursed an amount of "+str(duel_challenge.vcBet)
+                    message +=" You and youropponent are reimbursed an amount of "+str(duel_challenge.vcBet)
                     if duel_vc_const > 0:
                         message +=" plus "+str(duel_vc_const) 
                     if duel_vc_participants_const > 0: 
