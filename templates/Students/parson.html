@@ -627,7 +627,6 @@
   };
 
   // The "original" grader for giving line based feedback.
-  var errors = [], log_st;
   var LineBasedGrader = function(parson) {
       this.parson = parson;
   };
@@ -635,7 +634,13 @@
   
   var studentCodeLineObjects = [];
   var incorrectLines = [];
+  var log_errors = [];
+  var errors = [];
   LineBasedGrader.prototype.grade = function(elementId) {
+    studentCodeLineObjects = [];
+    incorrectLines = [];
+    log_errors = [];
+    errors = [];
       var parson = this.parson;
       var elemId = elementId || parson.options.sortableId;
       var student_code = parson.normalizeIndents(parson.getModifiedCode("#ul-" + elemId));
@@ -656,9 +661,6 @@
       // codeline in the student's code for the LIS computation and, for example,
       // assigns appropriate indices for duplicate lines.
       var lastFoundCodeIndex = {};
-      
-      console.log("StudentCodeLineObjects");
-      console.log(studentCodeLineObjects);
       
       $.each(studentCodeLineObjects, function(index, lineObject) {
     	  // find the first matching line in the model solution
@@ -931,7 +933,8 @@
       //State history for feedback purposes
       this.state_path = [];
       this.states = {};
-      
+      this.studentCode = [];
+      this.lineIndentation = [];
       var defaults = {
 	  'incorrectSound': false,
 	  'x_indent': 50,
@@ -1406,6 +1409,13 @@
   //custom function hide the feedback
   ParsonsWidget.prototype.showFeedback = function(isHidingFeedback) {
       hideFeedback = isHidingFeedback;
+  }
+
+  ParsonsWidget.prototype.generateStudentCodeAndIndentation = function() {
+  for (i = 0; i < studentCodeLineObjects.length; i++) {
+			    this.studentCode.push(studentCodeLineObjects[i].orig);
+			    this.lineIndentation.push(studentCodeLineObjects[i].indent);
+			}
   }
 
   ParsonsWidget.prototype.createHTMLFromHashes = function(solutionHash, trashHash) {
