@@ -129,10 +129,10 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
 
         If badge_id is provided the student(s) will be given a badge.
         If virtual_currency_amount is provied the student(s) will be given virtual currency.
-        Both can be provied to give both to student(s).
+        Threshold can be either: max, avg, or some string number
 
-        Note: unique_id is either PeriodicBadgeID(badgeID) or VirtualCurrencyPeriodicRuleID(vcRuleID)
-        Note: operator_type is string and is_random is a boolean. Everything else should be an integer
+        Note: unique_id is either PeriodicBadgeID(badgeID) or VirtualCurrencyPeriodicRuleID(vcRuleID) or leaderboard id
+        Note: operator_type is string, is_random is a boolean, and threshold is a string. Everything else should be an integer
         None: if number_of_top_students and is_random is null then all is assumed (see number 4)
     '''
     from Students.models import StudentRegisteredCourses, PeriodicallyUpdatedleaderboards
@@ -1487,7 +1487,7 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='*/2', hour='*', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
-            'datetime': lambda: timezone.now() - timedelta(minutes=2),
+            'datetime': lambda: timezone.now() - timedelta(minutes=4),
             'frequency': 2,
         }
 class PeriodicVariables:
