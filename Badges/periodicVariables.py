@@ -2,6 +2,7 @@ from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTas
 from Badges.tasks import app
 from django.utils import timezone
 from datetime import timedelta
+
 import json
 import random
 from _datetime import date
@@ -306,7 +307,7 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
             studentBadge.studentID = student
             studentBadge.badgeID = badge
             studentBadge.objectID = 0
-            studentBadge.timestamp = utcDate()
+            studentBadge.timestamp = utcDate() - timedelta(hours=4)
             studentBadge.save()
             
             # Notify student of badge award 
@@ -1430,9 +1431,6 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
         return schedule
 
 class TimePeriods:
-    from django.utils import timezone
-    from datetime import timedelta
-
     ''' TimePeriods enum starting at 1500.
         schedule: crontab of when to run
         datetime: used for results only to look back a time period
@@ -1494,7 +1492,7 @@ class PeriodicVariables:
     '''PeriodicVariables enum starting at 1400.'''
     
     highest_earner = 1400
-    student_warmup_pratice = 1401
+    student_warmup_practice = 1401
     unique_warmups = 1402
     xp_ranking = 1403
     warmup_challenges = 1404
@@ -1518,9 +1516,9 @@ class PeriodicVariables:
             'description': 'Calculates the highest earner(s) of students based on the virtual currency they have earned',
             'function': calculate_student_earnings,
         },
-        student_warmup_pratice: {
-            'index': student_warmup_pratice,
-            'name': 'student_warmup_pratice',
+        student_warmup_practice: {
+            'index': student_warmup_practice,
+            'name': 'student_warmup_practice',
             'displayName': 'Number of Warmup Challenges Practiced',
             'description': 'The total amount a student has completed any warmup challenges. Including multiple attempts',
             'function': calculate_student_warmup_practice,
