@@ -15,6 +15,15 @@
                  console.log($('.chips-tags').material_chip('data'));
              });
          });
+         function parsonsWarning(i,checkbox){
+	        if(checkbox.checked){
+	       		 if (i==8){
+			         var isSerious = "{{isSerious}}";
+			         if(!!isSerious)
+		        		 alert("Warning: Adding Parson's Problems to a Serious Challenge is not recommended.");
+	        	 }
+	        }
+         }
       </script>
    </head>
    <body>
@@ -59,7 +68,7 @@
                            <div class="col s12">
                               {% for i,displayName in qtypes_range %}
                               <p>
-                                 <input name="selectedType" class="filled-in" type="checkbox" id="pType-{{i}}" value="{{i}}"/>
+                                 <input name="selectedType" class="filled-in" type="checkbox" id="pType-{{i}}" onclick="parsonsWarning({{i}},this);" value="{{i}}"/>
                                  <label for="pType-{{i}}">{{displayName}}</label>
                               </p>
                               {% endfor %}
@@ -99,10 +108,12 @@
                               <h5>Challenges</h5>
                            </div>
                            <div class="col s12">
-                              {% for i,qchallengeName,qchallengeID in challenge_range %}
+                              {% for i,qchallengeName,qchallengeID, parsons in challenge_range %}
                               <p>
-                                 <input name="selectedChallenges" class="filled-in" type="checkbox" id="challenge-{{i}}" value="{{qchallengeID}}"/>
-                                 <label for="challenge-{{i}}">{{qchallengeName}}</label>
+                              		{% if parsons %}
+                              			<input name="selectedChallenges" class="filled-in" type="checkbox" onclick="parsonsWarning({{parsons}},this)" id="challenge-{{i}}" value="{{qchallengeID}}"/>
+                                 		<label for="challenge-{{i}}">{{qchallengeName}}</label>
+                                 	{% endif %}
                               </p>
                               {% endfor %}
                            </div>

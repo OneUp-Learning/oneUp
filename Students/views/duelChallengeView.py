@@ -29,19 +29,22 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 @app.task
 def start_duel_challenge(duel_id, course_id):
     ''' This function starts a duel called automatically'''
-
-    course = Courses.objects.get(courseID=course_id)
-    duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=course)
-    duel_challenge.hasStarted = True
-    duel_challenge.save()
+    try:
+        course = Courses.objects.get(courseID=course_id)
+        duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=course)
+        duel_challenge.hasStarted = True
+        duel_challenge.save()
+    except:
+        return
 
 @app.task
 def automatic_evaluator(duel_id, course_id):
         ''' This function evalutes winner(s) automatically '''
-
-        current_course = Courses.objects.get(courseID=course_id)
-        duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=current_course)
-        
+        try:
+            current_course = Courses.objects.get(courseID=course_id)
+            duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=current_course)
+        except:
+            return 
         ccparams = CourseConfigParams.objects.get(courseID = current_course)
         duel_vc_const = ccparams.vcDuel
         duel_vc_participants_const = ccparams.vcDuelParticipants
@@ -890,6 +893,7 @@ def validate_duel_challenge_creation(request):
         return JsonResponse(context_dict)
     
     return redirect('/oneUp/students/Callouts') 
+    
 
 @login_required
 def duel_challenge_description(request):
@@ -908,9 +912,17 @@ def duel_challenge_description(request):
             duel_challenge = DuelChallenges.objects.get(pk=int(request.GET['duelChallengeID']))
         except:
             return redirect('/oneUp/students/Callouts') 
+
+        # check if the duel hasStartTime reached
+        if (not duel_challenge.hasStarted) and (duel_challenge.status == 2) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)) <= utcDate()):
+            duel_challenge.hasStarted = True
+            duel_challenge.save()
         
-        context_dict['timeLimit'] = duel_challenge.timeLimit
+        # check if the duel hasStartTime + timeLimit reached
+        if (not duel_challenge.hasEnded) and (duel_challenge.hasStarted) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) +timedelta(seconds=5)) <= utcDate()):
+            automatic_evaluator(duel_challenge.duelChallengeID, current_course.courseID)
         
+        context_dict['timeLimit'] = duel_challenge.timeLimit    
         context_dict['award'] = duel_vc_const + 2 * duel_challenge.vcBet + duel_vc_participants_const
         
         if 'sTime' in request.GET:
@@ -920,12 +932,14 @@ def duel_challenge_description(request):
             context_dict['startTime'] = 0
     
             if duel_challenge.hasStarted:
-                total_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=20)
+                total_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) #+timedelta(seconds=2)
                 remaing_time = total_time-utcDate()
                 difference_minutes = remaing_time.total_seconds()/60.0
                 context_dict['testDuration'] = difference_minutes
         else:
-            start_accept_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)+timedelta(seconds=20)
+            start_accept_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) #+timedelta(seconds=2)
+            print("start_accept_time", start_accept_time)
+            print("utcDate()", utcDate())
             difference =  start_accept_time - utcDate()
             difference_minutes = difference.total_seconds()/60.0
         
@@ -933,13 +947,35 @@ def duel_challenge_description(request):
 
         def results(duel_challenge, student_id):
             message = ''
-            winners = Winners.objects.filter(DuelChallengeID=duel_challenge)
             
+            # This checks whether the 2 winners of the duel is the same student. That happens in case of auto submit 
+            # where the challenges are submitted at the same time and evaluated twice
+            if len(Winners.objects.filter(DuelChallengeID=duel_challenge)) == 2:
+                ws = Winners.objects.filter(DuelChallengeID=duel_challenge)
+                if ws[0].studentID == ws[1].studentID:
+                    ws[1].delete()
+
+                    vc_winner = StudentRegisteredCourses.objects.get(studentID=ws[0].studentID, courseID=duel_challenge.courseID)
+                    # Winner gets the total virtual currency and an amount of virtual currency set by teacher
+                    virtualCurrencyAmount = vc_winner.virtualCurrencyAmount - 2*duel_challenge.vcBet - duel_vc_const - duel_vc_participants_const
+                    vc_winner.virtualCurrencyAmount = virtualCurrencyAmount
+                    vc_winner.save()
+                   
+
+                    w_student_vc = StudentVirtualCurrency.objects.filter(courseID = duel_challenge.courseID, studentID = ws[0].studentID, objectID = 0, value = (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const), vcName = duel_challenge.duelChallengeName)
+                    if len(w_student_vc) == 2:
+                        w_student_vc[1].delete()
+
+            winners = Winners.objects.filter(DuelChallengeID=duel_challenge)
+    
+
             if len(winners) == 0:
                 message +="Both you and your opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
                 if duel_challenge.isBetting:
                     message +=" You and your opponent are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency each."
             elif len(winners)==2:
+                print("Winner 1 ",winners[0].studentID )
+                print("Winner 2 ",winners[1].studentID )
                 message +="You and your opponent are both winners of this duel."
                 if duel_challenge.isBetting:
                     message +=" You and youropponent are reimbursed an amount of "+str(duel_challenge.vcBet)
@@ -1124,16 +1160,16 @@ def duel_challenge_accept(request):
         ################################################################################################################################################
         # Start duel after specified time using celery 
         # get database start time and subtract 20 seconds from it to be consistent with network latency 
-        start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
-        print("start time ", start_time)
-        start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
-        print("start duel celery")
+        #start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
+        #print("start time ", start_time)
+        #start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
+        #print("start duel celery")
         ##################################################################################################################################################
 
         ##################################################################################################################################################
         # Automatically evaluate duel after specified time using Celery 
-        # get database start time and add a munite to it to be consistent with network latency 
-        evaluation_time = utcDate() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(minutes=1)
+        # get database start time and add 3 seconds to it to be consistent with network latency 
+        evaluation_time = utcDate() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=3)
         print("evaluation time ", evaluation_time )
         automatic_evaluator.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=evaluation_time)
         print("automatic evaluation duel celery")
@@ -1230,6 +1266,9 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                 w_student_vc.save()
 
+                duel_challenge.hasEnded = True
+                duel_challenge.save()
+
                 if duel_challenge.challenger == student_id:
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
                                             verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
@@ -1267,10 +1306,6 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     }
                     register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
 
-
-                duel_challenge.hasEnded = True
-                duel_challenge.save()
-                
                 context_dict['areAllDone'] = True
                 return context_dict
 
@@ -1471,7 +1506,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
     if duel_challenge.challenger == student_id:
         challenger_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
-        # if challengee has no challenge object, duel may have not submitted the duel yet
+        # if challengee has no challenge object, duel might have not been submitted the duel yet
         if not StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course):
             
             #################################################################
@@ -1487,7 +1522,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
     elif duel_challenge.challengee == student_id:
         challengee_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
         
-        # if challenger has no challenge object, duel may have not submitted the duel yet
+        # if challenger has no challenge object, duel might have not been submitted the duel yet
         if not StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course):
             
             #################################################################

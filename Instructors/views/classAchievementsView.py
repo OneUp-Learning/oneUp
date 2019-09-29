@@ -37,7 +37,7 @@ def classAchievements(request):
     challenges = list(Challenges.objects.filter(courseID=currentCourse, isGraded=True,  isVisible=True).order_by('endTimestamp'))
     num_challs = len(challenges)
     
-    activities = Activities.objects.filter(courseID=currentCourse, isGraded=True).order_by('deadLine')
+    activities = Activities.objects.filter(courseID=currentCourse, isGraded=True).order_by('activityPosition')
     
     users = [] 
     #Displaying the list of students from the current class
