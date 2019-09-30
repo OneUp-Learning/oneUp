@@ -43,7 +43,7 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
             message.append(announcement.message[:300])
     else: # Only shows the first three
         for announcement in announcements:
-            if index < 3:
+            if index < 1:
                 announcement_ID.append(announcement.announcementID) #pk
                 author_ID.append(announcement.authorID)
                 start_Timestamp.append(announcement.startTimestamp)

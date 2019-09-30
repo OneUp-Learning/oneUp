@@ -23,7 +23,7 @@ def createContextForUpcommingChallengesList(currentCourse, context_dict):
     currentTime = timezone.now()
     index = 0
     for item in challenges:
-        if index < 3 and item.isVisible: # Showing first three upcomming assignments
+        if index < 1 and item.isVisible: # Showing first three upcomming assignments
             # Check if current time is within the start and end time of the challenge and that the endtime is not the default for 'unchecked' endtime
             if currentTime > item.startTimestamp:
                 if currentTime < item.dueDate and not datetime.strptime(str(item.dueDate.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p") == default_time_str:
