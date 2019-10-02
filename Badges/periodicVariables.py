@@ -296,9 +296,6 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
         if badge_id:
             # Check if student has earned this badge
             studentBadges = StudentBadges.objects.filter(studentID = student, badgeID = badge_id)
-            if studentBadges.exists():
-                print("Badge already earned")
-                return
 
             # If the badge has not already been earned, then award it 
             badge = BadgesInfo.objects.get(pk=badge_id)
@@ -675,19 +672,19 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     from datetime import datetime, timedelta
     import ast
             
-    treshold = 0
+    threshold = 0
     resetStreak = False
     
-    #if detemine which type of award this is and obtain tresholds and resetStreak booleans
+    #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
-            treshold = periodicBadge.threshold
+            threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
-            treshold = periodicVC.threshold
+            threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
      
     if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
@@ -727,42 +724,78 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
         if datetime.now().strftime("%Y-%m-%d") in filteredStreakDays:
             isTodayStreakDay = True
             
-    total = 0
-    #determine what to do with their attendance
+
+    student_total = 0
+    # Cases when threshold is passed as max or avg or as number
+    # Need to calculate the avg of all students totals and find max of all students
+
+    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
+    max_total = 0
+    avg_total = 0
+    for s in students:
+        stud = s.studentID
+        total = 0
+        if StudentAttendance.objects.filter(courseID=course.courseID, studentID=stud, timestamp=datetime.now().strftime("%Y-%m-%d")).exists():
+            if StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud, streakType=0).exists():
+                streak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud)[0]
+                total = streak.currentStudentStreakLength + 1
+                
+        # Set max
+        if total > max_total:
+            max_total = total
+
+        # Sum to find avg
+        avg_total += total
+
+        # Set the student total that this calculation should be run for
+        if stud == student:
+            student_total = total
+        
+    
+    avg_total = avg_total / len(students)
+
+    # Determine the threshold value 
+    if threshold == 'max':
+        threshold = max_total
+    elif threshold == 'avg':
+        threshold = avg_total
+    else:
+        threshold = int(threshold)
+
     if isTodayStreakDay:
         
         if StudentAttendance.objects.filter(courseID=course.courseID, studentID=student, timestamp=datetime.now().strftime("%Y-%m-%d")).exists():
             studentStreak.currentStudentStreakLength += 1
-            total = studentStreak.currentStudentStreakLength
+            student_total = studentStreak.currentStudentStreakLength
             
             #if total is larger than streak and we want to NOT reset streak
-            if total > treshold and resetStreak:
+            if student_total > threshold and resetStreak:
                 studentStreak.currentStudentStreakLength = 0
-                total = treshold
-            elif total > treshold and not resetStreak:
-                if total % treshold == 0:
-                    total = treshold
+                student_total = threshold
+            elif student_total > threshold and not resetStreak:
+                if student_total % threshold == 0:
+                    student_total = threshold
                 else:
-                    #total is set as remainder of current streak length and treshold
-                    total %= treshold
-            elif total == treshold and resetStreak:
+                    #student_total is set as remainder of current streak length and threshold
+                    student_total %= threshold
+            elif student_total == threshold and resetStreak:
                 studentStreak.currentStudentStreakLength = 0
-                total = treshold
-            elif total == treshold and not resetStreak:
-                total = treshold
+                student_total = threshold
+            elif student_total == threshold and not resetStreak:
+                student_total = threshold
                 
         else:
             studentStreak.currentStudentStreakLength = 0
-            total = 0
+            student_total = 0
                         
     studentStreak.save()
     print("Course: {}".format(course))
     print("Student: {}".format(student))
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
-    print("Total Earnings: {}".format(total))
+    print("Total Earnings: {}".format(student_total))
 
-    return (student, total)
+    return (student, student_total)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     return studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
@@ -791,18 +824,18 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
         else:
             last_ran = None
            
-    treshold = 0
+    threshold = 0
     resetStreak = False  
-    #if detemine which type of award this is and obtain tresholds and resetStreak booleans
+    #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
-            treshold = periodicBadge.threshold
+            threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
-            treshold = periodicVC.threshold
+            threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
      
     if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
@@ -815,29 +848,63 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
         studentStreak.streakType = 0
         studentStreak.objectID = unique_id
         studentStreak.currentStudentStreakLength = 0   
-        
-    total = 0
-    
-    #figure out how many challenges have been completed by the student
-    challengeCount = len(StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
-    studentStreak.currentStudentStreakLength += challengeCount
-    
-    total = studentStreak.currentStudentStreakLength
-    #if total is larger than streak and we want to NOT reset streak
-    if total > treshold and resetStreak:
-        studentStreak.currentStudentStreakLength = 0
-        total = treshold
-    elif total > treshold and not resetStreak:
-        if total % treshold == 0:
-            total = treshold
+
+    student_total = 0
+    # Cases when threshold is passed as max or avg or as number
+    # Need to calculate the avg of all students totals and find max of all students
+
+    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
+    max_total = 0
+    avg_total = 0
+    for s in students:
+        stud = s.studentID
+        total = 0
+        challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+        #figure out how many challenges have been completed by the student
+        if StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud, streakType=0).exists():
+            streak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud)[0]
+            total = streak.currentStudentStreakLength + challengeCount
         else:
-            #total is set as remainder of current streak length and treshold
-            total %= treshold
-    elif total == treshold and resetStreak:
+            total = challengeCount
+        
+        # Set max
+        if total > max_total:
+            max_total = total
+
+        # Sum to find avg
+        avg_total += total
+
+        # Set the student total that this calculation should be run for
+        if stud == student:
+            student_total = total
+    
+    avg_total = avg_total / len(students)
+
+    # Determine the threshold value 
+    if threshold == 'max':
+        threshold = max_total
+    elif threshold == 'avg':
+        threshold = avg_total
+    else:
+        threshold = int(threshold)
+
+
+
+    #if total is larger than streak and we want to NOT reset streak
+    if student_total > threshold and resetStreak:
         studentStreak.currentStudentStreakLength = 0
-        total = treshold
-    elif total == treshold and not resetStreak:
-        total = treshold
+        student_total = threshold
+    elif student_total > threshold and not resetStreak:
+        if student_total % threshold == 0:
+            student_total = threshold
+        else:
+            #total is set as remainder of current streak length and threshold
+            student_total %= threshold
+    elif student_total == threshold and resetStreak:
+        studentStreak.currentStudentStreakLength = 0
+        student_total = threshold
+    elif student_total == threshold and not resetStreak:
+        student_total = threshold
         
     studentStreak.save()
     
@@ -845,10 +912,10 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     print("Student: {}".format(student))
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
-    print("Total Earnings: {}".format(total))
+    print("Total Earnings: {}".format(student_total))
 
     
-    return (student, total)
+    return (student, student_total)
 
 def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
     from Students.models import StudentStreaks, StudentChallenges
@@ -878,7 +945,7 @@ def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
 
 def calculate_student_challenge_streak_for_percentage(percentage, course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only):
     print("Calculating student challenge >= streak") 
-    from Students.models import StudentStreaks, StudentChallenges
+    from Students.models import StudentStreaks, StudentChallenges, StudentRegisteredCourses
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
     from datetime import datetime
     from Instructors.models import Challenges
@@ -913,18 +980,18 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         else:
             last_ran = None
            
-    treshold = 0
+    threshold = 0
     resetStreak = False  
-    #if detemine which type of award this is and obtain tresholds and resetStreak booleans
+    #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
-            treshold = periodicBadge.threshold
+            threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
-            treshold = periodicVC.threshold
+            threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
      
     if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
@@ -937,45 +1004,73 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         studentStreak.streakType = 0
         studentStreak.objectID = unique_id
         studentStreak.currentStudentStreakLength = 0   
-        
-    total = 0
-    
-    #figure out how many challenges have been completed by the student
-    challengeCount = len(StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
-    studentChallengeIDs = []
-    maxScores = []
+                
+    student_total = 0
+    # Cases when threshold is passed as max or avg or as number
+    # Need to calculate the avg of all students totals and find max of all students
 
-    if challengeCount > 1:
-        studentChallenges = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
-        for challenge in studentChallenges:
-            studentChallengeIDs.append(challenge.challengeID)
-        challengeScores = []
-        for studentChallengeID in studentChallengeIDs:
-            if getPercentageScoreForStudent(studentChallengeID, student, percentage, last_ran):
+    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
+    max_total = 0
+    avg_total = 0
+    for s in students:
+        stud = s.studentID
+        total = 0
+        challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+        studentChallengeIDs = []
+        maxScores = []
+
+        if challengeCount > 1:
+            studentChallenges = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
+            for challenge in studentChallenges:
+                studentChallengeIDs.append(challenge.challengeID)
+            challengeScores = []
+            for studentChallengeID in studentChallengeIDs:
+                if getPercentageScoreForStudent(studentChallengeID, stud, percentage, last_ran):
+                    total += 1
+        elif challengeCount == 1:
+            studentChallenge = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID,
+            endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
+            challenge = Challenges.objects.filter(challengeID=studentChallenge.challengeID)[0]
+            if (studentChallenge.testScore/challenge.challengeTotalScore) >= (percentage):
                 total += 1
-    elif challengeCount == 1:
-        print("challCount==1")
-        studentChallenge = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID,
-        endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
-        challenge = Challenges.objects.filter(challengeID=studentChallenge.challengeID)[0]
-        if (studentChallenge.testScore/challenge.challengeTotalScore) >= (percentage):
-            total += 1
+
         
+        # Set max
+        if total > max_total:
+            max_total = total
+
+        # Sum to find avg
+        avg_total += total
+
+        # Set the student total that this calculation should be run for
+        if stud == student:
+            student_total = total
+    
+    avg_total = avg_total / len(students)
+
+    # Determine the threshold value 
+    if threshold == 'max':
+        threshold = max_total
+    elif threshold == 'avg':
+        threshold = avg_total
+    else:
+        threshold = int(threshold)
+
     #if total is larger than streak and we want to NOT reset streak
-    if total > treshold and resetStreak:
+    if student_total > threshold and resetStreak:
         studentStreak.currentStudentStreakLength = 0
-        total = treshold
-    elif total > treshold and not resetStreak:
-        if total % treshold == 0:
-            total = treshold
+        student_total = threshold
+    elif student_total > threshold and not resetStreak:
+        if student_total % threshold == 0:
+            student_total = threshold
         else:
-            #total is set as remainder of current streak length and treshold
-            total %= treshold
-    elif total == treshold and resetStreak:
+            #total is set as remainder of current streak length and threshold
+            student_total %= threshold
+    elif student_total == threshold and resetStreak:
         studentStreak.currentStudentStreakLength = 0
-        total = treshold
-    elif total == treshold and not resetStreak:
-        total = treshold
+        student_total = threshold
+    elif student_total == threshold and not resetStreak:
+        student_total = threshold
         
     studentStreak.save()
     
@@ -983,10 +1078,10 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
     print("Student: {}".format(student))
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
-    print("Total Earnings: {}".format(total))
+    print("Total Earnings: {}".format(student_total))
 
     
-    return (student, total)
+    return (student, student_total)
     
 def calculate_student_challenge_streak_for_percentage_over_span_of_days(percentage, course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only):
     from Students.models import StudentStreaks, StudentChallenges
@@ -1024,18 +1119,18 @@ def calculate_student_challenge_streak_for_percentage_over_span_of_days(percenta
         else:
             last_ran = None
            
-    treshold = 0
+    threshold = 0
     resetStreak = False  
-    #if detemine which type of award this is and obtain tresholds and resetStreak booleans
+    #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
-            treshold = periodicBadge.threshold
+            threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
-            treshold = periodicVC.threshold
+            threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
      
     if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
@@ -1049,46 +1144,72 @@ def calculate_student_challenge_streak_for_percentage_over_span_of_days(percenta
         studentStreak.objectID = unique_id
         studentStreak.currentStudentStreakLength = 0   
         
-    total = 0
-    
-    #figure out how many challenges have been completed by the student
-    challengeCount = len(StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
-    studentChallengeIDs = []
-    maxScores = []
+    student_total = 0
+    # Cases when threshold is passed as max or avg or as number
+    # Need to calculate the avg of all students totals and find max of all students
 
-    if challengeCount > 1:
-        studentChallenges = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
-        for challenge in studentChallenges:
-            studentChallengeIDs.append(challenge.challengeID)
-        challengeScores = []
-        for studentChallengeID in studentChallengeIDs:
-            if getPercentageScoreForStudent(studentChallengeID, student, percentage, last_ran):
+    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
+    max_total = 0
+    avg_total = 0
+    for s in students:
+        stud = s.studentID
+        total = 0
+        challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+        studentChallengeIDs = []
+        maxScores = []
+
+        if challengeCount > 1:
+            studentChallenges = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
+            for challenge in studentChallenges:
+                studentChallengeIDs.append(challenge.challengeID)
+            challengeScores = []
+            for studentChallengeID in studentChallengeIDs:
+                if getPercentageScoreForStudent(studentChallengeID, stud, percentage, last_ran):
+                    total += 1
+        elif challengeCount == 1:
+            studentChallenge = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID,
+            endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
+            challenge = Challenges.objects.filter(challengeID=studentChallenge.challengeID)[0]
+            if (studentChallenge.testScore/challenge.challengeTotalScore) >= (percentage):
                 total += 1
-    elif challengeCount == 1:
-        studentChallenge = StudentChallenges.objects.filter(studentID=student, courseID=course.courseID,
-        endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
-        challenge = Challenges.objects.filter(challengeID=studentChallenge.challengeID)[0]
-        if (studentChallenge.testScore/challenge.challengeTotalScore) >= (percentage):
-            total += 1
+
+        # Set max
+        if total > max_total:
+            max_total = total
+
+        # Sum to find avg
+        avg_total += total
+
+        # Set the student total that this calculation should be run for
+        if stud == student:
+            student_total = total
     
-    if total:
+    avg_total = avg_total / len(students)
+
+    # Determine the threshold value 
+    if threshold == 'max':
+        threshold = max_total
+    elif threshold == 'avg':
+        threshold = avg_total
+    else:
+        threshold = int(threshold)
+
+    if student_total:
         studentStreak.currentStudentStreakLength = 0
     else:
         studentStreak.currentStudentStreakLength += 1
 
-    
-
     #if total is larger than streak and we want to NOT reset streak
-    if studentStreak.currentStudentStreakLength >= treshold and resetStreak:
+    if studentStreak.currentStudentStreakLength >= threshold and resetStreak:
         studentStreak.currentStudentStreakLength = 0
-        total = treshold
-    elif studentStreak.currentStudentStreakLength >= treshold and not resetStreak:
-        total = treshold
-    elif studentStreak.currentStudentStreakLength == treshold and resetStreak:
+        student_total = threshold
+    elif studentStreak.currentStudentStreakLength >= threshold and not resetStreak:
+        student_total = threshold
+    elif studentStreak.currentStudentStreakLength == threshold and resetStreak:
         studentStreak.currentStudentStreakLength = 0
-        total = treshold
-    elif studentStreak.currentStudentStreakLength == treshold and not resetStreak:
-        total = treshold
+        student_total = threshold
+    elif studentStreak.currentStudentStreakLength == threshold and not resetStreak:
+        student_total = threshold
         
     studentStreak.save()
     
@@ -1096,10 +1217,10 @@ def calculate_student_challenge_streak_for_percentage_over_span_of_days(percenta
     print("Student: {}".format(student))
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
-    print("Total Earnings: {}".format(total))
+    print("Total Earnings: {}".format(student_total))
 
     
-    return (student, total)
+    return (student, student_total)
 
 def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(70,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
