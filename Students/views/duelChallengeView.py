@@ -1288,14 +1288,11 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
             # get start and limit time from database 
             start_and_limit_time = duel_challenge.startTime + duel_challenge.timeLimit
-            
-            # get utc time now and add 15 seconds for network latency and items in queue that may make a delay
-            date_now = utcDate() + timedelta(seconds=15) 
 
             # get the time when duel was accpeted and add start_and_limit_time to time
-            duel_allowed_time = duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time) 
+            duel_allowed_time = duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time)+timedelta(seconds=2)
             
-            if duel_allowed_time < date_now:
+            if duel_allowed_time <= utcDate():
                 
                 # Challenge is expired
                 context_dict['isExpired']=True
@@ -1586,8 +1583,6 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         else:
             raise
 
-
-    
     updated_duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_challenge_ID)
 
     if updated_duel_challenge.evaluator == 1:
@@ -1607,6 +1602,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             evaluator(challenger_challenge, challengee_challenge, updated_duel_challenge, current_course, duel_vc_const,duel_vc_participants_const)
             context_dict['areAllDone'] = True
             return context_dict
+        return context_dict
 
     elif updated_duel_challenge.evaluator == 2:
         print("evaluator is 2, challenger")
@@ -1626,7 +1622,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const, duel_vc_participants_const)
             context_dict['areAllDone'] = True
             return context_dict
-
+        return context_dict
     else:
         #context_dict['error']= "Some error has occurred!"
         context_dict['error'] = True
