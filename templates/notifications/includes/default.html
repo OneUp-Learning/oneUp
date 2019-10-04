@@ -6,18 +6,20 @@
    	<td>
     	<span class="timesince">{{ notification.created|timesince }} ago</span>
     </td>
-	<!--<script type ="text/javascript">
-	document.getElementById("mark-notification").style.cssText= document.getElementById("waves-effect waves-light btn").style.cssText;
-	</script>-->
-	<td style="padding-left: 50px;">
-			<button  data-id="{{ notification.id }}" class="mark-notification waves-effect waves-light btn"
+
+	<td>
+		{% if notification.deleted == False %}
+			<button style="margin-block-end: 8px;" data-id="{{ notification.id }}" class="mark-notification waves-effect waves-light btn"
 				data-mark-action="{{ notification.read|yesno:'unread,read' }}"
 				data-toggle-text="Mark as {{ notification.read|yesno:_('read,unread') }}">
 
 				Mark as {{ notification.read|yesno:'unread,read' }}
 
 			</button>
-			<button class="delete-notification waves-effect waves-light btn" data-id="{{ notification.id }}">
+			<button style="margin-block-end: 8px;" class="delete-notification waves-effect waves-light btn" data-id="{{ notification.id }}">
 				Dismiss</button>
+		{% else %}
+		<b>Dismissed</b>
+		{% endif %}
 	</td>
 </tr>

@@ -1,5 +1,5 @@
 import datetime
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from Instructors.models import Challenges
 from Instructors.views.utils import utcDate
 from Instructors.constants import default_time_str, unlimited_constant
@@ -88,14 +88,19 @@ def ChallengeDescription(request):
                 if is_duel:
                     total_time = duel_challenge.acceptTime + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
-                            minutes=duel_challenge.timeLimit)+timedelta(seconds=20)
+                            minutes=duel_challenge.timeLimit)
                     remaing_time = remaing_time = total_time-utcDate()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['timeLimit'] = ("%.2f" % difference_minutes)
+                    if difference_minutes <= 0:
+                        return redirect('/oneUp/students/DuelChallengeDescription?duelChallengeID=' +
+                                        str(duel_challenge.duelChallengeID))
                 elif is_callout:
                     time_left = (call_out_part.calloutID.endTime -
                                  utcDate()).total_seconds() / 60.0
                     context_dict['timeLimit'] = ("%.2f" % time_left)
+                    if time_left <= 0:
+                        return redirect('/oneUp/students/CalloutDescription?call_out_participant_id=' + str(call_out_part.id) + '&participant_id=' + str(call_out_part.participantID.user.id))
                 elif data == unlimited_constant:
                     context_dict['timeLimit'] = "None"
                 else:

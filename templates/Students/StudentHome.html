@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-        
-        {% include 'scripts.html' %}
-        
-      </head>
-      <body>
-          {% include 'stheading0.html' %}
 
-		  <main>
+<head>
+
+	{% include 'scripts.html' %}
+
+</head>
+
+<body>
+	{% include 'stheading0.html' %}
+
+	<main>
+		<div class="row">
+			<div class="col s12 m12 l10 offset-l1">
 				<div class="row">
-					<div class="col s12 m12 l10 offset-l1">
-				<div class="row">
-						<div class="col s12 m6">
-							<div class="card-panel">
+					<div class="col s12 m6">
+						<div class="card-panel">
 							<table>
 								<thead>
-								<th>Latest Announcements</th>
-								
+									<th>Latest Announcements</th>
+
 								</thead>
 								<tbody>
-								   {% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
+									{% for i,announcement_ID,announcement_course,start_timestamp,subject,message in announcement_range %}
 									<tr>
 										<td>{{announcement_course}}: </td>
-										<td style="max-width:24vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{subject}}</td>
+										<td
+											style="max-width:24vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">
+											{{subject}}</td>
 										<td>{{start_timestamp}}</td>
 									</tr>
 									{% empty %}
@@ -33,43 +37,72 @@
 									{% endfor %}
 								</tbody>
 							</table>
-							</div>
 						</div>
-						<div class="col s12 m6">
+					</div>
+					<div class="col s12 m6">
 							<div class="card-panel">
-							<table>
-								<thead>
-									<th>Your Courses</th>
-								</thead>
-								<tbody>
-									{% for i,course_ID,course_Name, course_available in course_range %}
-									<tr>
-										<td>{{course_Name}}</td>
-										<td style="padding:0;">
-											<form action="/oneUp/setCourse" method="POST">
-											{% csrf_token %}                                                                        
-												<input type="hidden" name="courseID" value="{{course_ID}}">
-												<input type="hidden" name="is_student" value="True">
-												<button class="btn waves-effect waves-light secondary-content" type="submit" name="submit" value="Select"{% if not course_available%} disabled {%endif%}>
-												{% if course_available %}Select{%else%}Not Available{%endif%}
-												</button>                         
-											</form>
-										</td>
-									</tr>
-									{% empty %}
-									<tr>
-										<td class="center-align"><i>No courses</i></td>
-									</tr>
-									{% endfor %}
-								</tbody>
-							</table>
-							</div>
+									<table>
+										<thead>
+											<th>Upcoming Assignments</th>
+		
+										</thead>
+										<tbody>
+											{% for i,chall_ID,chall_course,chall_Name,start_Timestamp,due_date in challenge_range %}
+											<tr>
+												<td>{{chall_course}}: </td>
+												<td
+													style="max-width:24vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">
+													{{chall_Name}}</td>
+												<td>{{due_date}}</td>
+											</tr>
+											{% empty %}
+											<tr>
+												<td class="center-align"><i>No upcoming assignments</i></td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+					</div>
+				</div>
+				<div class="row">
+						<div class="col s12 m6">
+								<div class="card-panel">
+										<table>
+											<thead>
+												<th>Your Courses</th>
+											</thead>
+											<tbody>
+												{% for i,course_ID,course_Name, course_available in course_range %}
+												<tr>
+													<td>{{course_Name}}</td>
+													<td style="padding:0;">
+														<form action="/oneUp/setCourse" method="POST">
+															{% csrf_token %}
+															<input type="hidden" name="courseID" value="{{course_ID}}">
+															<input type="hidden" name="is_student" value="True">
+															<button class="btn waves-effect waves-light secondary-content"
+																type="submit" name="submit" value="Select"
+																{% if not course_available%} disabled {%endif%}>
+																{% if course_available %}Select{%else%}Not Available{%endif%}
+															</button>
+														</form>
+													</td>
+												</tr>
+												{% empty %}
+												<tr>
+													<td class="center-align"><i>No courses</i></td>
+												</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
 						</div>
-				</div>
-				
-				</div>
-				</div>
-			</main>
-       {% include 'footer.html' %}      
-      </body>
-   </html>
+					</div>
+			</div>
+		</div>
+	</main>
+	{% include 'footer.html' %}
+</body>
+
+</html>

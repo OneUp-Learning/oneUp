@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.utils import utcDate
 from Badges.models import CourseConfigParams
-from Students.models import StudentRegisteredCourses, Callouts, StudentChallenges, CalloutParticipants, StudentConfigParams, StudentVirtualCurrency, CalloutStats
+from Students.models import StudentRegisteredCourses, Callouts, StudentChallenges, CalloutParticipants, StudentConfigParams, StudentVirtualCurrency, CalloutStats, DuelChallenges, Student
 from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
 from notify.signals import notify
 from datetime import datetime, timedelta
@@ -26,11 +26,13 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 @app.task
 def end_call_out(call_out_id, course_id):
     ''' This function ends a call out if it has not ended yet'''
-
-    course = Courses.objects.get(courseID=course_id)
-    call_out = Callouts.objects.get(calloutID=call_out_id, courseID=course)
-    call_out.hasEnded = True
-    call_out.save()
+    try:
+        course = Courses.objects.get(courseID=course_id)
+        call_out = Callouts.objects.get(calloutID=call_out_id, courseID=course)
+        call_out.hasEnded = True
+        call_out.save()
+    except:
+        print("error")
 
 
 def evaluator(call_out, sender_stat, call_out_participant, participant_id, current_course, participant_chall, already_taken=False):
@@ -112,7 +114,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             # Check if any participant has participated in the class call out
             if not call_out.isIndividual:
-                stats = CalloutStats.objects.filter(calloutID=call_out)
+                stats = CalloutStats.objects.filter(calloutID=call_out, courseID=current_course)
                 # only reward sender once when there is only one participant and the sender the callout stats table
                 if len(stats) == 2:
                     reward_sender(sender_stat, current_course, call_out)
@@ -183,7 +185,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
              # Check if any participant has participated in the class call out
             if not call_out.isIndividual:
-                stats = CalloutStats.objects.filter(calloutID=call_out)
+                stats = CalloutStats.objects.filter(calloutID=call_out, courseID=current_course)
                 # only reward sender once when there is only one participant and the sender the callout stats table
                 if len(stats) == 2:
                     reward_sender(sender_stat, current_course, call_out)
@@ -218,6 +220,45 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             register_event_simple(Event.calloutLost, mini_req,
                                   objectId=call_out_stat.calloutID.calloutID)
 
+def get_sender_duel_challs(student_id,  current_course):
+    '''get the challenger's and challengee's duel warm up challenges'''
+
+    challenger_duels_as_challenger = DuelChallenges.objects.filter(challenger = student_id, courseID=current_course)
+    challenger_duels_as_challengee = DuelChallenges.objects.filter(challengee = student_id, courseID=current_course)
+
+
+    if not challenger_duels_as_challenger and not challenger_duels_as_challengee:
+        return []
+    challenger_duels = list(challenger_duels_as_challenger) + list(challenger_duels_as_challengee)
+    challenger_duels_challs = []
+    for challenger_duel in challenger_duels:
+        challenger_duels_challs.append(challenger_duel.challengeID)
+         
+    return challenger_duels_challs
+
+def get_challenger_challengee_duel_challs(student_id, challengee_id, current_course):
+    '''get the challenger's and challengee's duel warm up challenges'''
+
+    challenger_duels_as_challenger = DuelChallenges.objects.filter(challenger = student_id, courseID=current_course)
+    challenger_duels_as_challengee = DuelChallenges.objects.filter(challengee = student_id, courseID=current_course)
+
+    challengee_duels_as_challenger = DuelChallenges.objects.filter(challenger=challengee_id, courseID=current_course)
+    challengee_duels_as_challengee = DuelChallenges.objects.filter(challengee=challengee_id, courseID=current_course)
+
+    if not challenger_duels_as_challenger and not challenger_duels_as_challengee and not challengee_duels_as_challenger and not challengee_duels_as_challengee:
+        return ([],[])
+    challenger_duels = list(challenger_duels_as_challenger) + list(challenger_duels_as_challengee)
+    challenger_duels_challs = []
+    for challenger_duel in challenger_duels:
+        challenger_duels_challs.append(challenger_duel.challengeID)
+         
+    
+    challengee_duels = list(challengee_duels_as_challenger) + list(challengee_duels_as_challengee)
+    challengee_duels_challs = []
+    for challengee_duel in challengee_duels:
+        challengee_duels_challs.append(challengee_duel.challengeID)
+    
+    return (challenger_duels_challs, challengee_duels_challs)
 
 @login_required
 def callout_create(request):
@@ -396,8 +437,8 @@ def callout_create(request):
 
         ################################################################################################################################################
         # End call out after specified time using celery
-        # get database end time and add 40 seconds from it to be consistent with network latency
-        end_time = callout.endTime + timedelta(seconds=40)
+        # get database end time and add 5 seconds from it to be consistent with network latency
+        end_time = callout.endTime + timedelta(seconds=3)
         end_call_out.apply_async(
             (callout.calloutID, current_course.courseID), eta=end_time)
         ##################################################################################################################################################
@@ -473,20 +514,23 @@ def callout_create(request):
 
     # get all participant's call_outs' challenges
     participant_call_outs = CalloutParticipants.objects.filter(
-        participantID=participants[0].studentID)
+        participantID=participants[0].studentID, courseID=current_course)
     participant_call_outs_challenges = [
         call_out.calloutID.challengeID for call_out in participant_call_outs]
 
     # get all sender's call_outs' challenges
     sender_call_outs = Callouts.objects.filter(
-        sender=student_id)
+        sender=student_id, courseID=current_course)
     sender_call_outs_challenges = [
         call_out.challengeID for call_out in sender_call_outs]
+
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, participants[0].studentID, current_course)
+
 
     qualified_challenges = []
 
     for sender_challenge in sender_challenges:
-        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges and not sender_challenge.challengeID in sender_call_outs_challenges:
+        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges and not sender_challenge.challengeID in challenger_duels_challs and not sender_challenge.challengeID in challengee_duels_challs and not sender_challenge.challengeID in sender_call_outs_challenges:
             qualified_challenges.append(sender_challenge)
 
     context_dict['challenges'] = qualified_challenges
@@ -527,18 +571,20 @@ def get_class_callout_qualified_challenges(request):
 
     # get all sender's call_outs' challenges
     sender_call_outs = Callouts.objects.filter(
-        sender=student_id)
+        sender=student_id, courseID=current_course)
     sender_call_outs_challenges = [
         call_out.challengeID for call_out in sender_call_outs]
 
     sender_call_outs_parts = CalloutParticipants.objects.filter(
-        participantID=student_id)
+        participantID=student_id, courseID=current_course)
     for sender_call_outs_part in sender_call_outs_parts:
         sender_call_outs_challenges.append(
             sender_call_outs_part.calloutID.challengeID)
 
+    sender_duel_challenges = get_sender_duel_challs(student_id, current_course)
+
     for challenge in sender_challenges:
-        if not challenge.challengeID in sender_call_outs_challenges:
+        if not challenge.challengeID in sender_call_outs_challenges and not challenge.challengeID in sender_duel_challenges:
             ids_names_taken_challenges.append(str(
                 challenge.challengeID.challengeID)+"---"+challenge.challengeID.challengeName)
 
@@ -588,19 +634,33 @@ def get_individual_callout_qualified_challenges(request):
         challenge.challengeID for challenge in participant_challenges if not challenge.challengeID.isGraded]
 
     # get all participant's call_outs' challenges
-    participant_call_outs = CalloutParticipants.objects.filter(
-        participantID__user_id=participant_id)
-    participant_call_outs_challenges = [
-        call_out.calloutID.challengeID for call_out in participant_call_outs]
+    participant_call_outs1 = CalloutParticipants.objects.filter(
+        participantID__user__id=participant_id, courseID=current_course)
+    participant_call_outs_challenges1 = [
+        call_out.calloutID.challengeID for call_out in participant_call_outs1]
+    participant_call_outs2 = Callouts.objects.filter(sender__user__id=participant_id, courseID=current_course)
+    participant_call_outs_challenges2 = [
+        call_out.challengeID for call_out in participant_call_outs2]
+
+    participant_call_outs_challenges = participant_call_outs_challenges1 + participant_call_outs_challenges2
+
+    participant = Student.objects.get(user__id=participant_id)
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, participant, current_course)
+
 
     # get all sender's call_outs' challenges
-    sender_call_outs = Callouts.objects.filter(
-        sender=student_id)
-    sender_call_outs_challenges = [
-        call_out.challengeID for call_out in sender_call_outs]
+    sender_call_outs1 = Callouts.objects.filter(
+        sender=student_id, courseID=current_course)
+    sender_call_outs2 = CalloutParticipants.objects.filter(participantID=student_id, courseID=current_course)
+
+    sender_call_outs_challenges1 = [
+        call_out.challengeID for call_out in sender_call_outs1]
+    sender_call_outs_challenges2 = [
+        participant_callout.calloutID.challengeID for participant_callout in sender_call_outs2]
+    sender_call_outs_challenges = sender_call_outs_challenges1 + sender_call_outs_challenges2
 
     for sender_challenge in sender_challenges:
-        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges and not sender_challenge.challengeID in sender_call_outs_challenges:
+        if not sender_challenge.challengeID.isGraded and not sender_challenge.challengeID in taken_participant_challenges and not sender_challenge.challengeID in participant_call_outs_challenges and not sender_challenge.challengeID in challenger_duels_challs and not sender_challenge.challengeID in challengee_duels_challs and not sender_challenge.challengeID in sender_call_outs_challenges:
             ids_names_challenges.append(
                 str(sender_challenge.challengeID.challengeID)+"---"+sender_challenge.challengeID.challengeName)
 
@@ -619,7 +679,7 @@ def callout_description(request):
         # if the call out is individual then get participant avatar, score and submit time if there is any
         if call_out.isIndividual:
             call_out_participant = CalloutParticipants.objects.get(
-                calloutID=call_out)
+                calloutID=call_out, courseID=current_course)
 
             context_dict['participant_avatar'] = StudentRegisteredCourses.objects.get(
                 studentID=call_out_participant.participantID, courseID=current_course).avatarImage
@@ -637,7 +697,7 @@ def callout_description(request):
             # try to get participant challenge
             try:
                 participant_call_out_stat = CalloutStats.objects.get(
-                    studentID=call_out_participant.participantID, calloutID=call_out, studentChallenge__challengeID=call_out.challengeID)
+                    studentID=call_out_participant.participantID, calloutID=call_out, studentChallenge__challengeID=call_out.challengeID, courseID=current_course)
                 context_dict['participant_score'] = participant_call_out_stat.studentChallenge.testScore
                 context_dict['submit_time'] = participant_call_out_stat.submitTime
                 context_dict['submission_status'] = True
@@ -706,7 +766,7 @@ def callout_description(request):
 
             if not is_sent_call_out:
                 call_out_part = CalloutParticipants.objects.get(
-                    calloutID=call_out, participantID__user__id=s_id)
+                    calloutID=call_out, participantID__user__id=s_id, courseID=current_course)
 
                 if not call_out_part.hasSubmitted:
                     message += "You will have to perform the same or better than the call out sender to win. Please see call out details bellow. "
@@ -717,7 +777,7 @@ def callout_description(request):
 
                 try:
                     participant_call_out_stat = CalloutStats.objects.get(
-                        studentID=call_out_part.participantID, studentChallenge__challengeID=call_out.challengeID, calloutID=call_out)
+                        studentID=call_out_part.participantID, studentChallenge__challengeID=call_out.challengeID, calloutID=call_out, courseID=current_course)
                     context_dict['participant_score'] = participant_call_out_stat.studentChallenge.testScore
                     context_dict['submit_time'] = participant_call_out_stat.submitTime
                     context_dict['submission_status'] = True
@@ -774,7 +834,7 @@ def callout_description(request):
 
                 try:
                     participant_call_out_stat = CalloutStats.objects.get(
-                        studentID=call_out_participant.participantID, studentChallenge__challengeID=call_out.challengeID, calloutID=call_out)
+                        studentID=call_out_participant.participantID, studentChallenge__challengeID=call_out.challengeID, calloutID=call_out, courseID=current_course)
                     participant_scores.append(
                         participant_call_out_stat.studentChallenge.testScore)
                     submit_times.append(
@@ -824,6 +884,13 @@ def callout_description(request):
             calloutID=call_out_id, courseID=current_course)
         context_dict['call_out'] = call_out
 
+        if (call_out.endTime + timedelta(seconds=5)) <= utcDate():
+            try:
+                call_out.hasEnded = True
+                call_out.save()
+            except:
+                print("error")
+
         # get the remaing time before the call out is expired in seconds
         context_dict['time_left'] = (
             call_out.endTime - utcDate()).total_seconds()
@@ -846,15 +913,23 @@ def callout_description(request):
         call_out_participant_id = request.GET['call_out_participant_id']
         participant_id = request.GET['participant_id']
         call_out_participant = CalloutParticipants.objects.get(
-            id=call_out_participant_id, participantID__user__id=participant_id)
+            id=call_out_participant_id, participantID__user__id=participant_id, courseID=current_course)
         context_dict['call_out_participant'] = call_out_participant
 
         context_dict['participant_avatar'] = StudentRegisteredCourses.objects.get(
             studentID__user__id=participant_id, courseID=current_course).avatarImage
         call_out = call_out_participant.calloutID
+
+        if (call_out.endTime + timedelta(seconds=5)) <= utcDate():
+            try:
+                call_out.hasEnded = True
+                call_out.save()
+            except:
+                print("error")
+                
         context_dict['call_out'] = call_out
         call_out_stat = CalloutStats.objects.get(
-            calloutID=call_out, studentID=call_out.sender)
+            calloutID=call_out, studentID=call_out.sender, courseID=current_course)
         sender_score = call_out_stat.studentChallenge.testScore
         context_dict['sender_score'] = sender_score
         context_dict['test_score'] = call_out_stat.studentChallenge.challengeID.totalScore
@@ -890,7 +965,7 @@ def call_out_list(student_id, current_course):
         # if it is individual, extract the participant's avatar url
         if sent_call_out.isIndividual:
             call_out_participant = CalloutParticipants.objects.get(
-                calloutID=sent_call_out)
+                calloutID=sent_call_out, courseID=current_course)
             sent_avatars_or_whole_class.append(StudentRegisteredCourses.objects.get(
                 studentID=call_out_participant.participantID, courseID=current_course).avatarImage)
         # else append a string statig this is for the whole class

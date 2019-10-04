@@ -9,7 +9,7 @@
          $( document ).ready(function(){
         	 {% if view %}
 	        	var tags = JSON.parse('{{ tags | escapejs }}')
-				var topics = JSON.parse('{{ topics | escapejs }}')
+				//var topics = JSON.parse('{{ topics | escapejs }}')
 				for(var i = 0; i < tags.length; i++){
 					var tag = tags[i];
 					var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
