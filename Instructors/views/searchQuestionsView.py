@@ -5,7 +5,8 @@ Created on Apr 10, 2014
 '''
 from django.shortcuts import render
 
-from Instructors.models import Challenges, CoursesSkills, CoursesTopics
+from Instructors.models import Challenges, CoursesSkills, CoursesTopics,\
+    ChallengesQuestions
 from Instructors.views.utils import initialContextDict
 from Badges.enums import dict_dict_to_zipped_list
 from Instructors.questionTypes import QuestionTypes
@@ -23,12 +24,13 @@ def searchQuestions(request):
     leveldiffs = []
     qchallengeName = []
     qchallengeID = []
+    hasParsons = []
     qdifficulty = []
     qskill = []
     ctopicID = []
     ctopicName = []
     qdifficulties = ['Easy', 'Medium', 'Hard']
-
+    
 
     # Get information for question types to display on the search page       
     questionTypesObjects= dict_dict_to_zipped_list(QuestionTypes.questionTypes,['index','displayName'])
@@ -59,10 +61,17 @@ def searchQuestions(request):
     for i in range(0, num_challenges):
         qchallengeName.append(challenges[i].challengeName)
         qchallengeID.append(challenges[i].challengeID)
+        #flags imported problems to check if contain parsons for serious challenges
+        if ChallengesQuestions.objects.filter(challengeID=challenges[i].challengeID, questionID__type=8).exists():
+            hasParsons.append("8")
+        else:
+            hasParsons.append("notParson")
+
+        
         
     context_dict['qtypes_range'] = questionTypesObjects
     context_dict['qdifficulty_range'] = zip(range(1, num_qdifficulties + 1), qdifficulty)
-    zipped = zip(range(1, num_challenges + 1), qchallengeName, qchallengeID)
+    zipped = zip(range(1, num_challenges + 1), qchallengeName, qchallengeID, hasParsons)
     context_dict['challenge_range'] = sorted(zipped, key=lambda x: x[1].lower())
     print('context_dict')
     print(qchallengeName)
@@ -73,7 +82,10 @@ def searchQuestions(request):
         context_dict['challengeID'] = request.GET['challengeID']
         challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
         context_dict['challengeName'] = challenge.challengeName
-
+        #checks if serious for Parson's warning
+        if challenge.isGraded:
+            context_dict['isSerious']='serious'
+            
     return render(request,'Instructors/SearchQuestions.html', context_dict)
         
         

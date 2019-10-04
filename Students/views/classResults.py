@@ -23,7 +23,7 @@ def classAverChallengeScore(course, challenge):
                 studentID=user, courseID=course, challengeID=challenge)
             chall_score = []
             for attempt in studentChallenges:
-                chall_score.append(attempt.testScore)
+                chall_score.append(attempt.getScore())
 
             totalChall += max(chall_score)
             count += 1

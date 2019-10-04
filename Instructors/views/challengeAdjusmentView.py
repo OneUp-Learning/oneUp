@@ -11,6 +11,7 @@ from Students.models import StudentRegisteredCourses, StudentChallenges
 from Instructors.views.utils import utcDate, initialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
+from Badges.models import CourseConfigParams
 from notify.signals import notify
 from Badges.event_utils import updateLeaderboard
 from oneUp.decorators import instructorsCheck
@@ -31,7 +32,10 @@ def challengeAdjustmentView(request):
         for studentRC in studentRCs:
             studentID = studentRC.studentID.id
             adjustmentScore = Decimal(request.POST['student_AdjustmentScore' + str(studentID)])
-            bonusScore = Decimal(request.POST['student_BonusScore' + str(studentID)])
+            if 'student_BonusScore' + str(studentID) in request.POST:
+                bonusScore = Decimal(request.POST['student_BonusScore' + str(studentID)])
+            else:
+                bonusScore = 0
                 
             if (StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID)).exists():
                 studentChallenge = StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID).latest('testScore')
@@ -139,6 +143,7 @@ def adjustmentList(request):
 
     #context_dict['challengeAdjustment_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason) 
     context_dict['challengeAdjustment_range'] = student_list
+    context_dict['isVcUsed'] = CourseConfigParams.objects.get(courseID = currentCourse).virtualCurrencyUsed
 
     return render(request,'Instructors/ChallengeAdjustmentForm.html', context_dict)
 

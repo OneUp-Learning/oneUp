@@ -100,7 +100,7 @@
       <style>
       tbody {
          display:block;
-         height:100vh;
+         max-height:100vh;
          overflow:auto;
       }
       thead, tbody tr {
@@ -162,16 +162,18 @@
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/TransactionNotes?transactionID={{transactionID}}"><i class="material-icons left">visibility</i>View Note</a>
                                  {% endif %}
                               </td>
-                              {% if status != 'Complete' and status != 'Reverted' %}
+                              {% if type != 'Earned' %}
                               <td class="center-align"><a class="waves-effect waves-light tooltipped create" href="#!" data-tooltip="Download" data-position="right" data-student="{{studentName}}" data-item="{{name}}" data-description="{{description}}" data-currency="{{total}}" data-date="{{date}}" {% if challenges != None %}data-challenge="{{challenges}}"{% endif %}><i class="material-icons left">file_download</i></a></td>
                               {% else %}
                               <td></td>
                               {% endif %}
                            </tr>
                            {% empty %}
-                           <tr>
-                              <td class="center-align" colspan="7"><i>No transactions</i></td>
-                           </tr>
+                           
+                                 <tr class="hide-on-med-and-down"><td class="center-align" colspan="7"><i>No Transactions</i></td></tr>
+                                 <tr class="show-on-med-and-down hide-on-large-only"><td><i>No Transactions</i></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                             
+                           
                            {% endfor %}
                         </tbody>
                      </table>
