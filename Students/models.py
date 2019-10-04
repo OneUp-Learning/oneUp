@@ -298,6 +298,7 @@ class DuelChallenges(models.Model):
     status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
+    evaluator = models.IntegerField(default=0) # The student who is going to evaluate the duel 0=unknown, 1=chanllenger, 2=challengee
 
     def __str__(self):
         return "duelchallengeID: "+str(self.duelChallengeID)+ ", duelchallengeName: "+ str(self.duelChallengeName)+", courseID: "+str(self.courseID)+", challengeID: "+str(self.challengeID)+\
