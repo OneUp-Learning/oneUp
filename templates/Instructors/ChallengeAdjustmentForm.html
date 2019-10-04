@@ -32,7 +32,9 @@
                                 <thead>
                                     <th>Student</th>
                                     <th>Score</th>
+				    {% if isVcUsed %}
                                     <th>Purchased Points</th>
+				    {% endif %}
                                     <th>Adjustment</th>
                                     <th>Adjustment Reason</th>
                                 </thead>
@@ -41,11 +43,13 @@
                                     <tr>
                                         <td>{{student_Name}}</td>
                                         <td>{{student_TestScore}}</td>
+					{% if isVcUsed %}
                                         <td>
                                             <div class="input-field col s12">
                                                 <input value="{{student_BonusScore}}" name="student_BonusScore{{student_ID}}" id="{{student_ID}}_BonusScore" type="number" class="validate" min="0" step="any" required>
                                             </div>
                                         </td>
+					{% endif %}
                                         <td>
                                             <div class="input-field col s12">
                                                 <input value="{{student_AdjustmentScore}}" name="student_AdjustmentScore{{student_ID}}" id="{{student_ID}}_AdjustmentScore" type="number" class="validate" min="0" step="any" required>
