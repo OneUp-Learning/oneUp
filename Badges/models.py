@@ -5,6 +5,8 @@ from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
 from Badges.periodicVariables import PeriodicVariables
 from django_celery_beat.models import PeriodicTask
+from django.contrib.auth.models import User
+
 
 # Conditions Table
 class Conditions(models.Model):
@@ -235,6 +237,7 @@ class Dates(models.Model):
 class FloatConstants(models.Model):
     floatID = models.AutoField(primary_key=True)
     floatValue = models.DecimalField(decimal_places=2, max_digits=6)
+
     def __str__(self):              
         return "Float#"+str(self.floatID)+":"+str(self.floatValue)
  
@@ -450,3 +453,15 @@ class AttendanceStreakConfiguration(models.Model):
     daysDeselected = models.CharField(max_length=20000)#the days that were removed from the class schedule
     def __str__(self):              
         return str(self.streakConfigurationID)+","+str(self.courseID)+","+str(self.daysofClass) +","+ str(self.daysDeselected)
+
+
+# Table for logging who added what to who
+class BadgesVCLog(models.Model):
+    badgesVCLogID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    studentBadges = models.ForeignKey('Students.StudentBadges',null=True, default=None, on_delete=models.CASCADE)
+    studentVirtualCurrency = models.ForeignKey('Students.StudentVirtualCurrencyRuleBased', default=None, null=True, on_delete=models.CASCADE)
+    issuer = models.ForeignKey(User, on_delete=models.CASCADE)#user who issued
+    timestamp = models.DateTimeField(default=datetime.now, blank=True)#when it was issued
+    def __str__(self):              
+        return "Badge#"+str(self.badgeID)+":"+str(self.badgeNam)

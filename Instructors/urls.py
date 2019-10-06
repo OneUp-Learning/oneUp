@@ -92,7 +92,7 @@ from Instructors.views.attendanceStreaks import attendanceStreaks
 from Instructors.views.challengeClassmatesReport import challenge_classmates_report, duel_challenge_report
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
 admin.autodiscover()
-
+from Instructors.views.whoAddedVCAndBadgeView import whoAddedBadgeAndVC
 urlpatterns = [
 
     url(r'^activityRemoveFile', removeFileFromActivty,
@@ -228,4 +228,5 @@ urlpatterns = [
     url(r'^DuelChallengeReport', duel_challenge_report, name="DuelChallengeReport"),
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
+    url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
 ]
