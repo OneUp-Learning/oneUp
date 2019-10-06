@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
-from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesInfo
+from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesInfo, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Student, StudentBadges, StudentFile, User
 from Badges.systemVariables import logger
 from pytz import reference
@@ -92,6 +92,12 @@ def addBadgeManuallyView(request):
                 studentBadge.studentID = student
                 studentBadge.badgeID = referencedBadge 
                 studentBadge.save()
+
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = course
+                studentAddBadgeLog.studentBadges = studentBadge
+                studentAddBadgeLog.issuer = request.user
+                studentAddBadgeLog.save()
                 
             ##we are sent checkboxes to remove from students    
             if 'checkboxes' in request.POST:

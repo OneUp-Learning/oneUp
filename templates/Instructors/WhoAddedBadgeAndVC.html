@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>       
+    {% include 'scripts.html' %}
+  </head>
+  <body>
+    
+    {% include 'heading.html' %}
+    
+    <main>
+      <div class="row center-align">
+        <div class="col s12">
+          <h3>Manual Badge & Virtual Currency Awarded</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12 m10 offset-m1">
+          <div class="card">
+            <div class="card-content">
+              <table>
+                <thead>
+                  <th>Student</th>
+		  <th>Object Awarded</th>
+		  <th>Awarded By</th>
+		  <th>Time awarded</th>
+		  <th>Badge Awarded or Amount Awarded</th>
+                </thead>
+                <tbody>
+                  {% for loggedObject in loggedObjects %}
+                  <tr>
+                    <td>{{loggedObject.student}}</td>
+                    <td>{{loggedObject.object}}</td>
+		    <td>{{loggedObject.issuer}}</td>
+		    <td>{{loggedObject.time}}</td>
+		    <td>{{loggedObject.objectNameOrAmount}}</td>
+                  </tr>
+                  {% empty %}
+                  <tr><td class="center-align" colspan="8"><i>No Badges or VC Awarded</i></td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    {% include 'footer.html' %}    
+  </body>
+</html>
