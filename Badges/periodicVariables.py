@@ -1331,11 +1331,11 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         gradeID  = []    
         if xpSeriousMaxScore:                           
             for serious in seriousChallenge:
-                gradeID.append(int(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
+                gradeID.append(float(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
             if gradeID:
                 earnedSeriousChallengePoints += max(gradeID)           
         elif seriousChallenge.exists():
-            gradeID.append(int(seriousChallenge.first().getScoreWithBonus())) 
+            gradeID.append(float(seriousChallenge.first().getScoreWithBonus())) 
             if gradeID:
                 earnedSeriousChallengePoints += gradeID[0]
 
@@ -1362,8 +1362,8 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     
     if not context_dict is None:
         totalPointsSeriousChallenges = sum(total)
-        context_dict['challenge_range'] = list(zip(range(1, len(courseChallenges)+1), chall_name, score, total))
-        context_dict['challengeWithAverage_range'] = list(zip(range(1, len(courseChallenges)+1), chall_name, score, total, challavg))
+        context_dict['challenge_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total))
+        context_dict['challengeWithAverage_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total, challavg))
 
     # WARMUP CHALLENGES
     # Get the earned points
@@ -1391,11 +1391,11 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         gradeID  = []           
         if xpWarmupMaxScore:                          
             for warmup in warmupChallenge:
-                gradeID.append(int(warmup.testScore)) 
+                gradeID.append(float(warmup.testScore)) 
             if gradeID:
                 earnedWarmupChallengePoints += max(gradeID)
         elif warmupChallenge.exists():
-            gradeID.append(int(warmupChallenge.first().testScore))
+            gradeID.append(float(warmupChallenge.first().testScore))
             if gradeID:
                 earnedWarmupChallengePoints += gradeID[0]
 
@@ -1451,7 +1451,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         # to the earned points variable
         gradeID  = []                            
         for studentActivity in studentActivities:
-            gradeID.append(int(studentActivity.getScoreWithBonus())) 
+            gradeID.append(float(studentActivity.getScoreWithBonus())) 
                                
         if gradeID:
             earnedActivityPoints += max(gradeID)
