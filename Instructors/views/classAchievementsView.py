@@ -13,9 +13,6 @@ from oneUp.decorators import instructorsCheck
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def classAchievements(request):
-    # Request the context of the request.
-    # The context contains information such as the client's machine details, for example.
- 
     context_dict, currentCourse = initialContextDict(request)
         
     first_Name = []      
@@ -25,7 +22,6 @@ def classAchievements(request):
     allgrades = []
     gradeTotal = []
     allActivityGrade = []
-    #gradeMax  = []
     
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
@@ -45,11 +41,11 @@ def classAchievements(request):
     for sc in stud_course:
         users.append(sc.studentID)
         
-    #user = Student.objects.all()
-    #num_users = user.count()
-    
-    #for i in range(0, num_users):  
     for user in users:
+        # Skip test students
+        if user.isTestStudent:
+            continue
+
         grade = []
         gradeLast = []
         gradeFirst = []
@@ -132,14 +128,14 @@ def classAchievements(request):
         allgrades.append(zip(grade,sc_user,sc_chall))
         gradeTotal.append(("%0.2f" %total))
         allActivityGrade.append(activityGradeStr)
-        #gradeTotal.append(("%0.2f" %sum(activityGrade)))
         
     for u in users:
-        first_Name.append(u.user.first_name)
+        # Skip test students
         if u.isTestStudent:
-            last_Name.append(u.user.last_name + " (Test Student)")
-        else:
-            last_Name.append(u.user.last_name)
+            continue
+
+        first_Name.append(u.user.first_name)
+        last_Name.append(u.user.last_name)
         
     for c in challenges:
         chall_Name.append(c.challengeName)
@@ -148,20 +144,8 @@ def classAchievements(request):
         chall_Name.append(activity.activityName)
 
     context_dict['challenge_range'] = zip(range(1,num_challs+activities.count()+1),chall_Name)
-    #context_dict['activityGrade_range'] = zip(range(0,len(allActivityGrade)),allActivityGrade)
-
-    ##    context_dict['user_range'] = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)))
     
     student_list = sorted(list(zip(range(1,len(users)+1),first_Name,last_Name,allgrades,allActivityGrade, gradeTotal)),key=lambda tup:tup[2])
-
-    ##we have to find the index for the test student and remove them from the sorted list
-    ##then we insert them back into the list at the very end where they belong
-    ## updated to work with multiple test students
-    test_indexes = [index for index, y in enumerate(student_list) if "(Test Student)" in y[2]]
-
-    for i in test_indexes:
-        student_list.append(student_list[i])
-    student_list = [x for i,x in enumerate(student_list) if not i in test_indexes]
     
     context_dict['user_range'] = student_list
 
