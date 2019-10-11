@@ -103,7 +103,9 @@
 		      {% endif %}
 	       </div>
 	       <div class = "col s12">
+	       {% if q.feedback %}
 		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	       </div>
 	    </div>
     {% endif %}
@@ -137,7 +139,9 @@
 		      {% endif %}
 	       </div>
 	       <div class = "col s12">
+		 {% if q.feedback %}
 		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	       </div>
 	    </div>	
 	{% endif %}
@@ -260,7 +264,9 @@
 		     {% endif %}
 	      </div>
 	      <div class = "col s12">
-		<p><b>Feedback: </b> {{q.feedback}}</p>
+		<{% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	      </div>
 	   </div>
 	{% endif %}
@@ -292,7 +298,9 @@
 		         {% endif %}
 	     	</div>
 		<div class = "col s12">
-		  <p><b>Feedback: </b> {{q.feedback}}</p>
+		  {% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 		</div>
 	    </div>
 	{% endif %} 
@@ -357,7 +365,9 @@
 	        <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 	      </div>
 	      <div class = "col s12">
-		<p><b>Feedback: </b> {{q.feedback}}</p>
+		{% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	      </div>
 	    </div>
           </div>
@@ -516,7 +526,9 @@
               <p>Total for this question, You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
            </div>
 	   <div class = "col s12">
-	     <p><b>Feedback: </b> {{q.feedback}}</p>
+	     {% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	   </div>
         </div>
     {% endif %}

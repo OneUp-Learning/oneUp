@@ -395,7 +395,10 @@
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentAchievements">Students Scores</a></li>
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentSummary">Student Summary</a></li>
-                    <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentAttendanceReport">Student Attendance</a></li>   
+                    <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentAttendanceReport">Student Attendance</a></li>
+		    {% if ccparams.badgesUsed or ccparams.virtualCurrencyUsed%}
+		    <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/whoAddedBadgeAndVC">Badge and VC Log</a></li>
+		    {% endif %}
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/classAchievementsViz?serious">Serious Challenges Visualization</a></li>
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges Visualization</a></li>
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/classAchievementsViz?skills">Skills Visualization</a></li>

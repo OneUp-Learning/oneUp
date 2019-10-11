@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
-from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
 from Badges.systemVariables import logger
 from notify.signals import notify  
@@ -76,6 +76,16 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 else:
                     studentVC.value = vcAmount
                 studentVC.save()
+
+                
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = course
+                studentAddBadgeLog.studentVirtualCurrency = studentVC
+                studentAddBadgeLog.issuer = request.user
+                studentAddBadgeLog.save()
+
+
+                
 
                 virtual_currency_amount = abs(vcAmount)
                 if accumulative_type == 'set':
