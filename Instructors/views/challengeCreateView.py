@@ -319,12 +319,16 @@ def challengeCreateView(request):
 
             context_dict['questionTypes'] = QuestionTypes
 
+            if 'wView' in request.GET:
+                isView = True
+
             # The following information is needed for the challenge 'view' option
             i = 0
             for q in questionObjects:
                 i += 1
                 qdict = questionTypeFunctions[q.type]['makeqdict'](q,i,challengeId,None)
                 qdict = questionTypeFunctions[q.type]['correctAnswers'](qdict)
+                qdict = questionTypeFunctions[q.type]['modifyQdictForView'](qdict, isView)
                 qlist.append(qdict)
         else:
             context_dict['topics'] = []

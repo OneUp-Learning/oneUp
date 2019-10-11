@@ -611,7 +611,10 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
             qdict['user_points'] = user_points
     return qdict
 
-
+def modifyQDictForView(qdict, isView):
+    if isView:
+        True
+    return qdict
 def parsonsMakeAnswerList(qdict, POST):
     #get all the data from the webpage
     #data is accessed through the index
@@ -866,47 +869,55 @@ questionTypeFunctions = {
         "makeAnswerList": multipleChoiceMakeAnswerList,
         "studentAnswersAndGrades": multipleChoiceAnswersAndGrades,
         "correctAnswers": multipleChoiceCorrectAnswers,
+         "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.multipleAnswers: {
         "makeqdict": staticqdict,
         "makeAnswerList": multipleAnswerMakeAnswerList,
         "studentAnswersAndGrades": multipleAnswerAddAnswersAndGrades,
         "correctAnswers": multipleAnswerCorrectAnswers,
+         "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.matching: {
         "makeqdict": matchingqdict,
         "makeAnswerList": matchingMakeAnswerList,
         "studentAnswersAndGrades": matchingAddAnswersAndGrades,
         "correctAnswers": lambda qdict: qdict,  # Already done in makeqdict
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.trueFalse: {
         "makeqdict": staticqdict,
         "makeAnswerList": trueFalseMakeAnswerList,
         "studentAnswersAndGrades": trueFalseAddAnswersAndGrades,
         "correctAnswers": trueFalseCorrectAnswers,
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.essay: {
         "makeqdict": basicqdict,
         "makeAnswerList": lambda qdict, POST: [],
         "studentAnswersAndGrades": lambda qdict, studentAnswers: qdict,
         "correctAnswers": lambda qdict: qdict,
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.dynamic: {
         "makeqdict": dynamicqdict,
         "makeAnswerList": dynamicMakeAnswerList,
         "studentAnswersAndGrades": dynamicAnswersAndGrades,
         "correctAnswers": lambda qdict: qdict,
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.templatedynamic: {
         "makeqdict": dynamicqdict,
         "makeAnswerList": dynamicMakeAnswerList,
         "studentAnswersAndGrades": dynamicAnswersAndGrades,
         "correctAnswers": lambda qdict: qdict,
+        "modifyQdictForView": modifyQDictForView,
     },
     QuestionTypes.parsons: {
         "makeqdict": parsonsqdict,
         "makeAnswerList": parsonsMakeAnswerList,
         "studentAnswersAndGrades": parsonsAddAnswersAndGrades,
         "correctAnswers": parsonsCorrectAnswers,
+        "modifyQdictForView": lambda qdict: qdict,
     },
 }
