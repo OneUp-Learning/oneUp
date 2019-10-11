@@ -1319,7 +1319,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         total = []
         challavg = []
 
-    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True)
+    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition')
     for challenge in courseChallenges:
         seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
 

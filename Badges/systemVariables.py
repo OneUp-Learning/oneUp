@@ -875,6 +875,35 @@ def getNumberOfDuelsWon(course, student):
     wins = len(Winners.objects.filter(studentID=student, courseID=course))
     return wins
 
+def getNumberOfDuelsParticipated(course, student):
+    ''' This will return the number of duels the student has participated
+        in the course regarless of the outcome of the duel
+        Status -> indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
+    '''
+    from Students.models import DuelChallenges
+    from Students.models import StudentChallenges
+    from datetime import timedelta
+
+    print("student", student)
+
+    sent = DuelChallenges.objects.filter(challenger=student, courseID=course, status=2)
+    requested = DuelChallenges.objects.filter(challengee=student, courseID=course, status=2)
+    
+    duels = list(sent) + list(requested)
+    print("duels", duels)
+
+    count = 0
+    for duel in duels:
+        print("duel", duel)
+        print("challenge", duel.challengeID)
+        if StudentChallenges.objects.filter(challengeID=duel.challengeID, courseID=course):
+            chall = StudentChallenges.objects.filter(challengeID=duel.challengeID, courseID=course).earliest('endTimestamp')
+            if chall.endTimestamp <= (duel.acceptTime +timedelta(minutes=duel.startTime) +timedelta(minutes=duel.timeLimit) +timedelta(seconds=6)):
+                print("Participated challenge", duel.challengeID.challengeName)
+                count += 1
+    return count
+
+
 def getNumberOfDuelsLost(course, student):
     ''' This will return the number of duel lost the student has for every duel 
         in the course
@@ -1082,6 +1111,7 @@ class SystemVariable():
     calloutParticipationWon = 957 # Returns the number of callout a student has participated in and won
     calloutParticipationLost = 958 # Returns the number of callout a student has participated in and lost
     calloutRequested = 959 #
+    duelsParticipated = 960 # Return the number of duels a student has participated in regarless of the duel outcome
 
 
     systemVariables = {
@@ -1667,6 +1697,19 @@ class SystemVariable():
                 ObjectTypes.none:getNumberOfDuelsWon
             },
         },       
+        duelsParticipated:{
+            'index': duelsParticipated,
+            'name':'duelsParticipated',
+            'displayName':'# of Duels Participation',
+            'description':'The total number of duels a student has participated in regarless of the duels outcomes',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.duelWon, Event.duelLost],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfDuelsParticipated
+            },
+        },   
         duelsLost:{
             'index': duelsLost,
             'name':'duelsLost',
@@ -1677,7 +1720,7 @@ class SystemVariable():
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none:getNumberOfDuelsWon
+                ObjectTypes.none:getNumberOfDuelsLost
             },
         },   
         calloutSent:{
