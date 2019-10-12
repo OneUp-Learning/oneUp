@@ -611,9 +611,21 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
             qdict['user_points'] = user_points
     return qdict
 
-def modifyQDictForView(qdict, isView):
-    if isView:
-        True
+def modifyQDictForView(qdict):
+    print("printing")
+    templateDynamicQuestion = TemplateDynamicQuestions.objects.filter(questionID=qdict['questionID'])
+    result = "<b>Templated set up code: </b><br><br>"
+    result += '<p>' + templateDynamicQuestion.first().setupCode + '</p><br>'
+    index = 1
+    for part in qdict['parts']:
+        templateTextPart = TemplateTextParts.objects.get(partNumber=part ,dynamicQuestion=qdict['questionID'])
+        result += '<p> Part: ' + str(index) + "</p>"
+        result += '<p> '+ templateTextPart.templateText + '</p><br>'
+        index += 1
+            
+    qdict['questionText'] = result
+    qdict['hasMultipleParts'] = False
+    qdict['submissionsAllowed'] = 0
     return qdict
 def parsonsMakeAnswerList(qdict, POST):
     #get all the data from the webpage

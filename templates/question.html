@@ -54,7 +54,7 @@
 			    {% if not graded %}
 			        {% if q.hasMultipleParts or q.submissionsAllowed > 1 %}
 			        	<script>dynamicProblemPartExists.push("{{q.uniqid}}-1");</script>
-				    	<button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form>
+				    	<button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form> 
 					{% endif %}
 				{% else %}
 		    		<script>disableInputsInside(document.getElementById("{{q.uniqid}}-1-exact"));</script>
