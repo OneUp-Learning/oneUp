@@ -1,3 +1,4 @@
+from Instructors.views.whoAddedVCAndBadgeView import whoAddedBadgeAndVC
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
@@ -89,10 +90,11 @@ from Instructors.views.addExistingStudentView import addStudentListView, addExis
 from Instructors.views.activityListView import reorderActivities
 from Instructors.views.attendanceStreaks import attendanceStreaks
 
-from Instructors.views.challengeClassmatesReport import challenge_classmates_report, duel_challenge_report
+from Instructors.views.DuelReportView import duel_report, duel_challenge_report
+from Instructors.views.CalloutReportView import callout_report, callout_challenge_report
+
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
 admin.autodiscover()
-from Instructors.views.whoAddedVCAndBadgeView import whoAddedBadgeAndVC
 urlpatterns = [
 
     url(r'^activityRemoveFile', removeFileFromActivty,
@@ -125,7 +127,8 @@ urlpatterns = [
     url(r'^classAchievements', classAchievements, name='classAchievements'),
     url(r'^createActivity', activityCreateView, name='activityCreateView'),
     url(r'^exportCourse', exportCourse, name='exportCourse'),
-    url(r'^validateCourseExport', validateCourseExport, name='validateCourseExport'),
+    url(r'^validateCourseExport', validateCourseExport,
+        name='validateCourseExport'),
     url(r'^importCourse', importCourse, name='importCourse'),
     url(r'^courseInformation', courseInformation, name='courseInformation'),
     url(r'^createMilestone', milestoneCreateView, name='milestoneCreateView'),
@@ -150,7 +153,7 @@ urlpatterns = [
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
     url(r'^deleteSubTopic', deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
-#    url(r'^deleteUser', deleteUser, name='deleteUser'),
+    #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
     url(r'^exportChallenges', exportChallenges, name='exportChallenges'),
     url(r'^forms/MatchingForm', matchingForm, name='newEssayForm'),
@@ -223,9 +226,13 @@ urlpatterns = [
     url(r'^addStudentListView', addStudentListView, name='addStudentListView'),
     url(r'^addExistingStudent', addExistingStudent, name="addExistingStudent"),
     url(r'^attendanceStreaks', attendanceStreaks, name="attendanceStreaks"),
-    url(r'^challengeClassmatesReport', challenge_classmates_report,
-        name="challengeClassmatesReport"),
+    url(r'^DuelReport', duel_report,
+        name="duel_report"),
     url(r'^DuelChallengeReport', duel_challenge_report, name="DuelChallengeReport"),
+    url(r'^CalloutReport', callout_report,
+        name="callout_report"),
+    url(r'^CalloutChallengeReport', callout_challenge_report,
+        name="CalloutChallengeReport"),
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
