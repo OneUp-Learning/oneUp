@@ -3,7 +3,6 @@ from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
 from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
-from Badges.periodicVariables import PeriodicVariables
 from django_celery_beat.models import PeriodicTask
 from django.contrib.auth.models import User
 
@@ -465,3 +464,17 @@ class BadgesVCLog(models.Model):
     timestamp = models.DateTimeField(default=datetime.now, blank=True)#when it was issued
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeNam)
+
+class CeleryTaskLog(models.Model):
+    ''' Log of ran celery tasks (as of now periodic ones) that can be used to check
+        if the celery task did not run at its time period
+    '''
+    celeryTaskLogID = models.AutoField(primary_key=True)
+    taskID = models.CharField(max_length=200, unique=True, verbose_name='Task ID',
+            help_text='The Unique Task ID. (Example: "unique_warmups_123_badge")')
+    parameters = models.TextField(blank=True, default='{}', verbose_name='Task Parameters',
+            help_text='JSON encoded keyword arguments of celery parameters. (Example: {"argument": "value"})')
+    timestamp = models.DateTimeField(auto_now=True, verbose_name='Task Timestamp',
+            help_text='The last time the celery task has run completely and was recorded')
+    def __str__(self):
+        return "Task ID: {} - Updated: {}".format(self.taskID, self.timestamp)
