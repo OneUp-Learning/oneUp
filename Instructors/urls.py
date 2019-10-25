@@ -69,6 +69,7 @@ from Instructors.views.subTopicsListView import subTopicsListView
 
 from Instructors.views.topicsCreateView import topicsCreateView
 from Instructors.views.topicsListView import topicsListView
+from Instructors.views.FlashCardsGroupListView import groupListView
 from Instructors.views.trueFalseView import trueFalseNewForm
 from Instructors.views.views import index
 
@@ -94,6 +95,7 @@ from Instructors.views.DuelReportView import duel_report, duel_challenge_report
 from Instructors.views.CalloutReportView import callout_report, callout_challenge_report
 
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
+from Instructors.views import FlashCardsGroupListView
 admin.autodiscover()
 urlpatterns = [
 
@@ -236,4 +238,5 @@ urlpatterns = [
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
+    url(r'^groupList', groupListView, name='groupListView')
 ]
