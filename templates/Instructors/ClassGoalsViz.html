@@ -21,7 +21,9 @@
                          <div class="row">                         
                          		<div class="goalindicator" data-student="{{user_Names}}" data-created="{{goals_Created}}" data-completed="{{goals_Completed}}" data-failed="{{goals_Failed}}" id="goal_container{{i}}">
                          		</div>                         		
-                         </div> 
+						 </div> 
+					{% empty %}
+					<blockquote>There are no goals</blockquote>
                   {% endfor %}	  
                   </div>
                </div>

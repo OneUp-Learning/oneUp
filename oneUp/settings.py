@@ -287,4 +287,4 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 # oneUp code which uses "if CELERY_ENABLED:" statements
 CELERY_ENABLED = False
 
-CURRENTLY_MIGRATING = True
+CURRENTLY_MIGRATING = False

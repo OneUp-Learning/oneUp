@@ -88,7 +88,7 @@ def goalCreate(request):
 
 def goalProgressFxn(goalType, course, student):
     goalType = str(goalType)
-    print (goalType)
+    print ("Type {}".format(goalType))
     if goalType == str(Goal.warmup10):
         return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
     if goalType == str(Goal.warmup70):
@@ -110,7 +110,7 @@ def goalProgressFxn(goalType, course, student):
         return studentReg.virtualCurrencyAmount
     if goalType == str(Goal.courseXP):
         time_period = TimePeriods.timePeriods[1503]
-        id, xp = studentScore(student, course, 0, time_period, 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
+        id, xp = studentScore(student, course, 0, time_period, 0, result_only=True)
         return xp
     if goalType == str(Goal.courseBadges):
         return systemVariables.getNumberOfBadgesEarned(course, student)

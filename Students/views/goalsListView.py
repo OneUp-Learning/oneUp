@@ -27,10 +27,7 @@ from Students.views.goalCreateView import goalCreate
 # Added boolean to check if viewing from announcements page or course home page
 def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
 
-    if (not instructorsCheck(user)):
-        student = Student.objects.get(user=user)
-    else:
-        student = context_dict["student"]
+    student = Student.objects.get(user=user)
 
     studentGoal_ID = []      
     student_ID = []
@@ -76,7 +73,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             status = goalStatus(progressPercent, endDate)
             goal_status.append(status)
             
-            recurring_goal.append(goal.recurringGoal)    
+            recurring_goal.append("Yes" if goal.recurringGoal else "No")    
             
             if (utcDate() >= endDate):
                 goalRecurrence(goal.recurringGoal, goal.courseID, goal.studentID, goal.goalType, goal.targetedNumber, goal.progressToGoal, endDate)
@@ -106,7 +103,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 status = goalStatus(progressPercent, endDate)
                 goal_status.append(status)
                 
-                recurring_goal.append(goal.recurringGoal)
+                recurring_goal.append("Yes" if goal.recurringGoal else "No")
                 
                 if (utcDate() >= endDate):
                     index += 1    
