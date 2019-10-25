@@ -242,7 +242,7 @@ class Activities(models.Model):
     description = models.CharField(max_length=200, default="")
     points =  models.DecimalField(decimal_places=3, max_digits=6, default=0)
     isGraded = models.BooleanField(default=False,verbose_name = "Activity points will be added to the course grade")
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)  
+    courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)  
     isFileAllowed = models.BooleanField(default = True)
     uploadAttempts = models.IntegerField(default=0)
     instructorNotes = models.CharField(max_length=300, default="")
@@ -261,7 +261,7 @@ class Announcements(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     startTimestamp = models.DateTimeField()
     endTimestamp = models.DateTimeField()
-    subject = models.CharField(max_length=25, default="")
+    subject = models.CharField(max_length=100, default="")
     message = models.CharField(max_length=1000, default="")
     def __str__(self):              
         return str(self.announcementID)+","+str(self.authorID)+","+str(self.startTimestamp)
@@ -315,8 +315,7 @@ def imageUploadPath(instance,filename):
 class UploadedImages(models.Model):
     imageID = models.AutoField(primary_key=True)
     # image = models.ImageField(upload_to = 'images/uploadedInstructorImages', default = 'images/uploadedInstructorImages')
-    imageFile = models.FileField(max_length=500, upload_to= imageUploadPath)
-    imageFileName = models.CharField(max_length=200, default='')
+    imageFile = models.FileField(max_length=500, upload_to= 'images/uploadedInstructorImages')
     imageDescription = models.CharField(max_length=200, default='')
     imageCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
     def __str__(self):              
@@ -360,16 +359,18 @@ class UploadedActivityFiles(models.Model):
 class DynamicQuestions(Questions):
     numParts = models.IntegerField(default=1)
     code = models.CharField(max_length=20000)
+    submissionsAllowed = models.IntegerField(default=1, verbose_name="Number of Submissions Allowed")
+    resubmissionPenalty = models.IntegerField(default=10, verbose_name="Resubmission penalty as an integer percentage")
 
 class TemplateDynamicQuestions(DynamicQuestions): 
     templateText = models.CharField(max_length=20000)
     setupCode = models.CharField(max_length=20000, default="")
-
     
 class TemplateTextParts(models.Model):
     partNumber = models.IntegerField(default=1)
     dynamicQuestion = models.ForeignKey(TemplateDynamicQuestions,on_delete=models.CASCADE )
     templateText = models.CharField(max_length=20000)
+    pointsInPart = models.IntegerField(default=1, verbose_name="Points in this Part")
 
 def luaLibraryUploadLocation(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'lua/uploadedLuaLibs'), filename)

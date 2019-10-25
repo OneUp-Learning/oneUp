@@ -56,17 +56,30 @@
                            <table class="responsive-table">
                            
                            <tbody>
-                              {% for activity,point,activity_point, submit_status,activity_date_status,isUnlocked,unlockDescript in category %}
+                              {% for activity,point,activity_point, submit_status,activity_date_status,isUnlocked,unlockDescript, graded_acitvity in category %}
                         	
                            <tr>
                               <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activity.activityName}}</td>
-                              <td>{{point}}/{{activity_point}} points</td>
-                              {% if submit_status == "Submitted" %}
-                              	<td style="color:green;">{{submit_status}}</td>
+                              
+                              {% if graded_acitvity %}
+
+                                 <td>{{point}}/{{activity_point}} points</td>
+                        
+                                 {% if submit_status == "Submitted" %}
+                                    <td style="color:green;">{{submit_status}}</td>
+                                 {% else %}
+                                    <td style="color:red;">{{submit_status}}</td>
+                                 {% endif %}
+                                 <td>{{activity_date_status}}</td>
+
                               {% else %}
-                              	<td style="color:red;">{{submit_status}}</td>
+                                 
+                                 <td>&nbsp</td>
+                                 <td>&nbsp</td>
+                                 <td>&nbsp</td>
+
                               {% endif %}
-                              <td>{{activity_date_status}}</td>
+
                               <td class="secondary-content">
                               {% if isUnlocked %}
                                  {% if is_teacher %}    

@@ -127,6 +127,7 @@ def challengesList(request):
     
     if warmUp == 1:
         context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
+        print(context_dict)
     else:
         if not context_dict['ccparams'].seriousChallengesGrouped:
             context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)

@@ -15,6 +15,7 @@ from Badges.enums import Event
 from Badges.periodicVariables import studentScore, TimePeriods
 from Students.views.avatarView import checkIfAvatarExist
 from oneUp.decorators import instructorsCheck
+from Badges.models import CourseConfigParams
 
 
 @login_required
@@ -40,7 +41,9 @@ def studentSummary(request):
 
     user_XP = []
     user_VC = []
-
+    context_dict['isVCUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).virtualCurrencyUsed
+    
+    
     courseStudents = StudentRegisteredCourses.objects.filter(
         courseID=currentCourse).exclude(studentID__isTestStudent=True)
     courseChallenges = Challenges.objects.filter(
@@ -49,7 +52,7 @@ def studentSummary(request):
     # default time
     courseActivities = Activities.objects.filter(courseID=currentCourse)
     courseWarmupChallenges = Challenges.objects.filter(
-        courseID=currentCourse, isGraded=False, isVisible=True)
+        courseID=currentCourse, isGraded=False)
 
     studentEvents = [Event.startChallenge, Event.endChallenge, Event.userLogin, Event.studentUpload, Event.spendingVirtualCurrency,
                      Event.visitedDashboard, Event.visitedEarnedVCpage, Event.visitedBadgesInfoPage, Event.visitedSpendedVCpage,

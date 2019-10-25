@@ -11,6 +11,7 @@ from Students.models import StudentRegisteredCourses, StudentChallenges
 from Instructors.views.utils import utcDate, initialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
+from Badges.models import CourseConfigParams
 from notify.signals import notify
 from Badges.event_utils import updateLeaderboard
 from oneUp.decorators import instructorsCheck
@@ -31,7 +32,10 @@ def challengeAdjustmentView(request):
         for studentRC in studentRCs:
             studentID = studentRC.studentID.id
             adjustmentScore = Decimal(request.POST['student_AdjustmentScore' + str(studentID)])
-            bonusScore = Decimal(request.POST['student_BonusScore' + str(studentID)])
+            if 'student_BonusScore' + str(studentID) in request.POST:
+                bonusScore = Decimal(request.POST['student_BonusScore' + str(studentID)])
+            else:
+                bonusScore = 0
                 
             if (StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID)).exists():
                 studentChallenge = StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID).latest('testScore')
@@ -106,7 +110,10 @@ def adjustmentList(request):
     for studentRC in studentRCs:
         student = studentRC.studentID
         student_ID.append(student.id)
-        student_Name.append((student).user.get_full_name())
+        if student.isTestStudent:
+            student_Name.append("Test Student")
+        else:
+            student_Name.append((student).user.get_full_name())
         
         if (StudentChallenges.objects.filter(challengeID = request.GET['challengeID'], studentID = student)).exists():
             studentChallenge = StudentChallenges.objects.filter(challengeID = request.GET['challengeID'], studentID = student).latest('testScore')
@@ -124,8 +131,20 @@ def adjustmentList(request):
     
     context_dict['challengeID'] = request.GET['challengeID']
     context_dict['challengeName']= Challenges.objects.get(challengeID=request.GET['challengeID']).challengeName
-    context_dict['challengeAdjustment_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason) 
-            
+
+    student_list = sorted(list(zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason)))
+    ##we have to find the index for the test student and remove them from the sorted list
+    test_index = [y[2] for y in student_list].index('Test Student')
+    test_student_ob = student_list[test_index]
+    del student_list[test_index]
+
+    ##then we insert them back into the list at the very end where they belong
+    student_list.append(test_student_ob)
+
+    #context_dict['challengeAdjustment_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason) 
+    context_dict['challengeAdjustment_range'] = student_list
+    context_dict['isVcUsed'] = CourseConfigParams.objects.get(courseID = currentCourse).virtualCurrencyUsed
+
     return render(request,'Instructors/ChallengeAdjustmentForm.html', context_dict)
 
             

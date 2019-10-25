@@ -978,6 +978,7 @@
                             $('#classAvg2').click(function() {
                                 $('.js-box').hide();
                                 $('#container2').show();
+                                console.log("Class average clicked");
                             });
                             $('#points2').click();
                         </script>
@@ -999,6 +1000,7 @@
                     </div>
                     <div class="card-action right-align">
                         <script>
+                            //{{is_ClassAverage_Displayed | lower}};
                             var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
                             if (isClassAvgAvailable) {
                                 var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
@@ -1017,6 +1019,8 @@
                             $('#classAvg2').click(function() {
                                 $('.js-box').hide();
                                 $('#container2').show();
+                                //code that will track how often a student clicks the class average
+                                track_get_class_avg_click();
                             });
                             $('#points2').click();
                         </script>
@@ -1092,3 +1096,20 @@
     }
     
     </script>
+
+<script>
+    function track_get_class_avg_click()
+   {    
+       var student_id = "{{student}}";
+       console.log(student_id);
+
+       $.ajax({
+                url: "/oneUp/students/Track_class_avg_button_clicks", 
+                dataType: 'json',
+                async: true,
+                type: 'POST',
+                data: {student_id: "student_id"}
+            });
+
+   }
+</script>

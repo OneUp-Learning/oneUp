@@ -19,8 +19,8 @@ def createContextForActivityList(request, context_dict, currentCourse):
        
     activity_ID = []      
     activity_Name = []         
-
-     
+    description = []
+    points = []
     student_ID = []    
     student_Name = []  
     activitiesInCategory = []
@@ -49,12 +49,12 @@ def createContextForActivityList(request, context_dict, currentCourse):
             count += Activities.objects.filter(category=cat, courseID=currentCourse).count()
             
             
-            
-#         for activity in activities:
-#             activity_ID.append(activity.activityID) #pk
-#             activity_Name.append(activity.activityName)
-#             description.append(activity.description[:100])
-#             points.append(activity.points)
+        activities = Activities.objects.filter(category=cat, courseID=currentCourse)
+        for activity in activities:
+            activity_ID.append(activity.activityID) #pk
+            activity_Name.append(activity.activityName)
+            description.append(activity.description[:100])
+            points.append(activity.points)
         context_dict['currentCat'] = "all"
     elif request.method == "POST":
         filterCategory = request.POST.get('actCat')
@@ -64,12 +64,12 @@ def createContextForActivityList(request, context_dict, currentCourse):
             cat_activities = category_activities(count, cat, currentCourse)
             activitiesInCategory.append(cat_activities)
             categoryNames.append(cat.name)
-#             activities = Activities.objects.filter(category=category, courseID=currentCourse)
-#             for activity in activities:
-#                 activity_ID.append(activity.activityID) #pk
-#                 activity_Name.append(activity.activityName)
-#                 description.append(activity.description[:100])
-#                 points.append(activity.points)
+            activities = Activities.objects.filter(category=filterCategory, courseID=currentCourse)
+            for activity in activities:
+                activity_ID.append(activity.activityID) #pk
+                activity_Name.append(activity.activityName)
+                description.append(activity.description[:100])
+                points.append(activity.points)
             context_dict['currentCat'] = cat
 
      
@@ -77,8 +77,8 @@ def createContextForActivityList(request, context_dict, currentCourse):
     context_dict["categories_range"]=zip(activitiesInCategory,categoryNames)
                        
     # The range part is the index numbers.
-    #context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
-    #context_dict['activitesForCats'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
+    context_dict['activity_range'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
+    context_dict['activitesForCats'] = zip(range(1,activities.count()+1),activity_ID,activity_Name,description,points)
     
     #Get StudentID and StudentName for every student in the current course
     #This context_dict is used to populate the scrollable check list for student names
@@ -149,7 +149,7 @@ def reorderActivities(request):
     context_dict, currentCourse = initialContextDict(request)
     if request.POST: 
         
-        activityPositions = request.POST.getlist('activityPosition[]')
+        activityPositions = request.POST.getlist('activityPositions[]')
         activityIDs = request.POST.getlist('activityID[]')
         activityIDsAndPositions = zip(activityIDs,activityPositions)
         

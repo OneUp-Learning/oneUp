@@ -3,8 +3,9 @@ from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
 from Badges.enums import Event, OperandTypes, Action, AwardFrequency
 from Badges.systemVariables import SystemVariable
-from Badges.periodicVariables import PeriodicVariables
 from django_celery_beat.models import PeriodicTask
+from django.contrib.auth.models import User
+
 
 # Conditions Table
 class Conditions(models.Model):
@@ -171,7 +172,7 @@ class PeriodicBadges(BadgesInfo):
     timePeriodID = models.IntegerField() # The Time Period index set for this badge
     periodicType = models.IntegerField(default=0) # The type of selected: TopN (0), All(1), Random(2)
     numberOfAwards = models.IntegerField(default=1, null=True) # The top number of students to award this badge to
-    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
@@ -191,6 +192,7 @@ class VirtualCurrencyCustomRuleInfo(models.Model):
     vcRuleDescription = models.CharField(max_length=4000)
     vcRuleType = models.BooleanField(default=True) # True: earning , False: spending    
     vcRuleAmount = models.IntegerField()
+    vcAmountVaries = models.BooleanField(default=False) #for manual-rule checkbox
     vcRuleLimit = models.IntegerField(default=0) # (Spending Rules) set a limit to how many times this rule/item can be bought in the course shop
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
     isPeriodic = models.BooleanField(default=False) # this is info for a periodic virtual currency
@@ -210,7 +212,7 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     timePeriodID = models.IntegerField() # The Time Period index set for this rule
     periodicType = models.IntegerField(default=0) # The type of selected: TopN (0), All(1), Random(2)
     numberOfAwards = models.IntegerField(default=1, null=True) # The top number of students to award this rule to
-    threshold = models.IntegerField(default=1) # The cutoff number of the result of the periodic variable function 
+    threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
@@ -234,6 +236,7 @@ class Dates(models.Model):
 class FloatConstants(models.Model):
     floatID = models.AutoField(primary_key=True)
     floatValue = models.DecimalField(decimal_places=2, max_digits=6)
+
     def __str__(self):              
         return "Float#"+str(self.floatID)+":"+str(self.floatValue)
  
@@ -288,8 +291,14 @@ class LeaderboardsConfig(models.Model):
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     howFarBack = models.IntegerField(default=0000)
+    def delete(self, *args, **kwargs):
+        ''' Custom delete method which deletes the PeriodicTask object before deleting the leaderboard config.'''
+        self.periodicTask.delete()
+        super().delete(*args, **kwargs)
+
     def __str__(self):              
         return "Leaderboard#"+str(self.leaderboardID)+":"+str(self.leaderboardName)   
+
    
 class CourseConfigParams(models.Model):
     ccpID = models.AutoField(primary_key=True)
@@ -325,6 +334,10 @@ class CourseConfigParams(models.Model):
     studCanChangeClassSkillsVis = models.BooleanField(default=False)  ## The classSkillsDisplayed is only for dashboard purposes for the student
     numStudentBestSkillsDisplayed = models.IntegerField(default=0)    ## This is used to display the number of students in the Skills dashboard html table
 
+    
+    contentUnlockingDisplayed  = models.BooleanField(default=False)         ## The contentUnlockingDisplayed is only for displaying in menu for the instructor
+    debugSystemVariablesDisplayed  = models.BooleanField(default=False) ## The debugSystemVariablesDisplayed is only for displaying in menu for the instructor
+    
     ## Other fields for rule based configurations
     virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
     virtualCurrencyAdded = models.IntegerField(default=0)             # Amount of course bucks given by the instructor to all students
@@ -439,3 +452,29 @@ class AttendanceStreakConfiguration(models.Model):
     daysDeselected = models.CharField(max_length=20000)#the days that were removed from the class schedule
     def __str__(self):              
         return str(self.streakConfigurationID)+","+str(self.courseID)+","+str(self.daysofClass) +","+ str(self.daysDeselected)
+
+
+# Table for logging who added what to who
+class BadgesVCLog(models.Model):
+    badgesVCLogID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    studentBadges = models.ForeignKey('Students.StudentBadges',null=True, default=None, on_delete=models.CASCADE)
+    studentVirtualCurrency = models.ForeignKey('Students.StudentVirtualCurrencyRuleBased', default=None, null=True, on_delete=models.CASCADE)
+    issuer = models.ForeignKey(User, on_delete=models.CASCADE)#user who issued
+    timestamp = models.DateTimeField(default=datetime.now, blank=True)#when it was issued
+    def __str__(self):              
+        return "Badge#"+str(self.badgeID)+":"+str(self.badgeNam)
+
+class CeleryTaskLog(models.Model):
+    ''' Log of ran celery tasks (as of now periodic ones) that can be used to check
+        if the celery task did not run at its time period
+    '''
+    celeryTaskLogID = models.AutoField(primary_key=True)
+    taskID = models.CharField(max_length=200, unique=True, verbose_name='Task ID',
+            help_text='The Unique Task ID. (Example: "unique_warmups_123_badge")')
+    parameters = models.TextField(blank=True, default='{}', verbose_name='Task Parameters',
+            help_text='JSON encoded keyword arguments of celery parameters. (Example: {"argument": "value"})')
+    timestamp = models.DateTimeField(auto_now=True, verbose_name='Task Timestamp',
+            help_text='The last time the celery task has run completely and was recorded')
+    def __str__(self):
+        return "Task ID: {} - Updated: {}".format(self.taskID, self.timestamp)

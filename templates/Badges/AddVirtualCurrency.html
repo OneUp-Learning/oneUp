@@ -2,11 +2,71 @@
 <html lang="en">
 
 <head>
-
     {% include 'scripts.html' %}
-
 </head>
+<script>
+    function clearDisabled(){ // function to clear the disabled fields when the form is submitted
+        if (preSubmit() == false) return false;
+        var inputs = document.getElementsByClassName('input-fields');
+        //console.log(inputs);
+        for(var i=0;i<inputs.length;i++){
+            console.log(inputs[i]);
+            inputs[i].removeAttribute('readonly');
+            inputs[i].removeAttribute('disabled');
+        }
+        
 
+    }
+    function preSubmit(){
+        // Provides feedback to user if they select an earning rule but forgot to choose VC amount or
+        // they chose VC amount but didn't select any earning rule
+        var input_fields = document.querySelectorAll('.input-fields');
+        for(let i = 0; i < input_fields.length; i++){
+            let field = input_fields[i];
+           let student = field.id.split("_")[0];
+           let select = document.getElementsByName(`${student}_Rule`)[0];
+
+           if(field.value != "" && select.selectedOptions[0].value == ""){
+               Materialize.toast("Select a Manual Earning Rule", 4000)
+               // prevent form submit
+               return false;
+           } 
+           if(field.value == "" && select.selectedOptions[0].value != ""){
+               Materialize.toast("Input Virtual Currency Amount", 4000)
+               return false;
+           } 
+        }
+        return true;
+        
+    }
+function checkAmount(option,studentID){
+    var selectedOption = option.selectedOptions[0];
+    //console.log(studentID);
+    var inputField=document.getElementById(studentID+"_Value");
+    if(selectedOption.hasAttribute('data-vcamount')){
+        var vcValue = selectedOption.getAttribute('data-vcamount');
+        
+        //console.log(inputField);
+        if (parseInt(vcValue)> 0){
+            inputField.value=vcValue;
+            inputField.setAttribute("readonly",true);
+            inputField.setAttribute("disabled",true);
+        }
+        else{
+            inputField.removeAttribute("readonly");
+            inputField.removeAttribute("disabled");
+            inputField.value='';
+
+        }
+        
+    } else {
+        inputField.removeAttribute("readonly");
+        inputField.removeAttribute("disabled");
+        inputField.value='';
+    }
+    
+}
+</script>
 <body>
 
     {% include 'heading.html' %}
@@ -19,7 +79,7 @@
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
-                    <form id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
+                    <form onsubmit="return clearDisabled()" id="update" name="update" action="/oneUp/badges/AddVirtualCurrency" method="POST">
                         <div class="card-content">
                             {% csrf_token %}
                             <table>
@@ -49,15 +109,19 @@
                                             
                                         </td>
                                         <td>
-                                            <input type="number" name="{{studentID}}_Value" id="{{studentID}}_Value"
-                                                min="0" />
+                                        
+                                
+                                        	 <input class="input-fields" type="number" name="{{studentID}}_Value" id="{{studentID}}_Value"
+                                                min="0"/>
+                                        
                                         </td>
                                         <td>
                                             <div class="select-wrapper">
-                                                <select name="{{studentID}}_Rule">
+                                                <select onchange="checkAmount(this,'{{studentID}}')" name="{{studentID}}_Rule">
                                                     <option value="" selected>Select Earn Rule</option>
-                                                    {% for ruleID, ruleName in rules %}
-                                                    <option id="{{ruleID}}" value="{{ruleID}}">{{ruleName}}</option>
+                                                    {% for ruleID, ruleName,vcRuleAmount in rules %}
+                                                    
+                                                    <option  data-vcAmount="{{vcRuleAmount}}" id="{{ruleID}}" value="{{ruleID}}">{{ruleName}}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
@@ -75,7 +139,7 @@
                         <div class="card-action right-align">
                             <div class="row">
                                 <div class="col s12">
-                                    <button class="btn waves-effect waves-light" type="submit" id="create"
+                                    <button  class="btn waves-effect waves-light" type="submit" id="create"
                                         name="create">Add Currency
                                         <i class="material-icons right">send</i>
                                     </button>

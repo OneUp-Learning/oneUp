@@ -1,6 +1,7 @@
 from django.shortcuts import redirect
 
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Students.models import StudentVirtualCurrencyRuleBased, StudentVirtualCurrencyTransactions, StudentEventLog
 from Badges.enums import Action, OperandTypes , Event, dict_dict_to_zipped_list
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
@@ -17,7 +18,7 @@ def DeleteVirtualCurrencySpendRule(vcRuleID):
     deleteVc.ruleID.delete_related()
     # Then we delete the rule itself
     deleteVc.ruleID.delete()
-    # And then we delete the badge.
+    # And then we delete the spend rule.
     deleteVc.delete()
 
 @login_required
@@ -30,7 +31,13 @@ def SaveVirtualCurrencySpendRule(request):
     if request.method == "POST": 
         if 'manual' in request.POST:
             logger.debug("Manual Spending Rule")
+            student_transactions_ids = []
+            student_transactions_ids_earn = []
             if request.POST['vcRuleID']:
+                # Prepare for id swap for student transactions as when rule is deleted, transactions are not able to retrieve cost, name, etc from this rule                
+                student_transactions = StudentVirtualCurrencyTransactions.objects.filter(course= currentCourse, studentEvent__objectID=int(request.POST['vcRuleID']), studentEvent__event=Event.spendingVirtualCurrency)
+                student_transactions_ids = [transaction.pk for transaction in student_transactions]
+                
                 DeleteVirtualCurrencySpendRule(request.POST['vcRuleID'])
 
             vcRuleInfo = VirtualCurrencyRuleInfo()
@@ -71,6 +78,13 @@ def SaveVirtualCurrencySpendRule(request):
             vcRuleInfo.courseID = currentCourse
             vcRuleInfo.vcRuleType = False
             vcRuleInfo.save()  
+
+            # update the student transactions with the new created model instance pk
+            for id in student_transactions_ids:
+                transaction = StudentVirtualCurrencyTransactions.objects.get(pk=id)
+                event_log = StudentEventLog.objects.get(pk=transaction.studentEvent.pk)
+                event_log.objectID=int(vcRuleInfo.vcRuleID)
+                event_log.save()
         else:
             pass
 

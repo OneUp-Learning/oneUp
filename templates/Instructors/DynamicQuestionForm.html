@@ -3,40 +3,43 @@
   <head>
     
     {% include 'scripts.html' %}  
-    {% load staticfiles %}
-    
+    {% load staticfiles %}    
     <script src="/static/js/AJAXgetquerystring.js" type="text/javascript"></script>
     <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    
+
+    {% include 'dynamicQuestionSetup.html' %}    
     
     <script type="text/javascript">
+	    function testQuestion() {
+	    	data = {}
+	    	for (var i = 1; i <= numParts; i++) {
+	            data['_templateText'+i]=CKEDITOR.instances['templateTextVisible' + i].getData();
+	        }
+	    	data['_partNum']=1
+	    	data['_inittestquestion']='true'
+	    	data['_attemptId'] = attemptId;
+	    	data['_inChallenge'] = inChallenge;
+	    	data['_inTryOut'] = inTryOut;
+	        data['_seed'] = document.trial.seed.value;
+	        data['_numParts'] = document.question.numParts.value;
+	        data['_code'] = editor.getValue();
+	        data['_dependentLuaLibraries[]']=lua_lib_selected
+            data['_submissionsAllowed']=document.question.submissionsAllowed.value;
+            data['_resubmissionPenalty']=document.question.resubmissionPenalty.value;
+            data['_points']=document.question.points.value;
+	    	$.ajax({
+	    		url: "doDynamicQuestion",
+	    		type: "POST",
+	    		data: data,
+	    		dataType: 'html',
+	    		success: function(result,textStatus, jqXHR) {
+	    			$("#codeResults").html(result);
+	    			makeAllEditors();
+	    		}
+	    	});
+	    }
 
-    	function testQuestion() {
-    		var xmlhttp;
-			if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
-  				xmlhttp=new XMLHttpRequest();
-  			} else {// code for IE6, IE5 
-  				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  			}
-  			  			
-  			xmlhttp.open("POST","doDynamicQuestion",true);
-  			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-  			xmlhttp.onreadystatechange =
-  				function () {
-  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-  						document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
-  					}
-  					makeNewEditors();
-  					makeNewReadOnlyEditors()
-  				}
-  			var formDataEncoded = '_test=true&_phase=1&_uniqid=edit&_seed='+encodeURIComponent(document.trial.seed.value)+
-  						 '&_numParts='+encodeURIComponent(document.question.numParts.value)+
-  				         '&_code='+encodeURIComponent(editor.getValue())+'&csrfmiddlewaretoken={{ csrf_token }}';
-  			formDataEncoded = formDataEncoded + getLibsEncoded()
-  			xmlhttp.send(formDataEncoded);
-    	}
-    	
-    	function copyContentsToHidden() {
+	    function copyContentsToHidden() {
     	    document.question.code.value = editor.getValue();
     	}
     	
@@ -220,7 +223,20 @@
 															<label for="tags">Add Tags</label>
 															<div id="tags" class="chips chips-tags"></div>
 														</div>
+												</div>
+												<div class="row">
+													<div class="col s12">
+                                    					<h5>Submission</h5>
+                                					</div>
+													<div class="col s12">
+														<input value="{{submissionsAllowed}}" name="submissionsAllowed" id="submissionsAllowed" type="number" {% if view == False %}class="validate"{%endif%} min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
+														<label for="submissionsAllowed"><span class= "red-text">*</span> Number of Submissions Allowed for Each Part</label>
 													</div>
+													<div class="col s12">
+														<input value="{{resubmissionPenalty}}" name="resubmissionPenalty" id="resubmissionPenalty" type="number" {% if view == False %}class="validate"{%endif%} min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
+														<label for="resubmissionPenalty"><span class= "red-text">*</span>Resubmission Penalty (in percent)</label>
+													</div>
+												</div>	
 													{% include "Instructors/luaLibraryDependencies.html" %}
 													<div class="row">
 															<div class="input-field col s12">

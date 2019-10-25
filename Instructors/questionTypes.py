@@ -3,7 +3,7 @@ import re
 import json
 from decimal import Decimal
 
-from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions
+from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Students.models import StudentChallengeQuestions
@@ -86,7 +86,6 @@ def basicqdict(question, i, challengeId, studChallQuest):
         makeSerializableCopyOfDjangoObjectqdictionary(ca)
         for ca in CorrectAnswers.objects.filter(questionID=question.questionID)
     ]
-    print(correct_answers)
     canswer_range = range(1, len(correct_answers) + 1)
     qdict['correct_answers'] = list(zip(canswer_range, correct_answers))
 
@@ -142,7 +141,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     modelSolution = Answers.objects.filter(questionID=question)
     solution_string = modelSolution[0].answerText
 
-
+    #print("model solution", modelSolution)
     qdict['languageName'] = re.search(
         r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
     qdict['indentation'] = re.search(r';Indentation:([^;]+);',
@@ -157,7 +156,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
         intentationEnabledVariableAndValue.group(0), "")
 
     qdict['answerText'] = solution_string
-    print("solution String before changes",repr(solution_string))
+    #print("solution String before changes",repr(solution_string))
     #dynamically set dfficulty of parson distractor
 
     #get the count of the distractors
@@ -177,7 +176,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     ##then we just use the full distractor count
 
     #repr function will give us the raw representation of the string
-    print("Solution String", repr(solution_string))
+    #print("Solution String", repr(solution_string))
     solution_string = re.sub("\t{3}", "☃            ", solution_string)
     solution_string = re.sub("\t{2}", "☃        ", solution_string)
     solution_string = re.sub("\t{1}", "☃    ", solution_string)
@@ -185,12 +184,12 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     #tokenizer characters ☃ and ¬
     solution_string = re.sub("\n", "\n¬☃", solution_string)
     solution_string = re.sub("^[ ]+?", "☃", solution_string)
-    print("Solution String", solution_string)
+    #print("Solution String", solution_string)
 
     #we turn the student solution into a list
     solution_string = re.sub("(?<=\n)\t*", "   ", solution_string)
     solution_string = [x.strip() for x in solution_string.split('¬')]
-    print("solutionString", solution_string)
+    #print("solutionString", solution_string)
 
     #give each string the new line
     tabedSolution_string = []
@@ -216,7 +215,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
 
             #we use the difference to calculate whether we must indent and where
             difference = leadingSpacesCount - leadingSpacesCountNextLine
-            print("Difference", difference)
+            #print("Difference", difference)
             if (difference == -4):
                 #if indentation is after the line
                 #ex:
@@ -236,7 +235,7 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
                                   line)
                 else:
                     line = re.sub("^ *", '&nbsp;' + ' ' * 4, line)
-        print("line", repr(line))
+        #print("line", repr(line))
         line = re.sub("\t(?=return.*; *##)", "&nbsp;    ", line)
         line = re.sub("(\s{4}|\t)(?=.* *##})", '&nbsp;' + ' ' * 4, line)
         line = line + "\n"
@@ -246,14 +245,14 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     solution_string = solution_string.join(tabedSolution_string)
     qdict['solution_string'] = solution_string
     qdict['tabbed_sol_string'] = tabedSolution_string
-    print("tabbedSol String", tabedSolution_string)
-    print("joinedSolString", repr(solution_string))
+    #print("tabbedSol String", tabedSolution_string)
+    #print("joinedSolString", repr(solution_string))
 
     solution_string = re.sub("##\\n *", "\\\\n", solution_string)
     solution_string = re.sub("\\\\n\t", "\\\\n", solution_string)
     solution_string = re.sub("(?<=\n)\s{4}", "\t", solution_string)
     qdict['model_solution'] = repr(solution_string).strip('\'')
-    print("questqdict['model_solution']", qdict['model_solution'])
+    #print("questqdict['model_solution']", qdict['model_solution'])
 
     return qdict
 
@@ -262,8 +261,7 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
     dynamicQuestion = DynamicQuestions.objects.get(pk=question.questionID)
     qdict = basicqdict(dynamicQuestion, i, challengeId, studChallQuest)
     if not lupa_available:
-        qdict[
-            'questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
+        qdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
     else:
         if studChallQuest is not None:
             seed = studChallQuest.seed
@@ -281,13 +279,26 @@ def dynamicqdict(question, i, challengeId, studChallQuest):
         #                                context_qdict['error']=lupaQuest.error
         #                                return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_qdict)
 
-        qdict['questionText'] = lupaQuest.getQuestionPart(1)
+        qdict['parts'] = dict()
+        qdict['parts']["1"] = dict()
+        for j in range(1,numParts+1):
+            qdict['parts'][str(j)] = {'submissionCount':0} 
+        qdict['parts']["1"]['questionText'] = lupaQuest.getQuestionPart(1)
+        qdict['questionText'] = qdict['parts']["1"]['questionText']
         qdict['lupaquestion'] = lupaQuest.serialize()
         qdict['requestType'] = '_eval'
         if numParts > 1:
             qdict['hasMultipleParts'] = True
         else:
             qdict['hasMultipleParts'] = False
+        qdict['uniqid']=i
+        if TemplateDynamicQuestions.objects.filter(pk=question.pk).exists():
+            qdict['dynamic_type'] = 'template'
+            templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question)
+            for ttp in templateTextParts:
+                qdict['parts'][str(ttp.partNumber)]['maxpoints'] = ttp.pointsInPart
+        else:
+            qdict['dynamic_type'] = 'raw_lua'
     return qdict
 
 
@@ -344,6 +355,7 @@ def multipleChoiceAnswersAndGrades(qdict, studentAnswers):
         qdict['user_points'] = qdict['total_points']
     else:
         qdict['user_points'] = 0
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -404,6 +416,7 @@ def multipleAnswerAddAnswersAndGrades(qdict, studentAnswers):
         'answerNumber': i,
         'answerText': x['answerText']
     } for i, x in userAnswers]
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -462,17 +475,21 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
                         break
                 if userAnswerIndex != 0:
                     break
+            # Get the user answer text based on the choice they selected (userAnswerIndex)
+            answerText = [answers[1]['answerText'] for answers in qdict['answers_with_count'] if answers[0] == userAnswerIndex]
             userAnswers.append({
                 'answerNumber':
                 userAnswerIndex,
-                'answerText':
-                MatchingAnswers.objects.get(pk=parts[0]).answerID.answerText
+                'answerText': answerText[0]
+                # This was getting the correct matching answer and not the user answer they selected
+                # MatchingAnswers.objects.get(pk=parts[0]).answerID.answerText
             })
             if correctAnswerIndex == userAnswerIndex:
                 userScore = userScore + valuePerAnswer
 
     qdict['user_points'] = round(userScore, 2)
     qdict['user_answers'] = userAnswers
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -491,6 +508,7 @@ def trueFalseAddAnswersAndGrades(qdict, studentAnswers):
 
     if not studentAnswers:
         qdict['user_points'] = 0
+        qdict = addFeedback(qdict)
         return qdict
     studentAnswerValue = str(studentAnswers[0])
     qdict['user_answer'] = {
@@ -501,6 +519,7 @@ def trueFalseAddAnswersAndGrades(qdict, studentAnswers):
         qdict['user_points'] = qdict['total_points']
     else:
         qdict['user_points'] = 0
+    qdict = addFeedback(qdict)
     return qdict
 
 
@@ -516,37 +535,98 @@ def dynamicMakeAnswerList(qdict, POST):
         answers = {}
         for value in POST:
             indexstring = str(qdict['index'])
-            if value.startswith(indexstring + "-"):
-                answers[value[len(indexstring) + 1:]] = POST[value]
+            if value.startswith(indexstring + "-1-"):
+                answers[value[len(indexstring) + 3:]] = POST[value]
         studentAnswerList = [
             key + ":" + answers[key] for key in answers.keys()
         ]
+        storedAnswers=qdict["parts"]["1"]["user_answers"] if "parts" in qdict and "1" in qdict["parts"] and "user_answers" in qdict["parts"]["1"] else dict()
+        studentAnswerList.extend([key + ":" + storedAnswers[key] for key in storedAnswers.keys()])
+        return studentAnswerList
     else:
-        studentAnswerList = []
-    return studentAnswerList
-
+        studentAnswers = dict()
+        submissionCount = dict()
+        lastPartSubmitted = 0
+        for pnum in qdict['parts']:
+            if 'user_answers' in qdict['parts'][pnum]:
+                user_answers=qdict['parts'][pnum]['user_answers']
+            else:
+                user_answers=dict()
+            studentAnswers[pnum]=user_answers
+            submissionCount[pnum]=qdict['parts'][pnum]['submissionCount']
+            if submissionCount[pnum] > 0:
+                lastPartSubmitted = max(lastPartSubmitted,int(pnum))
+        return [json.dumps({'user_answers':studentAnswers,'lastPartSubmitted':lastPartSubmitted,'submissionCount':submissionCount})]
 
 def dynamicAnswersAndGrades(qdict, studentAnswers):
     if lupa_available:
+        from Instructors.views.dynamicQuestionView import rescale_evaluations
+        if qdict['dynamic_type'] == 'template':
+            ttp = TemplateTextParts.objects.filter(dynamicQuestion=qdict['id'])
         lupaQuestion = LupaQuestion.createFromDump(qdict['lupaquestion'])
         if qdict['numParts'] == 1:
             answers = {}
             for ans in studentAnswers:
                 answerParts = ans.split(":")
                 answers[answerParts[0]] = answerParts[1]
-            print(studentAnswers)
             qdict['user_answers'] = answers
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)
             if qdict['evaluations']:
-                qdict['user_points'] = sum(
-                    [eval['value'] for eval in qdict['evaluations']])
+                if qdict['dynamic_type'] == 'template':
+                    maxpoints = ttp[0].pointsInPart
+                else:
+                    maxpoints = lupaQuestion.getPartMaxPoints(1)
+                rescale_evaluations(qdict['evaluations'], qdict['total_points']/maxpoints)
+                qdict['user_points'] = sum( [eval['value'] for eval in qdict['evaluations']] )
             else:
                 qdict['user_points'] = 0
+            qdict['sampleCorrect'] = lupaQuestion.getPartExampleAnswers(1)
         else:
-            qdict['user_points'] = 0
+            answersStruct = json.loads(studentAnswers[0])
+            totalMaxPoints = 0
+            for i in range(1,answersStruct['lastPartSubmitted']+1):
+                stri = str(i)
+                if 'questionText' not in qdict['parts'][stri]:
+                    qdict['parts'][stri]['questionText'] = lupaQuestion.getQuestionPart(i)
+                qdict['parts'][stri]['user_answers'] = answersStruct['user_answers'][stri]
+                qdict['parts'][stri]['evaluations'] = lupaQuestion.answerQuestionPart(i,answersStruct['user_answers'][stri])
+                qdict['parts'][stri]['sampleCorrect'] = lupaQuestion.getPartExampleAnswers(i)
+            for i in range(1,qdict['numParts']+1):
+                if qdict['dynamic_type'] == 'template':
+                    maxpoints = ttp.get(partNumber=i).pointsInPart
+                else:
+                    maxpoints = lupaQuestion.getPartMaxPoints(i)
+                totalMaxPoints += maxpoints
+            user_points = 0
+            for i in range(1,answersStruct['lastPartSubmitted']+1):
+                stri =str(i)              
+                submissionCount = answersStruct['submissionCount'][stri]
+                qdict['parts'][stri]['submissionCount']=submissionCount
+                from Instructors.views.dynamicQuestionView import calcResubmissionPenalty
+                resubpenalty = calcResubmissionPenalty(submissionCount-1,qdict)
+                tp = qdict['total_points']
+                sf = qdict['total_points']/totalMaxPoints*resubpenalty
+                rescale_evaluations(qdict['parts'][stri]['evaluations'], qdict['total_points']/totalMaxPoints*resubpenalty)
+                user_points += sum( [eval['value'] for eval in qdict['parts'][stri]['evaluations']] )
+            qdict['user_points'] = user_points
     return qdict
 
-
+def modifyQDictForView(qdict):
+    print("printing")
+    templateDynamicQuestion = TemplateDynamicQuestions.objects.filter(questionID=qdict['questionID'])
+    result = "<b>Templated set up code: </b><br><br>"
+    result += '<p>' + templateDynamicQuestion.first().setupCode + '</p><br>'
+    index = 1
+    for part in qdict['parts']:
+        templateTextPart = TemplateTextParts.objects.get(partNumber=part ,dynamicQuestion=qdict['questionID'])
+        result += '<p> Part: ' + str(index) + "</p>"
+        result += '<p> '+ templateTextPart.templateText + '</p><br>'
+        index += 1
+            
+    qdict['questionText'] = result
+    qdict['hasMultipleParts'] = False
+    qdict['submissionsAllowed'] = 0
+    return qdict
 def parsonsMakeAnswerList(qdict, POST):
     #get all the data from the webpage
     #data is accessed through the index
@@ -573,7 +653,8 @@ def parsonsMakeAnswerList(qdict, POST):
     if studentSolutions != "":
         #let us begin with a good clean copy of the information
         solution_string = qdict['answerText']
-        print("solution_string", repr(solution_string))
+        #print("solution_string repr", repr(solution_string))
+        #print("solution_string no repr", repr(solution_string))
 
         #perform regex magic on solution string
         # logical not ¬ is the item that splits the code
@@ -581,20 +662,20 @@ def parsonsMakeAnswerList(qdict, POST):
         # ⋊ is used to maintain the indentation of the line, so that we can later remove it
         # but still keep proper indentation in each line
         #if it contains a block treat it as a unit
-        solution_string = re.sub("(?<!##|?!.*return result;##)\n", "᚛¬⋊", solution_string)
+        #the ᚛¬⋊ is what splits the lines
+        solution_string = re.sub("\r", "", solution_string)
+        solution_string = re.sub("(?<!##)\n", "᚛¬⋊", solution_string)
         solution_string = re.sub(";(?!.+)", "᚛", solution_string)
         
-        print("solution_stringrepr", repr(solution_string))
-        print("solution_string", solution_string)
+        #print("solution_stringrepr afer changes", repr(solution_string))
+        #print("solution_string after changes", solution_string)
         solution_string_array = []
         solution_string_split = [x.strip() for x in solution_string.split('¬')]
         for line in solution_string_split:
-            print("line:",repr(line))
             line = re.sub("^⋊\s*(?!.*;\s*##)", "", line)
             line = re.sub("^⋊(\t\t|\s{8})(?=.*;\s*##)", "    ", line)
             line = re.sub("^⋊(\t|\s{4})(?=.*;\s*##)(?!return)", "", line)
             line = re.sub("⋊\t(?=return.*\s*##\n})", "    ", line)
-            print("line unchanged:", repr(line))
             line = re.sub("^((?!\s*return)(?=.* *##\n}))", "    ", line)
             line = re.sub("᚛", "\n", line)
             line = re.sub("⋊", "", line)
@@ -604,14 +685,14 @@ def parsonsMakeAnswerList(qdict, POST):
             line = re.sub("(?!\"),(?=.*\";)", "‚", line)
             solution_string_array.append(line)
 
-        print("solution_string_array", repr(solution_string_array))
+        #print("solution_string_array", repr(solution_string_array))
 
         
         lineIndent = [x.strip() for x in lineIndent.split(',')]
-        print("LineIndent", lineIndent)
+        #print("LineIndent", lineIndent)
         studentSolutions = [x.strip() for x in studentSolutions.split(',')]
 
-        print("studentSol", studentSolutions)
+        #print("studentSol", studentSolutions)
         studentAnswerDict['parsonStudentSol'] = studentSolutions
         regexp = re.compile(r'##')
         missingLines = []
@@ -643,7 +724,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
 
     answer = Answers.objects.filter(questionID=qdict['questionID'])
     answer = answer[0].answerText
-    print("Model Solution: ", answer)
+    #print("Model Solution: ", answer)
 
     #get the language information and indentation status
     #remove the first line that keeps the data
@@ -680,13 +761,13 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     studentAnswer = studentAnswer.join(IndentedStudentSolution)
 
     qdict['student_solution'] = studentAnswer
-    print("student solution", repr(qdict['student_solution']))
+    #print("student solution", repr(qdict['student_solution']))
 
     wrongPositionLineNumberbers = studentAnswerDict['wrongPositionLineNumberbers']
     errorDescriptions = studentAnswerDict['errorDescriptions']
     correctLineCount = int(studentAnswerDict['correctLineCount'])
     feedBackButtonClickCount = int(studentAnswerDict['feedBackButtonClickCount'])
-    print("correctlinecount", correctLineCount,wrongPositionLineNumberbers,errorDescriptions,feedBackButtonClickCount)
+    #print("correctlinecount", correctLineCount,wrongPositionLineNumberbers,errorDescriptions,feedBackButtonClickCount)
     studentGrade = 0.0
     penalties = 0.0
     if studentSolution == "" or studentSolution == '\n':
@@ -710,17 +791,17 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
             ##too few
             if (studentSolutionLineCount < correctLineCount):
                 penalties += Decimal((correctLineCount - studentSolutionLineCount) * (1 / correctLineCount))
-                print("Penalties too few!: ", penalties)
+                #print("Penalties too few!: ", penalties)
             ##too many
             if (studentSolutionLineCount > correctLineCount):
                 penalties += Decimal((studentSolutionLineCount - correctLineCount) * (1 / correctLineCount))
-                print("Penalties too many!: ", penalties)
+                #print("Penalties too many!: ", penalties)
 
             if wrongPositionLineNumberbers:
                 wrongPositionLineNumberbers = [x.strip() for x in wrongPositionLineNumberbers.split(',')]
                 penalties += Decimal( len(wrongPositionLineNumberbers) / correctLineCount)
-                print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
-                print("WrongLine Number penalties: ", penalties)
+                #print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
+                #print("WrongLine Number penalties: ", penalties)
 
             ##if there was an indentation problem
             if indentation == "true":
@@ -728,27 +809,28 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
                     ##we multiply by 1/2 because each wrong is half of 1/n
                     penalties += Decimal((indentationErrorCount / correctLineCount) * (1/2))
 
-            print("Student grade:", studentGrade)
-            print("Total Points:", qdict['total_points'])
+            #print("Student grade:", studentGrade)
+            #print("Total Points:", qdict['total_points'])
             if feedBackButtonClickCount > 0:
                 maxPoints /= feedBackButtonClickCount * 2
             else:
                 maxPoints = qdict['total_points']
         
             #max points is the maximum points student can earn, and we subtract the penalties
-            print("studentGrade", studentGrade, maxPoints, penalties)
+            #print("studentGrade", studentGrade, maxPoints, penalties)
             studentGrade = float(maxPoints) - (float(maxPoints) * float(penalties))
             if studentGrade < 0:
                 studentGrade = 0
     
         qdict['user_points'] = round(Decimal(studentGrade), 2)
+    qdict = addFeedback(qdict)
     return qdict
 
 
 def parsonsCorrectAnswers(qdict):
     answer = Answers.objects.filter(questionID=qdict['questionID'])
     answer = answer[0].answerText
-    print("Model Solution: ", answer)
+    #print("Model Solution: ", answer)
 
     #get the language information and indentation status
     #remove the first line that keeps the data
@@ -785,6 +867,13 @@ def parsonsCorrectAnswers(qdict):
     qdict['model_solution'] = answer
     return qdict
 
+def addFeedback(qdict):
+    static_question = StaticQuestions.objects.get(questionID=qdict['questionID'])
+    if qdict['user_points'] == qdict['total_points']:
+        qdict['feedback'] = static_question.correctAnswerFeedback
+    else:
+        qdict['feedback'] = static_question.incorrectAnswerFeedback
+    return qdict
 
 questionTypeFunctions = {
     QuestionTypes.multipleChoice: {
@@ -792,47 +881,55 @@ questionTypeFunctions = {
         "makeAnswerList": multipleChoiceMakeAnswerList,
         "studentAnswersAndGrades": multipleChoiceAnswersAndGrades,
         "correctAnswers": multipleChoiceCorrectAnswers,
+         "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.multipleAnswers: {
         "makeqdict": staticqdict,
         "makeAnswerList": multipleAnswerMakeAnswerList,
         "studentAnswersAndGrades": multipleAnswerAddAnswersAndGrades,
         "correctAnswers": multipleAnswerCorrectAnswers,
+         "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.matching: {
         "makeqdict": matchingqdict,
         "makeAnswerList": matchingMakeAnswerList,
         "studentAnswersAndGrades": matchingAddAnswersAndGrades,
         "correctAnswers": lambda qdict: qdict,  # Already done in makeqdict
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.trueFalse: {
         "makeqdict": staticqdict,
         "makeAnswerList": trueFalseMakeAnswerList,
         "studentAnswersAndGrades": trueFalseAddAnswersAndGrades,
         "correctAnswers": trueFalseCorrectAnswers,
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.essay: {
         "makeqdict": basicqdict,
         "makeAnswerList": lambda qdict, POST: [],
         "studentAnswersAndGrades": lambda qdict, studentAnswers: qdict,
         "correctAnswers": lambda qdict: qdict,
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.dynamic: {
         "makeqdict": dynamicqdict,
         "makeAnswerList": dynamicMakeAnswerList,
         "studentAnswersAndGrades": dynamicAnswersAndGrades,
         "correctAnswers": lambda qdict: qdict,
+        "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.templatedynamic: {
         "makeqdict": dynamicqdict,
         "makeAnswerList": dynamicMakeAnswerList,
         "studentAnswersAndGrades": dynamicAnswersAndGrades,
         "correctAnswers": lambda qdict: qdict,
+        "modifyQdictForView": modifyQDictForView,
     },
     QuestionTypes.parsons: {
         "makeqdict": parsonsqdict,
         "makeAnswerList": parsonsMakeAnswerList,
         "studentAnswersAndGrades": parsonsAddAnswersAndGrades,
         "correctAnswers": parsonsCorrectAnswers,
+        "modifyQdictForView": lambda qdict: qdict,
     },
 }

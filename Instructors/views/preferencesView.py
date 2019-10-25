@@ -115,7 +115,8 @@ def preferencesView(request):
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
     
-        
+        ccparams.contentUnlockingDisplayed = "contentUnlockingDisplayed" in request.POST
+        ccparams.debugSystemVariablesDisplayed = "debugSystemVariablesDisplayed" in request.POST
         
         ccparams.thresholdToLevelMedium = request.POST.get('thresholdToLevelMedium')
         ccparams.thresholdToLevelDifficulty = request.POST.get('thresholdToLevelDifficulty')
@@ -171,6 +172,9 @@ def preferencesView(request):
             # Virtual Currency
             context_dict["virtualCurrencyUsed"]=ccparams.virtualCurrencyUsed
             context_dict["virtualCurrencyAdded"]=ccparams.virtualCurrencyAdded
+            # Displaying the menu items of content unlocking and debug system variables
+            context_dict['contentUnlockingDisplayed'] = ccparams.contentUnlockingDisplayed
+            context_dict['debugSystemVariablesDisplayed'] = ccparams.debugSystemVariablesDisplayed
 
             # Avatars
             context_dict["avatarUsed"]=ccparams.avatarUsed

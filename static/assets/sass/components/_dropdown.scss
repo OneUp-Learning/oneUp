@@ -6,6 +6,7 @@
   min-width: 100px;
   max-height: 650px;
   overflow-y: auto;
+  transform: translateZ(10px); 
   opacity: 0;
   position: absolute;
   z-index: 999;

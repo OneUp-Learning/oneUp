@@ -1,187 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-        <link href="/static/ThirdParty/js-parsons-master/parsons.css" rel="stylesheet" />
-        <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
-      {% include 'scripts.html' %}
-      <link rel="stylesheet" href="/static/assets/css/questionStyle.css">
-      <link href="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/styles/default.css" rel="stylesheet">
-      <script src="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js"></script>
-      <script>hljs.initHighlightingOnLoad();</script>
-      <script>
-         jQuery.browser = {};
-         (function () {
+
+<head>
+   <link href="/static/ThirdParty/js-parsons-master/parsons.css" rel="stylesheet" />
+   <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
+   {% include 'scripts.html' %}
+   {% include 'dynamicQuestionSetup.html' %}
+   <link rel="stylesheet" href="/static/assets/css/questionStyle.css">
+   <link href="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/styles/default.css"
+      rel="stylesheet">
+   <script src="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js"></script>
+   <script>hljs.initHighlightingOnLoad();</script>
+   <script>
+      jQuery.browser = {};
+      (function () {
          jQuery.browser.msie = false;
          jQuery.browser.version = 0;
          if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
-         jQuery.browser.msie = true;
-         jQuery.browser.version = RegExp.$1;
+            jQuery.browser.msie = true;
+            jQuery.browser.version = RegExp.$1;
          }
-         })();
-      </script>
-      
-      <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
-      <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script>
-      <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
-      <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
-      <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
-      {% include "../Students/parson.html" %}
-      <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
-      <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
-      <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
-      <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-      <script type="text/javascript">
-         // Set time out for the test if the time limit has reached 
-         var duration = {{testDuration}}; //time limit in minutes from database
-         var now = new Date();
-         var milli = now.getMilliseconds(); //current time in milliseconds
-         var limit = milli + (duration * 1000 * 60); // test time duration in milliseconds (current time + time limit in milliseconds)
-         
-         setTimeout("formSubmit()", limit); //if the time limit of the test has reached, the test will be submitted automatically
-         
-         function formSubmit() {
-             document.getElementById('submit_hidden').click()
-         };
-         
-      </script>
-   </head>
-   <body>
-      {% include 'stheading.html' %}
-      <main>
-            {% csrf_token %}
-         <div class="row center-align">
-            <div class="col s12 m10 offset-m1">
-               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{challengeName}}</h3>
-               <p><b> Start Time:  {{startTime}}</b></p>
-               {% if isduration %}
-                
-                <p id="count_down"></p>
+      })();
+   </script>
 
-                <script>
-                    // This script is for count down time 
-                    var duration = {{testDuration}};
-                    var duration_milli = duration * 1000 * 60;
-                    var countDownDate = new Date(duration_milli).getTime() + new Date().getTime();
+   <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
+   <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script>
+   <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
+   <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
+   <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
+   {% include "../Students/parson.html" %}
+   <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+   <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
+   <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
+   <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+   <script type="text/javascript">
+      // Set time out for the test if the time limit has reached 
+      var duration = {{ testDuration }}; //time limit in minutes from database
+      var now = new Date();
+      var milli = now.getMilliseconds(); //current time in milliseconds
+      var limit = milli + (duration * 1000 * 60); // test time duration in milliseconds (current time + time limit in milliseconds)
+
+      setTimeout("formSubmit()", limit); //if the time limit of the test has reached, the test will be submitted automatically
+
+      function formSubmit() {
+         if (!!duration)
+            gradeParsons();
+         document.getElementById("TakeTest").submit();
+      };
+
+   </script>
+</head>
+
+<body>
+   {% include 'stheading.html' %}
+   <main>
+      {% csrf_token %}
+      <div class="row center-align">
+         <div class="col s12 m10 offset-m1">
+            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{challengeName}}</h3>
+            <p><b> Start Time: {{startTime}}</b></p>
+            {% if isduration %}
+
+            <p id="count_down"></p>
             
-                    var x = setInterval(function() {
-            
-                        // Get now's date and time
-                        var now = new Date().getTime();
-            
-                        // Find the distance between now and the count down date + now
-                        var distance = countDownDate-now;
-            
-                        // Time calculations for days, hours, minutes and seconds
-                        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-                        if(days != 0 )
-                            document.getElementById("count_down").innerHTML = "<b>Time Limit: </b>"+days + "d " + hours + "h "
-                            + minutes + "m " + seconds + "s ";
-                        else if(hours != 0)
-                            document.getElementById("count_down").innerHTML = "<b>Time Limit: </b>"+hours + "h "
-                            + minutes + "m " + seconds + "s ";
-                        else
-                            document.getElementById("count_down").innerHTML = "<b>Time Limit: </b>"+minutes + "m " + seconds + "s ";
-            
-                        // If the count down is over, write Expired 
-                        if (distance < 0) {
-                            clearInterval(x);
-                            document.getElementById("count_down").innerHTML = "EXPIRED";
-                        }
-                    }, 1000);
-                </script> 
-               {% endif %}
-            </div>
+            <script>
+               
+               // This script is for count down time 
+               var duration = {{ testDuration }};
+               var duration_milli = duration * 1000 * 60;
+               var countDownDate = new Date(duration_milli).getTime() + new Date().getTime();
+
+               var x = setInterval(function () {
+
+                  // Get now's date and time
+                  var now = new Date().getTime();
+
+                  // Find the distance between now and the count down date + now
+                  var distance = countDownDate - now;
+
+                  // Time calculations for days, hours, minutes and seconds
+                  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                  if (days != 0)
+                     document.getElementById("count_down").innerHTML = "<b>Time Limit: </b>" + days + "d " + hours + "h "
+                        + minutes + "m " + seconds + "s ";
+                  else if (hours != 0)
+                     document.getElementById("count_down").innerHTML = "<b>Time Limit: </b>" + hours + "h "
+                        + minutes + "m " + seconds + "s ";
+                  else
+                     document.getElementById("count_down").innerHTML = "<b>Time Limit: </b>" + minutes + "m " + seconds + "s ";
+
+                  // If the count down is over, write Expired 
+                  if (distance < 0) {
+                     clearInterval(x);
+                     document.getElementById("count_down").innerHTML = "EXPIRED";
+                  }
+               }, 1000);
+            </script>
+            {% endif %}
          </div>
-         <div class="row">
-            <div class="col s12 m10 offset-m1">
-               <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
-                 {% csrf_token %}
-                  
-                  <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
-                  <input type="hidden" name="challengeId" value="{{challengeID}}">
-                  {% if isDuel %}
-                     <input type="hidden" name="isDuel" value="{{isDuel}}">
-                     <input type="hidden" name="duelID" value="{{duelID}}">
-                  {% elif isCallout %}
-                     <input type="hidden" name="calloutPartID" value="{{calloutPartID}}">
-                     <input type="hidden" name="isCallout" value="{{isCallout}}">
-                  {% endif %}
-                  <div class="card">
-                     <div class="card-content">
-                        {% for i,q in question_range %}
-							{% include "../question.html" with graded=False instructorview=False showcorrect=False %}
-                        {% endfor %}
-                     </div>
-                     <div class="card-action right-align">
-                        <input type="submit" id="submit_hidden" name="submit_hidden" style="display:none;">
-                        {% if isDuel %}
-                        <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Duel</a>
-                        {% elif isCallout %}
-                        <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i class="material-icons right">send</i>Submit Call Out</a>
-                        {% else %}
-                        <a id="submit" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm2"><i class="material-icons right">send</i>Submit Challenge</a>
-                        {% endif %}
-                        <div id="modal_confirm1" class="modal">
-                           <div class="modal-content left-align">
-                              <h5>Are you sure you want to submit?</h5>
-                              <p>Once you submit the challenge, it cannot be reverted.</p>
-                           </div>
-                           <div class="modal-footer">
-                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                              <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" id="submit" name="submit" value="Submit" onclick="copyContentsToHidden()">Submit
-                              </button>                                        
-                           </div>
+      </div>
+      <div class="row">
+         <div class="col s12 m10 offset-m1">
+            <form id="TakeTest" name="TakeTest"  action="/oneUp/students/ChallengeResults" method="POST">
+               {% csrf_token %}
+
+               <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
+               <input type="hidden" name="challengeId" value="{{challengeID}}">
+               {% if isDuel %}
+               <input type="hidden" name="isDuel" value="{{isDuel}}">
+               <input type="hidden" name="duelID" value="{{duelID}}">
+               {% elif isCallout %}
+               <input type="hidden" name="calloutPartID" value="{{calloutPartID}}">
+               <input type="hidden" name="isCallout" value="{{isCallout}}">
+               {% endif %}
+               <div class="card">
+                  <div class="card-content">
+                     {% for i,q in question_range %}
+                     {% include "../question.html" with graded=False instructorview=False showcorrect=False %}
+                     {% endfor %}
+                  </div>
+                  <div class="card-action right-align">
+                     <input type="submit" id="submit_hidden" name="submit_hidden" style="display:none;">
+                     {% if isDuel %}
+                     <a id="submit1" class="waves-effect waves-light btn modal-trigger"
+                        href="#modal_confirm1"><i class="material-icons right">send</i>Submit Duel</a>
+                     {% elif isCallout %}
+                     <a id="submit2" class="waves-effect waves-light btn modal-trigger"
+                        href="#modal_confirm1"><i class="material-icons right">send</i>Submit Call Out</a>
+                     {% else %}
+                     <a id="submit3" class="waves-effect waves-light btn modal-trigger"
+                        href="#modal_confirm2"><i class="material-icons right">send</i>Submit Challenge</a>
+                     {% endif %}
+                     <div id="modal_confirm1" class="modal">
+                        <div class="modal-content left-align">
+                           <h5>Are you sure you want to submit?</h5>
+                           <p>Once you submit the challenge, it cannot be reverted.</p>
                         </div>
-                        <div id="modal_confirm2" class="modal">
-                           <div class="modal-content left-align">
-                              <h5>Are you sure you want to submit?</h5>
-                              <p>Once you submit the challenge, it cannot be reverted.</p>
-                           </div>
-                           <div class="modal-footer">
-                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                              <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" id="submit" name="submit" value="Submit" onclick="copyContentsToHidden()">Submit
-                              </button>                                        
-                           </div>
+                        <div class="modal-footer">
+                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                              style="color: #00bcd4">Cancel</a>
+                           <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit"
+                              id="submit4" name="submitduel" value="Submit"
+                              onclick="copyContentsToHidden();return submitAllUnsubmitted();">Submit
+                           </button>
+                        </div>
+                     </div>
+                     <div id="modal_confirm2" class="modal">
+                        <div class="modal-content left-align">
+                           <h5>Are you sure you want to submit?</h5>
+                           <p>Once you submit the challenge, it cannot be reverted.</p>
+                        </div>
+                        <div class="modal-footer">
+                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                              style="color: #00bcd4">Cancel</a>
+                           <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit"
+                              id="submit5" name="submitchallenge" value="Submit"
+                              onclick="copyContentsToHidden();return submitAllUnsubmitted();">Submit
+                           </button>
                         </div>
                      </div>
                   </div>
-               </form>
-            </div>
+               </div>
+            </form>
          </div>
-      </main>
-      <!-- Footer -->
-      {% include 'footer.html' %}
-      
-      <script>
-         var ace_editor_divs = document.getElementsByClassName('ace-editor');
-         var ace_editors = {};
-         for (var i=0;i<ace_editor_divs.length;i++) {
-         	var new_editor = ace.edit(ace_editor_divs[i].id);
-         	new_editor.setTheme("ace/theme/chrome");
-         	new_editor.session.setMode("ace/mode/"+ace_editor_divs[i].title);
-         	ace_editors[ace_editor_divs[i].id] = new_editor;
-         }
-         
-         var parson_divs = document.getElementsByClassName('parson');
-         var parsons = {};
-         
-         function copyContentsToHidden() {
-                for (var i=0;i<ace_editor_divs.length;i++) {
-                    var name = ace_editor_divs[i].id;
-                    var editor = ace_editors[name];
-                    var hiddenfield = document.getElementById(name+"-hidden");
-                    hiddenfield.value = editor.getValue();
+      </div>
+   </main>
+   <!-- Footer -->
+   {% include 'footer.html' %}
+
+<!--    <script>
+             $('#TakeTest').on('keyup keypress', function(e) {
+                var keyCode = e.keyCode || e.which;
+                if (keyCode === 13) { 
+                   e.preventDefault();
+                   value = false;
                 }
-              
-            
-                
+             });
+   </script> -->
+
+   <script>
+      var ace_editor_divs = document.getElementsByClassName('ace-editor');
+      var ace_editors = {};
+      for (var i = 0; i < ace_editor_divs.length; i++) {
+         var new_editor = ace.edit(ace_editor_divs[i].id);
+         new_editor.setTheme("ace/theme/chrome");
+         new_editor.session.setMode("ace/mode/" + ace_editor_divs[i].title);
+         ace_editors[ace_editor_divs[i].id] = new_editor;
+      }
+
+      var parson_divs = document.getElementsByClassName('parson');
+      var parsons = {};
+
+      function copyContentsToHidden() {
+         for (var i = 0; i < ace_editor_divs.length; i++) {
+            var name = ace_editor_divs[i].id;
+            var editor = ace_editors[name];
+            var hiddenfield = document.getElementById(name + "-hidden");
+            hiddenfield.value = editor.getValue();
          }
-         
-         
-      </script>
-   </body>
+
+         gradeParsons();
+      }
+
+      function gradeParsons() {
+         //function to grade the parsons
+         var parsonsProblems = document.getElementsByName("parsonProblem");
+         for (var i = 0; i < parsonsProblems.length; ++i) {
+            window["submit_clicked_" + parsonsProblems[i].value] = true;
+            parsonObject = window["parson_" + parsonsProblems[i].value];
+
+            parsonObject.showFeedback(false);
+            parsonObject.getFeedback();
+            parsonObject.generateStudentCodeAndIndentation();
+
+            $("#" + parsonsProblems[i].value + "_lineNo").val(incorrectLines);
+            $("#" + parsonsProblems[i].value + "_errorDescription").val(eval("logged_errors_" + parsonsProblems[i].value));
+            $("#" + parsonsProblems[i].value + "_studentSol").val(parsonObject.studentCode);
+            $("#" + parsonsProblems[i].value + "_lineIndent").val(parsonObject.lineIndentation);
+            $("#" + parsonsProblems[i].value + "_correctLineCount").val(parsonObject.model_solution.length);
+            $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(eval("countFeedbackButtonClicks_" + parsonsProblems[i].value));
+         }
+      }
+
+   </script>
+</body>
+
 </html>

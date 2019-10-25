@@ -428,6 +428,7 @@ td, th{
     thead {
       display: block;
       float: left;
+      width: initial !important;
 
       tr {
         display: block;
@@ -442,12 +443,14 @@ td, th{
       display: block;
       width: auto;
       position: relative;
+      height: auto !important;
       overflow-x: auto;
       white-space: nowrap;
 
       tr {
         display: inline-block;
         vertical-align: top;
+        width: auto !important;
       }
     }
     th {

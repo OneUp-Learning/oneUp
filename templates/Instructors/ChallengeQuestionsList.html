@@ -16,6 +16,15 @@
                  placeholder: 'Enter a tag'
              });
          });
+         //function checks if a parson's is selected and displays warnign
+         function parsonsCheck(challengeType){
+        	 var isSerious = "{{serious}}";
+        	 if(!!isSerious){
+        	 if(challengeType.options[challengeType.selectedIndex].text==="Parsons Problems"){
+        	 	alert("Warning: Adding Parson's Problems to a Serious Challenge is not recommended.");
+        	 	}
+        	 }
+         }
       </script>
    </head>
    <body>
@@ -46,13 +55,13 @@
                      <div class="row">
                         <div class="input-field col s12 m10 offset-m1">
                            {% if challenge %} 
-                           <select id="create-type">
+                           <select id="create-type" onchange="parsonsCheck(this)">
                               <option value="" disabled selected>Select Problem Type</option>
                               <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False</option>
                               <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
                               <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
                               <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
-                              <option value="/oneUp/instructors/forms/ParsonsForm?challengeID={{challengeID}}">Parsons Problems</option>
+                              <option name="Parson" value="/oneUp/instructors/forms/ParsonsForm?challengeID={{challengeID}}">Parsons Problems</option>
                               {%if lupa_available%}
                               <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Template)</option>
                               <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Raw Lua)</option>

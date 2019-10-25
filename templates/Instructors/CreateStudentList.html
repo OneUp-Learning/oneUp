@@ -4,11 +4,12 @@
       {% include 'scripts.html' %}
       <script type = "text/javascript">
          function validateFileSelection() {
-                 x = document.forms["uploader"]["studentslist"].value;
-              if ( x == "" ) {
-                        alert("Please choose a file.");
-                        return false;
-                    }
+            x = document.forms["uploader"]["studentslist"].value;
+            if ( x == "" ) {
+               alert("Please choose a file.");
+               return false;
+            }
+                    
          }
          
       </script>
@@ -25,16 +26,33 @@
             <div class="col s12 m10 offset-m1">
                <form id="uploadbanner" name ="uploader" action="/oneUp/instructors/importStudentsView" enctype="multipart/form-data" onsubmit="return validateFileSelection()" method="POST">
                   {% csrf_token %}
+                  <input type="hidden" name="file_number" id="file_number" value="">
                   <div class="row">
+                     <div class="row">
+                           <div class="col s12 m5">
                      <div class="file-field input-field">
                         <div class="btn">
                            <span>Import Students</span>
                            <input id="fileupload" name="studentslist" type="file">
                         </div>
-                        <div class="file-path-wrapper">
+                        <div class="file-path-wrapper ">
+                           
                            <input class="file-path validate" type="text" placeholder="Import Students">
+                           </div>  
                         </div>
                      </div>
+                     <div class='input-field col s6 m4'>
+                           <input id='email_domain_name' name='email_domain_name' type='text' class='validate'required>
+                           <label for='email_domain_name' >School Email Domain (The part after the @)</label>
+                        </div>
+                        <div class="input-field col s3">
+                              <select id="file_type" name="file_number">
+                                 {% for i, csv_type in file_types %}
+                                 <option value="{{i}}">File Type: {{csv_type.display_name}}</option>
+                                 {% endfor %}
+                              </select>
+                           </div>
+                        </div>
                      <button class="btn waves-effect waves-light" type="submit" id="Upload" name="upload" value="Import">Import
                      <i class="material-icons right">file_upload</i>
                      </button>

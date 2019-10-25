@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.utils import utcDate
 from Badges.models import CourseConfigParams
-from Students.models import StudentRegisteredCourses, DuelChallenges, StudentChallenges, Winners, StudentConfigParams, StudentVirtualCurrency
+from Students.models import StudentRegisteredCourses, DuelChallenges, StudentChallenges, Winners, StudentConfigParams, StudentVirtualCurrency, Callouts, Student, CalloutParticipants
 from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
 from random import randint
 from notify.signals import notify
@@ -17,9 +17,19 @@ from celery import Celery
 import json
 from Instructors.views.courseInfoView import courseInformation
 from Students.views.calloutsView import call_out_list
-
+from Instructors.constants import unspecified_topic_name, default_time_str
 from Badges.enums import Event
 from Badges.events import register_event, register_event_simple
+from oneUp.settings import DATABASES
+postgres_enabled = False
+if len([db for (name,db) in DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
+    postgres_enabled = True
+transaction_retry_count = 50
+from django.db import transaction, OperationalError
+if postgres_enabled:
+    from psycopg2.extensions import TransactionRollbackError
+else:
+    TransactionRollbackError = "Not postgres"
 
 
 app = Celery('Students', broker='amqp://localhost')
@@ -28,19 +38,22 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 @app.task
 def start_duel_challenge(duel_id, course_id):
     ''' This function starts a duel called automatically'''
-
-    course = Courses.objects.get(courseID=course_id)
-    duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=course)
-    duel_challenge.hasStarted = True
-    duel_challenge.save()
+    try:
+        course = Courses.objects.get(courseID=course_id)
+        duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=course)
+        duel_challenge.hasStarted = True
+        duel_challenge.save()
+    except:
+        return
 
 @app.task
 def automatic_evaluator(duel_id, course_id):
         ''' This function evalutes winner(s) automatically '''
-
-        current_course = Courses.objects.get(courseID=course_id)
-        duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=current_course)
-        
+        try:
+            current_course = Courses.objects.get(courseID=course_id)
+            duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=current_course)
+        except:
+            return 
         ccparams = CourseConfigParams.objects.get(courseID = current_course)
         duel_vc_const = ccparams.vcDuel
         duel_vc_participants_const = ccparams.vcDuelParticipants
@@ -76,15 +89,16 @@ def automatic_evaluator(duel_id, course_id):
                 winner.courseID = current_course
                 winner.save()
                 
-                # save earning transaction
-                w_student_vc = StudentVirtualCurrency()
-                w_student_vc.courseID = duel_challenge.courseID
-                w_student_vc.studentID = winner_s
-                w_student_vc.objectID = 0
-                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                w_student_vc.vcName = duel_challenge.duelChallengeName
-                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                w_student_vc.save()
+                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    # save earning transaction
+                    w_student_vc = StudentVirtualCurrency()
+                    w_student_vc.courseID = duel_challenge.courseID
+                    w_student_vc.studentID = winner_s
+                    w_student_vc.objectID = 0
+                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    w_student_vc.vcName = duel_challenge.duelChallengeName
+                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                    w_student_vc.save()
                 
                 # Notify winner
                 notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
@@ -138,15 +152,16 @@ def automatic_evaluator(duel_id, course_id):
                 winner.courseID = current_course
                 winner.save()
                 
-                # save earning transaction
-                w_student_vc = StudentVirtualCurrency()
-                w_student_vc.courseID = duel_challenge.courseID
-                w_student_vc.studentID = winner_s
-                w_student_vc.objectID = 0
-                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                w_student_vc.vcName = duel_challenge.duelChallengeName
-                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                w_student_vc.save()
+                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    # save earning transaction
+                    w_student_vc = StudentVirtualCurrency()
+                    w_student_vc.courseID = duel_challenge.courseID
+                    w_student_vc.studentID = winner_s
+                    w_student_vc.objectID = 0
+                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    w_student_vc.vcName = duel_challenge.duelChallengeName
+                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                    w_student_vc.save()
 
                 # Notify winner
                 notify.send(None, recipient=winner.studentID.user, actor=challenger_challenge.studentID.user,
@@ -178,7 +193,7 @@ def automatic_evaluator(duel_id, course_id):
                         l_student_vc.save()
                         
                 # Notify student about their lost
-                notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner.user,
+                notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner.studentID,
                                         verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
 
                 # Register event that the student has lost the duel
@@ -195,15 +210,16 @@ def automatic_evaluator(duel_id, course_id):
                 vc_winner1.virtualCurrencyAmount = virtualCurrencyAmount1
                 vc_winner1.save()
                 
-                # save earning transaction
-                w_student_vc = StudentVirtualCurrency()
-                w_student_vc.courseID = duel_challenge.courseID
-                w_student_vc.studentID = vc_winner1
-                w_student_vc.objectID = 0
-                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                w_student_vc.vcName = duel_challenge.duelChallengeName
-                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                w_student_vc.save()
+                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    # save earning transaction
+                    w_student_vc = StudentVirtualCurrency()
+                    w_student_vc.courseID = duel_challenge.courseID
+                    w_student_vc.studentID = vc_winner1
+                    w_student_vc.objectID = 0
+                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    w_student_vc.vcName = duel_challenge.duelChallengeName
+                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                    w_student_vc.save()
                 
                 winner2 = challenger_challenge.studentID
                 vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
@@ -211,15 +227,16 @@ def automatic_evaluator(duel_id, course_id):
                 vc_winner2.virtualCurrencyAmount = virtualCurrencyAmount2
                 vc_winner2.save()
                 
-                # save earning transaction
-                w_student_vc = StudentVirtualCurrency()
-                w_student_vc.courseID = duel_challenge.courseID
-                w_student_vc.studentID = vc_winner2
-                w_student_vc.objectID = 0
-                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                w_student_vc.vcName = duel_challenge.duelChallengeName
-                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                w_student_vc.save()
+                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    # save earning transaction
+                    w_student_vc = StudentVirtualCurrency()
+                    w_student_vc.courseID = duel_challenge.courseID
+                    w_student_vc.studentID = vc_winner2
+                    w_student_vc.objectID = 0
+                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    w_student_vc.vcName = duel_challenge.duelChallengeName
+                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                    w_student_vc.save()
                 
                 winner = Winners()
                 winner.DuelChallengeID = duel_challenge
@@ -412,7 +429,7 @@ def callouts_list(request):
                 topic_names += chall_topic.topicID.topicName + "   "
             requested_topics.append(topic_names)
             
-            if sent_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = requested_chall):
+            if requested_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = requested_chall):
                 requested_w_l.append("Not Submitted")
             elif Winners.objects.filter(DuelChallengeID = requested_chall, studentID = student_id):
                 requested_w_l.append("Won")
@@ -434,6 +451,56 @@ def convert_time_to_int(time):
     hh,mm = time.split(":")
     return int(hh)*60+int(mm)
 
+def get_challenger_challengee_duel_challs(student_id, challengee_id, current_course):
+    '''get the challenger's and challengee's duel warm up challenges'''
+
+    challenger_duels_as_challenger = DuelChallenges.objects.filter(challenger = student_id, courseID=current_course)
+    challenger_duels_as_challengee = DuelChallenges.objects.filter(challengee = student_id, courseID=current_course)
+
+    challengee_duels_as_challenger = DuelChallenges.objects.filter(challenger=challengee_id, courseID=current_course)
+    challengee_duels_as_challengee = DuelChallenges.objects.filter(challengee=challengee_id, courseID=current_course)
+
+    if not challenger_duels_as_challenger and not challenger_duels_as_challengee and not challengee_duels_as_challenger and not challengee_duels_as_challengee:
+        return ([],[])
+    challenger_duels = list(challenger_duels_as_challenger) + list(challenger_duels_as_challengee)
+    challenger_duels_challs = []
+    for challenger_duel in challenger_duels:
+        challenger_duels_challs.append(challenger_duel.challengeID)
+         
+    
+    challengee_duels = list(challengee_duels_as_challenger) + list(challengee_duels_as_challengee)
+    challengee_duels_challs = []
+    for challengee_duel in challengee_duels:
+        challengee_duels_challs.append(challengee_duel.challengeID)
+    
+    return (challenger_duels_challs, challengee_duels_challs)
+
+def get_student1_student2_callout_challs(student1, student2, current_course):
+    '''get the challenger's and challengee's duel warm up challenges'''
+
+    student1_callouts = Callouts.objects.filter(sender = student1, courseID=current_course)
+    student1_part_callouts = CalloutParticipants.objects.filter(participantID = student1, courseID=current_course)
+
+    student2_callouts = Callouts.objects.filter(sender = student2, courseID=current_course)
+    student2_part_callouts = CalloutParticipants.objects.filter(participantID = student2, courseID=current_course)
+
+    if not student1_callouts and not student1_part_callouts and not student2_callouts and not student2_part_callouts:
+        return ([],[])
+   
+    student1_callout_challs = []
+    for student1_callout in student1_callouts:
+        student1_callout_challs.append(student1_callout.challengeID)
+    for student1_part_callout in student1_part_callouts:
+        student1_callout_challs.append(student1_part_callout.calloutID.challengeID)
+
+    student2_callout_challs = []
+    for student2_callout in student2_callouts:
+        student2_callout_challs.append(student2_callout.challengeID)
+    for student2_part_callout in student2_part_callouts:
+        student2_callout_challs.append(student2_part_callout.calloutID.challengeID)
+    
+    return (student1_callout_challs, student2_callout_challs)
+
 def get_random_challenge(topic, difficulty, current_course, student_id, challengee):
     '''get_challenge returns a random challenge based on specified topic and difficulty'''
 
@@ -444,10 +511,19 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
         print("topic nameeeeee", topic_obj.topicName)
         course_topics = CoursesTopics.objects.filter(courseID=current_course, topicID=topic_obj)
 
+    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+
     challenges_list = []
     for crs_t in course_topics:
         challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID)
         for chall_t in challenges_topics:
+             # if warmup is not available, then skip it
+            if not chall_t.challengeID.isVisible:
+                continue
+            # if warmup has a display date, the skip it
+            if chall_t.challengeID.endTimestamp != default_date:
+                continue
+
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=challengee) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id):
                 if not chall_t.challengeID.isGraded:
@@ -466,22 +542,12 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
 
     duel_challenges = []
     # Make sure challenges are not picked by any duel before 
-    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
-    challenger_duels_challs = []
-    for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
-        
-    challengee_duels = DuelChallenges.objects.filter(challengee= challengee)
-    challengee_duels_challs = []
-    for challengee_duel in challengee_duels:
-        challenger_duels_challs.append(challengee_duel.challengeID)
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, challengee, current_course)
+    student1_callout_challs, student2_callout_challs = get_student1_student2_callout_challs(student_id, challengee, current_course)
         
     for chall in challenges_list:
-        if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
+        if not chall in challenger_duels_challs and not chall in challengee_duels_challs and not chall in student1_callout_challs and not chall in student2_callout_challs:
             duel_challenges.append(chall)
-
-    print("challenges")
-    print(duel_challenges)
 
     if duel_challenges:
 
@@ -534,7 +600,7 @@ def duel_challenge_create(request):
 
     context_dict['max_bet'] = ccparams.vcDuelMaxBet
     
-    if ccparams.betVC:
+    if ccparams.betVC and ccparams.virtualCurrencyUsed:
         context_dict["is_bet_vc"] = True
     else:
         context_dict["is_bet_vc"] = False
@@ -553,7 +619,15 @@ def duel_challenge_create(request):
     challenges_list = []
     chall_topics = []
     challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     for chall_t in challenges_topics:
+            # if warmup is not available, then skip it
+            if not chall_t.challengeID.isVisible:
+                continue
+            # if warmup has a display date, the skip it
+            if chall_t.challengeID.endTimestamp != default_date:
+                continue
+
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=reg_students[0].studentID) :
                 if not chall_t.challengeID.isGraded:
@@ -562,19 +636,12 @@ def duel_challenge_create(request):
                         challenges_list.append(chall_t.challengeID)
                         chall_topics.append(chall_t)
  
-    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
-    challenger_duels_challs = []
-    for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
-         
-    challengee_duels = DuelChallenges.objects.filter(challengee = reg_students[0].studentID)
-    challengee_duels_challs = []
-    for challengee_duel in challengee_duels:
-        challengee_duels_challs.append(challengee_duel.challengeID)
-         
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, reg_students[0].studentID, current_course)
+    student1_callout_challs, student2_callout_challs = get_student1_student2_callout_challs(student_id, reg_students[0].studentID, current_course)
+    
     topic_ids = []
     for chall, chall_topic in zip(challenges_list, chall_topics):
-        if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
+        if not chall in challenger_duels_challs and not chall in challengee_duels_challs and not chall in student1_callout_challs and not chall in student2_callout_challs:
             difficulty_set.add(chall.challengeDifficulty)
             
             if chall_topic.topicID.topicID in topic_ids:
@@ -635,7 +702,6 @@ def duel_challenge_create(request):
         
         try:
             topic_obj = Topics.objects.get(topicID=int(topic))
-            print("topic nameeeeee", topic_obj.topicName)
             topic_name = topic_obj.topicName
         except:
             topic_name = 'Any'
@@ -761,8 +827,15 @@ def get_create_duel_topics_difficulties(request):
     else:
         challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
        
+    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
 
     for chall_t in challenges_topics:
+             # if warmup is not available, then skip it
+            if not chall_t.challengeID.isVisible:
+                continue
+            # if warmup has a display date, the skip it
+            if chall_t.challengeID.endTimestamp != default_date:
+                continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :
                 if not chall_t.challengeID.isGraded:
@@ -770,22 +843,15 @@ def get_create_duel_topics_difficulties(request):
                     if ChallengesQuestions.objects.filter(challengeID=chall_t.challengeID):
                         challenges_list.append(chall_t.challengeID)
                         chall_topics.append(chall_t)
- 
-
-    challenger_duels = DuelChallenges.objects.filter(challenger = student_id)
-    challenger_duels_challs = []
-    for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
-         
-    challengee_duels = DuelChallenges.objects.filter(challengee__user__id=challengee_id)
-    challengee_duels_challs = []
-    for challengee_duel in challengee_duels:
-        challengee_duels_challs.append(challengee_duel.challengeID)
-         
+    
+    challengee_id = Student.objects.get(user__id=challengee_id)
+    challenger_duels_challs, challengee_duels_challs = get_challenger_challengee_duel_challs(student_id, challengee_id, current_course)
+    student1_callout_challs, student2_callout_challs = get_student1_student2_callout_challs(student_id, challengee_id, current_course)
+    
     topic_ids = []
     i=0
     for chall, chall_topic in zip(challenges_list, chall_topics):
-        if not chall in challenger_duels_challs and not chall in challengee_duels_challs:
+        if not chall in challenger_duels_challs and not chall in challengee_duels_challs and not chall in student1_callout_challs and not chall in student2_callout_challs:
             
             difficulty_set.add(chall.challengeDifficulty)
             
@@ -868,6 +934,7 @@ def validate_duel_challenge_creation(request):
         return JsonResponse(context_dict)
     
     return redirect('/oneUp/students/Callouts') 
+    
 
 @login_required
 def duel_challenge_description(request):
@@ -886,9 +953,31 @@ def duel_challenge_description(request):
             duel_challenge = DuelChallenges.objects.get(pk=int(request.GET['duelChallengeID']))
         except:
             return redirect('/oneUp/students/Callouts') 
+
+        duel_challenge_ID = duel_challenge.duelChallengeID
+        # check if the duel hasStartTime reached
+        if (not duel_challenge.hasStarted) and (duel_challenge.status == 2) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)) <= utcDate()):
+            
+            try:
+                with transaction.atomic():
+                    updating_duel_challenge = DuelChallenges.objects.select_for_update().get(duelChallengeID=duel_challenge_ID)
+                    if not updating_duel_challenge.hasStarted:
+                        updating_duel_challenge.hasStarted = True
+                        updating_duel_challenge.save()
+            except OperationalError as e:
+                if e.__cause__.__class__ == TransactionRollbackError:
+                    print("TransactionRollbackError")
+                    print(e)
+                    pass
+                else:
+                    raise
+
+        duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_challenge_ID)
+        # check if the duel hasStartTime + timeLimit reached
+        if (not duel_challenge.hasEnded) and (duel_challenge.hasStarted) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) +timedelta(seconds=5)) <= utcDate()):
+            automatic_evaluator(duel_challenge.duelChallengeID, current_course.courseID)
         
-        context_dict['timeLimit'] = duel_challenge.timeLimit
-        
+        context_dict['timeLimit'] = duel_challenge.timeLimit    
         context_dict['award'] = duel_vc_const + 2 * duel_challenge.vcBet + duel_vc_participants_const
         
         if 'sTime' in request.GET:
@@ -898,12 +987,14 @@ def duel_challenge_description(request):
             context_dict['startTime'] = 0
     
             if duel_challenge.hasStarted:
-                total_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=20)
+                total_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) #+timedelta(seconds=2)
                 remaing_time = total_time-utcDate()
                 difference_minutes = remaing_time.total_seconds()/60.0
                 context_dict['testDuration'] = difference_minutes
         else:
-            start_accept_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)+timedelta(seconds=20)
+            start_accept_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) #+timedelta(seconds=2)
+            print("start_accept_time", start_accept_time)
+            print("utcDate()", utcDate())
             difference =  start_accept_time - utcDate()
             difference_minutes = difference.total_seconds()/60.0
         
@@ -911,16 +1002,38 @@ def duel_challenge_description(request):
 
         def results(duel_challenge, student_id):
             message = ''
-            winners = Winners.objects.filter(DuelChallengeID=duel_challenge)
             
+            # This checks whether the 2 winners of the duel is the same student. That happens in case of auto submit 
+            # where the challenges are submitted at the same time and evaluated twice
+            if len(Winners.objects.filter(DuelChallengeID=duel_challenge)) == 2:
+                ws = Winners.objects.filter(DuelChallengeID=duel_challenge)
+                if ws[0].studentID == ws[1].studentID:
+                    ws[1].delete()
+
+                    vc_winner = StudentRegisteredCourses.objects.get(studentID=ws[0].studentID, courseID=duel_challenge.courseID)
+                    # Winner gets the total virtual currency and an amount of virtual currency set by teacher
+                    virtualCurrencyAmount = vc_winner.virtualCurrencyAmount - 2*duel_challenge.vcBet - duel_vc_const - duel_vc_participants_const
+                    vc_winner.virtualCurrencyAmount = virtualCurrencyAmount
+                    vc_winner.save()
+                   
+
+                    w_student_vc = StudentVirtualCurrency.objects.filter(courseID = duel_challenge.courseID, studentID = ws[0].studentID, objectID = 0, value = (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const), vcName = duel_challenge.duelChallengeName)
+                    if len(w_student_vc) == 2:
+                        w_student_vc[1].delete()
+
+            winners = Winners.objects.filter(DuelChallengeID=duel_challenge)
+    
+
             if len(winners) == 0:
-                message +="Both you and opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
+                message +="Both you and your opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
                 if duel_challenge.isBetting:
-                    message +=" You and opponent are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency each."
+                    message +=" You and your opponent are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency each."
             elif len(winners)==2:
-                message +="You and opponent are both winners of this duel."
+                print("Winner 1 ",winners[0].studentID )
+                print("Winner 2 ",winners[1].studentID )
+                message +="You and your opponent are both winners of this duel."
                 if duel_challenge.isBetting:
-                    message +=" You and opponent are reimbursed an amount of "+str(duel_challenge.vcBet)
+                    message +=" You and youropponent are reimbursed an amount of "+str(duel_challenge.vcBet)
                     if duel_vc_const > 0:
                         message +=" plus "+str(duel_vc_const) 
                     if duel_vc_participants_const > 0: 
@@ -1102,16 +1215,16 @@ def duel_challenge_accept(request):
         ################################################################################################################################################
         # Start duel after specified time using celery 
         # get database start time and subtract 20 seconds from it to be consistent with network latency 
-        start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
-        print("start time ", start_time)
-        start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
-        print("start duel celery")
+        #start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
+        #print("start time ", start_time)
+        #start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
+        #print("start duel celery")
         ##################################################################################################################################################
 
         ##################################################################################################################################################
         # Automatically evaluate duel after specified time using Celery 
-        # get database start time and add a munite to it to be consistent with network latency 
-        evaluation_time = utcDate() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(minutes=1)
+        # get database start time and add 3 seconds to it to be consistent with network latency 
+        evaluation_time = utcDate() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=3)
         print("evaluation time ", evaluation_time )
         automatic_evaluator.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=evaluation_time)
         print("automatic evaluation duel celery")
@@ -1175,14 +1288,11 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
             # get start and limit time from database 
             start_and_limit_time = duel_challenge.startTime + duel_challenge.timeLimit
-            
-            # get utc time now and add 15 seconds for network latency and items in queue that may make a delay
-            date_now = utcDate() + timedelta(seconds=15) 
 
             # get the time when duel was accpeted and add start_and_limit_time to time
-            duel_allowed_time = duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time) 
+            duel_allowed_time = duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time)+timedelta(seconds=2)
             
-            if duel_allowed_time < date_now:
+            if duel_allowed_time <= utcDate():
                 
                 # Challenge is expired
                 context_dict['isExpired']=True
@@ -1198,15 +1308,19 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 winner.courseID = current_course
                 winner.save()
                 
-                # save earning transaction
-                w_student_vc = StudentVirtualCurrency()
-                w_student_vc.courseID = duel_challenge.courseID
-                w_student_vc.studentID = student_id
-                w_student_vc.objectID = 0
-                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                w_student_vc.vcName = duel_challenge.duelChallengeName
-                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                w_student_vc.save()
+                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    # save earning transaction
+                    w_student_vc = StudentVirtualCurrency()
+                    w_student_vc.courseID = duel_challenge.courseID
+                    w_student_vc.studentID = student_id
+                    w_student_vc.objectID = 0
+                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    w_student_vc.vcName = duel_challenge.duelChallengeName
+                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                    w_student_vc.save()
+
+                duel_challenge.hasEnded = True
+                duel_challenge.save()
 
                 if duel_challenge.challenger == student_id:
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
@@ -1245,10 +1359,6 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     }
                     register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
 
-
-                duel_challenge.hasEnded = True
-                duel_challenge.save()
-                
                 context_dict['areAllDone'] = True
                 return context_dict
 
@@ -1269,15 +1379,17 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             winner.studentID = winner_s
             winner.courseID = current_course
             winner.save()
-            # save earning transaction
-            w_student_vc = StudentVirtualCurrency()
-            w_student_vc.courseID = duel_challenge.courseID
-            w_student_vc.studentID = winner_s
-            w_student_vc.objectID = 0
-            w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-            w_student_vc.vcName = duel_challenge.duelChallengeName
-            w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-            w_student_vc.save()
+
+            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                # save earning transaction
+                w_student_vc = StudentVirtualCurrency()
+                w_student_vc.courseID = duel_challenge.courseID
+                w_student_vc.studentID = winner_s
+                w_student_vc.objectID = 0
+                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                w_student_vc.vcName = duel_challenge.duelChallengeName
+                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                w_student_vc.save()
             
             # Notify winner
             notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
@@ -1329,15 +1441,16 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             winner.courseID = current_course
             winner.save()
             
-            # save earning transaction
-            w_student_vc = StudentVirtualCurrency()
-            w_student_vc.courseID = duel_challenge.courseID
-            w_student_vc.studentID = winner_s
-            w_student_vc.objectID = 0
-            w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-            w_student_vc.vcName = duel_challenge.duelChallengeName
-            w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-            w_student_vc.save()
+            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                # save earning transaction
+                w_student_vc = StudentVirtualCurrency()
+                w_student_vc.courseID = duel_challenge.courseID
+                w_student_vc.studentID = winner_s
+                w_student_vc.objectID = 0
+                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                w_student_vc.vcName = duel_challenge.duelChallengeName
+                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                w_student_vc.save()
 
             # Notify winner
             notify.send(None, recipient=winner_s.user, actor=challenger_challenge.studentID.user,
@@ -1384,15 +1497,16 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             vc_winner1.virtualCurrencyAmount = virtualCurrencyAmount1
             vc_winner1.save()
             
-            # save earning transaction
-            w_student_vc = StudentVirtualCurrency()
-            w_student_vc.courseID = duel_challenge.courseID
-            w_student_vc.studentID = winner1
-            w_student_vc.objectID = 0
-            w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-            w_student_vc.vcName = duel_challenge.duelChallengeName
-            w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-            w_student_vc.save()
+            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                # save earning transaction
+                w_student_vc = StudentVirtualCurrency()
+                w_student_vc.courseID = duel_challenge.courseID
+                w_student_vc.studentID = winner1
+                w_student_vc.objectID = 0
+                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                w_student_vc.vcName = duel_challenge.duelChallengeName
+                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                w_student_vc.save()
             
             winner2 = challenger_challenge.studentID
             vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
@@ -1400,15 +1514,16 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             vc_winner2.virtualCurrencyAmount = virtualCurrencyAmount2
             vc_winner2.save()
             
-            # save earning transaction
-            w_student_vc = StudentVirtualCurrency()
-            w_student_vc.courseID = duel_challenge.courseID
-            w_student_vc.studentID = winner2
-            w_student_vc.objectID = 0
-            w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-            w_student_vc.vcName = duel_challenge.duelChallengeName
-            w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-            w_student_vc.save()
+            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                # save earning transaction
+                w_student_vc = StudentVirtualCurrency()
+                w_student_vc.courseID = duel_challenge.courseID
+                w_student_vc.studentID = winner2
+                w_student_vc.objectID = 0
+                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                w_student_vc.vcName = duel_challenge.duelChallengeName
+                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                w_student_vc.save()
             
             winner = Winners()
             winner.DuelChallengeID = duel_challenge
@@ -1447,37 +1562,67 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
     duel_vc_const = ccparams.vcDuel
     duel_vc_participants_const = ccparams.vcDuelParticipants
 
-    if duel_challenge.challenger == student_id:
-        challenger_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
-        # if challengee has no challenge object, duel may have not submitted the duel yet
-        if not StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course):
-            
-            #################################################################
-            # check whether duel is expired 
-            return has_duel_expired(student_id, duel_challenge, context_dict, duel_vc_const, duel_vc_participants_const)
-            #################################################################
+    duel_challenge_ID = duel_challenge.duelChallengeID
+    try:
+        with transaction.atomic():
+            updating_duel_challenge = DuelChallenges.objects.select_for_update().get(duelChallengeID=duel_challenge_ID)
+            if updating_duel_challenge.evaluator == 0:
 
-        challengee_challenge = StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp') 
-        evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const,duel_vc_participants_const)
-        context_dict['areAllDone'] = True
+                if updating_duel_challenge.challenger == student_id:
+                    updating_duel_challenge.evaluator = 1
+                    print("Challenger is the evaluator")
+                else:
+                    updating_duel_challenge.evaluator = 2
+                    print("Challengee is the evaluator")
+                updating_duel_challenge.save()
+    except OperationalError as e:
+        if e.__cause__.__class__ == TransactionRollbackError:
+            print("TransactionRollbackError")
+            print(e)
+            pass
+        else:
+            raise
+
+    updated_duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_challenge_ID)
+
+    if updated_duel_challenge.evaluator == 1:
+        print("evaluator is 1, challenger")
+        if updated_duel_challenge.challenger == student_id:
+            print("Challenger is evaluating")
+            challenger_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=updated_duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
+            # if challengee has no challenge object, duel might have not been submitted the duel yet
+            if not StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=updated_duel_challenge.challengeID, courseID=current_course):
+                
+                #################################################################
+                # check whether duel is expired 
+                return has_duel_expired(student_id, updated_duel_challenge, context_dict, duel_vc_const, duel_vc_participants_const)
+                #################################################################
+
+            challengee_challenge = StudentChallenges.objects.filter(studentID=updated_duel_challenge.challengee,challengeID=updated_duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp') 
+            evaluator(challenger_challenge, challengee_challenge, updated_duel_challenge, current_course, duel_vc_const,duel_vc_participants_const)
+            context_dict['areAllDone'] = True
+            return context_dict
         return context_dict
-    
-    elif duel_challenge.challengee == student_id:
-        challengee_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
+
+    elif updated_duel_challenge.evaluator == 2:
+        print("evaluator is 2, challenger")
+        if updated_duel_challenge.challengee == student_id:
+            print("Challengee is evaluating")
+            challengee_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
         
-        # if challenger has no challenge object, duel may have not submitted the duel yet
-        if not StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course):
-            
-            #################################################################
-            # check whether duel is expired 
-            return has_duel_expired(student_id, duel_challenge, context_dict, duel_vc_const, duel_vc_participants_const)
-            #################################################################
+            # if challenger has no challenge object, duel might have not been submitted the duel yet
+            if not StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course):
+                
+                #################################################################
+                # check whether duel is expired 
+                return has_duel_expired(student_id, duel_challenge, context_dict, duel_vc_const, duel_vc_participants_const)
+                #################################################################
 
-        challenger_challenge = StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
-        evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const, duel_vc_participants_const)
-        context_dict['areAllDone'] = True
+            challenger_challenge = StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
+            evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const, duel_vc_participants_const)
+            context_dict['areAllDone'] = True
+            return context_dict
         return context_dict
-
     else:
         #context_dict['error']= "Some error has occurred!"
         context_dict['error'] = True

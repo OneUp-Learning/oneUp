@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    {% include 'scripts.html' %}
+    <script>
+        var checked = false;
+        var checkBoxes = document.getElementsByClassName('check-boxes');
+
+        function ToggleAllCheckboxes(event) {
+            
+            checked = !checked;
+            if (checked)
+                event.childNodes[0].textContent = "Deselect All"
+            else
+                event.childNodes[0].textContent = "Select All"
+
+            for (var i = 0; i < checkBoxes.length; i++) {
+                checkBoxes[i].checked = checked;
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Export Course</h3>
+                <em><strong> Select Items to Export</strong></em>
+            </div>
+        </div>
+
+        <div class="row right-align">
+            <div class="col s12 m10 offset-m1">
+                <button class="btn waves-effect waves-light" onclick="ToggleAllCheckboxes(this)" type="button">Select All<i
+                        class="material-icons right">select_all</i></button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <form id="export-course" name="export-course">
+                    {% csrf_token %}
+                    <input type="hidden" name="export" />
+                    <div class="card">
+                        <div class="card-content">
+                            <ul class="collapsible" data-collapsible="expanded">
+                                <li>
+                                    <div class="collapsible-header active"><i
+                                            class="material-icons">layers</i>Challenges & Problems
+                                        <span class="badge">3</span>
+                                    </div>
+                                    <div class="collapsible-body">
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="serious-challenges" id="serious-challenges" />
+                                            <label for="serious-challenges">Serious Challenges</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="warmup-challenges" id="warmup-challenges" />
+                                            <label for="warmup-challenges">Warmup Challenges</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="unassigned-problems" id="unassigned-problems" />
+                                            <label for="unassigned-problems">Unassigned Problems</label>
+                                        </p>
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="collapsible-header active"><i
+                                            class="material-icons">layers</i>Activities
+                                        <span class="badge">2</span>
+                                    </div>
+                                    <div class="collapsible-body">
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="activities"
+                                                id="activities" />
+                                            <label for="activities">Activities</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="activities-categories" id="activities-categories" />
+                                            <label for="activities-categories">Activities Categories</label>
+                                        </p>
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="collapsible-header active"><i class="material-icons">layers</i>Badges
+                                        <span class="badge">3</span>
+                                    </div>
+                                    <div class="collapsible-body">
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="automatic-badges"
+                                                id="automatic-badges" />
+                                            <label for="automatic-badges">Automatic Badges</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="manual-badges"
+                                                id="manual-badges" />
+                                            <label for="manual-badges">Manual Badges</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="periodic-badges"
+                                                id="periodic-badges" />
+                                            <label for="periodic-badges">Periodic Badges</label>
+                                        </p>
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="collapsible-header active"><i class="material-icons">layers</i>Virtual
+                                        Currency Rules
+                                        <span class="badge">4</span>
+                                    </div>
+                                    <div class="collapsible-body">
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="automatic-vc-rules" id="automatic-vc-rules" />
+                                            <label for="automatic-vc-rules">Automatic Earning Virtual Currency
+                                                Rules</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="manual-vc-rules"
+                                                id="manual-vc-rules" />
+                                            <label for="manual-vc-rules">Manual Earning Virtual Currency Rules</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="periodic-vc-rules" id="periodic-vc-rules" />
+                                            <label for="periodic-vc-rules">Periodic Earning Virtual Currency
+                                                Rules</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="spending-vc-rules" id="spending-vc-rules" />
+                                            <label for="spending-vc-rules">Spending Virtual Currency Rules</label>
+                                        </p>
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="collapsible-header active"><i
+                                            class="material-icons">layers</i>Miscellaneous
+                                        <span class="badge">5</span>
+                                    </div>
+                                    <div class="collapsible-body">
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="topics"
+                                                id="topics" />
+                                            <label for="topics">Topics</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="skills"
+                                                id="skills" />
+                                            <label for="skills">Skills</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="leaderboards"
+                                                id="leaderboards" />
+                                            <label for="leaderboards">Leaderboards</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="content-unlocking" id="content-unlocking" />
+                                            <label for="content-unlocking">Content Unlocking</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes" name="streaks"
+                                                id="streaks" />
+                                            <label for="streaks">Streaks</label>
+                                        </p>
+                                    </div>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <div class="card-action right-align">
+                            <button class="btn waves-effect waves-light" type="button" name="submit" onclick="validateJSON()">Export<i
+                                    class="material-icons right">send</i></button>
+                            <button class="btn waves-effect waves-light" type="reset" name="reset">Clear<i
+                                    class="material-icons right">clear_all</i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Modal Structure -->
+        <div id="messages-modal" class="modal">
+            <div class="modal-content">
+                <h4>Are you sure you want to export?</h4>
+                <ul class="collection" id="messages">
+                    
+                </ul>
+            </div>
+            <div class="modal-footer">
+                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Make Changes</a>
+                    <button id="export-json" type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="continue">Continue Anyway
+                    </button>
+            </div>
+        </div>
+        <script>
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                            }
+                        }
+                }
+                return cookieValue;
+            }
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                }
+            });
+
+            function validateJSON() {
+                //   console.log("validating");
+                  $.ajax({
+                        type: "POST",
+                        url: "/oneUp/instructors/validateCourseExport",
+                        data: $("#export-course").serialize(),
+                        success: function (response) {                     
+                            // Unbind all event listeners in case the user decides to fix errors/warnings
+                            // and export again
+                            $("#export-json").unbind();
+                            // Set onclick listener for the continue button in the popup
+                            $("#export-json").click(function(){exportCourse(response['exported-json']);});
+
+                            let messages = response['messages'];
+                            
+                            // If there are no warning or error messages just go ahead and export the course json
+                            if (messages.length == 0){
+                                $("#export-json").click();
+                                return;
+                            }
+                        
+                            let messages_container = $("#messages");
+                            messages_container.empty();
+
+                            // Add the errors/warnings messages to messages container
+                            for(var index = 0; index < messages.length; index++){
+                                let message = messages[index];
+                                if(message['type'] == 'warn'){
+                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: orange;' class='material-icons'>warning</i></div> "+ message['message'] +"</div></li>")
+                                } else if(message['type'] == 'info'){
+									messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: #00bcd4;' class='material-icons'>info</i></div> "+ message['message'] +"</div></li>")
+								}else if (message['type'] == 'error'){
+                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: firebrick;' class='material-icons'>error</i></div> "+ message['message'] +"</div></li>")
+                                }
+                            }
+                            // Show the messages
+                            $('#messages-modal').modal('open');
+                        }
+                  });
+                  return false;
+            }
+            function exportCourse(json) {
+                // console.log('Exporting');
+                var exported_json = JSON.stringify(json);
+                // Download the json file
+                download(exported_json, 'course-{{course_Name}}-{{version}}.json', 'text/plain');
+
+                // Uncomment for exporting to media folder
+                // $.ajax({
+                //     type: "POST",
+                //     url: "/oneUp/instructors/exportCourse",
+                //     data:  {'exported-json': exported_json},
+                //     success: function () {
+                //         // console.log("Success!");
+                //         location.reload();
+                //     }
+                // });
+            }
+            function download(content, fileName, contentType) {
+                var a = document.createElement("a");
+                var file = new Blob([content], {type: contentType});
+                a.href = URL.createObjectURL(file);
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(a.href);
+                Materialize.toast("Course Exported!", 4000);
+                // setTimeout(() => { location.reload();}, 4000)
+            }
+        </script>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
+</html>

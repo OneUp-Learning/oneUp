@@ -13,8 +13,18 @@ from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses, Topics
 import json
-from oneUp.settings import CELERY_ENABLED
+from oneUp.settings import CELERY_ENABLED, DATABASES
 from Badges.tasks import process_event_offline
+
+postgres_enabled = False
+if len([db for (name,db) in DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
+    postgres_enabled = True
+transaction_retry_count = 50
+from django.db import transaction, OperationalError
+if postgres_enabled:
+    from psycopg2.extensions import TransactionRollbackError
+else:
+    TransactionRollbackError = "Dummy Value which won't match things later"
 
 import logging
 logger = logging.getLogger(__name__)
@@ -112,6 +122,9 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.visitedLeaderboardPage):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = 0
+    if(eventID == Event.clickedViewAverageGrade):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = 0
                 
     # Virtual Currency Events
     if(eventID == Event.instructorHelp):
@@ -204,7 +217,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId  
     
-    logger.debug('eventEntry: '+str(eventEntry))  
+    print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
 
     if CELERY_ENABLED:
@@ -238,7 +251,7 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     eventEntry = StudentEventLog.objects.get(pk=eventID)
     
     timestampstr = str(eventEntry.timestamp)
-    logger.debug("Processing Event with timestamp: "+timestampstr)
+    print("Processing Event with timestamp: "+timestampstr)
 
     # check for rules which are triggered by this event
     matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventEntry.event)
@@ -246,7 +259,7 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     logger.debug("Event with timestamp: "+timestampstr+" has "+str(len(matchingRuleEvents))+" matching RuleEvent entries.")
     
     for ruleEvent in matchingRuleEvents:
-        logger.debug("Event with timestamp: "+timestampstr+" matches with rule "+str(ruleEvent.rule.ruleID))
+        print("Event with timestamp: "+timestampstr+" matches with rule "+str(ruleEvent.rule.ruleID))
         if ruleEvent.rule in matchingRuleWithContext:
             matchingRuleWithContext[ruleEvent.rule] = matchingRuleWithContext[ruleEvent.rule] or ruleEvent.inGlobalContext
         else:
@@ -308,12 +321,12 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
     if condition in ht:
         return False
     
-    logger.debug("In Event w/timestamp: "+timestampstr+" Evaluating condition:"+str(condition))
+    print("In Event w/timestamp: "+timestampstr+" Evaluating condition:"+str(condition))
     
     # Fetch operands
     operand1 = get_operand_value(condition.operand1Type,condition.operand1Value, course, student, objectType, objectID, ht, condition, timestampstr)
     
-    logger.debug("In Event w/timestamp: "+timestampstr+" Operand 1 = "+str(operand1))
+    print("In Event w/timestamp: "+timestampstr+" Operand 1 = "+str(operand1))
 
     # NOT is our only unary operation.  If we have one, there's no
     # need to do anything with a second operand.
@@ -364,7 +377,7 @@ def check_condition_helper(condition, course, student, objectType, objectID, ht,
         return andor_helper(True)
 
     operand2 = get_operand_value(condition.operand2Type,condition.operand2Value, course, student, objectType, objectID, ht, condition, timestampstr)
-    logger.debug("In Event w/timestamp: "+timestampstr+" Operand 2 = "+str(operand2))
+    print("In Event w/timestamp: "+timestampstr+" Operand 2 = "+str(operand2))
     
     if (condition.operation == '='):
         return operand1==operand2
@@ -445,26 +458,36 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         
         #Make sure the student hasn't already been awarded this badge
         #If the student has already received this badge, they will not be awarded again
-        studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
-        if rule.awardFrequency != AwardFrequency.justOnce:
-            studentBadges = studentBadges.filter(objectID = objID)
-        for existingBadge in studentBadges:
-            badgeInfo = Badges.objects.get(badgeID = existingBadge.badgeID.badgeID)
-            if(not badgeInfo.manual):
-                autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
-                if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
-                #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
-                    logger.debug("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " has already earned badge " + str(badge))
-                    return
-            
-        #If the badge has not already been earned, then award it    
-        studentBadge = StudentBadges()
-        studentBadge.studentID = studentID
-        studentBadge.badgeID = badge
-        studentBadge.objectID = objID
-        studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
-        studentBadge.save()
-        logger.debug("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
+        for retries in range(0,transaction_retry_count):
+            try:
+                with transaction.atomic():
+                    studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
+                    if rule.awardFrequency != AwardFrequency.justOnce:
+                        studentBadges = studentBadges.filter(objectID = objID)
+                    for existingBadge in studentBadges:
+                        badgeInfo = Badges.objects.get(badgeID = existingBadge.badgeID.badgeID)
+                        if(not badgeInfo.manual):
+                            autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
+                            if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
+                            #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
+                                print("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " has already earned badge " + str(badge))
+                                return
+                        
+                    #If the badge has not already been earned, then award it    
+                    studentBadge = StudentBadges()
+                    studentBadge.studentID = studentID
+                    studentBadge.badgeID = badge
+                    studentBadge.objectID = objID
+                    studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
+                    studentBadge.save()
+                    print("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
+            except OperationalError as e:
+                if e.__cause__.__class__ == TransactionRollbackError:
+                    continue
+                else:
+                    raise
+            else:
+                break
         
         #Test to make notifications 
         notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge', extra=json.dumps({"course": str(courseID.courseID)}))
@@ -492,7 +515,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         return
     
     if (actionID == Action.createNotification):
-        logger.debug("In Event w/timestamp: "+timestampstr+" In notifications ")
+        print("In Event w/timestamp: "+timestampstr+" In notifications ")
 
         #Create a notification.
         return
@@ -510,44 +533,80 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
 
         vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
         
-        if actionID == Action.increaseVirtualCurrency:
-            previousAwards = StudentVirtualCurrencyRuleBased.objects.filter(studentID = student.studentID, courseID=courseID, vcRuleID = vcRule)
-            if rule.awardFrequency != AwardFrequency.justOnce:
-                previousAwards = previousAwards.filter(objectID = objID)
-            if previousAwards.exists():
-                # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
-                logger.debug("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
-                return 
-                        
-        studVCRec = StudentVirtualCurrencyRuleBased()
-        studVCRec.courseID = courseID
-        studVCRec.studentID = student.studentID
-        if rule.awardFrequency == AwardFrequency.justOnce:
-            studVCRec.objectID = 0
-        else:
-            studVCRec.objectID = objID
-        studVCRec.vcRuleID = vcRule
-        studVCRec.value = vcRuleAmount
-        studVCRec.save()
+        for retries in range(0,transaction_retry_count):
+            try:
+                with transaction.atomic(): 
+                    if actionID == Action.increaseVirtualCurrency:
+                        previousAwards = StudentVirtualCurrencyRuleBased.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
+                        if rule.awardFrequency != AwardFrequency.justOnce:
+                            previousAwards = previousAwards.filter(objectID = objID)
+                        if previousAwards.exists():
+                            # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
+                            print("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
+                            return
+                                    
+                        studVCRec = StudentVirtualCurrencyRuleBased()
+                        studVCRec.courseID = courseID
+                        studVCRec.studentID = student.studentID
+                        if rule.awardFrequency == AwardFrequency.justOnce:
+                            studVCRec.objectID = 0
+                        else:
+                            studVCRec.objectID = objID
+                        studVCRec.vcRuleID = vcRule
+                        studVCRec.save()
+            except OperationalError as e:
+                if e.__cause__.__class__ == TransactionRollbackError:
+                    continue
+                else:
+                    raise
+            else:
+                break
         
         if actionID == Action.increaseVirtualCurrency:
             # Increase the student virtual currency amount
-            student.virtualCurrencyAmount += vcRuleAmount
-            student.save()
-            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+            for retries in range(0,transaction_retry_count):
+                try:
+                    with transaction.atomic():
+                        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+                        student.virtualCurrencyAmount += vcRuleAmount
+                        student.save()
+                    notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+                except OperationalError as e:
+                    if e.__cause__.__class__ == TransactionRollbackError:
+                        continue
+                    else:
+                        raise
+                else:
+                    break
             return
-    
+            
         if actionID == Action.decreaseVirtualCurrency:
             # Decrease the student virtual currency amount
+            
+            # Commented this out for now since not all shop items are reaching this point (they may not have rules)
+            # Each shop item should have a rule associated with it though. This needs to be looked into more
+
+#             for retries in range(0,transaction_retry_count):
+#                 try:
+#                     with transaction.atomic():
+#                         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
             if student.virtualCurrencyAmount >= vcRuleAmount:
-                student.virtualCurrencyAmount -= vcRuleAmount 
-                instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
-                instructor = instructorCourse.instructorID
-                notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+#                             student.virtualCurrencyAmount -= vcRuleAmount 
+#                             instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
+#                             instructor = instructorCourse.instructorID
+#                             notify.send(None, recipient=instructor, actor=studentID.user, verb= studentID.user.first_name +' '+studentID.user.last_name+ ' spent '+str(vcRuleAmount)+' course bucks', nf_type='Decrease VirtualCurrency')
+                logger.warn("This shop item has a rule associated with it, but currency deduction and instructor notification is handled in virtualCurrencyShopView.py instead")
             else:
-                #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
-                logger.debug("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
-            student.save()
+#                            #Notify that this purchase did not go through                        #### STILL TO BE IMPLEMENTED
+                print("In Event w/timestamp: "+timestampstr+' this purchase did not go through')
+#                         student.save()
+#                 except OperationalError as e:
+#                     if e.__cause__.__class__ == TransactionRollbackError:
+#                         continue
+#                     else:
+#                         raise
+#                 else:
+#                     break
             return
 
 chosenObjectSpecifierFields = {

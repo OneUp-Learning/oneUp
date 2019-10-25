@@ -2904,6 +2904,7 @@ table.responsive-table td {
   table.responsive-table thead {
     display: block;
     float: left;
+    width: initial !important;
   }
   table.responsive-table thead tr {
     display: block;
@@ -2916,12 +2917,14 @@ table.responsive-table td {
     display: block;
     width: auto;
     position: relative;
+    height: auto !important;
     overflow-x: auto;
     white-space: nowrap;
   }
   table.responsive-table tbody tr {
     display: inline-block;
     vertical-align: top;
+    width: auto !important;
   }
   table.responsive-table th {
     display: block;
@@ -5026,6 +5029,7 @@ button.btn-floating {
   min-width: 100px;
   max-height: 650px;
   overflow-y: auto;
+  transform: translateZ(10px);
   opacity: 0;
   position: absolute;
   z-index: 999;
@@ -5802,16 +5806,16 @@ textarea.materialize-textarea + label:after {
   transform: translateY(12px);
   pointer-events: none;
 }
+.input-field label:not(.label-icon).active {
+  transform: translateY(-14px) scale(0.8);
+  transform-origin: 0 0;
+}
 .input-field .helper-text {
   position: relative;
   min-height: 18px;
   display: block;
   font-size: 14px;
-  color: rgba(0,0,0,0.54);
-}
-.input-field label:not(.label-icon).active {
-  transform: translateY(-14px) scale(0.8);
-  transform-origin: 0 0;
+  color: rgba(0, 0, 0, 0.54);
 }
 .input-field .prefix {
   position: absolute;

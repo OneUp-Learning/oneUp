@@ -7,6 +7,7 @@ import Messages from "./Messages";
 import Grid from 'react-md/lib/Grids/Grid';
 import Cell from 'react-md/lib/Grids/Cell';
 import Toolbar from 'react-md/lib/Toolbars/Toolbar';
+import {Snackbar} from 'react-md';
 import ReactResizeDetector from 'react-resize-detector';
 
 import './socket.js';
@@ -21,6 +22,7 @@ class Channel extends Component {
       data: [],
       loaded: false,
       placeholder: "Loading...",
+      toasts: [],
       page: 2,
       channel: props.channel,
       channelAccess: props.channelAccess,
@@ -133,6 +135,18 @@ class Channel extends Component {
           
       }
   }
+  addToast(text, action){
+    this.setState((state) => {
+      const toasts = state.toasts.slice();
+      toasts.push({ text: text, action: action });
+      return { toasts };
+    });
+  }
+
+  dismissToast = () => {
+    const [, ...toasts] = this.state.toasts;
+    this.setState({ toasts });
+  }
   componentWillReceiveProps(nextProps) {
     this.setState({ channel: nextProps.channel, channelAccess: nextProps.channelAccess });  
   }
@@ -144,7 +158,13 @@ class Channel extends Component {
     }
     chat_socket.onclose = function(){
       //console.log("Disconnected from chat socket: ");
-    }
+      this.addToast('Connection timed out. Refresh to try again', {
+        children: 'Refresh',
+        onClick: () => {
+          window.location.reload();
+        },
+      });
+    }.bind(this);
     chat_socket.onmessage = function(m){
       var message = JSON.parse(m.data);
       // console.log(message);
@@ -316,6 +336,12 @@ class Channel extends Component {
     }
     return (loaded) ? (   
       <div> 
+        <Snackbar
+          id="example-snackbar"
+          toasts={this.state.toasts}
+          autohide={false}
+          onDismiss={this.dismissToast}
+        />
         <div ref={(el) =>{this.scroll= el;}} style={messagesContainer} onScroll={(e) => {this.handleScroll(e)}}>    
           <Grid style={scrollBox}>
             <Cell size={12} style={flexBox}><Messages messages={data} isTeacher={this.props.isTeacher} user={this.props.user} studentAvatars={this.props.studentAvatars} mobile={this.props.mediaClass == ''} /></Cell>

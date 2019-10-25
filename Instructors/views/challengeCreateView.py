@@ -325,6 +325,7 @@ def challengeCreateView(request):
                 i += 1
                 qdict = questionTypeFunctions[q.type]['makeqdict'](q,i,challengeId,None)
                 qdict = questionTypeFunctions[q.type]['correctAnswers'](qdict)
+                qdict = questionTypeFunctions[q.type]['modifyQdictForView'](qdict)
                 qlist.append(qdict)
         else:
             context_dict['topics'] = []

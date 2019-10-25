@@ -51,7 +51,7 @@
     $(document).ready(function(){
         $('.oldFiles').click(function(e){
         	if(confirm("Are you sure you want to remove this file from the activity?")){
-              e.currentTarget.style.display = "none";
+              e.currentTarget.parentElement.style.display = "none";
               var fileID = e.currentTarget.id;
               var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
               console.log(fileID);
@@ -102,8 +102,8 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input placeholder="Points" value="{{points}}" name="points" id="act_points" maxlength="4" type="number" class="validate" min="0" step="any" required>
-                              <label for="act_points"><span class= "red-text">*</span> Default Points</label>
+                              <input placeholder="Points" value="{{points}}" name="points" id="act_points" maxlength="4" type="number" class="validate" min="0" step="any">
+                              <label for="act_points"> Possible Points</label>
                            </div>
                         </div>
                         <div class="row">
@@ -164,7 +164,7 @@
                         </div>
                         <div class="row">
                           <div class="col s12">
-                            <blockquote>
+                            <blockquote style="margin-top: 0;">
                             {% for file in activityFiles %}
                             <div class="row">
                                 <a class="oldFiles" id="{{file.ID}}" href="#!" >{{file.activityFileName}}<i class="left material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Remove">close</i></a>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+    {% include 'scripts.html' %}
+    </head>
+
+<body>
+    {% include 'heading.html' %}
+    
+      
+      <main>
+         <div class="row center-align">
+            <div class="col s12 m10 offset-m1">
+               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Report for {{callout.challengeID.challengeName}}</h3>
+            </div>
+         </div> 
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  {% csrf_token %}        
+                     <div class="card-content">
+                    
+                            <ul style="font-size: 16px;">
+                                    {% if callout.isIndividual %}
+                                        <li>
+                                                <span >{{sender}}&nbsp &nbsp<img class="circle" width="30" height="30" src="{{sender_av}}">&nbsp &nbsp vs &nbsp &nbsp<img class="circle" width="30" height="30" src="{{participant_av}}">&nbsp &nbsp {{participant}}</span>
+                                        </li>
+                                        <li >
+                                                <span><b>Sender: </b></span>
+                                                <span>{{sender}}</span>
+                                        </li>
+                                         <li >
+                                                <span><b>Callout Type: </b></span>
+                                                <span>Individual callout</span>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                                <span >{{sender}}&nbsp &nbsp<img class="circle" width="30" height="30" src="{{sender_av}}">&nbsp &nbsp vs &nbsp &nbsp Class</span>
+                                        </li>
+                                        <li >
+                                                <span><b>Sender: </b></span>
+                                                <span>{{sender}}</span>
+                                        </li>
+                                        <li >
+                                                <span><b>Callout Type: </b></span>
+                                                <span>Class callout</span>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if callout.hasEnded %}
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Callout has ended</span>
+                                        </li>
+                                    {% else %}
+                                        <li >
+                                                <span><b>Status: </b></span>
+                                                <span>Callout is in Progress</span>
+                                        </li>
+                                    {% endif %}
+
+                                    <li >
+                                        <span><b>Invitation Date and Time: </b></span>
+                                        <span>{{callout.sendTime}}</span>
+                                    </li>
+
+                                     <li >
+                                        <span><b>Termination Date and Time: </b></span>
+                                        <span>{{callout.endTime}}</span>
+                                    </li>
+                        
+                                    <li>
+	                                        <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation."><b>participation Award (current settings): </b></span>
+	                                        <span>{{ccparams.vcCallout}}</span>
+	                                </li>
+                                     <li>
+                                            <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                    </li>
+
+                                    <li >
+                                            <P> <b>Sender details: </b></P>
+                                    </li>
+
+                                    <li>
+                                            <span >{{sender}} &nbsp &nbsp&nbsp &nbsp<img class="circle" width="30" height="30" src="{{sender_av}}"></span>
+                                    </li>
+                                            
+                                    <li >
+                                            <span>&nbsp &nbsp&nbsp &nbsp<b>Score: </b></span>
+                                            <span>{{sender_score}} / {{test_score}}</span>
+                                    </li>
+
+                                    <li>
+                                            <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                    </li>
+
+                                    <li >
+                                            <P><b>participant(s) details: </b></P>
+                                    </li>
+
+                                    {% for participant_avatar,participant_last_name, call_out_participant, submit_time, participant_score, submission_status, winning_status in call_outs%}
+                                            <li>
+                                                <span >{{participant_last_name}} &nbsp &nbsp&nbsp &nbsp<img class="circle" width="30" height="30" src="{{participant_avatar}}"></span>
+                                            </li>
+                                            
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Score: </b></span>
+                                                    <span>{{participant_score}} / {{test_score}}</span>
+                                            </li>
+
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Submitted: </b></span>
+                                                    <span>{% if submission_status %} Submitted {% else %} Not submitted {% endif %}</span>
+                                            </li>
+
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Submit Time: </b></span>
+                                                    <span>{{submit_time}}</span>
+                                            </li>
+
+                                            <li >
+                                                    <span>&nbsp &nbsp&nbsp &nbsp<b>Winning Status: </b></span>
+                                                    <span>{{winning_status}}</span>
+                                            </li>
+
+                                            <li>
+                                                <P>&nbsp &nbsp &nbsp &nbsp</P>
+                                            </li>
+                                        {% endfor %}
+                                    
+                                </ul>
+
+                           
+                        
+                      <div class="card-action">
+                        <div class="row right-align">  
+                            <a class="btn waves-effect waves-light" href="/oneUp/instructors/CalloutReport"><i class="material-icons left">navigate_before</i>Back</a> 										  						
+                        </div>
+                    </div>
+                 
+                 </div>
+                 </div>
+                 
+               </div>
+            </div>
+        
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

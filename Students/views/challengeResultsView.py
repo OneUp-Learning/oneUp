@@ -27,6 +27,7 @@ import math
 import pytz
 from decimal import Decimal
 from oneUp.ckeditorUtil import config_ck_editor
+from Students.views.challengeSetupView import remove_old_challenge_session_entries
 
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
@@ -103,6 +104,7 @@ def ChallengeResults(request):
                 is_duel = False
                 is_call_out = False
                 context_dict['challengeName'] = challenge.challengeName
+                context_dict['showcorrect'] = challenge.displayCorrectAnswer
                 if 'duelID' in request.POST:
                     duel_id = request.POST['duelID']
                     is_duel = True
@@ -151,7 +153,7 @@ def ChallengeResults(request):
                 studentChallenge.endTimestamp = endTime
                 # initially its zero and updated after calculation at the end
                 studentChallenge.testScore = 0
-              #  studentChallenge.instructorFeedback = instructorFeedback
+                #studentChallenge.instructorFeedback = instructorFeedback
                 studentChallenge.save()
 
                 #print(studentChallenge.endTimestamp - studentChallenge.startTimestamp)
@@ -183,6 +185,7 @@ def ChallengeResults(request):
                         question, studentAnswerList)
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
+
                     if 'seed' in question:
                         seed = question['seed']
                     else:
@@ -240,6 +243,16 @@ def ChallengeResults(request):
                         challengeID=call_out.challengeID, studentID=studentId, courseID=currentCourse).latest('testScore')
                     evaluator(call_out, sender_stat, call_out_participant, studentId,
                               currentCourse, participant_chall, already_taken=False)
+
+                # At this point, we've gotten all the information out of the entry in the session for this challenge.
+                # To save space, we are going to remove it.  Otherwise, the number of session entries keeps piling up until
+                # the session size gets ridiculous.
+                if attemptId in request.session:
+                    # Condition should always be true, but I'm being extra cautious
+                    del request.session[attemptId]
+                # We also take this time to clean up any session entries from challenges which got started and never finished and are
+                # at least a month old.
+                remove_old_challenge_session_entries(request.session)
 
         if request.GET:
 

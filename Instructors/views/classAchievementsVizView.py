@@ -1,7 +1,7 @@
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.models import Challenges, CoursesSkills
+from Instructors.models import Challenges, CoursesSkills, ChallengesTopics, CoursesTopics
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentChallenges, StudentCourseSkills, StudentRegisteredCourses, StudentGoalSetting
 from oneUp.decorators import instructorsCheck
@@ -11,6 +11,8 @@ from Badges import systemVariables
 from Students.views import goalCreateView, goalsListView  
 from Students.views.goalsListView import goalsList
 from datetime import datetime, date, time, timedelta
+
+from Instructors.constants import unassigned_problems_challenge_name
 
 import json
 from django.db.models import Count
@@ -152,9 +154,29 @@ def classAchievementsViz(request):
                             
         #Displaying the list of challenges from database
         if serious:
-            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).exclude(challengeName=unassigned_problems_challenge_name)
         else:
-            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False) 
+            ##mystical code that does the impossible task of joining two intersection tables
+            ##then ordering by the content of the second intersection table             
+            courses_topics_by_topic_pos = CoursesTopics.objects.filter(courseID=currentCourse).order_by('topicPos')
+            topic_ids = []
+            challenges_by_topic = []
+            for courses_topic in courses_topics_by_topic_pos:
+                topic_ids.append(courses_topic.topicID)
+
+            for topic_ids in topic_ids:
+                challenges_by_topic.append(ChallengesTopics.objects.filter(topicID=topic_ids, challengeID__courseID=currentCourse, challengeID__isGraded=False).exclude(challengeID__challengeName=unassigned_problems_challenge_name).order_by('challengeID__challengePosition'))
+
+
+            challenges__objects_ordered_by_topic = []
+            
+            for challenge_by_topic in challenges_by_topic:
+                for challenges_topic in challenge_by_topic:
+                    challenges__objects_ordered_by_topic.append(challenges_topic.challengeID)
+
+            
+            challenges = challenges__objects_ordered_by_topic
+            ##challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=False).exclude(challengeName=unassigned_problems_challenge_name)
                              
         for challenge in challenges:
 #            userScores = []
@@ -205,7 +227,7 @@ def classAchievementsViz(request):
                         allChallengGrades.append(zip(challNames, userNames, maxTestScores,mediumTestScores, minTestScores ))        
         
         context_dict['challengesRange'] = zip(range(1,len(allChallengGrades)+1),allChallengGrades)
-        context_dict['challengesCount'] = challenges.count()
+        context_dict['challengesCount'] = len(challenges)
                                 
     return render(request,'Instructors/ClassAchievementsViz.html', context_dict)
 

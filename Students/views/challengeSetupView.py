@@ -24,6 +24,23 @@ from django.db.models.functions.window import Lead
 from oneUp.ckeditorUtil import config_ck_editor
 
 
+def remove_old_challenge_session_entries(session):
+    sessionitems = list(session.items())
+    for k, v in sessionitems:
+        # We want to make sure this really matches an attempt which we added.
+        # AttemptIds all have the form "challenge:NUM@DATETIME" where NUM is the actual
+        # challenge number and DATETIME is the actual date and time it was started.
+        parts = k.split("@")
+        if len(parts) == 2:
+            challpart = parts[0]
+            datepart = parts[1]
+            if challpart[:10] == 'challenge:':
+                date = datetime.strptime(datepart, "%m/%d/%Y %I:%M:%S %p")
+                delta = datetime.utcnow() - date
+                if delta.days > 30:
+                    del session[k]
+
+
 def makeSerializableCopyOfDjangoObjectDictionary(obj):
     dict = obj.__dict__.copy()
     # We remove the Django Status object from the dictionary to prevent serialization problems
@@ -59,7 +76,7 @@ def ChallengeSetup(request):
                     context_dict['isduration'] = True
                     total_time = duel_challenge.acceptTime + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
-                            minutes=duel_challenge.timeLimit)+timedelta(seconds=20)
+                            minutes=duel_challenge.timeLimit)
                     remaing_time = total_time-utcDate()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['testDuration'] = difference_minutes
@@ -89,13 +106,14 @@ def ChallengeSetup(request):
                 # context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
 
                 # Use timezone to convert date to current timzone set in settings.py
-                tz = pytz.timezone(request.session['django_timezone'])
+                tz = pytz.timezone(request.session.get(
+                    'django_timezone', 'EST'))
                 starttime = tz.localize(datetime.now()).astimezone(tz)
-                context_dict['startTime'] = starttime.strftime(
-                    "%m/%d/%Y %I:%M:%S %p")
+                starttimestring = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+                context_dict['startTime'] = starttimestring
 
-                attemptId = 'challenge:'+challengeId + '@' + \
-                    starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+                attemptId = 'challenge:'+challengeId + '@' + starttimestring
+                context_dict['attemptId'] = attemptId
 
                 sessionDict['challengeId'] = challengeId
 
@@ -140,7 +158,9 @@ def ChallengeSetup(request):
                     sessionDict['questions'].append(qdict)
 
             request.session[attemptId] = sessionDict
-            print("attemptID = "+attemptId)
+            # As we set this one, we also take a quick moment to clean up old ones if needed.
+            remove_old_challenge_session_entries(request.session)
+            context_dict['attemptId'] = attemptId
             context_dict['question_range'] = zip(
                 range(1, len(questionObjects)+1), qlist)
 

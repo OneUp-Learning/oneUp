@@ -42,8 +42,7 @@ class Student(models.Model):
         return str(self.user.username)
   
 def avatarImageUploadLocation(instance,filename):
-    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 
-                                ''),filename)
+    return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), ''),filename)
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
@@ -228,6 +227,9 @@ class StudentVirtualCurrencyTransactions(models.Model):
     studentEvent = models.ForeignKey(StudentEventLog, on_delete=models.CASCADE, verbose_name="the Student Event Log", db_index=True)
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
     objectID = models.IntegerField(verbose_name="index into the appropriate table")
+    name = models.CharField(default="", max_length=300, verbose_name="The name of the transaction (usually the vcRuleName a rule") 
+    description = models.CharField(default="", max_length=4000, verbose_name="The description of the transaction (usually the vcDescription a rule")
+    amount = models.IntegerField(default=0, verbose_name="The amount of the transaction (usually the vcAmount a rule")
     status = models.CharField(max_length=200, default='Requested')
     noteForStudent = models.CharField(max_length=600)
     instructorNote = models.CharField(max_length=600)
@@ -257,7 +259,6 @@ class StudentConfigParams(models.Model):
     participateInCallout = models.BooleanField(default=True)
     courseBucks = models.IntegerField(default=0)
     displayGoal = models.BooleanField(default=True)
-    
     def __str__(self):
         return str(self.scpID)  +","+str(self.courseID) +","+str(self.studentID) +",displayBadges:"+str(self.displayBadges) +",displayLeaderboard:"+str(self.displayLeaderBoard) +",displayClassSkills"+str(self.displayClassSkills) +",displayClassAverage:"+str(self.displayClassAverage) +",displayClassRanking:"+str(self.displayClassRanking) +",displayGoal:"+str(self.displayGoal)+",participateInDuel:"+str(self.participateInDuel)+",courseBucks:"+str(self.courseBucks)   
 
@@ -300,6 +301,7 @@ class DuelChallenges(models.Model):
     status = models.IntegerField(default=1) # Indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
+    evaluator = models.IntegerField(default=0) # The student who is going to evaluate the duel 0=unknown, 1=chanllenger, 2=challengee
 
     def __str__(self):
         return "duelchallengeID: "+str(self.duelChallengeID)+ ", duelchallengeName: "+ str(self.duelChallengeName)+", courseID: "+str(self.courseID)+", challengeID: "+str(self.challengeID)+\
@@ -371,4 +373,4 @@ class StudentProgressiveUnlocking(models.Model):
     isFullfilled = models.BooleanField(verbose_name='Did the student fullfill the unlocking rule', default=False)
     
     def __str__(self):
-        return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.ojbectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)
+        return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.objectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)

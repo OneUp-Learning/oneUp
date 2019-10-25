@@ -8,7 +8,7 @@
 <main>
                 <div class="row center-align">
                     <div class="col s12">
-                        <h3>Student Preferences</h3>
+                        <h3>Your View Preferences</h3>
                     </div>
                 </div>
                 <div class="row">
@@ -18,7 +18,7 @@
                             {% csrf_token %} 
                             <input type="hidden" name="scpID" id="scpID" value="{{scpID}}">
                             <div class="card-content">
-                                    <span class="card-title">Configure View Options</span>
+                                    <span class="card-title">Choose View Options</span>
                             {% if studCanChangeBadgeVis %}
                             <div class="switch">
                                 <label>
@@ -83,6 +83,18 @@
                                     <input name="participateInDuel" type="checkbox" checked>
                                     {% else %}
                                     <input name="participateInDuel" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
+                            <br />
+                            <div class="switch">
+                                <label>
+                                    Participate In Call Out
+                                    {% if participateInCallout %}
+                                    <input name="participateInCallout" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="participateInCallout" type="checkbox">
                                     {% endif %}
                                     <span class="lever secondary-content"></span>
                                 </label>

@@ -3,7 +3,27 @@
    <head>
       
         {% include 'scripts.html' %}
-      
+   <script>
+  function vcCheck(vcOn){
+	   
+	   var vcID=document.getElementsByClassName('vc');
+	   
+	   if(vcOn=='False'){
+		   
+		   for(var i=0;i<vcID.length;i++){
+		    	vcID[i].style.display="none";
+		   }
+		   
+	   }
+		   
+		   
+	   
+   }
+   window.onload = function(){
+	 	vcCheck('{{isVCUsed}}'); 
+	   
+   };
+   </script>
       
    </head>
    <body>
@@ -29,7 +49,7 @@
                         <th>Activity Points</th>
                         <th>#WarmUps/#Attempts</th>
                         <th>XP</th>
-                        <th>VC</th>
+                        <th class='vc'>VC</th>
                         <th>Last Action</th>
                      </thead>
                      <tbody>
@@ -42,7 +62,7 @@
                            <td>{{act_totalStudentScore}} / {{act_totalStudentPossibleScore}}</td>
                            <td>{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
                            <td>{{user_XP}}</td>
-                           <td>{{user_VC}}</td>
+                           <td class='vc'>{{user_VC}}</td>
                            <td>{{user_Action}}</td>
                      </tr>
                      {% empty %}

@@ -31,7 +31,7 @@
                      <tbody>
                         {% for i,announcement_ID,author_ID,start_Timestamp, end_Timestamp, subject, message in announcement_range %}
                         <tr>
-                           <td>{{message|truncatechars:100}}</td>
+                           <td>{{subject|truncatechars:100}}</td>
                            <td>{{author_ID}}</td>
                            <td>{{start_Timestamp}}</td>
                            <td>{{end_Timestamp}}</td>

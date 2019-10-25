@@ -103,13 +103,16 @@ def courseCreateView(request):
                 course = courses[0]
                 course.courseDescription = description
                 course.save()
+
+                instructors_to_remove = InstructorRegisteredCourses.objects.filter(courseID = course).exclude(instructorID__in=instructors)
+
                 if 'instructorName' in request.POST:
                     irc = InstructorRegisteredCourses.objects.filter(courseID = course, instructorID__in=instructors)
-                    instructors_to_remove = InstructorRegisteredCourses.objects.filter(courseID = course).exclude(instructorID__in=instructors)
+                    
                     # Register instructors to the course (AH)
                     for instructor in instructors:
                         # If this instructor is registered for course then skip
-                        if InstructorRegisteredCourses.objects.filter(instructorID = instructor).exists():
+                        if InstructorRegisteredCourses.objects.filter(instructorID = instructor, courseID=course).exists():
                             continue
                         else:
                             irc = InstructorRegisteredCourses()
@@ -119,12 +122,13 @@ def courseCreateView(request):
                             
                         add_instructor_test_student(instructor,course)
                     
-                    # Remove instructors that were not selected from the course 
-                    if instructors_to_remove.exists():
-                        for registered_courses in instructors_to_remove:
-                            remove_test_student(registered_courses.instructorID, course)
-                            registered_courses.delete()
-                
+                # Remove instructors that were not selected from the course 
+                if instructors_to_remove.exists():
+                    print(instructors_to_remove)
+                    for registered_courses in instructors_to_remove:
+                        remove_test_student(registered_courses.instructorID, course)
+                        registered_courses.delete()
+            
                 ccp = CourseConfigParams.objects.get(courseID = course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
                     ccp.courseStartDate = utcDate()

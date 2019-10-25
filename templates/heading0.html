@@ -3,12 +3,15 @@
     i.icon-yellow:hover {
       color: yellow;
     }
+    .nav-dropdown-link, .nav-dropdown-link:hover {
+        background-color: transparent !important;
+    }
 </style>
     <ul id="account" class="dropdown-content">
-        <li><p class="center-align">Welcome, {{username}}</p></li>            
-        <li><p class="center-align">Course: {{course_Name}}</p></li>
+        <li class="nav-dropdown-link"><p style="padding-left: 16px; padding-right: 8px">Welcome, {{username}}</p></li>            
+        <li class="nav-dropdown-link"><p style="padding-left: 16px; padding-right: 8px">Course: {{course_Name}}</p></li>
         <li class="divider"></li>
-        <li><a href="/oneUp/students/Logout">Logout</a></li>
+        <li><a class="nav-dropdown-link" href="/oneUp/students/Logout">Logout</a></li>
     </ul>
   <nav>
     <div class="nav-wrapper">
@@ -36,7 +39,7 @@
               </div>
               <a href="#!user"><img class="circle" src="/static/images/avatars/anonymous.png"></a>
               <a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
-              <a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
+              <a href="#!course"><span class="white-text email">Course: {{course_Name}}</span></a>
             </div>
           </li>
           {% endif %}
@@ -44,7 +47,7 @@
           
           {% if is_teacher %}
             <li>
-                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true" >
+                <a id='switchview'  style="padding-left: 16px !important" class='dropdown-button tooltipped' data-tooltip="Switch to student view"  href="/oneUp/instructors/switchView?teacher=true" >
                     <i class='material-icons'>visibility</i> 
                 </a>
             </li>

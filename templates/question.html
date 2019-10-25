@@ -10,13 +10,67 @@
 {% if i != 1 %}
 	<div class="divider"></div>
 {% endif %}
-<div class="row">
-    <h4>Question {{i}}</h4> <div class="ck-view"> {{q.questionText|safe}} </div>
-</div>
+{% if q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic %}
+	{% if q.type == questionTypes.multipleChoice %}
+	<div class="row">
+			<h4>Problem {{i}} (Multiple Choice)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.multipleAnswers %}
+	<div class="row">
+			<h4>Problem {{i}} (Multiple Answer)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.matching %}
+	<div class="row">
+			<h4>Problem {{i}} (Matching)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.trueFalse %}
+	<div class="row">
+			<h4>Problem {{i}} (True/False)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% elif q.type == questionTypes.parsons %}
+	<div class="row">
+			<h4>Problem {{i}} (Parsons)</h4> <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+		</div>
+	{% endif %}
+	
+{% elif not graded or not q.hasMultipleParts %}
+	<div class="row">
+		<h4>Question {{i}}</h4>
+		{% if q.hasMultipleParts %}
+			<div class="row"> <h5>Part <b>1</b> of <b>{{q.numParts}}</b></h5> </div>
+		{% endif %}
+		<div class="ck-view">
+			<div id="{{q.uniqid}}-1-exact">
+			  <div class="darkClassParent">
+			    <div id="{{q.uniqid}}-1-darkLayer" class="darkClass" style="display:none"></div>
+			    {% if graded %}
+			    	<div class="card"><div class="card-content">
+			    {% endif %}
+			    	{{q.questionText|safe}}
+			    {% if graded %}
+				    </div></div>
+				{% endif %}
+				
+			    {% if not graded %}
+			        {% if q.hasMultipleParts or q.submissionsAllowed > 1 %}
+			        	<script>dynamicProblemPartExists.push("{{q.uniqid}}-1");</script>
+				    	<button class="btn waves-effect waves-light" type="button" value="Submit" name="{{q.uniqid}}-1" id="{{q.uniqid}}-1-submit" onclick="senddynamicquestion(this.name)">Submit Problem Part<i class="material-icons right">send</i></button></form> 
+					{% endif %}
+				{% else %}
+		    		<script>disableInputsInside(document.getElementById("{{q.uniqid}}-1-exact"));</script>
+				{% endif %}
+			  </div>
+			</div>
+		</div>
+	</div>
+	<div id="{{q.uniqid}}-1-results">
+	</div>
+{% endif %} 
 {% if instructorview %}
-    <p> Total points: {{question.point|safe}}</p>
+	<p><b>Total points: {{question.point|safe}}</b></p>
+	<br />
 {% endif %}
-{% if graded %}
+{% if graded and q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic%}
 	<div class="row">
 	   <div class="col s12">
 	      <h5>Your Answer:</h5>
@@ -38,13 +92,20 @@
 	{% if graded or instructorview %}
 	    <div class="row">
 	       <div class="col s12">
-	          <h5>Correct Answer: </h5>
-	          <blockquote style="width: -webkit-fill-available;">
-						<div class="ck-view">{{q.correct_answer_text|safe}} </div>
-	          </blockquote>
-	          {% if graded %}
-		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+			  {% if showcorrect or instructorview %}
+		          <h5>Correct Answer: </h5>
+		          <blockquote style="width: -webkit-fill-available;">
+							<div class="ck-view">{{q.correct_answer_text|safe}} </div>
+		          </blockquote>
 		      {% endif %}
+	          {% if graded %}
+		          <p>You Scored: <b>{{q.user_points|floatformat:"-2"}}</b> Point(s) out of <b>{{q.total_points|floatformat:"-2"}}</b> Point(s)</p>
+		      {% endif %}
+	       </div>
+	       <div class = "col s12">
+	       {% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	       </div>
 	    </div>
     {% endif %}
@@ -63,73 +124,149 @@
 	{% if graded or instructorview %}
 	    <div class="row">
 	       <div class="col s12">
-	          <h5>Correct Answer(s): </h5>
-	          <blockquote style="width: -webkit-fill-available;">
-					<div class="ck-view">
-	             {% for correct_answer_text in q.correct_answer_texts %}
-	             {{correct_answer_text|safe}} <br />
-					 {% endfor %}
-					</div>
-	          </blockquote>
+			  {% if showcorrect or instructorview %}
+		          <h5>Correct Answer(s): </h5>
+		          <blockquote style="width: -webkit-fill-available;">
+						<div class="ck-view">
+		             {% for correct_answer_text in q.correct_answer_texts %}
+		             {{correct_answer_text|safe}} <br />
+						 {% endfor %}
+						</div>
+		          </blockquote>
+	          {% endif %}
    	          {% if graded %}
 		          <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 		      {% endif %}
+	       </div>
+	       <div class = "col s12">
+		 {% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	       </div>
 	    </div>	
 	{% endif %}
 
 {% elif q.type == questionTypes.matching %}
+	<style>
+        .cards-container {
+			-webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+			page-break-inside: avoid; /* Firefox */
+			break-inside: avoid;
+        }
+		.card .select-wrapper, .card .select-wrapper .caret {
+			color: white;
+		}
+		.card .select-wrapper input.select-dropdown {
+			border-bottom-color: white
+		}
+
+        @media only screen and (max-width : 600px) {
+            .cards-container {
+                -webkit-column-count: 1;
+                -moz-column-count: 1;
+                column-count: 1;
+            }
+        }
+
+        @media only screen and (min-width : 601px) {
+            .cards-container {
+                -webkit-column-count: 2;
+                -moz-column-count: 2;
+                column-count: 2;
+            }
+        }
+    </style>
 	<div class="row">
-	   <div class="col s12 m6">
-	      {% for j,answer in q.answers_with_count %}
-	      <p>{{j}} . {{answer.answerText}}</p>
+	   <div class="col s12">
+		  {% for j,answer in q.answers_with_count %}
+		  <h6><b>Question {{j}}:</b></h6>
+		  <p>{{answer.answerText}}</p>
+		  <br />
 	      {% endfor %}
 	   </div>
 	</div>
 	{% if graded %}
-       	<div class="row">
-           <div class="col s6">
-              {% for user_answer in q.user_answers %}
-              <p>{{user_answer.answerNumber}} . {{user_answer.answerText}}</p>
-              {% endfor %}
-           </div>
-           <div class="col s6">
-              {% for match in q.matches %}
-              <p>{{match.matchingAnswerText}}</p>
-              {% endfor %}
-           </div>
-        </div>
+		<div class="row">
+			
+				<div class="col s12 cards-container" >
+						{% for match in q.matches %}
+						
+					  <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
+						<div class="card-content white-text">
+							<span class="card-title">Choice {{match.current_pos}}</span>
+							<p>{{match.matchingAnswerText}}</p>
+						</div>
+						<div class="card-action" style="color: white;">
+							<span class="card-title">Your Answer</span>
+							{% for user_answer in q.user_answers %}
+							{% if forloop.counter ==  forloop.parentloop.counter %}
+							<p>{{user_answer.answerText}}</p>
+							{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				
+			</div>
 	{% else %}
 		<div class="row">
-		   {% for match in q.matches %}
-		   <div class="input-field col s12 m4">
-		      <select name="{{i}}-{{match.current_pos}}" id={{match.current_pos}}/>
-		         {% for k in match.answers_count %}
-		         <option value="{{k}}">{{k}}</option>
-		         {% endfor %}
-		      </select>
-		      <label for="{{match.current_pos}}">{{match.matchingAnswerText}}</label>
-		   </div>
-		   {% endfor %}
+			
+			<div class="col s12 cards-container" >
+					{% for match in q.matches %}
+			  	<div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
+					<div class="card-content white-text">
+						<span class="card-title">Choice {{match.current_pos}}</span>
+						<p>{{match.matchingAnswerText}}</p>
+					</div>
+					<div class="card-action">
+						<select name="{{i}}-{{match.current_pos}}" style="color: white">
+							{% for k in match.answers_count %}
+							<option value="{{k}}">Question {{k}}</option>
+							{% endfor %}
+						 </select>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			
 		</div>
 	{% endif %}
 	{% if graded or instructorview %}
+	
 	    <div class="row">
 	      <div class="col s12">
-	         <h5>Correct Answer(s): </h5>
-	         <blockquote>
-	            <div style="column-count:2;">
-	               {% for match in q.matches %}
-	               <p>{{match.current_pos}} . {{match.answerText}}</p>
-	               {% endfor %}
-	               {% for match in q.matches %}
-	               <p>{{match.matchingAnswerText}}</p>
-	               {% endfor %}
-	            </div>
-	         </blockquote>
+	      	 {% if showcorrect or instructorview %}
+				 <h5>Correct Answer(s): </h5>
+				 <blockquote>
+				 <div class="row">
+			
+						<div class="col s12 cards-container" >
+								{% for match in q.matches %}
+							  <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
+								<div class="card-content white-text">
+									<span class="card-title">Choice {{match.current_pos}}</span>
+									<p>{{match.matchingAnswerText}}</p>
+								</div>
+								<div class="card-action" style="color: white;">
+									<span class="card-title">Correct Answer</span>
+									<p>{{match.answerText}}</p>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+						
+					</div>
+				 </blockquote>
+		     {% endif %}
              {% if graded %}
 		         <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 		     {% endif %}
+	      </div>
+	      <div class = "col s12">
+		<{% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
 	      </div>
 	   </div>
 	{% endif %}
@@ -150,14 +287,21 @@
 	{% if graded or instructorview %}
 	    <div class="row">
 	    	<div class="col s12">
-	             <h5>Correct Answer: </h5>
-	             <blockquote>
-	                {{q.correctAnswerText}}
-	             </blockquote>
+	    		 {% if showcorrect or instructorview %}
+		             <h5>Correct Answer: </h5>
+		             <blockquote>
+		                {{q.correctAnswerText}}
+		             </blockquote>
+		         {% endif %}
 	             {% if graded %}
 		             <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
 		         {% endif %}
 	     	</div>
+		<div class = "col s12">
+		  {% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
+		</div>
 	    </div>
 	{% endif %} 
 
@@ -171,241 +315,223 @@
 	</div>
 	{# If this is called with Graded, something has gone wrong #}
 
-{% elif q.type == questionTypes.parsons %}
+	{% elif q.type == questionTypes.parsons %}
 	{% if instructorview %}
-      <div class="row">
-			<div class="col s12">
-       	<div id="model_editor{{q.questionID}}" style="height: 20em;" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70">{{q.model_solution}}</textarea></div>
-			<script>
-            var editor= ace.edit("model_editor{{q.questionID}}");
-            editor.setTheme("ace/theme/chrome");
-            editor.session.setMode("ace/mode/java");
-				editor.setReadOnly(true);
-			</script>
-			</div>
-       </div>								
+	<div class="row">
+	  <div class="col s12">
+       	    <div id="model_editor{{q.questionID}}" style="height: 20em;" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70">{{q.model_solution}}</textarea></div>
+	    <script>
+              var editor= ace.edit("model_editor{{q.questionID}}");
+              editor.setTheme("ace/theme/chrome");
+              editor.session.setMode("ace/mode/java");
+	      editor.setReadOnly(true);
+	    </script>
+	  </div>
+	</div>								
 
 	{% elif graded %}
-		<div class="row">
-	        <div class="col s12">
-	           <div id="student_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" >{{q.student_solution|safe}}</textarea></div>
-		           <script>
-		              var editor = ace.edit("student_editor{{q.questionID}}");
-		              editor.setTheme("ace/theme/chrome");
-		              editor.session.setMode("ace/mode/java");
-		              editor.setReadOnly(true);
-		           </script>
-	        	</div>
-		        <div class="row">
-		           <div class="col s12">
-		              <h5>Example Correct  Solution:</h5>
-		           </div>
-		        </div>
-		        <div class="row">
-			        <div class="col s12">
-			    		<div id="model_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.questionID}}">{{q.model_solution}}</textarea></div>
-	           				<script>
-	              				var editor = ace.edit("model_editor{{q.questionID}}");
-	              				editor.setTheme("ace/theme/chrome");
-	              				editor.session.setMode("ace/mode/java");
-	              				editor.setReadOnly(True);
-	           				</script>
-	           			</div>
-            		</div>
-                    <div class="row">
-                    	<div class = "col s12">
-	                   		<p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
-						</div>
-					</div>
-              	</div>
-	{% else %}
-		<div class="row">
-		   <div>
-		      <div id="{{q.questionID}}_sortableTrash" class="sortable-code"></div>
-		      	<div id="{{q.questionID}}_sortable" class="sortable-code"></div>
-			      <input type="hidden" name="{{i}}lineNo" id="{{q.questionID}}_lineNo" value="">
-			      <input type="hidden" name="{{i}}errorDescription" id="{{q.questionID}}_errorDescription" value="">
-			      <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
-			      <input type="hidden" name="{{i}}lineIndent" id="{{q.questionID}}_lineIndent" value="">
-			      <input type="hidden" name="{{i}}correctLineCount" id="{{q.questionID}}_correctLineCount" value="">
-			      <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
-			      <div style="clear:both;"></div>
-			      <p>
-			      {% if warmUp == 1%}
-			         <a href="#{{q.questionID}}" id="newInstanceLink_{{q.questionID}}">New instance</a>
-			         <a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
-			      {% endif %}
-			      </p>
-			      <script>
-			           //initial will hold the parson problem text, preformatted by django
-			      	   var initial_{{q.questionID}} = '{{q.model_solution}}' 
-		            
-					   //variable to get the errors statements that have been generated
-					   var logged_errors_{{q.questionID}} = [];
-					   var countFeedbackButtonClicks_{{q.questionID}} = 0;
-					   var submit_clicked_{{q.questionID}} = false;
-					   var isGraded = false;
-					   var displayCorrectAnswerFeedback = false;
-					   var displayIncorrectAnswerFeedback = false;
-					   
-					   
-					   function displayErrors{{q.questionID}}(fb_{{q.questionID}}) {
-					       if(fb_{{q.questionID}}.errors.length > 0) {
-					       	{% if warmUp == 1%}
-					           alert(fb_{{q.questionID}}.errors[0]);
-					           {% endif %}
-					           console.log("Caller: {{q.questionID}}" );
-							   logged_errors_{{q.questionID}}.push(errors);
-					
-					       }else{
-					       	if(submit_clicked_{{q.questionID}} == false){
-					       		countFeedbackButtonClicks_{{q.questionID}}--;
-					       	}
-					       }
-					   } 
-					
-					
-					   $(document).ready(function(){
-					   	   
-					       var parson_{{q.questionID}} = new ParsonsWidget({
-					           'sortableId': '{{q.questionID}}_sortable',
-					           'trashId': '{{q.questionID}}_sortableTrash',
-					           'max_wrong_lines': {{q.distractorCount}},
-					           'feedback_cb' : displayErrors{{q.questionID}},
-					           'programmingLang': "{{q.languageName}}"
-					           
-					       });
-					       parson_{{q.questionID}}.init(initial_{{q.questionID}});
-					       parson_{{q.questionID}}.shuffleLines();
-					       $("#newInstanceLink_{{q.questionID}}").click(function(event){
-					           event.preventDefault();
-					           parson_{{q.questionID}}.shuffleLines();
-					       });
-					       $("#feedbackLink_{{q.questionID}}").click(function(event){
-					       	feedbackFunction_{{q.questionID}}();
-					       });
-					       
-					       //on click display the contents of the student error log
-					       $("#submit").click(function(event){
-					       	
-					       	submit_clicked_{{q.questionID}} = true;
-					       	//we click the link here too, and it should not be counted against the student
-					       	{% if warmUp == 1%}
-					       	console.log("warmup is 1");
-					       	document.getElementById("feedbackLink_{{q.questionID}}").click();
-					       	{% else %}
-					       		console.log("Feeback Function activated!");
-					       		feedbackFunction_{{q.questionID}}();
-					       	{% endif %}
-					
-					       	console.log("Parson problem: {{q.questionID}}:");
-					       	console.log("submit clicked");
-					      		
-					       	console.log("logged errors: ");
-					      		console.log(logged_errors_{{q.questionID}});
-					      		
-					      		console.log("incorrect lines!");
-					      		console.log(incorrectLines);
-					      		
-					      		console.log("student code lines objects!");
-					      		console.log(studentCodeLineObjects);
-					      		
-					      		//access the student code line objects
-					      		//peel away the object notation to get at the
-					      		//student's code text representation
-					      		var studentCode = [];
-					      		var lineIndentation = [];
-					      		
-					      		for (i = 0; i < studentCodeLineObjects.length; i++) {
-					      			studentCode.push(studentCodeLineObjects[i].orig);
-					      			lineIndentation.push(studentCodeLineObjects[i].indent);
-					      		}
-					      		
-					      		console.log("Student code!");
-					      		console.log(studentCode);
-					      		
-					      		console.log("Line indent!");
-					      		console.log(lineIndentation);
-					      		
-					      		console.log("Feedback click count");
-					      		console.log(countFeedbackButtonClicks_{{q.questionID}});
-					      		
-					      		$("#{{q.questionID}}_lineNo").val(incorrectLines);
-					      		$("#{{q.questionID}}_errorDescription").val(logged_errors_{{q.questionID}});
-					      		$("#{{q.questionID}}_studentSol").val(studentCode);
-					      		$("#{{q.questionID}}_lineIndent").val(lineIndentation);
-					      		$("#{{q.questionID}}_correctLineCount").val(parson_{{q.questionID}}.model_solution.length);
-					      		$("#{{q.questionID}}_feedBackButtonClickCount").val(countFeedbackButtonClicks_{{q.questionID}});
-					      	});
-					      		
-					       function feedbackFunction_{{q.questionID}}(){
-					   		event.preventDefault();
-					           //this has to be cleared because otherwise they'll retain data
-					           errors = [], log_errors = [];
-					           studentCodeLineObjects = [];
-					           incorrectLines = [];
-					           
-					           console.log("Submit Clicked state:")
-					           console.log(submit_clicked_{{q.questionID}});
-					           
-					           if(submit_clicked_{{q.questionID}} == false){
-					           	countFeedbackButtonClicks_{{q.questionID}}++;
-					           	console.log("Feeback click state:")
-					           	console.log(countFeedbackButtonClicks_{{q.questionID}});
-					           	
-					           }
-					           console.log("Get Feedback: {{q.questionID}}");
-					           console.log(parson_{{q.questionID}}.getFeedback());
-					           console.log(logged_errors_{{q.questionID}});
-					           submit_clicked_{{q.questionID}} = false;
-					   	   }
-					   });
-					   
-		          </script>
-			</div>
-		</div>
-		{# KI: /div tags didn't match number of divs, so I added some #}
-		{# GGM: /div turns out we can just delete the remaining two divs #}
-	{% endif %}
+	<div class="row">
+	  <div class="col s12">
+	    <div id="student_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" >{{q.student_solution|safe}}</textarea></div>
+	    <script>
+	      var editor = ace.edit("student_editor{{q.questionID}}");
+	      editor.setTheme("ace/theme/chrome");
+	      editor.session.setMode("ace/mode/java");
+	      editor.setReadOnly(true);
+	    </script>
+	  </div>
+	  {% if showcorrect %}
+	  <div class="row">
+	    <div class="col s12">
+	      <h5>Example Correct  Solution:</h5>
+	    </div>
+	  </div>
+	  <div class="row">
+	    <div class="col s12">
+	      <div id="model_editor{{q.questionID}}" class="editor"><textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" rows="20" cols="70" name="setupCode{{q.questionID}}">{{q.model_solution}}</textarea></div>
+	      <script>
+	        var editor = ace.edit("model_editor{{q.questionID}}");
+	        editor.setTheme("ace/theme/chrome");
+	        editor.session.setMode("ace/mode/java");
+	        editor.setReadOnly(true);
+	      </script>
+	    </div>
+          </div>
+          {% else %}
+          <div class="row">
+            {% endif %}
+            <div class="row">
+              <div class = "col s12">
+	        <p>You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
+	      </div>
+	      <div class = "col s12">
+		{% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
+	      </div>
+	    </div>
+          </div>
+	  {% else %}
+	  <div class="row">
+	    <div>
+	      <div id="{{q.questionID}}_sortableTrash" class="sortable-code"></div>
+		  <div id="{{q.questionID}}_sortable" class="sortable-code"></div>
+		  <input type="hidden" name="parsonProblem" value="{{q.questionID}}">
+	      <input type="hidden" name="{{i}}lineNo" id="{{q.questionID}}_lineNo" value="">
+	      <input type="hidden" name="{{i}}errorDescription" id="{{q.questionID}}_errorDescription" value="">
+	      <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
+	      <input type="hidden" name="{{i}}lineIndent" id="{{q.questionID}}_lineIndent" value="">
+	      <input type="hidden" name="{{i}}correctLineCount" id="{{q.questionID}}_correctLineCount" value="">
+	      <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
+	      <div style="clear:both;"></div>
+	      <p>
+		{% if warmUp == 1%}
+		<a href="#{{q.questionID}}" id="newInstanceLink_{{q.questionID}}">New instance</a>
+		<a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
+		{% endif %}
+	      </p>
+	      <script>
+		//initial will hold the parson problem text, preformatted by django
+		var initial_{{q.questionID}} = '{{q.model_solution}}' 
+		
+		//variable to get the errors statements that have been generated
+		var logged_errors_{{q.questionID}} = [];
+		var countFeedbackButtonClicks_{{q.questionID}} = 0;
+		var submit_clicked_{{q.questionID}} = false;
+		
+		function displayErrors{{q.questionID}}(fb_{{q.questionID}}) {
+		    if(fb_{{q.questionID}}.errors.length > 0) {
+			
+			{% if warmUp == 1%}
+			if(!submit_clicked_{{q.questionID}})
+			    alert(fb_{{q.questionID}}.errors[0]);
+			{% endif %}
+
+			//log the errors we need them for grading
+			logged_errors_{{q.questionID}}.push(errors);
+		    }
+		}
+		
+		var parson_{{q.questionID}};
+		$(document).ready(function(){
+		    //initalization
+		    parson_{{q.questionID}} = new ParsonsWidget({
+				'sortableId': '{{q.questionID}}_sortable',
+				'trashId': '{{q.questionID}}_sortableTrash',
+				'max_wrong_lines': {{q.distractorCount}},
+				'feedback_cb' : displayErrors{{q.questionID}},
+				'programmingLang': "{{q.languageName}}"
+			
+		    });
+
+		    parson_{{q.questionID}}.init(initial_{{q.questionID}});
+		    parson_{{q.questionID}}.shuffleLines();
+
+		    //the new instance link shuffles the lines for the student
+		    $("#newInstanceLink_{{q.questionID}}").click(function(event){
+				event.preventDefault();
+				parson_{{q.questionID}}.shuffleLines();
+		    });
+
+		    $("#feedbackLink_{{q.questionID}}").click(function(event){
+				feedbackFunction_{{q.questionID}}();
+		    });
+		    
+		    function feedbackFunction_{{q.questionID}}(){
+				event.preventDefault();
+				countFeedbackButtonClicks_{{q.questionID}}++;
+				parson_{{q.questionID}}.showFeedback(true);
+				parson_{{q.questionID}}.getFeedback();
+		    }
+		});
+		
+	      </script>
+	    </div>
+	  </div>
+	  {# KI: /div tags didn't match number of divs, so I added some #}
+	  {# GGM: /div turns out we can just delete the remaining two divs #}
+	  {% endif %}
 	
 {% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}
 	{% if graded %}
-	    <div class="row">
-	        {% for answer_blank_name, user_answer_value in q.user_answers.items %}
-	    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
-	        {% endfor %}
-	    </div>
-	    {% if q.evaluations %}
-		    {% for answer in q.evaluations %}
-		    <p>	
-		       {% if answer.success %}
-			       <span style='color: green;'>&#10004;</span> 
-		       {% else %}
-			       <span style='color: red;'>&#10006;</span>
-		       {% endif %}
-		       You got {{answer.value}} points on answer {{answer.name}}
-		       {% if answer.details %}
-		       		<ul class="collection">
-	       			{% for detail in answer.details %}
-	       				<li class="collection-item">
-	          			{% if detail.success %}
-	          				<span style='color: green;'>&#10004;</span> 
-				  		{% else %}
-					        <span style='color: red;'>&#10006;</span> 
-				        {% endif %}
-	          			{{detail.value}}/{{detail.max_points}} points on criteria {{detail.name}}
-				       	</li>
-			       	{% endfor %}
-	    			</ul>
-    		   {% endif %}
-    		</p>
-    		{% endfor %}
-    	{% endif %}
+	    {% if q.numParts == 1 %}
+	    	<div class="row">
+				<div class="col s12">
+	      			<h5>Your Answer:</h5>
+				</div>
+			</div>
+		    <div class="row">
+		        {% for answer_blank_name, user_answer_value in q.user_answers.items %}
+		    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+		        {% endfor %}
+		    </div>
+		    {% if showcorrect %}
+   		    <div class="row">
+				<h5>Example Correct Answer: </h5>
+					{% for ansName, text in q.sampleCorrect.items %}
+						<b>{{ansName}}</b> : {{text|safe}}<br>
+					{% empty %}
+						No example correct answer provided by instructor.<br>
+					{% endfor %}
+			</div>
+			{% endif %}
+		    {% if q.evaluations %}
+			    {% with evaluations=q.evaluations %}
+			    	{% include 'dynamicQuestionEvaluations.html' %}
+			    {% endwith %}
+	    	{% endif %}
+	    {% else %}
+	    	<div class="row">
+				<h4>Question {{i}}</h4>
+			</div>
+	    	{% for pnum, qp in q.parts.items %}
+	    		{% if qp.submissionCount > 0 or pnum == "1" %}
+		    		<div class="row"> <h5>Part {{pnum}} of {{q.numParts}}</h5> </div>
+ 		   			<div class="card">
+			    		<div id="qtext-{{i}}-{{pnum}}" class="card-content">
+		    				{{qp.questionText|safe}}
+		    			</div>
+		    		</div>
+		    		<script>disableInputsInside(document.getElementById("qtext-{{i}}-{{pnum}}"));</script>
+		    		<div class="row">
+						<div class="col s12">
+		      				<h5>Your Answer:</h5>
+						</div>
+					</div>
+				    <div class="row">
+				        {% for answer_blank_name, user_answer_value in qp.user_answers.items %}
+				    		<p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+				        {% endfor %}
+				    </div>
+	    		    {% if showcorrect %}
+   		       		    <div class="row">
+						<h5>Example Correct Answer: </h5>
+							{% for ansName, text in qp.sampleCorrect.items %}
+								<b>{{ansName}}</b> : {{text|safe}}<br>
+							{% empty %}
+								No example correct answer provided by instructor.<br>
+							{% endfor %}
+						</div>
+					{% endif %}
+		    		{% if qp.evaluations %}
+			    		{% with evaluations=qp.evaluations %}
+					    	{% include 'dynamicQuestionEvaluations.html' %}
+					    {% endwith %}
+					{% endif %}
+				{% endif %}
+			{% endfor %}
+		{% endif %}
         <div class="row">
            <div class="col s12">
               <p>Total for this question, You Scored: <b>{{q.user_points}}</b> Point(s) out of <b>{{q.total_points}}</b> Point(s)</p>
            </div>
+	   <div class = "col s12">
+	     {% if q.feedback %}
+		 <p><b>Feedback: </b> {{q.feedback}}</p>
+		   {% endif %}
+	   </div>
         </div>
     {% endif %}
     {# There's no else case because we don't need to show any answers when there's no grading. #}
+	
 {% endif %}

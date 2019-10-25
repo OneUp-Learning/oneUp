@@ -1,139 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	{% include 'scripts.html' %}
 	<!-- Used for the notifications -->
-		{% load staticfiles %}       
-		{% load notification_tags %}
-		
-		{% if ID != 2 %}
-		<script>	
-		 // Ajax-Notification related callback urls.
-        var updateNotificationUrl = "NotificationPageUpdate";        
+	{% load staticfiles %}
+	{% load notification_tags %}
 
-        // Update a notification using AJAX.
-        $(document).ready(function updateNotifications() {
-        	var box = document.getElementById("nTable");
-        	var table = document.getElementById("T1");
-    		var flag = table.rows[1].getAttribute('data-nf-id');
-    		//var flag2 = first.getAttribute('data-nf-id');
-    		
-            var $notification_box = $('#T1');
+	<script>
 
-            if (!flag || $notification_box.length == 0) {
-            	console.log('Something went wrong');
-                return;0
-            }
-
-            $.ajax({
-                type: 'GET',
-                url: 'NotificationPageUpdate/' + '?flag=' + flag,
-                //success: updateSuccess(response),
-                success: function (response) {
-                    //console.log(response);
-                    for (var i in response.notifications){
-                    	// Create an empty <tr> element and add it to the 1st position of the table:
-                    	var row = table.insertRow(1);
-                    	var cell1 = row.insertCell(0);
-                    	var cell2 = row.insertCell(1);
-                    	var cell3 = row.insertCell(2);
-                    	
-                    	newN = response.notifications[i];
-                    	timeStamp = response.timeStamps[i];
-                    	console.log(newN);
-                    	
-                    	row.id = newN.id;
-                    	row.className += 'notification ';
-                    	row.className += 'list-group-item ';
-                    	row.setAttribute("data-nf-id", newN.id);
-                    	
-                    	cell1.innerHTML =  newN.verb;
-                    	cell2.innerHTML = '<span class="timesince">0 minutes ago</span>'; 	
-                    	
-                    	
-                    	if(!newN.read){
-                    		row.className += 'unread';
-                            var aString = '<button data-id="'+ newN.id+'" class="mark-notification" data-mark-action="read" data-toggle-text="Mark as read"> Mark as read </button> <button class="delete-notification" data-id="'+ newN.id +'">X</button>';
-                           	//console.log('\n \n'+aString);
-                           	var aString2 = '<button>This is a test</button>';
-                           	cell3.style="padding-left: 50px;";
-                           	cell3.innerHTML = aString;
-                    	}
-                    	
-                    }
-                },
-                complete: function () {
-                    setTimeout(updateNotifications, 5000);
-                    
+		$(document).ready(function() {
+			var magic_notifications = $('.card-content').children();
+			for(var i = 0; i < magic_notifications.length; i++){
+				if(magic_notifications[i].innerHTML == 'No notifications yet.'){
+					magic_notifications[i].remove();
+					$('#noti-div').append('<tr class="hide-on-med-and-down"><td class="center-align" colspan="3"><i>No Notifications</i></td></tr>'+
+					'<tr class="show-on-med-and-down hide-on-large-only"><td><i>No Notifications</i></td><td></td><td></td></tr>');
+					break;
                 }
-            });
-        });
-		</script>
-		{% endif %}
+			}
+			
+        });	
+
+	</script>
+
+	<style>
+			tbody {
+			   display:block;
+			   max-height:100vh;
+			   overflow:auto;
+			}
+			thead, tbody tr {
+			   display:table;
+			   width:100%;
+			   table-layout:fixed;
+			}
+	  
+			table {
+			   width:100%;
+			}
+	</style>
 </head>
- 
+
 <body>
+	{% if is_teacher %}
+	{% include 'heading.html' %}
+	{% else %}
+	{% include 'stheading.html' %}
+	{% endif %}
 
-
-
-	<div id="page-wrapper">
-	{% if is_teacher %}    
-              {% include 'heading.html' %}
-       {% else %}
-              {% include 'stheading.html' %}
-       {% endif %}
-
-       
 	<main>
 		<div class="row center-align">
-        <div class="col s12">
-        	<h3>Notifications</h3>
-		</div>
+			<div class="col s12">
+				<h3>Notifications</h3>
+			</div>
 		</div>
 		<div class="row center-align">
-        <div class="col s12">
-        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=0">All Notifications</a>
-        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=1">Active Notifications</a>
-        	<a class="waves-effect waves-light btn" href="/oneUp/students/NotificationPage?ID=2">Deleted Notifications</a>
-		</div>
+			<div class="col s12">
+				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/students/NotificationPage?ID=0">All
+					Notifications</a>
+				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/students/NotificationPage?ID=1">Active
+						Notifications</a>
+				
+				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/students/NotificationPage?ID=2">Dismissed
+						Notifications</a>
+			</div>
+				
 		</div>
 		<div class="row">
-            <div class="col s12 m10 offset-m1">
-               <div class="card">
-                  <div class="card-content">
+			<div class="col s12 m10 offset-m1">
+				<div class="card">
+					<div class="card-content">
+							<table class="responsive-table">
+								<thead>
+								<tr>
+									<th>Notification Description</th>
+									<th>Notification Timestamp</th>
+									<th style="padding-left: 100px">Options</th>
+								</tr>
+								</thead>
+								<tbody id="noti-div" class="notification-box-list">
+									{% if ID == 0 %}
+									{% render_notifications using request.user.notifications.all %}
 
-			<div id="nTable" class="notification-box-list ">
-   				
-   			<table class="responsive-table" id="T1">
-   			<tr>
-   				<th>Notification Description</th>
-   				<th>Notification Timestamp</th>
-   				<th style="padding-left: 100px">Options</th>
-   			</tr>
-   			
-   			{% if ID == 0 %}
-   				{% render_notifications using request.user.notifications.all %}
-   				
-   			{% elif ID == 1 %}
-				{% user_notifications %}   				
-   			{% elif ID == 2 %}
-   				{% render_notifications using request.user.notifications.deleted %}
-   			<div class="divider"></div>
-            {% endif %}	
-   			</table>
-   			</div>
-   			</div>                              
-  
-		
-        <!-- END DYNAMIC TABLE -->
+									{% elif ID == 1 %}
+									{% user_notifications %}
+									{% elif ID == 2 %}
+									{% render_notifications using request.user.notifications.deleted %}
+									
+									{% endif %}
+								</tbody>
+							</table>
+						
+					</div>
+
+
+				</div>
+			</div>
+
 		</div>
-        </div>
-	<!-- Footer -->
-	
-	</div>`
 	</main>
-	     {% include 'footer.html' %}
-	
-	
+	{% include 'footer.html' %}
 </body>
+
 </html>

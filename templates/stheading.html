@@ -25,6 +25,9 @@
     .notification-icon-notify {
         position: absolute;
     }
+	.nav-dropdown-link, .nav-dropdown-link:hover {
+        background-color: transparent !important;
+    }
 </style>
 
 <!-- Used for the notifications -->
@@ -33,27 +36,45 @@
 {% include_notify_js_variables %}
 <script src="{% static "notify/notifyX.js" %}"></script>
 <script>
+		
 		var updateSuccess = function (response) {
-			var notification_box = $('#notifications-desktop');
-			var notification_box_mobile = $('#notifications-mobile');
-			var notifications = response.notifications;
-			var course_id = '{{course_id}}';
-			$.each(notifications, function (i, notification) {
-				let notification_data = JSON.parse(notification.data);
-				// console.log(notification_data);
-				if(notification_data['course'] == course_id){
-					notification_box_desktop.prepend(notification.html);
-					notification_box_mobile.prepend(notification.html);
-				}
-			});
-			removeDuplicates();
-			countNotifications();
-			//IF table on page then update
+			if(response['retrieved'] > 0){
+                var notification_box_desktop = $('#notifications-desktop');
+				var notification_box_mobile = $('#notifications-mobile');
+                
+                var course_id = '{{course_id}}';
+                var notifications = response.notifications;
+                notifications.forEach(notification => {
+                    let notification_data = JSON.parse(notification.data);
+                    // console.log(notification_data);
+                    if(notification_data['course'] == course_id){
+                        notification_box_desktop.prepend(notification.html);
+						notification_box_mobile.prepend(notification.html);
+
+                    }
+                });
+
+                removeDuplicates();
+                countNotifications();
+            }
 		};
+		markAllNotificationSelector = '.mark-all';
+        var markAllSuccess = function(response) {
+            var mark_class = 'read';
+            var remove_class = 'unread';
+            if(response['action'] == 'unread'){
+                mark_class = 'unread';
+                remove_class = 'read';
+            }
+            $('.notification').removeClass(remove_class).addClass(mark_class);
+            countNotifications();
+		}
+		
         var deleteSuccess = function(response, $notification){
             // If notification deleted from desktop remove from mobile side as well and vice versa
             var notification_box_desktop = $('#notifications-desktop');
             var notification_box_mobile = $('#notifications-mobile');
+			var notification_div_page = $('#noti-div');
 
 			var notification_id = $notification.attr("data-id");
             function removeAll(notification_box, id){
@@ -62,14 +83,32 @@
                 });
             }
 
+            function removeNoti(notification_div_page, id){
+                
+				$('#'+id).remove();
+
+            }
+
             removeAll(notification_box_desktop, notification_id);
-            removeAll(notification_box_mobile, notification_id);
+			removeAll(notification_box_mobile, notification_id);
+			
+			var is_stud_notification_page = '{{is_stud_notification_page}}';
+			var is_display_active_noti = '{{is_display_active_noti}}';
+			if (is_stud_notification_page == '1' && is_display_active_noti == '1'){
+				removeNoti(notification_div_page, notification_id);
+				let notifications = $('#noti-div').children();
+				if(notifications.length == 0){
+					$('#noti-div').append('<tr><td class="center-align" colspan="3"><i>No Notifications</i></td></tr>');
+				}
+			}
+			countNotifications();
         }
         var removeDuplicates = function(){
             // Fixes weird bug with notifications. Once notification is created it can create more than one at a time.
             // Ex. student buys 3 items from shop it sends 6 notifications
             var notification_box_desktop = $('#notifications-desktop');
             var notification_box_mobile = $('#notifications-mobile');
+			var notification_div_page = $('#noti-div');
 
             function removeDupes(notification_box){
 				var seen = {};
@@ -84,22 +123,30 @@
             }
 
             removeDupes(notification_box_desktop);
-            removeDupes(notification_box_mobile);
+			removeDupes(notification_box_mobile);
+			
+			if(notification_div_page)
+				removeDupes(notification_div_page);
         }
-		function limitNotifications(limit){
+		function limitNotifications(limit, size){
+			if(size == 0) return;
+			if(size <= limit) return;
+
             // Limit notifications on both mobile and desktop sides
             var notification_box_desktop = $('#notifications-desktop');
             var notification_box_mobile = $('#notifications-mobile');
 
             function limitNotificationsInBox(notification_box){
                 var notifications = notification_box.children();
-                var size = notifications.length;
+                
 
-                if(size <= limit) return;
+				for(var i = 0; i <= Math.min(limit, size-1); i++){
+                    notifications[i].classList.remove("hide");
+                }
 
                 var stop_index = size - limit;
-                for(var i = size-1; i > stop_index; i--){
-                    notifications[i].parentNode.removeChild(notifications[i]);
+                for(var i = size-1; i > ((size-1) - stop_index); i--){
+                    notifications[i].classList.add("hide");
                 }
                 
             }
@@ -108,110 +155,103 @@
             limitNotificationsInBox(notification_box_mobile);
         }
         function countNotifications(){
+			var all_notifications_count = $('nav .notification-box-list').children().length / 2;
+
+            // Remove magic "no new notifications yet" element when there are no notifications and add a customized one
+            let notifications = $('nav .notification-box-list').children();
+            if(notifications.length == 0){
+                $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/students/NotificationPage">No notifications (View all)</a></li>');
+            }
+			var empty = all_notifications_count == 1;
+            var removed_empty = false;
+            for(var i = notifications.length-1; i >= 0; i--){
+				// This is our custom one just set notification count to 0
+                if(notifications[i].innerHTML == '<a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/students/NotificationPage">No notifications (View all)</a>'){
+                    if(all_notifications_count == 1 && empty){
+                        all_notifications_count = 0;
+                        break;
+                    } else {
+                        notifications[i].remove();
+                        if(removed_empty == false)
+                            all_notifications_count--;
+                        continue;
+                    }
+                }
+                // This is the magic one. Remove it and add our custom one and set notification count to 0
+                if(notifications[i].innerHTML == 'No notifications yet.'){
+                    if(all_notifications_count == 1 && empty) {
+                        $('nav .notification-box-list').empty();
+                        all_notifications_count = 0;
+                        // Add "No notifications" for mobile and desktop
+                        $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/students/NotificationPage">No notifications (View all)</a></li>');
+                        break;
+                    } else {
+                        notifications[i].remove();
+                        if(removed_empty == false)
+                            all_notifications_count--;
+                    }
+                }
+            }
+            
             // Limit the number of notifications 
-            limitNotifications(8);
+			limitNotifications(6, all_notifications_count);
 			
-			// Get number of notifications which is double becuase of the mobile nav so divide it back down
-            let numItems = Math.max(Math.trunc($('.navNotifications').length/2.0), 0);
+            let unread_count = $('nav .unread').length / 2;
+			//console.trace(unread_count);
 			
 			// Desktop/Tablet element
-            let tooltip_element = $("#notification-count-desktop");
+            let icon_element = $("#notification-count-desktop").children(":first");
 			// Mobile element
             let badge_element = document.getElementById("notification-count-mobile");
 
-            // Get the badge count elements of the number of notifications
-            notification_count_elements = document.getElementsByClassName('notification-count');
-            for(var i = 0; i < notification_count_elements.length; i++){
-                let element = notification_count_elements[i];
-                // Set parent to visible/none if there are some notifications not read and vice versa
-                if(numItems > 0)
-                    element.parentNode.parentNode.style.display = "inline";
-                else
-                    element.parentNode.parentNode.style.display = "none";
+            // Get "Notifications #" count element in the dropdown on the desktop screen
+            var notification_count_element = document.getElementsByClassName('notification-count')[0];
+			
+            // Display Desktop "Notifications #" count element if notifications count is > 0
+            if(all_notifications_count > 0)
+                notification_count_element.parentNode.parentNode.style.display = "inline";
+            else
+                notification_count_element.parentNode.parentNode.style.display = "none";
 
-                element.innerHTML = numItems;
-            }
-            // Hide/Show the clearAll elements 
+            notification_count_element.innerHTML = all_notifications_count;
+            
+            // Display "Clear All" elements (mobile and desktop) if notifications count is > 0
             clearAll_elements = document.getElementsByClassName('clearAll');
             for(var i = 0; i < clearAll_elements.length; i++){
                 let element = clearAll_elements[i];
-                if(numItems > 0)
+                if(all_notifications_count > 0)
                     element.parentNode.style.display = "inline";
                 else 
                     element.parentNode.style.display = "none";
-            }
-            if(numItems == 0){
-                // Set tooltip count and change icon to signal no notifications
+			}
+			
+			// Show/hide unread counts for notification bubble and mobile badge
+            if(unread_count == 0){
+                // Desktop bubble
+                icon_element.removeClass("notification-icon-notify");
+				icon_element.addClass("notification-icon");
+				$(".notification-badge").addClass("hide");
                 
-                tooltip_element.attr('data-tooltip', "No Notifications");
-                // tooltip_element.children(":first").html('notifications');
-				tooltip_element.children(":first").removeClass("notification-icon-notify");
-				tooltip_element.children(":first").addClass("notification-icon");
-                tooltip_element.tooltip();
-                
-                $(".notification-badge").addClass("hide");
-                
-                // Create no notification element for desktop view
-                desktop_notifications = document.getElementById("notifications-desktop");
-                // Remove unwanted default notification which is <b>no notifications yet</b>
-                if(desktop_notifications.getElementsByTagName('b').length > 0){
-                    while (desktop_notifications.lastChild) {
-                        desktop_notifications.removeChild(desktop_notifications.lastChild);
-                    }
-                }
-                if(desktop_notifications.children.length <= 0){
-                    x = document.createElement('li');
-                    x.innerHTML = "<a class='no-notifications waves-effect' href='#!'>No new notifications yet</a>"
-                    desktop_notifications.appendChild(x, desktop_notifications);
-                }
-
                 // Hide badge for mobile view
                 badge_element.style.display = "none";
-                
-                // Create no notification element for mobile view
-                mobile_notifications = document.getElementById("notifications-mobile");
-                // Remove unwanted default notification which is <b>no notifications yet</b>
-                if(mobile_notifications.getElementsByTagName('b').length > 0){
-                    while (mobile_notifications.lastChild) {
-                        mobile_notifications.removeChild(mobile_notifications.lastChild);
-                    }
-                }
-                if(mobile_notifications.children.length <= 0){
-                    x = document.createElement('li');
-                    x.innerHTML = "<a class='no-notifications waves-effect' href='#!'>No new notifications yet</a>"
-                    mobile_notifications.appendChild(x, mobile_notifications);
-                }
-                
-                
     
             } else {
-                // Remove the no-notification elements
-                no_notifcation_elements = document.getElementsByClassName('no-notifications');
-                for(var i = 0; i < no_notifcation_elements.length; i++){
-                    let element = no_notifcation_elements[i];
-                    element.parentNode.parentNode.removeChild(element.parentNode);                    
-                }
 
-                // Set tooltip count and change icon to signal notifications
-                tooltip_element.attr('data-tooltip', numItems + " New");
-                // tooltip_element.children(":first").html('notifications_active');
-				tooltip_element.children(":first").removeClass("notification-icon");
-                tooltip_element.children(":first").addClass("notification-icon-notify");
-                tooltip_element.tooltip();
+				// Desktop bubble
+                icon_element.removeClass("notification-icon");
+                icon_element.addClass("notification-icon-notify");
+                $(".notification-badge").removeClass("hide").html(unread_count);
 
-                $(".notification-badge").removeClass("hide").html(numItems);
-                
                 // Show badge for mobile view and set count 
                 badge_element.style.display = "block";
-                badge_element.textContent= numItems;
-                
+				badge_element.textContent= unread_count;
+				
             }
             
         }
         
         $(document).ready(function() {
             countNotifications();
-            $('.tooltipped').tooltip({delay: 50});
             
         });	
         
@@ -219,24 +259,23 @@
             $(".delete-box").click();
             countNotifications();
         });
+		
 </script>
 		<ul id="account" class="dropdown-content">
 			{% if ccparams.gamificationUsed and ccparams.avatarUsed %}
-			<li><p class="center-align"><img class="circle" width="100" height="100" src="{{avatar}}"></p></li>
+			<li class="nav-dropdown-link"><p class="center-align"><img class="circle" width="100" height="100" src="{{avatar}}"></p></li>
 			{% endif %}
-			<li><p class="center-align">Welcome, {{username}}</p></li>            
-			<li><p class="center-align">Course: {{course_Name}}</p></li>
+			<li class="nav-dropdown-link"><p style="padding-left: 16px; padding-right: 8px">Welcome, {{username}}</p></li>            
+			<li class="nav-dropdown-link"><p style="padding-left: 16px; padding-right: 8px">Course: {{course_Name}}</p></li>
 			<li class="divider"></li>
-			<li><a href="/oneUp/administrators/courses?is_student=True">Change Course</a></li>
-			<li><a href="/oneUp/students/Logout">Logout</a></li>
+			<li><a class="waves-effect nav-dropdown-link" href="/oneUp/administrators/courses?is_student=True">Change Course</a></li>
+			<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Logout">Logout</a></li>
 		</ul>
 		<ul id="virtualcurrency" class="dropdown-content">                               
 			<li><a href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
 			<!-- <li><a href="/oneUp/students/EarnedVCTransactions">Your Earning Transactions</a></li> -->
 			<li><a href="/oneUp/students/Transactions">VC Transactions</a></li>
-			{% if ccparams.classmatesChallenges %}
-			<li><a class="waves-effect" href="/oneUp/students/Callouts">Challenge Classmates</a></li>
-			{% endif %}
+			
 						
 		</ul>
 		<nav>
@@ -247,20 +286,20 @@
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course Info</a>
 					<ul id="courseinfo" class="dropdown-content">
-						<li><a class="waves-effect" href="/oneUp/students/StudentHome">Student's Home</a></li>
-						<li><a class="waves-effect" href="/oneUp/students/StudentCourseHome">Course Home</a></li>						
-						<li><a class="waves-effect" href="/oneUp/students/CourseInformation">Course Information</a></li>
-						<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>	
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/StudentHome">Student's Home</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/StudentCourseHome">Course Home</a></li>						
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/CourseInformation">Course Information</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Announcements">Announcements</a></li>	
 						<!-- GGM added leaderboard to navigation bar -->
 						{%if ccparams.gamificationUsed and ccparams.leaderboardUsed and studentLeaderboardToggle %}
-						<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Course Leaderboard</a></li>
-						<li><a class="waves-effect" href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Leaderboard">Course Leaderboard</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
 						{% endif %}						
 						{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
-						<li><a class="waves-effect" href="/oneUp/badges/CourseBadges">Course Badges</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/badges/CourseBadges">Course Badges</a></li>
 						{% endif %}
 						{%if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
-						<li><a class="waves-effect" href="/oneUp/students/VirtualCurrencyRules">Currency Rules</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/VirtualCurrencyRules">Currency Rules</a></li>
 						{% endif %}
 					</ul>
 				</li>
@@ -276,29 +315,29 @@
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
 					<ul id="coursetools" class="dropdown-content">
 						{% if ccparams.gamificationUsed and ccparams.avatarUsed %}
-						<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/avatar">Avatar Selection</a></li>
 						{% endif %}
 						{% if ccparams.gamificationUsed and ccparams.studCanChangeGoal %}
 						<li><a class="waves-effect" href="/oneUp/students/GoalsList">Goals</a></li>
 						{% endif %}
 						{% if ccparams.chatUsed %}
-						<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/chat/api">Chat</a></li>
 						{% endif %}
 						{% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
-						<li><a class="waves-effect" href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
 						<!-- <li><a class="waves-effect" href="/oneUp/students/EarnedVCTransactions">Your Earning Transactions</a></li> -->
-						<li><a class="waves-effect" href="/oneUp/students/Transactions">VC Transactions</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Transactions">VC Transactions</a></li>
 						{% endif %}
 						{% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
-			            <li><a class="waves-effect" href="/oneUp/students/Callouts">Challenge Classmates</a></li>
+			            <li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Callouts">Challenge Classmates</a></li>
 						{% endif %}
 						{% if ccparams.gamificationUsed %}
 						{% if ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
-						<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Preferences">Preferences</a></li>
 						{% endif %}
 						{% endif %}
 						{% if is_test_student is False %}
-						<li><a class="waves-effect" href="/oneUp/students/ResetPassword">Reset Password</a></li>
+						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/ResetPassword">Reset Password</a></li>
 						{% endif %}
 					</ul>
 				</li>
@@ -307,7 +346,7 @@
 					<a class="waves-effect" href="/oneUp/students/StudentQA">Help</a>
 				</li>
 				<li>
-					<a id='notification-count-desktop' class='dropdown-button tooltipped' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
+					<a id='notification-count-desktop' class='dropdown-button mark-all' data-mark-action='read' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
 						<i class='material-icons notification-icon'>notifications</i> <!-- This needs to be linked to an actual notification page -->
 						<small class="notification-badge hide"></small>
 					</a>
@@ -344,7 +383,7 @@
 						<a href="#!user"><img class="circle" src="{{avatar}}"></a>
 						{% endif %}
 						<a href="#!name"><span class="white-text name">Welcome, {{username}}</span></a>
-						<a href="#!email"><span class="white-text email">Course: {{course_Name}}</span></a>
+						<a href="#!course"><span class="white-text email">Course: {{course_Name}}</span></a>
 					  </div>
 				</li>   
 				{% endif %}             
@@ -394,9 +433,12 @@
 									</li>
 									{% endif %}
 									{% if ccparams.gamificationUsed %}
-									{% if ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
-									<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
-									{% endif %}
+										{% if ccparams.classmatesChallenges %}
+										<li><a class="waves-effect" href="/oneUp/students/Callouts">Challenge Classmates</a></li>
+										{% endif %}
+										{% if ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
+										<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
+										{% endif %}
 									{% endif %}
 									{% if is_test_student is False %}
 									<li><a class="waves-effect" href="/oneUp/students/ResetPassword">Reset Password</a></li>
@@ -410,7 +452,7 @@
 							<a class="collapsible-header waves-effect" href="/oneUp/students/StudentQA"><i class="material-icons">help</i>Help</a>
 						</li>
 						<li>
-							<a class='collapsible-header'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count-mobile' class="new badge red"></span></div></a>
+							<a id='notifications-mobile-link' class='collapsible-header mark-all' data-mark-action='read'><i class='material-icons'>notifications</i>Notifications  <div class='right'><span id='notification-count-mobile' class="new badge red"></span></div></a>
 							<div class='collapsible-body'>
 								<ul>
 									<div id="notifications-mobile" class="notification-box-list">
@@ -422,7 +464,7 @@
 						</li>
 						{% if is_test_student %}
 				           <li>
-				                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to instructor view"  href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >
+				                <a id='switchview'  style="padding-left: 16px !important" class='dropdown-button tooltipped' data-tooltip="Switch to instructor view"  href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >
 				                    <i class='material-icons'>visibility</i> 
 				                </a>
 				            </li>

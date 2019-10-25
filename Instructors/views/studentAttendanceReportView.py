@@ -112,12 +112,13 @@ def generateDatesList(startDate, endDate, isPresent):
     dates = []
     count = 0
     step = timedelta(days=1)
-    while startDate <= endDate:
-        if(isPresent != None and isPresent[0][count] != "clear"):
-            dates.append(str(startDate.month) +"/"+str(startDate.day))
-        
-        count += 1
-        startDate += step 
+    if isPresent:
+        while startDate <= endDate:
+            if(isPresent != None and isPresent[0][count] != "clear"):
+                dates.append(str(startDate.month) +"/"+str(startDate.day))
+            
+            count += 1
+            startDate += step 
     return dates
 
 def removeDatesWithNoAttendance(isPresent, datesPostion, numStudents):

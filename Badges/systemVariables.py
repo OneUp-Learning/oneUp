@@ -294,24 +294,18 @@ def getMinActivityScore(course, student, activity):
     return scores.earliest('activityScore').activityScore
 
 def getAverageTestScore(course, student, challenge):    
-    ''' INCOMPLETE
-        This will return the average challenge score for a course
-    '''
-    #return the average score of the a challenge
-    #Note that average test score includes testScore + curve and the scoreAdjustment
+    ''' Return the average class score for a challenge of a course '''
     
     from Students.models import StudentRegisteredCourses
     
-    maxScores = 0.0
+    sum_max_scores = 0.0
+    students = StudentRegisteredCourses.objects.filter(courseID=course)
+    for _student in students:
+        score = getMaxTestScore(course, _student, challenge)
+        sum_max_scores += score
     
-    allScores = getTestScores(course,student,challenge)
-    if allScores.exists():
-        maxScore = allScores.latest('testScore').getScore()
-        
-        maxScores += float(maxScore)
-        
-    return maxScores/StudentRegisteredCourses.objects.filter(courseID=course).count()
-    
+    return sum_max_scores / len(students)
+            
 def getAverageActivityScore(course,student, activity):
     ''' Return the average score of an activity for a course'''
     scores = getAllActivityScores(course, activity)
@@ -1053,6 +1047,87 @@ def getNumberOfDuelsWon(course, student):
     wins = len(Winners.objects.filter(studentID=student, courseID=course))
     return wins
 
+def getNumberOfDuelsParticipated(course, student):
+    ''' This will return the number of duels the student has participated
+        in the course regarless of the outcome of the duel
+        Status -> indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
+    '''
+    from Students.models import DuelChallenges
+    from Students.models import StudentChallenges
+    from datetime import timedelta
+
+    print("student", student)
+
+    sent = DuelChallenges.objects.filter(challenger=student, courseID=course, status=2)
+    requested = DuelChallenges.objects.filter(challengee=student, courseID=course, status=2)
+    
+    duels = list(sent) + list(requested)
+    print("duels", duels)
+
+    count = 0
+    for duel in duels:
+        print("duel", duel)
+        print("challenge", duel.challengeID)
+        if StudentChallenges.objects.filter(challengeID=duel.challengeID, courseID=course):
+            chall = StudentChallenges.objects.filter(challengeID=duel.challengeID, courseID=course).earliest('endTimestamp')
+            if chall.endTimestamp <= (duel.acceptTime +timedelta(minutes=duel.startTime) +timedelta(minutes=duel.timeLimit) +timedelta(seconds=6)):
+                print("Participated challenge", duel.challengeID.challengeName)
+                count += 1
+    return count
+
+
+def getNumberOfDuelsLost(course, student):
+    ''' This will return the number of duel lost the student has for every duel 
+        in the course
+    '''
+    from Students.models import DuelChallenges
+    from Students.models import Winners
+
+    duel_challenges = DuelChallenges.objects.filter(challenger=student, courseID=course)
+    duel_wins = Winners.objects.filter(studentID=student, courseID=course)
+    
+    count = 0
+    for duel_win in duel_wins:
+        if duel_win.DuelChallengeID in duel_challenges:
+            count += 1
+
+    return count
+
+def getNumberOfCalloutSent(course, student):
+    ''' This will return the number of call outs sent by a student regardless of weather sender won or not
+    '''
+    from Students.models import Callouts
+    sent = len(Callouts.objects.filter(sender=student, courseID=course))
+    return sent
+
+def getNumberOfCalloutParticipate(course, student):
+    ''' This will return the number of call outs a student has participated in sent by any other
+        student regardless of weather participant won or not.
+    '''
+    from Students.models import CalloutStats
+    return len(CalloutStats.objects.filter(studentID=student, courseID=course))
+
+def getNumberOfCalloutRequested(course, student):
+    ''' This will return the number of call outs a student has been requested, sent by any other
+        student regardless of weather participant won or not.
+    '''
+    from Students.models import CalloutParticipants
+    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course))
+    
+def getNumberOfCalloutParticipationWon(course, student):
+    ''' This will return the number of wins the student has earned for every requested call out 
+        in the course 
+    '''
+    from Students.models import CalloutParticipants
+    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course, hasWon=True))
+
+def getNumberOfCalloutParticipationLost(course, student):
+    ''' This will return the number of lost the student has for every requested call out 
+        in the course 
+    '''
+    from Students.models import CalloutParticipants
+    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course, hasWon=False, hasSubmitted=True))
+
 def getNumberOfUniqueSeriousChallengesAttempted(course, student):
     ''' Get the number of unique serious challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=True)
@@ -1173,8 +1248,6 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, stu
     print("Number of unqiue warmup challenges > 75%: " ,numberOfChall)
     return numberOfChall
 
-
-
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -1227,6 +1300,14 @@ class SystemVariable():
     duelsSent = 951 # Returns the number of duels a student has sent (completed duels only)
     duelsAccepted = 952 # Returns the number of duels a student has accepted (completed duels only)
     duelsWon = 953 # Returns the number of duels a student has won
+    duelsLost = 954 # Returns the number of duels a student has lost
+    calloutSent = 955 # Returns the number of callout a student has sent
+    calloutParticipate = 956 # Returns the number of callout a student has participated in 
+    calloutParticipationWon = 957 # Returns the number of callout a student has participated in and won
+    calloutParticipationLost = 958 # Returns the number of callout a student has participated in and lost
+    calloutRequested = 959 #
+    duelsParticipated = 960 # Return the number of duels a student has participated in regarless of the duel outcome
+
 
     systemVariables = {
         score:{
@@ -1304,7 +1385,7 @@ class SystemVariable():
             'index': averageTestScore,
             'name':'averageTestScore',
             'displayName':'Average Test Score',
-            'description':'Average Test Score.',
+            'description':'The students average for a challenge. Using the best score from each student',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.endChallenge,Event.adjustment],
             },
@@ -1421,7 +1502,7 @@ class SystemVariable():
             'index': dateOfFirstChallengeSubmission,
             'name':'dateOfFirstChallengeSubmission',
             'displayName':'Date of First Challenge Submission',
-            'description':'The date on which the student has submitted a particular challenge for the first time',
+            'description':'The date on which the student has completed a particular challenge for the first time',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.startChallenge],
             },
@@ -1447,7 +1528,7 @@ class SystemVariable():
             'index': seriousChallengeReachedDueDate,
             'name': 'seriousChallengeReachedDueDate',
             'displayName': 'Serious Challenge Has Reached Due Date',
-            'description': 'The serious challenge due date has reached',
+            'description': 'True if the serious challenge due date has been reached, otherwise false',
             'eventsWhichCanChangeThis': {
                 ObjectTypes.challenge: [Event.challengeExpiration],
             },
@@ -1460,7 +1541,7 @@ class SystemVariable():
             'index': isWarmUp,
             'name': 'isWarmUp',
             'displayName': 'Is WarmUp Challenge',
-            'description': 'True if the challenge in question is a warmup challenge, false if serious',
+            'description': 'True if the challenge in question is a warmup challenge else it is false since the challenge is of Serious Type',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.endChallenge],
             },
@@ -1551,7 +1632,7 @@ class SystemVariable():
             'index': consecutiveDaysWarmUpChallengesTaken30Percent,
             'name':'consecutiveDaysWarmUpChallengesTaken30Percent',
             'displayName':'Consecutive Days Warm Up Challenge Taken (at least 30% correct)',
-            'description':'The number of consecutive days a student has taken a particular warm-up challenge (at least 30% correct).',
+            'description':'The number of consecutive days an student has taken a particular warm-up challenge with at least 30% correct.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge , Event.adjustment],
             },
@@ -1577,7 +1658,7 @@ class SystemVariable():
             'index': consecutiveDaysWarmUpChallengesTaken75Percent,
             'name':'consecutiveDaysWarmUpChallengesTaken75Percent',
             'displayName':'Consecutive Days Warm Up Challenge Taken (at least 75% correct)',
-            'description':'The number of consecutive days a student has taken a particular warm-up challenge (at least 75% correct).',
+            'description':'The number of consecutive days an student has taken a particular warm-up challenge with at least 75% correct.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
             },
@@ -1616,7 +1697,7 @@ class SystemVariable():
             'index': numDaysSubmissionEarlier,
             'name':'numDaysSubmissionEarlier',
             'displayName':'Number of Days Submission Earlier',
-            'description':'The number of days a submission is turned in earlier than the stated deadline',
+            'description':'The number of days an student submission is turned in earlier than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge],
                 ObjectTypes.activity: [Event.activitySubmission],
@@ -1631,7 +1712,7 @@ class SystemVariable():
             'index': numDaysSubmissionLate,
             'name':'numDaysSubmissionLate',
             'displayName':'Number of Days Submission Late',
-            'description':'The number of days a submission is turned in later than the stated deadline',
+            'description':'The number of days an student submission is turned in later than the stated deadline',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge],
                 ObjectTypes.activity: [Event.activitySubmission],
@@ -1685,7 +1766,7 @@ class SystemVariable():
             'index': uniqueSeriousChallengesAttempted,
             'name':'uniqueSeriousChallengesAttempted',
             'displayName':'Unique Serious Challenges Completed',
-            'description':'The number of unique serious challenges completed by the student.',
+            'description':'The number of serious challenges that a student has attempted at least once.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
@@ -1698,7 +1779,7 @@ class SystemVariable():
             'index': uniqueWarmupChallengesAttempted,
             'name':'uniqueWarmupChallengesAttempted',
             'displayName':'Unique Warmup Challenges Completed',
-            'description':'The number of unique warmup challenges completed by the student.',
+            'description':'The number of warmup challenges that a student has attempted at least once.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
@@ -1841,7 +1922,7 @@ class SystemVariable():
             'index': duelsSent,
             'name':'duelsSent',
             'displayName':'# of Duels Sent',
-            'description':'The total number a student has sent duels to other students',
+            'description':'The total number of duels a student has sent to other students',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.duelSent],
             },
@@ -1854,7 +1935,7 @@ class SystemVariable():
             'index': duelsAccepted,
             'name':'duelsAccepted',
             'displayName':'# of Duels Accepted',
-            'description':'The total number a student has accepted duels from other students',
+            'description':'The total number of duels a student has accepted from other students',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.duelAccepted],  
             },
@@ -1867,7 +1948,7 @@ class SystemVariable():
             'index': duelsWon,
             'name':'duelsWon',
             'displayName':'# of Duels Won',
-            'description':'The total number a student has won duels',
+            'description':'The total number of duels a student has won',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.duelWon],
             },
@@ -1875,7 +1956,98 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsWon
             },
-        },                                                        
+        },       
+        duelsParticipated:{
+            'index': duelsParticipated,
+            'name':'duelsParticipated',
+            'displayName':'# of Duels Participation',
+            'description':'The total number of duels a student has participated in regarless of the duels outcomes',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.duelWon, Event.duelLost],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfDuelsParticipated
+            },
+        },   
+        duelsLost:{
+            'index': duelsLost,
+            'name':'duelsLost',
+            'displayName':'# of Duels Lost',
+            'description':'The total number of duels a student has lost',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.duelLost],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfDuelsLost
+            },
+        },   
+        calloutSent:{
+            'index': calloutSent,
+            'name':'calloutSent',
+            'displayName':'# of Call Outs Sent',
+            'description':'The total number of call outs a student has sent to other students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutSent],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutSent
+            },
+        },  
+        calloutParticipate:{
+            'index': calloutParticipate,
+            'name':'calloutParticipate',
+            'displayName':'# of Call Outs Participation',
+            'description':'The total number of call outs a student has participated in weather they won or not',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutWon, Event.calloutLost],  
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutParticipate
+            },
+        },     
+        calloutParticipationWon:{
+            'index': calloutParticipationWon,
+            'name':'calloutParticipationWon',
+            'displayName':'# of Call Outs a participant has won',
+            'description':'The total number of calls out a student has won',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutWon],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutParticipationWon
+            },
+        },    
+        calloutParticipationLost:{
+            'index': calloutParticipationLost,
+            'name':'calloutParticipationLost',
+            'displayName':'# of Call Outs a participant has lost',
+            'description':'The total number of call outs a student has lost',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutLost],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutParticipationLost
+            },
+        },   
+        calloutRequested:{
+            'index': calloutRequested,
+            'name':'calloutRequested',
+            'displayName':'# of Call Outs a participant has been reqeusted',
+            'description':'The total number of call outs a student has been requested',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.calloutRequested],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfCalloutRequested
+            },
+        },                                                                  
     }
 
 if __debug__:
@@ -1897,6 +2069,6 @@ if __debug__:
         assert len([obj for obj in eventsList if obj not in functionsList]) == 0, "System variable structure has an event entry for an object type for which it has no function. %s " % sysVarName
         assert len([obj for obj in functionsList if obj not in eventsList]) == 0, "System variable structure has a functions entry for an object type for which it has no events entry. %s " % sysVarName
         if ObjectTypes.none in eventsList:
-            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the globabl scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
+            assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the global scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
 
     assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."

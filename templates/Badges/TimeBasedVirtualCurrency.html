@@ -116,35 +116,56 @@
                             </select>
                         </div>
                         <div class="row">
-                            <div class="col s5">
-                                 <label>Condition:</label>
-                                 <select onchange='displayResetStreakCheckbox();' id="periodicVariableSelected" name="periodicVariableSelected">
-                                    {% for periodicVariable in periodicVariables %}
-                                    <option value="{{periodicVariable.index}}" {% if vc.periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
-                                    {% endfor %}
-                                 </select>
-                            </div>
-                            <div class="col s2">
-                              <label for="operator">Operator: </label>
-                              <select id="operator" name="operator">
-                                 <option id="&amp;gt;" value=">">></option>
-                                 <option id="&amp;gt;=" value=">=">>=</option>
-                                 <option id="=" value="=">=</option>
-                              </select>
-                              <script  type="text/javascript"> 
-                                 window.onload = function() {
-                                 	if ("{{vc.operatorType}}" != '')  {
-                                        var x = document.getElementById("operator");
-                                        x.options["{{vc.operatorType}}"].selected = true;
-                                        $("#operator").material_select();
-                                 	} 
-                                 }
-                              </script> 
-                            </div>
-                            <div id="previous" class="col s5">
-                                <label for="timePeriodSelected">Treshold:</label>
-                                <input type="number" id="treshold" name="threshold" value="{{vc.threshold}}" min="0" required></input>
-                            </div>
+                              <div class="col s6">
+                                    <label>Condition:</label>
+                                    <select onchange="displayResetStreakCheckbox();" id="periodicVariableSelected"
+                                       name="periodicVariableSelected">
+                                       {% for periodicVariable in periodicVariables %}
+                                       <option value="{{periodicVariable.index}}"
+                                          {% if badge.periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
+                                       {% endfor %}
+                                    </select>
+                                 </div>
+                                 <div class="col s2">
+                                    <label for="operator">Operator: </label>
+                                    <select id="operator" name="operator">
+                                       <option id="&amp;gt;" value=">">></option>
+                                       <option id="&amp;gt;=" value=">=">>=</option>
+                                       <option id="=" value="=">=</option>
+                                    </select>
+         
+                                 </div>
+                                 <div class="col s2">
+                                    <label for="timePeriodSelected">Threshold:</label>
+                                    <input type="number" id="threshold_value" name="threshold" value="{{vc.threshold}}" min="0"></input>
+                                    <select id="threshold_select" name="threshold">
+                                       <option id="avg" value="avg">average</option>
+                                       <option id="max" value="max">max</option>
+                                    </select>
+         
+                                 </div>
+                                 <div id="previous" class="col s2" style="height: 5rem; display: flex; align-items: center;">
+                                    <input type="checkbox" class="filled-in" id="value-checkbox" {% if is_value == True %} checked
+                                       {% endif %} />
+                                    <label for="value-checkbox">Value</label>
+                                 </div>
+                                 <script  type="text/javascript"> 
+                                    window.onload = function() {
+                                       if ("{{vc.operatorType}}" != '')  {
+                                          var x = document.getElementById("operator");
+                                          x.options["{{vc.operatorType}}"].selected = true;
+                                          $("#operator").material_select();
+                                       }
+                                       {% if is_value == False %}
+                                       if ("{{vc.threshold}}" != '')  {
+                                          var x = document.getElementById("threshold_select");
+                                          x.options["{{vc.threshold}}"].selected = true;
+                                          $("#threshold_select").material_select();
+                                       } 
+                                       {% endif %}
+                                    }
+                                 </script> 
+                            
                 {%if checkbox == False or checkbox == True %}	
                        <div class="col s5">
 					<br>{% if checkbox == True  %}
@@ -221,5 +242,38 @@
 		reason.required = false;
 		document.getElementById("numberOfAwards").required = false;
 		{% endif %}
+</script>
+<script>
+$(document).ready(function() {
+		var show = false;
+		{% if is_value == True %}
+		show = true;
+		{% endif %}
+		if(show){
+			$('#threshold_select').toggleClass('hide');
+			$('#threshold_select').prop('disabled', function(i, v) { return !v; });
+			$('#threshold_select').material_select();
+		}else{
+			$('#threshold_value').toggleClass('hide');
+			$('#threshold_value').prop('disabled', function(i, v) { return !v; });
+		}
+		$('#value-checkbox').click(()=> {
+			$('#threshold_value').toggleClass('hide');
+			$('#threshold_value').prop('disabled', function(i, v) { return !v; });
+			$('#threshold_select').toggleClass('hide');
+			$('#threshold_select').prop('disabled', function(i, v) { return !v; });
+			$('#threshold_select').material_select();
+		})
+
+		var descriptions = [];
+		{% for periodicVariable in periodicVariables %}
+		descriptions.push('{{periodicVariable.description|safe}}');
+		{% endfor %}
+		var periodic_variables = $('#periodicVariableSelected').siblings()[2].children;
+		for(var i = 0; i < periodic_variables.length; i++){
+			$(periodic_variables[i]).addClass('tooltipped').attr('data-position', 'bottom').attr('data-tooltip', descriptions[i]);
+		}
+		$('.tooltipped').tooltip();
+	});
 </script>
 </html>

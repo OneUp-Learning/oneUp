@@ -45,6 +45,10 @@ from Students.views.calloutsView import callout_create, get_class_callout_qualif
 from Students.views.resetPasswordView import validateResetPassword
 from Students.views.leaderboardInfoView import leaderboardInfoView
 
+from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
+
+from Students.views.achievementsView import Track_class_avg_button_clicks
+
 admin.autodiscover()
 
 urlpatterns = [
@@ -105,8 +109,10 @@ urlpatterns = [
         name='IndividualCalloutQualifiedChallenges'),
     url(r'CalloutDescription', callout_description, name="CalloutDescription"),
     url(r'^ValidateResetPassword', validateResetPassword,
-        name='ValidateResetPassword')
+        name='ValidateResetPassword'),  
+    url(r'^Track_class_avg_button_clicks', Track_class_avg_button_clicks,
+        name='Track_class_avg_button_clicks'),
+    url(r'^doDynamicQuestion', dynamicQuestionPartAJAX,
+        name="dynamic question engine AJAX"),
 
-    # url(r'^oneUp/students/', include('Students.urls')),
-    # url(r'^blog/', include('blog.urls')),
 ]

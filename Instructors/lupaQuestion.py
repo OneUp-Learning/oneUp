@@ -50,7 +50,9 @@ if lupa_spec is None:
             return self.error_str
         def answerQuestionPart(self,n,answer_dict):
             return self.error_str
-        def getPartWeight(self,n):
+        def getPartMaxPoints(self,n):
+            return self.error_str
+        def getPartExampleAnswers(self,n):
             return self.error_str
         def serialize(self):
             return self.error_str
@@ -65,6 +67,7 @@ else:
     
     from lupa import LuaRuntime
     from lupa import LuaError
+    from lupa import lua_type
     from uuid import uuid4
     import re
     import json
@@ -133,6 +136,7 @@ else:
         module_not_found = 7702
         runtime = 7703
         required_part_not_defined = 7704
+        answer_sorting_error = 7705
     
     luaModuleNotFoundRegex = re.compile("\s*module '(.*)' not found")
     luaModuleSyntaxErrorRegex = re.compile("\s*error loading module '(.*)' from file '(.*)':(.*)")
@@ -161,7 +165,7 @@ else:
                     error['source'] = 'module'
                     error['module'] = mse_matches.group(1)
                     error['module_file'] = mse_matches.group(2) # this should be the same as the file, but we record it here, just in case.
-                    print("MODULE ERROR MESSAGE:\n"+errstr+"\n\n")
+                    #print("MODULE ERROR MESSAGE:\n"+errstr+"\n\n")
                     main_matches = re.match(luaMainErrorRegex,errstr.splitlines()[1])
                 else:
                     error['type'] = LuaErrorType.runtime
@@ -324,7 +328,7 @@ else:
         
     make_input =
         function (name,type,size)
-            local fullname = _uniqid..'-'..name
+            local fullname = _uniqid..'-'.._current_part..'-'..name
             local originaltype = type
             type = string.upper(type)
             _inputs[_current_part][name] = {}
@@ -429,6 +433,7 @@ else:
                 return False
             
             question_code = '_output = ""\n'
+            question_code += '_current_part = ' + str(n) + '\n'
             question_code += '_qtext = part_'+str(n)+'_text()\n'
             question_code += 'if _qtext==nil then _qtext="" else _qtext=tostring(_qtext) end\n'
             exec_result = runtime.sys_exec(question_code)
@@ -486,7 +491,11 @@ else:
                 (success,pyanswer['seqnum'])=runtime.eval("_inputs["+str(n)+"]['"+answer_name+"']['seqnum']")
                 if not success:
                     self.updateRuntime(runtime)
-                    self.setError(evalAnswerFunc,"")
+                    self.setError({'type':LuaErrorType.answer_sorting_error,
+                                   'line':0,
+                                   'number':n,
+                                   'answer_name':answer_name,
+                                   'result':pyanswer['seqnum']},  "")
                     print("ERROR: something went wrong with sequence numbers (this should not happen)")
                     return False
                 pyanswer['name']=answer_name
@@ -510,15 +519,15 @@ else:
             
             return pyresults
         
-        def getPartWeight(self,n):
+        def getPartMaxPoints(self,n):
             runtime = self.getRuntime()
             if runtime is None:
                 return False
-            (success,weightFunc) = runtime.eval('part_'+n+'_weight')
+            (success,weightFunc) = runtime.eval('part_'+str(n)+'_max_points')
             if not success:
                 self.setError({'type':LuaErrorType.required_part_not_defined,
                                'number':n,
-                               'function_name':'part_'+n+'_weight'},
+                               'function_name':'part_'+n+'_max_points'},
                               "")
                 return False
             if weightFunc is None:
@@ -527,11 +536,38 @@ else:
                 try:
                     result = weightFunc()
                 except LuaError as luaerr:
-                    self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_weight()')
+                    self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_max_points()')
                     self.updateRuntime(runtime)
                     return False
             self.updateRuntime(runtime)
             return result
+        
+        def getPartExampleAnswers(self,n):
+            runtime = self.getRuntime()
+            if runtime is None:
+                return False
+            (success,exampleDictFunc) = runtime.eval('part_'+str(n)+'_example_answers')
+            if not success:
+                # The part_n_example_answers function is optional.  If we do not find it defined, we simply return an empty dictionary
+                return dict()
+            if exampleDictFunc is None:
+                return dict()
+            try:
+                result = exampleDictFunc()
+            except LuaError as luaerr:
+                self.setError(parseLuaError(luaerr), 'part_'+str(n)+'_max_points')
+                self.updateRuntime(runtime)
+                return False
+            self.updateRuntime(runtime)
+            
+            def pyDictFromLuaTable(lt):
+                output = dict(lt)
+                for k in output:
+                    if lua_type(output[k])=='table':
+                        output[k]=pyDictFromLuaTable(output[k])
+                return output
+            
+            return pyDictFromLuaTable(result)
         
         def serialize(self):
             return json.dumps(self.__dict__)

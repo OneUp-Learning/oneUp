@@ -56,16 +56,14 @@
             <div class="col s12 m10 offset-m1">
             <form name="question" enctype="multipart/form-data" action="/oneUp/instructors/studentAttendance" method="POST">
 	            {% csrf_token %}
-	            <div class="input-field col s4">
-	            <div class="col s12">
+	            <div class="input-field col s2">
                               <label for="rollDate">Current Date</label> 
                               <input onchange="this.form.submit()" type="text" class="datepicker-from" name="rollDate" value="{{rollDate}}" id="rollDate">
-                           </div>
 				</div>
 			</form>
 			<br/>
                <div class="row right-align">
-                  <div class="col s8">
+                  <div class="col s10">
                      <a type="button" class="waves-effect waves-light btn" id="markPresent">Mark All Present</a>  
                      <a class="waves-effect waves-light btn" id="unmarkPresent">Unmark All Present</a>
                      <button id="save" onclick="submitButton()" class="waves-effect waves-light btn">Save</button>                                                          
@@ -79,26 +77,26 @@
                      <thead>
                         <tr>
                         <th></th>
+                        <th>Name</th>
                         <th>Present</th>
-                           <th>Name</th>
                         </tr>
                      </thead>
                      <tbody>
                         {% for student_ID, student_Avatars, first_name, last_name, isPresent in class %}
                         <tr>
-                           <td><a><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></a></td>
-                           <td>
-                           {% if isPresent == "true" %}
-                           <input class="checkbox" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" checked/>
-                           {% else %}
-                           <input class="checkbox" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" />
-                           {% endif %}	
+                           <td style="width: 64px"><a><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></a></td>
                            
-                           <label for="{{student_ID}}"></label>
-                               <input class="hidden" type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
-                           </td>
-                           <td>{{first_name}}</td>
-                           <td>{{last_name}}</td>
+                           <td style="vertical-align: middle;">{{first_name}} {{last_name}}</td>
+                           <td>
+                              {% if isPresent == "true" %}
+                              <input class="checkbox" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" checked/>
+                              {% else %}
+                              <input class="checkbox" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" />
+                              {% endif %}	
+                              
+                              <label for="{{student_ID}}"></label>
+                                  <input class="hidden" type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
+                              </td>
                         </tr>
                         {% empty %}
                         <tr>

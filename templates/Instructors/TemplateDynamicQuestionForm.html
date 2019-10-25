@@ -10,37 +10,38 @@
     <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
     <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/js/AJAXgetquerystring.js" type="text/javascript"></script>
+    {% include 'dynamicQuestionSetup.html' %}
     <script type="text/javascript">
+var testResultsVar;
         function testQuestion() {
-            var xmlhttp;
-            if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
-                xmlhttp = new XMLHttpRequest();
-            } else { // code for IE6, IE5 
-                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        	data = {}
+        	for (var i = 1; i <= numParts; i++) {
+                data['_templateText'+i]=CKEDITOR.instances['templateTextVisible' + i].getData();
+                data['_partpoints'+i]=document.getElementById("partpoints"+i).value;
             }
-
-            xmlhttp.open("POST", "doDynamicQuestion", true);
-            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xmlhttp.onreadystatechange =
-                function() {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        document.getElementById("codeResults").innerHTML = xmlhttp.responseText;
-                    }
-                    makeNewEditors();
-                    makeNewReadOnlyEditors()
-                }
-            templateTextValues = "";
-            for (var i = 1; i <= numParts; i++) {
-                templateTextValues += '&_templateText' + i + '=' + encodeURIComponent(CKEDITOR.instances['templateTextVisible' + i].getData());
-            }
-            var formDataEncoded = '_test=true&_phase=1&_uniqid=edit&_seed=' + encodeURIComponent(document.trial.seed.value) +
-                '&_numParts=' + encodeURIComponent(numParts) +
-                '&_setupCode=' + encodeURIComponent(editor.getValue()) +
-                templateTextValues +
-                '&csrfmiddlewaretoken={{ csrf_token }}';
-            formDataEncoded = formDataEncoded + getLibsEncoded()
-            xmlhttp.send(formDataEncoded);
+        	data['_partNum']=1
+        	data['_inittestquestion']='true'
+        	data['_attemptId'] = attemptId;
+        	data['_inChallenge'] = inChallenge;
+        	data['_inTryOut'] = inTryOut;
+            data['_seed'] = document.trial.seed.value;
+            data['_numParts'] = numParts;
+            data['_setupCode'] = editor.getValue();
+            data['_dependentLuaLibraries[]']=lua_lib_selected
+            data['_submissionsAllowed']=document.question.submissionsAllowed.value;
+            data['_resubmissionPenalty']=document.question.resubmissionPenalty.value;
+            data['_points']=document.question.points.value;
+        	$.ajax({
+        		url: "doDynamicQuestion",
+        		type: "POST",
+        		data: data,
+        		dataType: 'html',
+        		success: function(result,textStatus, jqXHR) {
+        			$("#codeResults").html(result);
+        			testResultsVar=result;
+        			makeAllEditors();
+        		}
+        	});
         }
 
         function copyContentsToHidden() {
@@ -92,15 +93,27 @@
             /* used to make the actaul html code block */
             var id = "questionPart" + numParts;
             var name = "templateTextVisible" + numParts;
-            var newElement = "<div id='" + id + "' class='col s12' >\n"+
-                "<div class='django-ckeditor-widget' data-field-id='"+name+"'> \n"+
-              "<textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' name='"+name+"' id='"+name+"' rows='10' cols='70' data-processed='0' data-config='"+ckeditor_config+"' data-external-plugin-resources='"+ckeditor_plugins_resources+"' data-id='"+name+"' data-type='ckeditortype'>{{initalTemplateTextPart}}</textarea> \n"+
-              "</div>"+
-                "<input type='hidden' name='templateText" + numParts + "'  style='display: none;' /> <br /> </div>";
+            var newElement = "<div id='"+id+"superdiv'> \n" +
+	            "<div class='row'> \n" +
+	            	"<div id='questionPartNumPoints"+numParts+"' class='col s12'> \n" +
+	            		"<b>Part "+numParts+"</b> \n" +
+	        			"<input type='number' name='partpoints"+numParts+"' id='partpoints"+numParts+"' value='10'/> \n" +
+	            		"<label for='part"+numParts+"points'>Total Points for Part "+numParts+" Answer Blanks</label> \n" +
+	            	"</div> \n" +
+	            "</div> \n" +
+	            "<div class='row'> \n" +
+	            	"<div id='" + id + "' class='col s12' >\n"+
+    		            "<div class='django-ckeditor-widget' data-field-id='"+name+"'> \n"+
+              				"<textarea style='resize:none; border: solid 1px rgba(128, 128, 128, 0.5)' name='"+name+"' id='"+name+"' rows='10' cols='70' data-processed='0' data-config='"+ckeditor_config+"' data-external-plugin-resources='"+ckeditor_plugins_resources+"' data-id='"+name+"' data-type='ckeditortype'>{{initalTemplateTextPart}}</textarea> \n"+
+              			"</div>"+
+                		"<input type='hidden' name='templateText" + numParts + "'  style='display: none;' /> <br /> \n"+
+                	"</div> \n" +
+                "<\div> \n" +
+            "</div> \n";
 
             /* Put the new text part in place */
             var node = document.createTextNode(newElement);
-            var previous = document.getElementById("questionPart" + (numParts - 1));
+            var previous = document.getElementById("questionPart" + (numParts - 1) +"superdiv");
             previous.insertAdjacentHTML('afterEnd', newElement);
 
             // CKEDITOR.config.autoParagraph = false;
@@ -113,7 +126,7 @@
         function removePart() {
 
             /* Remove last answer blank. */
-            var lastAnswer = document.getElementById("questionPart" + numParts);
+            var lastAnswer = document.getElementById("questionPart" + numParts + "superdiv");
             lastAnswer.parentElement.removeChild(lastAnswer);
 
             /*Decrease Js variable */
@@ -146,11 +159,11 @@
 
             /*Populate text for each new editor we added */
             {% for templatePart in templateTextParts %}
-            CKEDITOR.instances['templateTextVisible' + {{templatePart.partNumber}}].setData(String.raw `{{templatePart.templateText |safe}}`); //gets the right ediotr and then
+            CKEDITOR.instances['templateTextVisible' + {{templatePart.partNumber}}].setData(String.raw `{{templatePart.templateText |safe}}`); //gets the right editor and then
             //sets the data to be what is located in the text part of our tempatePart object NOTE: Safe means dont porcess html treat as regular code
+            // Also set the number of points in each part.
+            document.getElementById("partpoints"+{{templatePart.partNumber}}).value = {{templatePart.pointsInPart}};
             {% endfor %}
-
-
         }
     </script>
     <script>
@@ -308,6 +321,19 @@
                                     <div id="tags" class="chips chips-tags"></div>
                                 </div>
                             </div>
+             				<div class="row">
+             					<div class="col s12">
+                                    <h5>Submission</h5>
+                                </div>
+								<div class="col s12">
+									<input value="{{submissionsAllowed}}" name="submissionsAllowed" id="submissionsAllowed" type="number" {% if view == False %}class="validate"{%endif%} min="1" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
+									<label for="submissionsAllowed"><span class= "red-text">*</span> Number of Submissions Allowed for Each Part</label>
+								</div>
+								<div class="col s12">
+									<input value="{{resubmissionPenalty}}" name="resubmissionPenalty" id="resubmissionPenalty" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" step="any" {%if view%}readonly{%else%}required{%endif%}>
+									<label for="resubmissionPenalty"><span class= "red-text">*</span>Resubmission Penalty (in percent)</label>
+								</div>
+							</div>	
                             {% include "Instructors/luaLibraryDependencies.html" %}
                             <div class="row">
                                 <div class="col s12">
@@ -327,15 +353,25 @@
                                 <div class="col s12">
                                     <h5>Template</h5>
                                 </div>
-                                <div id="questionPart1" class="col s12">
-                                        <div class="django-ckeditor-widget" data-field-id="0">
-                                                <textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" name="templateTextVisible1" id="templateTextVisible1" rows="10" cols="70" {%if view%}readonly{%else%}required{%endif%} data-processed="0" data-config="{{ ckeditor.config }}" data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" data-id="templateTextVisible1" data-type="ckeditortype">{{ templateText1 }}</textarea>
-                                            </div>
-                                    <input type="hidden" name="templateText1" style="display: none;" />
-                                    <br />
-                                </div>
-
-                            </div>
+	                        </div>
+                            <div id="questionPart1superdiv">
+	                            <div class="row">
+	                                <div id="questionPartNumPoints1" class="col s12">
+	                                	<b>Part 1</b>
+	                                	<input type="number" name="partpoints1" id="partpoints1" value="10"/>
+	                                	<label for="part1points">Total Points for Part 1 Answer Blanks</label>
+	                                </div>
+	                            </div>
+	                            <div class="row">
+	                                <div id="questionPart1" class="col s12">
+	                                        <div class="django-ckeditor-widget" data-field-id="0">
+	                                                <textarea style="resize:none; border: solid 1px rgba(128, 128, 128, 0.5)" name="templateTextVisible1" id="templateTextVisible1" rows="10" cols="70" {%if view%}readonly{%else%}required{%endif%} data-processed="0" data-config="{{ ckeditor.config }}" data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" data-id="templateTextVisible1" data-type="ckeditortype">{{ templateText1 }}</textarea>
+	                                            </div>
+	                                    <input type="hidden" name="templateText1" style="display: none;" />
+	                                    <br />
+	                                </div>	
+	                            </div>
+	                        </div>
                             <div class="row">
                                 <a id="addPart" class="waves-effect waves-light btn" onclick="addPart();return false;"><i class="material-icons left">add</i>Add Part</a>
                                 <a id="removePart" class="waves-effect waves-light btn disabled" onclick="removePart();return false;"><i class="material-icons left">remove</i>Remove Last Part</a>

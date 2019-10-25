@@ -12,7 +12,7 @@ def classAverChallengeScore(course, challenge):
 
     users = []
     # Students from the current class
-    stud_course = StudentRegisteredCourses.objects.filter(courseID=course)
+    stud_course = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     for sc in stud_course:
         users.append(sc.studentID)
 
@@ -23,7 +23,7 @@ def classAverChallengeScore(course, challenge):
                 studentID=user, courseID=course, challengeID=challenge)
             chall_score = []
             for attempt in studentChallenges:
-                chall_score.append(attempt.testScore)
+                chall_score.append(attempt.getScore())
 
             totalChall += max(chall_score)
             count += 1

@@ -249,8 +249,13 @@ def databaseConditionToJSONString(condition):
             subConds = [condSet.conditionInSet for condSet in ConditionSet.objects.filter(parentCondition = condition)]
         else: # old-style AND or OR of just two conditions.  This is being phased out, but is still supported here 
             subConds = [Conditions.objects.get(pk=condition.operand1Value),Conditions.objects.get(pk=condition.operand2Value)]
+        count = len(subConds)
         for subCond in subConds:
-            output += databaseConditionToJSONString(subCond)+","
+            if count != 1:
+                output += databaseConditionToJSONString(subCond)+","
+            else:
+                output += databaseConditionToJSONString(subCond)
+            count -= 1
         output += ']}'
         return output
     def handleFor():
@@ -258,23 +263,44 @@ def databaseConditionToJSONString(condition):
         if condition.operand1Type == OperandTypes.activitySet:
             output += 'activity","objects":['
             activityIDs = [actSet.activity.activityID for actSet in ActivitySet.objects.filter(condition=condition)]
+            count = len(activityIDs)
             for activityID in activityIDs:
-                output += '"'+str(activityID)+'",'
+                if count != 1:
+                    output += '"'+str(activityID)+'",'
+                else:
+                    output += '"'+str(activityID)+'"'
+                count -= 1
         elif condition.operand1Type == OperandTypes.challengeSet:
             output += 'challenge","objects":['
             challengeIDs = [challSet.challenge.challengeID for challSet in ChallengeSet.objects.filter(condition=condition)]
+            count = len(challengeIDs)
             for challengeID in challengeIDs:
-                output += '"'+str(challengeID)+'",'
+                if count != 1:
+                    output += '"'+str(challengeID)+'",'
+                else:
+                    output += '"'+str(challengeID)+'"'
+                count -= 1
+                
         elif condition.operand1Type == OperandTypes.topicSet:
             output += 'topic","objects":['
             topicsIDs = [topicSet.topic.topicID for topicSet in TopicSet.objects.filter(condition=condition)]
+            count = len(topicsIDs)
             for topicID in topicsIDs:
-                output += '"'+str(topicID)+'",'
+                if count != 1:
+                    output += '"'+str(topicID)+'",'
+                else:
+                    output += '"'+str(topicID)+'"'
+                count -= 1
         elif condition.operand1Type == OperandTypes.activtiyCategorySet:
             output += 'category","objects":['
             activityCategoryIDs = [activityCategorySet.category.categoryID for activityCategorySet in ActivityCategorySet.objects.filter(condition=condition)]
+            count = len(activityCategoryIDs)
             for activityCategoryID in activityCategoryIDs:
-                output += '"'+str(activityCategoryID)+'",'
+                if count != 1:
+                    output += '"'+str(activityCategoryID)+'",'
+                else:
+                    output += '"'+str(activityCategoryID)+'"'
+                count -= 1
         else: # Other types not supported in FOR_ALL or FOR_ANY conditions.
             return ""
         # In the next statement, we presuppose that the type of the second operand is a condition because it is supposed to be

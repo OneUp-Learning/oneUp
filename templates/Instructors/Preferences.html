@@ -5,7 +5,9 @@
     {% include 'scripts.html' %}
     <style>
         .cards-container {
-            column-break-inside: avoid;
+            -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+			page-break-inside: avoid; /* Firefox */
+			break-inside: avoid;
             column-gap: 0;
         }
 
@@ -50,7 +52,7 @@
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
             <input type="hidden" name="xpLeaderboardID" value="{{xpLeaderboardID}}">
             <div class="row">
-                <div class="col s12 m8 offset-m2 cards-container" style="height: 1980px;">
+                <div class="col s12 m8 cards-container" style="height: 1980px;">
                         <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card">
@@ -499,6 +501,50 @@
                                         <label for="vc_callout">Amount of virtual currency rewarded to call-outs
                                             participants</label>
 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+		    
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Content Unlocking</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                          Enable Content Unlocking Menu
+                                            {% if contentUnlockingDisplayed %}
+                                            <input name="contentUnlockingDisplayed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="contentUnlockingDisplayed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+		<div class="col s12"
+                     style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                  <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Debug System Variables Displayed</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+					  Display Menu to Debug System Variables
+                                            {% if debugSystemVariablesDisplayed %}
+                                            <input name="debugSystemVariablesDisplayed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="debugSystemVariablesDisplayed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
