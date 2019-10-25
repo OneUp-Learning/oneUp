@@ -1,5 +1,5 @@
 from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTasks
-from Badges.tasks import app
+from Badges.celeryApp import app
 from django.utils import timezone
 from datetime import timedelta
 
@@ -1348,7 +1348,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
                 earnedSeriousChallengePoints += gradeID[0]
 
         # Setup data for rendering this challenge in html (bar graph stuff)
-        if not context_dict is None:
+        if not context_dict is None and gradeID:
             chall_name.append(challenge.challengeName)
             challavg.append(classResults.classAverChallengeScore(
                     course, challenge.challengeID))

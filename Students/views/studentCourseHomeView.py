@@ -17,6 +17,12 @@ from Students.views.utils import studentInitialContextDict
 
 from Students.views.avatarView import checkIfAvatarExist
 
+from Students.views.goalsListView import createContextForGoalsList
+from Students.models import StudentGoalSetting
+from Badges.enums import Goal
+from Badges import systemVariables
+from Students.views import goalCreateView
+
 @login_required
 def StudentCourseHome(request):
     context_dict = { }
@@ -24,35 +30,35 @@ def StudentCourseHome(request):
     if request.user.is_authenticated:
         context_dict["username"]=request.user.username
         sID = Student.objects.get(user=request.user)
+    else:
+        # User is somehow not authenticated
+        print("[Error] User is not authenticated. (Student Course Home)")
+        return
+
+    context_dict['is_test_student'] = sID.isTestStudent
+    if sID.isTestStudent:
+        context_dict["username"]="Test Student"
 
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
         context_dict['course_id']=request.POST['courseID']
-        context_dict['is_test_student'] = sID.isTestStudent
-        if sID.isTestStudent:
-            context_dict["username"]="Test Student"
+        
     
     if request.GET:
         request.session['currentCourseID'] = request.GET['courseID']
-        context_dict['course_id']=request.GET['courseID']
-        context_dict['is_test_student'] = sID.isTestStudent
-        if sID.isTestStudent:
-            context_dict["username"]="Test Student"
-            
+        context_dict['course_id']=request.GET['courseID']        
+                
     if 'currentCourseID' in request.session:
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
         context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
+        context_dict = createContextForGoalsList(currentCourse, context_dict, True, request.user)
         context_dict['course_Name'] = currentCourse.courseName
-        context_dict['is_test_student'] = sID.isTestStudent
-        if sID.isTestStudent:
-            context_dict["username"]="Test Student"
         context_dict['course_id'] = currentCourse.courseID
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
         context_dict['avatar'] =  st_crs.avatarImage    
         
         context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True)  
-        context_dict['courseId']=currentCourse.courseID
            
         scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)   
         ##GGM determine if student has leaderboard enabled
@@ -66,7 +72,7 @@ def StudentCourseHome(request):
             context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
             context_dict["displayClassAverage"]=scparams.displayClassAverage
             context_dict["displayClassSkills"]=scparams.displayClassSkills
-            
+            context_dict["displayGoal"]=scparams.displayGoal
         
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
         context_dict = courseBadges(currentCourse, context_dict)
@@ -74,7 +80,6 @@ def StudentCourseHome(request):
     #Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.userLogin, request, None, None)
     print("User Login event was registered for the student in the request")
-    
     return render(request,'Students/StudentCourseHome.html', context_dict)          
 
 def courseBadges(currentCourse, context_dict):
@@ -132,4 +137,4 @@ def courseBadges(currentCourse, context_dict):
             context_dict['course_Name'] = 'Not Selected'
         
     return context_dict 
-    
+
