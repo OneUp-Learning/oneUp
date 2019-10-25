@@ -86,20 +86,27 @@
 	                    </thead>
 	                    <tbody>
 		                    <tr><td>
-			            		<div class="row" style="display: flex;">
-			            		  <div class="col s12 m6"></div>
+			            		<div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;">
 			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal in goal_range %}                                                           
-			                          <div class="col s12">
-			                            <div class="card-panel" style="height:90%">
-			                            	<span>End Date: {{end_date}}</span>
-			                           		<div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
-			                      			<span>{{goal_Type}}</span>			                      			
-			                      		</div>
-			                      	  </div>
+			                          <div >
+                                       <div class="card" style="max-width: 20vw;">
+                                             <div style="padding: 24px; text-align: center; font-size: initial; height: 99px;">
+                                                   <p style="margin: 0;"><b>{{goal_Type}}</b></p>
+                                             </div>
+                                             <div class="card-image">
+                                                <div style="display: flex; align-items: center; flex-direction: column; padding-top: 8px;">
+                                                <div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
+                                                </div>   
+                                             </div>
+                                             <div class="card-content">
+                                             
+                                               <p>End Date: {{end_date}}</p>
+                                             </div>
+                                           </div>
+			                          </div>
 			                         {% empty %} 
 			                            <div class="center-align"><i>No New Goals Created Yet</i></div>
-			                         {% endfor %}	
-			            	      <div class="col s12 m6"></div>
+                                  {% endfor %}	
 			            		</div>
 		            		</td></tr>
 	            		</tbody>
@@ -198,33 +205,37 @@
         else {
         	currentCount = 100;
         }
+      //   currentCount = 100;
         var bar = new ProgressBar.Circle(objID, {
-      strokeWidth: 6,
+      strokeWidth: 9,
       color: '#ADD8E6',
-      trailColor: '#000000',
+      trailColor: '#eee',
       trailWidth: 1,
       easing: 'easeInOut',
-      duration: 1400,
+      duration: 2000,
       svgStyle: null,
       text: {
         value: '',
-        alignToBottom: false
+        alignToBottom: false,
+        autoStyleContainer: false,
       },
-      from: {color: '#000000'},
-      to: {color: '#1df704'},
+      from: {color: '#000000', width: 8},
+      to: {color: '#1df704', width: 8},
       // Set default step function for all animate calls
       
       step: (state, bar) => {
         bar.path.setAttribute('stroke', state.color);
+        bar.path.setAttribute('stroke-width', state.width);
+        
         var value = Math.round(bar.value() * treshold);
         console.log(value)
         if (value === 0) {
-          bar.setText('0');
-        } else if(value >= currentCount){
+          bar.setText('0%');
+        } else if(value >= currentCount+1){
             bar.stop();    
         }
         else{
-          bar.setText((currentCount / treshold) * 100 + " %");
+          bar.setText(Math.round(bar.value() * 100) + "%");
         }
     
         bar.text.style.color = state.color;
