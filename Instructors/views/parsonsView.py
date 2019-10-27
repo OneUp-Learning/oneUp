@@ -1,6 +1,6 @@
 #
-# Created  updated 05/30/2018
-# DD
+# Created  updated 10/21/2019
+# GGM
 #
 
 from django.shortcuts import render, redirect
@@ -257,3 +257,204 @@ def parsonsForm(request):
         context_dict['ckeditor'] = config_ck_editor()
     
     return render(request,'Instructors/ParsonsForm.html', context_dict)
+
+#parsons grading software for grading inside the system.
+@login_required
+def parsonsLineBaseGrader(request):
+    ##this is used to track how many times the student clicks class average
+    ##we use ajax to track the information, otherwise they'd get the page refreshed on them
+    ##and it would be "wrong".
+    from django.http import JsonResponse
+
+    context_dictionary,current_course = studentInitialContextDict(request)
+    student_id = context_dictionary['student']
+    ##if we posted data with ajax, use it, otherwise just return.
+    if request.POST:
+        gradeParson()
+        print("ajax call", context_dictionary, student_id)
+        return JsonResponse({})
+    
+# def normalizeIndents(lines):
+#       var normalized = [];
+#       var new_line;
+#       var match_indent = function(index) {
+# 	  //return line index from the previous lines with matching indentation
+# 	  for (var i = index-1; i >= 0; i--) {
+#               if (lines[i].indent == lines[index].indent) {
+# 		  return normalized[i].indent;
+#               }
+# 	  }
+# 	  return -1;
+#       };
+#       for ( var i = 0; i < lines.length; i++ ) {
+# 	  //create shallow copy from the line object
+# 	  new_line = jQuery.extend({}, lines[i]);
+# 	  if (i === 0) {
+#               new_line.indent = 0;
+#               if (lines[i].indent !== 0) {
+# 		  new_line.indent = -1;
+#               }
+# 	  } else if (lines[i].indent == lines[i-1].indent) {
+#               new_line.indent = normalized[i-1].indent;
+# 	  } else if (lines[i].indent > lines[i-1].indent) {
+#               new_line.indent = normalized[i-1].indent + 1;
+# 	  } else {
+#               // indentation can be -1 if no matching indentation exists, i.e. IndentationError in Python
+#               new_line.indent = match_indent(i);
+# 	  }
+# 	  normalized[i] = new_line;
+#       }
+#       return normalized;
+#   }; 
+
+# def getModifiedCode(search_string):
+#     #this gets the ids of the modified code
+#     #search string is passed as an array, or we could pass in ids
+#     lines_to_return = []
+#     solution_ids = search_string
+#     i, item;
+#       for (i = 0; i < solution_ids.length; i++) {
+# 	      item = this.getLineById(solution_ids[i]);
+# 	      lines_to_return.push($.extend(new ParsonsCodeline(), item));
+#       }
+#       return lines_to_return;
+
+# def gradeParsonSecurely(parson):    
+#     #The "original" grader for giving line based feedback has now become a python based grader
+#   # var LineBasedGrader = function(parson) {
+#   #   this.parson = parson;
+#   # };
+#   # graders.LineBasedGrader = LineBasedGrader;
+# #    var parson = this.parson;
+#     #var elemId = elementId || parson.options.sortableId;
+#     var student_code = parson.normalizeIndents(parson.getModifiedCode("#ul-" + elemId));
+#     var lines_to_check = Math.min(student_code.length, parson.model_solution.length);
+#     var errors = [], log_errors = [];
+#     var incorrectLines = [], studentCodeLineObjects = [];
+#     var i;
+#     var wrong_order = false;
+
+#     // Find the line objects for the student's code
+#     for (i = 0; i < student_code.length; i++) {
+#       studentCodeLineObjects.push($.extend(true, 
+#     	                                   {},
+#     	                                   parson.getLineById(student_code[i].id)));
+#     }
+
+#     // This maps codeline strings to the index, at which starting from 0, we have last
+#     // found this codeline. This is used to find the best indices for each 
+#     // codeline in the student's code for the LIS computation and, for example,
+#     // assigns appropriate indices for duplicate lines.
+#     var lastFoundCodeIndex = {};
+#     $.each(studentCodeLineObjects, function(index, lineObject) {
+#     	// find the first matching line in the model solution
+#     	// starting from where we have searched previously
+#     	for (var i = (typeof(lastFoundCodeIndex[lineObject.code]) !== 'undefined') ? lastFoundCodeIndex[lineObject.code]+1 : 0; 
+#     	     i < parson.model_solution.length;
+#     	     i++) {
+#     	  if (parson.model_solution[i].code === lineObject.code) {
+#     		  // found a line in the model solution that matches the student's line
+#     		  lastFoundCodeIndex[lineObject.code] = i;
+#               lineObject.lisIgnore = false;
+#               // This will be used in LIS computation
+#         	  lineObject.position = i;
+#         	  break;
+#     	  }
+#     	}
+#     	if (i === parson.model_solution.length) {
+#     	  if (typeof(lastFoundCodeIndex[lineObject.code]) === 'undefined') {
+# 	    	// Could not find the line in the model solution at all,
+# 	    	// it must be a distractor
+# 	    	// => add to feedback, log, and ignore in LIS computation
+# 	        wrong_order = true;
+# 	        lineObject.markIncorrectPosition();
+# 	    	incorrectLines.push(lineObject.orig);
+# 	        lineObject.lisIgnore = true;
+# 	      } else {
+# 	        // The line is part of the solution but there are now
+# 	    	// too many instances of the same line in the student's code
+# 	          // => Let's just have their correct position to be the same
+# 	    	// as the last one actually found in the solution.
+# 	        // LIS computation will handle such duplicates properly and
+# 	    	// choose only one of the equivalent positions to the LIS and
+# 	        // extra duplicates are left in the inverse and highlighted as
+# 	    	// errors.
+# 	        // TODO This method will not always give the most intuitive 
+# 	    	// highlights for lines to supposed to be moved when there are 
+# 	        // several extra duplicates in the student's code.
+#                   lineObject.lisIgnore = false;
+#                   lineObject.position = lastFoundCodeIndex[lineObject.code];
+# 	  }
+	         
+#     	}
+#     });
+    
+#     var lisStudentCodeLineObjects = 
+#     studentCodeLineObjects.filter(function (lineObject) { return !lineObject.lisIgnore; });
+#     var inv = 
+#     LIS.best_lise_inverse_indices(lisStudentCodeLineObjects
+#     			 	  .map(function (lineObject) { return lineObject.position; }));
+#     $.each(inv, function(_index, lineObjectIndex) {
+#     	// Highlight the lines that could be moved to fix code as defined by the LIS computation
+#         lisStudentCodeLineObjects[lineObjectIndex].markIncorrectPosition();
+#         incorrectLines.push(lisStudentCodeLineObjects[lineObjectIndex].orig);
+#     });
+#     if (inv.length > 0 || incorrectLines.length > 0) {
+#             wrong_order = true;
+#             log_errors.push({type: "incorrectPosition", lines: incorrectLines});
+#     }
+
+#     if (wrong_order) {
+#             errors.push(parson.translations.order());
+#     }
+
+#     // Check the number of lines in student's code
+#     if (parson.model_solution.length < student_code.length) {
+#       $("#ul-" + elemId).addClass("incorrect");
+#       errors.push(parson.translations.lines_too_many());
+#       log_errors.push({type: "tooManyLines", lines: student_code.length});
+#     } else if (parson.model_solution.length > student_code.length){
+#       $("#ul-" + elemId).addClass("incorrect");
+#       errors.push(parson.translations.lines_missing());
+#       log_errors.push({type: "tooFewLines", lines: student_code.length});
+#     }
+
+#     // Finally, check indent if no other errors
+#     if (errors.length === 0) {
+#       for (i = 0; i < lines_to_check; i++) {
+#         var code_line = student_code[i];
+#         var model_line = parson.model_solution[i];
+#         if (code_line.indent !== model_line.indent &&
+#              ((!parson.options.first_error_only) || errors.length === 0)) {
+#           code_line.markIncorrectIndent();
+#           errors.push(parson.translations.block_structure(i+1));
+#           log_errors.push({type: "incorrectIndent", line: (i+1)});
+#         }
+#         if (code_line.code == model_line.code &&
+#              code_line.indent == model_line.indent &&
+#              errors.length === 0) {
+#           code_line.markCorrect();
+#         }
+#       }
+#     }
+
+#     return {errors: errors, log_errors: log_errors, success: (errors.length === 0)};
+#   };
+# #     <script>
+# #     function track_get_class_avg_click()
+# #    {    
+# #        var student_id = "{{student}}";
+# #        console.log(student_id);
+
+# #        $.ajax({
+# #                 url: "/oneUp/students/Track_class_avg_button_clicks", 
+# #                 dataType: 'json',
+# #                 async: true,
+# #                 type: 'POST',
+# #                 data: {student_id: "student_id"}
+# #             });
+
+# #    }
+
+# # </script>
+

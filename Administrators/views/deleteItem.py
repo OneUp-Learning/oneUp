@@ -19,7 +19,8 @@ def deleteItemView(request):
     if 'courseToDelete' in request.POST:
         # Delete periodic tasks related to this course
         PeriodicTask.objects.filter(kwargs__contains='"course_id": '+request.POST["courseToDelete"]).delete()
-        course = Courses.objects.get(pk=int(request.POST['courseToDelete']))            
+        course = Courses.objects.get(pk=int(request.POST['courseToDelete']))
+        #delete the unspeciefied topics for the course        
         course.delete()
     
     if 'instructorToDelete' in request.POST:

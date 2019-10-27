@@ -2,7 +2,7 @@ import random
 import re
 import json
 from decimal import Decimal
-
+from random import shuffle
 from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
@@ -17,6 +17,7 @@ class QuestionTypes():
     dynamic = 6
     templatedynamic = 7
     parsons = 8
+    seriousparsons = 9
     questionTypes = {
         multipleChoice: {
             'index': multipleChoice,
@@ -177,9 +178,6 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
 
     #repr function will give us the raw representation of the string
     #print("Solution String", repr(solution_string))
-    solution_string = re.sub("\t{3}", "☃            ", solution_string)
-    solution_string = re.sub("\t{2}", "☃        ", solution_string)
-    solution_string = re.sub("\t{1}", "☃    ", solution_string)
 
     #tokenizer characters ☃ and ¬
     solution_string = re.sub("\n", "\n¬☃", solution_string)
@@ -239,20 +237,18 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
         line = re.sub("\t(?=return.*; *##)", "&nbsp;    ", line)
         line = re.sub("(\s{4}|\t)(?=.* *##})", '&nbsp;' + ' ' * 4, line)
         line = line + "\n"
+        line = re.sub("☃", "", line)
         tabedSolution_string.append(line)
 
-    solution_string = ""
-    solution_string = solution_string.join(tabedSolution_string)
     qdict['solution_string'] = solution_string
     qdict['tabbed_sol_string'] = tabedSolution_string
     #print("tabbedSol String", tabedSolution_string)
-    #print("joinedSolString", repr(solution_string))
+    print("solString", repr(solution_string))
 
-    solution_string = re.sub("##\\n *", "\\\\n", solution_string)
-    solution_string = re.sub("\\\\n\t", "\\\\n", solution_string)
-    solution_string = re.sub("(?<=\n)\s{4}", "\t", solution_string)
-    qdict['model_solution'] = repr(solution_string).strip('\'')
-    #print("questqdict['model_solution']", qdict['model_solution'])
+    
+    shuffle(tabedSolution_string)
+    qdict['model_solution'] = tabedSolution_string
+    print("questqdict['model_solution']", qdict['model_solution'])
 
     return qdict
 
@@ -926,6 +922,13 @@ questionTypeFunctions = {
         "modifyQdictForView": modifyQDictForView,
     },
     QuestionTypes.parsons: {
+        "makeqdict": parsonsqdict,
+        "makeAnswerList": parsonsMakeAnswerList,
+        "studentAnswersAndGrades": parsonsAddAnswersAndGrades,
+        "correctAnswers": parsonsCorrectAnswers,
+        "modifyQdictForView": lambda qdict: qdict,
+    },
+    QuestionTypes.seriousparsons: {
         "makeqdict": parsonsqdict,
         "makeAnswerList": parsonsMakeAnswerList,
         "studentAnswersAndGrades": parsonsAddAnswersAndGrades,

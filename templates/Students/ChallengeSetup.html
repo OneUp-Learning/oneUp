@@ -28,6 +28,7 @@
    <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
+   <script src="/static/ThirdParty/js-parsons-master/dragula.min.js"></script>
    {% include "../Students/parson.html" %}
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
@@ -204,6 +205,7 @@
          }
 
          gradeParsons();
+         gradeSeriousParson();
       }
 
       function gradeParsons() {
@@ -224,6 +226,10 @@
             $("#" + parsonsProblems[i].value + "_correctLineCount").val(parsonObject.model_solution.length);
             $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(eval("countFeedbackButtonClicks_" + parsonsProblems[i].value));
          }
+      }
+
+      function gradeSeriousParson(){
+         
       }
 
    </script>
