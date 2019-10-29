@@ -809,7 +809,7 @@
                         <tbody>
                             <tr>
                                 <td>{{studentXP_range}}</td>
-                                <td>{{totalWCEarnedPoints}} / {{totalWCPossiblePoints}}</td>
+                                <td>{{totalWCEarnedPoints|floatformat}} / {{totalWCPossiblePoints|floatformat}}</td>
                                 {% if virtualCurrencyUsed %}
                                 <td>{{course_Bucks}}</td>
                                 {% endif %}
