@@ -53,11 +53,12 @@ def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
     return
 
 
-def saveChallengeQuestion(studentChallenge, key, ma_point, c_ques_points, instructorFeedback, seed):
+def saveChallengeQuestion(studentChallenge, challenge_question_id, key, ma_point, c_ques_points, instructorFeedback, seed):
 
     studentChallengeQuestion = StudentChallengeQuestions()
     studentChallengeQuestion.studentChallengeID = studentChallenge
     studentChallengeQuestion.questionID = Questions(key)
+    studentChallengeQuestion.challengeQuestionID = ChallengesQuestions(challenge_question_id)
     studentChallengeQuestion.questionScore = ma_point
     studentChallengeQuestion.questionTotal = c_ques_points
     studentChallengeQuestion.usedHint = "False"
@@ -190,8 +191,10 @@ def ChallengeResults(request):
                         seed = question['seed']
                     else:
                         seed = 0
+
+                    # Todo save challenge question instead of question id
                     studentChallengeQuestion = saveChallengeQuestion(
-                        studentChallenge, question['questionID'], question['user_points'], question['total_points'], "", seed)
+                        studentChallenge, question['challenge_question_id'], question['questionID'], question['user_points'], question['total_points'], "", seed)
 
                     # Award skills if the answer was correct.
                     if question['user_points'] == question['total_points']:
@@ -279,7 +282,9 @@ def ChallengeResults(request):
                 challenge = Challenges.objects.get(
                     pk=int(request.GET['challengeID']))
                 studentChallengeId = StudentChallenges.objects.filter(
-                    studentID=student, courseID=currentCourse, challengeID=challenge.challengeID)
+                    studentID=student, courseID=currentCourse, challengeID=challenge.challengeID).first().studentChallengeID
+            
+            student_challenge = StudentChallenges.objects.get(pk=int(studentChallengeId))
 
             challengeId = request.GET['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeId))
@@ -287,38 +292,34 @@ def ChallengeResults(request):
             context_dict['challengeID'] = request.GET['challengeID']
 
             # Get all the questions for this challenge (AH)
-            questionObjects = []
             challengeQuestions = []
-            challenge_questions = StudentChallengeQuestions.objects.filter(
-                studentChallengeID=studentChallengeId)
+            challenge_questions = ChallengesQuestions.objects.filter(challengeID=student_challenge.challengeID)
             for challenge_question in challenge_questions:
-                questionObjects.append(challenge_question.questionID)
                 challengeQuestions.append(challenge_question)
 
             # Find the total student score for this challenge attemmpt (AH)
-            studentChallenges = StudentChallenges.objects.filter(
-                courseID=currentCourse, challengeID=challengeId, studentChallengeID=studentChallengeId)
-            for Schallenges in studentChallenges:
-                if int(Schallenges.challengeID.challengeID) == int(challengeId):
-                    totalStudentScore = Schallenges.testScore
-            context_dict['total_user_points'] = totalStudentScore
+            # studentChallenges = StudentChallenges.objects.filter(
+            #     courseID=currentCourse, challengeID=challengeId, studentChallengeID=studentChallengeId)
+            # for Schallenges in studentChallenges:
+            #     if int(Schallenges.challengeID.challengeID) == int(challengeId):
+            #         totalStudentScore = Schallenges.testScore
+
+            context_dict['total_user_points'] = student_challenge.testScore
 
             # Next few lines of code is very similar to POST (AH)
             questions = []
-            for i, challenge_question in zip(range(0, len(questionObjects)), challengeQuestions):
-                q = questionObjects[i]
+            for i in range(0, len(challengeQuestions)):
+                challenge_question = challengeQuestions[i]
 
-                studentChallengeQuestion = StudentChallengeQuestions.objects.get(
-                    studentChallengeID=studentChallengeId, questionID=q.questionID)
+                studentChallengeQuestion = StudentChallengeQuestions.objects.get(challengeQuestionID=challenge_question, studentChallengeID=student_challenge ,studentChallengeID__studentID=context_dict['student'], studentChallengeID__courseID=currentCourse)
 
-                questDict = questionTypeFunctions[q.type]["makeqdict"](
-                    q, i, challengeId, studentChallengeQuestion)
-                questDict['total_points'] = challenge_questions.get(
-                    questionID=q).questionTotal
+                questDict = questionTypeFunctions[challenge_question.questionID.type]["makeqdict"](
+                    challenge_question.questionID, i, challengeId, challenge_question, studentChallengeQuestion)
+                questDict['total_points'] = studentChallengeQuestion.questionTotal
 
                 studentAnswers = StudentChallengeAnswers.objects.filter(
-                    studentChallengeQuestionID=challenge_question)
-                questDict = questionTypeFunctions[q.type]["studentAnswersAndGrades"](
+                    studentChallengeQuestionID=studentChallengeQuestion)
+                questDict = questionTypeFunctions[challenge_question.questionID.type]["studentAnswersAndGrades"](
                     questDict, [sa.studentAnswer for sa in studentAnswers])
                 questions.append(questDict)
 

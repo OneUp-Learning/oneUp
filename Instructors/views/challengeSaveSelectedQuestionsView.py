@@ -14,6 +14,7 @@ from Instructors.constants import unassigned_problems_challenge_name
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck   
+from decimal import Decimal
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
 def challengeSaveSelectedQuestions(request):
@@ -40,17 +41,18 @@ def challengeSaveSelectedQuestions(request):
         # For each question in Selected       
         for i in range(1,int(max(selectedQuestions))+1):
             if i in selectedQuestions:
-                chq = ChallengesQuestions()         # a new challenge-question object
-                chq.challengeID = challenge 
-                chq.points = request.POST.get('points'+str(i))
-                if not chq.points:
-                    chq.points = 0   
+                 
                 qID =  request.POST.get('questionID'+str(i)) 
-                print(str(qID))  
-                chq.questionID = Questions.objects.get(pk=int(qID))            
-         
-                chq.save();  #Save challenge-question to database                       
-            
+                question = Questions.objects.get(pk=int(qID)) 
+                points = Decimal(request.POST.get('points'+str(i)))
+                if not points:
+                    challenge_question = ChallengesQuestions.objects.filter(challengeID=challenge, questionID=int(qID)).first()
+                    if challenge_question:
+                        points = challenge_question.points
+                    else:
+                        points = Decimal(0)
+
+                ChallengesQuestions.addQuestionToChallenge(question, challenge, points, 0)
                 #Getting the challenge ID for Unassigned Problems challenge
                 chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
                 for challID in chall:
