@@ -1,5 +1,5 @@
 from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTasks
-from Badges.tasks import app
+from Badges.celeryApp import app
 from django.utils import timezone
 from datetime import timedelta
 
@@ -1334,21 +1334,22 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         if not startOfTime and seriousChallenge.exists():
             seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
 
+        # Ignore challenges that have invalid total scores
+        if seriousChallenge and seriousChallenge[0].challengeID.totalScore < 0:
+            continue
         # Get the scores for this challenge then either add the max score
         # or the first score to the earned points variable
         gradeID  = []    
-        if xpSeriousMaxScore:                           
-            for serious in seriousChallenge:
-                gradeID.append(float(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
-            if gradeID:
-                earnedSeriousChallengePoints += max(gradeID)           
-        elif seriousChallenge.exists():
-            gradeID.append(float(seriousChallenge.first().getScoreWithBonus())) 
-            if gradeID:
-                earnedSeriousChallengePoints += gradeID[0]
+        for serious in seriousChallenge:
+            gradeID.append(float(serious.getScoreWithBonus())) # get the score + adjustment + bonus
+
+        if xpSeriousMaxScore and gradeID:                           
+            earnedSeriousChallengePoints += max(gradeID)           
+        elif gradeID:
+            earnedSeriousChallengePoints += float(seriousChallenge.first().getScoreWithBonus())
 
         # Setup data for rendering this challenge in html (bar graph stuff)
-        if not context_dict is None:
+        if not context_dict is None and gradeID:
             chall_name.append(challenge.challengeName)
             challavg.append(classResults.classAverChallengeScore(
                     course, challenge.challengeID))
@@ -1394,18 +1395,20 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         if not startOfTime and warmupChallenge.exists():
             warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
 
+        # Ignore challenges that have invalid total scores
+        if warmupChallenge and warmupChallenge[0].challengeID.totalScore < 0:
+            continue
+
         # Get the scores for this challenge then either add the max score
         # or the first score to the earned points variable
-        gradeID  = []           
-        if xpWarmupMaxScore:                          
-            for warmup in warmupChallenge:
-                gradeID.append(float(warmup.testScore)) 
-            if gradeID:
-                earnedWarmupChallengePoints += max(gradeID)
-        elif warmupChallenge.exists():
-            gradeID.append(float(warmupChallenge.first().testScore))
-            if gradeID:
-                earnedWarmupChallengePoints += gradeID[0]
+        gradeID  = []         
+        for warmup in warmupChallenge:
+            gradeID.append(float(warmup.testScore))   
+
+        if xpWarmupMaxScore and gradeID:                          
+            earnedWarmupChallengePoints += max(gradeID)
+        elif gradeID:
+            earnedWarmupChallengePoints += float(warmupChallenge.first().testScore)
 
         # Setup data for rendering this challenge in html (bar graph stuff)
         if not context_dict is None and warmupChallenge:
@@ -1413,23 +1416,17 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
             # total possible points for challenge
             total.append(warmupChallenge[0].challengeID.totalScore)
             noOfAttempts.append(warmupChallenge.count())
+            # Total possible points for all attempts for this challenge
+            warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
             
             if gradeID:
-                if xpWarmupMaxScore:
-                    warmUpMaxScore.append(max(gradeID))
-                    warmUpMinScore.append(min(gradeID))
-                    warmUpSumScore.append(sum(gradeID))
-                    warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
-                else:
-                    warmUpMaxScore.append(warmupChallenge.first().testScore)
-                    warmUpMinScore.append(warmupChallenge.first().testScore)
-                    warmUpSumScore.append(warmupChallenge.first().testScore)
-                    warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
+                warmUpMaxScore.append(max(gradeID))
+                warmUpMinScore.append(min(gradeID))
+                warmUpSumScore.append(sum(gradeID))
             else:
                 warmUpMaxScore.append(0)
                 warmUpMinScore.append(0)
                 warmUpSumScore.append(0)
-                warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
             
     # Weighting the total warmup challenge points to be used in calculation of the XP Points  
     weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
@@ -1521,18 +1518,18 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     print("earnedSkillPoints: ", earnedSkillPoints)              
     weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
     
-    # Return the xp and/or required variables
+    # Return the xp and/or required variables rounded to 1 decimal place
     if gradeWarmup:
-        xp = round(weightedWarmupChallengePoints,0)
+        xp = round(weightedWarmupChallengePoints,1)
         print("warmup ran")
     elif gradeSerious:
-        xp = round(weightedSeriousChallengePoints,0)
+        xp = round(weightedSeriousChallengePoints,1)
         print("serious ran")
     elif seriousPlusActivity:
-        xp = round((weightedSeriousChallengePoints  + weightedActivityPoints),0)
+        xp = round((weightedSeriousChallengePoints  + weightedActivityPoints),1)
         print("serious plus activity ran")
     else:
-        xp = round((weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints),0)
+        xp = round((weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints),1)
         print("xp has ran")
     
     if not context_dict is None:

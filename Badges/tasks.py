@@ -1,13 +1,10 @@
-from celery import Celery
 from django.conf import settings
+from Badges.celeryApp import app
 
-app = Celery('Badges',broker='amqp://localhost')
-app.config_from_object('django.conf:settings', namespace='CELERY')
 @app.task
 def process_event_offline(eventpk, minireq, student, objectId):
     from Badges.events import process_event_actual
     return process_event_actual(eventpk, minireq, student, objectId)
-
 
 @app.task(ignore_result=True)
 def check_celery_tasks():
