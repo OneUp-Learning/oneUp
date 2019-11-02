@@ -27,8 +27,8 @@ def groupListView(request):
         group = FlashCardGroup.objects.get(groupID=gId)
         groupID.append(gId)
         groupName.append(group.groupName)
-        groupPos.append(cg.topicPos)
+        groupPos.append(cg.groupPos)
 
     context_dict['group_range'] = sorted(list(zip(range(1,cgroups.count()+1),groupID,groupName,groupPos)),key=lambda tup: tup[3])
 
-    return render(request,'Instructors/GroupList.html', context_dict)
+    return render(request,'Instructors/FlashCardGroupList.html', context_dict)

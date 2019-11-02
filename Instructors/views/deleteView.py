@@ -10,7 +10,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
-from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones
+from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones,\
+    FlashCardGroup
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck  
@@ -332,3 +333,23 @@ def deleteManualSpendRule(request):
             message = "There was a problem deleting VC Spend Rule #"+str(request.POST['vcRuleID'])
         context_dict['message'] = message
     return redirect('/oneUp/badges/VirtualCurrencySpendRuleList', context_dict)
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
+def deleteGroup(request):
+    
+    context_dict, currentCourse = initialContextDict(request)
+    if request.POST:
+
+        try:
+            if request.POST['groupID']:
+                group= FlashCardGroup.objects.get(pk=int(request.POST['groupID']))           
+                message = "Group #"+str(group.groupID)+ " "+group.groupName+" successfully deleted"
+                group.delete()
+                print("HIIIIIIIIII***************")
+        except FlashCardGroup.DoesNotExist:
+            print("HIIIIIIIIII***************//////////////////////")
+            message = "There was a problem deleting Group #"+str(group.groupID)+ " "+group.groupName
+            
+        context_dict['message'] = message  
+    return redirect('/oneUp/instructors/groupList', context_dict)

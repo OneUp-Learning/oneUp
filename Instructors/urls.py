@@ -38,7 +38,8 @@ from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule,\
+    deleteGroup
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents
@@ -96,6 +97,7 @@ from Instructors.views.CalloutReportView import callout_report, callout_challeng
 
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
 from Instructors.views import FlashCardsGroupListView
+from Instructors.views.FlashCardGroupCreateView import groupCreateView
 admin.autodiscover()
 urlpatterns = [
 
@@ -153,6 +155,7 @@ urlpatterns = [
     url(r'^deleteManualSpendRule', deleteManualSpendRule,
         name='deleteManualSpendRule'),
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
+    url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
     url(r'^deleteSubTopic', deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
@@ -238,5 +241,6 @@ urlpatterns = [
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
-    url(r'^groupList', groupListView, name='groupListView')
+    url(r'^groupList', groupListView, name='groupListView'),
+    url(r'^groupCreate', groupCreateView, name='groupCreateView')
 ]
