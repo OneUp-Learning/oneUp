@@ -1,5 +1,6 @@
 from django.conf import settings
 from Badges.celeryApp import app
+import Badges.datamine_tasks
 
 @app.task
 def process_event_offline(eventpk, minireq, student, objectId):
