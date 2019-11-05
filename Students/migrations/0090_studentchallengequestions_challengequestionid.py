@@ -4,8 +4,7 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 def migrate_student_challenge_questions(apps, schema_editor):
-    # Update the old student transactions by copying the related rule info into the newly created model fields
-    # Doing this will preserve the history of these transactions
+    # Update the student challenges to include the related challenge question id 
     StudentChallengeQuestions = apps.get_model("Students","StudentChallengeQuestions")
     ChallengesQuestions = apps.get_model("Instructors","ChallengesQuestions")
 
@@ -13,12 +12,12 @@ def migrate_student_challenge_questions(apps, schema_editor):
     for student_challenge_question in student_challenge_questions:
         challenge_question = ChallengesQuestions.objects.filter(challengeID=student_challenge_question.studentChallengeID.challengeID, questionID=student_challenge_question.questionID)
         
-        if challenge_question.challengeQuestionID == None:
-            if not challenge_question:
-                print("[ERROR] No challenge question can be found for student challenge question instance :(")
+        if not challenge_question:
+            print("[ERROR] No challenge question can be found for student challenge question instance :(")
+            continue
 
-            student_challenge_question.challengeQuestionID = challenge_question[0]
-            student_challenge_question.save()
+        student_challenge_question.challengeQuestionID = challenge_question[0]
+        student_challenge_question.save()
 
 class Migration(migrations.Migration):
 
