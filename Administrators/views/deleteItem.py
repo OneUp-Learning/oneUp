@@ -1,7 +1,7 @@
 
 from django.template import RequestContext
 from django.shortcuts import render, redirect
-from Instructors.models import Instructors, InstructorRegisteredCourses, Courses
+from Instructors.models import Instructors, InstructorRegisteredCourses, Courses, ChallengesTopics, Challenges
 from django.contrib.auth.models import User
 from django_celery_beat.models import PeriodicTask
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -19,7 +19,13 @@ def deleteItemView(request):
     if 'courseToDelete' in request.POST:
         # Delete periodic tasks related to this course
         PeriodicTask.objects.filter(kwargs__contains='"course_id": '+request.POST["courseToDelete"]).delete()
-        course = Courses.objects.get(pk=int(request.POST['courseToDelete']))            
+        course = Courses.objects.get(pk=int(request.POST['courseToDelete']))
+
+        ##logic to delete all the objects that exist from unspecified topics
+        challengeTopicsList = ChallengesTopics.objects.filter(challengeID__courseID=int(request.POST['courseToDelete']), topicID__topicName="Unspecified")
+        for challengeTopic in challengeTopicsList:
+            challengeTopic.challengeID.delete()
+        
         course.delete()
     
     if 'instructorToDelete' in request.POST:

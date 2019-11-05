@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('Instructors', '0108_auto_20190827_1458'),
-        ('Students', '0088_auto_20191024_2129'),
+        ('Students', '0089_studentactions'),
     ]
 
     operations = [
