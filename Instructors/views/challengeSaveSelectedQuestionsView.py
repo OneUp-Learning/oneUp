@@ -51,8 +51,8 @@ def challengeSaveSelectedQuestions(request):
                         points = challenge_question.points
                     else:
                         points = Decimal(0)
-
-                ChallengesQuestions.addQuestionToChallenge(question, challenge, points, 0)
+                position = ChallengesQuestions.objects.filter(challengeID=challenge).count() + 1
+                ChallengesQuestions.addQuestionToChallenge(question, challenge, points, position)
                 #Getting the challenge ID for Unassigned Problems challenge
                 chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
                 for challID in chall:
