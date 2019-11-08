@@ -260,11 +260,13 @@ def schedule_celery_task_data_mine():
     
     from django_celery_beat.models import PeriodicTask
     from Badges.periodicVariables import get_or_create_schedule
-
+    tasks = PeriodicTask.objects.filter(name='student_data_mine_actions')
+    if tasks:
+        tasks.delete()
     periodic_task, _ = PeriodicTask.objects.get_or_create(
         name='student_data_mine_actions',
         task='Badges.datamine_tasks.student_data_mine_actions',
-        crontab=get_or_create_schedule(minute='59', hour='23', day_of_week='0'),
+        crontab=get_or_create_schedule(minute='0', hour='*'),
     )
             
 if settings.CELERY_ENABLED:
