@@ -1,0 +1,12 @@
+
+Write a method add() that adds an element to a list in a certain position. You can use the method getNodeAt(int givenPosition) from the ListInterface, which returns the node in the list at the given position. 
+
+	//Should make a case if the list is empty by adding the entry to first position
+	//If not empty, should use nodeBefore and nodeAfter to place entry
+	//Method should use getNodeAt(int givenPosition)
+	
+	public boolean add1(int newPosition, T newEntry){
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

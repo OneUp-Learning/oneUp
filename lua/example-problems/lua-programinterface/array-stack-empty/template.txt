@@ -1,0 +1,9 @@
+// Write a method isEmpty() that checks if a stack is empty
+
+	//Should not need to use peek() method
+	
+	 public boolean isEmpty() {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

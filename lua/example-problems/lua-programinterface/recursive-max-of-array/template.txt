@@ -1,0 +1,20 @@
+Complete the recursive method max which returns the max element of an array .
+
+    /**
+     * compute the maximum of a range of values in an array recursively
+     *
+     * @param data   an array of integers
+     * @param from  the first index for the maximum
+     * @param to    the second index for the maximum
+     * 
+     * preconditions: from <= to, from >=0, to<length, length>0
+     *                
+     * @return     the maximum value in the array
+     */
+     
+     public  int max(int data[], int from, int to) {
+
+ [{make_answer('ans1','code-java',10,checker,10)}]
+
+
+     }

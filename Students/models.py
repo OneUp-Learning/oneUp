@@ -2,7 +2,7 @@ import os
 
 from django.db import models
 from django.contrib.auth.models import User
-from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
+from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles, ChallengesQuestions
 from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking,  LeaderboardsConfig
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
@@ -86,6 +86,7 @@ class StudentChallengeQuestions(models.Model):
     studentChallengeQuestionID = models.AutoField(primary_key=True)
     studentChallengeID = models.ForeignKey(StudentChallenges, on_delete=models.CASCADE, verbose_name="the related student_challenge", db_index=True)
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True) 
+    challengeQuestionID = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name="the related challenge_question", db_index=True) 
     questionScore = models.DecimalField(decimal_places=2, max_digits=6)
     questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
     usedHint = models.BooleanField(default=True)
@@ -374,3 +375,23 @@ class StudentProgressiveUnlocking(models.Model):
     
     def __str__(self):
         return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.objectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)
+
+class StudentActions(models.Model):
+    ''' Ultility model which will be used for thesis work. Collects infromation about each student
+        and what actions they have done (warmups/serious challenge attempts or duels/callouts) over 
+        some X time.
+    '''
+    studentActionsID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    json_data = models.TextField(blank=True, default='{}', verbose_name='Student JSON Results',
+            help_text='JSON encoded table of student results')
+    warmups_attempted = models.IntegerField(default=0,verbose_name="# of Warmups Attempted")
+    serious_attempted = models.IntegerField(default=0,verbose_name="# of Serious Challenges Attempted")
+    duels_sent = models.IntegerField(default=0,verbose_name="# of Duels Sent")
+    duels_accepted = models.IntegerField(default=0,verbose_name="# of Duels Accepted")
+    callouts_sent = models.IntegerField(default=0,verbose_name="# of Callouts Accpeted")
+    callouts_accepted = models.IntegerField(default=0,verbose_name="# of Callouts Sent")
+    timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
+    def __str__(self):
+        return "{} : {} : {} : {}".format(self.studentActionsID, self.courseID, self.studentID, self.timestamp)

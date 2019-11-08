@@ -224,7 +224,7 @@ class ChallengesQuestions(models.Model):
     questionPosition = models.IntegerField(default = 0)
     points = models.DecimalField(decimal_places=2, max_digits=6, default=0)
     def __str__(self):              
-        return str(self.challengeID)+","+str(self.questionID)
+        return str(self.pk) + ","+str(self.challengeID)+","+str(self.questionID)
     @staticmethod
     def addQuestionToChallenge(question, challenge, points, position):
         cq = ChallengesQuestions()
