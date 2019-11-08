@@ -53,8 +53,8 @@ def student_data_mine_actions():
                 earnings = [int(earn.value) for earn in vc_earnings if earn.value > 0]
                 if earnings:
                     vc = max(earnings)
-                if vc > max_vc:
-                    max_vc = vc
+                    if vc > max_vc:
+                        max_vc = vc
         
         for students_registered_course in students_registered_courses:
             json_data = {}
