@@ -1,0 +1,7 @@
+Complete the following function which takes in an array of integers named arr and sums it and returns the result.
+
+public static int sumArray(int[] a) {
+
+ [{make_answer('ans1','code-java',5,checker,15)}]
+
+}

@@ -1,0 +1,5 @@
+Complete the following function which takes in an array of integers named arr and sums it and returns the result.
+
+def sumArray(arr):
+
+ [{make_answer('ans1','code-python',5,checker,15)}]

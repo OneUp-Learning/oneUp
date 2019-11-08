@@ -1,0 +1,10 @@
+// Write a method push() that adds an element to the top of a stack
+
+	//Element must be added to the top of the stack
+	//Size of stack should increase
+	
+	 public void push1(T newEntry){
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}

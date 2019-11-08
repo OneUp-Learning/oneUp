@@ -1,0 +1,10 @@
+// Write a method contains() that checks a bag for a certain element
+
+	//Should loop through the entire bag
+	//Should stop once there are no more elements
+	
+	 public boolean contains(T anEntry) {
+	
+	[{make_answer('ans1','code-java',10,checker,10)}]
+	
+	}
