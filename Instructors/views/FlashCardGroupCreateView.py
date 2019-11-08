@@ -1,7 +1,7 @@
 '''
 Created on Oct 26, 2019
 
-@author: cmickle118
+@author: cmickle
 '''
 from Instructors.constants import default_time_str
 from django.utils.timezone import make_naive
@@ -21,31 +21,29 @@ def groupCreateView(request):
     if request.POST:
         
         # Check if groups with this name already exist
-        groups = FlashCardGroup.objects.filter(groupName=request.POST['groupName'])
-        if groups:
-            group = groups[0]
-        #sets group name
-        else: 
-            group = FlashCardGroup()           
-            group.groupName = request.POST['groupName']                   
+        
+        if 'groupID' in request.POST and request.POST['groupID'] != '':
+            group=FlashCardGroup.objects.get(groupID=request.POST['groupID'])
+        else:
+            group = FlashCardGroup()
             group.save()
+        group.groupName = request.POST['groupName']
             
         #same as above, but with gID and cIDs
-        cardGroups = FlashCardGroupCourse.objects.filter(groupID=group, courseID=currentCourse)
-        if cardGroups:  
-            cardGroup = cardGroups[0]                    
+        if FlashCardGroupCourse.objects.filter(groupID=group.groupID, courseID=currentCourse).exists():
+            cardGroup = FlashCardGroupCourse.objects.get(groupID=group.groupID, courseID=currentCourse)
         else:
             cardGroup = FlashCardGroupCourse()
             cardGroup.groupID = group
             cardGroup.courseID = currentCourse
         
         default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        if(request.POST['availabilityDate'] == ""):
-            group.availabilityDate = default_date
-        elif datetime.strptime(request.POST['availabilityDate'], "%m/%d/%Y %I:%M %p"):
-            group.availabilityDate = localizedDate(request, request.POST['availabilityDate'], "%m/%d/%Y %I:%M %p")
+        if('availabilityDate' in request.POST):
+            print("ran")
+            datetime.strptime(request.POST['availabilityDate'], "%m/%d/%Y %I:%M %p")
+            cardGroup.availabilityDate = localizedDate(request, request.POST['availabilityDate'], "%m/%d/%Y %I:%M %p")
         else:
-            group.availabilityDate= default_date
+            cardGroup.availabilityDate= default_date
         group.save()     
         cardGroup.groupPos = int(request.POST['groupPos'])
         cardGroup.save()
@@ -59,7 +57,7 @@ def groupCreateView(request):
             context_dict['groupName']=group.groupName
             cg = FlashCardGroupCourse.objects.get(groupID=group,courseID=currentCourse)
             context_dict['groupPos']= str(cg.groupPos)
-            
+            group.save()
             #handles the group date setting in the GET
             availabilityDate = localizedDate(request, str(make_naive(cg.availabilityDate.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
             if cg.availabilityDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:

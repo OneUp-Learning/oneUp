@@ -1,7 +1,7 @@
 '''
 Created on Oct 23, 2019
 
-@author: Charles
+@author: cmickle
 '''
 from django.shortcuts import render
 from Instructors.models import FlashCardGroup,FlashCardGroupCourse

@@ -98,6 +98,7 @@ from Instructors.views.CalloutReportView import callout_report, callout_challeng
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
 from Instructors.views import FlashCardsGroupListView
 from Instructors.views.FlashCardGroupCreateView import groupCreateView
+from Instructors.views.CreateFlashCard import CreateFlashCard
 admin.autodiscover()
 urlpatterns = [
 
@@ -242,5 +243,7 @@ urlpatterns = [
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
     url(r'^groupList', groupListView, name='groupListView'),
-    url(r'^groupCreate', groupCreateView, name='groupCreateView')
+    url(r'^groupCreate', groupCreateView, name='groupCreateView'),
+    url(r'^createFlashCard', CreateFlashCard, name='createFlashCard')
+    
 ]
