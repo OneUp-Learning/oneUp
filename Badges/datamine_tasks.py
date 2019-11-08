@@ -50,7 +50,9 @@ def student_data_mine_actions():
                 vc_earnings = vc_earnings.filter(timestamp__gte=last_ran)
 
             if vc_earnings:
-                vc = max([int(earn.value) for earn in vc_earnings if earn.value > 0])
+                earnings = [int(earn.value) for earn in vc_earnings if earn.value > 0]
+                if earnings:
+                    vc = max(earnings)
                 if vc > max_vc:
                     max_vc = vc
         
@@ -114,7 +116,9 @@ def student_data_mine_actions():
             if last_ran:
                 vc_earnings = vc_earnings.filter(timestamp__gte=last_ran)
             if vc_earnings:
-                total = sum([int(earn.value) for earn in vc_earnings if earn.value > 0])
+                earnings = [int(earn.value) for earn in vc_earnings if earn.value > 0]
+                if earnings:
+                    total = sum(earnings)
 
             json_data['VC Earned'] = total
             json_data['Max Possible VC'] = max_vc
