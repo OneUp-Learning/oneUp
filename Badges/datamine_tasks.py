@@ -113,7 +113,8 @@ def student_data_mine_actions():
             # Get VC earned in past hour
             if last_ran:
                 vc_earnings = vc_earnings.filter(timestamp__gte=last_ran)
-            total = sum([int(earn.value) for earn in vc_earnings if earn.value > 0])
+            if vc_earnings:
+                total = sum([int(earn.value) for earn in vc_earnings if earn.value > 0])
 
             json_data['VC Earned'] = total
             json_data['Max Possible VC'] = max_vc
