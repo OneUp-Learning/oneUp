@@ -22,7 +22,7 @@ from oneUp.decorators import instructorsCheck
 from oneUp.ckeditorUtil import config_ck_editor
 import os.path
 import zipfile
-#from oneUp.settings import BASE_DIR
+from oneUp.settings import BASE_DIR
 
 
 @login_required
@@ -83,6 +83,17 @@ def templateDynamicQuestionForm(request):
                 output += codeSegment['code']
                 output += "\n"
             return output
+
+        # Add the path of the question files directroy to the programinterface.program_checker
+        '''LUA_PROBLEMS_ROOT = os.path.join(
+            BASE_DIR, 'lua/problems/')  # This is for lua problems
+        LUA_PROBLEMS_ROOT = "/Users/mahamatoumar/Downloads/oneUp_env/env/oneUp/lua/problems/" + \
+            str(question.questionID)
+
+        setupCode = re.sub("programinterface.program_checker\s*\(",
+                           "programinterface.program_checker("+LUA_PROBLEMS_ROOT+",", question.setupCode)
+        print("Replaced setupCode")
+        print(setupCode)'''
 
         # Takes the array and converts the parts into lua code
         question.code = combineCodeSegments(
@@ -382,7 +393,6 @@ part_'''+str(count)+'''_text = function ()
 
         code_segments.append(CodeSegment.new(
             CodeSegment.system_lua, "end\n", ""))
-
     return code_segments
 
 
@@ -412,10 +422,10 @@ def makeDependentLibraries(question, libraryNameList):
 
 
 def saveFiles(courseID, question, files, user, isModifying):
-    BASE_DIR = "/Users/mahamatoumar/Downloads/oneUp_env/env/oneUp"
-    # LUA_PROBLEMS_ROOT = os.path.join(
-    #    BASE_DIR, '/lua/problems/')  # This is for lua problems
-    LUA_PROBLEMS_ROOT = "/Users/mahamatoumar/Downloads/oneUp_env/env/oneUp/lua/problems/"
+
+    LUA_PROBLEMS_ROOT = os.path.join(
+        BASE_DIR, 'lua/problems/')  # This is for lua problems
+
     FILE_UPLOAD_DIR = LUA_PROBLEMS_ROOT + \
         str(question.questionID)
 
@@ -499,10 +509,9 @@ def removeFileFromQuestion(request):
                 fileName = testFile.programmingFileName
                 folderName = testFile.programmingFileFolderName
                 testFile.delete()
-                BASE_DIR = "/Users/mahamatoumar/Downloads/oneUp_env/env/oneUp"
-                # LUA_PROBLEMS_ROOT = os.path.join(
-                #    BASE_DIR, '/lua/problems/')  # This is for lua problems
-                LUA_PROBLEMS_ROOT = "/Users/mahamatoumar/Downloads/oneUp_env/env/oneUp/lua/problems/"
+                LUA_PROBLEMS_ROOT = os.path.join(
+                    BASE_DIR, 'lua/problems/')  # This is for lua problems
+
                 if ".zip" in fileName:
                     subDir = fileName.split(".zip")[0]
                     FILE_UPLOAD_DIR = LUA_PROBLEMS_ROOT + \
