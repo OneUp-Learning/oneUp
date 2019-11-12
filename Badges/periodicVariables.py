@@ -157,13 +157,14 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     unique_str = str(unique_id)+"_"+award_type
     task_id = periodic_variable['name']+'_'+unique_str
     print("RUNNING PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
+    
+    periodic_task = PeriodicTask.objects.get(name=task_id, kwargs__contains='"course_id": '+str(course_id))
 
     # Get the course
     today = datetime.now(tz=timezone.utc).date()
     course_config = CourseConfigParams.objects.get(courseID=course)
     if course_config.courseStartDate > today or course_config.courseEndDate < today:
         print("Today: {} Course End Date: {} Course Start Date: {}".format(today,course_config.courseEndDate,course_config.courseStartDate ))
-        periodic_task = PeriodicTask.objects.get(name=task_id, kwargs__contains='"course_id": '+str(course_id))
         periodic_task.delete()
         print("DELETE OLD PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
         return
@@ -175,18 +176,38 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
             print("NO LOCK PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
             return
     
-    periodic_task = PeriodicTask.objects.get(name=task_id, kwargs__contains='"course_id": '+str(course_id))
-    total_runs = periodic_task.total_run_count
-    print("TOTAL RUNS {} ({})".format(total_runs, task_id))
-    # Handle beginning of time period
+    last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
     if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
         # If it has ran once then return and set it not to run anymore
-        if total_runs >= 1:
+        if last_ran:
             periodic_task.enabled = False
             periodic_task.save()
             PeriodicTasks.changed(periodic_task)
             print("END COMPLETE PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
             return
+    
+    
+    time_range = time_period['datetime']()
+
+    # Double check if the time period is of beginning_of_time. There should be no log for this type
+    if not time_range is None and last_ran:
+        # If not, call periodic_task with parameters (entry log will get updated by this call, hopefully)
+        if last_ran.replace(microsecond=0, second=0) > time_range.replace(microsecond=0, second=0):
+            print("SKIP PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
+            return
+   
+    # total_runs = periodic_task.total_run_count
+    # print("TOTAL RUNS {} ({})".format(total_runs, task_id))
+    # # Handle beginning of time period
+    # if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
+    #     # If it has ran once then return and set it not to run anymore
+    #     if total_runs >= 1:
+    #         periodic_task.enabled = False
+    #         periodic_task.save()
+    #         PeriodicTasks.changed(periodic_task)
+    #         print("END COMPLETE PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
+    #         return
+
     # Check for frequency to see handle every N days/month/week etc
     # ex. biweekly
     # (day 1) total_runs = 0 , frequency = 2, task will run
@@ -194,23 +215,23 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     # (day 14) total_runs = 2 , frequency = 2, task will run
     # ...
     
-    if total_runs % time_period['frequency'] != 0:
-        print("SKIP PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
-        periodic_task.total_run_count += 1
-        periodic_task.save()
-        PeriodicTasks.changed(periodic_task)
-        return
+    # if total_runs % time_period['frequency'] != 0:
+    #     print("SKIP PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
+    #     periodic_task.total_run_count += 1
+    #     periodic_task.save()
+    #     PeriodicTasks.changed(periodic_task)
+    #     return
 
     # Get all the students in this course, exclude test student
     students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     rank = []
-    last_ran = get_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    
     # Evaluate each student based on periodic variable function
     for student_in_course in students:
         rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, last_ran = last_ran, unique_id=unique_id, award_type=award_type))
 
     # Set this as the last time this task has ran
-    set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
+    # set_last_ran(unique_id, periodic_variable['index'], award_type, course.courseID)
 
     print("Results: {}".format(rank))
     # Filter out students based on periodic badge/vc rule settings
@@ -226,9 +247,9 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
             print("Final Filtered Leaderboard ({}, {}, {}, {}): {}".format(number_of_top_students+1, 0, '>=', False, rank))
             savePeriodicLeaderboardResults(rank, unique_id, course)
               
-    periodic_task.total_run_count += 1
-    periodic_task.save()
-    PeriodicTasks.changed(periodic_task)
+    # periodic_task.total_run_count += 1
+    # periodic_task.save()
+    # PeriodicTasks.changed(periodic_task)
 
     # Create/update celery log so it can be used for a fallback option if this task didn't run on time
     update_celery_log_entry(task_id, {
@@ -314,6 +335,8 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
     from Students.models import StudentBadges, StudentRegisteredCourses, StudentVirtualCurrency
     from Badges.models import BadgesInfo, VirtualCurrencyPeriodicRule
     from Instructors.views.utils import utcDate
+    from Badges.enums import Event
+    from Badges.events import register_event_simple
 
     for student, result in students:
         # Give award for either badge or virtual currency
@@ -330,7 +353,11 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
             studentBadge.objectID = 0
             studentBadge.timestamp = utcDate() - timedelta(hours=4)
             studentBadge.save()
-            
+            mini_req = {
+                'currentCourseID': course.pk,
+                'user': student.user.username,
+            }
+            register_event_simple(Event.badgeEarned, mini_req, student, badge_id)
             # Notify student of badge award 
             notify.send(None, recipient=student.user, actor=student.user, verb='You won the '+badge.badgeName+' badge', nf_type='Badge', extra=json.dumps({"course": str(course.courseID)}))
             
@@ -351,6 +378,12 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
                 transaction.vcDescription = periodicVC.vcRuleDescription
                 transaction.value = virtual_currency_amount
                 transaction.save()
+                
+                mini_req = {
+                    'currentCourseID': course.pk,
+                    'user': student.user.username,
+                }
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, student, virtual_currency_amount)
                 # Notify student of VC award 
                 notify.send(None, recipient=student.user, actor=student.user, verb='You won '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
 
@@ -358,6 +391,7 @@ def get_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Retrieves the last time a periodic task has ran. 
         Returns None if it is has not ran yet.
     '''
+    from Badges.models import CeleryTaskLog
     # print("award type", award_type)
     if not "badge" in award_type  and not "vc" in award_type and not "leaderboard" in award_type:
         logger.error("Cannot find Periodic Task Object: award_type is not 'badge' or 'vc' or 'leaderboard'!!")
@@ -365,9 +399,15 @@ def get_last_ran(unique_id, variable_index, award_type, course_id):
 
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     unique_str = str(unique_id)+"_"+award_type
+    task_id = periodic_variable['name']+'_'+unique_str
+    celery_log_entry = CeleryTaskLog.objects.filter(taskID=task_id).first()
+    if celery_log_entry is None:
+        return None
 
-    last_ran = PeriodicTask.objects.get(name=periodic_variable['name']+'_'+unique_str, kwargs__contains='"course_id": '+str(course_id)).last_run_at
-    return last_ran
+    return celery_log_entry.timestamp
+
+    # last_ran = PeriodicTask.objects.get(name=task_id, kwargs__contains='"course_id": '+str(course_id)).last_run_at
+    # return last_ran
 
 def set_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Sets periodic task last time ran datefield. It is not updated accurately by itself.'''
@@ -1620,7 +1660,7 @@ class TimePeriods:
             'name': 'minute_test',
             'displayName': 'Every other Minute (For Testing)',
             'schedule': get_or_create_schedule(
-                        minute='*/2'),
+                        minute='*'),
             'datetime': lambda: timezone.now() - timedelta(minutes=2),
             'frequency': 1,
         }

@@ -129,6 +129,9 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
                 'user': participant_id.user.username,
             }
             # register event
+            if sender_stat.calloutVC > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, objectId=sender_stat.calloutVC)
+
             register_event_simple(Event.calloutWon, mini_req,
                                   objectId=call_out_stat.calloutID.calloutID)
 
@@ -200,6 +203,9 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
                 'user': participant_id.user.username,
             }
             # register event
+            if sender_stat.calloutVC > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, objectId=sender_stat.calloutVC)
+                
             register_event_simple(Event.calloutWon, mini_req,
                                   objectId=call_out_stat.calloutID.calloutID)
         else:
