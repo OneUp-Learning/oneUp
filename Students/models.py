@@ -356,7 +356,7 @@ class StudentStreaks(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     streakStartDate = models.DateTimeField(null=True, blank=True, verbose_name="The date the streak reset on")
     streakType = models.IntegerField(default=0)
-    objectID = models.IntegerField(default=0)
+    objectID = models.IntegerField(default=0) #0 badge 1 vc
     currentStudentStreakLength = models.IntegerField(default=0)
     
     
