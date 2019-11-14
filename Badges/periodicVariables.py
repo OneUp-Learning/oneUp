@@ -860,7 +860,7 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
             studentStreak.currentStudentStreakLength = 0
             student_total = 0
                         
-    studentStreak.save()
+        studentStreak.save()
     print("Course: {}".format(course))
     print("Student: {}".format(student))
     print("Periodic Variable: {}".format(periodic_variable))
