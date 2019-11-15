@@ -1065,25 +1065,15 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
     for s in students:
         stud = s.studentID
         total = 0
-        challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
         studentChallengeIDs = []
         maxScores = []
-
-        if challengeCount > 1:
-            studentChallenges = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
-            for challenge in studentChallenges:
-                studentChallengeIDs.append(challenge.challengeID)
-            challengeScores = []
-            for studentChallengeID in studentChallengeIDs:
-                if getPercentageScoreForStudent(studentChallengeID, stud, percentage, last_ran):
-                    total += 1
-        elif challengeCount == 1:
-            studentChallenge = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID,
-            endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
-            challenge = Challenges.objects.filter(challengeID=studentChallenge.challengeID)[0]
-            if (studentChallenge.testScore/challenge.challengeTotalScore) >= (percentage):
+        studentChallenges = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
+        print("sutdentChallenges", studentChallenges)
+        for challenge in studentChallenges:
+            if getPercentageScoreForStudent(challenge.challengeID, stud, percentage, last_ran):
                 total += 1
-
+            
+        print("current total for student", total)
         
         # Set max
         if total > max_total:
@@ -1121,7 +1111,7 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         student_total = threshold
     elif student_total == threshold and not resetStreak:
         student_total = threshold
-        
+    studentStreak.currentStudentStreakLength = student_total
     studentStreak.save()
     
     print("Course: {}".format(course))
