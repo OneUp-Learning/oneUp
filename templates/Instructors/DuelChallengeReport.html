@@ -26,6 +26,10 @@
                                             <span >{{challenger}}&nbsp &nbsp<img class="circle" width="30" height="30" src="{{challenger_av}}">&nbsp &nbsp vs &nbsp &nbsp<img class="circle" width="30" height="30" src="{{challengee_av}}">&nbsp &nbsp {{challengee}}</span>
                                  
                                     </li>
+                                    <li>
+                                        <span><b>Warm up Challenge: </b></span>
+                                        <span>{{duel_challenge.challengeID.challengeName}}</span>
+                                    </li>
                                     {% if hasExpired %}
                                         
                                         <li >
@@ -97,45 +101,43 @@
                                         </li>
                                     {% endif %}
                                     
-                                    <li>
-                                        <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation."><b>Allow the use of VC (current settings): </b></span>
-                                        {% if ccparams.betVC %}
-                                            <span>Yes</span>
-                                        {% else %}
-                                            <span>No</span>
-                                        {% endif %}
-                                    </li>
-                                
-                                    <li>
-                                        <span><b>Betting: </b></span>
-                                        {% if duel_challenge.isBetting %}
-                                            <span>Yes</span>
-                                        {% else %}
-                                            <span>No</span>
-                                        {% endif %}
-                                    </li>
-                                    {% if duel_challenge.isBetting %}
+                                     {% if ccparams.betVC %}
                                         <li>
-                                            <span><b>Betting Amount: </b></span>
-                                            <span>{{duel_challenge.vcBet}}</span>
+                                            <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation."><b>Allow the use of VC (current settings): </b></span>
+                                                <span>Yes</span>
+                                        
                                         </li>
-                                    {% endif %}
-                                    <li>
-	                                        <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation."><b>Winner's Award (current settings): </b></span>
-	                                        <span>{{ccparams.vcDuel}}</span>
-	                                </li>
-	                                <li>
-	                                        <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation." ><b>Participation Award (current settings): </b></span>
-	                                        <span>{{ccparams.vcDuelParticipants}}</span>
-	                                </li>
-	                                    
-	                              
-	                                 <li>
-	                                         <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation." ><b>Total Award for winner(s) (current settings): </b></span>
-	                                         <span>{{total_award}}</span>
-	                                 </li>
-	                                
                                     
+                                        <li>
+                                            <span><b>Betting: </b></span>
+                                            {% if duel_challenge.isBetting %}
+                                                <span>Yes</span>
+                                            {% else %}
+                                                <span>No</span>
+                                            {% endif %}
+                                        </li>
+                                        {% if duel_challenge.isBetting %}
+                                            <li>
+                                                <span><b>Betting Amount: </b></span>
+                                                <span>{{duel_challenge.vcBet}}</span>
+                                            </li>
+                                        {% endif %}
+                                        <li>
+                                                <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation."><b>Winner's Award (current settings): </b></span>
+                                                <span>{{ccparams.vcDuel}}</span>
+                                        </li>
+                                        <li>
+                                                <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation." ><b>Participation Award (current settings): </b></span>
+                                                <span>{{ccparams.vcDuelParticipants}}</span>
+                                        </li>
+                                            
+                                    
+                                        <li>
+                                                <span class="tooltipped" data-tooltip="This data only refects current settings. Settings might have been different upon this duel creation." ><b>Total Award for winner(s) (current settings): </b></span>
+                                                <span>{{total_award}}</span>
+                                        </li>
+                                        
+                                     {% endif %}  
                                 </ul>
                         
                       <div class="card-action">

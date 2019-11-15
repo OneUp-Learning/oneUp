@@ -550,7 +550,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
 
     challenges_list = []
     for crs_t in course_topics:
-        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID)
+        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID, challengeID__isGraded=False)
         for chall_t in challenges_topics:
              # if warmup is not available, then skip it
             if not chall_t.challengeID.isVisible:
@@ -653,7 +653,7 @@ def duel_challenge_create(request):
     difficulty_set = set()
     challenges_list = []
     chall_topics = []
-    challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+    challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
     default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     for chall_t in challenges_topics:
             # if warmup is not available, then skip it
@@ -850,17 +850,17 @@ def get_create_duel_topics_difficulties(request):
 
     challenges_list = []
     for crs_t in course_topics:
-        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID)
+        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID, challengeID__isGraded=False)
 
     if 'topicID' in request.GET:
         topic = request.GET['topicID']
 
         if topic == "Any":
-            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
         else:
-            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, topicID=int(topic))
+            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, topicID=int(topic), challengeID__isGraded=False)
     else:
-        challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+        challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
        
     default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
 
