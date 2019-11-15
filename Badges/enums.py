@@ -8,6 +8,87 @@ def dict_dict_to_zipped_list(d,fields):
         output.append(attrlist)
     return output
 
+class Goal():
+    warmup10 = 1600
+    warmup70 = 1602
+    warmup80 = 1604
+    warmup90 = 1606
+    streak10 = 1610
+    streak70 = 1612
+    streak80 = 1614
+    streak90 = 1616
+    courseBucks = 1620
+    courseXP = 1630
+    courseBadges = 1640
+    goals = {
+        warmup10:{
+                'index': warmup10,
+                'name': 'warmup10',
+                'displayName': 'Number of Warm Ups to be taken',
+                'description': 'The number of Warm Ups the student aims to take.',
+                },
+        warmup70:{
+                'index': warmup70,
+                'name': 'warmup70',
+                'displayName': 'Number of Warm Ups taken with 70% score',
+                'description': 'The number of Warm Ups the student aims to complete with a score of 70%',
+                },
+        warmup80:{
+                'index': warmup80,
+                'name': 'warmup80',
+                'displayName': 'Number of Warm Ups to be taken with 80% score',
+                'description': 'The number of Warm Ups the student aims to complete with a score of 80%.',
+                },
+        warmup90:{
+                'index': warmup90,
+                'name': 'warmup90',
+                'displayName': 'Number of Warm Ups to be taken with 90% score',
+                'description': 'The number of Warm Ups the student aims to complete with a score of 90%',
+                },
+        streak10:{
+                'index': streak10,
+                'name': 'streak10',
+                'displayName': 'Number of consecutive days for Warm Ups',
+                'description': 'The number consecutive days where at least one Warm Up is completed',
+                },
+        streak70:{
+                'index': streak70,
+                'name': 'streak70',
+                'displayName': 'Number of consecutive days for Warm Ups with 70% score',
+                'description': 'The number consecutive days where at least one Warm Up is completed with a score of 70%',
+                },
+        streak80:{
+                'index': streak80,
+                'name': 'streak80',
+                'displayName': 'Number of consecutive days for Warm Ups with 80% score',
+                'description': 'The number consecutive days where at least one Warm Up is completed with a score of 80%',
+                },
+        streak90:{
+                'index': streak90,
+                'name': 'streak90',
+                'displayName': 'Number of consecutive days for Warm Ups with 90% score',
+                'description': 'The number consecutive days where at least one Warm Up is completed with a score of 90%',
+                },
+        courseBucks:{
+                'index': courseBucks,
+                'name': 'courseBucks',
+                'displayName': 'Number of Course Bucks earned',
+                'description': 'The amount of Course Bucks earned',
+                },
+        courseXP:{
+                'index': courseXP,
+                'name': 'courseXP',
+                'displayName': 'Amount of Course XP earned',
+                'description': 'The amount of Course Experience Points earned by the student',
+                },
+        courseBadges:{
+                'index': courseBadges,
+                'name': 'courseBadges',
+                'displayName': 'Number of Course Badges earned',
+                'description': 'The number of Course Badges earned by the student',
+                },
+        }
+
 class Action():
     giveBadge = 701 # Give a student a badge
     createNotification = 702 # Give a student a notification
@@ -168,7 +249,11 @@ class Event():
     calloutRequested = 877
     calloutWon = 878
     calloutLost = 879
-     #             #              #
+    #             #              #
+    # TODO: Rearrange enums into categories
+    virtualCurrencyEarned = 880
+    badgeEarned = 881
+
 
 
     events = {
@@ -488,6 +573,20 @@ class Event():
                         'name':'calloutLost',
                         'displayName':'calloutLost',
                         'description':'when a student loses a call out',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            virtualCurrencyEarned: {
+                        'index': virtualCurrencyEarned,
+                        'name':'virtualCurrencyEarned',
+                        'displayName':'Student earned Virtual Currency',
+                        'description':'Event triggered when a student has earned a virtual currency',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            badgeEarned: {
+                        'index': badgeEarned,
+                        'name':'badgeEarned',
+                        'displayName':'Student earned a Badge',
+                        'description':'Event triggered when a student has earned a badge',
                         'isVirtualCurrencySpendRule':False
                         },
 #               seeClassAverage: {

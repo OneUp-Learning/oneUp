@@ -13,6 +13,7 @@ from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
 from Instructors.views.instructorHomeView import instructorHome
+from django.utils import timezone
 
 # Create your models here.
  
@@ -75,8 +76,12 @@ class StudentChallenges(models.Model):
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
     def getScore(self):
+        if self.testScore == 0:
+            return 0;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve    
     def getScoreWithBonus(self):
+        if self.testScore == 0:
+            return self.scoreAdjustment+self.bonusPointsAwarded;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve + self.bonusPointsAwarded   
         
 
@@ -147,11 +152,13 @@ class StudentGoalSetting(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
-    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
+    timestamp = models.DateTimeField(default=timezone.now) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
+    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
+    recurringGoal = models.BooleanField(verbose_name='A boolean value to indicate whether goal has recurrence.', default=True)
 
     def __str__(self):              
-        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -356,7 +363,7 @@ class StudentStreaks(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     streakStartDate = models.DateTimeField(null=True, blank=True, verbose_name="The date the streak reset on")
     streakType = models.IntegerField(default=0)
-    objectID = models.IntegerField(default=0)
+    objectID = models.IntegerField(default=0) #0 badge 1 vc
     currentStudentStreakLength = models.IntegerField(default=0)
     
     

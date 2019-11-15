@@ -6,6 +6,8 @@ from Students.models import StudentRegisteredCourses, Student, StudentVirtualCur
 from Badges.systemVariables import logger
 from notify.signals import notify  
 import json
+from Badges.events import register_event
+from Badges.enums import Event
 
 
 @login_required
@@ -94,6 +96,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 if prev_amount > studentobj.virtualCurrencyAmount:
                     notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You lost '+str(virtual_currency_amount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
                 elif prev_amount < studentobj.virtualCurrencyAmount:
+                    register_event(Event.virtualCurrencyEarned, request, studentobj.studentID, objectId=virtual_currency_amount)
                     notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You earned '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
                 
             

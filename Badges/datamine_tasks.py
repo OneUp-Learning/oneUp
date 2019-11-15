@@ -54,9 +54,11 @@ def student_data_mine_actions():
                 vc_earnings = vc_earnings.filter(timestamp__gte=last_ran)
 
             if vc_earnings:
-                vc = max([int(earn.value) for earn in vc_earnings if earn.value > 0])
-                if vc > max_vc:
-                    max_vc = vc
+                earnings = [int(earn.value) for earn in vc_earnings if earn.value > 0]
+                if earnings:
+                    vc = max(earnings)
+                    if vc > max_vc:
+                        max_vc = vc
         
         for students_registered_course in students_registered_courses:
             json_data = {}
@@ -217,7 +219,10 @@ def student_data_mine_actions():
             # Get VC earned in past hour
             if last_ran:
                 vc_earnings = vc_earnings.filter(timestamp__gte=last_ran)
-            total = sum([int(earn.value) for earn in vc_earnings if earn.value > 0])
+            if vc_earnings:
+                earnings = [int(earn.value) for earn in vc_earnings if earn.value > 0]
+                if earnings:
+                    total = sum(earnings)
 
             json_data['VC Earned'] = total
             json_data['Max Possible VC'] = max_vc
@@ -362,7 +367,9 @@ def schedule_celery_task_data_mine():
     
     from django_celery_beat.models import PeriodicTask
     from Badges.periodicVariables import get_or_create_schedule
-
+    tasks = PeriodicTask.objects.filter(name='student_data_mine_actions')
+    if tasks:
+        tasks.delete()
     periodic_task, _ = PeriodicTask.objects.get_or_create(
         name='student_data_mine_actions',
         task='Badges.datamine_tasks.student_data_mine_actions',
