@@ -76,8 +76,12 @@ class StudentChallenges(models.Model):
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
     def getScore(self):
+        if self.testScore == 0:
+            return 0;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve    
     def getScoreWithBonus(self):
+        if self.testScore == 0:
+            return self.scoreAdjustment+self.bonusPointsAwarded;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve + self.bonusPointsAwarded   
         
 
