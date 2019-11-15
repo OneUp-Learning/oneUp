@@ -1,8 +1,14 @@
 from django.contrib import admin
 
 # Register your models here.
+<<<<<<< HEAD
 from Students.models import Student, StudentRegisteredCourses, StudentChallenges, StudentChallengeQuestions, StudentBadges, DuelChallenges, Winners
 from Students.models import StudentChallengeAnswers, MatchShuffledAnswers, StudentCourseSkills, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased, StudentProgressiveUnlocking, StudentActions
+=======
+from Students.models import Student, StudentRegisteredCourses, StudentChallenges, StudentChallengeQuestions, StudentBadges, DuelChallenges, Winners,\
+    StudentGoalSetting
+from Students.models import StudentChallengeAnswers, MatchShuffledAnswers, StudentCourseSkills, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased, StudentProgressiveUnlocking
+>>>>>>> refs/heads/grading_curve_adjustment_fix
 from Students.models import StudentEventLog,StudentConfigParams,StudentLeaderboardHistory, StudentActivities, StudentFile, StudentVirtualCurrencyTransactions, UploadedAvatarImage, StudentAttendance, StudentStreaks, PeriodicallyUpdatedleaderboards
 
 admin.site.register(Student)
@@ -13,6 +19,7 @@ admin.site.register(StudentChallengeQuestions)
 admin.site.register(StudentChallengeAnswers)
 admin.site.register(MatchShuffledAnswers)
 admin.site.register(StudentCourseSkills)
+admin.site.register(StudentGoalSetting)
 admin.site.register(StudentEventLog)
 admin.site.register(StudentRegisteredCourses)
 admin.site.register(StudentConfigParams)

@@ -18,7 +18,7 @@ def switchToInstructorView(request):
         context_dict["username"] = user.username
 
         if 'student' in request.GET:
-            if 'courseId' in request.GET:
+            if 'course_id' in request.GET:
                 return redirect('/oneUp/instructors/instructorCourseHome')
             else:
                 return redirect('/oneUp/instructors/instructorHome')
