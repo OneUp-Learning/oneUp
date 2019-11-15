@@ -686,6 +686,19 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, la
     print("Unique Warm-ups: {}".format(unique_warmups))
 
     return (student, unique_warmups)
+def streakProvider(unique_id, course, student, streakTypeNum):
+    from Students.models import StudentStreaks
+    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=streakTypeNum).exists():
+        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
+    else:
+        studentStreak = StudentStreaks()
+        studentStreak.studentID = student
+        studentStreak.courseID = course
+        studentStreak.streakStartDate = datetime.now().strftime("%Y-%m-%d")
+        studentStreak.streakType = streakTypeNum
+        studentStreak.objectID = unique_id
+        studentStreak.currentStudentStreakLength = 0
+    return studentStreak
 
 def calculate_student_attendance_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     print("Calculating student_attendance_streak") 
@@ -700,29 +713,22 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
             
     threshold = 0
     resetStreak = False
-    
+    streakTypeNum = None
     #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
             threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
+            streakTypeNum = 0
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
             threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
-     
-    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
-        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
-    else:
-        studentStreak = StudentStreaks()
-        studentStreak.studentID = student
-        studentStreak.courseID = course
-        studentStreak.streakStartDate = datetime.now().strftime("%Y-%m-%d")
-        studentStreak.streakType = 0
-        studentStreak.objectID = unique_id
-        studentStreak.currentStudentStreakLength = 0      
+            streakTypeNum = 1
+
+    studentStreak = streakProvider(unique_id, course, student, streakTypeNum)
         
     
     # Get the attendance for this student
@@ -814,7 +820,7 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
             studentStreak.currentStudentStreakLength = 0
             student_total = 0
                         
-    studentStreak.save()
+        studentStreak.save()
     print("Course: {}".format(course))
     print("Student: {}".format(student))
     print("Periodic Variable: {}".format(periodic_variable))
@@ -849,29 +855,23 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
             last_ran = None
            
     threshold = 0
-    resetStreak = False  
+    resetStreak = False 
+    streakTypeNum = None
     #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
             threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
+            streakTypeNum = 0
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
             threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
+            streakTypeNum = 1
      
-    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
-        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
-    else:
-        studentStreak = StudentStreaks()
-        studentStreak.studentID = student
-        studentStreak.courseID = course
-        studentStreak.streakStartDate = datetime.now()
-        studentStreak.streakType = 0
-        studentStreak.objectID = unique_id
-        studentStreak.currentStudentStreakLength = 0   
+    studentStreak = streakProvider(unique_id, course, student, streakTypeNum)  
 
     student_total = 0
     # Cases when threshold is passed as max or avg or as number
@@ -997,29 +997,23 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
             last_ran = None
            
     threshold = 0
-    resetStreak = False  
+    resetStreak = False
+    streakTypeNum = None
     #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
             threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
+            streakTypeNum = 0
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
             threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
+            streakTypeNum = 1
      
-    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
-        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
-    else:
-        studentStreak = StudentStreaks()
-        studentStreak.studentID = student
-        studentStreak.courseID = course
-        studentStreak.streakStartDate = datetime.now()
-        studentStreak.streakType = 0
-        studentStreak.objectID = unique_id
-        studentStreak.currentStudentStreakLength = 0   
+    studentStreak = streakProvider(unique_id, course, student, streakTypeNum)   
                 
     student_total = 0
     # Cases when threshold is passed as max or avg or as number
@@ -1128,29 +1122,23 @@ def calculate_student_challenge_streak_for_percentage_over_span_of_days(percenta
             last_ran = None
            
     threshold = 0
-    resetStreak = False  
+    resetStreak = False
+    streakTypeNum = None
     #if detemine which type of award this is and obtain thresholds and resetStreak booleans
     if award_type == 'badge':
         if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
             periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
             threshold = periodicBadge.threshold
             resetStreak = periodicBadge.resetStreak
+            streakTypeNum = 0
     elif award_type == 'vc':
         if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
             periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
             threshold = periodicVC.threshold
             resetStreak = periodicVC.resetStreak
+            streakTypeNum = 1
      
-    if StudentStreaks.objects.filter(courseID=course.courseID, studentID=student, streakType=0).exists():
-        studentStreak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=student)[0]
-    else:
-        studentStreak = StudentStreaks()
-        studentStreak.studentID = student
-        studentStreak.courseID = course
-        studentStreak.streakStartDate = datetime.now()
-        studentStreak.streakType = 0
-        studentStreak.objectID = unique_id
-        studentStreak.currentStudentStreakLength = 0   
+    studentStreak = streakProvider(unique_id, course, student, streakTypeNum) 
         
     student_total = 0
     # Cases when threshold is passed as max or avg or as number
@@ -1334,18 +1322,19 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         if not startOfTime and seriousChallenge.exists():
             seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
 
+        # Ignore challenges that have invalid total scores
+        if seriousChallenge and seriousChallenge[0].challengeID.totalScore < 0:
+            continue
         # Get the scores for this challenge then either add the max score
         # or the first score to the earned points variable
         gradeID  = []    
-        if xpSeriousMaxScore:                           
-            for serious in seriousChallenge:
-                gradeID.append(float(serious.getScoreWithBonus()))   # get the score + adjustment + bonus
-            if gradeID:
-                earnedSeriousChallengePoints += max(gradeID)           
-        elif seriousChallenge.exists():
-            gradeID.append(float(seriousChallenge.first().getScoreWithBonus())) 
-            if gradeID:
-                earnedSeriousChallengePoints += gradeID[0]
+        for serious in seriousChallenge:
+            gradeID.append(float(serious.getScoreWithBonus())) # get the score + adjustment + bonus
+
+        if xpSeriousMaxScore and gradeID:                           
+            earnedSeriousChallengePoints += max(gradeID)           
+        elif gradeID:
+            earnedSeriousChallengePoints += float(seriousChallenge.first().getScoreWithBonus())
 
         # Setup data for rendering this challenge in html (bar graph stuff)
         if not context_dict is None and gradeID:
@@ -1394,18 +1383,20 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         if not startOfTime and warmupChallenge.exists():
             warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
 
+        # Ignore challenges that have invalid total scores
+        if warmupChallenge and warmupChallenge[0].challengeID.totalScore < 0:
+            continue
+
         # Get the scores for this challenge then either add the max score
         # or the first score to the earned points variable
-        gradeID  = []           
-        if xpWarmupMaxScore:                          
-            for warmup in warmupChallenge:
-                gradeID.append(float(warmup.testScore)) 
-            if gradeID:
-                earnedWarmupChallengePoints += max(gradeID)
-        elif warmupChallenge.exists():
-            gradeID.append(float(warmupChallenge.first().testScore))
-            if gradeID:
-                earnedWarmupChallengePoints += gradeID[0]
+        gradeID  = []         
+        for warmup in warmupChallenge:
+            gradeID.append(float(warmup.testScore))   
+
+        if xpWarmupMaxScore and gradeID:                          
+            earnedWarmupChallengePoints += max(gradeID)
+        elif gradeID:
+            earnedWarmupChallengePoints += float(warmupChallenge.first().testScore)
 
         # Setup data for rendering this challenge in html (bar graph stuff)
         if not context_dict is None and warmupChallenge:
@@ -1413,23 +1404,17 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
             # total possible points for challenge
             total.append(warmupChallenge[0].challengeID.totalScore)
             noOfAttempts.append(warmupChallenge.count())
+            # Total possible points for all attempts for this challenge
+            warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
             
             if gradeID:
-                if xpWarmupMaxScore:
-                    warmUpMaxScore.append(max(gradeID))
-                    warmUpMinScore.append(min(gradeID))
-                    warmUpSumScore.append(sum(gradeID))
-                    warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
-                else:
-                    warmUpMaxScore.append(warmupChallenge.first().testScore)
-                    warmUpMinScore.append(warmupChallenge.first().testScore)
-                    warmUpSumScore.append(warmupChallenge.first().testScore)
-                    warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
+                warmUpMaxScore.append(max(gradeID))
+                warmUpMinScore.append(min(gradeID))
+                warmUpSumScore.append(sum(gradeID))
             else:
                 warmUpMaxScore.append(0)
                 warmUpMinScore.append(0)
                 warmUpSumScore.append(0)
-                warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
             
     # Weighting the total warmup challenge points to be used in calculation of the XP Points  
     weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
@@ -1521,18 +1506,18 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     print("earnedSkillPoints: ", earnedSkillPoints)              
     weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
     
-    # Return the xp and/or required variables
+    # Return the xp and/or required variables rounded to 1 decimal place
     if gradeWarmup:
-        xp = round(weightedWarmupChallengePoints,0)
+        xp = round(weightedWarmupChallengePoints,1)
         print("warmup ran")
     elif gradeSerious:
-        xp = round(weightedSeriousChallengePoints,0)
+        xp = round(weightedSeriousChallengePoints,1)
         print("serious ran")
     elif seriousPlusActivity:
-        xp = round((weightedSeriousChallengePoints  + weightedActivityPoints),0)
+        xp = round((weightedSeriousChallengePoints  + weightedActivityPoints),1)
         print("serious plus activity ran")
     else:
-        xp = round((weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints),0)
+        xp = round((weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints),1)
         print("xp has ran")
     
     if not context_dict is None:
