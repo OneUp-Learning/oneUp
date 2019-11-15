@@ -29,19 +29,4 @@ class Migration(migrations.Migration):
                 ('studentID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Students.Student', verbose_name='the student')),
             ],
         ),
-        migrations.AddField(
-            model_name='studentgoalsetting',
-            name='progressToGoal',
-            field=models.IntegerField(default=0, verbose_name='A percentage of the students progress towards the goal.'),
-        ),
-        migrations.AddField(
-            model_name='studentgoalsetting',
-            name='recurringGoal',
-            field=models.BooleanField(default=True, verbose_name='A boolean value to indicate whether goal has recurrence.'),
-        ),
-        migrations.AlterField(
-            model_name='studentgoalsetting',
-            name='timestamp',
-            field=models.DateTimeField(default=django.utils.timezone.now),
-        ),
     ]
