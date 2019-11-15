@@ -260,7 +260,7 @@ def parsonsForm(request):
 
 #parsons grading software for grading inside the system.
 @login_required
-def parsonsLineBaseGrader(request):
+def parsonDynamicGrader(request):
     ##this is used to track how many times the student clicks class average
     ##we use ajax to track the information, otherwise they'd get the page refreshed on them
     ##and it would be "wrong".

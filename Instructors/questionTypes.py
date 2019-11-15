@@ -135,8 +135,6 @@ def matchingqdict(question, i, challengeId, studChallQuest):
 
     qdict['matches'] = matchlist
     return qdict
-
-
 def parsonsqdict(question, i, challengeId, studChallQuest):
     qdict = staticqdict(question, i, challengeId, studChallQuest)
     modelSolution = Answers.objects.filter(questionID=question)
@@ -178,6 +176,9 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
 
     #repr function will give us the raw representation of the string
     #print("Solution String", repr(solution_string))
+    solution_string = re.sub("\t{3}", "☃            ", solution_string)
+    solution_string = re.sub("\t{2}", "☃        ", solution_string)
+    solution_string = re.sub("\t{1}", "☃    ", solution_string)
 
     #tokenizer characters ☃ and ¬
     solution_string = re.sub("\n", "\n¬☃", solution_string)
@@ -237,21 +238,133 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
         line = re.sub("\t(?=return.*; *##)", "&nbsp;    ", line)
         line = re.sub("(\s{4}|\t)(?=.* *##})", '&nbsp;' + ' ' * 4, line)
         line = line + "\n"
-        line = re.sub("☃", "", line)
         tabedSolution_string.append(line)
 
+    solution_string = ""
+    solution_string = solution_string.join(tabedSolution_string)
     qdict['solution_string'] = solution_string
     qdict['tabbed_sol_string'] = tabedSolution_string
     #print("tabbedSol String", tabedSolution_string)
-    print("solString", repr(solution_string))
+    #print("joinedSolString", repr(solution_string))
 
-    
-    shuffle(tabedSolution_string)
-    qdict['model_solution'] = tabedSolution_string
-    print("questqdict['model_solution']", qdict['model_solution'])
+    solution_string = re.sub("##\\n *", "\\\\n", solution_string)
+    solution_string = re.sub("\\\\n\t", "\\\\n", solution_string)
+    solution_string = re.sub("(?<=\n)\s{4}", "\t", solution_string)
+    qdict['model_solution'] = repr(solution_string).strip('\'')
+    #print("questqdict['model_solution']", qdict['model_solution'])
 
     return qdict
 
+def seriousParsonsqdict(question, i, challengeId, studChallQuest):
+    qdict = staticqdict(question, i, challengeId, studChallQuest)
+    modelSolution = Answers.objects.filter(questionID=question)
+    solution_string = modelSolution[0].answerText
+
+    #print("model solution", modelSolution)
+    qdict['languageName'] = re.search(
+        r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
+    qdict['indentation'] = re.search(r';Indentation:([^;]+);',
+                                     solution_string).group(1)
+
+    languageAndLanguageName = re.search(r'Language:([^;]+)', solution_string)
+    intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);',
+                                                   solution_string)
+    solution_string = solution_string.replace(
+        languageAndLanguageName.group(0), "")
+    solution_string = solution_string.replace(
+        intentationEnabledVariableAndValue.group(0), "")
+
+    qdict['answerText'] = solution_string
+    #print("solution String before changes",repr(solution_string))
+    #dynamically set dfficulty of parson distractor
+
+    #get the count of the distractors
+    distractorCount = len(
+        re.findall(r'(?=#dist)',
+                   repr(solution_string).strip('"\'')))
+
+    #set the count of distractors off the question's hardness
+    #if the question difficulty is hard, use the full count
+    if (question.difficulty == "Easy"):
+        distractorCount = 0
+        distractorCount = int(distractorCount / 2)
+
+    #tokenizer characters ☃ and ¬
+    solution_string = re.sub("\n", "\n¬☃", solution_string)
+    #print("Solution String", solution_string)
+
+    #we turn the student solution into a list
+    solution_string = [x.strip() for x in solution_string.split('¬')]
+    #print("solutionString", solution_string
+
+    parsons_formatted = []
+    skipFlag = 0
+    pattern = re.compile("##")
+    distractor_pattern = re.compile("#dist")
+    distractors_found_in_code = 0
+    for line in solution_string:
+        ##print("currentLine", line)
+        if(skipFlag == 1):
+            #if indentation flag is 1 then we know that next line line we must skip
+            skipFlag = 0
+            continue
+            ##print("got skipped")
+        if (pattern.search(line)):
+            #get the next element to determine how indented it is
+            nextelem = solution_string[solution_string.index(line) + 1]
+            
+            line = re.sub("☃", "", line)
+            nextelem = re.sub("☃", "", nextelem)
+            #we use the difference to calculate whether we must indent and where
+            leadingSpacesCount = len(line) - len(line.lstrip(' '))
+            leadingSpacesCountNextLine = len(nextelem) - len(nextelem.lstrip(' '))
+
+            #this difference will allow us to know how indented they are
+            difference = leadingSpacesCount - leadingSpacesCountNextLine
+            line = re.sub("##", "", line)
+            skipFlag = 1
+            if (difference == -4):
+                ##print("after")
+                #if indentation is after the line
+                #example:
+                #data++;
+                #   index++;
+                nextelem = re.sub("^", "\n&nbsp;", nextelem)
+                line += nextelem
+                indentationFlag = 1
+            if (difference == 4):
+                ##print("before \n")
+                nextelem = re.sub("^", "\n", nextelem)
+                line += nextelem
+                #if indentation is before the line
+                #example:
+                #   data++;
+                #index++;
+            if(difference == 0):
+                ##print("zero diff\n")
+                line = re.sub("^ *", "", line)
+                nextelem = re.sub("^ *", "\n", nextelem)
+                line += nextelem
+                #if indentation is before the line
+                #example:
+                # data++;
+                #index++;
+            ##print("added line\n", line)
+            parsons_formatted.append(line)
+        else:
+            line = re.sub("☃ *", "", line)
+            if(distractor_pattern.search(line)):
+                print("patternFound!\n")
+                line = re.sub("#dist ", "", line)
+                distractors_found_in_code += 1
+            if(distractors_found_in_code <= distractorCount):     
+                parsons_formatted.append(line)
+    
+    qdict['solution_string'] = solution_string
+    qdict['model_solution'] = parsons_formatted
+    ##print("parsonsFormatted",parsons_formatted)
+
+    return qdict
 
 def dynamicqdict(question, i, challengeId, studChallQuest):
     dynamicQuestion = DynamicQuestions.objects.get(pk=question.questionID)
@@ -922,14 +1035,14 @@ questionTypeFunctions = {
         "modifyQdictForView": modifyQDictForView,
     },
     QuestionTypes.parsons: {
-        "makeqdict": parsonsqdict,
+        "makeqdict": seriousParsonsqdict,
         "makeAnswerList": parsonsMakeAnswerList,
         "studentAnswersAndGrades": parsonsAddAnswersAndGrades,
         "correctAnswers": parsonsCorrectAnswers,
         "modifyQdictForView": lambda qdict: qdict,
     },
     QuestionTypes.seriousparsons: {
-        "makeqdict": parsonsqdict,
+        "makeqdict": seriousParsonsqdict,
         "makeAnswerList": parsonsMakeAnswerList,
         "studentAnswersAndGrades": parsonsAddAnswersAndGrades,
         "correctAnswers": parsonsCorrectAnswers,
