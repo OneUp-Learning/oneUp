@@ -11,7 +11,7 @@ def student_data_mine_actions():
     from Instructors.models import Challenges, Courses
     from Badges.models import Badges, CourseConfigParams, BadgesInfo
     from Students.models import StudentRegisteredCourses, StudentVirtualCurrency, StudentBadges, StudentChallenges, StudentEventLog, \
-        StudentChallengeQuestions, StudentLeaderboardHistory, StudentActions, DuelChallenges, CalloutStats, Callouts
+        StudentChallengeQuestions, StudentLeaderboardHistory, StudentActions, StudentActionsLoop, DuelChallenges, CalloutStats, Callouts
 
     from Badges.enums import Event
     from Badges.systemVariables import getNumberOfDuelsWon, getNumberOfDuelsLost
@@ -21,6 +21,8 @@ def student_data_mine_actions():
     from Instructors.views.utils import utcDate
     from django.core.exceptions import ObjectDoesNotExist
     import json
+    from datetime import timedelta
+    from django.utils import timezone
 
     last_ran = PeriodicTask.objects.get(name='student_data_mine_actions').last_run_at
 
@@ -33,6 +35,8 @@ def student_data_mine_actions():
     # courses = Courses.objects.all()
     courses_to_look_at = [37, 30, 28]
     courses = Courses.objects.filter(courseID__in=courses_to_look_at)
+    actions = [Event.endChallenge, Event.duelSent, Event.calloutSent, Event.duelAccepted]
+    feedbacks = [Event.virtualCurrencyEarned, Event.badgeEarned, Event.duelWon, Event.calloutWon, Event.duelLost, Event.calloutLost]
 
     for course in courses:
         print("Courses: {}".format(course.courseName))
@@ -72,10 +76,110 @@ def student_data_mine_actions():
             student_actions_data = StudentActions()
             student_actions_data.courseID = course
             student_actions_data.studentID = student
+            student_actions_data.save()
 
             json_data['Student'] = student.user.first_name + " " + student.user.last_name
             json_data['Course'] = course.courseName
             json_data['Gamification'] = course_config.gamificationUsed
+
+            student_actions_all = None
+            if last_ran:
+                student_actions_all = StudentEventLog.objects.filter(student=student, course=course, event__in=actions, timestamp__gte=last_ran).order_by('timestamp')
+            else:
+                student_actions_all = StudentEventLog.objects.filter(student=student, course=course, event__in=actions, timestamp__gte=timezone.now() - timedelta(weeks=12)).order_by('timestamp')
+
+            start_timestamp = student_actions_all[0].timestamp
+            end_timestamp = start_timestamp + timedelta(hours=1)
+            current_time = timezone.now()
+
+            while end_timestamp <= current_time:
+                student_actions_subset = student_actions_all.filter(timestamp__gte=start_timestamp, timestamp__lt=end_timestamp)
+
+                if student_actions_subset:
+                    save = False
+                    action_loop = StudentActionsLoop()
+                    action_loop.studentActionsID = student_actions_data
+                    for student_action in student_actions_subset:
+                        event = student_action.event
+                        if event == Event.endChallenge:
+                            challenge_id = student_action.objectID
+                            if not challenge_id:
+                                continue
+                            student_challenge = StudentChallenges.objects.filter(pk=challenge_id)
+                            if student_challenge:
+                                if student_challenge.challengeID.isGraded:
+                                    save = True
+                                    action_loop.serious_attempted += 1
+                                else:
+                                    save = True
+                                    action_loop.warmups_attempted += 1
+                        elif event == Event.duelSent:
+                            save = True
+                            action_loop.duels_sent += 1
+                        elif event == Event.duelAccepted:
+                            save = True
+                            action_loop.duels_accepted += 1
+                        elif event == Event.calloutSent:
+                            save = True
+                            action_loop.callouts_sent += 1
+                    
+                    callouts_participated = len(CalloutStats.objects.filter(studentID=student, courseID=course, submitTime__gte=start_timestamp, submitTime__lt=end_timestamp))
+                    if callouts_participated > 0:
+                        save = True
+                        action_loop.callouts_participated += callouts_participated
+
+                    # Find feedback
+                    student_feedbacks = StudentEventLog.objects.filter(student=student, course=course, event__in=feedbacks, timestamp__gte=start_timestamp, timestamp__lt=end_timestamp)
+                    for student_feedback in student_feedbacks:
+                        event = student_action.event
+                        if event == Event.virtualCurrencyEarned:
+                            save = True
+                            action_loop.vc_earned += 1
+                        elif event == Event.badgeEarned:
+                            save = True
+                            action_loop.badges_earned += 1
+                        elif event == Event.duelWon:
+                            save = True
+                            action_loop.duels_won += 1
+                        elif event == Event.calloutWon:
+                            save = True
+                            action_loop.callouts_won += 1
+                        elif event == Event.duelLost:
+                            save = True
+                            action_loop.duels_lost += 1
+                        elif event == Event.calloutLost:
+                            save = True
+                            action_loop.callouts_lost += 1
+
+                    leaderboards = StudentLeaderboardHistory.objects.filter(studentID=student, courseID=course, startTimestamp__gte=start_timestamp, startTimestamp__lt=end_timestamp)
+                    if leaderboards:
+                        save = True
+                        action_loop.on_leaderboard = True
+
+                    for warmup_challenge in course_challenges.filter(isGraded=False):
+                        student_challenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=warmup_challenge, endTimestamp__gte=start_timestamp, endTimestamp__lt=end_timestamp).exclude(endTimestamp__isnull=True)
+
+                        if student_challenges.exists():
+                            gradeID  = []
+                            for student_challenge in student_challenges:
+                                gradeID.append(student_challenge.testScore)
+                            
+                            #Calculation for ranking score by 3 levels (hight, mid, low)
+                            tTotal=(warmup_challenge.totalScore/3)
+                            
+                            if (max(gradeID) >= (2*tTotal)): # High
+                                save = True
+                                action_loop.high_score_challenges += 1
+                            # elif (max(gradeID) > tTotal) and (max(gradeID) < (2*tTotal)): # Mid
+                            #     warmup_challenge_mids += 1
+                            else: # Low
+                                save = True
+                                action_loop.low_score_challenges += 1
+                    if save:
+                        action_loop.save()
+
+                start_timestamp = end_timestamp
+                end_timestamp = end_timestamp + timedelta(hours=1)
 
             # Problems Correct / Incorrect
             problems_correct = 0
@@ -161,42 +265,41 @@ def student_data_mine_actions():
             duels_l = getNumberOfDuelsLost(course, student)
             json_data['Duels Lost'] = duels_l
 
-            # Duels Sent
-            duel_challenges = DuelChallenges.objects.filter(challenger=student, courseID=course)
-            # Duels sent & accepted for past hour
-            if last_ran:
-                duel_challenges = duel_challenges.filter(sendTime__gte=last_ran)
-
-            student_actions_data.duels_sent = len(duel_challenges)
-
-            # Duels Accepted
-            duel_challenges = duel_challenges.filter(status=2)
-            student_actions_data.duels_accepted = len(duel_challenges)
-
-            # Callouts Sent & Accepted
-            callouts_sent = Callouts.objects.filter(sender=student, courseID=course)
-            callouts_accepted = CalloutStats.objects.filter(studentID=student, courseID=course)
-            # Callouts sent & accepted for past hour
-            if last_ran:
-                callouts_sent = callouts_sent.filter(sendTime__gte=last_ran)
-                callouts_accepted = callouts_accepted.filter(submitTime__gte=last_ran)
-            
-            student_actions_data.callouts_sent = len(callouts_sent)
-            student_actions_data.callouts_accepted = len(callouts_accepted)
+            # # Duels Sent
+            # duel_challenges = DuelChallenges.objects.filter(challenger=student, courseID=course)
+            # # Duels sent & accepted for past hour
+            # if last_ran:
+            #     duel_challenges = duel_challenges.filter(sendTime__gte=last_ran)
 
             
-            # Serious Challenges Attempted
-            serious_attempted = 0
-            for serious_challenge in course_challenges.filter(isGraded=True):
-                student_challenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=serious_challenge).exclude(endTimestamp__isnull=True)
+
+            # # Duels Accepted
+            # duel_challenges = duel_challenges.filter(status=2)
+           
+
+            # # Callouts Sent & Accepted
+            # callouts_sent = Callouts.objects.filter(sender=student, courseID=course)
+            # callouts_accepted = CalloutStats.objects.filter(studentID=student, courseID=course)
+            # # Callouts sent & accepted for past hour
+            # if last_ran:
+            #     callouts_sent = callouts_sent.filter(sendTime__gte=last_ran)
+            #     callouts_accepted = callouts_accepted.filter(submitTime__gte=last_ran)
+            
+            
+
+            
+            # # Serious Challenges Attempted
+            # serious_attempted = 0
+            # for serious_challenge in course_challenges.filter(isGraded=True):
+            #     student_challenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=serious_challenge).exclude(endTimestamp__isnull=True)
                 
-                if last_ran:
-                    student_challenges = student_challenges.filter(endTimestamp__gte=last_ran)
+            #     if last_ran:
+            #         student_challenges = student_challenges.filter(endTimestamp__gte=last_ran)
 
-                if student_challenges.exists():
-                    serious_attempted += student_challenges.count()
+            #     if student_challenges.exists():
+            #         serious_attempted += student_challenges.count()
 
-            student_actions_data.serious_attempted = serious_attempted
+           
 
             # Warmup Challenges
             unique_warmups = 0
@@ -221,7 +324,7 @@ def student_data_mine_actions():
                         gradeID.append(student_challenge.testScore)
                     
                     #Calculation for ranking score by 3 levels (hight, mid, low)
-                    tTotal=(student_challenge.challengeID.totalScore/3)
+                    tTotal=(warmup_challenge.totalScore/3)
                     
                     if (max(gradeID) >= (2*tTotal)): # High
                         warmup_challenge_highs += 1
@@ -233,7 +336,6 @@ def student_data_mine_actions():
             json_data['Unique Warmups Taken'] = unique_warmups
             json_data['Warmups Attempted'] = warmups_attempted
 
-            student_actions_data.warmups_attempted = warmups_attempted
 
             if unique_warmups == 0:
                 json_data['Warmups Low'] = 0
@@ -271,8 +373,9 @@ def schedule_celery_task_data_mine():
     periodic_task, _ = PeriodicTask.objects.get_or_create(
         name='student_data_mine_actions',
         task='Badges.datamine_tasks.student_data_mine_actions',
-        crontab=get_or_create_schedule(minute='0', hour='*'),
+        crontab=get_or_create_schedule(minute='59', hour='23', day_of_week='0'),
     )
             
 if settings.CELERY_ENABLED:
     schedule_celery_task_data_mine()
+

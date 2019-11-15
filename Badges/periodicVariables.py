@@ -927,7 +927,8 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
         #figure out how many challenges have been completed by the student
         if StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud, streakType=0).exists():
             streak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud)[0]
-            total = streak.currentStudentStreakLength + challengeCount
+            streak.currentStudentStreakLength += challengeCount
+            total = streak.currentStudentStreakLength
         else:
             total = challengeCount
         

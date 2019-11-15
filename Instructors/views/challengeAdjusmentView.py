@@ -55,32 +55,34 @@ def challengeAdjustmentView(request):
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
             else:
-                
-                if not adjustmentScore == 0 or not bonusScore == 0:
-                   
-                    if not adjustmentScore == 0:
-                        studentChallenge = StudentChallenges()
-                        studentChallenge.challengeID = challenge
-                        studentChallenge.studentID = studentRC.studentID
+                if not adjustmentScore == "0" or not bonusScore == "0":
+                    studentChallenge = StudentChallenges()
+                    studentChallenge.challengeID = challenge
+                    studentChallenge.studentID = studentRC.studentID
+                    if not adjustmentScore == "0":
                         studentChallenge.scoreAdjustment = adjustmentScore
                         studentChallenge.AdjustmentReason = request.POST['adjustmentReason'+str(studentID)]
                         register_event(Event.adjustment,request,studentRC.studentID,challengeId)
                         register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
                         notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
-                        if not bonusScore == 0:
-                            studentChallenge.bonusPointsAwarded = bonusScore
-                            notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
-                        else:
-                            studentChallenge.bonusPointsAwarded = 0
-                    
+                
+                    else:
+                        studentChallenge.scoreAdjustment = "0"
+                        studentChallenge.adjustmentReason = ""
 
-                        studentChallenge.courseID = course
-                        studentChallenge.startTimestamp = utcDate()
-                        studentChallenge.endTimestamp = utcDate()
-                        studentChallenge.testScore = 0
-                        studentChallenge.save()
+                    if not bonusScore == "0":
+                        studentChallenge.bonusPointsAwarded = bonusScore
+                        notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
+                    else:
+                        studentChallenge.bonusPointsAwarded = "0"
+
+                    studentChallenge.courseID = course
+                    studentChallenge.startTimestamp = utcDate()
+                    studentChallenge.endTimestamp = utcDate()
+                    studentChallenge.testScore = 0
+                    studentChallenge.save()
 
         updateLeaderboard(course)
         
@@ -115,10 +117,8 @@ def adjustmentList(request):
         
         if (StudentChallenges.objects.filter(challengeID = request.GET['challengeID'], studentID = student)).exists():
             studentChallenge = StudentChallenges.objects.filter(challengeID = request.GET['challengeID'], studentID = student).latest('testScore')
-            if studentChallenge.testScore == 0 and studentChallenge.scoreAdjustment != 0:
-                student_TestScore.append("-")
-            else:
-                student_TestScore.append(studentChallenge.testScore)
+            
+            student_TestScore.append(studentChallenge.testScore)
             student_BonusScore.append(studentChallenge.bonusPointsAwarded)
             student_AdjustmentScore.append(studentChallenge.scoreAdjustment)
             student_AdjustmentReason.append(studentChallenge.adjustmentReason)

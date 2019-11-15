@@ -100,19 +100,6 @@
                                 </label>
                             </div>
                             {% endif %}
-                            {% if studCanChangeGoal %}
-                            <div class="switch">
-                                <label>
-                                    Display Student Goals
-                                    {% if displayGoal %}
-                                    <input name="displayGoal" type="checkbox" checked>
-                                    {% else %}
-                                    <input name="displayGoal" type="checkbox">
-                                    {% endif %}
-                                    <span class="lever secondary-content"></span>
-                                </label>
-                            </div>
-                            {% endif %}
                             </div>
                             <div class="card-action right-align">
                             {% if studCanChangeLeaderboardVis or studCanChangeClassSkillsVis or studCanChangeBadgeVis or studCanChangeclassAverageVis %}

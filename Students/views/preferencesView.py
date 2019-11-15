@@ -23,15 +23,14 @@ def preferencesView(request):
         if len(c_ccparams) > 0:
             ccparams = c_ccparams[0]
             print('ccparams', ccparams)
-            context_dict['studCanChangeBadgeVis']=ccparams.studCanChangeBadgeVis
-            context_dict['studCanChangeLeaderboardVis']=ccparams.studCanChangeLeaderboardVis
-            context_dict['studCanChangeClassSkillsVis']=ccparams.studCanChangeClassSkillsVis
-            context_dict['studCanChangeclassAverageVis']=ccparams.studCanChangeclassAverageVis
+            context_dict['studCanChangeBadgeVis'] = ccparams.studCanChangeBadgeVis
+            context_dict['studCanChangeLeaderboardVis'] = ccparams.studCanChangeLeaderboardVis
+            context_dict['studCanChangeClassSkillsVis'] = ccparams.studCanChangeClassSkillsVis
+            context_dict['studCanChangeclassAverageVis'] = ccparams.studCanChangeclassAverageVis
             context_dict["classmatesChallenges"] = ccparams.classmatesChallenges
-            context_dict["studCanChangeGoal"] = ccparams.studCanChangeGoal
-            
-        student = context_dict['student']   
-    
+
+        student = context_dict['student']
+
     if request.POST:
 
         if request.POST['scpID']:
@@ -58,9 +57,6 @@ def preferencesView(request):
             scparams.participateInDuel = "participateInDuel" in request.POST
             scparams.participateInCallout = "participateInCallout" in request.POST
 
-        if ccparams.studCanChangeGoal:
-            scparams.displayGoal = "displayGoal" in request.POST
-
         # scparams.displayClassAverage = "displayClassAverage" in request.POST
         scparams.displayClassRanking = "displayClassRanking" in request.POST
         scparams.save()
@@ -86,6 +82,5 @@ def preferencesView(request):
             context_dict["displayClassRanking"] = scparams.displayClassRanking
             context_dict["participateInDuel"] = scparams.participateInDuel
             context_dict["participateInCallout"] = scparams.participateInCallout
-            context_dict["displayGoal"]=scparams.displayGoal
 
         return render(request, 'Students/Preferences.html', context_dict)

@@ -38,8 +38,7 @@ from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule,\
-    deleteGroup
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents
@@ -70,7 +69,6 @@ from Instructors.views.subTopicsListView import subTopicsListView
 
 from Instructors.views.topicsCreateView import topicsCreateView
 from Instructors.views.topicsListView import topicsListView
-from Instructors.views.FlashCardsGroupListView import groupListView
 from Instructors.views.trueFalseView import trueFalseNewForm
 from Instructors.views.views import index
 
@@ -96,9 +94,6 @@ from Instructors.views.DuelReportView import duel_report, duel_challenge_report
 from Instructors.views.CalloutReportView import callout_report, callout_challenge_report
 
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
-from Instructors.views import FlashCardsGroupListView
-from Instructors.views.FlashCardGroupCreateView import groupCreateView
-from Instructors.views.CreateFlashCard import CreateFlashCard
 admin.autodiscover()
 urlpatterns = [
 
@@ -156,7 +151,6 @@ urlpatterns = [
     url(r'^deleteManualSpendRule', deleteManualSpendRule,
         name='deleteManualSpendRule'),
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
-    url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
     url(r'^deleteSubTopic', deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
@@ -242,8 +236,4 @@ urlpatterns = [
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
-    url(r'^groupList', groupListView, name='groupListView'),
-    url(r'^groupCreate', groupCreateView, name='groupCreateView'),
-    url(r'^createFlashCard', CreateFlashCard, name='createFlashCard')
-    
 ]
