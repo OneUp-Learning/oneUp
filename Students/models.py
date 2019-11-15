@@ -13,6 +13,7 @@ from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
 from Instructors.views.instructorHomeView import instructorHome
+from django.utils import timezone
 
 # Create your models here.
  
@@ -75,8 +76,12 @@ class StudentChallenges(models.Model):
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
     def getScore(self):
+        if self.testScore == 0:
+            return 0;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve    
     def getScoreWithBonus(self):
+        if self.testScore == 0:
+            return self.scoreAdjustment+self.bonusPointsAwarded;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve + self.bonusPointsAwarded   
         
 
@@ -147,11 +152,13 @@ class StudentGoalSetting(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
-    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
+    timestamp = models.DateTimeField(default=timezone.now) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
+    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
+    recurringGoal = models.BooleanField(verbose_name='A boolean value to indicate whether goal has recurrence.', default=True)
 
     def __str__(self):              
-        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -371,23 +378,3 @@ class StudentProgressiveUnlocking(models.Model):
     
     def __str__(self):
         return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.objectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)
-
-class StudentActions(models.Model):
-    ''' Ultility model which will be used for thesis work. Collects infromation about each student
-        and what actions they have done (warmups/serious challenge attempts or duels/callouts) over 
-        some X time.
-    '''
-    studentActionsID = models.AutoField(primary_key=True)
-    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
-    json_data = models.TextField(blank=True, default='{}', verbose_name='Student JSON Results',
-            help_text='JSON encoded table of student results')
-    warmups_attempted = models.IntegerField(default=0,verbose_name="# of Warmups Attempted")
-    serious_attempted = models.IntegerField(default=0,verbose_name="# of Serious Challenges Attempted")
-    duels_sent = models.IntegerField(default=0,verbose_name="# of Duels Sent")
-    duels_accepted = models.IntegerField(default=0,verbose_name="# of Duels Accepted")
-    callouts_sent = models.IntegerField(default=0,verbose_name="# of Callouts Accpeted")
-    callouts_accepted = models.IntegerField(default=0,verbose_name="# of Callouts Sent")
-    timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
-    def __str__(self):
-        return "{} : {} : {} : {}".format(self.studentActionsID, self.courseID, self.studentID, self.timestamp)
