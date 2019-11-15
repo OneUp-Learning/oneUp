@@ -389,38 +389,13 @@ class StudentActions(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     json_data = models.TextField(blank=True, default='{}', verbose_name='Student JSON Results',
             help_text='JSON encoded table of student results')
-    timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
-    def __str__(self):
-        return "{} : {} : {} : {}".format(self.studentActionsID, self.courseID, self.studentID, self.timestamp)
-
-class StudentActionsLoop(models.Model):
-    ''' Ultility model which will be used for thesis work. Collects infromation about each student
-        and what actions they have done (warmups/serious challenge attempts or duels/callouts) over 
-        some X time.
-    '''
-    studentActionsLoopID = models.AutoField(primary_key=True)
-    studentActionsID = models.ForeignKey(StudentActions, on_delete=models.CASCADE, verbose_name="the overall loop", db_index=True)
-    # Actions
     warmups_attempted = models.IntegerField(default=0,verbose_name="# of Warmups Attempted")
     serious_attempted = models.IntegerField(default=0,verbose_name="# of Serious Challenges Attempted")
     duels_sent = models.IntegerField(default=0,verbose_name="# of Duels Sent")
     duels_accepted = models.IntegerField(default=0,verbose_name="# of Duels Accepted")
     callouts_sent = models.IntegerField(default=0,verbose_name="# of Callouts Accpeted")
-    callouts_participated = models.IntegerField(default=0,verbose_name="# of Callouts Participated")
-
-    # Postivie Feedback
-    high_score_challenges = models.IntegerField(default=0, verbose_name="# of High Score Challenges")
-    vc_earned = models.IntegerField(default=0, verbose_name="# of VC Earned")
-    badges_earned = models.IntegerField(default=0, verbose_name="# of Badges Earned")
-    on_leaderboard = models.BooleanField(default=False, verbose_name="Appeared on Leaderboard")
-    duels_won = models.IntegerField(default=0, verbose_name="# of Duels Won")
-    callouts_won = models.IntegerField(default=0, verbose_name="# of Callouts Won")
-
-    # Negative Feedback
-    low_score_challenges = models.IntegerField(default=0, verbose_name="# of Low Score Challenges")
-    duels_lost = models.IntegerField(default=0, verbose_name="# of Duels Lost")
-    callouts_lost = models.IntegerField(default=0, verbose_name="# of Callouts Lost")
-
+    callouts_accepted = models.IntegerField(default=0,verbose_name="# of Callouts Sent")
     timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
     def __str__(self):
-        return "{} : {} : {}".format(self.studentActionsLoopID, self.studentActionsID, self.timestamp)
+        return "{} : {} : {} : {}".format(self.studentActionsID, self.courseID, self.studentID, self.timestamp)
+
