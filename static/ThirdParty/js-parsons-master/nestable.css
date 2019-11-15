@@ -9,7 +9,7 @@
 .dd-empty,
 .dd-placeholder { display: block; position: relative; margin: 0; padding: 0; min-height: 30px; font-size: 13px; }
 
-.dd-handle { display: block; height: 60px; color: #333; text-decoration: none; font-weight: bold;
+.dd-handle { display: block; height: fit-content; color: #333; text-decoration: none; font-weight: bold;
     box-sizing: border-box; -moz-box-sizing: border-box;
 }
 .dd-handle:hover { color: #2ea8e5; background: #fff; }
