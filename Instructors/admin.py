@@ -3,11 +3,10 @@ from django.contrib import admin
 # Register your models here.
 from django.contrib import admin
 from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags,\
-    TemplateDynamicQuestions, Topics, CoursesTopics, ChallengesTopics, ActivitiesCategory,\
-    FlashCardGroup, FlashCardGroupCourse, FlashCardToGroup
+    TemplateDynamicQuestions, Topics, CoursesTopics, ChallengesTopics, ActivitiesCategory
 from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages, UploadedFiles
 from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, DependentLibrary,\
-    QuestionLibrary, UploadedFiles, UploadedActivityFiles,FlashCards,FlashCardGroup,FlashCardGroupCourse,FlashCardToGroup
+    QuestionLibrary, UploadedFiles, UploadedActivityFiles
 from django.template.backends.django import Template
 
 admin.site.register(Announcements)
@@ -46,10 +45,6 @@ admin.site.register(CoursesTopics)
 admin.site.register(DependentLibrary)
 admin.site.register(LuaLibrary)
 admin.site.register(QuestionLibrary)
-admin.site.register(FlashCards)
-admin.site.register(FlashCardGroup)
-admin.site.register(FlashCardGroupCourse)
-admin.site.register(FlashCardToGroup)
 
 
 
