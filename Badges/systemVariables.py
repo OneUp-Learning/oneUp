@@ -1521,7 +1521,7 @@ class SystemVariable():
             'displayName':'Badges Earned',
             'description':'The number of badges the student has earned',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.badgeEarned],
+                ObjectTypes.none:[Event.badgeEarned, Event.endChallenge],
             },
             'type':'int',
             'functions':{
