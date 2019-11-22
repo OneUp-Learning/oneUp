@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
+from Badges.events import register_event
+from Badges.enums import Event
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesInfo, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Student, StudentBadges, StudentFile, User
 from Badges.systemVariables import logger
@@ -22,7 +24,7 @@ def addBadgeManuallyView(request):
                     name += " (Test Student)"
                 studentName.append(name)
             
-            badges = BadgesInfo.objects.filter(courseID = course , manual=True)
+            badges = BadgesInfo.objects.filter(courseID = course)
             customRules = [r for r in badges]
             
             ##get thecustom made badge
@@ -59,12 +61,11 @@ def addBadgeManuallyView(request):
                     else:##otherwise for each student badgeobject, grab the id name and image    
                         for studentBadge in studentBadges:
                             badgeInfo = BadgesInfo.objects.get(badgeID = studentBadge.badgeID.badgeID)
-                            if(badgeInfo.manual):
-                                studentBadgeID.append(studentBadge.studentBadgeID)
-                                studentBadgeName.append(studentBadge.badgeID.badgeName)
-                                studentBadgeImage.append(studentBadge.badgeID.badgeImage)
+                            
+                            studentBadgeID.append(studentBadge.studentBadgeID)
+                            studentBadgeName.append(studentBadge.badgeID.badgeName)
+                            studentBadgeImage.append(studentBadge.badgeID.badgeImage)
                         #print(studentBadgeImage)
-                        
                         ##at the end of  the for, append the things into the list
                         studentAwardedBadgesZipList.append(list(zip(studentBadgeID, studentBadgeName, studentBadgeImage)))
                         
@@ -98,6 +99,9 @@ def addBadgeManuallyView(request):
                 studentAddBadgeLog.studentBadges = studentBadge
                 studentAddBadgeLog.issuer = request.user
                 studentAddBadgeLog.save()
+
+                # Register even that a badge was earned
+                register_event(Event.badgeEarned, request, student, referencedBadge.pk)
                 
             ##we are sent checkboxes to remove from students    
             if 'checkboxes' in request.POST:
