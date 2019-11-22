@@ -49,7 +49,7 @@ def addBadgeManuallyView(request):
                     
                     ##filter the student badges objects, by selecting where studentID matches studentObjets
                     ##studentID
-                    studentBadges = StudentBadges.objects.filter(studentID = studentObjects.studentID)
+                    studentBadges = StudentBadges.objects.filter(studentID = studentObjects.studentID, badgeID__courseID=course)
                     
                     
                     ##we must blank this out on each iteration so it will load in only what maches the studentID
