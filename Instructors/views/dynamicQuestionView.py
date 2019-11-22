@@ -266,7 +266,7 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestionTable[uniqid] = qdict
             qdict['submissionsAllowed'] = int(request.POST['_submissionsAllowed'])
             qdict['resubmissionPenalty'] = Decimal(request.POST['_resubmissionPenalty'])
-            qdict['point'] = Decimal(request.POST['_points'])
+            qdict['point'] = Decimal(request.POST.get('_points',10))
             qdict['total_points'] = qdict['point']
             
             # We also take a moment or two to clear out old dynamic questions we were trying out.  Anything more than a week old gets
