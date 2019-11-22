@@ -22,7 +22,7 @@
     <main>
         <div class="row center-align">
             <div class="col s12 m10 offset-m1">
-                <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activityName}}</h3>
+                <h3 class="truncate">{{activityName}}</h3>
             </div>
         </div>
         <div class="row">
@@ -47,30 +47,30 @@
                                     {% for i, student_ID, student_first_name, student_last_name, student_Points, student_Bonus, student_Feedback, File_Name in assignedActivityPoints_range %}
                                     <input type="hidden" id="{{student_ID}}_points_graded" class="isGraded" value="False">
                                     <tr>
-                                        <td>
-                                            <p>{{student_first_name}} {{student_last_name}}{% if File_Name%}
-                                                <blockquote><a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">file_download</i>Download File</a></blockquote>
-                                            </p>
-                                            {% else %} <blockquote>No file available</blockquote></p>
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <p>{{student_first_name}} {{student_last_name}}</p>
+                                            {% if File_Name%}
+                                                <blockquote style="margin-top: 4px;"><a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">file_download</i>Download File</a></blockquote>
+                                            
+                                            {% else %} <blockquote style="margin-top: 4px;">No file available</blockquote>
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            <div class="input-field col s12">
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <div style="margin: 0;" class="input-field col s12">
                                                 <input value="{{student_Points}}" name="student_Points{{student_ID}}" id="{{student_ID}}_points" type="number" class="validate" min="-1" step="any" required>
                                             </div>
                                         </td>
 					{% if isVcUsed %}
-                                        <td>
-                                          <div class="input-field col s12">
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                          <div style="margin: 0;" class="input-field col s12">
 
                                             <input value="{{student_Bonus}}" name="student_Bonus{{student_ID}}" id="{{student_ID}}_bonus" type="number" class="validate" min="0" step="any" required>
                                             </div>
                                         </td>
 					{% endif %}
-                                        <td>
-                                            <div class="row">
-                                                <div class="input-field col s12">
-                                                    <textarea id="student_feedback" name="student_Feedback{{student_ID}}" class="materialize-textarea">{{student_Feedback}}</textarea>
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                                <div style="margin: 0;" class="input-field col s12">
+                                                    <textarea style="padding: 0;" id="student_feedback" name="student_Feedback{{student_ID}}" class="materialize-textarea">{{student_Feedback}}</textarea>
                                                 </div>
                                             </div>
 
