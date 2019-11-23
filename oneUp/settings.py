@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import oneUp
+import getpass
 from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
     SESSION_SERIALIZER
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -243,7 +244,7 @@ CKEDITOR_CONFIGS = {
 }
 
 # For chat/celery
-rabbitmqpasswordfilepath = os.path.expanduser("~/rabbitmqpasswd"):
+rabbitmqpasswordfilepath = os.path.expanduser("~/rabbitmqpasswd")
 if os.path.exists(rabbitmqpasswordfilepath):
     rabbitmq_username = getpass.getuser()
     with open(rabbitmqpasswordfilepath) as f:
