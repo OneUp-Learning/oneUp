@@ -262,9 +262,10 @@ CKEDITOR_CONFIGS = {
 }
 
 # For chat/celery
-if os.path.exists(os.path.expanduser("~/rabbitmqpasswd")):
+rabbitmqpasswordfilepath = os.path.expanduser("~/rabbitmqpasswd"):
+if os.path.exists(rabbitmqpasswordfilepath):
     rabbitmq_username = getpass.getuser()
-    with open('~/rabbitmqpasswd') as f:
+    with open(rabbitmqpasswordfilepath) as f:
         rabbitmq_password = f.read().strip()
     rabbitmq_vhostname = rabbitmq_username
 else:
