@@ -104,12 +104,13 @@ def student_data_mine_actions():
                                 continue
                             student_challenge = StudentChallenges.objects.filter(pk=challenge_id)
                             if student_challenge:
-                                if student_challenge.challengeID.isGraded:
-                                    save = True
-                                    action_loop.serious_attempted += 1
-                                else:
-                                    save = True
-                                    action_loop.warmups_attempted += 1
+                                if hasattr(student_challenge, 'challengeID'):
+                                    if student_challenge.challengeID.isGraded:
+                                        save = True
+                                        action_loop.serious_attempted += 1
+                                    else:
+                                        save = True
+                                        action_loop.warmups_attempted += 1
                         elif event == Event.duelSent:
                             save = True
                             action_loop.duels_sent += 1
