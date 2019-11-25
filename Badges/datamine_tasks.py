@@ -84,12 +84,13 @@ def student_data_mine_actions():
                 student_actions_all = StudentEventLog.objects.filter(student=student, course=course, event__in=actions, timestamp__gt=last_ran).order_by('timestamp')
             else:
                 student_actions_all = StudentEventLog.objects.filter(student=student, course=course, event__in=actions, timestamp__gt=timezone.now() - timedelta(weeks=12)).order_by('timestamp')
+            
+            if student_actions_all:
+                start_timestamp = student_actions_all[0].timestamp
+                end_timestamp = start_timestamp + timedelta(hours=1)
+                current_time = timezone.now()
 
-            start_timestamp = student_actions_all[0].timestamp
-            end_timestamp = start_timestamp + timedelta(hours=1)
-            current_time = timezone.now()
-
-            while end_timestamp <= current_time:
+                while end_timestamp <= current_time:
                 student_actions_subset = student_actions_all.filter(timestamp__gte=start_timestamp, timestamp__lt=end_timestamp)
 
                 if student_actions_subset:
