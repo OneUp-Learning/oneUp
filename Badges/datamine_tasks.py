@@ -159,7 +159,6 @@ def student_data_mine_actions():
 
                             leaderboards = StudentLeaderboardHistory.objects.filter(studentID=student, courseID=course, startTimestamp__gte=start_timestamp, startTimestamp__lt=end_timestamp)
                             if leaderboards:
-                                save = True
                                 action_loop.on_leaderboard = True
 
                             for warmup_challenge in course_challenges.filter(isGraded=False):
