@@ -92,6 +92,9 @@ def student_data_mine_actions():
                     start_timestamp = start_timestamp.timestamp
                     end_timestamp = start_timestamp + timedelta(hours=1)
                     current_time = timezone.now()
+                    print("Start: {}".format(start_timestamp))
+                    print("End: {}".format(end_timestamp))
+                    print("Current: {}".format(current_time))
                     print("Actions: {}".format(student_actions_all))
 
                     while end_timestamp <= current_time:
