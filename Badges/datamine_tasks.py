@@ -84,100 +84,107 @@ def student_data_mine_actions():
                 student_actions_all = StudentEventLog.objects.filter(student=student, course=course, event__in=actions, timestamp__gt=last_ran).order_by('timestamp')
             else:
                 student_actions_all = StudentEventLog.objects.filter(student=student, course=course, event__in=actions, timestamp__gt=timezone.now() - timedelta(weeks=12)).order_by('timestamp')
+            
+            # print("Global {}".format(student_actions_all))
+            if student_actions_all:
+                start_timestamp = student_actions_all.first()
+                if start_timestamp:
+                    start_timestamp = start_timestamp.timestamp
+                    end_timestamp = start_timestamp + timedelta(hours=1)
+                    current_time = timezone.now()
+                    print("Start: {}".format(start_timestamp))
+                    print("End: {}".format(end_timestamp))
+                    print("Current: {}".format(current_time))
+                    print("Actions: {}".format(student_actions_all))
 
-            start_timestamp = student_actions_all[0].timestamp
-            end_timestamp = start_timestamp + timedelta(hours=1)
-            current_time = timezone.now()
+                    while end_timestamp <= current_time:
+                        student_actions_subset = student_actions_all.filter(timestamp__gte=start_timestamp, timestamp__lt=end_timestamp)
 
-            while end_timestamp <= current_time:
-                student_actions_subset = student_actions_all.filter(timestamp__gte=start_timestamp, timestamp__lt=end_timestamp)
-
-                if student_actions_subset:
-                    save = False
-                    action_loop = StudentActionsLoop()
-                    action_loop.studentActionsID = student_actions_data
-                    for student_action in student_actions_subset:
-                        event = student_action.event
-                        if event == Event.endChallenge:
-                            challenge_id = student_action.objectID
-                            if not challenge_id:
-                                continue
-                            student_challenge = StudentChallenges.objects.filter(pk=challenge_id)
-                            if student_challenge:
-                                if hasattr(student_challenge, 'challengeID'):
-                                    if student_challenge.challengeID.isGraded:
-                                        save = True
-                                        action_loop.serious_attempted += 1
-                                    else:
-                                        save = True
-                                        action_loop.warmups_attempted += 1
-                        elif event == Event.duelSent:
-                            save = True
-                            action_loop.duels_sent += 1
-                        elif event == Event.duelAccepted:
-                            save = True
-                            action_loop.duels_accepted += 1
-                        elif event == Event.calloutSent:
-                            save = True
-                            action_loop.callouts_sent += 1
-                    
-                    callouts_participated = len(CalloutStats.objects.filter(studentID=student, courseID=course, submitTime__gte=start_timestamp, submitTime__lt=end_timestamp))
-                    if callouts_participated > 0:
-                        save = True
-                        action_loop.callouts_participated += callouts_participated
-
-                    # Find feedback
-                    student_feedbacks = StudentEventLog.objects.filter(student=student, course=course, event__in=feedbacks, timestamp__gte=start_timestamp, timestamp__lt=end_timestamp)
-                    for student_feedback in student_feedbacks:
-                        event = student_action.event
-                        if event == Event.virtualCurrencyEarned:
-                            save = True
-                            action_loop.vc_earned += 1
-                        elif event == Event.badgeEarned:
-                            save = True
-                            action_loop.badges_earned += 1
-                        elif event == Event.duelWon:
-                            save = True
-                            action_loop.duels_won += 1
-                        elif event == Event.calloutWon:
-                            save = True
-                            action_loop.callouts_won += 1
-                        elif event == Event.duelLost:
-                            save = True
-                            action_loop.duels_lost += 1
-                        elif event == Event.calloutLost:
-                            save = True
-                            action_loop.callouts_lost += 1
-
-                    leaderboards = StudentLeaderboardHistory.objects.filter(studentID=student, courseID=course, startTimestamp__gte=start_timestamp, startTimestamp__lt=end_timestamp)
-                    if leaderboards:
-                        save = True
-                        action_loop.on_leaderboard = True
-
-                    for warmup_challenge in course_challenges.filter(isGraded=False):
-                        student_challenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=warmup_challenge, endTimestamp__gte=start_timestamp, endTimestamp__lt=end_timestamp).exclude(endTimestamp__isnull=True)
-
-                        if student_challenges.exists():
-                            gradeID  = []
-                            for student_challenge in student_challenges:
-                                gradeID.append(student_challenge.testScore)
+                        if student_actions_subset:
+                            save = False
+                            action_loop = StudentActionsLoop()
+                            action_loop.studentActionsID = student_actions_data
+                            for student_action in student_actions_subset:
+                                event = student_action.event
+                                if event == Event.endChallenge:
+                                    challenge_id = student_action.objectID
+                                    if not challenge_id:
+                                        continue
+                                    student_challenge = StudentChallenges.objects.filter(pk=challenge_id)
+                                    if student_challenge:
+                                        if hasattr(student_challenge, 'challengeID'):
+                                            if student_challenge.challengeID.isGraded:
+                                                save = True
+                                                action_loop.serious_attempted += 1
+                                            else:
+                                                save = True
+                                                action_loop.warmups_attempted += 1
+                                elif event == Event.duelSent:
+                                    save = True
+                                    action_loop.duels_sent += 1
+                                elif event == Event.duelAccepted:
+                                    save = True
+                                    action_loop.duels_accepted += 1
+                                elif event == Event.calloutSent:
+                                    save = True
+                                    action_loop.callouts_sent += 1
                             
-                            #Calculation for ranking score by 3 levels (hight, mid, low)
-                            tTotal=(warmup_challenge.totalScore/3)
-                            
-                            if (max(gradeID) >= (2*tTotal)): # High
+                            callouts_participated = len(CalloutStats.objects.filter(studentID=student, courseID=course, submitTime__gte=start_timestamp, submitTime__lt=end_timestamp))
+                            if callouts_participated > 0:
                                 save = True
-                                action_loop.high_score_challenges += 1
-                            # elif (max(gradeID) > tTotal) and (max(gradeID) < (2*tTotal)): # Mid
-                            #     warmup_challenge_mids += 1
-                            elif max(gradeID) < tTotal: # Low
-                                save = True
-                                action_loop.low_score_challenges += 1
-                    if save:
-                        action_loop.save()
+                                action_loop.callouts_participated += callouts_participated
 
-                start_timestamp = end_timestamp
-                end_timestamp = end_timestamp + timedelta(hours=1)
+                            # Find feedback
+                            student_feedbacks = StudentEventLog.objects.filter(student=student, course=course, event__in=feedbacks, timestamp__gte=start_timestamp, timestamp__lt=end_timestamp)
+                            for student_feedback in student_feedbacks:
+                                event = student_action.event
+                                if event == Event.virtualCurrencyEarned:
+                                    save = True
+                                    action_loop.vc_earned += 1
+                                elif event == Event.badgeEarned:
+                                    save = True
+                                    action_loop.badges_earned += 1
+                                elif event == Event.duelWon:
+                                    save = True
+                                    action_loop.duels_won += 1
+                                elif event == Event.calloutWon:
+                                    save = True
+                                    action_loop.callouts_won += 1
+                                elif event == Event.duelLost:
+                                    save = True
+                                    action_loop.duels_lost += 1
+                                elif event == Event.calloutLost:
+                                    save = True
+                                    action_loop.callouts_lost += 1
+
+                            leaderboards = StudentLeaderboardHistory.objects.filter(studentID=student, courseID=course, startTimestamp__gte=start_timestamp, startTimestamp__lt=end_timestamp)
+                            if leaderboards:
+                                action_loop.on_leaderboard = True
+
+                            for warmup_challenge in course_challenges.filter(isGraded=False):
+                                student_challenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=warmup_challenge, endTimestamp__gte=start_timestamp, endTimestamp__lt=end_timestamp).exclude(endTimestamp__isnull=True)
+
+                                if student_challenges.exists():
+                                    gradeID  = []
+                                    for student_challenge in student_challenges:
+                                        gradeID.append(student_challenge.testScore)
+                                    
+                                    #Calculation for ranking score by 3 levels (hight, mid, low)
+                                    tTotal=(warmup_challenge.totalScore/3)
+                                    
+                                    if (max(gradeID) >= (2*tTotal)): # High
+                                        save = True
+                                        action_loop.high_score_challenges += 1
+                                    # elif (max(gradeID) > tTotal) and (max(gradeID) < (2*tTotal)): # Mid
+                                    #     warmup_challenge_mids += 1
+                                    elif max(gradeID) < tTotal: # Low
+                                        save = True
+                                        action_loop.low_score_challenges += 1
+                            if save:
+                                action_loop.save()
+
+                        start_timestamp = end_timestamp
+                        end_timestamp = end_timestamp + timedelta(hours=1)
 
             # Problems Correct / Incorrect
             problems_correct = 0
