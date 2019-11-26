@@ -997,7 +997,7 @@ def getPercentageScoreForStudent(challengeID, student, percentage, last_ran):
     if Challenges.objects.filter(challengeID= challengeID).exists():
         challengeTotalScore = Challenges.objects.filter(challengeID= challengeID)[0].totalScore
     
-    if StudentChallenges.objects.filter(challengeID=challengeID, studentID=student, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))).exists():
+    if StudentChallenges.objects.filter(challengeID=challengeID, studentID=student, endTimestamp__range=[last_ran.strftime("%Y-%m-%d"), datetime.now().strftime("%Y-%m-%d %H:%M:%S")]).exists():
         studentChallenges = StudentChallenges.objects.filter(challengeID=challengeID, studentID=student)
         for studentChallenge in studentChallenges:
             studentScores.append(float((studentChallenge.testScore/challengeTotalScore)))
@@ -1068,11 +1068,14 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         total = 0
         studentChallengeIDs = []
         maxScores = []
-        studentChallenges = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
-        print("sutdentChallenges", studentChallenges)
+        studentChallenges = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=[last_ran.strftime("%Y-%m-%d"), datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+        print("StudentChallenges", studentChallenges)
         for challenge in studentChallenges:
             if getPercentageScoreForStudent(challenge.challengeID, stud, percentage, last_ran):
                 total += 1
+                studentStreak = streakProvider(unique_id, course, stud, streakTypeNum) 
+                studentStreak.currentStudentStreakLength += 1
+                studentStreak.save()
             
         print("current total for student", total)
         
@@ -1086,6 +1089,7 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         # Set the student total that this calculation should be run for
         if stud == student:
             student_total = total
+            studentStreak = streakProvider(unique_id, course, student, streakTypeNum)
     
     avg_total = avg_total / len(students)
 
@@ -1098,146 +1102,17 @@ def calculate_student_challenge_streak_for_percentage(percentage, course, studen
         threshold = int(threshold)
 
     #if total is larger than streak and we want to NOT reset streak
-    if student_total > threshold and resetStreak:
+    if student_total >= threshold and resetStreak:
         studentStreak.currentStudentStreakLength = 0
         student_total = threshold
     elif student_total > threshold and not resetStreak:
-        if student_total % threshold == 0:
+        if studentStreak.currentStudentStreakLength % threshold == 0:
             student_total = threshold
         else:
             #total is set as remainder of current streak length and threshold
             student_total %= threshold
-    elif student_total == threshold and resetStreak:
-        studentStreak.currentStudentStreakLength = 0
-        student_total = threshold
     elif student_total == threshold and not resetStreak:
         student_total = threshold
-    studentStreak.currentStudentStreakLength = student_total
-    studentStreak.save()
-    
-    print("Course: {}".format(course))
-    print("Student: {}".format(student))
-    print("Periodic Variable: {}".format(periodic_variable))
-    print("Last Ran: {}".format(last_ran))
-    print("Total Earnings: {}".format(student_total))
-
-    
-    return (student, student_total)
-    
-def calculate_student_challenge_streak_for_percentage_over_span_of_days(percentage, course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only):
-    from Students.models import StudentStreaks, StudentChallenges
-    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
-    from datetime import datetime
-    from Instructors.models import Challenges
-
-    percentage = percentage *.01
-    # Check aganist only Warm-up challenges
-    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
-    # The amount of unique Warm-up challenges with a score greater than 60%
-    unique_warmups = 0
-    
-    # If this is first time running, set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous challenges from beginning of time
-    if last_ran == None:
-        if award_type == 'badge':
-            periodic_badge = PeriodicBadges.objects.get(badgeID=unique_id, courseID=course)
-            last_ran = periodic_badge.lastModified
-        elif award_type == 'vc':
-            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
-            last_ran = periodicVC.lastModified
-    
-    if result_only:
-        date_time = time_period['datetime']
-        if date_time:
-            last_ran = date_time()
-        else:
-            last_ran = None
-           
-    threshold = 0
-    resetStreak = False
-    streakTypeNum = None
-    #if detemine which type of award this is and obtain thresholds and resetStreak booleans
-    if award_type == 'badge':
-        if PeriodicBadges.objects.filter(badgeID=unique_id).exists():
-            periodicBadge = PeriodicBadges.objects.filter(badgeID=unique_id)[0]
-            threshold = periodicBadge.threshold
-            resetStreak = periodicBadge.resetStreak
-            streakTypeNum = 0
-    elif award_type == 'vc':
-        if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id).exists():
-            periodicVC = VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=unique_id)[0]
-            threshold = periodicVC.threshold
-            resetStreak = periodicVC.resetStreak
-            streakTypeNum = 1
-     
-    studentStreak = streakProvider(unique_id, course, student, streakTypeNum) 
-        
-    student_total = 0
-    # Cases when threshold is passed as max or avg or as number
-    # Need to calculate the avg of all students totals and find max of all students
-
-    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
-    max_total = 0
-    avg_total = 0
-    for s in students:
-        stud = s.studentID
-        total = 0
-        challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
-        studentChallengeIDs = []
-        maxScores = []
-
-        if challengeCount > 1:
-            studentChallenges = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))
-            for challenge in studentChallenges:
-                studentChallengeIDs.append(challenge.challengeID)
-            challengeScores = []
-            for studentChallengeID in studentChallengeIDs:
-                if getPercentageScoreForStudent(studentChallengeID, stud, percentage, last_ran):
-                    total += 1
-        elif challengeCount == 1:
-            studentChallenge = StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID,
-            endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d")))[0]
-            challenge = Challenges.objects.filter(challengeID=studentChallenge.challengeID)[0]
-            if (studentChallenge.testScore/challenge.challengeTotalScore) >= (percentage):
-                total += 1
-
-        # Set max
-        if total > max_total:
-            max_total = total
-
-        # Sum to find avg
-        avg_total += total
-
-        # Set the student total that this calculation should be run for
-        if stud == student:
-            student_total = total
-    
-    avg_total = avg_total / len(students)
-
-    # Determine the threshold value 
-    if threshold == 'max':
-        threshold = max_total
-    elif threshold == 'avg':
-        threshold = avg_total
-    else:
-        threshold = int(threshold)
-
-    if student_total:
-        studentStreak.currentStudentStreakLength = 0
-    else:
-        studentStreak.currentStudentStreakLength += 1
-
-    #if total is larger than streak and we want to NOT reset streak
-    if studentStreak.currentStudentStreakLength >= threshold and resetStreak:
-        studentStreak.currentStudentStreakLength = 0
-        student_total = threshold
-    elif studentStreak.currentStudentStreakLength >= threshold and not resetStreak:
-        student_total = threshold
-    elif studentStreak.currentStudentStreakLength == threshold and resetStreak:
-        studentStreak.currentStudentStreakLength = 0
-        student_total = threshold
-    elif studentStreak.currentStudentStreakLength == threshold and not resetStreak:
-        student_total = threshold
-        
     studentStreak.save()
     
     print("Course: {}".format(course))
@@ -1255,12 +1130,6 @@ def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
 
-def calculate_warmup_challenge_greater_or_equal_to_70_by_day(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    return calculate_student_challenge_streak_for_percentage_over_span_of_days(70,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
-
-def calculate_warmup_challenge_greater_or_equal_to_40_by_day(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    return calculate_student_challenge_streak_for_percentage_over_span_of_days(40,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
-                
 def studentScore(studentId, course, periodic_variable, time_period, unique_id, last_ran=None, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict = None, award_type=None):
     
     from Badges.models import CourseConfigParams, LeaderboardsConfig
@@ -1659,8 +1528,6 @@ class PeriodicVariables:
     warmup_challenge_greater_or_equal_to_70 = 1410
     number_of_days_of_unique_warmups_90 = 1411
     number_of_days_of_unique_warmups_70 = 1412
-    warmup_challenge_greater_or_equal_to_40_by_day = 1413
-    warmup_challenge_greater_or_equal_to_70_by_day = 1414
 
     
     periodicVariables = {
@@ -1720,33 +1587,19 @@ class PeriodicVariables:
             'description': 'Retrieves the student attendance streak of the number of days marked as present',
             'function': calculate_student_attendance_streak,
         },
-        warmup_challenge_greater_or_equal_to_40: {
-            'index': warmup_challenge_greater_or_equal_to_40,
-            'name': 'warmup_challenge_gte_40',
-            'displayName': 'Warmup Challenge Streak Score >= 40%',
-            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40%',
-            'function': calculate_warmup_challenge_greater_or_equal_to_40,
-        },
         warmup_challenge_greater_or_equal_to_70: {
             'index': warmup_challenge_greater_or_equal_to_70,
-            'name': 'warmup_challenge_gte_70',
-            'displayName': 'Warmup Challenge Streak Score >= 70%',
-            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70%',
-            'function': calculate_warmup_challenge_greater_or_equal_to_70,
-        },
-        warmup_challenge_greater_or_equal_to_70_by_day: {
-            'index': warmup_challenge_greater_or_equal_to_70_by_day,
             'name': 'warmup_challenge_gte_70_by_day',
             'displayName': 'Warmup Challenge Streak Score >= 70% over a period of time',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70% over a period of time',
-            'function': calculate_warmup_challenge_greater_or_equal_to_70_by_day,
+            'function': calculate_warmup_challenge_greater_or_equal_to_70,
         },
-        warmup_challenge_greater_or_equal_to_40_by_day: {
-            'index': warmup_challenge_greater_or_equal_to_40_by_day,
+        warmup_challenge_greater_or_equal_to_40: {
+            'index': warmup_challenge_greater_or_equal_to_40,
             'name': 'warmup_challenge_gte_40_by_day',
             'displayName': 'Warmup Challenge Streak Score >= 40% over a period of time',
             'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 40% over a period of time',
-            'function': calculate_warmup_challenge_greater_or_equal_to_40_by_day,
+            'function': calculate_warmup_challenge_greater_or_equal_to_40,
         },
         challenge_streak: {
             'index': challenge_streak,
