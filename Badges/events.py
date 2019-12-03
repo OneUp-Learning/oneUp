@@ -248,7 +248,7 @@ def register_event(eventID, request, student=None, objectId=None):
     return register_event_simple(eventID, make_smaller_serializable_request(request), student, objectId)
 
 def process_event_actual(eventID, minireq, studentpk, objectId):
-    print("Processing event with eventpk="+eventID);
+    print("Processing event with eventpk="+str(eventID));
     if studentpk is None:
         student = Student.objects.get(user__username=minireq['user'])
     else:
