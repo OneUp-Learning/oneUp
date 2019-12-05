@@ -487,192 +487,179 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 
   <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
   <input type="hidden" name="{{i}}studentTrash" id="{{q.questionID}}_studentTrash" value="">
-  <input type="hidden" name="{{i}}lineIndent" id="{{q.questionID}}_lineIndent" value="">
-  <input type="hidden" name="serious_parson" data-value="{{q.questionID}}">
+  <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
+  <input type="hidden" name="serious_parson" value="{{q.questionID}}">
   <div class="row">
-      <div class="col s6">
-        <b>Code Fragments:</b>
-        <ol class="parsons2_trash">
-            <div class="dd" id="parsons2_trash{{q.questionID}}">
-                <ol class="dd-list">
-                    {% for code_fragement in q.model_solution %}
-                    <li class="dd-item" data-id="1">
-                        <div class="dd-handle"><pre class="prettyprint">{{code_fragement}}</pre></div>
-                    </li>
-                    {% endfor %}
-                </ol>
-            </div>
-        </ol>
-      </div>
-      <div class="col s6">
-          <b>Solution Area:</b>
-          <ol class="parsons2_sol">
-            <div class="dd" id="parson_sol{{q.questionID}}">
-                <ol class="dd-list">
-                    <li class="dd-item" data-id="1">
-                        <div class="dd-handle"></div>
-                    </li>
-                </ol>
-            </div>
-        </ol>
-      </div>
+    <div class="col s6">
+      <b>Code Fragments:</b>
+      <ol class="parsons2_trash">
+        <div class="dd" id="parsons2_trash{{q.questionID}}">
+          <ol class="dd-list">
+            {% for model_solution_data in q.model_solution %}
+            <li class="dd-item" data-id="{{model_solution_data.hashVal}}">
+              <div class="dd-handle">
+                <pre class="prettyprint">{{model_solution_data.line}}</pre>
+              </div>
+            </li>
+            {% endfor %}
+          </ol>
+          <a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
+        </div>
+      </ol>
     </div>
-      <script>
-        $('#parson_sol{{q.questionID}}').nestable({
-        group: {{q.questionID}}
+    <div class="col s6">
+      <b>Solution Area:</b>
+      <ol class="parsons2_sol">
+        <div class="dd" id="parson_sol{{q.questionID}}">
+          <ol class="dd-list">
+            <li class="dd-item" data-id="None">
+              <div class="dd-handle"></div>
+            </li>
+          </ol>
+        </div>
+      </ol>
+    </div>
+  </div>
+  <script>
+    var countFeedbackButtonClicks_{{ q.questionID }} = 0;
+    $('#parson_sol{{q.questionID}}').nestable({
+      group: {{ q.questionID }}
     })
 
     // activate Nestable for list 2
     $('#parsons2_trash{{q.questionID}}').nestable({
-        group: {{q.questionID}}
+      group: {{ q.questionID }}
     })
-        //function that runs the pretty printing aka highliting of parsons
-        if (window.prettyPrint() && (typeof (this.options.prettyPrint) === "undefined" || this.options.prettyPrint)) {
-          prettyPrint();
-          console.log("prettyPrint");
-        }
-        //load the parson problem lines into the array
-        //this avoids loading them by number for obvious reasons
-        function obtainStudentLines{{ q.questionID }}(){
-          var studentSolCode{{ q.questionID }} =[];
-          var studentTrashCode{{ q.questionID }} =[];
-          var trashContainerChildren = document.getElementById("{{q.questionID}}_trashContainer").children;
-          var solContainerChildren = document.getElementById("{{q.questionID}}_solContainer").children;
+    //function that runs the pretty printing aka highliting of parsons
+    if (window.prettyPrint() && (typeof (this.options.prettyPrint) === "undefined" || this.options.prettyPrint)) {
+      prettyPrint();
+    }
+    $("#feedbackLink_{{q.questionID}}").click(function (event) {
+      feedbackFunction_{{ q.questionID }} ();
+    });
 
-        //first get the items discarded by the student as trash
-        for (var i = 0; i < trashContainerChildren.length; ++i) {
-          studentTrashCode{{q.questionID}}.push(trashContainerChildren[i].data('value'));
-        }
+    function feedbackFunction_{{ q.questionID }} (){
+      //getParsonFeedback();
+      countFeedbackButtonClicks_{{ q.questionID }} ++;
+    }
 
-        //then get the items selected by the student as solution code
-        for (var i = 0; i < solContainerChildren.length; ++i) {
-          studentSolCode{{q.questionID}}.push(solContainerChildren[i].data('value'));
-        }
-        document.getElementById("{{q.questionID}}_studentSol").val(studentCode{{ q.questionID }});
-        document.getElementById("{{q.questionID}}_studentTrash").val(studentCode{{ q.questionID }});
-	      }
 
-        function obtainStudentIndentation{{q.questionID }}(){
-        var indentationArray_{{q.questionID}} =[];
-        var solContainer = document.getElementById("{{q.questionID}}_solContainer").children;
-        indentationArray_{{q.questionID}}.push(0);
-        console.log(solContainer);
-        for (var i = 1; i < solContainer.length; ++i) {
-          var indentiation = 0;
-          var child = solContainer[i].children;
-          console.log(child);
-          console.log(child.length)
-          // //while (!!solContainer[i].children) {
-          //   indentationArray_{{q.questionID}}.push(indentiation);
-          //   indentiation++;
-          //   console.log("pushing");
-          //   console.log(solContainer[i].children);
-          // }
-        }
-        document.getElementById("{{q.questionID}}_lineIndent").val(indentationArray_{{ q.questionID }});
-	      }
+    var seriousParson_{{ q.questionID }} = {
+      studentSolution: "",
+        studentTrash: "",
+        feebackClickCount: 0,
+          loadParsonForSubmit: function () {
+            seriousParson_{{ q.questionID }}.studentSolution = $('#parson_sol{{q.questionID}}').nestable('serialize');
+            seriousParson_{{ q.questionID }}.studentTrash = $('#parsons2_trash{{q.questionID}}').nestable('serialize');
+            seriousParson_{{ q.questionID }}.feebackClickCount = countFeedbackButtonClicks_{{ q.questionID }};
 
-        function getParsonFeedback() {
-          console.log("clicked");
-          var r = new XMLHttpRequest();
-          r.open("POST", "/oneUp/students/parsonDynamicGrader", true);
-          r.onreadystatechange = function () {
-            if (r.readyState != 4 || r.status != 200) return;
-            alert("Success: " + r.responseText);
-          };
-          r.send("questionID={{q.questionID}}");
-        }
-      </script>
-    </div>
-  </div>
-  {% endif %}
-  {# KI: /div tags didn't match number of divs, so I added some #}
-  {# GGM: /div turns out we can just delete the remaining two divs #}
-  {% endif %}
+            seriousParson_{{ q.questionID }}.studentTrash = JSON.stringify(seriousParson_{{ q.questionID }}.studentTrash);
+            seriousParson_{{ q.questionID }}.studentSolution = JSON.stringify(seriousParson_{{ q.questionID }}.studentSolution);
+          }
+    };
 
-  {% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}
-  {% if graded %}
-  {% if q.numParts == 1 %}
-  <div class="row">
-    <div class="col s12">
-      <h5>Your Answer:</h5>
-    </div>
+
+    // function getParsonFeedback() {
+    //   console.log("clicked");
+    //   var r = new XMLHttpRequest();
+    //   r.open("POST", "/oneUp/students/parsonDynamicGrader", true);
+    //   r.onreadystatechange = function () {
+    //     if (r.readyState != 4 || r.status != 200) return;
+    //     alert("Success: " + r.responseText);
+    //   };
+    //   r.send("questionID={{q.questionID}}");
+    // }
+  </script>
+</div>
+</div>
+{% endif %}
+{# KI: /div tags didn't match number of divs, so I added some #}
+{# GGM: /div turns out we can just delete the remaining two divs #}
+{% endif %}
+
+{% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}
+{% if graded %}
+{% if q.numParts == 1 %}
+<div class="row">
+  <div class="col s12">
+    <h5>Your Answer:</h5>
   </div>
-  <div class="row">
-    {% for answer_blank_name, user_answer_value in q.user_answers.items %}
-    <p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
-    {% endfor %}
-  </div>
-  {% if showcorrect %}
-  <div class="row">
-    <h5>Example Correct Answer: </h5>
-    {% for ansName, text in q.sampleCorrect.items %}
-    <b>{{ansName}}</b> : {{text|safe}}<br>
-    {% empty %}
-    No example correct answer provided by instructor.<br>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% if q.evaluations %}
-  {% with evaluations=q.evaluations %}
-  {% include 'dynamicQuestionEvaluations.html' %}
-  {% endwith %}
-  {% endif %}
-  {% else %}
-  <div class="row">
-    <h4>Question {{i}}</h4>
-  </div>
-  {% for pnum, qp in q.parts.items %}
-  {% if qp.submissionCount > 0 or pnum == "1" %}
-  <div class="row">
-    <h5>Part {{pnum}} of {{q.numParts}}</h5>
-  </div>
-  <div class="card">
-    <div id="qtext-{{i}}-{{pnum}}" class="card-content">
-      {{qp.questionText|safe}}
-    </div>
-  </div>
-  <script>disableInputsInside(document.getElementById("qtext-{{i}}-{{pnum}}"));</script>
-  <div class="row">
-    <div class="col s12">
-      <h5>Your Answer:</h5>
-    </div>
-  </div>
-  <div class="row">
-    {% for answer_blank_name, user_answer_value in qp.user_answers.items %}
-    <p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
-    {% endfor %}
-  </div>
-  {% if showcorrect %}
-  <div class="row">
-    <h5>Example Correct Answer: </h5>
-    {% for ansName, text in qp.sampleCorrect.items %}
-    <b>{{ansName}}</b> : {{text|safe}}<br>
-    {% empty %}
-    No example correct answer provided by instructor.<br>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% if qp.evaluations %}
-  {% with evaluations=qp.evaluations %}
-  {% include 'dynamicQuestionEvaluations.html' %}
-  {% endwith %}
-  {% endif %}
-  {% endif %}
+</div>
+<div class="row">
+  {% for answer_blank_name, user_answer_value in q.user_answers.items %}
+  <p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
   {% endfor %}
-  {% endif %}
-  <div class="row">
-    <div class="col s12">
-      <p>Total for this question, You Scored: <b>{{q.user_points}}</b> Point(s) out of
-        <b>{{q.total_points}}</b> Point(s)</p>
-    </div>
-    <div class="col s12">
-      {% if q.feedback %}
-      <p><b>Feedback: </b> {{q.feedback}}</p>
-      {% endif %}
-    </div>
+</div>
+{% if showcorrect %}
+<div class="row">
+  <h5>Example Correct Answer: </h5>
+  {% for ansName, text in q.sampleCorrect.items %}
+  <b>{{ansName}}</b> : {{text|safe}}<br>
+  {% empty %}
+  No example correct answer provided by instructor.<br>
+  {% endfor %}
+</div>
+{% endif %}
+{% if q.evaluations %}
+{% with evaluations=q.evaluations %}
+{% include 'dynamicQuestionEvaluations.html' %}
+{% endwith %}
+{% endif %}
+{% else %}
+<div class="row">
+  <h4>Question {{i}}</h4>
+</div>
+{% for pnum, qp in q.parts.items %}
+{% if qp.submissionCount > 0 or pnum == "1" %}
+<div class="row">
+  <h5>Part {{pnum}} of {{q.numParts}}</h5>
+</div>
+<div class="card">
+  <div id="qtext-{{i}}-{{pnum}}" class="card-content">
+    {{qp.questionText|safe}}
   </div>
-  {% endif %}
-  {# There's no else case because we don't need to show any answers when there's no grading. #}
+</div>
+<script>disableInputsInside(document.getElementById("qtext-{{i}}-{{pnum}}"));</script>
+<div class="row">
+  <div class="col s12">
+    <h5>Your Answer:</h5>
+  </div>
+</div>
+<div class="row">
+  {% for answer_blank_name, user_answer_value in qp.user_answers.items %}
+  <p>For answer blank <b>{{answer_blank_name}}</b>: {{user_answer_value}}</p>
+  {% endfor %}
+</div>
+{% if showcorrect %}
+<div class="row">
+  <h5>Example Correct Answer: </h5>
+  {% for ansName, text in qp.sampleCorrect.items %}
+  <b>{{ansName}}</b> : {{text|safe}}<br>
+  {% empty %}
+  No example correct answer provided by instructor.<br>
+  {% endfor %}
+</div>
+{% endif %}
+{% if qp.evaluations %}
+{% with evaluations=qp.evaluations %}
+{% include 'dynamicQuestionEvaluations.html' %}
+{% endwith %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+<div class="row">
+  <div class="col s12">
+    <p>Total for this question, You Scored: <b>{{q.user_points}}</b> Point(s) out of
+      <b>{{q.total_points}}</b> Point(s)</p>
+  </div>
+  <div class="col s12">
+    {% if q.feedback %}
+    <p><b>Feedback: </b> {{q.feedback}}</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{# There's no else case because we don't need to show any answers when there's no grading. #}
 
-  {% endif %}
+{% endif %}

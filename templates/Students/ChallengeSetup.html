@@ -24,7 +24,7 @@
    </script>
 
    <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
-   <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script> -->
+   <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
@@ -206,39 +206,40 @@
             hiddenfield.value = editor.getValue();
          }
 
-         //gradeParsons();
-         gradeSeriousParson();
+         gradeParsons();
+         //gradeSeriousParson();
       }
+
+      // function gradeParsons() {
+      //    //function to grade the parsons
+      //    var parsonsProblems = document.getElementsByName("parsonProblem");
+      //    for (var i = 0; i < parsonsProblems.length; ++i) {
+      //       window["submit_clicked_" + parsonsProblems[i].value] = true;
+      //       parsonObject = window["parson_" + parsonsProblems[i].value];
+
+      //       parsonObject.showFeedback(false);
+      //       parsonObject.getFeedback();
+      //       parsonObject.generateStudentCodeAndIndentation();
+
+      //       $("#" + parsonsProblems[i].value + "_lineNo").val(incorrectLines);
+      //       $("#" + parsonsProblems[i].value + "_errorDescription").val(eval("logged_errors_" + parsonsProblems[i].value));
+      //       $("#" + parsonsProblems[i].value + "_studentSol").val(parsonObject.studentCode);
+      //       $("#" + parsonsProblems[i].value + "_lineIndent").val(parsonObject.lineIndentation);
+      //       $("#" + parsonsProblems[i].value + "_correctLineCount").val(parsonObject.model_solution.length);
+      //       $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(eval("countFeedbackButtonClicks_" + parsonsProblems[i].value));
+      //    }
+      // }
 
       function gradeParsons() {
-         //function to grade the parsons
-         var parsonsProblems = document.getElementsByName("parsonProblem");
-         for (var i = 0; i < parsonsProblems.length; ++i) {
-            window["submit_clicked_" + parsonsProblems[i].value] = true;
-            parsonObject = window["parson_" + parsonsProblems[i].value];
-
-            parsonObject.showFeedback(false);
-            parsonObject.getFeedback();
-            parsonObject.generateStudentCodeAndIndentation();
-
-            $("#" + parsonsProblems[i].value + "_lineNo").val(incorrectLines);
-            $("#" + parsonsProblems[i].value + "_errorDescription").val(eval("logged_errors_" + parsonsProblems[i].value));
-            $("#" + parsonsProblems[i].value + "_studentSol").val(parsonObject.studentCode);
-            $("#" + parsonsProblems[i].value + "_lineIndent").val(parsonObject.lineIndentation);
-            $("#" + parsonsProblems[i].value + "_correctLineCount").val(parsonObject.model_solution.length);
-            $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(eval("countFeedbackButtonClicks_" + parsonsProblems[i].value));
-         }
-      }
-
-      function gradeSeriousParson() {
          var parsonsProblems = document.getElementsByName("serious_parson");
          for (var i = 0; i < parsonsProblems.length; ++i) {
-            var parsonID = parsonsProblems[i].getAttribute("data-value");
-            window["obtainStudentIndentation" + parsonID]();
-            window["obtainStudentLines" + parsonID]();
+            var parsonObject = window["seriousParson_" + parsonsProblems[i].value];
+            parsonObject.loadParsonForSubmit();
+
+            $("#" + parsonsProblems[i].value + "_studentSol").val(parsonObject.studentSolution);
+            $("#" + parsonsProblems[i].value + "_studentTrash").val(parsonObject.studentTrash);
+            $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(parsonObject.feebackClickCount);
          }
-         console.log("ran on all parsons");
-         alert("Hello! I am an alert box!!");
       }
 
    </script>

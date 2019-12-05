@@ -296,13 +296,20 @@ def seriousParsonsqdict(question, i, challengeId, studChallQuest):
     #we turn the student solution into a list
     solution_string = [x.strip() for x in solution_string.split('¬')]
     #print("solutionString", solution_string
+    qdict['answerText'] = solution_string
 
     parsons_formatted = []
+    regular_line_array = []
+    indentationArray = []
+    line_array = {}
+    solutionHashes = []
     skipFlag = 0
     pattern = re.compile("##")
     distractor_pattern = re.compile("#dist")
     distractors_found_in_code = 0
     for line in solution_string:
+        regularLine = line
+        regular_line_array.append(regularLine)
         ##print("currentLine", line)
         if(skipFlag == 1):
             #if indentation flag is 1 then we know that next line line we must skip
@@ -332,6 +339,8 @@ def seriousParsonsqdict(question, i, challengeId, studChallQuest):
                 nextelem = re.sub("^", "\n&nbsp;", nextelem)
                 line += nextelem
                 indentationFlag = 1
+                indentationArray.append(0)
+                indentationArray.append(1)
             if (difference == 4):
                 ##print("before \n")
                 nextelem = re.sub("^", "\n", nextelem)
@@ -340,6 +349,8 @@ def seriousParsonsqdict(question, i, challengeId, studChallQuest):
                 #example:
                 #   data++;
                 #index++;
+                indentationArray.append(1)
+                indentationArray.append(0)
             if(difference == 0):
                 ##print("zero diff\n")
                 line = re.sub("^ *", "", line)
@@ -350,19 +361,29 @@ def seriousParsonsqdict(question, i, challengeId, studChallQuest):
                 # data++;
                 #index++;
             ##print("added line\n", line)
-            parsons_formatted.append(line)
+                indentationArray.append(0)
+                indentationArray.append(0)
+            line_array.update({hash(line):line})
+            parsons_formatted.append({'line':line,'hashVal':hash(line)})
+            solutionHashes.append(hash(line))
         else:
+            indentationArray.append(0)
             line = re.sub("☃ *", "", line)
             if(distractor_pattern.search(line)):
-                print("patternFound!\n")
                 line = re.sub("#dist ", "", line)
                 distractors_found_in_code += 1
-            if(distractors_found_in_code <= distractorCount):     
-                parsons_formatted.append(line)
-    
-    qdict['solution_string'] = solution_string
+                #if(distractors_found_in_code <= distractorCount):
+            line_array.update({hash(line):line})
+            parsons_formatted.append({'line':line, 'hashVal':hash(line)})
+            solutionHashes.append(hash(line))
+
+    qdict['solution'] = line_array
+    qdict['hashSolution'] = solutionHashes
+    qdict['solutionIndentation'] = indentationArray
+    qdict['regularLines'] = regular_line_array
     qdict['model_solution'] = parsons_formatted
-    ##print("parsonsFormatted",parsons_formatted)
+    # for item in line_array:
+    #     print("line", item)
 
     return qdict
 
@@ -736,152 +757,89 @@ def modifyQDictForView(qdict):
     qdict['hasMultipleParts'] = False
     qdict['submissionsAllowed'] = 0
     return qdict
+
 def parsonsMakeAnswerList(qdict, POST):
+    import json, ast
     #get all the data from the webpage
     #data is accessed through the index
     studentAnswerDict = {}
-    lineIndent = POST[str(qdict['index']) + 'lineIndent']
-    studentAnswerDict['lineIndent'] = lineIndent
-    studentSolutions = POST[str(qdict['index']) + 'studentSol']
-    wrongPositionLineNumberbers = POST[str(qdict['index']) + 'lineNo']
-    studentAnswerDict[
-        'wrongPositionLineNumberbers'] = wrongPositionLineNumberbers
-    errorDescriptions = POST[str(qdict['index']) + 'errorDescription']
-    studentAnswerDict['errorDescriptions'] = errorDescriptions
-    correctLineCount = POST[str(qdict['index']) + 'correctLineCount']
-    studentAnswerDict['correctLineCount'] = correctLineCount
-    feedBackButtonClickCount = POST[str(qdict['index']) +
-                                    'feedBackButtonClickCount']
-    studentAnswerDict['feedBackButtonClickCount'] = feedBackButtonClickCount
+    studentSolutionJSON = POST[str(qdict['index']) + 'studentSol']
+    studentTrashJSON = POST[str(qdict['index']) + 'studentTrash']
+    feedBackButtonClickCount = POST[str(qdict['index']) + 'feedBackButtonClickCount']
+    studentAnswerDict['feedBackButtonClickCount'] = int(feedBackButtonClickCount)
+    
+    studentSolutionJSON = ast.literal_eval(studentSolutionJSON)
+    studentTrashJSON = ast.literal_eval(studentTrashJSON)
+    print("studentSolJSON", studentSolutionJSON)
+    studentSolution = []
+    studentTrash = []
+    studentHashes = []
+    studentIndenation = []
+    lineDict = qdict['solution']
 
-    correctLineCount = int(correctLineCount)
-    feedBackButtonClickCount = int(feedBackButtonClickCount)
+    index = 0
+    for item in studentSolutionJSON:
+        hashVal = item['id']
+        if hashVal != 'None':
+            studentHashes.append(hashVal)
+            studentSolution.append(str(lineDict[hashVal]))
+            studentIndenation.append(0)
+            if 'children' in item:
+                for child in item['children']:
+                    studentIndenation.append(1)
+                    hashVal = child['id']
+                    print("lineDIct", lineDict)
+                    studentSolution.append(str(lineDict[hashVal]))
+        index += 1
+    for item in studentTrashJSON:
+        studentTrash.append(item)
 
-    studentAnswer = ""
+
+    #count the student solutions correct lines
+    correctCount = 0
+    for i in range(len(qdict['hashSolution'])):
+        if i < len(studentHashes):
+            if(qdict['hashSolution'][i] == studentHashes[i]):
+                correctCount += 1
+
+    studentAnswerDict['parsonStudentSol'] = len(studentSolution)
+    studentAnswerDict['correctLineCount'] = correctCount
+
+
+    #what lines are wrong and how
+    wronglines = {}
+    for i in range(len(qdict['solutionIndentation'])):
+        if i < len(studentIndenation):
+            if(studentIndenation[i] == qdict['solutionIndentation']):
+                wrongLines['i'] = "Indentation"
+
+    studentAnswerDict['errorDescriptions'] = wronglines
+
     #if the student ddnt fill in any solution, zero points
-    if studentSolutions != "":
-        #let us begin with a good clean copy of the information
-        solution_string = qdict['answerText']
-        #print("solution_string repr", repr(solution_string))
-        #print("solution_string no repr", repr(solution_string))
-
-        #perform regex magic on solution string
-        # logical not ¬ is the item that splits the code
-        # ᚛ is used to preserve new lines, they dissapear in the code
-        # ⋊ is used to maintain the indentation of the line, so that we can later remove it
-        # but still keep proper indentation in each line
-        #if it contains a block treat it as a unit
-        #the ᚛¬⋊ is what splits the lines
-        solution_string = re.sub("\r", "", solution_string)
-        solution_string = re.sub("(?<!##)\n", "᚛¬⋊", solution_string)
-        solution_string = re.sub(";(?!.+)", "᚛", solution_string)
-        
-        #print("solution_stringrepr afer changes", repr(solution_string))
-        #print("solution_string after changes", solution_string)
-        solution_string_array = []
-        solution_string_split = [x.strip() for x in solution_string.split('¬')]
-        for line in solution_string_split:
-            line = re.sub("^⋊\s*(?!.*;\s*##)", "", line)
-            line = re.sub("^⋊(\t\t|\s{8})(?=.*;\s*##)", "    ", line)
-            line = re.sub("^⋊(\t|\s{4})(?=.*;\s*##)(?!return)", "", line)
-            line = re.sub("⋊\t(?=return.*\s*##\n})", "    ", line)
-            line = re.sub("^((?!\s*return)(?=.* *##\n}))", "    ", line)
-            line = re.sub("᚛", "\n", line)
-            line = re.sub("⋊", "", line)
-            line = re.sub("##", "", line)
-            #for some mysterious reason ace editor hates commas,
-            #we had to use a special comma to allow it to be visisble
-            line = re.sub("(?!\"),(?=.*\";)", "‚", line)
-            solution_string_array.append(line)
-
-        #print("solution_string_array", repr(solution_string_array))
-
-        
-        lineIndent = [x.strip() for x in lineIndent.split(',')]
-        #print("LineIndent", lineIndent)
-        studentSolutions = [x.strip() for x in studentSolutions.split(',')]
-
-        #print("studentSol", studentSolutions)
-        studentAnswerDict['parsonStudentSol'] = studentSolutions
-        regexp = re.compile(r'##')
-        missingLines = []
-        missingLineCount = 1
-        duplicateIndentation = False
-        tabbed_sol = ""
-        i = 0
-        doesTheEntireThingHaveZeroIndetation = True
-        for lineIndentObject in lineIndent:
-            if int(lineIndentObject) != 0:
-                doesTheEntireThingHaveZeroIndetation = False
-                break
-        
-        pattern = re.compile("##")
-        for studentSolution in studentSolutions:
-            ##print("studentSolution", studentSolution)
-            ##print("i", i)
-            ##print("int(lineIndent[i]) + solution_string_array[int(studentSolution)])",int(lineIndent[i]), solution_string_array[int(studentSolution)])
-            tabbed_sol = ("\t" * int(lineIndent[i]) + solution_string_array[int(studentSolution)])
-            studentAnswer +=  tabbed_sol
-            i+=1
-        #print("studentAnswer", studentAnswer)
-    studentAnswerDict['studentSolution'] = studentAnswer
+    studentAnswerDict['studentSolution'] = list(studentSolution)
     return [json.dumps(studentAnswerDict)]
 
 
 def parsonsAddAnswersAndGrades(qdict, studentAnswers):
+    import ast
     qdict = parsonsCorrectAnswers(qdict)
 
     answer = Answers.objects.filter(questionID=qdict['questionID'])
     answer = answer[0].answerText
-    #print("Model Solution: ", answer)
-
-    #get the language information and indentation status
-    #remove the first line that keeps the data
-    searchString = re.search(r'Language:([^;]+);Indentation:([^;]+);', answer)
-    answer = re.sub("##", "", answer)
-    indentation = searchString.group(2)
-
-    studentAnswerDict = json.loads(studentAnswers[0])
-    studentAnswer = studentAnswerDict['studentSolution']
-    studentSolution = studentAnswer
-    lineIndentRegex = re.search(r'IndentationArray:([^;]+);', studentAnswer)
-    if (lineIndentRegex != None):
-        lineIndent = lineIndentRegex.group(1)
-        studentAnswer = studentAnswer.replace(lineIndentRegex.group(0), "")
-
-    else:
-        lineIndent = '[' + '0,' * 15 + '0]'
-
-    lineIndent = re.findall('\d+', lineIndent)
-    qdict["lineIndent"] = lineIndent
-
-    #we turn the student solution into a list
-    studentAnswer = [x.strip() for x in studentAnswer.split(',')]
-    #make a list of lines, split on , so we know how much to indent where
-    lineIndent = [int(line) for line in lineIndent]
-
-    #perform the spacing for each line
-    IndentedStudentSolution = []
-    for index, line in enumerate(studentAnswer, 0):
-        line = '    ' * lineIndent[index] + line + '\n'
-        IndentedStudentSolution.append(line)
-
-    studentAnswer = ""
-    studentAnswer = studentAnswer.join(IndentedStudentSolution)
-
-    qdict['student_solution'] = studentAnswer
-    #print("student solution", repr(qdict['student_solution']))
-
-    wrongPositionLineNumberbers = studentAnswerDict['wrongPositionLineNumberbers']
-    errorDescriptions = studentAnswerDict['errorDescriptions']
-    correctLineCount = int(studentAnswerDict['correctLineCount'])
+    studentAnswerDict = ast.literal_eval(studentAnswers[0])
+    print("studentAnswers", studentAnswerDict['feedBackButtonClickCount'])
+    print("answer obj", studentAnswerDict)
+    #studentSolution =  ast.literal_eval(studentAnswers[0])
     feedBackButtonClickCount = int(studentAnswerDict['feedBackButtonClickCount'])
-    #print("correctlinecount", correctLineCount,wrongPositionLineNumberbers,errorDescriptions,feedBackButtonClickCount)
+    correctLineCount = int (studentAnswerDict['correctLineCount'])
+    wrongPositionLineNumbers = studentAnswerDict['correctLineCount']
+    errorDescriptions  = studentAnswerDict['errorDescriptions']
+    
     studentGrade = 0.0
     penalties = 0.0
-    if studentSolution == "" or studentSolution == '\n':
+    if studentSolution == "":
         qdict['user_points'] = 0
-#        print("activated")
+        print("activated")
     else:
         ##if no errors happened give them full credit
         if (errorDescriptions == ""):
@@ -934,7 +892,6 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
         qdict['user_points'] = round(Decimal(studentGrade), 2)
     qdict = addFeedback(qdict)
     return qdict
-
 
 def parsonsCorrectAnswers(qdict):
     answer = Answers.objects.filter(questionID=qdict['questionID'])
