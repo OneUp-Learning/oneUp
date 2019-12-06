@@ -13,6 +13,8 @@ from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 
 from django_celery_beat.models import PeriodicTask
 
+from decimal import Decimal
+
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True,default=0)
@@ -166,7 +168,7 @@ class Challenges(models.Model):
         if score > 0:
             return score
         else:
-            return 1
+            return Decimal(1)
       
 class Skills(models.Model):
     skillID = models.AutoField(primary_key=True)
