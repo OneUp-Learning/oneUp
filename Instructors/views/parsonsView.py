@@ -257,7 +257,7 @@ def parsonsForm(request):
         context_dict['ckeditor'] = config_ck_editor()
     
     return render(request,'Instructors/ParsonsForm.html', context_dict)
-
+#parsons2 functions after here
 #parsons grading software for grading inside the system.
 @login_required
 def parsonDynamicGrader(request):
@@ -270,191 +270,235 @@ def parsonDynamicGrader(request):
     student_id = context_dictionary['student']
     ##if we posted data with ajax, use it, otherwise just return.
     if request.POST:
-        gradeParson()
+        #gradeParson()
         print("ajax call", context_dictionary, student_id)
         return JsonResponse({})
+
+
+#these functions contain everything to Parson2, debug here
+def findLanguage(solution_string):
+    return re.search(
+    r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
+     
+def findIndentation(solution_string):
+    return re.search(r';Indentation:([^;]+);',
+                                     solution_string).group(1)
+
+def findAnswerText(solution_string):
+    language_removed = re.search(r'Language:([^;]+)', solution_string)
+    solution_string = solution_string.replace(language_removed.group(0), "")
+    #print("language_removed", solution_string)
+
+    indentation_removed = re.search(r';Indentation:([^;]+);',solution_string)
+    solution_string = solution_string.replace(indentation_removed.group(0), "")
+    #print("indentation_removed", solution_string)
+    return solution_string
+
+def findDistractorLimit(solution_string, question):
+    distractor_limit = len(
+                            re.findall(r'(?=#dist)',
+                            repr(solution_string).strip('"\''))
+                        )
+
+    if (question.difficulty == "Easy"):
+        distractor_limit = 0
+    if (question.difficulty == "Medium"):
+        distractor_limit = int(distractor_limit / 2)
+
+    #print("distractor limit", distractor_limit)
+    return distractor_limit
+
+def getIndentation(line):
+    line = re.sub("☃", "", line)
+    return len(line) - len(line.lstrip(' '))
+
+#this model solution is used as the problem displayed to student
+#it is called model solution due to historical reasons
+#historical reasons like parsons1 naming the problem model solution
+def getModelSolution(solution_string, distractor_limit):
+    formattedCode = {}
+    model_solution = []
+    display_code = {}
+    distractors = []
+    indentation = []
+    skip_flag = 0
+    hash_pattern = re.compile("##")
+    distractor_pattern = re.compile("#dist")
+    for line in solution_string:
+        ##print("currentLine", line)
+        if(distractor_pattern.search(line)):
+            distractors.append(line)
+            continue
+        if(skip_flag == 1):
+            #if indentation flag is 1 then we know that next line line we must skip
+            skip_flag = 0
+            continue
+        indentation.append(getIndentation(line))
+        if (hash_pattern.search(line)):
+            #get the next element to determine how indented it is
+            next_element = solution_string[solution_string.index(line) + 1]
+            
+            line = re.sub("☃", "", line)
+            next_element = re.sub("☃", "", next_element)
+            #we use the difference to calculate whether we must indent and where
+            leading_space_count_current_line = len(line) - len(line.lstrip(' '))
+            leading_space_count_next_line = len(next_element) - len(next_element.lstrip(' '))
+
+            #this difference will allow us to know how indented they are
+            difference = leading_space_count_current_line - leading_space_count_next_line
+            line = re.sub("##", "", line)
+            skipFlag = 1
+            if (difference == -4):
+                ##print("after")
+                #if indentation is after the line
+                #example:
+                #data++;
+                #   index++;
+                next_element = re.sub("^", "\n&nbsp;", next_element)
+                line += next_element
+                skip_flag = 1
+            if (difference == 4):
+                ##print("before \n")
+                next_element = re.sub("^", "\n", next_element)
+                line += next_element
+                #if indentation is before the line
+                #example:
+                #   data++;
+                #index++;
+                skip_flag = 1
+            if(difference == 0):
+                ##print("zero diff\n")
+                line = re.sub("^ *", "", line)
+                next_element = re.sub("^ *", "\n", next_element)
+                line += next_element
+                #example:
+                #data++;
+                #index++;
+            ##print("added line\n", line)
+        else:
+            line = re.sub("☃ *", "", line)
+
+        model_solution.append({'line':line, 'hashVal':hash(line)})
+        display_code.update({hash(line): re.sub("&nbsp;", "", line)})
+
+    distractor_counter = 0
+    for distractor in distractors:
+        if(distractor_counter < distractor_limit):
+            model_solution.append({'line':re.sub("^☃#dist ", "", distractor), 'hashVal':hash(distractor)})
+            display_code.update({hash(distractor): re.sub("&nbsp;", "", distractor)})
+            indentation.append(0)
+        distractor_counter += 1
+
+    print("model solution", model_solution)
+    print("display_code", display_code)
+    print("indentation", indentation)
+    formattedCode['model_solution'] = model_solution
+    formattedCode['display_code'] = display_code
+    formattedCode['indentation'] = indentation
+    return formattedCode
+
+#generate student solution from the post in student challenges
+def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dictionary):
+    student_solution_dict = {}
+    student_solution_fragments = []
+    student_hashes = []
+    student_indentation = []
+    student_trash = []
+    for code_fragment in student_solution_JSON:
+        hash_value = str(code_fragment['id'])
+
+        if hash_value != 'None':
+            student_hashes.append(hash_value)
+            student_solution_fragments.append(str(line_dictionary[hash_value]))
+            student_indentation.append(0)
+
+            if 'children' in code_fragment:
+                for child in code_fragment['children']:
+                    student_indentation.append(4)
+                    hash_value = child['id']
+                    print("line_dictionary", line_dictionary)
+                    student_solution_fragments.append(str(line_dictionary[hash_value]))
+
+    for code_fragment in student_trash_JSON:
+        hash_value = code_fragment['id']
+        student_trash.append(str(line_dictionary[hash_value]))
+
+    student_solution = "".join(student_solution_fragments)
+    student_solution_dict['student_solution'] = student_solution
+    student_solution_dict['student_hashes'] = student_hashes
+    student_solution_dict['student_trash'] = student_trash
+    student_solution_dict['student_indentation'] = student_indentation
+
+    print("student Solution dict", student_solution_dict)
+    return student_solution_dict
+
+def getCorrectCount(student_hashes, hash_solutions):
+    correct_count = 0
+    i = 0
+    for key in hash_solutions.keys():
+        #while the range we are in is lower than student hashes
+        if(i < len(student_hashes) and student_hashes[i] == key):
+                correct_count += 1
+        else:
+            break
+        i += 1
+    return correct_count
+def getIndenationErrorCount(student_indentation, indentation_solution):
+    errors = []
+    for i in range(len(indentation_solution)):
+        if(i < len(student_indentation) and student_indentation[i] != indentation_solution[i]):
+            errors.append("Indentation line "+ str(i))
+        else:
+            errors.append("Indentation line "+ str(i))
+    return errors
+def gradeParson(qdict, studentAnswerDict):
+    if studentAnswerDict['student_solution'] == "" or  studentAnswerDict['student_solution'] == None:
+        return 0
+    if studentAnswerDict['correct_line_count'] == 0:
+        return 0
+        
+    if (studentAnswerDict['indentation_errors'] == None or len(studentAnswerDict['indentation_errors']) == 0):
+        ##if no errors happened give them full credit
+        student_grade = qdict['total_points']
+    else:
+        student_grade = qdict['total_points']
+        max_available_points = qdict['total_points']
+        penalties = Decimal(0.0)
+
+        student_solution_line_count = len(studentAnswerDict['student_solution'])
+
+        if (student_solution_line_count < studentAnswerDict['correct_line_count']):
+            penalties += Decimal((studentAnswerDict['correct_line_count'] - student_solution_line_count) * (1 / studentAnswerDict['correct_line_count']))
+            #print("Penalties too few!: ", penalties)
+
+        if (student_solution_line_count > studentAnswerDict['correct_line_count']):
+            penalties += Decimal((student_solution_line_count - studentAnswerDict['correct_line_count']) * (1 / studentAnswerDict['correct_line_count']))
+            #print("Penalties too many!: ", penalties)
+
+        error_count = studentAnswerDict['correct_line_count'] - studentAnswerDict['correct_line_count']
+        penalties += Decimal(error_count * (1 / studentAnswerDict['correct_line_count']))
+
+        student_solution_line_count 
+        if qdict['indentation_flag']:
+            if len(studentAnswerDict['indentation_errors']) > 0:
+                ##we multiply by 1/2 because each wrong is half of 1/n
+                penalties += Decimal((len(studentAnswerDict['indentation_errors']) / studentAnswerDict['correct_line_count']) * (1/2))
+
+        #print("Student grade:", student_grade)
+        #print("Total Points:", qdict['total_points'])
+        if studentAnswerDict['feedback_button_click_count'] > 0:
+            max_available_points /= studentAnswerDict['feedback_button_click_count'] * 2
+        else:
+            max_available_points = qdict['total_points']
     
-# def normalizeIndents(lines):
-#       var normalized = [];
-#       var new_line;
-#       var match_indent = function(index) {
-# 	  //return line index from the previous lines with matching indentation
-# 	  for (var i = index-1; i >= 0; i--) {
-#               if (lines[i].indent == lines[index].indent) {
-# 		  return normalized[i].indent;
-#               }
-# 	  }
-# 	  return -1;
-#       };
-#       for ( var i = 0; i < lines.length; i++ ) {
-# 	  //create shallow copy from the line object
-# 	  new_line = jQuery.extend({}, lines[i]);
-# 	  if (i === 0) {
-#               new_line.indent = 0;
-#               if (lines[i].indent !== 0) {
-# 		  new_line.indent = -1;
-#               }
-# 	  } else if (lines[i].indent == lines[i-1].indent) {
-#               new_line.indent = normalized[i-1].indent;
-# 	  } else if (lines[i].indent > lines[i-1].indent) {
-#               new_line.indent = normalized[i-1].indent + 1;
-# 	  } else {
-#               // indentation can be -1 if no matching indentation exists, i.e. IndentationError in Python
-#               new_line.indent = match_indent(i);
-# 	  }
-# 	  normalized[i] = new_line;
-#       }
-#       return normalized;
-#   }; 
-
-# def getModifiedCode(search_string):
-#     #this gets the ids of the modified code
-#     #search string is passed as an array, or we could pass in ids
-#     lines_to_return = []
-#     solution_ids = search_string
-#     i, item;
-#       for (i = 0; i < solution_ids.length; i++) {
-# 	      item = this.getLineById(solution_ids[i]);
-# 	      lines_to_return.push($.extend(new ParsonsCodeline(), item));
-#       }
-#       return lines_to_return;
-
-# def gradeParsonSecurely(parson):    
-#     #The "original" grader for giving line based feedback has now become a python based grader
-#   # var LineBasedGrader = function(parson) {
-#   #   this.parson = parson;
-#   # };
-#   # graders.LineBasedGrader = LineBasedGrader;
-# #    var parson = this.parson;
-#     #var elemId = elementId || parson.options.sortableId;
-#     var student_code = parson.normalizeIndents(parson.getModifiedCode("#ul-" + elemId));
-#     var lines_to_check = Math.min(student_code.length, parson.model_solution.length);
-#     var errors = [], log_errors = [];
-#     var incorrectLines = [], studentCodeLineObjects = [];
-#     var i;
-#     var wrong_order = false;
-
-#     // Find the line objects for the student's code
-#     for (i = 0; i < student_code.length; i++) {
-#       studentCodeLineObjects.push($.extend(true, 
-#     	                                   {},
-#     	                                   parson.getLineById(student_code[i].id)));
-#     }
-
-#     // This maps codeline strings to the index, at which starting from 0, we have last
-#     // found this codeline. This is used to find the best indices for each 
-#     // codeline in the student's code for the LIS computation and, for example,
-#     // assigns appropriate indices for duplicate lines.
-#     var lastFoundCodeIndex = {};
-#     $.each(studentCodeLineObjects, function(index, lineObject) {
-#     	// find the first matching line in the model solution
-#     	// starting from where we have searched previously
-#     	for (var i = (typeof(lastFoundCodeIndex[lineObject.code]) !== 'undefined') ? lastFoundCodeIndex[lineObject.code]+1 : 0; 
-#     	     i < parson.model_solution.length;
-#     	     i++) {
-#     	  if (parson.model_solution[i].code === lineObject.code) {
-#     		  // found a line in the model solution that matches the student's line
-#     		  lastFoundCodeIndex[lineObject.code] = i;
-#               lineObject.lisIgnore = false;
-#               // This will be used in LIS computation
-#         	  lineObject.position = i;
-#         	  break;
-#     	  }
-#     	}
-#     	if (i === parson.model_solution.length) {
-#     	  if (typeof(lastFoundCodeIndex[lineObject.code]) === 'undefined') {
-# 	    	// Could not find the line in the model solution at all,
-# 	    	// it must be a distractor
-# 	    	// => add to feedback, log, and ignore in LIS computation
-# 	        wrong_order = true;
-# 	        lineObject.markIncorrectPosition();
-# 	    	incorrectLines.push(lineObject.orig);
-# 	        lineObject.lisIgnore = true;
-# 	      } else {
-# 	        // The line is part of the solution but there are now
-# 	    	// too many instances of the same line in the student's code
-# 	          // => Let's just have their correct position to be the same
-# 	    	// as the last one actually found in the solution.
-# 	        // LIS computation will handle such duplicates properly and
-# 	    	// choose only one of the equivalent positions to the LIS and
-# 	        // extra duplicates are left in the inverse and highlighted as
-# 	    	// errors.
-# 	        // TODO This method will not always give the most intuitive 
-# 	    	// highlights for lines to supposed to be moved when there are 
-# 	        // several extra duplicates in the student's code.
-#                   lineObject.lisIgnore = false;
-#                   lineObject.position = lastFoundCodeIndex[lineObject.code];
-# 	  }
-	         
-#     	}
-#     });
+        #max points is the maximum points student can earn, and we subtract the penalties
+        #print("student_grade", student_grade, max_available_points, penalties)
+        student_grade = float(max_available_points) - (float(max_available_points) * float(penalties))
+        if student_grade < 0:
+            student_grade = 0
     
-#     var lisStudentCodeLineObjects = 
-#     studentCodeLineObjects.filter(function (lineObject) { return !lineObject.lisIgnore; });
-#     var inv = 
-#     LIS.best_lise_inverse_indices(lisStudentCodeLineObjects
-#     			 	  .map(function (lineObject) { return lineObject.position; }));
-#     $.each(inv, function(_index, lineObjectIndex) {
-#     	// Highlight the lines that could be moved to fix code as defined by the LIS computation
-#         lisStudentCodeLineObjects[lineObjectIndex].markIncorrectPosition();
-#         incorrectLines.push(lisStudentCodeLineObjects[lineObjectIndex].orig);
-#     });
-#     if (inv.length > 0 || incorrectLines.length > 0) {
-#             wrong_order = true;
-#             log_errors.push({type: "incorrectPosition", lines: incorrectLines});
-#     }
-
-#     if (wrong_order) {
-#             errors.push(parson.translations.order());
-#     }
-
-#     // Check the number of lines in student's code
-#     if (parson.model_solution.length < student_code.length) {
-#       $("#ul-" + elemId).addClass("incorrect");
-#       errors.push(parson.translations.lines_too_many());
-#       log_errors.push({type: "tooManyLines", lines: student_code.length});
-#     } else if (parson.model_solution.length > student_code.length){
-#       $("#ul-" + elemId).addClass("incorrect");
-#       errors.push(parson.translations.lines_missing());
-#       log_errors.push({type: "tooFewLines", lines: student_code.length});
-#     }
-
-#     // Finally, check indent if no other errors
-#     if (errors.length === 0) {
-#       for (i = 0; i < lines_to_check; i++) {
-#         var code_line = student_code[i];
-#         var model_line = parson.model_solution[i];
-#         if (code_line.indent !== model_line.indent &&
-#              ((!parson.options.first_error_only) || errors.length === 0)) {
-#           code_line.markIncorrectIndent();
-#           errors.push(parson.translations.block_structure(i+1));
-#           log_errors.push({type: "incorrectIndent", line: (i+1)});
-#         }
-#         if (code_line.code == model_line.code &&
-#              code_line.indent == model_line.indent &&
-#              errors.length === 0) {
-#           code_line.markCorrect();
-#         }
-#       }
-#     }
-
-#     return {errors: errors, log_errors: log_errors, success: (errors.length === 0)};
-#   };
-# #     <script>
-# #     function track_get_class_avg_click()
-# #    {    
-# #        var student_id = "{{student}}";
-# #        console.log(student_id);
-
-# #        $.ajax({
-# #                 url: "/oneUp/students/Track_class_avg_button_clicks", 
-# #                 dataType: 'json',
-# #                 async: true,
-# #                 type: 'POST',
-# #                 data: {student_id: "student_id"}
-# #             });
-
-# #    }
-
-# # </script>
-
+        return round(Decimal(student_grade), 2)
+# def getDisplayForCKE():
+#     solution_hashes.append(hash(line))
+#         line_array.update({hash(line):line})
+#         model_solution.append({'line':line, 'hashVal':hash(line)})

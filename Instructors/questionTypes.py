@@ -256,134 +256,28 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     return qdict
 
 def seriousParsonsqdict(question, i, challengeId, studChallQuest):
+    from Instructors.views import parsonsView
     qdict = staticqdict(question, i, challengeId, studChallQuest)
     modelSolution = Answers.objects.filter(questionID=question)
     solution_string = modelSolution[0].answerText
 
-    #print("model solution", modelSolution)
-    qdict['languageName'] = re.search(
-        r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
-    qdict['indentation'] = re.search(r';Indentation:([^;]+);',
-                                     solution_string).group(1)
-
-    languageAndLanguageName = re.search(r'Language:([^;]+)', solution_string)
-    intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);',
-                                                   solution_string)
-    solution_string = solution_string.replace(
-        languageAndLanguageName.group(0), "")
-    solution_string = solution_string.replace(
-        intentationEnabledVariableAndValue.group(0), "")
-
-    qdict['answerText'] = solution_string
-    #print("solution String before changes",repr(solution_string))
-    #dynamically set dfficulty of parson distractor
-
-    #get the count of the distractors
-    distractorCount = len(
-        re.findall(r'(?=#dist)',
-                   repr(solution_string).strip('"\'')))
-
-    #set the count of distractors off the question's hardness
-    #if the question difficulty is hard, use the full count
-    if (question.difficulty == "Easy"):
-        distractorCount = 0
-        distractorCount = int(distractorCount / 2)
+    qdict['languageName'] = parsonsView.findLanguage(solution_string)
+    qdict['indentation_flag'] = parsonsView.findIndentation(solution_string)
+    qdict['answerText'] = parsonsView.findAnswerText(solution_string)
+    qdict['distractor_limit'] = parsonsView.findDistractorLimit(solution_string, question)
+    distractor_limit = qdict['distractor_limit']
 
     #tokenizer characters ☃ and ¬
-    solution_string = re.sub("\n", "\n¬☃", solution_string)
-    #print("Solution String", solution_string)
-
-    #we turn the student solution into a list
+    solution_string = re.sub("\n", "\n¬☃", qdict['answerText'])
     solution_string = [x.strip() for x in solution_string.split('¬')]
-    #print("solutionString", solution_string
     qdict['answerText'] = solution_string
 
-    parsons_formatted = []
-    regular_line_array = []
-    indentationArray = []
-    line_array = {}
-    solutionHashes = []
-    skipFlag = 0
-    pattern = re.compile("##")
-    distractor_pattern = re.compile("#dist")
-    distractors_found_in_code = 0
-    for line in solution_string:
-        regularLine = line
-        regular_line_array.append(regularLine)
-        ##print("currentLine", line)
-        if(skipFlag == 1):
-            #if indentation flag is 1 then we know that next line line we must skip
-            skipFlag = 0
-            continue
-            ##print("got skipped")
-        if (pattern.search(line)):
-            #get the next element to determine how indented it is
-            nextelem = solution_string[solution_string.index(line) + 1]
-            
-            line = re.sub("☃", "", line)
-            nextelem = re.sub("☃", "", nextelem)
-            #we use the difference to calculate whether we must indent and where
-            leadingSpacesCount = len(line) - len(line.lstrip(' '))
-            leadingSpacesCountNextLine = len(nextelem) - len(nextelem.lstrip(' '))
+    model_solution = parsonsView.getModelSolution(solution_string, distractor_limit)
+    qdict['model_solution'] = model_solution['model_solution']
+    qdict['indentation'] = model_solution['indentation']
 
-            #this difference will allow us to know how indented they are
-            difference = leadingSpacesCount - leadingSpacesCountNextLine
-            line = re.sub("##", "", line)
-            skipFlag = 1
-            if (difference == -4):
-                ##print("after")
-                #if indentation is after the line
-                #example:
-                #data++;
-                #   index++;
-                nextelem = re.sub("^", "\n&nbsp;", nextelem)
-                line += nextelem
-                indentationFlag = 1
-                indentationArray.append(0)
-                indentationArray.append(1)
-            if (difference == 4):
-                ##print("before \n")
-                nextelem = re.sub("^", "\n", nextelem)
-                line += nextelem
-                #if indentation is before the line
-                #example:
-                #   data++;
-                #index++;
-                indentationArray.append(1)
-                indentationArray.append(0)
-            if(difference == 0):
-                ##print("zero diff\n")
-                line = re.sub("^ *", "", line)
-                nextelem = re.sub("^ *", "\n", nextelem)
-                line += nextelem
-                #if indentation is before the line
-                #example:
-                # data++;
-                #index++;
-            ##print("added line\n", line)
-                indentationArray.append(0)
-                indentationArray.append(0)
-            line_array.update({hash(line):line})
-            parsons_formatted.append({'line':line,'hashVal':hash(line)})
-            solutionHashes.append(hash(line))
-        else:
-            indentationArray.append(0)
-            line = re.sub("☃ *", "", line)
-            if(distractor_pattern.search(line)):
-                line = re.sub("#dist ", "", line)
-                distractors_found_in_code += 1
-                #if(distractors_found_in_code <= distractorCount):
-            line_array.update({hash(line):line})
-            parsons_formatted.append({'line':line, 'hashVal':hash(line)})
-            solutionHashes.append(hash(line))
-
-    qdict['solution'] = line_array
-    qdict['hashSolution'] = solutionHashes
-    qdict['solutionIndentation'] = indentationArray
-    qdict['regularLines'] = regular_line_array
-    qdict['model_solution'] = parsons_formatted
-    # for item in line_array:
-    #     print("line", item)
+    #display code contains the code for displaying what the student selected
+    qdict['display_code'] = model_solution['display_code']
 
     return qdict
 
@@ -759,137 +653,41 @@ def modifyQDictForView(qdict):
     return qdict
 
 def parsonsMakeAnswerList(qdict, POST):
+    from Instructors.views import parsonsView
     import json, ast
-    #get all the data from the webpage
-    #data is accessed through the index
-    studentAnswerDict = {}
-    studentSolutionJSON = POST[str(qdict['index']) + 'studentSol']
-    studentTrashJSON = POST[str(qdict['index']) + 'studentTrash']
-    feedBackButtonClickCount = POST[str(qdict['index']) + 'feedBackButtonClickCount']
-    studentAnswerDict['feedBackButtonClickCount'] = int(feedBackButtonClickCount)
     
-    studentSolutionJSON = ast.literal_eval(studentSolutionJSON)
-    studentTrashJSON = ast.literal_eval(studentTrashJSON)
-    print("studentSolJSON", studentSolutionJSON)
-    studentSolution = []
-    studentTrash = []
-    studentHashes = []
-    studentIndenation = []
-    lineDict = qdict['solution']
+    student_answers = {}
+    student_solution_JSON = ast.literal_eval(POST[str(qdict['index']) + 'studentSol'])
+    student_trash_JSON = ast.literal_eval(POST[str(qdict['index']) + 'studentTrash'])
 
-    index = 0
-    for item in studentSolutionJSON:
-        hashVal = item['id']
-        if hashVal != 'None':
-            studentHashes.append(hashVal)
-            studentSolution.append(str(lineDict[hashVal]))
-            studentIndenation.append(0)
-            if 'children' in item:
-                for child in item['children']:
-                    studentIndenation.append(1)
-                    hashVal = child['id']
-                    print("lineDIct", lineDict)
-                    studentSolution.append(str(lineDict[hashVal]))
-        index += 1
-    for item in studentTrashJSON:
-        studentTrash.append(item)
+    student_answers = parsonsView.generateStudentSolution(student_solution_JSON, student_trash_JSON, qdict['display_code'])
+    student_answers['feedback_button_click_count'] = int(POST[str(qdict['index']) + 'feedBackButtonClickCount'])
 
+    student_answers['correct_line_count'] = parsonsView.getCorrectCount(
+            student_answers['student_hashes'], 
+            qdict['display_code']
+        )
 
-    #count the student solutions correct lines
-    correctCount = 0
-    for i in range(len(qdict['hashSolution'])):
-        if i < len(studentHashes):
-            if(qdict['hashSolution'][i] == studentHashes[i]):
-                correctCount += 1
-
-    studentAnswerDict['parsonStudentSol'] = len(studentSolution)
-    studentAnswerDict['correctLineCount'] = correctCount
-
-
-    #what lines are wrong and how
-    wronglines = {}
-    for i in range(len(qdict['solutionIndentation'])):
-        if i < len(studentIndenation):
-            if(studentIndenation[i] == qdict['solutionIndentation']):
-                wrongLines['i'] = "Indentation"
-
-    studentAnswerDict['errorDescriptions'] = wronglines
-
-    #if the student ddnt fill in any solution, zero points
-    studentAnswerDict['studentSolution'] = list(studentSolution)
-    return [json.dumps(studentAnswerDict)]
+    student_answers['indentation_errors'] = parsonsView.getIndenationErrorCount(
+            student_answers['student_indentation'], 
+            qdict['indentation']
+        )
+    return [json.dumps(student_answers)]
 
 
 def parsonsAddAnswersAndGrades(qdict, studentAnswers):
+    from Instructors.views import parsonsView
     import ast
     qdict = parsonsCorrectAnswers(qdict)
 
     answer = Answers.objects.filter(questionID=qdict['questionID'])
     answer = answer[0].answerText
     studentAnswerDict = ast.literal_eval(studentAnswers[0])
-    print("studentAnswers", studentAnswerDict['feedBackButtonClickCount'])
-    print("answer obj", studentAnswerDict)
-    #studentSolution =  ast.literal_eval(studentAnswers[0])
-    feedBackButtonClickCount = int(studentAnswerDict['feedBackButtonClickCount'])
-    correctLineCount = int (studentAnswerDict['correctLineCount'])
-    wrongPositionLineNumbers = studentAnswerDict['correctLineCount']
-    errorDescriptions  = studentAnswerDict['errorDescriptions']
+    correctLineCount = int (studentAnswerDict['correct_line_count'])
+    wrongPositionLineNumbers = studentAnswerDict['indentation_errors']
     
-    studentGrade = 0.0
-    penalties = 0.0
-    if studentSolution == "":
-        qdict['user_points'] = 0
-        print("activated")
-    else:
-        ##if no errors happened give them full credit
-        if (errorDescriptions == ""):
-            studentGrade = qdict['total_points']
-
-        ##otherwise grade on our criteria
-        else:
-            indentationErrorCount = len(re.findall(r'(?=i.e. indentation)', repr(errorDescriptions)))
-            ##grading section
-            studentGrade = qdict['total_points']
-            maxPoints = qdict['total_points']
-            penalties = Decimal(0.0)
-
-            studentSolutionLineCount = len(studentAnswerDict['parsonStudentSol'])
-
-            ##too few
-            if (studentSolutionLineCount < correctLineCount):
-                penalties += Decimal((correctLineCount - studentSolutionLineCount) * (1 / correctLineCount))
-                #print("Penalties too few!: ", penalties)
-            ##too many
-            if (studentSolutionLineCount > correctLineCount):
-                penalties += Decimal((studentSolutionLineCount - correctLineCount) * (1 / correctLineCount))
-                #print("Penalties too many!: ", penalties)
-
-            if wrongPositionLineNumberbers:
-                wrongPositionLineNumberbers = [x.strip() for x in wrongPositionLineNumberbers.split(',')]
-                penalties += Decimal( len(wrongPositionLineNumberbers) / correctLineCount)
-                #print("WrongLineNumber length:", len(wrongPositionLineNumberbers))
-                #print("WrongLine Number penalties: ", penalties)
-
-            ##if there was an indentation problem
-            if indentation == "true":
-                if indentationErrorCount > 0:
-                    ##we multiply by 1/2 because each wrong is half of 1/n
-                    penalties += Decimal((indentationErrorCount / correctLineCount) * (1/2))
-
-            #print("Student grade:", studentGrade)
-            #print("Total Points:", qdict['total_points'])
-            if feedBackButtonClickCount > 0:
-                maxPoints /= feedBackButtonClickCount * 2
-            else:
-                maxPoints = qdict['total_points']
-        
-            #max points is the maximum points student can earn, and we subtract the penalties
-            #print("studentGrade", studentGrade, maxPoints, penalties)
-            studentGrade = float(maxPoints) - (float(maxPoints) * float(penalties))
-            if studentGrade < 0:
-                studentGrade = 0
-    
-        qdict['user_points'] = round(Decimal(studentGrade), 2)
+    qdict['user_points'] = parsonsView.gradeParson(qdict, studentAnswerDict)
+    qdict['student_solution'] = studentAnswerDict['student_solution']
     qdict = addFeedback(qdict)
     return qdict
 
