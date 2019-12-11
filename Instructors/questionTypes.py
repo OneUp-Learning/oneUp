@@ -17,7 +17,6 @@ class QuestionTypes():
     dynamic = 6
     templatedynamic = 7
     parsons = 8
-    seriousparsons = 9
     questionTypes = {
         multipleChoice: {
             'index': multipleChoice,
@@ -135,127 +134,128 @@ def matchingqdict(question, i, challengeId, studChallQuest):
 
     qdict['matches'] = matchlist
     return qdict
+#Parsons1
+# def parsonsqdict(question, i, challengeId, studChallQuest):
+#     qdict = staticqdict(question, i, challengeId, studChallQuest)
+#     modelSolution = Answers.objects.filter(questionID=question)
+#     solution_string = modelSolution[0].answerText
+
+#     #print("model solution", modelSolution)
+#     qdict['languageName'] = re.search(
+#         r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
+#     qdict['indentation'] = re.search(r';Indentation:([^;]+);',
+#                                      solution_string).group(1)
+
+#     languageAndLanguageName = re.search(r'Language:([^;]+)', solution_string)
+#     intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);',
+#                                                    solution_string)
+#     solution_string = solution_string.replace(
+#         languageAndLanguageName.group(0), "")
+#     solution_string = solution_string.replace(
+#         intentationEnabledVariableAndValue.group(0), "")
+
+#     qdict['answerText'] = solution_string
+#     #print("solution String before changes",repr(solution_string))
+#     #dynamically set dfficulty of parson distractor
+
+#     #get the count of the distractors
+
+#     distractorCount = len(
+#         re.findall(r'(?=#dist)',
+#                    repr(solution_string).strip('"\'')))
+#     qdict['distractorCount'] = distractorCount
+
+#     #set the count of distractors off the question's hardness
+#     if (question.difficulty == "Easy"):
+#         distractorCount = 0
+#         distractorCount = int(distractorCount / 2)
+
+#     qdict['distractorCount'] = distractorCount
+#     #if the question difficulty is hard,
+#     ##then we just use the full distractor count
+
+#     #repr function will give us the raw representation of the string
+#     #print("Solution String", repr(solution_string))
+#     solution_string = re.sub("\t{3}", "☃            ", solution_string)
+#     solution_string = re.sub("\t{2}", "☃        ", solution_string)
+#     solution_string = re.sub("\t{1}", "☃    ", solution_string)
+
+#     #tokenizer characters ☃ and ¬
+#     solution_string = re.sub("\n", "\n¬☃", solution_string)
+#     solution_string = re.sub("^[ ]+?", "☃", solution_string)
+#     #print("Solution String", solution_string)
+
+#     #we turn the student solution into a list
+#     solution_string = re.sub("(?<=\n)\t*", "   ", solution_string)
+#     solution_string = [x.strip() for x in solution_string.split('¬')]
+#     #print("solutionString", solution_string)
+
+#     #give each string the new line
+#     tabedSolution_string = []
+
+#     #indentation flag allows checking to see if next line should be indented
+#     indentationFlag = 0
+#     pattern = re.compile("##")
+#     for line in solution_string:
+#         originalLine = line
+#         #we need the original line to match against when we find the next element
+#         line = re.sub("☃", "", line)
+#         if (indentationFlag == 1):
+#             #if indentation flag is 1 then we know that on this line we must indent
+#             indentationFlag = 0
+#             line = re.sub("^ *", '&nbsp;' + ' ' * 4, line)
+#         leadingSpacesCount = len(line) - len(line.lstrip(' '))
+#         if (pattern.search(line) != None):
+#             #get the net line, find out its spaces count
+#             nextelem = solution_string[solution_string.index(originalLine) + 1]
+#             nextelem = re.sub("☃", "", nextelem)
+#             leadingSpacesCountNextLine = len(nextelem) - len(
+#                 nextelem.lstrip(' '))
+
+#             #we use the difference to calculate whether we must indent and where
+#             difference = leadingSpacesCount - leadingSpacesCountNextLine
+#             #print("Difference", difference)
+#             if (difference == -4):
+#                 #if indentation is after the line
+#                 #ex:
+#                 #data++;
+#                 #   index++;
+#                 indentationFlag = 1
+#             if (difference == 4):
+#                 #if indentation is before the line
+#                 #ex:
+#                 #   data++;
+#                 #index++;
+#                 modifier = int(leadingSpacesCount / 2)
+#                 if (modifier > 1 and leadingSpacesCount == 8):
+#                     #this modifier multiplies by the spaces count, if 8 then 4 in front, 4 after nbsp
+#                     #this is a quirk of parsons.js
+#                     line = re.sub("^ *", ' ' * modifier + '&nbsp;' + ' ' * 5,
+#                                   line)
+#                 else:
+#                     line = re.sub("^ *", '&nbsp;' + ' ' * 4, line)
+#         #print("line", repr(line))
+#         line = re.sub("\t(?=return.*; *##)", "&nbsp;    ", line)
+#         line = re.sub("(\s{4}|\t)(?=.* *##})", '&nbsp;' + ' ' * 4, line)
+#         line = line + "\n"
+#         tabedSolution_string.append(line)
+
+#     solution_string = ""
+#     solution_string = solution_string.join(tabedSolution_string)
+#     qdict['solution_string'] = solution_string
+#     qdict['tabbed_sol_string'] = tabedSolution_string
+#     #print("tabbedSol String", tabedSolution_string)
+#     #print("joinedSolString", repr(solution_string))
+
+#     solution_string = re.sub("##\\n *", "\\\\n", solution_string)
+#     solution_string = re.sub("\\\\n\t", "\\\\n", solution_string)
+#     solution_string = re.sub("(?<=\n)\s{4}", "\t", solution_string)
+#     qdict['model_solution'] = repr(solution_string).strip('\'')
+#     #print("questqdict['model_solution']", qdict['model_solution'])
+
+#     return qdict
+
 def parsonsqdict(question, i, challengeId, studChallQuest):
-    qdict = staticqdict(question, i, challengeId, studChallQuest)
-    modelSolution = Answers.objects.filter(questionID=question)
-    solution_string = modelSolution[0].answerText
-
-    #print("model solution", modelSolution)
-    qdict['languageName'] = re.search(
-        r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
-    qdict['indentation'] = re.search(r';Indentation:([^;]+);',
-                                     solution_string).group(1)
-
-    languageAndLanguageName = re.search(r'Language:([^;]+)', solution_string)
-    intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);',
-                                                   solution_string)
-    solution_string = solution_string.replace(
-        languageAndLanguageName.group(0), "")
-    solution_string = solution_string.replace(
-        intentationEnabledVariableAndValue.group(0), "")
-
-    qdict['answerText'] = solution_string
-    #print("solution String before changes",repr(solution_string))
-    #dynamically set dfficulty of parson distractor
-
-    #get the count of the distractors
-
-    distractorCount = len(
-        re.findall(r'(?=#dist)',
-                   repr(solution_string).strip('"\'')))
-    qdict['distractorCount'] = distractorCount
-
-    #set the count of distractors off the question's hardness
-    if (question.difficulty == "Easy"):
-        distractorCount = 0
-        distractorCount = int(distractorCount / 2)
-
-    qdict['distractorCount'] = distractorCount
-    #if the question difficulty is hard,
-    ##then we just use the full distractor count
-
-    #repr function will give us the raw representation of the string
-    #print("Solution String", repr(solution_string))
-    solution_string = re.sub("\t{3}", "☃            ", solution_string)
-    solution_string = re.sub("\t{2}", "☃        ", solution_string)
-    solution_string = re.sub("\t{1}", "☃    ", solution_string)
-
-    #tokenizer characters ☃ and ¬
-    solution_string = re.sub("\n", "\n¬☃", solution_string)
-    solution_string = re.sub("^[ ]+?", "☃", solution_string)
-    #print("Solution String", solution_string)
-
-    #we turn the student solution into a list
-    solution_string = re.sub("(?<=\n)\t*", "   ", solution_string)
-    solution_string = [x.strip() for x in solution_string.split('¬')]
-    #print("solutionString", solution_string)
-
-    #give each string the new line
-    tabedSolution_string = []
-
-    #indentation flag allows checking to see if next line should be indented
-    indentationFlag = 0
-    pattern = re.compile("##")
-    for line in solution_string:
-        originalLine = line
-        #we need the original line to match against when we find the next element
-        line = re.sub("☃", "", line)
-        if (indentationFlag == 1):
-            #if indentation flag is 1 then we know that on this line we must indent
-            indentationFlag = 0
-            line = re.sub("^ *", '&nbsp;' + ' ' * 4, line)
-        leadingSpacesCount = len(line) - len(line.lstrip(' '))
-        if (pattern.search(line) != None):
-            #get the net line, find out its spaces count
-            nextelem = solution_string[solution_string.index(originalLine) + 1]
-            nextelem = re.sub("☃", "", nextelem)
-            leadingSpacesCountNextLine = len(nextelem) - len(
-                nextelem.lstrip(' '))
-
-            #we use the difference to calculate whether we must indent and where
-            difference = leadingSpacesCount - leadingSpacesCountNextLine
-            #print("Difference", difference)
-            if (difference == -4):
-                #if indentation is after the line
-                #ex:
-                #data++;
-                #   index++;
-                indentationFlag = 1
-            if (difference == 4):
-                #if indentation is before the line
-                #ex:
-                #   data++;
-                #index++;
-                modifier = int(leadingSpacesCount / 2)
-                if (modifier > 1 and leadingSpacesCount == 8):
-                    #this modifier multiplies by the spaces count, if 8 then 4 in front, 4 after nbsp
-                    #this is a quirk of parsons.js
-                    line = re.sub("^ *", ' ' * modifier + '&nbsp;' + ' ' * 5,
-                                  line)
-                else:
-                    line = re.sub("^ *", '&nbsp;' + ' ' * 4, line)
-        #print("line", repr(line))
-        line = re.sub("\t(?=return.*; *##)", "&nbsp;    ", line)
-        line = re.sub("(\s{4}|\t)(?=.* *##})", '&nbsp;' + ' ' * 4, line)
-        line = line + "\n"
-        tabedSolution_string.append(line)
-
-    solution_string = ""
-    solution_string = solution_string.join(tabedSolution_string)
-    qdict['solution_string'] = solution_string
-    qdict['tabbed_sol_string'] = tabedSolution_string
-    #print("tabbedSol String", tabedSolution_string)
-    #print("joinedSolString", repr(solution_string))
-
-    solution_string = re.sub("##\\n *", "\\\\n", solution_string)
-    solution_string = re.sub("\\\\n\t", "\\\\n", solution_string)
-    solution_string = re.sub("(?<=\n)\s{4}", "\t", solution_string)
-    qdict['model_solution'] = repr(solution_string).strip('\'')
-    #print("questqdict['model_solution']", qdict['model_solution'])
-
-    return qdict
-
-def seriousParsonsqdict(question, i, challengeId, studChallQuest):
     from Instructors.views import parsonsView
     qdict = staticqdict(question, i, challengeId, studChallQuest)
     modelSolution = Answers.objects.filter(questionID=question)
@@ -687,7 +687,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     wrongPositionLineNumbers = studentAnswerDict['indentation_errors']
     
     qdict['user_points'] = parsonsView.gradeParson(qdict, studentAnswerDict)
-    qdict['student_solution'] = studentAnswerDict['student_solution']
+    qdict['student_solution'] = studentAnswerDict['student_solution_string']
     qdict = addFeedback(qdict)
     return qdict
 
@@ -790,14 +790,7 @@ questionTypeFunctions = {
         "modifyQdictForView": modifyQDictForView,
     },
     QuestionTypes.parsons: {
-        "makeqdict": seriousParsonsqdict,
-        "makeAnswerList": parsonsMakeAnswerList,
-        "studentAnswersAndGrades": parsonsAddAnswersAndGrades,
-        "correctAnswers": parsonsCorrectAnswers,
-        "modifyQdictForView": lambda qdict: qdict,
-    },
-    QuestionTypes.seriousparsons: {
-        "makeqdict": seriousParsonsqdict,
+        "makeqdict": parsonsqdict,
         "makeAnswerList": parsonsMakeAnswerList,
         "studentAnswersAndGrades": parsonsAddAnswersAndGrades,
         "correctAnswers": parsonsCorrectAnswers,

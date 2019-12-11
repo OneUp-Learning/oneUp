@@ -405,7 +405,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     </div>
   </div>
   {% else %}
-  {% if warmUp == 1%}
+  <!-- {% if warmUp == 1%}
   <div class="row">
     <div>
       <div id="{{q.questionID}}_sortableTrash" class="sortable-code"></div>
@@ -482,8 +482,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       </script>
     </div>
   </div>
-  {% else %}
-  {# GGM: Serious parson with security #}
+   -->
+  {# GGM: Parsons2 #}
 
   <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
   <input type="hidden" name="{{i}}studentTrash" id="{{q.questionID}}_studentTrash" value="">
@@ -572,9 +572,9 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   </script>
 </div>
 </div>
-{% endif %}
 {# KI: /div tags didn't match number of divs, so I added some #}
 {# GGM: /div turns out we can just delete the remaining two divs #}
+{% endif %}
 {% endif %}
 
 {% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}

@@ -400,7 +400,8 @@ def getModelSolution(solution_string, distractor_limit):
 #generate student solution from the post in student challenges
 def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dictionary):
     student_solution_dict = {}
-    student_solution_fragments = []
+    student_solution_string = []
+    student_solution = []
     student_hashes = []
     student_indentation = []
     student_trash = []
@@ -409,27 +410,36 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
 
         if hash_value != 'None':
             student_hashes.append(hash_value)
-            student_solution_fragments.append(str(line_dictionary[hash_value]))
             student_indentation.append(0)
+            student_solution_string.append(str(line_dictionary[hash_value]))
+            student_solution.append(line_dictionary[hash_value])
 
             if 'children' in code_fragment:
                 for child in code_fragment['children']:
-                    student_indentation.append(4)
                     hash_value = child['id']
-                    print("line_dictionary", line_dictionary)
-                    student_solution_fragments.append(str(line_dictionary[hash_value]))
+
+                    student_hashes.append(hash_value)
+                    student_indentation.append(4)
+                    student_solution_string.append(" " * 4 + str(line_dictionary[hash_value]) + "\n")
+                    student_solution.append(line_dictionary[hash_value])
 
     for code_fragment in student_trash_JSON:
         hash_value = code_fragment['id']
         student_trash.append(str(line_dictionary[hash_value]))
 
-    student_solution = "".join(student_solution_fragments)
+    student_solution_string = "".join(student_solution_string)
+    student_solution_dict['student_solution_string'] = student_solution_string
     student_solution_dict['student_solution'] = student_solution
     student_solution_dict['student_hashes'] = student_hashes
     student_solution_dict['student_trash'] = student_trash
     student_solution_dict['student_indentation'] = student_indentation
 
-    print("student Solution dict", student_solution_dict)
+    print("student solution string", student_solution_string)
+    print("student solution", student_solution)
+    print("student hashes ", student_hashes)
+    print("student trashes", student_trash)
+    print("student indentation", student_indentation)
+
     return student_solution_dict
 
 def getCorrectCount(student_hashes, hash_solutions):
@@ -445,59 +455,65 @@ def getCorrectCount(student_hashes, hash_solutions):
     return correct_count
 def getIndenationErrorCount(student_indentation, indentation_solution):
     errors = []
+    print("indentation error count", student_indentation, indentation_solution)
+
     for i in range(len(indentation_solution)):
-        if(i < len(student_indentation) and student_indentation[i] != indentation_solution[i]):
-            errors.append("Indentation line "+ str(i))
-        else:
-            errors.append("Indentation line "+ str(i))
+
+        try:
+            if student_indentation[i]:
+                if(student_indentation[i] != indentation_solution[i]):
+                    errors.append("Indentation line "+ str(i))
+        except IndexError:
+            True
+            
     return errors
 def gradeParson(qdict, studentAnswerDict):
     if studentAnswerDict['student_solution'] == "" or  studentAnswerDict['student_solution'] == None:
+        print("student sol is blank 0")
         return 0
     if studentAnswerDict['correct_line_count'] == 0:
+        print("correctLineCount 0")
         return 0
         
+    student_grade = 0
     if (studentAnswerDict['indentation_errors'] == None or len(studentAnswerDict['indentation_errors']) == 0):
         ##if no errors happened give them full credit
+        print("No errors happened")
         student_grade = qdict['total_points']
+    max_available_points = qdict['total_points']
+    penalties = Decimal(0.0)
+
+    student_solution_line_count = len(studentAnswerDict['student_solution'])
+
+    if (student_solution_line_count < studentAnswerDict['correct_line_count']):
+        penalties += Decimal((studentAnswerDict['correct_line_count'] - student_solution_line_count) * (1 / studentAnswerDict['correct_line_count']))
+        print("Penalties too few!: ", penalties)
+
+    if (student_solution_line_count > studentAnswerDict['correct_line_count']):
+        penalties += Decimal((student_solution_line_count - studentAnswerDict['correct_line_count']) * (1 / studentAnswerDict['correct_line_count']))
+        print("Penalties too many!: ", penalties)
+
+    error_count = studentAnswerDict['correct_line_count'] - studentAnswerDict['correct_line_count']
+    penalties += Decimal(error_count * (1 / studentAnswerDict['correct_line_count']))
+
+    student_solution_line_count 
+    if qdict['indentation_flag']:
+        if len(studentAnswerDict['indentation_errors']) > 0:
+            ##we multiply by 1/2 because each wrong is half of 1/n
+            penalties += Decimal((len(studentAnswerDict['indentation_errors']) / studentAnswerDict['correct_line_count']) * (1/2))
+            print("indentation error penalties", penalties, studentAnswerDict['indentation_errors'],  studentAnswerDict['correct_line_count'])
+
+    if studentAnswerDict['feedback_button_click_count'] > 0:
+        max_available_points /= studentAnswerDict['feedback_button_click_count'] * 2
     else:
-        student_grade = qdict['total_points']
         max_available_points = qdict['total_points']
-        penalties = Decimal(0.0)
 
-        student_solution_line_count = len(studentAnswerDict['student_solution'])
-
-        if (student_solution_line_count < studentAnswerDict['correct_line_count']):
-            penalties += Decimal((studentAnswerDict['correct_line_count'] - student_solution_line_count) * (1 / studentAnswerDict['correct_line_count']))
-            #print("Penalties too few!: ", penalties)
-
-        if (student_solution_line_count > studentAnswerDict['correct_line_count']):
-            penalties += Decimal((student_solution_line_count - studentAnswerDict['correct_line_count']) * (1 / studentAnswerDict['correct_line_count']))
-            #print("Penalties too many!: ", penalties)
-
-        error_count = studentAnswerDict['correct_line_count'] - studentAnswerDict['correct_line_count']
-        penalties += Decimal(error_count * (1 / studentAnswerDict['correct_line_count']))
-
-        student_solution_line_count 
-        if qdict['indentation_flag']:
-            if len(studentAnswerDict['indentation_errors']) > 0:
-                ##we multiply by 1/2 because each wrong is half of 1/n
-                penalties += Decimal((len(studentAnswerDict['indentation_errors']) / studentAnswerDict['correct_line_count']) * (1/2))
-
-        #print("Student grade:", student_grade)
-        #print("Total Points:", qdict['total_points'])
-        if studentAnswerDict['feedback_button_click_count'] > 0:
-            max_available_points /= studentAnswerDict['feedback_button_click_count'] * 2
-        else:
-            max_available_points = qdict['total_points']
-    
-        #max points is the maximum points student can earn, and we subtract the penalties
-        #print("student_grade", student_grade, max_available_points, penalties)
-        student_grade = float(max_available_points) - (float(max_available_points) * float(penalties))
-        if student_grade < 0:
-            student_grade = 0
-    
-        return round(Decimal(student_grade), 2)
+    #max points is the maximum points student can earn, and we subtract the penalties
+    student_grade = float(max_available_points) - (float(max_available_points) * float(penalties))
+    if student_grade < 0:
+        student_grade = 0
+    print("student_grade", student_grade, max_available_points, penalties)
+    return round(Decimal(student_grade), 2)
 # def getDisplayForCKE():
 #     solution_hashes.append(hash(line))
 #         line_array.update({hash(line):line})
