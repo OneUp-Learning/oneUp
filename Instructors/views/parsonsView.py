@@ -312,6 +312,47 @@ def getIndentation(line):
     line = re.sub("☃", "", line)
     return len(line) - len(line.lstrip(' '))
 
+def getIndentationHash(line, solution_string):
+    next_element = solution_string[solution_string.index(line) + 1]
+
+    line = re.sub("☃", "", line)
+    next_element = re.sub("☃", "", next_element)
+
+    current_line_spacing = len(line) - len(line.lstrip(' '))
+    next_line_spacing = len(next_element) - len(next_element.lstrip(' '))
+
+    difference = current_line_spacing - next_line_spacing
+
+    print("line", line, difference, current_line_spacing)
+    if(difference == 4):
+        return difference % 4
+    if(difference == -4):
+        return 
+    if(difference == 0):
+        return current_line_spacing
+
+def generateIndenation(solution_string):
+    indentation = []
+    indentation_value = 0
+    hash_pattern = re.compile("##")
+    distractor_pattern = re.compile("#dist")
+    skip = False
+    for line in solution_string:
+        if(skip):
+            skip = False
+            continue
+        if(not distractor_pattern.search(line)):
+            if(hash_pattern.search(line)):
+                indentation.append(getIndentationHash(line, solution_string))
+                indentation_value = getIndentationHash(line, solution_string)
+                skip = True
+            else:
+                indentation.append(getIndentation(line))
+                indentation_value = getIndentation(line)
+    
+   
+    print("Indentation", indentation)
+
 #this model solution is used as the problem displayed to student
 #it is called model solution due to historical reasons
 #historical reasons like parsons1 naming the problem model solution
@@ -320,10 +361,11 @@ def getModelSolution(solution_string, distractor_limit):
     model_solution = []
     display_code = {}
     distractors = []
-    indentation = []
+    indentation = generateIndenation(solution_string)
     skip_flag = 0
     hash_pattern = re.compile("##")
     distractor_pattern = re.compile("#dist")
+
     for line in solution_string:
         ##print("currentLine", line)
         if(distractor_pattern.search(line)):
@@ -333,7 +375,6 @@ def getModelSolution(solution_string, distractor_limit):
             #if indentation flag is 1 then we know that next line line we must skip
             skip_flag = 0
             continue
-        indentation.append(getIndentation(line))
         if (hash_pattern.search(line)):
             #get the next element to determine how indented it is
             next_element = solution_string[solution_string.index(line) + 1]
@@ -386,12 +427,10 @@ def getModelSolution(solution_string, distractor_limit):
         if(distractor_counter < distractor_limit):
             model_solution.append({'line':re.sub("^☃#dist ", "", distractor), 'hashVal':hash(distractor)})
             display_code.update({hash(distractor): re.sub("&nbsp;", "", distractor)})
-            indentation.append(0)
         distractor_counter += 1
 
     print("model solution", model_solution)
     print("display_code", display_code)
-    print("indentation", indentation)
     formattedCode['model_solution'] = model_solution
     formattedCode['display_code'] = display_code
     formattedCode['indentation'] = indentation
