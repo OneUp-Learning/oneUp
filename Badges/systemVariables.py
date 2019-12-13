@@ -856,6 +856,8 @@ def getNumberOfDuelsSent(course, student):
     '''
     from Students.models import DuelChallenges
     sent = len(DuelChallenges.objects.filter(challenger=student, courseID=course))
+    print("getNumberOfDuelsSent")
+    print(sent)
     return sent
 
 def getNumberOfDuelsAccepted(course, student):
