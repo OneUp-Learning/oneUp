@@ -856,6 +856,8 @@ def getNumberOfDuelsSent(course, student):
     '''
     from Students.models import DuelChallenges
     sent = len(DuelChallenges.objects.filter(challenger=student, courseID=course))
+    print("getNumberOfDuelsSent")
+    print(sent)
     return sent
 
 def getNumberOfDuelsAccepted(course, student):
@@ -1521,7 +1523,7 @@ class SystemVariable():
             'displayName':'Badges Earned',
             'description':'The number of badges the student has earned',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.endChallenge],
+                ObjectTypes.none:[Event.badgeEarned],
             },
             'type':'int',
             'functions':{

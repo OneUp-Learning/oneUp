@@ -20,6 +20,8 @@ from oneUp.logger import logger
 
 from django.conf import settings
 
+from Students.models import StudentEventLog
+
 
 LOCK_EXPIRE = 60 * 5 # lock expire in 5 minutes
 
@@ -1180,6 +1182,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     # Specify if the xp should be calculated based on max score or first attempt
     xpSeriousMaxScore = True 
     xpWarmupMaxScore = True
+    challengeClassmates = False
     if len(ccparamsList) >0:
         cparams = ccparamsList[0]
         xpWeightSP=cparams.xpWeightSP
@@ -1187,7 +1190,9 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
         xpWeightWChallenge=cparams.xpWeightWChallenge
         xpWeightAPoints=cparams.xpWeightAPoints
         xpSeriousMaxScore = cparams.xpCalculateSeriousByMaxScore 
-        xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore 
+        xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore
+        if cparams.classmatesChallenges:
+            challengeClassmates = True
 
     ###
     ### The last parameter, context_dict, was added to provide the extra 
@@ -1419,7 +1424,18 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     else:
         xp = round((weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints),1)
         print("xp has ran")
-    
+
+    if not context_dict is None and challengeClassmates:
+        context_dict["challengeClassmates"] = challengeClassmates
+        context_dict["numOfDuelSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=872).count()
+        context_dict["numOfDuelAccepted"] = StudentEventLog.objects.filter(student=studentId, course=course, event=873).count()
+        context_dict["numOfDuelWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=874).count()
+        context_dict["numOfDuelLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=875).count()
+        context_dict["numOfCalloutSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=876).count()
+        context_dict["numOfCalloutRequest"] = StudentEventLog.objects.filter(student=studentId, course=course, event=877).count()
+        context_dict["numOfCalloutWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=878).count()
+        context_dict["numOfCalloutLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=879).count()
+        
     if not context_dict is None:
         return context_dict , xp, weightedSeriousChallengePoints, weightedWarmupChallengePoints, weightedActivityPoints, weightedSkillPoints, earnedSeriousChallengePoints, earnedWarmupChallengePoints, earnedActivityPoints, earnedSkillPoints, totalPointsSeriousChallenges, totalPointsActivities
     

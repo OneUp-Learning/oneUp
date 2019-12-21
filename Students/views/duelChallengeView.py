@@ -1273,7 +1273,7 @@ def duel_challenge_accept(request):
             'currentCourseID': duel_challenge.courseID.pk,
             'user': challengee.user.username,
         }
-        register_event_simple(Event.duelSent, mini_req, challengee, objectId=duel_challenge.duelChallengeID)
+        register_event_simple(Event.duelAccepted, mini_req, challengee, objectId=duel_challenge.duelChallengeID)
 
         return render(request,'Students/RequestedDuelChallengeDescriptionForm.html', context_dict)
 

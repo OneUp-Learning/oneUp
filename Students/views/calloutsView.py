@@ -774,7 +774,7 @@ def callout_description(request):
                 call_out_part = CalloutParticipants.objects.get(
                     calloutID=call_out, participantID__user__id=s_id, courseID=current_course)
 
-                if not call_out_part.hasSubmitted:
+                if not call_out_part.hasSubmitted and not call_out.hasEnded:
                     message += "You will have to perform the same or better than the call out sender to win. Please see call out details bellow. "
 
                 context_dict['participant_avatar'] = StudentRegisteredCourses.objects.get(
