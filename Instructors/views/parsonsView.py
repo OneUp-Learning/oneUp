@@ -1,6 +1,6 @@
 #
-# Created  updated 05/30/2018
-# DD
+# Created  updated 10/21/2019
+# GGM
 #
 
 from django.shortcuts import render, redirect
@@ -257,3 +257,294 @@ def parsonsForm(request):
         context_dict['ckeditor'] = config_ck_editor()
     
     return render(request,'Instructors/ParsonsForm.html', context_dict)
+#parsons2 functions after here
+#parsons grading software for grading inside the system.
+@login_required
+def parsonDynamicGrader(request):
+    ##this is used to track how many times the student clicks class average
+    ##we use ajax to track the information, otherwise they'd get the page refreshed on them
+    ##and it would be "wrong".
+    from django.http import JsonResponse
+
+    context_dictionary,current_course = studentInitialContextDict(request)
+    student_id = context_dictionary['student']
+    ##if we posted data with ajax, use it, otherwise just return.
+    if request.POST:
+        #gradeParson()
+        print("ajax call", context_dictionary, student_id)
+        return JsonResponse({})
+
+
+#these functions contain everything to Parson2, debug here
+def findLanguage(solution_string):
+    return re.search(
+    r'Language:([^;]+)', solution_string).group(1).lower().lstrip()
+     
+def findIndentation(solution_string):
+    return re.search(r';Indentation:([^;]+);',
+                                     solution_string).group(1)
+
+def findAnswerText(solution_string):
+    language_removed = re.search(r'Language:([^;]+)', solution_string)
+    solution_string = solution_string.replace(language_removed.group(0), "")
+    #print("language_removed", solution_string)
+
+    indentation_removed = re.search(r';Indentation:([^;]+);',solution_string)
+    solution_string = solution_string.replace(indentation_removed.group(0), "")
+    #print("indentation_removed", solution_string)
+    return solution_string
+
+def findDistractorLimit(solution_string, question):
+    distractor_limit = len(
+                            re.findall(r'(?=#dist)',
+                            repr(solution_string).strip('"\''))
+                        )
+
+    if (question.difficulty == "Easy"):
+        distractor_limit = 0
+    if (question.difficulty == "Medium"):
+        distractor_limit = int(distractor_limit / 2)
+
+    #print("distractor limit", distractor_limit)
+    return distractor_limit
+
+def getIndentation(line):
+    line = re.sub("☃", "", line)
+    #print("line indentation regular", line, len(line) - len(line.lstrip(' ')))
+    return len(line) - len(line.lstrip(' '))
+
+def getIndentationHash(line, solution_string):
+    next_element = solution_string[solution_string.index(line) + 1]
+
+    line = re.sub("☃", "", line)
+    next_element = re.sub("☃", "", next_element)
+
+    current_line_spacing = len(line) - len(line.lstrip(' '))
+    next_line_spacing = len(next_element) - len(next_element.lstrip(' '))
+
+    difference = current_line_spacing - next_line_spacing
+
+    #print("line indentation hash", line, difference, current_line_spacing)
+    if(difference == 4):
+        return next_line_spacing
+    if(difference == -4 or difference == 0):
+        return current_line_spacing
+
+def generateIndenation(solution_string):
+    indentation = []
+    hash_pattern = re.compile("##")
+    distractor_pattern = re.compile("#dist")
+    skip = False
+    for line in solution_string:
+        if(skip):
+            skip = False
+            continue
+        if(not distractor_pattern.search(line)):
+            if(hash_pattern.search(line)):
+                indentation.append(getIndentationHash(line, solution_string))
+                skip = True
+            else:
+                indentation.append(getIndentation(line))
+    
+   
+    return indentation
+
+#this model solution is used as the problem displayed to student
+#it is called model solution due to historical reasons
+#historical reasons like parsons1 naming the problem model solution
+def getModelSolution(solution_string, distractor_limit):
+    formattedCode = {}
+    model_solution = []
+    display_code = {}
+    distractors = []
+    indentation = generateIndenation(solution_string)
+    skip_flag = 0
+    hash_pattern = re.compile("##")
+    distractor_pattern = re.compile("#dist")
+
+    for line in solution_string:
+        ##print("currentLine", line)
+        if(distractor_pattern.search(line)):
+            distractors.append(line)
+            continue
+        if(skip_flag == 1):
+            #if indentation flag is 1 then we know that next line line we must skip
+            skip_flag = 0
+            continue
+        if (hash_pattern.search(line)):
+            #get the next element to determine how indented it is
+            next_element = solution_string[solution_string.index(line) + 1]
+            
+            line = re.sub("☃", "", line)
+            next_element = re.sub("☃", "", next_element)
+            #we use the difference to calculate whether we must indent and where
+            leading_space_count_current_line = len(line) - len(line.lstrip(' '))
+            leading_space_count_next_line = len(next_element) - len(next_element.lstrip(' '))
+
+            #this difference will allow us to know how indented they are
+            difference = leading_space_count_current_line - leading_space_count_next_line
+            line = re.sub("##", "", line)
+            skip_flag = 1
+
+            if (difference == -4):
+                ##print("after")
+                #if indentation is after the line
+                #example:
+                #data++;
+                #   index++;
+                next_element = re.sub("^", "\n&nbsp;", next_element)
+                line += next_element
+            if (difference == 4):
+                ##print("before \n")
+                next_element = re.sub("^", "\n", next_element)
+                line += next_element
+                #if indentation is before the line
+                #example:
+                #   data++;
+                #index++;
+            if(difference == 0):
+                ##print("zero diff\n")
+                line = re.sub("^ *", "", line)
+                next_element = re.sub("^ *", "\n", next_element)
+                line += next_element
+            ##print("added line\n", line)
+        else:
+            line = re.sub("☃ *", "", line)
+
+        model_solution.append({'line':line, 'hashVal':hash(line)})
+        display_code.update({hash(line): re.sub("&nbsp;", "", line)})
+
+    distractor_counter = 0
+    for distractor in distractors:
+        if(distractor_counter < distractor_limit):
+            model_solution.append({'line':re.sub("^☃#dist ", "", distractor), 'hashVal':hash(distractor)})
+            display_code.update({hash(distractor): re.sub("&nbsp;", "", distractor)})
+        distractor_counter += 1
+
+    #print("model solution", model_solution)
+    #print("display_code", display_code)
+    formattedCode['model_solution'] = model_solution
+    formattedCode['display_code'] = display_code
+    formattedCode['indentation'] = indentation
+    return formattedCode
+
+#generate student solution from the post in student challenges
+def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dictionary):
+    student_solution_dict = {}
+    student_solution_string = []
+    student_solution = []
+    student_hashes = []
+    student_indentation = []
+    student_trash = []
+    for code_fragment in student_solution_JSON:
+        hash_value = str(code_fragment['id'])
+        if hash_value != 'None':
+            student_hashes.append(hash_value)
+            student_indentation.append(0)
+            student_solution_string.append(str(line_dictionary[hash_value]) +"\n")
+            student_solution.append(line_dictionary[hash_value])
+
+            if 'children' in code_fragment:
+                for child in code_fragment['children']:
+                    hash_value = child['id']
+
+                    student_hashes.append(hash_value)
+                    student_indentation.append(4)
+                    print("hash value", line_dictionary[hash_value])
+                    line = line_dictionary[hash_value]
+                    line = re.sub(";\n",";\n    ",line)
+                    student_solution_string.append(" " * 4 + str(line) + "\n")
+                    student_solution.append(line_dictionary[hash_value])
+
+    for code_fragment in student_trash_JSON:
+        hash_value = code_fragment['id']
+        student_trash.append(str(line_dictionary[hash_value]))
+
+    student_solution_string = "".join(student_solution_string)
+    student_solution_dict['student_solution_string'] = student_solution_string
+    student_solution_dict['student_solution'] = student_solution
+    student_solution_dict['student_hashes'] = student_hashes
+    student_solution_dict['student_trash'] = student_trash
+    student_solution_dict['student_indentation'] = student_indentation
+
+    print("student solution string", student_solution_string)
+    # print("student solution", student_solution)
+    # print("student hashes ", student_hashes)
+    # print("student trashes", student_trash)
+    # print("student indentation", student_indentation)
+
+    return student_solution_dict
+
+def getCorrectCount(student_hashes, hash_solutions):
+    correct_count = 0
+    i = 0
+    for key in hash_solutions.keys():
+        #while the range we are in is lower than student hashes
+        if(i < len(student_hashes) and student_hashes[i] == key):
+                correct_count += 1
+        else:
+            break
+        i += 1
+    return correct_count
+def getIndenationErrorCount(student_indentation, indentation_solution):
+    errors = []
+    
+
+    for i in range(len(indentation_solution)):
+        try:
+            if(student_indentation[i] != indentation_solution[i]):
+                    errors.append("Indentation line "+ str(i))
+        except IndexError:
+            True
+    #print("indentation error count", student_indentation, indentation_solution, errors)
+    return errors
+def gradeParson(qdict, studentAnswerDict):
+    if studentAnswerDict['student_solution'] == "" or  studentAnswerDict['student_solution'] == None:
+        return 0
+    if studentAnswerDict['correct_line_count'] == 0:
+        return 0
+        
+    student_grade = 0
+    if (studentAnswerDict['indentation_errors'] == None or len(studentAnswerDict['indentation_errors']) == 0):
+        student_grade = qdict['total_points']
+    max_available_points = qdict['total_points']
+    penalties = Decimal(0.0)
+
+    student_solution_line_count = len(studentAnswerDict['student_solution'])
+    correct_lines_in_solution = len(qdict['display_code']) - qdict['distractor_limit']
+
+    #print("Student solution line count", student_solution_line_count, studentAnswerDict['correct_line_count'],correct_lines_in_solution)
+
+    if (student_solution_line_count < correct_lines_in_solution):
+        penalties += Decimal((correct_lines_in_solution - student_solution_line_count) * (1 / correct_lines_in_solution))
+        #print("Penalties too few!: ", penalties)
+
+    if (student_solution_line_count > correct_lines_in_solution):
+        penalties += Decimal((student_solution_line_count - correct_lines_in_solution) * (1 / correct_lines_in_solution))
+        #print("Penalties too many!: ", penalties)
+
+    error_count = correct_lines_in_solution - correct_lines_in_solution
+    penalties += Decimal(error_count * (1 / correct_lines_in_solution))
+
+    student_solution_line_count 
+    if qdict['indentation_flag']:
+        if len(studentAnswerDict['indentation_errors']) > 0:
+            ##we multiply by 1/2 because each wrong is half of 1/n
+            penalties += Decimal((len(studentAnswerDict['indentation_errors']) / correct_lines_in_solution) * (1/2))
+            #print("indentation error penalties", penalties, studentAnswerDict['indentation_errors'],  correct_lines_in_solution)
+
+    if studentAnswerDict['feedback_button_click_count'] > 0:
+        max_available_points /= studentAnswerDict['feedback_button_click_count'] * 2
+    else:
+        max_available_points = qdict['total_points']
+
+    #max points is the maximum points student can earn, and we subtract the penalties
+    student_grade = float(max_available_points) - (float(max_available_points) * float(penalties))
+    if student_grade < 0:
+        student_grade = 0
+    #print("student_grade", student_grade, max_available_points, penalties)
+    return round(Decimal(student_grade), 2)
+# def getDisplayForCKE():
+#     solution_hashes.append(hash(line))
+#         line_array.update({hash(line):line})
+#         model_solution.append({'line':line, 'hashVal':hash(line)})

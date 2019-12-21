@@ -28,6 +28,9 @@
    <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
+   <script src="/static/ThirdParty/js-parsons-master/jquery.nestable.js"></script>
+   <link href="/static/ThirdParty/js-parsons-master/nestable.css" rel="stylesheet" />
+
    {% include "../Students/parson.html" %}
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
@@ -62,9 +65,9 @@
             {% if isduration %}
 
             <p id="count_down"></p>
-            
+
             <script>
-               
+
                // This script is for count down time 
                var duration = {{ testDuration }};
                var duration_milli = duration * 1000 * 60;
@@ -105,7 +108,7 @@
       </div>
       <div class="row">
          <div class="col s12 m10 offset-m1">
-            <form id="TakeTest" name="TakeTest"  action="/oneUp/students/ChallengeResults" method="POST">
+            <form id="TakeTest" name="TakeTest" action="/oneUp/students/ChallengeResults" method="POST">
                {% csrf_token %}
 
                <input type="hidden" name="startTime" id="startTime" value="{{startTime}}">
@@ -126,14 +129,14 @@
                   <div class="card-action right-align">
                      <input type="submit" id="submit_hidden" name="submit_hidden" style="display:none;">
                      {% if isDuel %}
-                     <a id="submit1" class="waves-effect waves-light btn modal-trigger"
-                        href="#modal_confirm1"><i class="material-icons right">send</i>Submit Duel</a>
+                     <a id="submit1" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i
+                           class="material-icons right">send</i>Submit Duel</a>
                      {% elif isCallout %}
-                     <a id="submit2" class="waves-effect waves-light btn modal-trigger"
-                        href="#modal_confirm1"><i class="material-icons right">send</i>Submit Call Out</a>
+                     <a id="submit2" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i
+                           class="material-icons right">send</i>Submit Call Out</a>
                      {% else %}
-                     <a id="submit3" class="waves-effect waves-light btn modal-trigger"
-                        href="#modal_confirm2"><i class="material-icons right">send</i>Submit Challenge</a>
+                     <a id="submit3" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm2"><i
+                           class="material-icons right">send</i>Submit Challenge</a>
                      {% endif %}
                      <div id="modal_confirm1" class="modal">
                         <div class="modal-content left-align">
@@ -204,25 +207,38 @@
          }
 
          gradeParsons();
+         //gradeSeriousParson();
       }
 
+      // function gradeParsons() {
+      //    //function to grade the parsons
+      //    var parsonsProblems = document.getElementsByName("parsonProblem");
+      //    for (var i = 0; i < parsonsProblems.length; ++i) {
+      //       window["submit_clicked_" + parsonsProblems[i].value] = true;
+      //       parsonObject = window["parson_" + parsonsProblems[i].value];
+
+      //       parsonObject.showFeedback(false);
+      //       parsonObject.getFeedback();
+      //       parsonObject.generateStudentCodeAndIndentation();
+
+      //       $("#" + parsonsProblems[i].value + "_lineNo").val(incorrectLines);
+      //       $("#" + parsonsProblems[i].value + "_errorDescription").val(eval("logged_errors_" + parsonsProblems[i].value));
+      //       $("#" + parsonsProblems[i].value + "_studentSol").val(parsonObject.studentCode);
+      //       $("#" + parsonsProblems[i].value + "_lineIndent").val(parsonObject.lineIndentation);
+      //       $("#" + parsonsProblems[i].value + "_correctLineCount").val(parsonObject.model_solution.length);
+      //       $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(eval("countFeedbackButtonClicks_" + parsonsProblems[i].value));
+      //    }
+      // }
+
       function gradeParsons() {
-         //function to grade the parsons
-         var parsonsProblems = document.getElementsByName("parsonProblem");
+         var parsonsProblems = document.getElementsByName("serious_parson");
          for (var i = 0; i < parsonsProblems.length; ++i) {
-            window["submit_clicked_" + parsonsProblems[i].value] = true;
-            parsonObject = window["parson_" + parsonsProblems[i].value];
+            var parsonObject = window["seriousParson_" + parsonsProblems[i].value];
+            parsonObject.loadParsonForSubmit();
 
-            parsonObject.showFeedback(false);
-            parsonObject.getFeedback();
-            parsonObject.generateStudentCodeAndIndentation();
-
-            $("#" + parsonsProblems[i].value + "_lineNo").val(incorrectLines);
-            $("#" + parsonsProblems[i].value + "_errorDescription").val(eval("logged_errors_" + parsonsProblems[i].value));
-            $("#" + parsonsProblems[i].value + "_studentSol").val(parsonObject.studentCode);
-            $("#" + parsonsProblems[i].value + "_lineIndent").val(parsonObject.lineIndentation);
-            $("#" + parsonsProblems[i].value + "_correctLineCount").val(parsonObject.model_solution.length);
-            $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(eval("countFeedbackButtonClicks_" + parsonsProblems[i].value));
+            $("#" + parsonsProblems[i].value + "_studentSol").val(parsonObject.studentSolution);
+            $("#" + parsonsProblems[i].value + "_studentTrash").val(parsonObject.studentTrash);
+            $("#" + parsonsProblems[i].value + "_feedBackButtonClickCount").val(parsonObject.feebackClickCount);
          }
       }
 
