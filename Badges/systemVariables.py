@@ -1021,12 +1021,12 @@ def getNumberOfUniqueSeriousChallengesGreaterThan90Percent(course, student):
     logger.debug("Number of unqiue serious challenges > 90%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
-def getNumberOfUniqueWarmupChallengesGreaterThan30Percent(course, student):  
+def getNumberOfUniqueWarmupChallengesGreaterThan60Percent(course, student):  
     ''' This will return the number of unique warmup challenges that a student completed with a 
-        score > 30%
+        score > 60%
     '''  
-    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 30.0)
-    logger.debug("Number of unqiue warmup challenges > 30%: " + str(challengesGreaterThan))
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 60.0)
+    logger.debug("Number of unqiue warmup challenges > 60%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
 def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student): 
@@ -1094,7 +1094,7 @@ class SystemVariable():
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
     percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
     uniqueSeriousChallengesAttempted = 920 # The number of unique serious challenges completed by the student
-    uniqueWarmupChallengesGreaterThan30Percent = 921 # Number of warmup challenges with a score percentage greater than 30%
+    uniqueWarmupChallengesGreaterThan60Percent = 921 # Number of warmup challenges with a score percentage greater than 60%
     uniqueWarmupChallengesGreaterThan75Percent = 922 # Number of warmup challenges with a score percentage greater than 75%
     uniqueWarmupChallengesGreaterThan75PercentForTopic = 923 # Number of warmup challenges with a score percentage greater than 75% for a particular topic
     totalMinutesSpentOnWarmupChallenges = 924 # Total minutes spent on warmup challenges only
@@ -1585,17 +1585,17 @@ class SystemVariable():
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesAttempted
             },
         },   
-        uniqueWarmupChallengesGreaterThan30Percent:{
-            'index': uniqueWarmupChallengesGreaterThan30Percent,
-            'name':'uniqueWarmupChallengesGreaterThan30Percent',
-            'displayName':'Warmup Challenges Score (greater than 30% correct)',
-            'description':'The number of warmup challenges a student has completed with a score greater than 30%. The student score only includes the student score, adjustment, and curve.',
+        uniqueWarmupChallengesGreaterThan60Percent:{
+            'index': uniqueWarmupChallengesGreaterThan60Percent,
+            'name':'uniqueWarmupChallengesGreaterThan60Percent',
+            'displayName':'Warmup Challenges Score (greater than 60% correct)',
+            'description':'# of Warmup Challenges with Score >= 60% of Total Challenge Score.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan30Percent
+                ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan60Percent
             },
         },
         uniqueWarmupChallengesGreaterThan75Percent:{
