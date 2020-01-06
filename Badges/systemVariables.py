@@ -316,7 +316,7 @@ def getAverageActivityScore(course,student, activity):
 def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     ''' This will return the percentage of the highest challenge score obtained by a student
         for a challenge.
-        Score does not include bonus points (score + adjustment + curve)
+        Score includes score + adjustment + curve (bonus points not included)
     '''
     allScores = getTestScores(course,student,challenge)
     maxScore = 0
@@ -329,6 +329,21 @@ def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     if challengeScore == 0:
         return 0
     return float(maxScore)/float(challengeScore) * 100
+
+def getPercentOfFirstAttemptScoreOutOfChallengeScore(course, student, challenge):
+    ''' This will return the percentage of the first attempted challenge score obtained by a student
+        for a challenge.
+        Score includes score + adjustment + curve (bonus points not included)
+    '''
+    first_attempt = getTestScores(course,student,challenge).order_by('endTimestamp').first()
+    challenge_score = challenge.getCombinedScore()
+    percentage = 0
+
+    if first_attempt and challenge_score != 0:
+        score = first_attempt.getScore()
+        percentage = float(score)/float(challenge_score) * 100
+
+    return percentage
 
 def getPercentageOfMaxActivityScore(course, student, activity):
     ''' This will return the percentage of the highest score for a course of a activity'''
@@ -1087,7 +1102,6 @@ class SystemVariable():
     averageActivityScore = 928 # average activity score of the course 
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
     isWarmUp = 932 # is a warm-up challenge
-    activityScoreDifferenceByCategory = 941
     scorePercentageDifferenceFromPreviousActivity = 934 # Difference between the percentages of the student's scores for this activity and the one preceding it'''      
     percentageOfActivityScore = 935 # Percentage of the student's score out of the max possible score for this activity
     percentageOfMaxActivityScore = 936 # Percentage of the highest score for the course out of the max possible score for this activity
@@ -1095,6 +1109,7 @@ class SystemVariable():
     badgesEarned = 938 # Number of badges student as earned
     scoreDifferenceFromPreviousActivity = 939 # score difference from previous activity
     uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt = 940 #The number of warmup challenges with a score greater than 75% with only one attempt.
+    activityScoreDifferenceByCategory = 941
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
     seriousChallengeReachedDueDate = 944 
@@ -1114,6 +1129,7 @@ class SystemVariable():
     calloutParticipationLost = 958 # Returns the number of callout a student has participated in and lost
     calloutRequested = 959 #
     duelsParticipated = 960 # Return the number of duels a student has participated in regarless of the duel outcome
+    percentOfFirstAttemptScoreOutOfChallengeScore = 961  # percentage of student's score (for the first attempt ) out of the max possible score for a challenge
 
 
     systemVariables = {
@@ -1225,6 +1241,19 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
+            },
+        },  
+        percentOfFirstAttemptScoreOutOfChallengeScore:{
+            'index': percentOfFirstAttemptScoreOutOfChallengeScore,
+            'name':'percentOfFirstAttemptScoreOutOfChallengeScore',
+            'displayName':'Percentage of Student First Attempt Score Out of Challenge Score',
+            'description':'The percentage of the student first attempt score for a particular challenge. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge: getPercentOfFirstAttemptScoreOutOfChallengeScore
             },
         },  
         percentageOfMaxActivityScore:{
