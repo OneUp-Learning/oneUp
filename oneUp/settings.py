@@ -277,7 +277,8 @@ REST_FRAMEWORK = {
 SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
 
 # Celery Settings
-CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/'+rabbitmq_vhostname
+CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':' + \
+    rabbitmq_password+'@localhost/'+rabbitmq_vhostname
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_IMPORTS = ['Badges.periodicVariables']

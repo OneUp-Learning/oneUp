@@ -29,6 +29,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     q_type_displayName = []
     q_difficulty = []
     q_position = []
+    q_duplicate = []
 
     # If questionId is specified then we load for editing.
     challenge = Challenges.objects.get(pk=int(challengeId))    
@@ -42,6 +43,15 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     for challenge_question in challenge_questions:
         questionObjects.append(challenge_question.questionID)
         q_position.append(challenge_question.questionPosition)
+
+        if 'unassign' in context_dict:
+            problem_filter = ChallengesQuestions.objects.filter(questionID=challenge_question.questionID).exclude(pk=challenge_question.pk)
+        else:
+            problem_filter = challenge_questions.filter(questionID=challenge_question.questionID).exclude(pk=challenge_question.pk)
+        
+        affected_problems = [(q.questionID.preview, q.questionPosition, q.challengeID.challengeName) for q in problem_filter]
+        q_duplicate.append((len(affected_problems) > 0, affected_problems))
+       
  
     for question in questionObjects:
         q_ID.append(question.questionID)
@@ -55,7 +65,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
                 
         
     # The range part is the index numbers.
-    context_dict['question_range'] = sorted(list(zip(range(1,len(questionObjects)+1),q_ID,q_preview,q_type_name,q_type_displayName, q_difficulty, q_position )), key=lambda tup: tup[6])
+    context_dict['question_range'] = sorted(list(zip(range(1,len(questionObjects)+1),q_ID,q_preview,q_type_name,q_type_displayName, q_difficulty, q_position, q_duplicate)), key=lambda tup: tup[6])
     
     return context_dict
 

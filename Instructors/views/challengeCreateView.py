@@ -20,12 +20,14 @@ from oneUp.decorators import instructorsCheck
 from oneUp.ckeditorUtil import config_ck_editor
 
 import re
-
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 from Instructors.questionTypes import questionTypeFunctions, QuestionTypes
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
 def challengeCreateView(request):
+    
     # Request the context of the request.
     # The context contains information such as the client's machine details, for example.
     context_dict, currentCourse = initialContextDict(request)
@@ -297,7 +299,7 @@ def challengeCreateView(request):
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challengeId).order_by('questionPosition')
             
             for challenge_question in challenge_questions:
-                questionObjects.append(challenge_question.questionID)
+                questionObjects.append(challenge_question)
             
             # Getting all the questions of the challenge except the matching question
             challengeDetails = Challenges.objects.filter(challengeID = challengeId)
@@ -323,9 +325,11 @@ def challengeCreateView(request):
             i = 0
             for q in questionObjects:
                 i += 1
-                qdict = questionTypeFunctions[q.type]['makeqdict'](q,i,challengeId,None)
-                qdict = questionTypeFunctions[q.type]['correctAnswers'](qdict)
-                qdict = questionTypeFunctions[q.type]['modifyQdictForView'](qdict)
+                qdict = questionTypeFunctions[q.questionID.type]['makeqdict'](q.questionID,i,challengeId, q, None)
+                pp.pprint(qdict)
+                qdict = questionTypeFunctions[q.questionID.type]['correctAnswers'](qdict)
+                qdict = questionTypeFunctions[q.questionID.type]['modifyQdictForView'](qdict)
+                
                 qlist.append(qdict)
         else:
             context_dict['topics'] = []
@@ -336,7 +340,7 @@ def challengeCreateView(request):
             context_dict['curve'] = '0' 
 
         context_dict['question_range'] = zip(range(1,len(questionObjects)+1),qlist)
-        logger.debug("[GET] " + str(context_dict))
+        # logger.debug("[GET] " + str(context_dict))
         
     if 'wView' in request.GET:
         context_dict['warmUp']= 1

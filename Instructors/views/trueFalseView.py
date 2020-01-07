@@ -120,18 +120,23 @@ def trueFalseNewForm(request):
             # save in ChallengesQuestions if not already saved        # 02/28/2015    
             
             position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
-            
-            if  'questionId' in request.POST:                         
-                challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
-                for chall_question in challenge_question:
-                    position = chall_question.questionPosition
+            positions = []
+            if  'questionId' in request.POST:
+                # Delete challenge question (even duplicates)                         
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
+                for chall_question in challenge_questions:
+                    positions.append(chall_question.questionPosition)
                 
-                challenge_question.delete()
+                challenge_questions.delete()
 
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-        
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
+            if positions:
+                # Recreate challenge question (and duplicates)
+                for pos in positions:
+                    ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), pos)
+            else:
+                ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
             # Processing and saving skills for the question in DB
             addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))

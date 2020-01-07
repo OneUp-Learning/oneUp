@@ -861,9 +861,15 @@ def getActivitiesCompleted(course,student):
 def getNumberOfBadgesEarned(course, student):
     ''' This will return the number of badges a student has earned'''
     from Students.models import StudentBadges
-    count = StudentBadges.objects.filter(studentID = student).count()
-    logger.debug("Number of Earned Badges by student: " + str(count))
-    return count
+    from Badges.models import BadgesInfo
+    course_badges = BadgesInfo.objects.filter(courseID=course)
+    badges_total = 0
+    for course_badge in course_badges:
+        student_badges = StudentBadges.objects.filter(badgeID=course_badge, studentID=student)
+        badges_total += student_badges.count()
+        
+    logger.debug("Number of Earned Badges by student: " + str(badges_total))
+    return badges_total
 
 def getNumberOfDuelsSent(course, student):
     ''' This will return the number of duels sent by a student regardless of the

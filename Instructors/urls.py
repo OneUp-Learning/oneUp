@@ -74,7 +74,7 @@ from Instructors.views.views import index
 
 # Dynamic Questions Stuff
 from Instructors.views.dynamicQuestionView import dynamicQuestionForm
-from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm
+from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm, removeFileFromQuestion
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
 from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit, libDeleteConfirmView
@@ -99,6 +99,8 @@ urlpatterns = [
 
     url(r'^activityRemoveFile', removeFileFromActivty,
         name='removeFileFromActivty'),
+    url(r'^remQuestionFileTempQ', removeFileFromQuestion,
+        name="removeFileFromQuestion"),
     url(r'^activityAssignPointsForm', assignedPointsList,
         name='activityAssignPointsForm'),
     url(r'^activityAssignPoints', activityAssignPointsView,
