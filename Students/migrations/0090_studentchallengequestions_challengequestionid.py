@@ -18,6 +18,7 @@ def migrate_student_challenge_questions(apps, schema_editor):
             # This is a fairly broken case, so we're just assigning a value
             # so the DB won't complain.
             student_challenge_question.challengeQuestionID = defaultCQ
+            student_challenge_question.save()
             continue
 
         student_challenge_question.challengeQuestionID = challenge_question[0]
