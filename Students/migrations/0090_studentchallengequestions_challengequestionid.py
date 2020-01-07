@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('Instructors', '0108_auto_20190827_1458'),
-        ('Students', '0089_studentactions'),
+        ('Students', '0090_auto_20191115_1749'),
     ]
 
     operations = [
