@@ -8,13 +8,16 @@ def migrate_student_challenge_questions(apps, schema_editor):
     StudentChallengeQuestions = apps.get_model("Students","StudentChallengeQuestions")
     ChallengesQuestions = apps.get_model("Instructors","ChallengesQuestions")
 
+    defaultCQ = ChallengesQuestions.objects.all()[0]
     student_challenge_questions = StudentChallengeQuestions.objects.all()
     for student_challenge_question in student_challenge_questions:
         challenge_question = ChallengesQuestions.objects.filter(challengeID=student_challenge_question.studentChallengeID.challengeID, questionID=student_challenge_question.questionID)
         
         if not challenge_question:
             print("[ERROR] No challenge question can be found for student challenge question instance :(")
-            student_challenge_question.challengeQuestionID = 0
+            # This is a fairly broken case, so we're just assigning a value
+            # so the DB won't complain.
+            student_challenge_question.challengeQuestionID = defaultCQ
             continue
 
         student_challenge_question.challengeQuestionID = challenge_question[0]
