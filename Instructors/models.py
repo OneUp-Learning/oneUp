@@ -80,7 +80,15 @@ class Questions(models.Model):
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              
         return str(self.questionID)+","+self.preview
-    
+
+class QuestionProgrammingFiles(models.Model):
+    programmingFileID = models.AutoField(primary_key=True)
+    questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, null=True, verbose_name= 'the related question')
+    programmingFileName = models.CharField(max_length=200)
+    programmingFileFolderName = models.CharField(max_length=200)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    programmingFileUploader = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name="Creator", db_index=True)
+     
 class StaticQuestions(Questions):
     questionText = models.CharField(max_length=10000)
     correctAnswerFeedback = models.CharField(max_length=1000, default="")
@@ -218,7 +226,7 @@ class ChallengesQuestions(models.Model):
     questionPosition = models.IntegerField(default = 0)
     points = models.DecimalField(decimal_places=2, max_digits=6, default=0)
     def __str__(self):              
-        return str(self.challengeID)+","+str(self.questionID)
+        return str(self.pk) + ","+str(self.challengeID)+","+str(self.questionID)
     @staticmethod
     def addQuestionToChallenge(question, challenge, points, position):
         cq = ChallengesQuestions()

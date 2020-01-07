@@ -57,7 +57,7 @@ def searchResults(request):
         q_object_skills = []
         q_object_tags = []
         q_object_difficulty = []
-        q_object_challenge = []           
+        q_object_challenge = []   
         
         #Checking for topics
         if selectedTopics:
@@ -82,7 +82,7 @@ def searchResults(request):
 
         # If neither challenges or topics are selected, take all challenges
         if not selectedChallenges and not selectedTopics:
-            courseChallenges = Challenges.objects. filter(courseID=currentCourse) # get all challenges for this course
+            courseChallenges = Challenges.objects.filter(courseID=currentCourse) # get all challenges for this course
             for chall in courseChallenges:
                 selectedChallenges.append(chall.challengeID)
    
@@ -136,6 +136,7 @@ def searchResults(request):
         q_type_name = []
         q_difficulty = []
         q_challengeId= []
+        q_points = []
         
         for question in q_object_tags:
  
@@ -148,7 +149,8 @@ def searchResults(request):
             q_type_name.append(QuestionTypes.questionTypes[qtype]['displayName'])
             q_difficulty.append(question.difficulty)
 
-            q_challengeId.append((ChallengesQuestions.objects.filter(questionID = question.questionID)[:1].get()).challengeID.challengeID)            
+            q_challengeId.append((ChallengesQuestions.objects.filter(questionID = question.questionID)[:1].get()).challengeID.challengeID) 
+            q_points.append(ChallengesQuestions.objects.filter(questionID=question.questionID).first().points)           
             num_found_questions = num_found_questions + 1 
 
         #If no results were found then we pass empty=true to the html page
@@ -156,7 +158,7 @@ def searchResults(request):
             context_dict['empty'] = 1
             
         # The range part is the index numbers.
-        zipped = zip(range(1,num_found_questions+1),q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId)
+        zipped = zip(range(1,num_found_questions+1),q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId, q_points)
         context_dict['question_range'] = sorted(zipped, key=lambda x: x[2])
         
         if 'challengeID' in request.POST:                                   # 03/05/2015

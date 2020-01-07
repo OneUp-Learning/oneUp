@@ -202,9 +202,15 @@ def callout_challenge_report(request):
 
                 participant_last_names.append(
                     call_out_participant.participantID.user.last_name)
+                print(call_out_participant.participantID.user.last_name)
+
+                if call_out_participant.participantID.user.last_name == "izan":
+                    print(call_out_participant)
 
                 if call_out_participant.hasWon:
                     winning_status.append("Won")
+                elif call_out_participant.hasSubmitted and not call_out_participant.hasWon:
+                    winning_status.append("Failed")
                 elif call_out.hasEnded:
                     winning_status.append("Failed")
                 else:
@@ -226,7 +232,7 @@ def callout_challenge_report(request):
                         submission_status.append(True)
                     else:
                         submission_status.append(False)
-
+            print(winning_status)
             context_dict['call_outs'] = zip(
                 participant_avatars, participant_last_names, call_out_participants, submit_times, participant_scores, submission_status, winning_status)
             return render(request, 'Instructors/CalloutChallengeReport.html', context_dict)

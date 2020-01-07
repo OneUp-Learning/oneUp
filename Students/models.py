@@ -2,7 +2,7 @@ import os
 
 from django.db import models
 from django.contrib.auth.models import User
-from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
+from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles, ChallengesQuestions
 from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking,  LeaderboardsConfig
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
@@ -90,6 +90,7 @@ class StudentChallengeQuestions(models.Model):
     studentChallengeQuestionID = models.AutoField(primary_key=True)
     studentChallengeID = models.ForeignKey(StudentChallenges, on_delete=models.CASCADE, verbose_name="the related student_challenge", db_index=True)
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True) 
+    challengeQuestionID = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name="the related challenge_question", db_index=True) 
     questionScore = models.DecimalField(decimal_places=2, max_digits=6)
     questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
     usedHint = models.BooleanField(default=True)
