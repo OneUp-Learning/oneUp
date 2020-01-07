@@ -14,6 +14,7 @@ def migrate_student_challenge_questions(apps, schema_editor):
         
         if not challenge_question:
             print("[ERROR] No challenge question can be found for student challenge question instance :(")
+            student_challenge_question.challengeQuestionID = 0
             continue
 
         student_challenge_question.challengeQuestionID = challenge_question[0]
