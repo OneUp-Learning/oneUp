@@ -308,23 +308,24 @@ def findDistractorLimit(solution_string, question):
     #print("distractor limit", distractor_limit)
     return distractor_limit
 
+#for the indentation we should take 4 spaces to equal one Tab character known as \t
 def getIndentation(line):
-    line = re.sub("☃", "", line)
-    #print("line indentation regular", line, len(line) - len(line.lstrip(' ')))
+    line = snowmanRemoval(line)
+    print("line indentation regular", repr(line), len(line) - len(line.lstrip(' ')))
     return len(line) - len(line.lstrip(' '))
 
 def getIndentationHash(line, solution_string):
     next_element = solution_string[solution_string.index(line) + 1]
 
-    line = re.sub("☃", "", line)
-    next_element = re.sub("☃", "", next_element)
+    line = snowmanRemoval(line)
+    next_element =  snowmanRemoval(next_element)
 
     current_line_spacing = len(line) - len(line.lstrip(' '))
     next_line_spacing = len(next_element) - len(next_element.lstrip(' '))
 
     difference = current_line_spacing - next_line_spacing
 
-    #print("line indentation hash", line, difference, current_line_spacing)
+    print("line indentation hash", repr(line), difference, current_line_spacing)
     if(difference == 4):
         return next_line_spacing
     if(difference == -4 or difference == 0):
@@ -339,6 +340,7 @@ def generateIndenation(solution_string):
         if(skip):
             skip = False
             continue
+        #if its not a distractor line, then determine if its a hash pattern or not
         if(not distractor_pattern.search(line)):
             if(hash_pattern.search(line)):
                 indentation.append(getIndentationHash(line, solution_string))
@@ -346,7 +348,7 @@ def generateIndenation(solution_string):
             else:
                 indentation.append(getIndentation(line))
     
-   
+    print("indentaiton array", indentation)
     return indentation
 
 #this model solution is used as the problem displayed to student
@@ -363,7 +365,7 @@ def getModelSolution(solution_string, distractor_limit):
     distractor_pattern = re.compile("#dist")
 
     for line in solution_string:
-        ##print("currentLine", line)
+        print("currentLine", line)
         if(distractor_pattern.search(line)):
             distractors.append(line)
             continue
@@ -387,7 +389,7 @@ def getModelSolution(solution_string, distractor_limit):
             skip_flag = 1
 
             if (difference == -4):
-                ##print("after")
+                print("after")
                 #if indentation is after the line
                 #example:
                 #data++;
@@ -395,7 +397,7 @@ def getModelSolution(solution_string, distractor_limit):
                 next_element = re.sub("^", "\n&nbsp;", next_element)
                 line += next_element
             if (difference == 4):
-                ##print("before \n")
+                print("before \n")
                 next_element = re.sub("^", "\n", next_element)
                 line += next_element
                 #if indentation is before the line
@@ -403,11 +405,11 @@ def getModelSolution(solution_string, distractor_limit):
                 #   data++;
                 #index++;
             if(difference == 0):
-                ##print("zero diff\n")
+                print("zero diff\n")
                 line = re.sub("^ *", "", line)
                 next_element = re.sub("^ *", "\n", next_element)
                 line += next_element
-            ##print("added line\n", line)
+            print("added line\n", line)
         else:
             line = re.sub("☃ *", "", line)
 
@@ -417,12 +419,14 @@ def getModelSolution(solution_string, distractor_limit):
     distractor_counter = 0
     for distractor in distractors:
         if(distractor_counter < distractor_limit):
-            model_solution.append({'line':re.sub("^☃#dist ", "", distractor), 'hashVal':hash(distractor)})
+            print("distractor", distractor)
+            distractor = cleanseDistractor(distractor)
+            model_solution.append({'line':distractor, 'hashVal':hash(distractor)})
             display_code.update({hash(distractor): re.sub("&nbsp;", "", distractor)})
         distractor_counter += 1
 
-    #print("model solution", model_solution)
-    #print("display_code", display_code)
+    print("model solution", model_solution)
+    print("display_code", display_code)
     formattedCode['model_solution'] = model_solution
     formattedCode['display_code'] = display_code
     formattedCode['indentation'] = indentation
@@ -544,6 +548,28 @@ def gradeParson(qdict, studentAnswerDict):
         student_grade = 0
     #print("student_grade", student_grade, max_available_points, penalties)
     return round(Decimal(student_grade), 2)
+
+#function that cleans the disctractor of the #distractor and of the ☃(snowman) symbol
+def cleanseDistractor(distractor):
+    distractor = re.sub("^☃", "", distractor)
+    distractor = re.sub("#distractor", "", distractor)
+    distractor = re.sub("#dist", "", distractor)
+    return distractor
+
+def snowmanRemoval(line):
+    line = re.sub("☃", "",line)
+    return line
+def tabsToSpacesConverter(line):
+    line = re.sub("^\t\t\t", "                ", line)
+    line = re.sub("^\t\t", "        ", line)
+    line = re.sub("^\t", "    ", line)
+    return line
+def convertTabsToSpaces(solution_string):
+    converted_solution = []
+    for line in solution_string:
+        converted_solution.append(tabsToSpacesConverter(line))
+    return "".join(converted_solution)
+    
 # def getDisplayForCKE():
 #     solution_hashes.append(hash(line))
 #         line_array.update({hash(line):line})

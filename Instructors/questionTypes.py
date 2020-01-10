@@ -264,6 +264,12 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
     qdict['languageName'] = parsonsView.findLanguage(solution_string)
     qdict['indentation_flag'] = parsonsView.findIndentation(solution_string)
     qdict['answerText'] = parsonsView.findAnswerText(solution_string)
+
+    #determine if ther are tabs included
+    tabLocator = re.compile("\t")
+    if(tabLocator.search( qdict['answerText'])):
+        qdict['answerText'] = parsonsView.convertTabsToSpaces(qdict['answerText'])
+
     qdict['distractor_limit'] = parsonsView.findDistractorLimit(solution_string, question)
     distractor_limit = qdict['distractor_limit']
 

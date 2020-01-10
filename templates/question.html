@@ -443,12 +443,14 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   <script>
     var countFeedbackButtonClicks_{{ q.questionID }} = 0;
     $('#parson_sol{{q.questionID}}').nestable({
-      group: {{ q.questionID }}
+      group: {{ q.questionID }},
+      maxDepth: 6
     })
 
     // activate Nestable for list 2
     $('#parsons2_trash{{q.questionID}}').nestable({
-      group: {{ q.questionID }}
+      group: {{ q.questionID }},
+      maxDepth: 5
     })
     //function that runs the pretty printing aka highliting of parsons
     if (window.prettyPrint() && (typeof (this.options.prettyPrint) === "undefined" || this.options.prettyPrint)) {
