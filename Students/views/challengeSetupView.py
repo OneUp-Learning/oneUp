@@ -144,7 +144,7 @@ def ChallengeSetup(request):
                         challengeID=challengeId).order_by("questionPosition")
                 print("Challenge Questions", challenge_questions)
                 for challenge_question in challenge_questions:
-                    questionObjects.append(challenge_question.questionID)
+                    questionObjects.append(challenge_question)
 
                 # getting all the question of the challenge except the matching question
 
@@ -152,8 +152,8 @@ def ChallengeSetup(request):
                 sessionDict['questions'] = []
                 for i in range(0, len(questionObjects)):
                     q = questionObjects[i]
-                    qdict = questionTypeFunctions[q.type]['makeqdict'](
-                        q, i+1, challengeId, None)
+                    qdict = questionTypeFunctions[q.questionID.type]['makeqdict'](
+                        q.questionID, i+1, challengeId, q, None)
                     qlist.append(qdict)
                     sessionDict['questions'].append(qdict)
 

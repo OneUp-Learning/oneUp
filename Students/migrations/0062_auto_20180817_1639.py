@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('Students', '0061_auto_20180817_0008'),
+        ('Badges', '0038_badgesinfo')
     ]
 
     operations = [

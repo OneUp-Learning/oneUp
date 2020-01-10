@@ -37,7 +37,7 @@
                               <th></th>
                            </thead>
                            <tbody>
-                              {% for i,q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId in question_range %}
+                              {% for i,q_ID,q_preview,q_type,q_type_name,q_difficulty,q_challengeId, points in question_range %}
                               <input type="hidden" name="questionID{{i}}" value="{{q_ID}}" />
                               <tr>
                                  <td><input type="checkbox" id="selected-{{i}}" class="filled-in" name="selected" value="{{i}}"/>

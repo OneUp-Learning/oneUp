@@ -168,7 +168,11 @@ class Event():
     calloutRequested = 877
     calloutWon = 878
     calloutLost = 879
-     #             #              #
+    #             #              #
+    # TODO: Rearrange enums into categories
+    virtualCurrencyEarned = 880
+    badgeEarned = 881
+
 
 
     events = {
@@ -488,6 +492,20 @@ class Event():
                         'name':'calloutLost',
                         'displayName':'calloutLost',
                         'description':'when a student loses a call out',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            virtualCurrencyEarned: {
+                        'index': virtualCurrencyEarned,
+                        'name':'virtualCurrencyEarned',
+                        'displayName':'Student earned Virtual Currency',
+                        'description':'Event triggered when a student has earned a virtual currency',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            badgeEarned: {
+                        'index': badgeEarned,
+                        'name':'badgeEarned',
+                        'displayName':'Student earned a Badge',
+                        'description':'Event triggered when a student has earned a badge',
                         'isVirtualCurrencySpendRule':False
                         },
 #               seeClassAverage: {

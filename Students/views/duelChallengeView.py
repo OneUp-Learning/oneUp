@@ -88,7 +88,10 @@ def automatic_evaluator(duel_id, course_id):
                 winner.studentID = winner_s
                 winner.courseID = current_course
                 winner.save()
-                
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner.studentID.user.username,
+                }
                 if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                     # save earning transaction
                     w_student_vc = StudentVirtualCurrency()
@@ -99,44 +102,49 @@ def automatic_evaluator(duel_id, course_id):
                     w_student_vc.vcName = duel_challenge.duelChallengeName
                     w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                     w_student_vc.save()
+
+                    # Register event that the student earned VC
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner.studentID, objectId=2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const)
                 
                 # Notify winner
                 notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
                                         verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
                 
                 # Register event that the student has won the duel
-                mini_req = {
-                    'currentCourseID': duel_challenge.courseID.pk,
-                    'user': winner.studentID.user.username,
-                }
                 register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_id)
                 
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': challengee_challenge.studentID.user.username,
+                }
+
                 if duel_vc_participants_const > 0:
                         
-                        vc_loser = StudentRegisteredCourses.objects.get(studentID=challengee_challenge.studentID, courseID=duel_challenge.courseID)
-                        # participants gets an amount of virtual currency set by teacher
-                        virtualCurrencyAmount = duel_vc_participants_const
-                        vc_loser.virtualCurrencyAmount = virtualCurrencyAmount
-                        vc_loser.save()
+                    vc_loser = StudentRegisteredCourses.objects.get(studentID=challengee_challenge.studentID, courseID=duel_challenge.courseID)
+                    # participants gets an amount of virtual currency set by teacher
+                    virtualCurrencyAmount = duel_vc_participants_const
+                    vc_loser.virtualCurrencyAmount += virtualCurrencyAmount
+                    vc_loser.save()
+            
+                    # save earning transaction
+                    l_student_vc = StudentVirtualCurrency()
+                    l_student_vc.courseID = duel_challenge.courseID
+                    l_student_vc.studentID = challengee_challenge.studentID
+                    l_student_vc.objectID = 0
+                    l_student_vc.value = virtualCurrencyAmount
+                    l_student_vc.vcName = duel_challenge.duelChallengeName
+                    l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
+                    l_student_vc.save()
+
+                    
+                    # Register event that the student earned VC - Participated
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, challengee_challenge.studentID, objectId=virtualCurrencyAmount)
                 
-                        # save earning transaction
-                        l_student_vc = StudentVirtualCurrency()
-                        l_student_vc.courseID = duel_challenge.courseID
-                        l_student_vc.studentID = challengee_challenge.studentID
-                        l_student_vc.objectID = 0
-                        l_student_vc.value = virtualCurrencyAmount
-                        l_student_vc.vcName = duel_challenge.duelChallengeName
-                        l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
-                        l_student_vc.save()
                 # Notify student about their lost
                 notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
                                         verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
                 
                 # Register event that the student has lost the duel
-                mini_req = {
-                    'currentCourseID': duel_challenge.courseID.pk,
-                    'user': challengee_challenge.studentID.user.username,
-                }
                 register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_id)
 
             elif challengee_challenge.testScore > challenger_challenge.testScore:
@@ -152,6 +160,11 @@ def automatic_evaluator(duel_id, course_id):
                 winner.courseID = current_course
                 winner.save()
                 
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner.studentID.user.username,
+                }
+
                 if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                     # save earning transaction
                     w_student_vc = StudentVirtualCurrency()
@@ -163,44 +176,48 @@ def automatic_evaluator(duel_id, course_id):
                     w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                     w_student_vc.save()
 
+                    # Register event that the student earned VC
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner.studentID, objectId=2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const)
+                    
+
                 # Notify winner
                 notify.send(None, recipient=winner.studentID.user, actor=challenger_challenge.studentID.user,
                                         verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
                 
                 # Register event that the student has won the duel
-                mini_req = {
-                    'currentCourseID': duel_challenge.courseID.pk,
-                    'user': winner.studentID.user.username,
-                }
                 register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_id)
 
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': challenger_challenge.studentID.user.username,
+                }
                 if duel_vc_participants_const > 0:
                         
-                        vc_loser = StudentRegisteredCourses.objects.get(studentID=challenger_challenge.studentID, courseID=duel_challenge.courseID)
-                        # participants gets an amount of virtual currency set by teacher
-                        virtualCurrencyAmount = duel_vc_participants_const
-                        vc_loser.virtualCurrencyAmount = virtualCurrencyAmount
-                        vc_loser.save()
-                
-                        # save earning transaction
-                        l_student_vc = StudentVirtualCurrency()
-                        l_student_vc.courseID = duel_challenge.courseID
-                        l_student_vc.studentID = challenger_challenge.studentID
-                        l_student_vc.objectID = 0
-                        l_student_vc.value = virtualCurrencyAmount
-                        l_student_vc.vcName = duel_challenge.duelChallengeName
-                        l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
-                        l_student_vc.save()
+                    vc_loser = StudentRegisteredCourses.objects.get(studentID=challenger_challenge.studentID, courseID=duel_challenge.courseID)
+                    # participants gets an amount of virtual currency set by teacher
+                    virtualCurrencyAmount = duel_vc_participants_const
+                    vc_loser.virtualCurrencyAmount += virtualCurrencyAmount
+                    vc_loser.save()
+            
+                    # save earning transaction
+                    l_student_vc = StudentVirtualCurrency()
+                    l_student_vc.courseID = duel_challenge.courseID
+                    l_student_vc.studentID = challenger_challenge.studentID
+                    l_student_vc.objectID = 0
+                    l_student_vc.value = virtualCurrencyAmount
+                    l_student_vc.vcName = duel_challenge.duelChallengeName
+                    l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
+                    l_student_vc.save()
+
+                    
+                    # Register event that the student earned VC - Participated
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, challengee_challenge.studentID, objectId=virtualCurrencyAmount)
                         
                 # Notify student about their lost
                 notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner.studentID,
                                         verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
 
                 # Register event that the student has lost the duel
-                mini_req = {
-                    'currentCourseID': duel_challenge.courseID.pk,
-                    'user': challenger_challenge.studentID.user.username,
-                }
                 register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_id)
 
             else:
@@ -261,12 +278,18 @@ def automatic_evaluator(duel_id, course_id):
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': winner1.user.username,
                 }
+                if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner1, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+                
                 register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_id)
 
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': winner2.user.username,
                 }
+                if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
                 register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_id)
 
         elif StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course):
@@ -282,12 +305,18 @@ def automatic_evaluator(duel_id, course_id):
             winner.courseID = current_course
             winner.save()
 
-            notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': duel_challenge.challengee.user.username,
             }
+
+            # Register event that the student earned VC
+            if (2*duel_challenge.vcBet + duel_vc_const) > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const))
+
+            notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
+                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+            
             register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_id)
 
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
@@ -312,12 +341,18 @@ def automatic_evaluator(duel_id, course_id):
             winner.courseID = current_course
             winner.save()
 
-            notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': duel_challenge.challenger.user.username,
             }
+
+            # Register event that the student earned VC
+            if (2*duel_challenge.vcBet + duel_vc_const) > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const))
+
+            notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
+                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+            
             register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_id)
 
             notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
@@ -515,7 +550,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
 
     challenges_list = []
     for crs_t in course_topics:
-        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID)
+        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID, challengeID__isGraded=False)
         for chall_t in challenges_topics:
              # if warmup is not available, then skip it
             if not chall_t.challengeID.isVisible:
@@ -618,7 +653,7 @@ def duel_challenge_create(request):
     difficulty_set = set()
     challenges_list = []
     chall_topics = []
-    challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+    challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
     default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     for chall_t in challenges_topics:
             # if warmup is not available, then skip it
@@ -815,17 +850,17 @@ def get_create_duel_topics_difficulties(request):
 
     challenges_list = []
     for crs_t in course_topics:
-        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID)
+        challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID, challengeID__isGraded=False)
 
     if 'topicID' in request.GET:
         topic = request.GET['topicID']
 
         if topic == "Any":
-            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
         else:
-            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, topicID=int(topic))
+            challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, topicID=int(topic), challengeID__isGraded=False)
     else:
-        challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course)
+        challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
        
     default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
 
@@ -1238,7 +1273,7 @@ def duel_challenge_accept(request):
             'currentCourseID': duel_challenge.courseID.pk,
             'user': challengee.user.username,
         }
-        register_event_simple(Event.duelSent, mini_req, challengee, objectId=duel_challenge.duelChallengeID)
+        register_event_simple(Event.duelAccepted, mini_req, challengee, objectId=duel_challenge.duelChallengeID)
 
         return render(request,'Students/RequestedDuelChallengeDescriptionForm.html', context_dict)
 
@@ -1330,6 +1365,9 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challenger.user.username,
                     }
+                    if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                        register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challenger, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
                     register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
 
                     notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
@@ -1349,6 +1387,9 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challengee.user.username,
                     }
+                    if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                        register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
                     register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
 
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
@@ -1399,33 +1440,40 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': winner.studentID.user.username,
             }
-            register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_challenge.duelChallengeID)
+            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, winner.studentID, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
 
-            if duel_vc_participants_const > 0:
-                        
-                        vc_loser = StudentRegisteredCourses.objects.get(studentID=challengee_challenge.studentID, courseID=duel_challenge.courseID)
-                        # participants gets an amount of virtual currency set by teacher
-                        virtualCurrencyAmount = duel_vc_participants_const
-                        vc_loser.virtualCurrencyAmount = virtualCurrencyAmount
-                        vc_loser.save()
-                
-                        # save earning transaction
-                        l_student_vc = StudentVirtualCurrency()
-                        l_student_vc.courseID = duel_challenge.courseID
-                        l_student_vc.studentID = challengee_challenge.studentID
-                        l_student_vc.objectID = 0
-                        l_student_vc.value = virtualCurrencyAmount
-                        l_student_vc.vcName = duel_challenge.duelChallengeName
-                        l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
-                        l_student_vc.save()
-            # Notify student about their lost
-            notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
-                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+            register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_challenge.duelChallengeID)
 
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': challengee_challenge.studentID.user.username,
             }
+            if duel_vc_participants_const > 0:
+                        
+                vc_loser = StudentRegisteredCourses.objects.get(studentID=challengee_challenge.studentID, courseID=duel_challenge.courseID)
+                # participants gets an amount of virtual currency set by teacher
+                virtualCurrencyAmount = duel_vc_participants_const
+                vc_loser.virtualCurrencyAmount += virtualCurrencyAmount
+                vc_loser.save()
+        
+                # save earning transaction
+                l_student_vc = StudentVirtualCurrency()
+                l_student_vc.courseID = duel_challenge.courseID
+                l_student_vc.studentID = challengee_challenge.studentID
+                l_student_vc.objectID = 0
+                l_student_vc.value = virtualCurrencyAmount
+                l_student_vc.vcName = duel_challenge.duelChallengeName
+                l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
+                l_student_vc.save()
+
+                # Register event that the student earned VC - Participated
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, challengee_challenge.studentID, objectId=virtualCurrencyAmount)
+
+            # Notify student about their lost
+            notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
+                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+
             register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
         elif challengee_challenge.testScore > challenger_challenge.testScore:
@@ -1460,34 +1508,40 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': winner_s.user.username,
             }
-            register_event_simple(Event.duelWon, mini_req, winner_s, objectId=duel_challenge.duelChallengeID)
+            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, winner_s, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
 
-            if duel_vc_participants_const > 0:
-                        
-                        vc_loser = StudentRegisteredCourses.objects.get(studentID=challenger_challenge.studentID, courseID=duel_challenge.courseID)
-                        # participants gets an amount of virtual currency set by teacher
-                        virtualCurrencyAmount = duel_vc_participants_const
-                        vc_loser.virtualCurrencyAmount = virtualCurrencyAmount
-                        vc_loser.save()
-                
-                        # save earning transaction
-                        l_student_vc = StudentVirtualCurrency()
-                        l_student_vc.courseID = duel_challenge.courseID
-                        l_student_vc.studentID = challenger_challenge.studentID
-                        l_student_vc.objectID = 0
-                        l_student_vc.value = virtualCurrencyAmount
-                        l_student_vc.vcName = duel_challenge.duelChallengeName
-                        l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
-                        l_student_vc.save()
-                        
-            # Notify student about their lost
-            notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner_s.user,
-                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+            register_event_simple(Event.duelWon, mini_req, winner_s, objectId=duel_challenge.duelChallengeID)
 
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': challenger_challenge.studentID.user.username,
             }
+            if duel_vc_participants_const > 0:
+                        
+                vc_loser = StudentRegisteredCourses.objects.get(studentID=challenger_challenge.studentID, courseID=duel_challenge.courseID)
+                # participants gets an amount of virtual currency set by teacher
+                virtualCurrencyAmount = duel_vc_participants_const
+                vc_loser.virtualCurrencyAmount = virtualCurrencyAmount
+                vc_loser.save()
+        
+                # save earning transaction
+                l_student_vc = StudentVirtualCurrency()
+                l_student_vc.courseID = duel_challenge.courseID
+                l_student_vc.studentID = challenger_challenge.studentID
+                l_student_vc.objectID = 0
+                l_student_vc.value = virtualCurrencyAmount
+                l_student_vc.vcName = duel_challenge.duelChallengeName
+                l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
+                l_student_vc.save()
+                
+                # Register event that the student earned VC - Participated
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, challenger_challenge.studentID, objectId=virtualCurrencyAmount)
+                        
+            # Notify student about their lost
+            notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner_s.user,
+                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+
             register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
         else:
@@ -1544,6 +1598,9 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': winner1.user.username,
             }
+            if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, winner1, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
             register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_challenge.duelChallengeID)
 
             notify.send(None, recipient=winner2.user, actor=winner1.user,
@@ -1553,6 +1610,9 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': winner2.user.username,
             }
+            if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
             register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_challenge.duelChallengeID)
 
         duel_challenge.hasEnded = True

@@ -171,8 +171,8 @@ def displayStreaks(context_dict, student, courseID):
         for badgeStreak in badgeStreaks:
             print("badgeStreak", badgeStreak.objectID)
             print("exists", )
-            if PeriodicBadges.objects.filter(badgeID=42).exists():
-                periodicBadge = PeriodicBadges.objects.get(badgeID=42)
+            if PeriodicBadges.objects.filter(badgeID=badgeStreak.objectID).exists():
+                periodicBadge = PeriodicBadges.objects.get(badgeID=badgeStreak.objectID)
                 badgeStreakName.append(periodicBadge.badgeName)
                 badgeTreshhold.append(periodicBadge.threshold)
                 badgeCurrentStreakLength.append(badgeStreak.currentStudentStreakLength)
