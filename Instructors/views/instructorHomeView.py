@@ -84,7 +84,9 @@ def instructorHome(request):
                                 num_challenges = num_challenges+1
                                 break
                         
-    context_dict['course_range'] = zip(range(1,reg_crs.count()+1),course_ID,course_Name)
+    # casefold will ignore cases when sorting alphabetically so ('c' becomes before 'T')
+    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name)), key=lambda x: x[2].casefold())
+    print(context_dict['course_range'])
     context_dict['num_announcements'] = num_announcements
     context_dict['num_challenges'] = num_challenges
     context_dict['announcement_range'] = zip(range(1,num_announcements+1),announcement_ID,announcement_course,start_timestamp,subject,message)

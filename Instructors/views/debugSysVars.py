@@ -120,7 +120,7 @@ def debugSysVars(request):
         context_dict['debugData'] = displayData
 
     # Used to fill values for the three drop down menus
-    context_dict['user_range'] = sorted(list(zip(range(1, courseStudents.count()+1), userID, first_Name, last_Name, user_Avatar, )), key=lambda x: (x[2], x[3]))
+    context_dict['user_range'] = sorted(list(zip(range(1, courseStudents.count()+1), userID, first_Name, last_Name, user_Avatar, )), key=lambda x: (x[2].casefold(), x[3].casefold()))
     context_dict['sysVars'] = sorted(
         list(zip(range(1, len(sysVars)+1), sysVars, sysVarsName, )), key=lambda x: x[2])
     context_dict['objects'] = sorted(list(zip(
