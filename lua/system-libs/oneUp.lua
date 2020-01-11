@@ -93,3 +93,50 @@ oneUp.string_equality_ignore_spaces = function(str)
   end
 end
 
+set_equality = function(wl)
+  return function(b,pts)
+     local make_failure_result_with_error = function(message,pts)
+	local onedetail = {seqnum=1,success=false,value=0,max_points=pts}
+	local details = {}
+	details[message] = onedetail
+	return {success=false,value=0, details=details}
+     end
+    b = string.gsub(b,"^%s*(.-)%s*$", "%1")
+    if string.sub(b,1,1) ~= '{' or string.sub(b,#b) ~= '}' then
+      name = "Used curly braces"
+      return make_failure_result_with_error("Used curly braces",pts)
+    end
+    b = string.sub(b,2,#b-1)
+    local blist = {}
+    while b ~= '' do
+      local superword = string.match(b,"^%s*[%a%d]+%s*,?%s*")
+      local word = string.match(superword,"^%s*([%a%d]+)%s*,?%s*")
+      local sep = string.match(superword,"^%s*[%a%d]+%s*(,?)%s*")
+      table.insert(blist,word)
+      b = string.sub(b,superword:len()+1)
+      print("superword: "..superword..">end")
+      print("word: "..word..">end")
+      print("sep: "..sep..">end")
+      print("b: "..b..">end")
+      if sep ~= ',' and b ~= '' then
+        return make_failure_result_with_error("Used commas properly",pts)
+      end
+    end
+    if #wl ~= #blist then 
+      return make_failure_result_with_error("Correct number of values",pts)
+    else
+      for i=1,#wl do
+        local isGood=false
+        for j=1,#wl do
+        if string.upper(wl[i]) == string.upper(blist[j]) then
+            isGood=true
+        end
+        end
+        if not isGood then
+          return make_failure_result_with_error("Matched values correctly",pts)
+        end
+      end
+    end
+    return {success=true,value=pts}
+  end
+end
