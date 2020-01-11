@@ -47,6 +47,18 @@ def start_duel_challenge(duel_id, course_id):
         return
 
 @app.task
+def duel_challenge_expire(duel_id, course_id):
+    ''' This function makes a duel expire if not accepted yet'''
+    try:
+        course = Courses.objects.get(courseID=course_id)
+        duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_id, courseID=course)
+        if duel_challenge.status == 1:
+            duel_challenge.hasExpired = True
+            duel_challenge.save()
+    except:
+        return
+
+@app.task
 def automatic_evaluator(duel_id, course_id):
         ''' This function evalutes winner(s) automatically '''
         try:
@@ -67,10 +79,24 @@ def automatic_evaluator(duel_id, course_id):
             
             # Notify parties
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
             
             notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
+
+            # reimberse participants if there is betting
+            if duel_challenge.isBetting:
+                challenger_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challenger, courseID=duel_challenge.courseID)
+                challenger_vc = challenger_reg_crs.virtualCurrencyAmount
+                challenger_reg_crs.virtualCurrencyAmount = challenger_vc + duel_challenge.vcBet
+                challenger_reg_crs.save()
+
+                if duel_challenge.status == 2:
+                    challengee_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challengee, courseID=duel_challenge.courseID)
+                    challengee_vc = challengee_reg_crs.virtualCurrencyAmount
+                    challengee_reg_crs.virtualCurrencyAmount = challengee_vc + duel_challenge.vcBet
+                    challengee_reg_crs.save()
+            
          
         elif StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course) and StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course):
             challenger_challenge = StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
@@ -385,6 +411,7 @@ def callouts_list(request):
     sent_challenger_avatars = []
     sent_topics = []
     sent_w_l = [] # won or lost
+
     for sent_chall in sent_duel_challenges:
         # if challenge has not expired
         #if not sent_chall.hasEnded:
@@ -397,7 +424,10 @@ def callouts_list(request):
 
             sent_challenges.append(sent_chall)
             # if challenge is accepted and or started, can't edit it
-            if not sent_chall.status == 2:  
+            if sent_chall.status == 1 and sent_chall.hasExpired: 
+                is_editables.append(False)
+                sent_status.append("Expired")
+            elif not sent_chall.status == 2:  
                 is_editables.append(True)
                 sent_status.append("Pending")
             else:
@@ -412,7 +442,7 @@ def callouts_list(request):
                 topic_names += chall_topic.topicID.topicName + "   "
             sent_topics.append(topic_names)
             
-            if sent_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = sent_chall):
+            if (sent_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = sent_chall) or sent_chall.hasExpired):
                 sent_w_l.append("Not Submitted")
             elif Winners.objects.filter(DuelChallengeID = sent_chall, studentID = student_id):
                 sent_w_l.append("Won")
@@ -449,7 +479,10 @@ def callouts_list(request):
             requested_challenger_avatars.append(r_challenger_av.avatarImage)
 
             requested_challenges.append(requested_chall)
-            if not requested_chall.status == 2 :
+            if requested_chall.status == 1 and requested_chall.hasExpired: 
+                is_editables.append(False)
+                requested_status.append("Expired")
+            elif not requested_chall.status == 2 :
                 requested_status.append("Pending")
                 has_accepted.append(False)
             else:
@@ -464,7 +497,7 @@ def callouts_list(request):
                 topic_names += chall_topic.topicID.topicName + "   "
             requested_topics.append(topic_names)
             
-            if requested_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = requested_chall):
+            if (requested_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = requested_chall) or requested_chall.hasExpired):
                 requested_w_l.append("Not Submitted")
             elif Winners.objects.filter(DuelChallengeID = requested_chall, studentID = student_id):
                 requested_w_l.append("Won")
@@ -556,7 +589,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date:
+            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -660,7 +693,7 @@ def duel_challenge_create(request):
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date:
+            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -803,11 +836,16 @@ def duel_challenge_create(request):
         duel_challenge.customMessage = custom_message
         
         duel_name = duel_challenge.duelChallengeName
-        
+
+        #duel_challenge.hasExpired = True
+
         duel_challenge.save()
 
-        print("duel challenge")
-        print(duel_challenge)
+        ##################################################################################################################################################
+        # Automatically makes a duel after a week using Celery 
+        expiration_time = utcDate() + timedelta(weeks=1)
+        duel_challenge_expire.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=expiration_time)
+        ##################################################################################################################################################
 
         notify.send(None, recipient=challengee.user, actor=student_id.user,
                                     verb= 'Someone sent you a duel request named '+duel_name, nf_type='Duel Request', extra=json.dumps({"course": str(current_course.courseID)}))
@@ -869,7 +907,7 @@ def get_create_duel_topics_difficulties(request):
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date:
+            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :
@@ -1061,7 +1099,7 @@ def duel_challenge_description(request):
 
             if len(winners) == 0:
                 message +="Both you and your opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
-                if duel_challenge.isBetting:
+                if duel_challenge.isBetting and duel_challenge.vcBet > 0:
                     message +=" You and your opponent are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency each."
             elif len(winners)==2:
                 print("Winner 1 ",winners[0].studentID )
@@ -1121,9 +1159,15 @@ def duel_challenge_description(request):
             your_av = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challenger, courseID=duel_challenge.courseID)
             context_dict['your_avatar'] = your_av.avatarImage
 
-            if duel_challenge.status == 1:
+            if duel_challenge.status == 1 and duel_challenge.hasExpired:
+                context_dict['acceptance_status'] = 'Expired'
+                context_dict['isAccepted'] = False
+                context_dict['expired'] = True
+                context_dict['message'] = 'The duel has expired and it is now closed.'
+            elif duel_challenge.status == 1:
                 context_dict['acceptance_status'] = 'pending'
                 context_dict['isAccepted'] = False
+                context_dict['expirationTime'] = (duel_challenge.sendTime+timedelta(weeks=1) - utcDate()).total_seconds()
             elif duel_challenge.status == 2:
                 context_dict['acceptance_status'] = 'Accepted'
                 context_dict['isAccepted'] = True
@@ -1161,10 +1205,15 @@ def duel_challenge_description(request):
             your_av = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challengee, courseID=duel_challenge.courseID)
             context_dict['your_avatar'] = your_av.avatarImage
 
-
-            if duel_challenge.status == 1:
+            if duel_challenge.status == 1 and duel_challenge.hasExpired:
+                context_dict['acceptance_status'] = 'Expired'
+                context_dict['isAccepted'] = False
+                context_dict['expired'] = True
+                context_dict['message'] = 'The duel has expired and it is now closed.'
+            elif duel_challenge.status == 1:
                 context_dict['acceptance_status'] = 'pending'
                 context_dict['isAccepted'] = False
+                context_dict['expirationTime'] = (duel_challenge.sendTime+timedelta(weeks=1) - utcDate()).total_seconds()
             elif duel_challenge.status == 2:
                 context_dict['acceptance_status'] = 'Accepted'
                 context_dict['isAccepted'] = True
@@ -1212,6 +1261,7 @@ def duel_challenge_accept(request):
                 challenger_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challenger, courseID=duel_challenge.courseID)
                 challenger_vc = challenger_reg_crs.virtualCurrencyAmount
                 challenger_reg_crs.virtualCurrencyAmount = challenger_vc + duel_challenge.vcBet
+                challenger_reg_crs.save()
                 duel_challenge.delete()
                 
                 notify.send(None, recipient=duel_challenge.challenger.user, actor=challengee.user,
@@ -1250,10 +1300,10 @@ def duel_challenge_accept(request):
         ################################################################################################################################################
         # Start duel after specified time using celery 
         # get database start time and subtract 20 seconds from it to be consistent with network latency 
-        #start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
-        #print("start time ", start_time)
-        #start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
-        #print("start duel celery")
+        # start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
+        # print("start time ", start_time)
+        # start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
+        # print("start duel celery")
         ##################################################################################################################################################
 
         ##################################################################################################################################################

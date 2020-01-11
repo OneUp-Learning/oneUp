@@ -174,16 +174,23 @@
    </main>
    <!-- Footer -->
    {% include 'footer.html' %}
-
-<!--    <script>
+   <!-- <script>
              $('#TakeTest').on('keyup keypress', function(e) {
                 var keyCode = e.keyCode || e.which;
                 if (keyCode === 13) { 
                    e.preventDefault();
-                   value = false;
+                   //value = false;
                 }
              });
    </script> -->
+   <script>
+         document.getElementById("TakeTest").onkeypress = function(e) {
+            var key = e.charCode || e.keyCode || 0;     
+            if (key == 13) {
+               e.preventDefault();
+            }
+         }
+   </script>
 
    <script>
       var ace_editor_divs = document.getElementsByClassName('ace-editor');
