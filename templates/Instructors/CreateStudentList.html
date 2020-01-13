@@ -3,6 +3,13 @@
 
 <head>
    {% include 'scripts.html' %}
+   <style>
+   .waves-effect.waves-cyan .waves-ripple {
+     /* The alpha value allows the text and background color
+     of the button to still show through. */
+      background-color: #69e2f1ce;
+    }
+   </style>
 </head>
 
 <body>
@@ -116,41 +123,53 @@
          </div>
       </div>
       <div id="users-modal" class="modal">
-         <div class="modal-content">
-            <h4>Generated Student Passwords</h4>
-            <p>We generated passwords for students that are new to Oneup. Please copy these passwords to a safe place.
-               <b>After closing this window these passwords will not be shown again.</b></p>
-            <ul class="collection">
-               <li class='collection-item'>
-                  <table class="responsive-table highlight">
-                     <thead>
-                        <tr>
-                           <th>Student</th>
-                           <th>Password</th>
-                           <th></th>
-                        </tr>
-                     </thead>
-
-                     <tbody id="users">
-                        <tr>
-                           <td>Sam Man (sman432@fsu.edu)</td>
-                           <td>sCUgv-N_V3i0waPR4K2fFQ</td>
-                           <td><span class="new badge cyan" data-badge-caption="">New</span></td>
-                        </tr>
-                        <tr>
-                           <td>Sam Man (sman432@fsu.edu)</td>
-                           <td>This student is already using Oneup</td>
-                           <td></td>
-                        </tr>
-                     </tbody>
-                  </table>
-               </li>
-            </ul>
-         </div>
-         <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
-               style="color: #00bcd4">Close</a>
-         </div>
+         <form id="savepasswords" name="savepasswords">
+            {% csrf_token %}
+            <div class="modal-content">
+               <h4>Generated Student Passwords</h4>
+               <p>We generated passwords for students that are new to OneUp. Please copy these passwords to a safe place and feel free to edit them here.
+                  <b>After closing this window these passwords will not be shown again.</b></p>
+               <ul class="collection">
+                  <li class='collection-item'>
+                     <table class="responsive-table highlight">
+                        <thead>
+                           <tr>
+                              <th>Student</th>
+                              <th>Password</th>
+                              <th></th>
+                           </tr>
+                        </thead>
+                        <tbody id="users">
+                           <!-- <tr>
+                              <td>Sam Man (sman432@fsu.edu)</td>
+                              <td>
+                                 <div style="display: flex;">
+                                    <div class="input-field col s6 s12" style="width: 90%;">
+                                       <input type="text" placeholder="change" class="validate" id="default-input" style="display:none;">
+                                       <p id="default-text" style="height: 3.05rem; line-height: 3.1rem; width: 100%; margin-bottom: 8px; margin-top: 0;">change</p>
+                                    </div>
+                                    
+                                    <a id="edit-password" class="waves-effect waves-cyan waves-light btn-flat" style="padding: 0; margin-right: 16px; align-self: center; border-radius: 60px; width: 35px"><i class="material-icons prefix" style="right: 0; padding-left: 6px;">edit</i></a>
+                                 </div>   
+                              </td>
+                              
+                              <td><span class="new badge cyan" data-badge-caption="">New</span></td>
+                           </tr>
+                           <tr>
+                              <td>Sam Man (sman432@fsu.edu)</td>
+                              <td>This student is already using OneUp</td>
+                              <td></td>
+                           </tr> -->
+                        </tbody>
+                     </table>
+                  </li>
+               </ul>
+            </div>
+            <div class="modal-footer">
+               <button type="button" onclick="saveImportedStudentsPasswords()" class="modal-action waves-effect waves-light btn-flat"
+                  style="color: #00bcd4">Close</button>
+            </div>
+         </form>
       </div>
    </main>
    {% include 'footer.html' %}
@@ -194,6 +213,19 @@
       }
 
    }
+   function validatePasswords(){
+      var inputs = $("input[id^='default-input-']");
+      for(var i = 0; i < inputs.length; i++){
+         if(inputs[i].value.replace(/^\s+|\s+$/g, "").length == 0){
+            alert("Please input a password.");
+            return false;
+         }
+         if(inputs[i].style.display != "none"){
+            alert("Please confirm the password.");
+            return false;
+         }
+      }
+   }
 
    function importStudents() {
       //   console.log("validating");
@@ -225,7 +257,17 @@
                if (user_info['new'] == true) {
                   users_container.append("<tr>\n" +
                      "<td>" + user_info['first-name'] + " " + user_info['last-name'] + "</td>\n" +
-                     "<td>" + user_info['password'] + "</td>\n" +
+                     "<td>\n" +
+                     "<div style='display: flex;'>\n" +
+                        "<div class='input-field col s6 s12' style='width: 90%;'>\n" +
+                           "<input type='text' placeholder='' id='default-input-"+user_info['id']+"' name='default-input-"+user_info['id']+"' style='display:none;' value='" + user_info['password'] + "'>\n" +
+                           "<p id='default-text-"+user_info['id']+"' style='height: 3.05rem; line-height: 3.1rem; width: 100%; margin-bottom: 8px; margin-top: 0;'>" + user_info['password'] + "</p>\n" +
+                        "</div>\n" +
+                        "<a id='edit-password' value="+user_info['id']+" class='waves-effect waves-cyan waves-light btn-flat' style='padding: 0; margin-right: 16px; align-self: center; border-radius: 60px; width: 35px'>\n" +
+                           "<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>edit</i>\n" +
+                        "</a>\n" +
+                     "</div>\n" +
+                     "</td>\n" +   
                      "<td><span class='new badge cyan' data-badge-caption=''>New</span></td>\n" +
                      "</tr>");
                } else {
@@ -242,6 +284,23 @@
       });
       return false;
    }
+   function saveImportedStudentsPasswords() {
+      //   console.log("validating");
+      if (validatePasswords() == false) return false;
+      $('#users-modal').modal('close');
+      $.ajax({
+         type: "POST",
+         url: "/oneUp/instructors/saveImportStudentsPasswords",
+         data: new FormData($('#savepasswords')[0]),
+         cache: false,
+         contentType: false,
+         processData: false,
+         success: function (response) {
+            window.location.reload();
+         }
+      });
+      return false;
+   }
    $(function () {
       $('#users-modal').modal({
          dismissible: false, // Modal can be dismissed by clicking outside of the modal
@@ -251,9 +310,37 @@
          startingTop: '4%', // Starting top style attribute
          endingTop: '10%', // Ending top style attribute
 
-         complete: function () {
-            window.location.reload();
-         } // Callback for Modal close
+      });
+      
+      $('#users').on('click', '#edit-password', (element) => {
+         var id = $(element.currentTarget).attr("value");
+         if($("#default-input-"+ id.toString()).css("display") == "none"){
+            $("#default-text-"+ id.toString()).hide();
+            $("#default-input-"+ id.toString()).show();
+            
+            // May have to add icon back since it sometimes gets deleted on click for some odd reason
+            if($(element.target).attr('id') == "edit-password"){
+               $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>check</i>\n")
+            } else {
+               $(element.target).text("check");
+            }
+            $(element.target).css("color" , "#00bcd4");
+
+         } else {
+            if($("#default-input-"+ id.toString()).val().replace(/^\s+|\s+$/g, "").length != 0){
+               $("#default-input-"+ id.toString()).hide();
+               $("#default-text-"+ id.toString()).text($("#default-input-"+ id.toString()).val());
+               $("#default-text-"+ id.toString()).show();
+               if($(element.target).attr('id') == "edit-password"){
+                  $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>edit</i>\n")
+               } else {
+                  $(element.target).text("edit");
+               }
+               $(element.target).css("color" , "black");
+            } else {
+               $("#default-input-"+ id.toString()).focus();
+            }
+         }
       });
    });
 </script>

@@ -104,6 +104,17 @@ def generate_student_data(username, email, password, student_data, currentCourse
                 scparams.courseID = currentCourse
                 scparams.studentID = student
                 scparams.save()
+def update_student_password(user_id, new_password):
+    if not User.objects.get(pk=user_id) or new_password.strip() == "":
+        return
+
+    user = User.objects.get(pk=user_id)
+
+    if user.check_password(new_password) == True:
+        return
+    
+    user.set_password(new_password)
+    user.save()
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
@@ -147,13 +158,16 @@ def importStudents(request):
                     password = generate_secure_password()  # The SIS User ID found in the canvas csv file
 
                     # Return student info to frontend to show generated password
-                    user_info = {'username': username, 'email': email, 'password': password, 'new': True}
+                    user_info = {'id': 0, 'first-name': student_data[0][1:-1], 'last-name': student_data[1], 'username': username, 'email': email, 'password': password, 'new': True}
                     if User.objects.filter(username = username).exists():
                         user_info['new'] = False
                         
                     json_response['users'].append(user_info)
 
                     generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number)
+                    if User.objects.filter(username = username).exists():
+                        user_info['id'] = User.objects.get(username = username).pk
+
                     print("psswd", password)
 
             if file_type_number == 1:
@@ -164,15 +178,35 @@ def importStudents(request):
                     print("psswd", username, email, password, student_data, currentCourse, ccparams)
 
                     # Return student info to frontend to show generated password
-                    user_info = {'first-name': student_data[0], 'last-name': student_data[1], 'username': username, 'email': email, 'password': password, 'new': True}
+                    user_info = {'id': 0, 'first-name': student_data[0], 'last-name': student_data[1], 'username': username, 'email': email, 'password': password, 'new': True}
                     if User.objects.filter(username = username).exists():
                         user_info['new'] = False
                         
                     json_response['users'].append(user_info)
 
                     generate_student_data(username, email, str(password), student_data, currentCourse, ccparams, file_type_number)
+                    if User.objects.filter(username = username).exists():
+                        user_info['id'] = User.objects.get(username = username).pk
 
             json_response['users'] = sorted(json_response['users'], key=lambda x: x['username'])
+                    
+    return JsonResponse(json_response)
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
+def saveImportStudentsPasswords(request):
+
+    context_dict, currentCourse = initialContextDict(request)
+
+    json_response = {'success': True}
+
+    if request.method == 'POST':     
+        # Update the passwords for each student that was imported
+        students = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+        for student in students:
+            user_id = student.studentID.user.pk
+            if "default-input-{}".format(user_id) in request.POST:
+                update_student_password(user_id, request.POST["default-input-{}".format(user_id)])
                     
     return JsonResponse(json_response)
             

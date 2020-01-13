@@ -41,7 +41,7 @@ from Instructors.views.createStudentView import createStudentViewUnchecked, vali
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
-from Instructors.views.importStudentsView import importStudents
+from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
@@ -174,6 +174,7 @@ urlpatterns = [
     url(r'^imageUpload', imageUpload, name='imageUpload'),
     url(r'^importChallenges', importChallenges, name='importChallenges'),
     url(r'^importStudents', importStudents, name='importStudents'),
+    url(r'^saveImportStudentsPasswords', saveImportStudentsPasswords, name='saveImportStudentsPasswords'),
     url(r'^instructorCourseHome', instructorCourseHome,
         name='instructorCourseHome'),
     url(r'^instructorHome', instructorHome, name='instructorHome'),
