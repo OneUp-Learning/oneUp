@@ -6,6 +6,7 @@ Created on April 12, 2017
 
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
+from django.http import JsonResponse
 
 from Instructors.views.utils import initialContextDict
 from Instructors.models import UploadedFiles
@@ -116,6 +117,8 @@ def importStudents(request):
     context_dict['message'] = ''
     ccparams = context_dict['ccparams']
 
+    json_response = {'users': []}
+
     if request.method == 'POST' and len(request.FILES) != 0:     
         studentslistFile = request.FILES['studentslist']
         studentslistFileName = studentslistFile.name 
@@ -142,6 +145,14 @@ def importStudents(request):
                     username = student_data[3] + "@" + email_domain# The sutdnt username without @email domain
                     email = student_data[3] + "@" + email_domain
                     password = generate_secure_password()  # The SIS User ID found in the canvas csv file
+
+                    # Return student info to frontend to show generated password
+                    user_info = {'username': username, 'email': email, 'password': password, 'new': True}
+                    if User.objects.filter(username = username).exists():
+                        user_info['new'] = False
+                        
+                    json_response['users'].append(user_info)
+
                     generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number)
                     print("psswd", password)
 
@@ -151,9 +162,18 @@ def importStudents(request):
                     email = student_data[2] + "@" +email_domain
                     password = generate_secure_password()
                     print("psswd", username, email, password, student_data, currentCourse, ccparams)
-                    generate_student_data(username, email, str(password), student_data, currentCourse, ccparams, file_type_number)
-                    
 
-    return redirect('createStudentListView')
+                    # Return student info to frontend to show generated password
+                    user_info = {'first-name': student_data[0], 'last-name': student_data[1], 'username': username, 'email': email, 'password': password, 'new': True}
+                    if User.objects.filter(username = username).exists():
+                        user_info['new'] = False
+                        
+                    json_response['users'].append(user_info)
+
+                    generate_student_data(username, email, str(password), student_data, currentCourse, ccparams, file_type_number)
+
+            json_response['users'] = sorted(json_response['users'], key=lambda x: x['username'])
+                    
+    return JsonResponse(json_response)
             
             
