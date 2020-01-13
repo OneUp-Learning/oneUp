@@ -250,12 +250,14 @@
 
             let users_container = $("#users");
             users_container.empty();
+            users_container.append("<input type='hidden' name='users' value='"+ JSON.stringify(users)+"'/>\n");
 
             // Add the users information to users container
             for (var index = 0; index < users.length; index++) {
                let user_info = users[index];
                if (user_info['new'] == true) {
                   users_container.append("<tr>\n" +
+                     
                      "<td>" + user_info['first-name'] + " " + user_info['last-name'] + "</td>\n" +
                      "<td>\n" +
                      "<div style='display: flex;'>\n" +
