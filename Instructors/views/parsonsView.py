@@ -452,48 +452,7 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
             student_solution.append(line_dictionary[hash_value])
 
             if 'children' in code_fragment:
-                for child in code_fragment['children']:
-                    hash_value = child['id']
-                    student_hashes.append(hash_value)
-                    student_indentation.append(4)
-                    print("hash value", line_dictionary[hash_value])
-                    line = line_dictionary[hash_value]
-                    line = re.sub(";\n",";\n    ",line)
-                    student_solution_string.append(" " * 4 + str(line) + "\n")
-                    student_solution.append(line_dictionary[hash_value])
-
-                    if 'children' in child:
-                        for childrens_children in child['children']:
-                            hash_value = childrens_children['id']
-                            student_hashes.append(hash_value)
-                            student_indentation.append(8)
-                            print("hash value", line_dictionary[hash_value])
-                            line = line_dictionary[hash_value]
-                            line = re.sub(";\n",";\n    ",line)
-                            student_solution_string.append(" " * 8 + str(line) + "\n")
-                            student_solution.append(line_dictionary[hash_value])
-
-                            if 'children' in childrens_children:
-                                for childrens_children_children in childrens_children['children']:
-                                    hash_value = childrens_children_children['id']
-                                    student_hashes.append(hash_value)
-                                    student_indentation.append(12)
-                                    print("hash value", line_dictionary[hash_value])
-                                    line = line_dictionary[hash_value]
-                                    line = re.sub(";\n",";\n    ",line)
-                                    student_solution_string.append(" " * 12 + str(line) + "\n")
-                                    student_solution.append(line_dictionary[hash_value])
-
-                                    if 'children' in childrens_children_children:
-                                        for childrens_children_children_children in childrens_children_children['children']:
-                                            hash_value = childrens_children_children_children['id']
-                                            student_hashes.append(hash_value)
-                                            student_indentation.append(16)
-                                            print("hash value", line_dictionary[hash_value])
-                                            line = line_dictionary[hash_value]
-                                            line = re.sub(";\n",";\n    ",line)
-                                            student_solution_string.append(" " * 16 + str(line) + "\n")
-                                            student_solution.append(line_dictionary[hash_value])
+                childFragmentFunction(code_fragment, 4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
 
 
     for code_fragment in student_trash_JSON:
@@ -608,23 +567,24 @@ def convertTabsToSpaces(solution_string):
     for line in solution_string:
         converted_solution.append(tabsToSpacesConverter(line))
     return "".join(converted_solution)
-def childFragmentFunction(children_fragments, level, line_dictionary):
-    child_fragments = {}
-    student_hashes = []
-    stundet_indentation = []
-    student_solution = []
-    for child in children_fragments:
-        hash_value = child['id']
 
+#mystical code that uses refraction to do a deep dive into the child nodes and retreieve them.
+def childFragmentFunction(children, level, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution):
+    for child in children['children']:
+        hash_value = child['id']
         student_hashes.append(hash_value)
         student_indentation.append(level)
         print("hash value", line_dictionary[hash_value])
         line = line_dictionary[hash_value]
         line = re.sub(";\n",";\n    ",line)
-        student_solution_string.append(" " * 4 * level + str(line) + "\n")
+        student_solution_string.append(" " * level + str(line) + "\n")
         student_solution.append(line_dictionary[hash_value])
-    return child_fragments
+
+        if 'children' in child:
+            childFragmentFunction(child, level+4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
     
+    print("student hashes, student indentation, student solution string, student solution", student_hashes, student_indentation, student_solution_string, student_solution)
+
 # def getDisplayForCKE():
 #     solution_hashes.append(hash(line))
 #         line_array.update({hash(line):line})
