@@ -385,6 +385,7 @@ def getModelSolution(solution_string, distractor_limit):
 
             #this difference will allow us to know how indented they are
             difference = leading_space_count_current_line - leading_space_count_next_line
+            print("linediff", difference)
             line = re.sub("##", "", line)
             skip_flag = 1
 
@@ -396,7 +397,7 @@ def getModelSolution(solution_string, distractor_limit):
                 #   index++;
                 next_element = re.sub("^", "\n&nbsp;", next_element)
                 line += next_element
-            if (difference == 4):
+            if (difference == 4 or difference == 8):
                 print("before \n")
                 next_element = re.sub("^", "\n", next_element)
                 line += next_element
@@ -440,6 +441,8 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
     student_hashes = []
     student_indentation = []
     student_trash = []
+
+    print("student_solution_JSON, student_trash_JSON", student_solution_JSON, student_trash_JSON)
     for code_fragment in student_solution_JSON:
         hash_value = str(code_fragment['id'])
         if hash_value != 'None':
@@ -449,16 +452,8 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
             student_solution.append(line_dictionary[hash_value])
 
             if 'children' in code_fragment:
-                for child in code_fragment['children']:
-                    hash_value = child['id']
+                childFragmentFunction(code_fragment, 4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
 
-                    student_hashes.append(hash_value)
-                    student_indentation.append(4)
-                    print("hash value", line_dictionary[hash_value])
-                    line = line_dictionary[hash_value]
-                    line = re.sub(";\n",";\n    ",line)
-                    student_solution_string.append(" " * 4 + str(line) + "\n")
-                    student_solution.append(line_dictionary[hash_value])
 
     for code_fragment in student_trash_JSON:
         hash_value = code_fragment['id']
@@ -482,7 +477,10 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
 def getCorrectCount(student_hashes, hash_solutions):
     correct_count = 0
     i = 0
+    print("length of submitted keys", len(student_hashes))
+    print("student keys submitted", student_hashes)
     for key in hash_solutions.keys():
+        print("key ", key, "student hashes", student_hashes[i])
         #while the range we are in is lower than student hashes
         if(i < len(student_hashes) and student_hashes[i] == key):
                 correct_count += 1
@@ -569,7 +567,24 @@ def convertTabsToSpaces(solution_string):
     for line in solution_string:
         converted_solution.append(tabsToSpacesConverter(line))
     return "".join(converted_solution)
+
+#mystical code that uses refraction to do a deep dive into the child nodes and retreieve them.
+def childFragmentFunction(children, level, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution):
+    for child in children['children']:
+        hash_value = child['id']
+        student_hashes.append(hash_value)
+        student_indentation.append(level)
+        print("hash value", line_dictionary[hash_value])
+        line = line_dictionary[hash_value]
+        line = re.sub(";\n",";\n    ",line)
+        student_solution_string.append(" " * level + str(line) + "\n")
+        student_solution.append(line_dictionary[hash_value])
+
+        if 'children' in child:
+            childFragmentFunction(child, level+4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
     
+    print("student hashes, student indentation, student solution string, student solution", student_hashes, student_indentation, student_solution_string, student_solution)
+
 # def getDisplayForCKE():
 #     solution_hashes.append(hash(line))
 #         line_array.update({hash(line):line})
