@@ -36,14 +36,16 @@ local programinterface = {}
 uniqid = "UNIQID_GOES_HERE"
 seed = 0
 username = "USERNAME_GOES_HERE"
+problem_dir = "."
 
 pathsep = package.config:sub(1,1)
 
 programinterface.initialize =
-function(_uniqid,_seed,_username)
+function(_uniqid,_seed,_username,_problem_dir)
   uniqid = _uniqid
   seed = _seed
   username = _username
+  problem_dir = _problem_dir
 end
 
 local makeDir = function(dir)
@@ -90,7 +92,7 @@ local concatFile = function(rootdir,filename,text,workingDirName)
   tailfile:close()
 end
 
-programinterface.program_checker =
+programinterface.program_checker_old =
 function (rootdir,filename,compile_cmd,total_max_pts,tests)
   return function (text,pts) 
     local workingDirName = '/home/oneUpUserCodeSandbox/'..getRandomDirName()
@@ -136,5 +138,8 @@ function (rootdir,filename,compile_cmd,total_max_pts,tests)
     return {success=success,value=value,details=details}
   end
 end	 
+
+programinterface.program_checker = function (filename,compile_cmd,total_max_pts,tests)
+   programinterface.program_checker_old(problem_dir,filename,compile_cmd,total_max_pts,tests)
 
 return programinterface
