@@ -61,6 +61,7 @@
                   class="material-icons left">add_circle</i>Add Existing Student</a>
             <a class="waves-effect waves-light btn" href="/oneUp/instructors/createStudentView"><i
                   class="material-icons left">add_circle</i>Add New Student</a>
+                  <!-- <a class="modal-trigger" href="#users-modal">Debug</a> -->
          </div>
       </div>
       <div class="row">
@@ -134,13 +135,15 @@
                      <table class="responsive-table highlight">
                         <thead>
                            <tr>
+                              <th></th>
                               <th>Student</th>
                               <th>Password</th>
-                              <th></th>
+                              
                            </tr>
                         </thead>
                         <tbody id="users">
                            <!-- <tr>
+                              <td><span class="new badge indigo" style='margin-left: 0;' data-badge-caption="">New</span></td>
                               <td>Sam Man (sman432@fsu.edu)</td>
                               <td>
                                  <div style="display: flex;">
@@ -149,16 +152,21 @@
                                        <p id="default-text" style="height: 3.05rem; line-height: 3.1rem; width: 100%; margin-bottom: 8px; margin-top: 0;">change</p>
                                     </div>
                                     
-                                    <a id="edit-password" class="waves-effect waves-cyan waves-light btn-flat" style="padding: 0; margin-right: 16px; align-self: center; border-radius: 60px; width: 35px"><i class="material-icons prefix" style="right: 0; padding-left: 6px;">edit</i></a>
+                                    <a id="edit-password" class="waves-effect waves-cyan waves-light btn-flat" style="padding: 0; margin-right: 16px; align-self: center; border-radius: 60px; width: 38px; display: flex;">
+                                       
+                                       <i class="material-icons prefix" style="right: 0; padding-left: 6px;">check</i>
+                                       <div style="font-size: 0.8rem; padding-left: 4px;" >done</div>
+                                    </a>
                                  </div>   
                               </td>
                               
-                              <td><span class="new badge cyan" data-badge-caption="">New</span></td>
+                              
                            </tr>
                            <tr>
+                              <td></td>
                               <td>Sam Man (sman432@fsu.edu)</td>
                               <td>This student is already using OneUp</td>
-                              <td></td>
+                              
                            </tr> -->
                         </tbody>
                      </table>
@@ -257,7 +265,7 @@
                let user_info = users[index];
                if (user_info['new'] == true) {
                   users_container.append("<tr>\n" +
-                     
+                     "<td><span class='new badge indigo' style='margin-left: 0;' data-badge-caption=''>New</span></td>\n" +
                      "<td>" + user_info['first-name'] + " " + user_info['last-name'] + "</td>\n" +
                      "<td>\n" +
                      "<div style='display: flex;'>\n" +
@@ -265,18 +273,20 @@
                            "<input type='text' placeholder='' id='default-input-"+user_info['id']+"' name='default-input-"+user_info['id']+"' style='display:none;' value='" + user_info['password'] + "'>\n" +
                            "<p id='default-text-"+user_info['id']+"' style='height: 3.05rem; line-height: 3.1rem; width: 100%; margin-bottom: 8px; margin-top: 0;'>" + user_info['password'] + "</p>\n" +
                         "</div>\n" +
-                        "<a id='edit-password' value="+user_info['id']+" class='waves-effect waves-cyan waves-light btn-flat' style='padding: 0; margin-right: 16px; align-self: center; border-radius: 60px; width: 35px'>\n" +
+                        "<a id='edit-password' value="+user_info['id']+" class='waves-effect waves-cyan waves-light btn-flat' style='padding: 0; margin-right: 16px; align-self: center; border-radius: 60px; width: 38px; display: flex;'>\n" +
                            "<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>edit</i>\n" +
+                           "<div style='font-size: 0.8rem; padding-left: 4px; display: none;'>confirm</div>\n"+
                         "</a>\n" +
                      "</div>\n" +
                      "</td>\n" +   
-                     "<td><span class='new badge cyan' data-badge-caption=''>New</span></td>\n" +
+                     
                      "</tr>");
                } else {
                   users_container.append("<tr>\n" +
+                     "<td></td>\n" +
                      "<td>" + user_info['first-name'] + " " + user_info['last-name'] + "</td>\n" +
                      "<td>Already in Oneup System</td>\n" +
-                     "<td></td>\n" +
+                     
                      "</tr>");
                }
             }
@@ -314,36 +324,101 @@
 
       });
       
+      var isAnimating = false;
       $('#users').on('click', '#edit-password', (element) => {
+
+         if (isAnimating) {
+            return;
+         }
+
+         isAnimating = true;
+
+         // Start animation. Add a css class or do this by javascript or whatever
+
+         
          var id = $(element.currentTarget).attr("value");
          if($("#default-input-"+ id.toString()).css("display") == "none"){
             $("#default-text-"+ id.toString()).hide();
             $("#default-input-"+ id.toString()).show();
+
+            $(element.currentTarget).css("width", "120px");
             
             // May have to add icon back since it sometimes gets deleted on click for some odd reason
             if($(element.target).attr('id') == "edit-password"){
-               $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>check</i>\n")
+               $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>check</i>\n"+
+                                       "<div style='font-size: 0.8rem; padding-left: 4px;'>done</div>");
+            } else if ($(element.target).is('div')) {
+               console.log($(element));
+               
+               $(element.currentTarget).children().eq(0).text("check");
+               $(element.currentTarget).children().eq(1).show();
             } else {
                $(element.target).text("check");
+               $(element.currentTarget).children().eq(1).show();
             }
-            $(element.target).css("color" , "#00bcd4");
+            $(element.currentTarget).css("color" , "#00bcd4");
 
          } else {
             if($("#default-input-"+ id.toString()).val().replace(/^\s+|\s+$/g, "").length != 0){
                $("#default-input-"+ id.toString()).hide();
                $("#default-text-"+ id.toString()).text($("#default-input-"+ id.toString()).val());
                $("#default-text-"+ id.toString()).show();
+               
+               
+               $(element.currentTarget).css("width", "38px");
+
                if($(element.target).attr('id') == "edit-password"){
-                  $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>edit</i>\n")
+                  $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>edit</i>\n"+
+                                          "<div style='font-size: 0.8rem; padding-left: 4px; display: none;'>done</div>");
+               } else if ($(element.target).is('div')) {
+                  console.log($(element));
+                 
+                  $(element.currentTarget).children().eq(0).text("edit");
+                  $(element.currentTarget).children().eq(1).hide();
                } else {
                   $(element.target).text("edit");
+                  $(element.currentTarget).children().eq(1).hide();
                }
-               $(element.target).css("color" , "black");
+               $(element.currentTarget).css("color" , "black");
             } else {
                $("#default-input-"+ id.toString()).focus();
             }
          }
+         // Assuming the animation duration is 2 seconds
+         setTimeout(function() {
+            isAnimating = false;
+         }, 700);
+
       });
+      // var enabled = false;
+      // $("#edit-password").click((element) =>{
+      //    enabled != enabled;
+      //    if(enabled){
+      //       $("#default-text").hide();
+      //       $("#default-input").show();
+            
+      //       // May have to add icon back since it sometimes gets deleted on click for some odd reason
+      //       if($(element.target).attr('id') == "edit-password"){
+      //          $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>check</i>\n")
+      //       } else {
+      //          $(element.target).text("check");
+      //       }
+      //    } else {
+      //       if($("#default-input").val().replace(/^\s+|\s+$/g, "").length != 0){
+      //          $("#default-input").hide();
+      //          $("#default-text").text($("#default-input").val());
+      //          $("#default-text").show();
+      //          if($(element.target).attr('id') == "edit-password"){
+      //             $(element.target).append("<i class='material-icons prefix' style='right: 0; padding-left: 6px;'>edit</i>\n")
+      //          } else {
+      //             $(element.target).text("edit");
+      //          }
+      //          $(element.target).css("color" , "black");
+      //       } else {
+      //          $("#default-input").focus();
+      //       }
+      //    }
+      // });
    });
 </script>
 
