@@ -451,8 +451,9 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
             student_solution_string.append(str(line_dictionary[hash_value]) +"\n")
             student_solution.append(line_dictionary[hash_value])
 
-            if 'children' in code_fragment:
-                childFragmentFunction(code_fragment, 4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
+
+        if 'children' in code_fragment:
+            childFragmentFunction(code_fragment, 4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
 
 
     for code_fragment in student_trash_JSON:
@@ -480,13 +481,15 @@ def getCorrectCount(student_hashes, hash_solutions):
     print("length of submitted keys", len(student_hashes))
     print("student keys submitted", student_hashes)
     for key in hash_solutions.keys():
-        print("key ", key, "student hashes", student_hashes[i])
-        #while the range we are in is lower than student hashes
-        if(i < len(student_hashes) and student_hashes[i] == key):
-                correct_count += 1
-        else:
-            break
-        i += 1
+        try:
+            print("key ", key, "student hashes", student_hashes[i])
+            #while the range we are in is lower than student hashes
+            if(i < len(student_hashes) and student_hashes[i] == key):
+                    correct_count += 1
+            i += 1
+        except IndexError:
+            break    
+        
     return correct_count
 def getIndenationErrorCount(student_indentation, indentation_solution):
     errors = []
