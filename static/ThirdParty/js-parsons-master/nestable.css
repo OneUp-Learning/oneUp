@@ -1,7 +1,7 @@
 
 .dd { position: relative; display: block; margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 20px; }
 
-.dd-list { display: block; position: relative; margin: 0; padding: 0; list-style: none; width:35em;}
+.dd-list { display: block; position: relative; margin: 0; padding: 0; list-style: none; width:100%;}
 .dd-list .dd-list { padding-left: 3.6em; }
 .dd-collapsed .dd-list { display: none; }
 
