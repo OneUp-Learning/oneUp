@@ -6,7 +6,9 @@
         $( document ).ready(function(){
             var endDate = $('#endTime').bootstrapMaterialDatePicker({
                 weekStart: 0, time: false, format: 'MMMM D, Y'
-            });
+            }).on('change', function(e, date) {
+                $('#startTime').bootstrapMaterialDatePicker('setMaxDate', date);
+            });;
             
             var startDate = $('#startTime').bootstrapMaterialDatePicker({
                 weekStart: 0, time: false, format: 'MMMM D, Y'

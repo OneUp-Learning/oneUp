@@ -256,13 +256,15 @@ def get_challenger_challengee_duel_challs(student_id, challengee_id, current_cou
     challenger_duels = list(challenger_duels_as_challenger) + list(challenger_duels_as_challengee)
     challenger_duels_challs = []
     for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
+        if not challenger_duel.hasExpired:
+            challenger_duels_challs.append(challenger_duel.challengeID)
          
     
     challengee_duels = list(challengee_duels_as_challenger) + list(challengee_duels_as_challengee)
     challengee_duels_challs = []
     for challengee_duel in challengee_duels:
-        challengee_duels_challs.append(challengee_duel.challengeID)
+        if not challenger_duel.hasExpired:
+            challengee_duels_challs.append(challengee_duel.challengeID)
     
     return (challenger_duels_challs, challengee_duels_challs)
 
