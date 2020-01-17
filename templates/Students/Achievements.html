@@ -831,18 +831,18 @@
                 <div class="card-panel">
                     <table class="responsive-table">
                         <thead>
-                            <th>Your XP Points</th>
-                            <th>Your Practice Points</th>
+                            <th style="font-size: 1.64rem;font-weight: 400;">XP Points</th>
+                            <th style="font-size: 1.64rem;font-weight: 400;">Practice Points</th>
                             {% if virtualCurrencyUsed %}
-                            <th>Your Course Bucks</th>
+                            <th style="font-size: 1.64rem;font-weight: 400;">Your Course Bucks</th>
                             {% endif %}
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{{studentXP_range}}</td>
-                                <td>{{totalWCEarnedPoints|floatformat}} / {{totalWCPossiblePoints|floatformat}}</td>
+                                <td style="font-size:26px">{{studentXP_range}}</td>
+                                <td style="font-size:26px"> {{totalWCEarnedPoints|floatformat}} / {{totalWCPossiblePoints|floatformat}}</td>
                                 {% if virtualCurrencyUsed %}
-                                <td>{{course_Bucks}}</td>
+                                <td style="font-size:26px"> {{course_Bucks}}</td>
                                 {% endif %}
                             </tr>
                         </tbody>
@@ -917,20 +917,20 @@
         {% if challengeClassmates %}
 
             <div class="row">
-              <div class="col s12 m10 offset-m1 cards-container" style="height: 400px;">
+              <div class="col s12 m10 offset-m1 cards-container" style="height: 207px;">
                 <div 
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid; margin-right: 5px" >
                     <div class="card">
                       <div class="card-content">
-                        <h3 style="text-align: center">Duel </h3>
+                        <h5 style="text-align: center">Duel </h5>
                         <div style="text-align: center">
-                            <label style="white-space: pre-wrap; font-size:20px">    Wins                   Losses</label>
+                            <label style="white-space: pre-wrap; font-size:16px">    Wins                   Losses</label>
                         </div>
                         <div style="text-align: center;">
-                            <label style="font-size:100px">{{numOfDuelWon}} - {{numOfDuelLost}}<label>
+                            <label style="font-size:26px">{{numOfDuelWon}} - {{numOfDuelLost}}<label>
                         </div>
-                        <div style="text-align: center; margin-top:35px">
-                            <label style="white-space: pre-wrap; font-size:22px;">            {{numOfDuelSent}} sent                                {{numOfDuelAccepted}} accepted </label>
+                        <div style="text-align: center; margin-top:10px">
+                            <label style="white-space: pre-wrap; font-size:16px;">            {{numOfDuelSent}} sent                                {{numOfDuelAccepted}} accepted </label>
                         </div>
                       </div>
                     </div>
@@ -941,15 +941,15 @@
                     <div class="card">
                       <div class="card-content">
                       
-                        <h3 style="text-align: center">Callout </h3>
+                        <h5 style="text-align: center">Callout </h5>
                         <div style="text-align: center">
-                            <label style="font-size:20px">Wins</label>
+                            <label style="font-size:16px">Wins</label>
                         </div>
                         <div style="text-align: center;">
-                            <label style="font-size:100px">{{numOfCalloutWon}}<label>
+                            <label style="font-size:26px">{{numOfCalloutWon}}<label>
                         </div>
-                        <div style="text-align: center; margin-top:35px">
-                            <label style="white-space: pre-wrap; font-size:22px;">     {{numOfCalloutSent}} sent        {{numOfDuelAccepted}} requested        {{numOfCalloutLost}} lost</label>
+                        <div style="text-align: center; margin-top:10px">
+                            <label style="white-space: pre-wrap; font-size:16px;">     {{numOfCalloutSent}} sent        {{numOfDuelAccepted}} requested        {{numOfCalloutLost}} lost</label>
                         </div>
                       </div>
                     </div>
