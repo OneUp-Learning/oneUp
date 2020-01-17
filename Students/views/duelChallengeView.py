@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.utils import utcDate
 from Badges.models import CourseConfigParams
-from Students.models import StudentRegisteredCourses, DuelChallenges, StudentChallenges, Winners, StudentConfigParams, StudentVirtualCurrency, Callouts, Student, CalloutParticipants
+from Students.models import StudentRegisteredCourses, DuelChallenges, StudentChallenges, Winners, StudentConfigParams, StudentVirtualCurrency, Callouts, Student, CalloutParticipants, StudentEventLog
 from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
 from random import randint
 from notify.signals import notify
@@ -76,6 +76,7 @@ def automatic_evaluator(duel_id, course_id):
         
         if not StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course) and not StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course):
             # both parties failed to submit duel on time
+            duel_challenge.customMessage = "Both you and your opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
             
             # Notify parties
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
@@ -247,76 +248,114 @@ def automatic_evaluator(duel_id, course_id):
                 register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_id)
 
             else:
-                winner1 = challengee_challenge.studentID
-                vc_winner1 = StudentRegisteredCourses.objects.get(studentID=winner1, courseID=current_course)
-                virtualCurrencyAmount1 = vc_winner1.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                vc_winner1.virtualCurrencyAmount = virtualCurrencyAmount1
-                vc_winner1.save()
-                
-                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                    # save earning transaction
-                    w_student_vc = StudentVirtualCurrency()
-                    w_student_vc.courseID = duel_challenge.courseID
-                    w_student_vc.studentID = vc_winner1
-                    w_student_vc.objectID = 0
-                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                    w_student_vc.vcName = duel_challenge.duelChallengeName
-                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                    w_student_vc.save()
-                
-                winner2 = challenger_challenge.studentID
-                vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
-                virtualCurrencyAmount2 = vc_winner2.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                vc_winner2.virtualCurrencyAmount = virtualCurrencyAmount2
-                vc_winner2.save()
-                
-                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                    # save earning transaction
-                    w_student_vc = StudentVirtualCurrency()
-                    w_student_vc.courseID = duel_challenge.courseID
-                    w_student_vc.studentID = vc_winner2
-                    w_student_vc.objectID = 0
-                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                    w_student_vc.vcName = duel_challenge.duelChallengeName
-                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                    w_student_vc.save()
-                
-                winner = Winners()
-                winner.DuelChallengeID = duel_challenge
-                winner.studentID = winner1
-                winner.courseID = current_course
-                winner.save()
-                winner = Winners()
-                winner.DuelChallengeID = duel_challenge
-                winner.studentID = winner2
-                winner.courseID = current_course
-                winner.save()
 
-                # Notify winners
-                notify.send(None, recipient=winner1.user, actor=winner2.user,
-                                        verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
-        
-                notify.send(None, recipient=winner2.user, actor=winner1.user,
-                                        verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+                if int(challengee_challenge.testScore) == int(challenger_challenge.testScore) and int(challenger_challenge.testScore) == 0:
+                    
+                    duel_challenge.customMessage = "Both you and your oppenent have failed the duel. Duel has already expired and cannot be taken."
+            
+                    # Notify parties
+                    notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
+                                            verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
+                    
+                    notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
+                                            verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id)}))
+                    
+                    # Register event that the students has won the duel
+                    mini_req1 = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challenger.user.username,
+                    }
+                    mini_req2 = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challengee.user.username,
+                    }
+                    
+                    # Register event that the students have lost the duel
+                    register_event_simple(Event.duelLost, mini_req1, duel_challenge.challenger, objectId=duel_id)
+                    register_event_simple(Event.duelLost, mini_req2, duel_challenge.challengee, objectId=duel_id)
 
-                # Register event that the students has won the duel
-                mini_req = {
-                    'currentCourseID': duel_challenge.courseID.pk,
-                    'user': winner1.user.username,
-                }
-                if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner1, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
-                
-                register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_id)
+                    # reimberse participants if there is betting
+                    if duel_challenge.isBetting:
+                        challenger_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challenger, courseID=duel_challenge.courseID)
+                        challenger_vc = challenger_reg_crs.virtualCurrencyAmount
+                        challenger_reg_crs.virtualCurrencyAmount = challenger_vc + duel_challenge.vcBet
+                        challenger_reg_crs.save()
+                        
+                        challengee_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challengee, courseID=duel_challenge.courseID)
+                        challengee_vc = challengee_reg_crs.virtualCurrencyAmount
+                        challengee_reg_crs.virtualCurrencyAmount = challengee_vc + duel_challenge.vcBet
+                        challengee_reg_crs.save()
+                else:
+                    winner1 = challengee_challenge.studentID
+                    vc_winner1 = StudentRegisteredCourses.objects.get(studentID=winner1, courseID=current_course)
+                    virtualCurrencyAmount1 = vc_winner1.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    vc_winner1.virtualCurrencyAmount = virtualCurrencyAmount1
+                    vc_winner1.save()
+                    
+                    if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                        # save earning transaction
+                        w_student_vc = StudentVirtualCurrency()
+                        w_student_vc.courseID = duel_challenge.courseID
+                        w_student_vc.studentID = vc_winner1
+                        w_student_vc.objectID = 0
+                        w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                        w_student_vc.vcName = duel_challenge.duelChallengeName
+                        w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                        w_student_vc.save()
+                    
+                    winner2 = challenger_challenge.studentID
+                    vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
+                    virtualCurrencyAmount2 = vc_winner2.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    vc_winner2.virtualCurrencyAmount = virtualCurrencyAmount2
+                    vc_winner2.save()
+                    
+                    if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                        # save earning transaction
+                        w_student_vc = StudentVirtualCurrency()
+                        w_student_vc.courseID = duel_challenge.courseID
+                        w_student_vc.studentID = vc_winner2
+                        w_student_vc.objectID = 0
+                        w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                        w_student_vc.vcName = duel_challenge.duelChallengeName
+                        w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                        w_student_vc.save()
+                    
+                    winner = Winners()
+                    winner.DuelChallengeID = duel_challenge
+                    winner.studentID = winner1
+                    winner.courseID = current_course
+                    winner.save()
+                    winner = Winners()
+                    winner.DuelChallengeID = duel_challenge
+                    winner.studentID = winner2
+                    winner.courseID = current_course
+                    winner.save()
 
-                mini_req = {
-                    'currentCourseID': duel_challenge.courseID.pk,
-                    'user': winner2.user.username,
-                }
-                if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+                    # Notify winners
+                    notify.send(None, recipient=winner1.user, actor=winner2.user,
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
+            
+                    notify.send(None, recipient=winner2.user, actor=winner1.user,
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id)}))
 
-                register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_id)
+                    # Register event that the students has won the duel
+                    mini_req = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': winner1.user.username,
+                    }
+                    if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                        register_event_simple(Event.virtualCurrencyEarned, mini_req, winner1, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+                    
+                    register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_id)
+
+                    mini_req = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': winner2.user.username,
+                    }
+                    if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                        register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
+                    register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_id)
 
         elif StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course):
             student_id = duel_challenge.challengee
@@ -443,7 +482,10 @@ def callouts_list(request):
             sent_topics.append(topic_names)
             
             if (sent_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = sent_chall) or sent_chall.hasExpired):
-                sent_w_l.append("Not Submitted")
+                if "failed the duel" in sent_chall.customMessage:
+                    sent_w_l.append("Lost")
+                else:
+                    sent_w_l.append("Not Submitted")
             elif Winners.objects.filter(DuelChallengeID = sent_chall, studentID = student_id):
                 sent_w_l.append("Won")
             elif Winners.objects.filter(DuelChallengeID = sent_chall):
@@ -498,7 +540,10 @@ def callouts_list(request):
             requested_topics.append(topic_names)
             
             if (requested_chall.hasEnded and not Winners.objects.filter(DuelChallengeID = requested_chall) or requested_chall.hasExpired):
-                requested_w_l.append("Not Submitted")
+                if "failed the duel" in requested_chall.customMessage:
+                    requested_w_l.append("Lost")
+                else:
+                    requested_w_l.append("Not Submitted")
             elif Winners.objects.filter(DuelChallengeID = requested_chall, studentID = student_id):
                 requested_w_l.append("Won")
             elif Winners.objects.filter(DuelChallengeID = requested_chall):
@@ -533,13 +578,15 @@ def get_challenger_challengee_duel_challs(student_id, challengee_id, current_cou
     challenger_duels = list(challenger_duels_as_challenger) + list(challenger_duels_as_challengee)
     challenger_duels_challs = []
     for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
+        if not challenger_duel.hasExpired: 
+            challenger_duels_challs.append(challenger_duel.challengeID)
          
     
     challengee_duels = list(challengee_duels_as_challenger) + list(challengee_duels_as_challengee)
     challengee_duels_challs = []
     for challengee_duel in challengee_duels:
-        challengee_duels_challs.append(challengee_duel.challengeID)
+        if not challengee_duel.hasExpired: 
+            challengee_duels_challs.append(challengee_duel.challengeID)
     
     return (challenger_duels_challs, challengee_duels_challs)
 
@@ -1098,7 +1145,7 @@ def duel_challenge_description(request):
     
 
             if len(winners) == 0:
-                message +="Both you and your opponent have failed to submit duel on time. Duel has already expired and cannot be taken."
+                message += duel_challenge.customMessage
                 if duel_challenge.isBetting and duel_challenge.vcBet > 0:
                     message +=" You and your opponent are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency each."
             elif len(winners)==2:
@@ -1452,12 +1499,19 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
                 context_dict['areAllDone'] = True
                 return context_dict
+            print("eval is", duel_challenge.evaluator)
+            if duel_challenge.evaluator == 2:
+                duel_challenge.evaluator = 1
+            else:
+                duel_challenge.evaluator = 2
+            duel_challenge.save()
+            print("now eval is", duel_challenge.evaluator)
 
             context_dict['areAllDone'] = False
             return context_dict
                 
     def evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const, duel_vc_participants_const):
-
+        print("come to eval")
         if challenger_challenge.testScore > challengee_challenge.testScore:
             winner_s = challenger_challenge.studentID
             vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s , courseID=current_course)
@@ -1595,76 +1649,114 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
         else:
-            winner1 = challengee_challenge.studentID
-            vc_winner1 = StudentRegisteredCourses.objects.get(studentID=winner1, courseID=current_course)
-            virtualCurrencyAmount1 = vc_winner1.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-            vc_winner1.virtualCurrencyAmount = virtualCurrencyAmount1
-            vc_winner1.save()
-            
-            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                # save earning transaction
-                w_student_vc = StudentVirtualCurrency()
-                w_student_vc.courseID = duel_challenge.courseID
-                w_student_vc.studentID = winner1
-                w_student_vc.objectID = 0
-                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                w_student_vc.vcName = duel_challenge.duelChallengeName
-                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                w_student_vc.save()
-            
-            winner2 = challenger_challenge.studentID
-            vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
-            virtualCurrencyAmount2 = vc_winner2.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-            vc_winner2.virtualCurrencyAmount = virtualCurrencyAmount2
-            vc_winner2.save()
-            
-            if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                # save earning transaction
-                w_student_vc = StudentVirtualCurrency()
-                w_student_vc.courseID = duel_challenge.courseID
-                w_student_vc.studentID = winner2
-                w_student_vc.objectID = 0
-                w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                w_student_vc.vcName = duel_challenge.duelChallengeName
-                w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                w_student_vc.save()
-            
-            winner = Winners()
-            winner.DuelChallengeID = duel_challenge
-            winner.studentID = winner1
-            winner.courseID = current_course
-            winner.save()
-            winner = Winners()
-            winner.DuelChallengeID = duel_challenge
-            winner.studentID = winner2
-            winner.courseID = current_course
-            winner.save()
+            print("even here")
+            if int(challengee_challenge.testScore) == int(challenger_challenge.testScore) and int(challenger_challenge.testScore) == 0:
+                
+                duel_challenge.customMessage = "Both you and your oppenent have failed the duel. Duel has already expired and cannot be taken."
+                
+                # Notify parties
+                notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
+                                        verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+                
+                notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
+                                        verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
 
-            # Notify winners
-            notify.send(None, recipient=winner1.user, actor=winner2.user,
-                                        verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+                # Register event that the students has won the duel
+                mini_req1 = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challenger.user.username,
+                    }
+                mini_req2 = {
+                        'currentCourseID': duel_challenge.courseID.pk,
+                        'user': duel_challenge.challengee.user.username,
+                    }
+                # Register event that the students have lost the duel
+                register_event_simple(Event.duelLost, mini_req1, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
+                register_event_simple(Event.duelLost, mini_req2, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
 
-            mini_req = {
-                'currentCourseID': duel_challenge.courseID.pk,
-                'user': winner1.user.username,
-            }
-            if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                register_event_simple(Event.virtualCurrencyEarned, mini_req, winner1, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+                # reimberse participants if there is betting
+                if duel_challenge.isBetting:
+                    challenger_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challenger, courseID=duel_challenge.courseID)
+                    challenger_vc = challenger_reg_crs.virtualCurrencyAmount
+                    challenger_reg_crs.virtualCurrencyAmount = challenger_vc + duel_challenge.vcBet
+                    challenger_reg_crs.save()
+                    
+                    challengee_reg_crs = StudentRegisteredCourses.objects.get(studentID=duel_challenge.challengee, courseID=duel_challenge.courseID)
+                    challengee_vc = challengee_reg_crs.virtualCurrencyAmount
+                    challengee_reg_crs.virtualCurrencyAmount = challengee_vc + duel_challenge.vcBet
+                    challengee_reg_crs.save()
+                
+            else:
+                winner1 = challengee_challenge.studentID
+                vc_winner1 = StudentRegisteredCourses.objects.get(studentID=winner1, courseID=current_course)
+                virtualCurrencyAmount1 = vc_winner1.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                vc_winner1.virtualCurrencyAmount = virtualCurrencyAmount1
+                vc_winner1.save()
+                
+                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    # save earning transaction
+                    w_student_vc = StudentVirtualCurrency()
+                    w_student_vc.courseID = duel_challenge.courseID
+                    w_student_vc.studentID = winner1
+                    w_student_vc.objectID = 0
+                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    w_student_vc.vcName = duel_challenge.duelChallengeName
+                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                    w_student_vc.save()
+                
+                winner2 = challenger_challenge.studentID
+                vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
+                virtualCurrencyAmount2 = vc_winner2.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                vc_winner2.virtualCurrencyAmount = virtualCurrencyAmount2
+                vc_winner2.save()
+                
+                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    # save earning transaction
+                    w_student_vc = StudentVirtualCurrency()
+                    w_student_vc.courseID = duel_challenge.courseID
+                    w_student_vc.studentID = winner2
+                    w_student_vc.objectID = 0
+                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    w_student_vc.vcName = duel_challenge.duelChallengeName
+                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                    w_student_vc.save()
+                
+                winner = Winners()
+                winner.DuelChallengeID = duel_challenge
+                winner.studentID = winner1
+                winner.courseID = current_course
+                winner.save()
+                winner = Winners()
+                winner.DuelChallengeID = duel_challenge
+                winner.studentID = winner2
+                winner.courseID = current_course
+                winner.save()
 
-            register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_challenge.duelChallengeID)
+                # Notify winners
+                notify.send(None, recipient=winner1.user, actor=winner2.user,
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
 
-            notify.send(None, recipient=winner2.user, actor=winner1.user,
-                                        verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner1.user.username,
+                }
+                if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner1, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
 
-            mini_req = {
-                'currentCourseID': duel_challenge.courseID.pk,
-                'user': winner2.user.username,
-            }
-            if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+                register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_challenge.duelChallengeID)
 
-            register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_challenge.duelChallengeID)
+                notify.send(None, recipient=winner2.user, actor=winner1.user,
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID)}))
 
+                mini_req = {
+                    'currentCourseID': duel_challenge.courseID.pk,
+                    'user': winner2.user.username,
+                }
+                if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
+                register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_challenge.duelChallengeID)
+        print("come to termination")
         duel_challenge.hasEnded = True
         duel_challenge.save()
     
@@ -1718,18 +1810,18 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         print("evaluator is 2, challenger")
         if updated_duel_challenge.challengee == student_id:
             print("Challengee is evaluating")
-            challengee_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
+            challengee_challenge = StudentChallenges.objects.filter(studentID=student_id,challengeID=updated_duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
         
             # if challenger has no challenge object, duel might have not been submitted the duel yet
-            if not StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course):
+            if not StudentChallenges.objects.filter(studentID=updated_duel_challenge.challenger,challengeID=updated_duel_challenge.challengeID, courseID=current_course):
                 
                 #################################################################
                 # check whether duel is expired 
-                return has_duel_expired(student_id, duel_challenge, context_dict, duel_vc_const, duel_vc_participants_const)
+                return has_duel_expired(student_id, updated_duel_challenge, context_dict, duel_vc_const, duel_vc_participants_const)
                 #################################################################
 
-            challenger_challenge = StudentChallenges.objects.filter(studentID=duel_challenge.challenger,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
-            evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const, duel_vc_participants_const)
+            challenger_challenge = StudentChallenges.objects.filter(studentID=updated_duel_challenge.challenger,challengeID=updated_duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
+            evaluator(challenger_challenge, challengee_challenge, updated_duel_challenge, current_course, duel_vc_const, duel_vc_participants_const)
             context_dict['areAllDone'] = True
             return context_dict
         return context_dict
