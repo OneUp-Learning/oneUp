@@ -255,9 +255,9 @@ def matchingqdict(question, i, challengeId, challenge_question, studChallQuest):
 
 #     return qdict
 
-def parsonsqdict(question, i, challengeId, studChallQuest):
+def parsonsqdict(question, i, challengeId, challenge_question,studChallQuest):
     from Instructors.views import parsonsView
-    qdict = staticqdict(question, i, challengeId, studChallQuest)
+    qdict = staticqdict(question, i, challengeId, challenge_question, studChallQuest)
     modelSolution = Answers.objects.filter(questionID=question.questionID)
     solution_string = modelSolution[0].answerText
 
