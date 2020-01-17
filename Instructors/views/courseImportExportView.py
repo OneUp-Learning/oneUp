@@ -43,9 +43,293 @@ from oneUp.decorators import instructorsCheck
 #############################################################
 
 model_lookup_table = {
-    'Model': {
-        'field': int,
+    Topics: {
+        'topicName': None,
+    },
+    CoursesTopics: {
+        'topicID': None,
+        'courseID': None,
+    },
+    ActivitiesCategory: {
+        'name': None,
+        'courseID': None,
+    },
+    Skills: {
+        'skillName': None,
+    },
+    CoursesSkills: {
+        'skillID': None,
+        'courseID': None,
+    },
+    Activities: {
+        'activityName': None,
+        'isGraded': None,
+        'description': None,
+        'points': Decimal,
+        'isFileAllowed': None,
+        'uploadAttempts': None,
+        'instructorNotes': None,
+        'author': None,
+        'courseID': None,
+    },
+    Challenges: {
+        'challengeName': None,
+        'isGraded': None,
+        'numberAttempts': None,
+        'timeLimit': None,
+        'displayCorrectAnswer': None,
+        'displayCorrectAnswerFeedback': None,
+        'displayIncorrectAnswerFeedback': None,
+        'challengeAuthor': None,
+        'challengeDifficulty': None,
+        'challengePassword': None,
+        'startTimestamp': None,
+        'endTimestamp': None,
+        'dueDate': None,
+        'courseID': None,
+    },
+    ChallengesTopics: {
+        'topicID': None,
+        'challengeID': None,
+    },
+    ChallengesQuestions: {
+        'points': Decimal,
+        'challengeID': None,
+        'questionID': None,
     }
+    DynamicQuestions: {
+        'preview': None,
+        'instructorNotes': None,
+        'type': None,
+        'difficulty': None,
+        'author': None,
+        
+        'numParts': None,
+        'code': None,
+        'submissionsAllowed': None,
+        'resubmissionPenalty': None,
+    },
+    TemplateDynamicQuestions: {
+        'preview': None,
+        'instructorNotes': None,
+        'type': None,
+        'difficulty': None,
+        'author': None,
+
+        'numParts': None,
+        'code': None,
+        'submissionsAllowed': None,
+        'resubmissionPenalty': None,
+
+        'templateText': None,
+        'setupCode': None,
+    },
+    TemplateTextParts: {
+        'partNumber': None,
+        'templateText': None,
+        'dynamicQuestion': None,
+    },
+    QuestionLibrary: {
+        'question': None,
+        'library': None,
+    },
+    StaticQuestions: {
+        'preview': None,
+        'instructorNotes': None,
+        'type': None,
+        'difficulty': None,
+        'author': None,
+        
+        'questionText': None,
+        'correctAnswerFeedback': None,
+        'incorrectAnswerFeedback': None,
+    },
+    Answers: {
+        'answerText': None,
+        'questionID': None,
+    },
+    CorrectAnswers: {
+        'answerID': None,
+        'questionID': None,
+    },
+    MatchingAnswers: {
+        'answerID': None,
+        'questionID': None,
+        'matchingAnswerText': None,
+    },
+    QuestionsSkills: {
+        'skillID': None,
+        'questionID': None,
+        'questionSkillPoints': None,
+        'courseID': None,
+    },
+    Conditions: {
+        'courseID': None,
+        'operation': None,
+        'operand1Type': None,
+        'operand1Value': int,
+        'operand2Type': None,
+        'operand2Value': int,
+    },
+    ConditionSet: {
+        'parentCondition': None,
+        'conditionInSet': None,
+    },
+    ActivitySet: {
+        'activity_id': int,
+        'condition': None,
+    },
+    ChallengeSet: {
+        'challenge_id': int,
+        'condition': None,
+    },
+    TopicSet: {
+        'topic_id': int,
+        'condition': None,
+    },
+    ActivityCategorySet: {
+        'category_id': int,
+        'condition': None,
+    }
+    StringConstants: {
+        'stringValue': None,
+    },
+    Dates: {
+        'dateValue': None,
+    },
+    Rules: {
+        'courseID': None,
+        'conditionID': None,
+        'actionID': None,
+        'objectSpecifier': None,
+        'awardFrequency': None,
+    },
+    RuleEvents: {
+        'rule': None,
+        'event': None,
+        'inGlobalContext': None,
+    },
+    Badges: {
+        'badgeName': None,
+        'badgeDescription': None,
+        'badgeImage': None,
+        'manual': None,
+        'isPeriodic': None,
+        'courseID': None,
+
+        'ruleID': None,
+    },
+    PeriodicBadges: {
+        'badgeName': None,
+        'badgeDescription': None,
+        'badgeImage': None,
+        'manual': None,
+        'isPeriodic': None,
+        'courseID': None,
+
+        'periodicVariableID': None,
+        'timePeriodID': None,
+        'periodicType': None,
+        'numberOfAwards': None,
+        'threshold': None,
+        'operatorType': None,
+        'isRandom': None,
+        'resetStreak': None,
+        'lastModified': None,
+
+        'periodicTask': None,
+    },
+    BadgesInfo: {
+        'badgeName': None,
+        'badgeDescription': None,
+        'badgeImage': None,
+        'manual': None,
+        'isPeriodic': None,
+        'courseID': None,
+    },
+    ActionArguments: {
+        'ruleID': None,
+        'sequenceNumber': None,
+        'argumentValue': str,
+    },
+    VirtualCurrencyRuleInfo: {
+        'vcRuleName': None,
+        'vcRuleDescription': None,
+        'vcRuleType': None,
+        'vcRuleAmount': None,
+        'vcRuleLimit': None,
+        'isPeriodic': None,
+        'courseID': None,
+
+        'ruleID': None,
+    },
+    VirtualCurrencyPeriodicRule: {
+        'vcRuleName': None,
+        'vcRuleDescription': None,
+        'vcRuleType': None,
+        'vcRuleAmount': None,
+        'vcRuleLimit': None,
+        'isPeriodic': None,
+        'courseID': None,
+
+        'periodicVariableID': None,
+        'timePeriodID': None,
+        'periodicType': None,
+        'numberOfAwards': None,
+        'threshold': None,
+        'operatorType': None,
+        'isRandom': None,
+        'resetStreak': None,
+        'lastModified': None,
+
+        'periodicTask': None,
+    },
+    VirtualCurrencyCustomRuleInfo: {
+        'vcRuleName': None,
+        'vcRuleDescription': None,
+        'vcRuleType': None,
+        'vcRuleAmount': None,
+        'vcRuleLimit': None,
+        'isPeriodic': None,
+        'courseID': None,
+    },
+    LeaderboardsConfig: {
+        'leaderboardName': None, 
+        'leaderboardDescription': None,
+        'isContinous': None,
+        'isXpLeaderboard': None, 
+        'numStudentsDisplayed': None,
+        'periodicVariable': None, 
+        'timePeriodUpdateInterval': None, 
+        'displayOnCourseHomePage': None, 
+        'howFarBack': None,
+        'lastModified': None,
+        'courseID': None,
+
+        'periodicTask': None,
+    },
+    ProgressiveUnlocking: {
+        'name': None,
+        'description': None,
+        'objectID': None,
+        'objectType': None,
+        'courseID': None,
+
+        'ruleID': None,
+    },
+    StudentProgressiveUnlocking: {
+        'studentID': None,
+        'pUnlockingRuleID': None,
+        'courseID': None,
+        'objectID': None,
+        'objectType': None,
+    },
+    AttendanceStreakConfiguration: {
+        'daysofClass': None,
+        'daysDeselected': None,
+        'courseID': None
+    }
+
 }
 
 def ensure_directory(directory):
@@ -93,6 +377,47 @@ def create_model_instance(model, fields_to_save, modify=False):
         
         # Set the model field value
         setattr(model_instance, field[0], value)
+
+    return model_instance
+
+def create_model_instance(model, fields_data, custom_fields_to_save=None, modify=False):
+    ''' Creates a new instance of a model or modifies one  
+        with the fields set from the fields_to_save argument.
+
+        fields_data is a json. usually from the imported json. It should contain
+        field name and field value as key-value pairs
+
+        custom_field_to_save is json with field name and value as key-value pairs:
+        ex. {"a": "hello", "score": 4, "date": dt}
+
+        Note: use custom_field_to_save parameter if you need to modify/create the 
+        model instance with a custom value that is not in the fields_data json.
+        custom_field_to_save will override field_data for the same field name.
+
+    '''
+    if modify:
+        model_instance = model
+        model_type = type(model)
+    else:
+        model_instance = model()
+        model_type = model
+
+    for field_name, cast_specifier in model_lookup_table[model_type].items():
+        if field_name not in fields_data and field_name not in custom_fields_to_save.keys():
+            continue
+
+        if field_name in fields_data:
+            value = fields_data[field_name]
+
+        if field_name in custom_fields_to_save.keys():
+            value = custom_fields_to_save[field_name]
+
+        # Cast the value if the field requires some casting
+        if cast_specifier is not None:
+            value = cast_specifier(value)
+        
+        # Set the model field value
+        setattr(model_instance, field_name, value)
 
     return model_instance
 
@@ -1213,17 +1538,16 @@ def initialize_id_map(root_json):
 
     return id_map
 
+#############################################################
+# IMPORTING JSON METHODS
+#############################################################
+
 def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts topic jsons to model '''
 
     if topics_jsons:
         for topic_json in topics_jsons:
 
-            # topics = Topics.objects.filter(topicName=topic_json['topicName'])
-            # # The imported topic has the same name of one of the topics in oneup system
-            # if topics:
-            #     topic = topics.first()
-            # else: 
             # Create a new topic
             topic_fields_to_save = [('topicName', topic_json['topicName'], None),]
             topic = create_model_instance(Topics, topic_fields_to_save)                  
