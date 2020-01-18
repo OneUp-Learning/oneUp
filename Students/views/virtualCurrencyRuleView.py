@@ -37,11 +37,15 @@ def VirtualCurrencyDisplay(request):
     #Displaying the list of rules from database
     #vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse)
     vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')  # 01/18/18 DD
-    for rule in vcRules:
+   
+    # Little hack to sort rules by automatic then periodic. 
+    x = [r for r in list(vcRules) if hasattr(r, 'virtualcurrencyruleinfo') and not hasattr(r, 'virtualcurrencyperiodicrule')]
+    x.extend([r for r in list(vcRules) if not hasattr(r, 'virtualcurrencyruleinfo') and  hasattr(r, 'virtualcurrencyperiodicrule')])
+    x.extend([r for r in list(vcRules) if not hasattr(r, 'virtualcurrencyruleinfo') and  not hasattr(r, 'virtualcurrencyperiodicrule')])
+    
+    for rule in x:
         if rule.vcRuleType:
-        #if rule.ruleID.actionID == Action.increaseVirtualCurrency:
-        
-        # earning rule
+            # earning rule
             vcEarningRuleID.append(rule.vcRuleID)
             vcEarningRuleName.append(rule.vcRuleName)
             vcEarningRuleDescription.append(rule.vcRuleDescription)

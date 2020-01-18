@@ -104,7 +104,7 @@ def getAveragePercentageScore(course, student, challenge):
 
 def getUniqueChallengesGreaterThanPercentage(course, student, isGraded, percentage):
     ''' Utility function used by other functions.
-        Returns the number of challenges greater than some percentage.
+        Returns the number of challenges greater than or equal to some percentage.
         isGraded when True is serious
         isGraded when False is warmup
     '''
@@ -1043,6 +1043,14 @@ def getNumberOfUniqueWarmupChallengesGreaterThan75Percent(course, student):
     logger.debug("Number of unqiue warmup challenges >= 75%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreaterThan80Percent(course, student): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score >= 80%
+    '''   
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 80.0)
+    logger.debug("Number of unqiue warmup challenges >= 80%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
 def getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student):  
     ''' This will return the number of unique warmup challenges that a student completed with a 
         score >= 90%
@@ -1136,7 +1144,7 @@ class SystemVariable():
     calloutRequested = 959 #
     duelsParticipated = 960 # Return the number of duels a student has participated in regarless of the duel outcome
     percentOfFirstAttemptScoreOutOfChallengeScore = 961  # percentage of student's score (for the first attempt ) out of the max possible score for a challenge
-
+    uniqueWarmupChallengesGreaterThan80Percent = 962 # Number of warmup challenges with a score percentage greater or equal than 80%
 
     systemVariables = {
         score:{
@@ -1594,7 +1602,7 @@ class SystemVariable():
         uniqueWarmupChallengesGreaterThan60Percent:{
             'index': uniqueWarmupChallengesGreaterThan60Percent,
             'name':'uniqueWarmupChallengesGreaterThan60Percent',
-            'displayName':'Warmup Challenges Score (greater than 60% correct)',
+            'displayName':'Warmup Challenges Score (equal or greater than 60% correct)',
             'description':'# of Warmup Challenges with Score >= 60% of Total Challenge Score.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
@@ -1607,8 +1615,8 @@ class SystemVariable():
         uniqueWarmupChallengesGreaterThan75Percent:{
             'index': uniqueWarmupChallengesGreaterThan75Percent,
             'name':'uniqueWarmupChallengesGreaterThan75Percent',
-            'displayName':'Warmup Challenges Score (greater than 75% correct)',
-            'description':'The number of warmup challenges a student has completed with a score greater than 75%. The student score only includes the student score, adjustment, and curve.',
+            'displayName':'Warmup Challenges Score (equal or greater than 75% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than or equal 75%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1617,11 +1625,24 @@ class SystemVariable():
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75Percent
             },
         },
+        uniqueWarmupChallengesGreaterThan80Percent:{
+            'index': uniqueWarmupChallengesGreaterThan80Percent,
+            'name':'uniqueWarmupChallengesGreaterThan80Percent',
+            'displayName':'Warmup Challenges Score (equal or greater than 80% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than or equal to 80%. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan80Percent
+            },
+        },
         uniqueWarmupChallengesGreaterThan90Percent:{
             'index': uniqueWarmupChallengesGreaterThan90Percent,
             'name':'uniqueWarmupChallengesGreaterThan90Percent',
-            'displayName':'Warmup Challenges Score (greater than 90% correct)',
-            'description':'The number of warmup challenges a student has completed with a score greater than 90%. The student score only includes the student score, adjustment, and curve.',
+            'displayName':'Warmup Challenges Score (equal or greater than 90% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than or equal 90%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1633,7 +1654,7 @@ class SystemVariable():
         uniqueSeriousChallengesGreaterThan30Percent:{
             'index': uniqueSeriousChallengesGreaterThan30Percent,
             'name':'uniqueSeriousChallengesGreaterThan30Percent',
-            'displayName':'#Serious Challenges Score (greater or equal than 30% correct)',
+            'displayName':'#of Serious Challenges Score (greater or equal than 30% correct)',
             'description':'The number of serious challenges a student has completed with a score greater or equal than 30%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
@@ -1646,7 +1667,7 @@ class SystemVariable():
         uniqueSeriousChallengesGreaterThan75Percent:{
             'index': uniqueSeriousChallengesGreaterThan75Percent,
             'name':'uniqueSeriousChallengesGreaterThan75Percent',
-            'displayName':'#Serious Challenges Score (greater or equal than 75% correct)',
+            'displayName':'# of Serious Challenges Score (greater or equal than 75% correct)',
             'description':'The number of serious challenges a student has completed with a score greater or equal than 75%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
@@ -1659,7 +1680,7 @@ class SystemVariable():
         uniqueSeriousChallengesGreaterThan90Percent:{
             'index': uniqueSeriousChallengesGreaterThan90Percent,
             'name':'uniqueSeriousChallengesGreaterThan90Percent',
-            'displayName':'#Serious Challenges Score (greater or equal than 90% correct)',
+            'displayName':'# of Serious Challenges Score (greater or equal than 90% correct)',
             'description':'The number of serious challenges a student has completed with a score greater or equal than 90%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
@@ -1672,7 +1693,7 @@ class SystemVariable():
         uniqueWarmupChallengesGreaterThan75PercentForTopic:{
             'index': uniqueWarmupChallengesGreaterThan75PercentForTopic,
             'name':'uniqueWarmupChallengesGreaterThan75PercentForTopic',
-            'displayName':'#Warmup Challenges Score for Specific Topic (greater or equal than 75% correct)',
+            'displayName':'# of Warmup Challenges Score for Specific Topic (greater or equal than 75% correct)',
             'description':'The number of warmup challenges a student has completed with a score greater or equal than 75% for a specific topic. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
@@ -1685,7 +1706,7 @@ class SystemVariable():
         uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
             'index': uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt,
             'name':'uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt',
-            'displayName':'#One-attempt Warmup Challenges Score (greater or equal than 75% correct)',
+            'displayName':'# of One-attempt Warmup Challenges Score (greater or equal than 75% correct)',
             'description':'The number of warmup challenges a student has completed with a score greater or equal than 75% and with only one attempt',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
