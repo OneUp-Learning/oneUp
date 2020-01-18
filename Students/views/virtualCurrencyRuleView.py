@@ -41,6 +41,7 @@ def VirtualCurrencyDisplay(request):
     # Little hack to sort rules by automatic then periodic. 
     x = [r for r in list(vcRules) if hasattr(r, 'virtualcurrencyruleinfo') and not hasattr(r, 'virtualcurrencyperiodicrule')]
     x.extend([r for r in list(vcRules) if not hasattr(r, 'virtualcurrencyruleinfo') and  hasattr(r, 'virtualcurrencyperiodicrule')])
+    x.extend([r for r in list(vcRules) if not hasattr(r, 'virtualcurrencyruleinfo') and  not hasattr(r, 'virtualcurrencyperiodicrule')])
     
     for rule in x:
         if rule.vcRuleType:
