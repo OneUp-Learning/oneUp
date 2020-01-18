@@ -580,7 +580,13 @@ def calculate_student_warmup_practice(course, student, periodic_variable, time_p
 
     return (student, practices)
 
-def calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, percentage, last_ran=None, unique_id=None, award_type=None, result_only=False):
+
+def daterange(start_date, end_date):
+    ''' Returns date between two dates. both parameters are inclusive '''
+    for n in range(int ((end_date - start_date).days + 1)):
+        yield start_date + timedelta(n)
+
+def calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, percentage, warmups_completed_in_a_day=1, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' Utility function for getting the number of days of unique warmup challenges that a student completed with a score > percentage'''
 
     print("Calculating number of days of unique warmups completed with score > {}%".format(percentage))
@@ -617,50 +623,75 @@ def calculate_number_of_days_of_unique_warmups(course, student, periodic_variabl
             else:
                 last_ran = None
 
-    for challenge in challenges:
-        # Get the student completed Warm-up challenges (Endtimestamp is not null if it is complete)
-        studentChallenges = StudentChallenges.objects.filter(courseID=course, studentID=student, challengeID=challenge.challengeID).exclude(endTimestamp__isnull=True)
-        # Only get the student challenges since last ran
-        if last_ran:
-            studentChallenges = studentChallenges.filter(endTimestamp__gte=last_ran)
+    studentChallenges = StudentChallenges.objects.filter(courseID=course, studentID=student).exclude(endTimestamp__isnull=True).order_by('endTimestamp')
+    # print(timezone.localtime(studentChallenges.last().endTimestamp))
+    if last_ran:
+        # print("LAST_RAN: {}".format(timezone.localtime(last_ran)))
+        studentChallenges = studentChallenges.filter(endTimestamp__gt=timezone.localtime(last_ran))
 
-        if studentChallenges.exists():
-            # Get the total possible score (Note: total score is Decimal type) for this challenge
-            total_score_possible = challenge.getCombinedScore()
-            # Get the highest score out of the student attempts for this challenge (Note: test score is Decimal type)
-            highest_score = max([warmup.getScore() for warmup in studentChallenges])
-            print("Highest score: {}".format(highest_score))
-            print("possible score {}".format(total_score_possible))
+    
+    # If there are no Warm-up challenges taken then we just cant do anything
+    if not studentChallenges.exists():
+        return (student, days)
 
-            # If the total possible score is not set then skip this Warm-up challenge
-            if total_score_possible <= 0:
-                continue
-            # Calculate the percentage
-            student_percentage = (highest_score/total_score_possible) * Decimal(100)
-            print("student percentage {}".format(student_percentage))
-            print("percentage {}".format(Decimal(percentage)))
-            # Say this challenge is counted for if the student score percentage is greater than 80%
-            if student_percentage > Decimal(percentage):
+    start_date = studentChallenges.first().endTimestamp.date()
+    end_date = datetime.now(tz=timezone.utc).date()
+    for current_day in daterange(start_date, end_date):
+        challenges_for_day = studentChallenges.filter(endTimestamp__date=current_day)
+        
+        if challenges_for_day.exists():
+            total_completed = 0
+            for challenge in challenges:
+                warmup_challenges = challenges_for_day.filter(challengeID=challenge.challengeID)
+
+                if warmup_challenges.exists():
+                    # Get the total possible score (Note: total score is Decimal type) for this challenge
+                    total_score_possible = challenge.getCombinedScore()
+                    # Get the highest score out of the student attempts for this challenge (Note: test score is Decimal type)
+                    highest_score = max([warmup.getScore() for warmup in warmup_challenges])
+                    print("Highest score: {}".format(highest_score))
+                    print("possible score {}".format(total_score_possible))
+
+                    # If the total possible score is not set then skip this warmup challenge
+                    if total_score_possible <= 0:
+                        continue
+                    
+                    # Calculate the percentage
+                    student_percentage = (highest_score/total_score_possible) * Decimal(100)
+                    print("student percentage {}".format(student_percentage))
+                    print("percentage {}".format(Decimal(percentage)))
+                    # Say this challenge is counted for if the student score percentage is greater than 80%
+                    if student_percentage >= Decimal(percentage):
+                        total_completed += 1
+            
+            # If the challenges taken for this day meets the threshold then count this day
+            if total_completed >= warmups_completed_in_a_day:
                 days += 1
 
     print("Course: {}".format(course))
     print("Student: {}".format(student))
     print("Periodic Variable: {}".format(periodic_variable))
     print("Last Ran: {}".format(last_ran))
-    print("Unique Warm-ups: {}".format(days))
+    print("Days Unique Warm-ups: {}".format(days))
     return (student, days)
 
 def calculate_number_of_days_of_unique_warmups_greater_than_90(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This will return the number of days of unique warmup challenges that a student completed with a 
-        score > 70%'''
+        score >= 90%'''
 
-    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 90.0, last_ran, unique_id, award_type, result_only)
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 90.0, 1, last_ran, unique_id, award_type, result_only)
 
 def calculate_number_of_days_of_unique_warmups_greater_than_70(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This will return the number of days of unique warmup challenges that a student completed with a 
-        score > 90%'''
+        score >= 70%'''
 
-    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 70.0, last_ran, unique_id, award_type, result_only)
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 70.0, 1, last_ran, unique_id, award_type, result_only)
+
+def calculate_number_of_days_of_2_unique_warmups_greater_than_80(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
+    ''' This will return the number of days of unique warmup challenges that a student completed with a 
+        score >= 80%'''
+
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 90.0, 2, last_ran, unique_id, award_type, result_only)
 
 def calculate_unique_warmups(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the number of unique Warm-up challenges the student has completed
@@ -1544,6 +1575,7 @@ class PeriodicVariables:
     warmup_challenge_greater_or_equal_to_70 = 1410
     number_of_days_of_unique_warmups_90 = 1411
     number_of_days_of_unique_warmups_70 = 1412
+    number_of_days_of_2_unique_warmups_80 = 1413
 
     
     periodicVariables = {
@@ -1627,16 +1659,23 @@ class PeriodicVariables:
         number_of_days_of_unique_warmups_90: {
             'index': number_of_days_of_unique_warmups_90,
             'name': 'number_of_days_of_unique_warmups_90',
-            'displayName': 'Number Of Days Of Unique Warmup Challenges Score > 90%',
-            'description': 'The number of days of unique warmup challenges students completed with a score greater than 90%. The student scores only includes the student score, adjustment, and curve.',
+            'displayName': 'Number Of Days Of Unique Warmup Challenges Score >= 90%',
+            'description': 'The number of days of unique warmup challenges students completed with a score equal or greater than 90%. The student scores only includes the student score, adjustment, and curve.',
             'function': calculate_number_of_days_of_unique_warmups_greater_than_90,
         },
         number_of_days_of_unique_warmups_70: {
             'index': number_of_days_of_unique_warmups_70,
             'name': 'number_of_days_of_unique_warmups_70',
-            'displayName': 'Number Of Days Of Unique Warmup Challenges Score > 70%',
-            'description': 'The number of days of unique warmup challenges students completed with a score greater than 70%. The student scores only includes the student score, adjustment, and curve.',
+            'displayName': 'Number Of Days Of Unique Warmup Challenges Score >= 70%',
+            'description': 'The number of days of unique warmup challenges students completed with a score equal or greater than 70%. The student scores only includes the student score, adjustment, and curve.',
             'function': calculate_number_of_days_of_unique_warmups_greater_than_70,
+        },
+        number_of_days_of_2_unique_warmups_80: {
+            'index': number_of_days_of_2_unique_warmups_80,
+            'name': 'number_of_days_of_2_unique_warmups_80',
+            'displayName': 'Number Of Days Of 2 Unique Warmup Challenges Score >= 80%',
+            'description': 'The number of days of 2 unique warmup challenges students completed with a score equal or greater than 80%. The student scores only includes the student score, adjustment, and curve.',
+            'function': calculate_number_of_days_of_2_unique_warmups_greater_than_80,
         },
     }
 
