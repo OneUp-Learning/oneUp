@@ -403,14 +403,18 @@ def create_model_instance(model, fields_data, custom_fields_to_save=None, modify
         model_type = model
 
     for field_name, cast_specifier in model_lookup_table[model_type].items():
-        if field_name not in fields_data and field_name not in custom_fields_to_save.keys():
+        if fields_data is None and custom_fields_to_save is None:
             continue
-
-        if field_name in fields_data:
+            
+        value = None
+        if fields_data and field_name in fields_data:
             value = fields_data[field_name]
 
-        if field_name in custom_fields_to_save.keys():
+        if custom_fields_to_save and field_name in custom_fields_to_save.keys():
             value = custom_fields_to_save[field_name]
+
+        if value is None:
+            continue
 
         # Cast the value if the field requires some casting
         if cast_specifier is not None:
@@ -1549,8 +1553,9 @@ def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_
         for topic_json in topics_jsons:
 
             # Create a new topic
-            topic_fields_to_save = [('topicName', topic_json['topicName'], None),]
-            topic = create_model_instance(Topics, topic_fields_to_save)                  
+            # topic_fields_to_save = [('topicName', topic_json['topicName'], None),]
+            # topic = create_model_instance(Topics, topic_fields_to_save)       
+            topic = create_model_instance(Topics, topic_json)           
             topic.save()
 
 
@@ -1560,8 +1565,10 @@ def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_
                 course_topic = course_topics.first()                    
             else:
                 # Create a new course topic
-                course_topic_fields_to_save = [('topicID', topic, None), ('courseID', current_course, None),]
-                course_topic = create_model_instance(CoursesTopics, course_topic_fields_to_save)                  
+                # course_topic_fields_to_save = [('topicID', topic, None), ('courseID', current_course, None),]
+                course_topic_fields_to_save = {'topicID': topic, 'courseID': current_course}
+                # course_topic = create_model_instance(CoursesTopics, course_topic_fields_to_save)
+                course_topic = create_model_instance(CoursesTopics, None, custom_fields_to_save=course_topic_fields_to_save)                                    
                 course_topic.save()
             
             # Map the imported topic id to the new topic id
@@ -1580,9 +1587,11 @@ def import_activities_categories_from_json(activities_categories_jsons, current_
                 activity_category = activities_categories.first()
             else:
                 # Create a new activity category
-                activity_category_fields_to_save = [('name', activities_categories_json['name'], None),
-                                                    ('courseID', current_course, None),]
-                activity_category = create_model_instance(ActivitiesCategory, activity_category_fields_to_save)
+                # activity_category_fields_to_save = [('name', activities_categories_json['name'], None),
+                #                                     ('courseID', current_course, None),]
+                activity_category_fields_to_save = {'courseID': current_course}
+                # activity_category = create_model_instance(ActivitiesCategory, activity_category_fields_to_save)
+                activity_category = create_model_instance(ActivitiesCategory, activities_categories_json, custom_fields_to_save=activity_category_fields_to_save)
                 activity_category.save()
 
             # Map the imported activity category id to the new activity category id
@@ -1601,8 +1610,9 @@ def import_course_skills_from_json(skills_jsons, current_course, context_dict=No
             #     skill = skills.first()
             # else: 
             # Create a new skill
-            skill_fields_to_save = [('skillName', skill_json['skillName'], None),]
-            skill = create_model_instance(Skills, skill_fields_to_save)                  
+            # skill_fields_to_save = [('skillName', skill_json['skillName'], None),]
+            # skill = create_model_instance(Skills, skill_fields_to_save) 
+            skill = create_model_instance(Skills, skill_json)                 
             skill.save()
 
 
@@ -1612,8 +1622,10 @@ def import_course_skills_from_json(skills_jsons, current_course, context_dict=No
                 course_skill = course_skills.first()     
             else:
                 # Create a new course skill
-                course_skill_fields_to_save = [('skillID', skill, None), ('courseID', current_course, None),]
-                course_skill = create_model_instance(CoursesSkills, course_skill_fields_to_save)                  
+                # course_skill_fields_to_save = [('skillID', skill, None), ('courseID', current_course, None),]
+                course_skill_fields_to_save = {'skillID': skill, 'courseID': current_course}
+                # course_skill = create_model_instance(CoursesSkills, course_skill_fields_to_save)
+                course_skill = create_model_instance(CoursesSkills, None, custom_fields_to_save=course_skill_fields_to_save)                  
                 course_skill.save()
             
             # Map the imported skill id to the new skill id
