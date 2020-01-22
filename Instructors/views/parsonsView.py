@@ -25,6 +25,8 @@ from django.template.defaultfilters import length
 from oneUp.decorators import instructorsCheck
 from oneUp.ckeditorUtil import config_ck_editor
 
+import random
+
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def parsonsForm(request):
@@ -428,6 +430,7 @@ def getModelSolution(solution_string, distractor_limit):
 
     print("model solution", model_solution)
     print("display_code", display_code)
+    random.shuffle(model_solution)
     formattedCode['model_solution'] = model_solution
     formattedCode['display_code'] = display_code
     formattedCode['indentation'] = indentation
