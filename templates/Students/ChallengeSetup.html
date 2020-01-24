@@ -238,7 +238,9 @@
       // }
 
       function gradeParsons() {
-         var parsonsProblems = document.getElementsByName("serious_parson");
+         // var parsonsProblems = document.getElementsByName("serious_parson");
+         var parsonsProblems = $('[id^="serious_parson"]');
+      
          for (var i = 0; i < parsonsProblems.length; ++i) {
             var parsonObject = window["seriousParson_" + parsonsProblems[i].value];
             parsonObject.loadParsonForSubmit();
