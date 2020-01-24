@@ -461,7 +461,8 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
 
     for code_fragment in student_trash_JSON:
         hash_value = code_fragment['id']
-        student_trash.append(str(line_dictionary[hash_value]))
+        if hash_value != 'None':
+            student_trash.append(str(line_dictionary[hash_value]))
 
     student_solution_string = "".join(student_solution_string)
     student_solution_dict['student_solution_string'] = student_solution_string

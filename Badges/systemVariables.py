@@ -1076,6 +1076,112 @@ def getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic > 75%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic(course, student, topic): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score > 70% for a particular topic
+    '''
+    from Instructors.models import ChallengesTopics   
+    challengesGreaterThan = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in challenges:
+        # If topic is assigned to the warmup challenge then find percentage
+        challengeTopics = ChallengesTopics.objects.filter(topicID=topic, challengeID = challenge.challengeID)
+        if challengeTopics.exists():
+            percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+            if percentage > 70.0:
+                challengesGreaterThan += 1
+    logger.debug("Number of unqiue warmup challenges with specific topic > 70%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
+def getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic(course, student, topic): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score > 85% for a particular topic
+    '''
+    from Instructors.models import ChallengesTopics   
+    challengesGreaterThan = 0
+    challenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in challenges:
+        # If topic is assigned to the warmup challenge then find percentage
+        challengeTopics = ChallengesTopics.objects.filter(topicID=topic, challengeID = challenge.challengeID)
+        if challengeTopics.exists():
+            percentage = getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge)
+            if percentage > 85.0:
+                challengesGreaterThan += 1
+    logger.debug("Number of unqiue warmup challenges with specific topic > 85%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
+def allWarmupChallengesTopicGreaterThan70Percent(course, student, topic): 
+    ''' This will return the 1 (true) or 0 (false) if every challenge related to the given topic is greater than 70%'''
+   
+    from Instructors.models import ChallengesTopics 
+    from Students.models import StudentChallenges 
+    challengesTopics = ChallengesTopics.objects.filter(topicID=topic)
+    for challsTopic in challengesTopics:
+        if challsTopic.challengeID.isGraded == True:
+            continue
+        print("jkjkjk")
+        if StudentChallenges.objects.filter(studentID = student, challengeID = challsTopic.challengeID, challengeID__isGraded=False):
+            percentage = (float(getPercentOfScoreOutOfMaxChallengeScore(course, student, challsTopic.challengeID)) / float(challsTopic.challengeID.totalScore)) * 100.0
+            if percentage <= 70.0:
+                return False
+        else:
+            return False
+    logger.debug("All warmup challenges related to the given topic are greater than 70%")
+    return True
+
+def allWarmupChallengesTopicGreaterThan85Percent(course, student, topic): 
+    ''' This will return the 1 (true) or 0 (false) if every challenge related to the given topic is greater than 85%'''
+   
+    from Instructors.models import ChallengesTopics 
+    from Students.models import StudentChallenges 
+    challengesTopics = ChallengesTopics.objects.filter(topicID=topic)
+    for challsTopic in challengesTopics:
+        if challsTopic.challengeID.isGraded == True:
+            continue
+        print(challsTopic.challengeID)
+        if StudentChallenges.objects.filter(studentID = student, challengeID = challsTopic.challengeID, challengeID__isGraded=False):
+            percentage = (float(getPercentOfScoreOutOfMaxChallengeScore(course, student, challsTopic.challengeID)) / float(challsTopic.challengeID.totalScore)) * 100.0
+            if percentage <= 85.0:
+                return False
+        else:
+            return False
+    logger.debug("All warmup challenges related to the given topic are greater than 85%")
+    return True
+
+def getAveragePercentageOfWarmupsForTopic(course, student, topic): 
+    ''' This will return the average percentage of warmups related to the given topic'''
+   
+    from Instructors.models import ChallengesTopics 
+    from Students.models import StudentChallenges 
+    challengesTopics = ChallengesTopics.objects.filter(topicID=topic)
+    percentage = 0.0
+    count = 0.0
+    for challsTopic in challengesTopics:
+        if challsTopic.challengeID.isGraded == True:
+            continue
+        if StudentChallenges.objects.filter(studentID = student, challengeID = challsTopic.challengeID, challengeID__isGraded=False):
+            percentage += (float(getPercentOfScoreOutOfMaxChallengeScore(course, student, challsTopic.challengeID)) / float(challsTopic.challengeID.totalScore)) * 100.0
+            count += 1.0
+    logger.debug("The average percentage is" + str(percentage / count))
+    print("The average percentage is" + str(percentage / count))
+    return (percentage / count)
+
+def getEarnedVCTotal(course, student):
+    '''This will return the amount of vc a student has earned in total'''
+
+    from Students.models import StudentVirtualCurrency
+
+    student_vc = StudentVirtualCurrency.objects.filter(studentID = student, courseID = course)
+    return sum([int(vc.value) for vc in student_vc if vc.value > 0])
+
+def getSpentVCTotal(course, student):
+    '''This will return the amount of vc a student has spent in total'''
+
+    from Students.models import StudentVirtualCurrencyTransactions
+
+    student_spent_vc = StudentVirtualCurrencyTransactions.objects.filter(student = student, course = course).filter(studentEvent__event=Event.spendingVirtualCurrency)
+    return sum([int(vc.amount) for vc in student_spent_vc])
+
 def getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt(course, student): 
     ''' This will return the number of unique warmup challenges that a student completed with a 
         score >= 75% that the student has only completed once
@@ -1145,6 +1251,15 @@ class SystemVariable():
     duelsParticipated = 960 # Return the number of duels a student has participated in regarless of the duel outcome
     percentOfFirstAttemptScoreOutOfChallengeScore = 961  # percentage of student's score (for the first attempt ) out of the max possible score for a challenge
     uniqueWarmupChallengesGreaterThan80Percent = 962 # Number of warmup challenges with a score percentage greater or equal than 80%
+    uniqueWarmupChallengesGreaterThan70PercentTopic = 963 # Number of warmup challenges related to a topic with a score percentage greater than 70%
+    uniqueWarmupChallengesGreaterThan85PercentTopic = 964 # Number of warmup challenges related to a topic with a score percentage greater than 85%
+    warmupChallengesTopicGreaterThan70Percent = 965
+    warmupChallengesTopicGreaterThan85Percent = 966 
+    averagePercentageOfWarmupsForTopic = 967 # Average percenage of all warmups related to the given topic
+    totalEarndVC = 968 # Total amount of vc earned by a student
+    totalSpentVC = 969 # Total amount of vc spent by a student
+
+    
 
     systemVariables = {
         score:{
@@ -1714,6 +1829,97 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
+            },
+        },  
+        uniqueWarmupChallengesGreaterThan70PercentTopic:{
+            'index': uniqueWarmupChallengesGreaterThan70PercentTopic,
+            'name':'uniqueWarmupChallengesGreaterThan70PercentTopic',
+            'displayName':'# of Warmup Challenges Score for Specific Topic (greater than 70% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than 70% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic
+            },
+        },  
+        uniqueWarmupChallengesGreaterThan85PercentTopic:{
+            'index': uniqueWarmupChallengesGreaterThan85PercentTopic,
+            'name':'uniqueWarmupChallengesGreaterThan85PercentTopic',
+            'displayName':'# of Warmup Challenges Score for Specific Topic (greater than 85% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than 85% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic
+            },
+        },  
+        warmupChallengesTopicGreaterThan70Percent:{
+            'index': warmupChallengesTopicGreaterThan70Percent,
+            'name':'warmupChallengesTopicGreaterThan70Percent',
+            'displayName':'True if all the warmup challenges related to given topic are of greather than 70%, otherwise false',
+            'description':'Return 1 (True) if all the warmup challenges related to given topic are of greather than 70%. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.topic:allWarmupChallengesTopicGreaterThan70Percent
+            },
+        },  
+        warmupChallengesTopicGreaterThan85Percent:{
+            'index': warmupChallengesTopicGreaterThan85Percent,
+            'name':'warmupChallengesTopicGreaterThan85Percent',
+            'displayName':'True if all the warmup challenges related to given topic are of greather than 85%, otherwise false',
+            'description':'Return True if all the warmup challenges related to given topic are of greather than 85%. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.topic:allWarmupChallengesTopicGreaterThan85Percent
+            },
+        },  
+        averagePercentageOfWarmupsForTopic:{
+            'index': averagePercentageOfWarmupsForTopic,
+            'name':'averagePercentageOfWarmupsForTopic',
+            'displayName':'Average percentage of all the taken warmup challenges related to given topic',
+            'description':'Return the average percentage of all the taken warmup challenges related to given topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getAveragePercentageOfWarmupsForTopic
+            },
+        },  
+        totalEarndVC:{
+            'index': totalEarndVC,
+            'name':'totalEarndVC',
+            'displayName':'Total amount of VC earned',
+            'description':'Return the total amount of virtual currency earned by a student',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.virtualCurrencyEarned],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getEarnedVCTotal
+            },
+        },  
+        totalSpentVC:{
+            'index': totalSpentVC,
+            'name':'totalSpentVC',
+            'displayName':'Total amount of VC spent',
+            'description':'Return the total amount of virtual currency spent by a student',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.spendingVirtualCurrency],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none:getSpentVCTotal
             },
         },  
         duelsSent:{

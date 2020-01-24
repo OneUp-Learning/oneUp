@@ -404,54 +404,293 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     </div>
   </div>
   {% else %}
-
   <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
   <input type="hidden" name="{{i}}studentTrash" id="{{q.questionID}}_studentTrash" value="">
   <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
   <input type="hidden" name="serious_parson" value="{{q.questionID}}">
   <div class="row">
-    <div class="col s6">
-      <b>Code Fragments:</b>
-      <ol class="parsons2_trash">
-        <div class="dd col s12" id="parsons2_trash{{q.questionID}}">
-          <ol class="dd-list">
-            {% for model_solution_data in q.model_solution %}
-            <li class="dd-item" data-id="{{model_solution_data.hashVal}}">
-              <div class="dd-handle">
-                <pre class="prettyprint">{{model_solution_data.line}}</pre>
-              </div>
-            </li>
-            {% endfor %}
-          </ol>
-          <a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
-        </div>
-      </ol>
-    </div>
-    <div class="col s6">
-      <b>Solution Area:</b>
-      <ol class="parsons2_sol" style="padding: 0;">
-        <div class="dd" id="parson_sol{{q.questionID}}" style="width: 100%; border: solid 1px #ccc; padding: 10px 8px 4px 8px;">
-          <ol class="dd-list" style="width: 100%; height: 100%; overflow-y: scroll;">
-            <li class="dd-item" data-id="None">
-              <div class="dd-handle"></div>
-            </li>
-          </ol>
-        </div>
-      </ol>
-    </div>
+	<div class="col s6 example-container">
+		<h6><b>Code Fragments:</b></h6>
+		<div class="example-list cdk-drop-list" id="parsonTrash_{{q.questionID}}">
+			{% for model_solution_data in q.model_solution %}
+			<div class="example-box cdk-drag" data-id="{{model_solution_data.hashVal}}"><pre class="code">{{model_solution_data.line}}</pre></div>
+			{% endfor %}
+			<!-- <div class="example-box cdk-drag"><pre class="code">def my_python_function(takes=12, these=2, arguments="asd"):</pre></div> -->
+			<!---->
+			<!-- <div class="example-box cdk-drag"><pre class="code">a = 3</pre></div> -->
+			<!---->
+		</div>
+	</div>
+		
+	<div class="col s6 example-container">
+		<h6><b>Solution Area:</b></h6>
+		<div class="example-list cdk-drop-list" id="parsonSolution_{{q.questionID}}">
+		</div>
+	</div>
   </div>
+  <style>
+	.example-container {
+		width: 400px;
+		max-width: 100%;
+	}
+
+	.example-list {
+		border: solid 1px #ccc;
+		min-height: 60px;
+		background: white;
+		border-radius: 4px;
+		overflow: scroll;
+		display: flex;
+		flex-direction: column;
+	}
+	.example-placeholder {
+    
+		display: block;
+		width: 1px;
+		height: 20px;
+		border-left: 2px solid #3f51b5;
+		position: relative;
+		top: 0px;
+		left: 0px;
+	}
+	.code {
+		padding: 10px 10px;
+		margin: 0;
+	}
+	.example-box {
+		
+		border-bottom: solid 1px #ccc;
+		color: rgba(0, 0, 0, 0.87);
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		box-sizing: border-box;
+		cursor: move;
+		background: white;
+		font-size: 14px;
+		word-break: break-all;
+		width: fit-content;
+		min-width: 100%;
+	}
+	
+	.cdk-drag-preview {
+		box-sizing: border-box;
+		border-radius: 4px;
+		width: fit-content;
+		max-width: fit-content;
+		min-width: 400px;
+		box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+					0 8px 10px 1px rgba(0, 0, 0, 0.14),
+					0 3px 14px 2px rgba(0, 0, 0, 0.12);
+	}
+
+	.cdk-drag-placeholder {
+		opacity: 0;
+	}
+
+	.cdk-drag-animating {
+		transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+	}
+
+	.example-box:last-child {
+		border: none;
+	}
+
+	.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+		transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+	}
+
+  </style>
+  <script>
+	
+	// Prettify code lines
+	jQuery.fn.prettify = function () { 
+		for(var i = 0; i < this.length; i++){
+			$(this[i]).html(prettyPrintOne($(this[i]).html())); 
+		}
+	};
+	$('.code').prettify();
+
+	var current_container = undefined;
+	var skip = false;
+	// Change these variables to update indent amount and max amount of indents
+	var indent_amount_in_pixels = 30;
+	var max_indents = 9;
+	var max_indent_range_in_pixels = indent_amount_in_pixels * max_indents; // 270/30 = 9 indents
+
+	$("#parsonSolution_{{q.questionID}}, #parsonTrash_{{q.questionID}}").sortable({
+		placeholder: 'example-placeholder',
+		connectWith: ".example-list",
+		revert: 150,
+		start: function(event, ui){
+			// Sets height of placeholder and adds shadow to dragged item
+			current_container = event.target.id;
+			ui.helper.addClass("cdk-drag-preview");
+			placeholderHeight = ui.item.outerHeight();
+			ui.placeholder.height(placeholderHeight);
+			$('<div class="slide-placeholder-animator" data-height="' + placeholderHeight + '"></div>').insertAfter(ui.placeholder);
+		},
+		over: function(event, ui) {
+			// Check if we moved outside box into another box 
+			if (current_container == undefined){
+				current_container = event.target.id;
+				skip = false;
+			} else if (current_container != event.target.id){
+				skip = true;
+				current_container = event.target.id;
+			} else {
+				skip = false;
+			}
+		},
+		sort: function(event, ui){
+			// Updates purple blue? indent line 
+			
+			// Skip this function and set purple indent to 0 if we hover from one box to another
+			if (skip) {
+				$(ui.placeholder[0]).css("left", 0);
+				return;
+			}
+			var offset = ui.position.left - ui.originalPosition.left;
+			var direction = Math.sign(offset);
+
+			var padding = $(ui.item[0]).css('margin-left'); // Keeps track of indent spacing
+			var multiple = 0; // Keeps track of how much to add/substract depth
+			if (Math.abs(offset) > indent_amount_in_pixels){
+				multiple = Math.min(Math.round(Math.abs(offset) / indent_amount_in_pixels), max_indents);
+				
+				padding = parseInt(padding, 10) + (indent_amount_in_pixels * direction * multiple);
+				
+				if(padding < 0) padding = 0;
+			}
+			if (padding >= 0 && padding <= max_indent_range_in_pixels){
+				$(ui.placeholder[0]).css("left", padding);
+
+				$(ui.item[0]).attr('data-padding', padding);
+				$(ui.item[0]).attr('data-multiple', multiple);
+			}
+		},
+		change: function(event, ui) {
+			// Update placeholder height
+			ui.placeholder.stop().height(0).animate({height: ui.item.outerHeight()}, 300);
+
+			placeholderAnimatorHeight = parseInt($(".slide-placeholder-animator").attr("data-height"));
+
+			$(".slide-placeholder-animator").stop().height(placeholderAnimatorHeight).animate({height: 0}, 300, 
+			function() {
+				$(this).remove();
+				placeholderHeight = ui.item.outerHeight();
+				$('<div class="slide-placeholder-animator" data-height="' + placeholderHeight + '"></div>').insertAfter(ui.placeholder);
+			});
+		},
+		stop: function(event, ui) {
+			// Remove animation class when done
+			$(".slide-placeholder-animator").remove();
+			skip = false;
+		},
+		receive: function(event, ui){
+			// Reset indent of item when moving across boxes
+			if (ui.sender){
+				$(ui.item[0]).css("margin-left", 0);
+				$(ui.item[0]).css("margin-right", 0);
+				$(ui.item[0]).attr("data-depth", 0);
+				$(ui.item[0]).attr("data-multiple", 0);
+				$(ui.item[0]).attr("data-padding", 0);
+			}
+		},
+		beforeStop: function(event, ui){
+			// Remove shadow and update indent position of item and depth 
+			ui.helper.removeClass("cdk-drag-preview");
+
+			var offset = ui.position.left - ui.originalPosition.left;
+			var direction = Math.sign(offset);
+
+			var padding = $(ui.item[0]).attr('data-padding');
+			var multiple = $(ui.item[0]).attr('data-multiple');
+
+			if (padding) padding = parseInt(padding);
+			if (multiple) multiple = parseInt(multiple);
+
+			if (padding >= 0 && padding <= max_indent_range_in_pixels){ 
+				$(ui.item[0]).attr("data-depth", parseInt($(ui.item[0]).attr("data-depth")) + (multiple * direction)); 
+
+				if ($(ui.item[0]).attr("data-depth") < 0) $(ui.item[0]).attr("data-depth", 0);
+
+				$(ui.item[0]).css("margin-left", padding); 
+				$(ui.item[0]).css("margin-right", -padding); 
+			}  
+			// console.log(ui.position); 
+			// console.log(ui.originalPosition); 
+			// console.log(ui.offset); 
+		},
+	}); 
+
+	// $.each($("#cdk-drop-list-3").children() ,function (index,item) { 
+	// 	// Set id to elements and initialize
+	// 	$(item).attr("data-id", index); 
+	// 	$(item).attr("data-depth", 0); 
+	// }); 
+	
+	// $("#button").click(()=> {
+    // 	serialize($("#cdk-drop-list-3"));
+	// });
+	
+	// This will serialize a box of items
+	// example result: [{'id': 0, 
+	//					'depth': 0, 
+	//					'children': [
+	//						{'id': 1, 'depth': 1}
+	//					]}, 
+	//					{'id': 2, 'depth': 0}]
+    function serialize(box){
+		var result = [];
+		var previous_depth = $($(box).children()[0]).attr('data-depth');
+		var stack = [];
+
+		function step(obj, prev_obj, depth){
+			if('children' in prev_obj){
+				prev_obj['children'].push({'id': $(obj).attr('data-id'), 'depth': depth})
+			} else {
+				prev_obj['children'] = [];
+				prev_obj['children'].push({'id': $(obj).attr('data-id'), 'depth': depth});
+			}
+			return prev_obj['children'][ prev_obj['children'].length -1];
+		}
+
+    	$.each($(box).children() ,function (index,item) {
+    		// console.log($(item).attr('data-depth'), previous_depth);
+			let depth = parseInt($(item).attr('data-depth'));
+
+			if (depth < previous_depth){ 
+				for(var i=previous_depth; i>= 0; i--){
+					let top = stack[stack.length-1];
+					if (top && top['depth'] >= depth){
+						stack.pop();
+					} else {
+						break;
+					}
+				}
+			} else if (depth == previous_depth) stack.pop();
+
+			if (stack.length > 0){
+				let top = stack[stack.length-1];
+
+				let new_item = step(item, top, depth);
+				previous_depth = depth;
+
+				stack.push(new_item);
+			} else {
+				result.push({'id': $(item).attr('data-id'), 'depth': depth});
+				stack.push(result[result.length-1]);
+				previous_depth = depth;
+      		}
+      	});
+		return result;
+    }
+  
+  </script>
   <script>
     var countFeedbackButtonClicks_{{ q.questionID }} = 0;
-    $('#parson_sol{{q.questionID}}').nestable({
-      group: {{ q.questionID }},
-      maxDepth: 10
-    })
-
-    // activate Nestable for list 2
-    $('#parsons2_trash{{q.questionID}}').nestable({
-      group: {{ q.questionID }},
-      maxDepth: 10
-    })
     //function that runs the pretty printing aka highliting of parsons
     if (window.prettyPrint() && (typeof (this.options.prettyPrint) === "undefined" || this.options.prettyPrint)) {
       prettyPrint();
@@ -471,8 +710,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         studentTrash: "",
         feebackClickCount: 0,
           loadParsonForSubmit: function () {
-            seriousParson_{{ q.questionID }}.studentSolution = $('#parson_sol{{q.questionID}}').nestable('serialize');
-            seriousParson_{{ q.questionID }}.studentTrash = $('#parsons2_trash{{q.questionID}}').nestable('serialize');
+            seriousParson_{{ q.questionID }}.studentSolution = serialize($("#parsonSolution_{{q.questionID}}"));
+            seriousParson_{{ q.questionID }}.studentTrash = serialize($("#parsonTrash_{{q.questionID}}"));
             seriousParson_{{ q.questionID }}.feebackClickCount = countFeedbackButtonClicks_{{ q.questionID }};
 
             seriousParson_{{ q.questionID }}.studentTrash = JSON.stringify(seriousParson_{{ q.questionID }}.studentTrash);
@@ -492,7 +731,6 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     //   r.send("questionID={{q.questionID}}");
     // }
   </script>
-</div>
 </div>
 {% endif %}
 {% elif q.type == questionTypes.dynamic or q.type == questionTypes.templatedynamic %}
