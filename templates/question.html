@@ -411,7 +411,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   <div class="row">
 	<div class="col s6 example-container">
 		<h6><b>Code Fragments:</b></h6>
-		<div class="example-list cdk-drop-list" id="cdk-drop-list-2">
+		<div class="example-list cdk-drop-list" id="parsonTrash_{{q.questionID}}">
 			{% for model_solution_data in q.model_solution %}
 			<div class="example-box cdk-drag" data-id="{{model_solution_data.hashVal}}"><pre class="code">{{model_solution_data.line}}</pre></div>
 			{% endfor %}
@@ -424,7 +424,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 		
 	<div class="col s6 example-container">
 		<h6><b>Solution Area:</b></h6>
-		<div class="example-list cdk-drop-list" id="cdk-drop-list-3">
+		<div class="example-list cdk-drop-list" id="parsonSolution_{{q.questionID}}">
 		</div>
 	</div>
   </div>
@@ -519,7 +519,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 	var max_indents = 9;
 	var max_indent_range_in_pixels = indent_amount_in_pixels * max_indents; // 270/30 = 9 indents
 
-	$("#cdk-drop-list-2, #cdk-drop-list-3").sortable({
+	$("#parsonSolution_{{q.questionID}}, #parsonTrash_{{q.questionID}}").sortable({
 		placeholder: 'example-placeholder',
 		connectWith: ".example-list",
 		revert: 150,
@@ -691,16 +691,6 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   </script>
   <script>
     var countFeedbackButtonClicks_{{ q.questionID }} = 0;
-    $('#parson_sol{{q.questionID}}').nestable({
-      group: {{ q.questionID }},
-      maxDepth: 10
-    })
-
-    // activate Nestable for list 2
-    $('#parsons2_trash{{q.questionID}}').nestable({
-      group: {{ q.questionID }},
-      maxDepth: 10
-    })
     //function that runs the pretty printing aka highliting of parsons
     if (window.prettyPrint() && (typeof (this.options.prettyPrint) === "undefined" || this.options.prettyPrint)) {
       prettyPrint();
@@ -720,8 +710,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         studentTrash: "",
         feebackClickCount: 0,
           loadParsonForSubmit: function () {
-            seriousParson_{{ q.questionID }}.studentSolution = serialize($("#cdk-drop-list-3"));
-            seriousParson_{{ q.questionID }}.studentTrash = serialize($("#cdk-drop-list-2"));
+            seriousParson_{{ q.questionID }}.studentSolution = serialize($("#parsonSolution_{{q.questionID}}"));
+            seriousParson_{{ q.questionID }}.studentTrash = serialize($("#parsonTrash_{{q.questionID}}"));
             seriousParson_{{ q.questionID }}.feebackClickCount = countFeedbackButtonClicks_{{ q.questionID }};
 
             seriousParson_{{ q.questionID }}.studentTrash = JSON.stringify(seriousParson_{{ q.questionID }}.studentTrash);
