@@ -409,42 +409,6 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
   <input type="hidden" name="serious_parson" value="{{q.questionID}}">
   <div class="row">
-    <div class="">
-      <ol class="col s6 parsons2_trash">
-        <b>Code Fragments:</b>
-        <div class="dd col s12" id="parsons2_trash{{q.questionID}}">
-          <ol class="dd-list">
-            {% for model_solution_data in q.model_solution %}
-            <li class="dd-item" data-id="{{model_solution_data.hashVal}}">
-              <div class="row" style="margin-bottom: 0px;">
-              <div class="dd-handle col s1" style="padding-right: 0px;padding-left: 0px;width: 6px;">§</div>
-              <div class="col span s11" style="padding-left: 5px;">
-                <pre class="prettyprint dd3-content" style="height:100%; width:100%;">{{model_solution_data.line}}</pre>
-              </div>
-              </div>
-            </li>
-            <li class="dd-item" data-id="None">
-            </li>
-            {% endfor %}
-            
-          </ol>
-          <a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
-        </div>
-      </ol>
-    </div>
-    <div class="col s6">
-      <b>Solution Area:</b>
-      <ol class="parsons2_sol" style="padding: 0;">
-        <div class="dd" id="parson_sol{{q.questionID}}" style="width: 100%; border: solid 1px #ccc; padding: 10px 8px 4px 8px;">
-          <ol class="dd-list" style="width: 100%; height: 100%; overflow-y: scroll; overflow-x:scroll;">
-            <li class="dd-item" data-id="None">
-            </li>
-          </ol>
-        </div>
-      </ol>
-    </div>
-  </div>
-  <div class="row">
 	<div class="col s6 example-container">
 		<h6><b>Code Fragments:</b></h6>
 		<div class="example-list cdk-drop-list" id="cdk-drop-list-2">
@@ -461,12 +425,6 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 	<div class="col s6 example-container">
 		<h6><b>Solution Area:</b></h6>
 		<div class="example-list cdk-drop-list" id="cdk-drop-list-3">
-			<div class="example-box cdk-drag"><pre class="code">class Yes():</pre></div>
-			<!---->
-			<div class="example-box cdk-drag"><pre class="code">break</pre></div>
-			<!---->
-			<div class="example-box cdk-drag"><pre class="code">b = [x for x in a if len(a) > 20]</pre></div>
-			<!---->
 		</div>
 	</div>
   </div>
@@ -667,11 +625,11 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 		},
 	}); 
 
-	$.each($("#cdk-drop-list-3").children() ,function (index,item) { 
-		// Set id to elements and initialize
-		$(item).attr("data-id", index); 
-		$(item).attr("data-depth", 0); 
-	}); 
+	// $.each($("#cdk-drop-list-3").children() ,function (index,item) { 
+	// 	// Set id to elements and initialize
+	// 	$(item).attr("data-id", index); 
+	// 	$(item).attr("data-depth", 0); 
+	// }); 
 	
 	// $("#button").click(()=> {
     // 	serialize($("#cdk-drop-list-3"));
@@ -762,8 +720,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         studentTrash: "",
         feebackClickCount: 0,
           loadParsonForSubmit: function () {
-            seriousParson_{{ q.questionID }}.studentSolution = $('#parson_sol{{q.questionID}}').nestable('serialize');
-            seriousParson_{{ q.questionID }}.studentTrash = $('#parsons2_trash{{q.questionID}}').nestable('serialize');
+            seriousParson_{{ q.questionID }}.studentSolution = serialize($("#cdk-drop-list-3"));
+            seriousParson_{{ q.questionID }}.studentTrash = serialize($("#cdk-drop-list-2"));
             seriousParson_{{ q.questionID }}.feebackClickCount = countFeedbackButtonClicks_{{ q.questionID }};
 
             seriousParson_{{ q.questionID }}.studentTrash = JSON.stringify(seriousParson_{{ q.questionID }}.studentTrash);
