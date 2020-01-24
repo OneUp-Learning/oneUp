@@ -1,12 +1,14 @@
-var aceEditors = {}
+ace_editors = {}
 function makeNewEditors() {
+	console.log("makeNewEditors called");
     var allEditorDivs = document.getElementsByClassName("ace-editor");
     var len = allEditorDivs.length;
+    console.log(len);
     for (var i = 0; i<len; i++) {
         var editorDiv = allEditorDivs[i];
-        if (aceEditors[editorDiv.id] == undefined) {
-            aceEditors[editorDiv.id] = ace.edit(editorDiv.id);
-            var thiseditor = aceEditors[editorDiv.id]
+        if (ace_editors[editorDiv.id] == undefined) {
+        	ace_editors[editorDiv.id] = ace.edit(editorDiv.id);
+            var thiseditor = window.aceEditors[editorDiv.id]
 		    thiseditor.setTheme("ace/theme/chrome");
 		    thiseditor.getSession().setMode("ace/mode/"+editorDiv.title); // We're putting language mode in title. Yes, this is an abuse of the field, but it shouldn't hurt anything.				    
 		}
@@ -50,7 +52,7 @@ function getDynamicProblemPartData(idprefix) {
 	for (var i=0; i<allAceEditors.length; i++) {
 		if (allAceEditors[i].id.startsWith(idprefix)) {
 			var name = allAceEditors[i].id.substr(idprefix.length+1);
-			data[name] = aceEditors[allAceEditors[i].id].getValue();
+			data[name] = ace_editors[allAceEditors[i].id].getValue();
 		}
 	}
 	return data;

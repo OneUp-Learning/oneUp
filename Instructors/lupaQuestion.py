@@ -40,7 +40,7 @@ if lupa_spec is None:
     class LupaQuestion(object):
         error_str = "Dynamic problems are unavailable on this server because Lupa is not loaded.  Please contact your administrator."
 
-        def __init__(self,code,libs,seed,formid,numParts):    
+        def __init__(self,code,libs,seed,formid,numParts,questiondir):    
             return
         def getRuntime(self):
             return LupaRuntimeLink([],0,True)
@@ -122,10 +122,25 @@ else:
         libs.append("programinterface")
         #print(lua.eval("package.path"))
         #print("LIBS:"+str(libs))
+        lua.execute("_libs = {}")
         for lib in libs:
             #print("Adding library: "+lib)
             libTable = lua.eval('require "'+lib+'"')
             setattr(sandbox,lib,libTable)
+            lua.execute('table.insert(_libs,"'+lib+'")')
+        
+        init_library_function_code = '''function(uniqid,seed,questiondir)
+            env = getfenv(0)
+            for _,lib in pairs(_libs) do
+                if env[lib].initialize then
+                    env[lib].initialize(uniqid,seed,questiondir)
+                end
+            end
+        end'''
+            
+        init_library_function = lua.eval(init_library_function_code)
+        setattr(sandbox,"_libs",lua.eval("_libs"))
+        setattr(sandbox,"_initialize_libraries",init_library_function)
         
         setfenv = lua.eval("setfenv")
         setfenv(0, sandbox)
@@ -279,12 +294,13 @@ else:
     
     class LupaQuestion(object):
         
-        def __init__(self,code_segments,libs,seed,formid,numParts):
+        def __init__(self,code_segments,libs,seed,formid,numParts,questiondir):
             self.code_segments = code_segments
             self.libs = libs
             self.seed = seed
             self.uniqid = formid
             self.numParts = int(numParts)
+            self.questiondir = questiondir
             self.error = None
             
             # This should not actually be used in practice, but we need to set it in case there's an error in the 
@@ -359,14 +375,14 @@ else:
             }
             return by_type[type]()
         end
-    
             '''
             
             header_code_seg = CodeSegment.new(CodeSegment.system_lua,header_code,"")
             set_uniqid_code_seg = CodeSegment.new(CodeSegment.system_lua,'_set_uniqid("'+self.uniqid+'")\n',"")
             init_inputs_code_seg = CodeSegment.new(CodeSegment.system_lua,'_init_inputs('+str(self.numParts)+')\n',"")
+            init_modules_code_seg = CodeSegment.new(CodeSegment.system_lua,'_initialize_libraries("'+self.uniqid+'",'+str(self.seed)+',"'+self.questiondir+'")\n',"")
             
-            prepended_code_segments = [header_code_seg, set_uniqid_code_seg, init_inputs_code_seg] + code_segments
+            prepended_code_segments = [header_code_seg, set_uniqid_code_seg, init_inputs_code_seg,init_modules_code_seg] + code_segments
             
             self.user_code_segments = prepended_code_segments
             result = runtime.user_exec(prepended_code_segments)

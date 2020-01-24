@@ -1,12 +1,14 @@
 import random
 import re
 import json
+import os
 from decimal import Decimal
 from random import shuffle
 from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Students.models import StudentChallengeQuestions
+from oneUp.settings import BASE_DIR
 
 class QuestionTypes():
     multipleChoice = 1
@@ -303,7 +305,8 @@ def dynamicqdict(question, i, challengeId, challenge_question, studChallQuest):
         numParts = dynamicQuestion.numParts
         from Instructors.views.dynamicQuestionView import makeLibs
         libs = makeLibs(dynamicQuestion)
-        lupaQuest = LupaQuestion(code, libs, seed, str(i), numParts)
+        questionIdString = os.path.join(BASE_DIR, 'lua/problems/'+str(question.questionID)+'/')
+        lupaQuest = LupaQuestion(code, libs, seed, str(i), numParts, questionIdString)
 
         #                            if (lupaQuest.error):
         #                                context_qdict['error']=lupaQuest.error
