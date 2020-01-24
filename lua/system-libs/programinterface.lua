@@ -35,15 +35,16 @@ local programinterface = {}
 
 uniqid = "UNIQID_GOES_HERE"
 seed = 0
-username = "USERNAME_GOES_HERE"
+problem_dir = "."
+django_root = "."
 
 pathsep = package.config:sub(1,1)
 
 programinterface.initialize =
-function(_uniqid,_seed,_username)
+function(_uniqid,_seed,_problem_dir)
   uniqid = _uniqid
   seed = _seed
-  username = _username
+  problem_dir = _problem_dir
 end
 
 local makeDir = function(dir)
@@ -136,5 +137,72 @@ function (rootdir,filename,compile_cmd,total_max_pts,tests)
     return {success=success,value=value,details=details}
   end
 end	 
+
+function exists(file)
+   local ok, err, code = os.rename(file, file)
+   if not ok then
+      if code == 13 then
+         -- Permission denied, but it exists
+         return true
+      end
+   end
+   return ok, err
+end
+
+local makeWorkingDirWithUnzip = function(rootDir,modelDir,newDir)
+  makeDir(newDir)
+  cp(rootDir..pathsep..'model.zip',newDir)
+  os.execute('cd '..newDir..'; unzip model.zip')
+end
+
+programinterface.code_checker = function (filename,compile_cmd,total_max_pts,tests)
+  return function (text,pts) 
+    local workingDirName = '/home/oneUpUserCodeSandbox/'..getRandomDirName()
+    makeWorkingDirWithUnzip(problem_dir,"model.zip",workingDirName)
+    baseWorkingDirName = workingDirName
+    if exists(workingDirName..pathsep..'model' ) then
+      workingDirName = workingDirName..'model'
+    end
+    concatFile(problem_dir,filename,text,workingDirName)
+
+    local result = 0
+    result = os.execute('cd '..workingDirName..';'..compile_cmd)
+    
+    local success = true
+    local value = 0
+    local ptsratio = pts/total_max_pts
+    local details = {}
+    for i,test in ipairs(tests) do
+      local outputFileHandle = io.popen('cd '..workingDirName..'; sudo -u oneUpUserCodeSandbox firejail --net=none --quiet '..test['command'],'r')
+      local firstLine = outputFileHandle:read("*l")
+      if firstLine == nil then
+        firstLine = ""
+      end
+      local pointsAwarded = outputFileHandle:read("*n")
+      if pointsAwarded == nil then
+        pointsAwarded = 0
+      end
+      outputFileHandle:close()
+      local testpoints = 0
+      local testsuccess = false
+      if string.match(string.upper(firstLine),"SUCCESS") ~= nil then
+        testpoints = pointsAwarded*ptsratio
+        value = value + testpoints
+        testsuccess = true
+      else
+        success = false
+      end
+      details[test['name']] =
+        {
+          seqnum=i,
+          value=testpoints,
+          max_points=test['points']*ptsratio,
+          success=testsuccess
+        }
+    end
+    --killdir(baseWorkingDirName)
+    return {success=success,value=value,details=details}
+  end
+end
 
 return programinterface

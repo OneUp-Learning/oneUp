@@ -20,6 +20,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 from oneUp.ckeditorUtil import config_ck_editor
 from datetime import datetime
+import os
+from oneUp.settings import BASE_DIR
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -254,10 +256,14 @@ def dynamicQuestionPartAJAX(request):
 
             request.session['lupaQuestionCounter']=request.session['lupaQuestionCounter']+1
             uniqid = str(request.session['lupaQuestionCounter'])
-                     
+
             lupaQuestionTable = request.session['lupaQuestions']
             
-            lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts)
+            if request.POST['_questionId']=='':
+                questionIdString = "pleasesavebeforetesting"
+            else:
+                questionIdString = os.path.join(BASE_DIR, 'lua/problems/'+request.POST['_questionId']+'/')
+            lupaQuestion = LupaQuestion(code,libs,seed,str(uniqid),numParts,questionIdString)
             if lupaQuestion.error is not None:
                 errorInLupaQuestionConstructor = True
                 tempError = lupaQuestion.error
@@ -281,7 +287,7 @@ def dynamicQuestionPartAJAX(request):
                 if 'creation' in request.session['lupaQuestions'][k]:
                     creationtime = datetime.strptime(request.session['lupaQuestions'][k]['creation'],"%m/%d/%Y %I:%M:%S %p")
                     delta = now-creationtime
-                    print("\n\n\nLupa Session Stuff\nCreation:"+str(creationtime)+"\nnow:"+str(now)+"\ndelta.day:"+str(delta.days)+"\n\n")
+                    #print("\n\n\nLupa Session Stuff\nCreation:"+str(creationtime)+"\nnow:"+str(now)+"\ndelta.day:"+str(delta.days)+"\n\n")
                     if delta.days > 8:
                         del request.session['lupaQuestions'][k]
                 else:

@@ -27,6 +27,7 @@
             data['_submissionsAllowed']=document.question.submissionsAllowed.value;
             data['_resubmissionPenalty']=document.question.resubmissionPenalty.value;
             data['_points']=document.question.points.value;
+            data['_questionId']='{{questionId}}';
 	    	$.ajax({
 	    		url: "doDynamicQuestion",
 	    		type: "POST",
