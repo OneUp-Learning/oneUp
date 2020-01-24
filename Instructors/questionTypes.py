@@ -663,8 +663,8 @@ def parsonsMakeAnswerList(qdict, POST):
     import json, ast
     
     student_answers = {}
-    student_solution_JSON = ast.literal_eval(POST[str(qdict['index']) + 'studentSol'])
-    student_trash_JSON = ast.literal_eval(POST[str(qdict['index']) + 'studentTrash'])
+    student_solution_JSON = json.loads(POST[str(qdict['index']) + 'studentSol'])
+    student_trash_JSON = json.loads(POST[str(qdict['index']) + 'studentTrash'])
 
     student_answers = parsonsView.generateStudentSolution(student_solution_JSON, student_trash_JSON, qdict['display_code'])
     student_answers['feedback_button_click_count'] = int(POST[str(qdict['index']) + 'feedBackButtonClickCount'])
