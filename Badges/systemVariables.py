@@ -1902,7 +1902,7 @@ class SystemVariable():
             'displayName':'Total amount of VC earned',
             'description':'Return the total amount of virtual currency earned by a student',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.visitedDashboard, Event.visitedEarnedVCpage, Event.visitedSpendedVCpage, Event.visitedBadgesInfoPage, Event.visitedVCRulesInfoPage, Event.visitedLeaderboardPage, Event.clickedViewAverageGrade, Event.userLogin, Event.spendingVirtualCurrency, Event.instructorAction, Event.startChallenge],
+                ObjectTypes.none:[Event.virtualCurrencyEarned],
             },
             'type':'int',
             'functions':{
@@ -1915,7 +1915,7 @@ class SystemVariable():
             'displayName':'Total amount of VC spent',
             'description':'Return the total amount of virtual currency spent by a student',
             'eventsWhichCanChangeThis':{
-                ObjectTypes.none:[Event.visitedDashboard, Event.visitedEarnedVCpage, Event.visitedSpendedVCpage, Event.visitedBadgesInfoPage, Event.visitedVCRulesInfoPage, Event.visitedLeaderboardPage, Event.clickedViewAverageGrade, Event.userLogin, Event.spendingVirtualCurrency, Event.instructorAction, Event.startChallenge],
+                ObjectTypes.none:[Event.spendingVirtualCurrency],
             },
             'type':'int',
             'functions':{
