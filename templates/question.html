@@ -404,24 +404,29 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     </div>
   </div>
   {% else %}
-
   <input type="hidden" name="{{i}}studentSol" id="{{q.questionID}}_studentSol" value="">
   <input type="hidden" name="{{i}}studentTrash" id="{{q.questionID}}_studentTrash" value="">
   <input type="hidden" name="{{i}}feedBackButtonClickCount" id="{{q.questionID}}_feedBackButtonClickCount" value="">
   <input type="hidden" name="serious_parson" value="{{q.questionID}}">
   <div class="row">
-    <div class="col s6">
-      <b>Code Fragments:</b>
-      <ol class="parsons2_trash">
+    <div class="">
+      <ol class="col s6 parsons2_trash">
+        <b>Code Fragments:</b>
         <div class="dd col s12" id="parsons2_trash{{q.questionID}}">
           <ol class="dd-list">
             {% for model_solution_data in q.model_solution %}
             <li class="dd-item" data-id="{{model_solution_data.hashVal}}">
-              <div class="dd-handle">
-                <pre class="prettyprint">{{model_solution_data.line}}</pre>
+              <div class="row" style="margin-bottom: 0px;">
+              <div class="dd-handle col s1" style="padding-right: 0px;padding-left: 0px;width: 6px;">§</div>
+              <div class="col span s11" style="padding-left: 5px;">
+                <pre class="prettyprint dd3-content" style="height:100%; width:100%;">{{model_solution_data.line}}</pre>
+              </div>
               </div>
             </li>
+            <li class="dd-item" data-id="None">
+            </li>
             {% endfor %}
+            
           </ol>
           <a href="#{{q.questionID}}" id="feedbackLink_{{q.questionID}}">Get feedback</a>
         </div>
@@ -431,9 +436,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <b>Solution Area:</b>
       <ol class="parsons2_sol" style="padding: 0;">
         <div class="dd" id="parson_sol{{q.questionID}}" style="width: 100%; border: solid 1px #ccc; padding: 10px 8px 4px 8px;">
-          <ol class="dd-list" style="width: 100%; height: 100%; overflow-y: scroll;">
+          <ol class="dd-list" style="width: 100%; height: 100%; overflow-y: scroll; overflow-x:scroll;">
             <li class="dd-item" data-id="None">
-              <div class="dd-handle"></div>
             </li>
           </ol>
         </div>
