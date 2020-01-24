@@ -6,6 +6,8 @@ from Students.models import StudentRegisteredCourses, Student, StudentVirtualCur
 from Badges.systemVariables import logger
 from notify.signals import notify  
 import json
+from Badges.events import register_event
+from Badges.enums import Event
 
 
 @login_required
@@ -17,13 +19,14 @@ def addVirtualCurrencyForStudentWithRuleView(request):
             studentID = []
             studentName= []
             studentCurrencyVC = []
+            test_student_info = []
             for studentobj in students:
-                studentID.append(studentobj.studentID)
                 if studentobj.studentID.isTestStudent:
-                    studentName.append(studentobj.studentID.user.get_full_name() + " (Test Student)")
+                    test_student_info.append((studentobj.studentID, f'(Test Student) {studentobj.studentID.user.get_full_name()}', studentobj.virtualCurrencyAmount))
                 else:
+                    studentID.append(studentobj.studentID)
                     studentName.append(studentobj.studentID.user.get_full_name())
-                studentCurrencyVC.append(studentobj.virtualCurrencyAmount)
+                    studentCurrencyVC.append(studentobj.virtualCurrencyAmount)
             
             rules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID = course)
             customRules = [r for r in rules if not hasattr(r, 'virtualcurrencyruleinfo')]
@@ -36,8 +39,14 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 allRulesName.append(rule.vcRuleName)
                 allRulesAmount.append(rule.vcRuleAmount)
             
-            
-            context_dict['students'] = (zip(studentID, studentName, studentCurrencyVC))#, key=lambda tup: tup[1])
+            # insert the test student info last
+            test_student_info = sorted(test_student_info, key=lambda x: x[1].casefold())
+            for ID, name, vc in test_student_info:
+                studentID.append(ID)
+                studentName.append(name)
+                studentCurrencyVC.append(vc)
+
+            context_dict['students'] = list(zip(studentID, studentName, studentCurrencyVC))#, key=lambda tup: tup[1])
                                               
             context_dict['rules'] = list(zip(allRulesID, allRulesName,allRulesAmount))
             return render(request, 'Badges/AddVirtualCurrency.html', context_dict)
@@ -94,6 +103,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 if prev_amount > studentobj.virtualCurrencyAmount:
                     notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You lost '+str(virtual_currency_amount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
                 elif prev_amount < studentobj.virtualCurrencyAmount:
+                    register_event(Event.virtualCurrencyEarned, request, studentobj.studentID, objectId=virtual_currency_amount)
                     notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You earned '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
                 
             

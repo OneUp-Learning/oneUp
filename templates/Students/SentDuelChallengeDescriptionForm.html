@@ -39,7 +39,7 @@
                <div class="card">
                   {% csrf_token %}        
                      <div class="card-content">
-                    {% if hasEnded %}
+                    {% if hasEnded or expired %}
                             <div class="section">
                                 <h5><b>Duel Details</b></h5>
                                 <p>{{message}}</p>
@@ -50,7 +50,7 @@
                                             <span ><img class="circle" width="30" height="30" src="{{your_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img class="circle" width="30" height="30" src="{{opponent_avatar}}"></span>
                                  
                                     </li>
-                                    {% if hasExpired %}
+                                    {% if hasExpired or expired%}
                                         
                                         <li >
                                                 <span><b>Status: </b></span>
@@ -182,6 +182,47 @@
                                     <span><b>Time duel will start after acceptance: </b></span>
                                     <span>{{sent_duel_challenge.startTime}} minute(s)</span>
                                 </li>
+                                 <li>
+                                            <span><b>Duel acceptance will expire in: </b></span>
+                                            <span id="count_down"></span>
+                                            
+                                            <script>
+                                                // This script is for count down time 
+                                                var duration = {{expirationTime}};
+                                                var duration_milli = duration * 1000;
+                                                var countDownDate = new Date(duration_milli).getTime() + new Date().getTime();
+                                        
+                                                var x = setInterval(function() {
+                                        
+                                                    // Get now's date and time
+                                                    var now = new Date().getTime();
+                                        
+                                                    // Find the distance between now and the count down date + now
+                                                    var distance = countDownDate-now;
+                                        
+                                                    // Time calculations for days, hours, minutes and seconds
+                                                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                                        
+                                                    if(days != 0 )
+                                                        document.getElementById("count_down").innerHTML = days + "d " + hours + "h "
+                                                        + minutes + "m " + seconds + "s ";
+                                                    else if(hours != 0)
+                                                        document.getElementById("count_down").innerHTML = hours + "h "
+                                                        + minutes + "m " + seconds + "s ";
+                                                    else
+                                                        document.getElementById("count_down").innerHTML = minutes + "m " + seconds + "s ";
+                                        
+                                                    // If the count down is over, write Expired 
+                                                    if (distance < 0) {
+                                                        clearInterval(x);
+                                                        document.getElementById("count_down").innerHTML = "Expired";
+                                                    }
+                                                }, 1000);
+                                            </script> 
+                                        </li>
                                 {% elif not sent_duel_challenge.hasStarted %}
                                 <li>
                                     <span><b>Duel will start in: </b></span>
@@ -315,7 +356,7 @@
                                         <i class="material-icons right">send</i>Take</a>
                                     {% endif %}
                                 {% elif not isAccepted %}
-                                    {% if not isTaken %}
+                                    {% if not isTaken and not expired%}
                                         <a class="waves-effect waves-light btn modal-trigger" tyle="color: #00bcd4" href="#modal_delete">
                                         <i class="material-icons left">close</i>Cancel Request</a>
                                         <!--<a class="btn waves-effect waves-light" href="/oneUp/students/DuelChallengeCreate?duelChallengeID={{sent_duel_challenge.duelChallengeID}}">

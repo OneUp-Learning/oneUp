@@ -26,6 +26,11 @@
         	 }
          }
       </script>
+      <style>
+      .custom-badge::after {
+         content: none !important;
+      }
+      </style>
    </head>
    <body>
       {% include 'heading.html' %}
@@ -118,7 +123,7 @@
                            </tr>
                         </thead>
                         <tbody>
-                           {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, q_position in question_range %}
+                           {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, q_position, q_duplicate in question_range %}
                            <tr>
                               <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{q_preview}}</td>
                               <td>{{q_type_displayName}}</td>                              
@@ -126,7 +131,12 @@
                               <div class="input-field col s12">
                                     <input value="{{q_position}}" name="{{q_ID}}" maxlength="4" type="number" min="0" required>
                               </div>
-                           	  </td>
+                                </td>
+                                <td>
+                                 {% if q_duplicate.0 %}
+                                 <span class="new badge indigo custom-badge tooltipped" data-position="top" data-tooltip="Editing will override duplicates">duplicate</span>
+                              {% endif %}
+                                </td>
                               <td>
                                     <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                     <ul id='dropdown-{{i}}' class='dropdown-content'>
@@ -158,6 +168,14 @@
                                     <div id="modal_delete-{{i}}" class="modal">
                                        <div class="modal-content">
                                           <h5>Are you sure you want to delete?</h5>
+                                          {% if q_duplicate.0 %}
+                                          <p>These problems will also be removed:</p>
+                                          <blockquote>
+                                             {% for names, position, challenge in q_duplicate.1 %}
+                                                {{ names }} at position {{position}} {% if unassign %} in {{challenge}} (Challenge) {%endif%}<br />
+                                             {% endfor %}
+                                          </blockquote>
+                                          {% endif %}
                                        </div>
                                        <div class="modal-footer">
                                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>

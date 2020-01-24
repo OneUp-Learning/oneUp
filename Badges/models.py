@@ -176,7 +176,7 @@ class PeriodicBadges(BadgesInfo):
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
-    periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
+    periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the badge.'''
@@ -216,7 +216,7 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
-    periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
+    periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the rule.'''
@@ -289,7 +289,7 @@ class LeaderboardsConfig(models.Model):
     timePeriodUpdateInterval = models.IntegerField(default=0000)                  # The Time Period index set for updating this leaderboard
     displayOnCourseHomePage = models.BooleanField(default=False)       # true=display on course home page; false=display on leaderbordas page 
     lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
-    periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.CASCADE, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
+    periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     howFarBack = models.IntegerField(default=0000)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the leaderboard config.'''
@@ -314,7 +314,7 @@ class CourseConfigParams(models.Model):
     
     # Duels related
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
-    betVC = models.BooleanField(default=True)                         ## Allow the bet of virtual currency in duels
+    betVC = models.BooleanField(default=False)                         ## Allow the bet of virtual currency in duels
     vcDuelParticipants = models.IntegerField(default=0)               ## Amount of virtual currency rewarded to duel participants
     vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
     vcDuelMaxBet = models.IntegerField(default=3)                     ## Max Amount of betting virtual currency 
@@ -322,7 +322,7 @@ class CourseConfigParams(models.Model):
      
     progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page
     
-    chatUsed = models.BooleanField(default=True)                      ## This will enable or disable the chat feature 
+    chatUsed = models.BooleanField(default=False)                      ## This will enable or disable the chat feature 
     
     seriousChallengesGrouped = models.BooleanField(default=False)     ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side
 
@@ -357,7 +357,7 @@ class CourseConfigParams(models.Model):
 
     xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by 
                                                                       ## max score of scores or by the first attempt score
-    xpCalculateWarmupByMaxScore = models.BooleanField(default=False)  ## Same as preivous but for warmup challenges
+    xpCalculateWarmupByMaxScore = models.BooleanField(default=True)  ## Same as preivous but for warmup challenges
 
     ## Levels of Difficulties for the course
     thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium

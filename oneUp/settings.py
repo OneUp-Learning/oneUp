@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import oneUp
+import getpass
 from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
     SESSION_SERIALIZER
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -243,9 +244,10 @@ CKEDITOR_CONFIGS = {
 }
 
 # For chat/celery
-if os.path.exists("~/rabbitmqpasswd"):
+rabbitmqpasswordfilepath = os.path.expanduser("~/rabbitmqpasswd")
+if os.path.exists(rabbitmqpasswordfilepath):
     rabbitmq_username = getpass.getuser()
-    with open('~/rabbitmqpasswd') as f:
+    with open(rabbitmqpasswordfilepath) as f:
         rabbitmq_password = f.read().strip()
     rabbitmq_vhostname = rabbitmq_username
 else:
@@ -275,7 +277,8 @@ REST_FRAMEWORK = {
 SESSION_SERIALIZER = 'oneUp.jsonSerializerExtension.OneUpExtendedJSONSerializer'
 
 # Celery Settings
-CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':'+rabbitmq_password+'@localhost/'+rabbitmq_vhostname
+CELERY_BROKER_URL = 'amqp://'+rabbitmq_username+':' + \
+    rabbitmq_password+'@localhost/'+rabbitmq_vhostname
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_IMPORTS = ['Badges.periodicVariables']

@@ -122,7 +122,7 @@
                                        name="periodicVariableSelected">
                                        {% for periodicVariable in periodicVariables %}
                                        <option value="{{periodicVariable.index}}"
-                                          {% if badge.periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
+                                          {% if vc.periodicVariableID == periodicVariable.index %}selected{% endif %}>{{periodicVariable.displayName}}</option>
                                        {% endfor %}
                                     </select>
                                  </div>

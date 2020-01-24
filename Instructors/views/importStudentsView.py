@@ -6,6 +6,7 @@ Created on April 12, 2017
 
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
+from django.http import JsonResponse
 
 from Instructors.views.utils import initialContextDict
 from Instructors.models import UploadedFiles
@@ -13,6 +14,7 @@ from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck  
+import json
 
 import logging, random, secrets
 logger = logging.getLogger(__name__)
@@ -58,51 +60,56 @@ def process_file(file_name, file_type_number):
     return lines
 
 
-def generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number):
-            # Check if student is in the system already
-            print("student data", student_data[0][1:-1],student_data[1],password)
-            if User.objects.filter(username = username).exists():
-                users_list = User.objects.filter(username = username)
+def generate_student_data(user_info, new_password, currentCourse, ccparams):
+    # Check if student is in the system already
+    new_student = user_info['new']
+    
+    if not new_student:
+        users_list = User.objects.filter(username = user_info['username'])
 
-                #the student is in the system, get it
-                user = users_list[0] 
-                student = Student.objects.get(user = user)              
-                        
-            else:
-            # the student is not in the system, create a user/student       
-                user = User.objects.create_user(username, email, password)
+        #the student is in the system, get it
+        user = users_list[0] 
+        student = Student.objects.get(user = user)              
+                
+    else:
+        # the student is not in the system, create a user/student  
 
-                #unfortunately must have special encoding for canvas
-                if file_type_number == 0:
-                    user.first_name = student_data[0][1:-1]
-                else:
-                    user.first_name = student_data[0]
-                
-                user.last_name = student_data[1]
-                user.save()
-                
-                student = Student()
-                student.user = user
-                student.universityID = email
-                student.save()
-            
-            # register the student for this course
-            if not StudentRegisteredCourses.objects.filter(courseID=currentCourse,studentID=student): # keeps us from registering the same students over and over
-                studentRegisteredCourses = StudentRegisteredCourses()
-                studentRegisteredCourses.studentID = student
-                studentRegisteredCourses.courseID = currentCourse
-                studentRegisteredCourses.avatarImage = anonymous_avatar
-                if ccparams.virtualCurrencyAdded:
-                    studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
-                studentRegisteredCourses.save()
-                
-                logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
+        # Check if the default generated password was changed
+        password = None     
+        if user_info['password'] !=  new_password and new_password.strip() != "":
+            password = new_password
+        else:
+            password = user_info['password']
 
-                # Create new Config Parameters
-                scparams = StudentConfigParams()
-                scparams.courseID = currentCourse
-                scparams.studentID = student
-                scparams.save()
+        user = User.objects.create_user(user_info['username'], user_info['email'], password)
+        user.first_name = user_info['first-name']
+        
+        user.last_name = user_info['last-name']
+        user.save()
+        
+        student = Student()
+        student.user = user
+        student.universityID = user_info['email']
+        student.save()
+    
+    # register the student for this course
+    if not StudentRegisteredCourses.objects.filter(courseID=currentCourse,studentID=student): # keeps us from registering the same students over and over
+        studentRegisteredCourses = StudentRegisteredCourses()
+        studentRegisteredCourses.studentID = student
+        studentRegisteredCourses.courseID = currentCourse
+        studentRegisteredCourses.avatarImage = anonymous_avatar
+        if ccparams.virtualCurrencyAdded:
+            studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
+        studentRegisteredCourses.save()
+        
+        logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
+
+        # Create new Config Parameters
+        scparams = StudentConfigParams()
+        scparams.courseID = currentCourse
+        scparams.studentID = student
+        scparams.save()
+    
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
@@ -115,6 +122,8 @@ def importStudents(request):
     context_dict['usertype'] = 'Student'
     context_dict['message'] = ''
     ccparams = context_dict['ccparams']
+
+    json_response = {'users': []}
 
     if request.method == 'POST' and len(request.FILES) != 0:     
         studentslistFile = request.FILES['studentslist']
@@ -138,22 +147,66 @@ def importStudents(request):
                 email_domain = email_domain.replace('@', '')
 
             if file_type_number == 0:
+                index = -1
                 for student_data in students:
                     username = student_data[3] + "@" + email_domain# The sutdnt username without @email domain
                     email = student_data[3] + "@" + email_domain
                     password = generate_secure_password()  # The SIS User ID found in the canvas csv file
-                    generate_student_data(username, email, password, student_data, currentCourse, ccparams, file_type_number)
+
+                    # Return student info to frontend to show generated password
+                    user_info = {'id': index, 'first-name': student_data[0][1:-1], 'last-name': student_data[1], 'username': username, 'email': email, 'password': password, 'new': True}
+                    if User.objects.filter(username = username).exists():
+                        user_info['new'] = False
+                        user_info['id'] = User.objects.get(username = username).pk
+                    else:
+                        index -= 1
+                        
+                    json_response['users'].append(user_info)
+
                     print("psswd", password)
 
             if file_type_number == 1:
+                index = -1
                 for student_data in students:
                     username = student_data[2] + "@" + email_domain# The sutdnt username without @email domain
                     email = student_data[2] + "@" +email_domain
                     password = generate_secure_password()
                     print("psswd", username, email, password, student_data, currentCourse, ccparams)
-                    generate_student_data(username, email, str(password), student_data, currentCourse, ccparams, file_type_number)
-                    
 
-    return redirect('createStudentListView')
+                    # Return student info to frontend to show generated password
+                    user_info = {'id': index, 'first-name': student_data[0], 'last-name': student_data[1], 'username': username, 'email': email, 'password': password, 'new': True}
+                    if User.objects.filter(username = username).exists():
+                        user_info['new'] = False
+                        user_info['id'] = User.objects.get(username = username).pk
+                    else:
+                        index -= 1
+
+                    json_response['users'].append(user_info)
+
+            json_response['users'] = sorted(json_response['users'], key=lambda x: x['username'])
+                    
+    return JsonResponse(json_response)
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
+def saveImportStudentsPasswords(request):
+
+    context_dict, currentCourse = initialContextDict(request)
+    ccparams = context_dict['ccparams']
+
+    json_response = {'success': True}
+
+    if request.method == 'POST':     
+        # Create new users with the generated or new passwords
+        if "users" in request.POST:
+            users = json.loads(request.POST['users'])
+            print(users)
+            for user_info in users:
+                if user_info['new']:
+                    generate_student_data(user_info, request.POST["default-input-{}".format(user_info['id'])], currentCourse, ccparams)
+                else:
+                    generate_student_data(user_info, user_info['password'], currentCourse, ccparams)
+                    
+    return JsonResponse(json_response)
             
             

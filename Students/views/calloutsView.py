@@ -129,6 +129,9 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
                 'user': participant_id.user.username,
             }
             # register event
+            if sender_stat.calloutVC > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, objectId=sender_stat.calloutVC)
+
             register_event_simple(Event.calloutWon, mini_req,
                                   objectId=call_out_stat.calloutID.calloutID)
 
@@ -200,6 +203,9 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
                 'user': participant_id.user.username,
             }
             # register event
+            if sender_stat.calloutVC > 0:
+                register_event_simple(Event.virtualCurrencyEarned, mini_req, objectId=sender_stat.calloutVC)
+                
             register_event_simple(Event.calloutWon, mini_req,
                                   objectId=call_out_stat.calloutID.calloutID)
         else:
@@ -250,13 +256,15 @@ def get_challenger_challengee_duel_challs(student_id, challengee_id, current_cou
     challenger_duels = list(challenger_duels_as_challenger) + list(challenger_duels_as_challengee)
     challenger_duels_challs = []
     for challenger_duel in challenger_duels:
-        challenger_duels_challs.append(challenger_duel.challengeID)
+        if not challenger_duel.hasExpired:
+            challenger_duels_challs.append(challenger_duel.challengeID)
          
     
     challengee_duels = list(challengee_duels_as_challenger) + list(challengee_duels_as_challengee)
     challengee_duels_challs = []
     for challengee_duel in challengee_duels:
-        challengee_duels_challs.append(challengee_duel.challengeID)
+        if not challenger_duel.hasExpired:
+            challengee_duels_challs.append(challengee_duel.challengeID)
     
     return (challenger_duels_challs, challengee_duels_challs)
 
@@ -312,7 +320,7 @@ def callout_create(request):
         call_out_stat.calloutVC = ccparm.vcCallout
         call_out_stat.studentID = student_id
         call_out_stat.studentChallenge = StudentChallenges.objects.filter(
-            challengeID=challenge, courseID=current_course, studentID=student_id).latest('testScore')
+            challengeID=challenge, courseID=current_course, studentID=student_id, challengeID__isGraded=False).latest('testScore')
 
         # Save Calloutstats object
         call_out_stat.save()
@@ -399,10 +407,10 @@ def callout_create(request):
                         register_event_simple(Event.calloutRequested, mini_req,
                                               objectId=call_out_stat.calloutID.calloutID)
 
-                        if StudentChallenges.objects.filter(studentID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID):
+                        if StudentChallenges.objects.filter(studentID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID, challengeID__isGraded=False):
 
                             participant_chall = StudentChallenges.objects.filter(
-                                challengeID=callout.challengeID, studentID=participant_stud.studentID, courseID=current_course).latest('testScore')
+                                challengeID=callout.challengeID, studentID=participant_stud.studentID, courseID=current_course, challengeID__isGraded=False).latest('testScore')
                             evaluator(callout, call_out_stat, participant, participant_stud.studentID,
                                       current_course, participant_chall, already_taken=True)
 
@@ -429,9 +437,9 @@ def callout_create(request):
                     register_event_simple(Event.calloutRequested, mini_req,
                                           objectId=call_out_stat.calloutID.calloutID)
 
-                    if StudentChallenges.objects.filter(studentID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID):
+                    if StudentChallenges.objects.filter(studentID=participant_stud.studentID, courseID=current_course, challengeID=callout.challengeID, challengeID__isGraded=False):
                         participant_chall = StudentChallenges.objects.filter(
-                            challengeID=callout.challengeID, studentID=participant_stud.studentID, courseID=current_course).latest('testScore')
+                            challengeID=callout.challengeID, studentID=participant_stud.studentID, courseID=current_course, challengeID__isGraded=False).latest('testScore')
                         evaluator(callout, call_out_stat, participant, participant_stud.studentID,
                                   current_course, participant_chall, already_taken=True)
 
@@ -486,7 +494,7 @@ def callout_create(request):
         range(0, len(avatars)), avatars, participants, ids_avs)
 
     s_challenges = StudentChallenges.objects.filter(
-        courseID=current_course, studentID=student_id)
+        courseID=current_course, studentID=student_id, challengeID__isGraded=False)
 
     # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
     sender_challenges = []
@@ -494,7 +502,7 @@ def callout_create(request):
     for s_c in s_challenges:
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
-                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
+                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID, challengeID__isGraded=False).latest('testScore')
             if float(s_chall.challengeID.totalScore) > 0.0:
                 percentage = (float(s_chall.testScore) /
                               float(s_chall.challengeID.totalScore)) * 100
@@ -506,7 +514,7 @@ def callout_create(request):
         seen_challenges.add(s_c.challengeID)
 
     participant_challenges = StudentChallenges.objects.filter(
-        courseID=current_course, studentID=participants[0].studentID)
+        courseID=current_course, studentID=participants[0].studentID, challengeID__isGraded=False)
 
     # get participant's warmup challenges ids from the challenges table
     taken_participant_challenges = [
@@ -550,7 +558,7 @@ def get_class_callout_qualified_challenges(request):
     # store challenges ids and names as strings with '---' as a delimeter to get around jason serialization
     ids_names_taken_challenges = []
     s_challenges = StudentChallenges.objects.filter(
-        courseID=current_course, studentID=student_id)
+        courseID=current_course, studentID=student_id, challengeID__isGraded=False)
 
     # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
     sender_challenges = []
@@ -558,7 +566,7 @@ def get_class_callout_qualified_challenges(request):
     for s_c in s_challenges:
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
-                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
+                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID, challengeID__isGraded=False).latest('testScore')
             if float(s_chall.challengeID.totalScore) > 0.0:
                 percentage = (float(s_chall.testScore) /
                               float(s_chall.challengeID.totalScore)) * 100
@@ -606,7 +614,7 @@ def get_individual_callout_qualified_challenges(request):
     ids_names_challenges = []
 
     s_challenges = StudentChallenges.objects.filter(
-        courseID=current_course, studentID=student_id)
+        courseID=current_course, studentID=student_id, challengeID__isGraded=False)
 
     # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
     sender_challenges = []
@@ -614,7 +622,7 @@ def get_individual_callout_qualified_challenges(request):
     for s_c in s_challenges:
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
-                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID).latest('testScore')
+                courseID=current_course, studentID=student_id, challengeID=s_c.challengeID, challengeID__isGraded=False).latest('testScore')
             if float(s_chall.challengeID.totalScore) > 0.0:
                 percentage = (float(s_chall.testScore) /
                               float(s_chall.challengeID.totalScore)) * 100
@@ -627,7 +635,7 @@ def get_individual_callout_qualified_challenges(request):
 
     participant_id = request.GET['participant_id']
     participant_challenges = StudentChallenges.objects.filter(
-        courseID=current_course, studentID__user__id=participant_id)
+        courseID=current_course, studentID__user__id=participant_id, challengeID__isGraded=False)
 
     # get participants warmup challenges ids from the challenges table
     taken_participant_challenges = [
@@ -768,7 +776,7 @@ def callout_description(request):
                 call_out_part = CalloutParticipants.objects.get(
                     calloutID=call_out, participantID__user__id=s_id, courseID=current_course)
 
-                if not call_out_part.hasSubmitted:
+                if not call_out_part.hasSubmitted and not call_out.hasEnded:
                     message += "You will have to perform the same or better than the call out sender to win. Please see call out details bellow. "
 
                 context_dict['participant_avatar'] = StudentRegisteredCourses.objects.get(

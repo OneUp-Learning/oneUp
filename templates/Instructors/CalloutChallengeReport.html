@@ -47,15 +47,15 @@
                                         </li>
                                     {% endif %}
 
-                                    {% if in_progress %}
+                                    {% if callout.hasEnded %}
                                         <li >
                                                 <span><b>Status: </b></span>
-                                                <span>Callout is in Progress</span>
+                                                <span>Callout has ended</span>
                                         </li>
                                     {% else %}
                                         <li >
                                                 <span><b>Status: </b></span>
-                                                <span>Callout has ended</span>
+                                                <span>Callout is in Progress</span>
                                         </li>
                                     {% endif %}
 

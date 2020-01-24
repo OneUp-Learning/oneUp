@@ -3,6 +3,21 @@
 
 <head>
     {% include 'scripts.html' %}
+    <style>
+    tbody{
+        display: block;
+        max-height: 100vh;
+        overflow: auto;
+    }
+    thead, tbody, tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    table{
+        width: 100%;
+    }
+    </style>
 </head>
 
 <body>
@@ -73,27 +88,50 @@
                  <tbody>
                  {% for duel_challenge, challenger_avatar, challengee_avatar, topic, has_expired in duel_challenges %}
                  <tr>
-                   <td>{{duel_challenge.duelChallengeName}}</td>
+                   <!--<td class="truncate" style="max-width: 200px; display: table-cell;">{{duel_challenge.duelChallengeName}}</td>-->
                    {%if not duel_challenge.status == 2 %}
-                       <td>Pending</td>
+                       <td style="width: 120px;" >Pending</td>
                    {% else %}
-                       <td>Accepted</td>
+                       <td style="width: 120px;">Accepted</td>
                    {% endif %}
                    
                    {% if has_expired %}
-                       <td>Expired</td>
+                       <td style="width: 150px;">Expired</td>
                    {% elif duel_challenge.hasEnded %}
-                       <td>Completed</td>
+                       <td style="width: 150px;">Completed</td>
                    {% elif duel_challenge.hasStarted %}
-                       <td>In progress</td>
+                       <td style="width: 150px;">In progress</td>
                    {% else %}
-                      <td>Not Started</td>
+                      <td style="width: 150px;">Not Started</td>
                    {% endif %}
-                   
-                   <td>{{topic}}</td>
 
-                   <td>{{duel_challenge.challenger.user.last_name}} &nbsp &nbsp <img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp<img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}"> &nbsp &nbsp {{duel_challenge.challengee.user.last_name}}</td>
-       
+                   <td class="truncate" style="max-width: 200px; display: table-cell;">{{duel_challenge.sendTime}}</td>
+
+                   <td class="truncate" style="max-width: 200px; display: table-cell;">{{duel_challenge.challengeID.challengeName}}</td>
+                   
+                   <td class="truncate" style="max-width: 200px; display: table-cell;">{{topic}}</td>
+                   
+                   <td style="width: 350px;"> {{duel_challenge.challenger.user.last_name}}&nbsp &nbsp <img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp <img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}"> &nbsp &nbsp {{duel_challenge.challengee.user.last_name}} </td>
+                   
+                   <!--
+                   <td>
+                        <div>
+                            <div style="display: flex;">
+                                <p class="truncate" style="max-width: 100px; margin-right: 8px;">
+                                    {{duel_challenge.challenger.user.last_name}}
+                                </p>
+                                <img alt="Avatar Image" class="circle" width="35" height="35" src="{{challenger_avatar}}">
+                            </div>
+                            <div>VS</div>
+                            <div style="display: flex;">
+                                <p class="truncate"  style="max-width: 100px; margin-right: 8px;">
+                                    {{duel_challenge.challengee.user.last_name}}
+                                </p>
+                                <img alt="Avatar Image" class="circle" width="35" height="35" src="{{challengee_avatar}}">
+                            </div>
+                        </div>
+                    </td>
+                    -->
                    <td>
                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/DuelChallengeReport?duelChallengeID={{duel_challenge.duelChallengeID}}"><i class="material-icons left">visibility</i>View</a>        
                    </td>

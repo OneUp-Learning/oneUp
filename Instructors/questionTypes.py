@@ -78,8 +78,9 @@ def makeSerializableCopyOfDjangoObjectqdictionary(obj):
     return qdict
 
 
-def basicqdict(question, i, challengeId, studChallQuest):
+def basicqdict(question, i, challengeId, challenge_question, studChallQuest):
     qdict = makeSerializableCopyOfDjangoObjectqdictionary(question)
+    qdict['challenge_question_id'] = challenge_question.pk
     qdict['id'] = question.questionID
     qdict['index'] = i
     correct_answers = [
@@ -89,16 +90,15 @@ def basicqdict(question, i, challengeId, studChallQuest):
     canswer_range = range(1, len(correct_answers) + 1)
     qdict['correct_answers'] = list(zip(canswer_range, correct_answers))
 
-    question_point = ChallengesQuestions.objects.get(
-        challengeID=challengeId, questionID=question)
-    qdict['point'] = question_point.points
+    # question_point = ChallengesQuestions.objects.get(pk=challenge_question.pk)
+    qdict['point'] = challenge_question.points
     qdict['total_points'] = qdict['point']
     return qdict
 
 
-def staticqdict(question, i, challengeId, studChallQuest):
+def staticqdict(question, i, challengeId, challenge_question, studChallQuest):
     staticQuestion = StaticQuestions.objects.get(pk=question.questionID)
-    qdict = basicqdict(staticQuestion, i, challengeId, studChallQuest)
+    qdict = basicqdict(staticQuestion, i, challengeId, challenge_question, studChallQuest)
     answers = [
         makeSerializableCopyOfDjangoObjectqdictionary(ans)
         for ans in Answers.objects.filter(questionID=question.questionID)
@@ -111,8 +111,8 @@ def staticqdict(question, i, challengeId, studChallQuest):
     return qdict
 
 
-def matchingqdict(question, i, challengeId, studChallQuest):
-    qdict = staticqdict(question, i, challengeId, studChallQuest)
+def matchingqdict(question, i, challengeId, challenge_question, studChallQuest):
+    qdict = staticqdict(question, i, challengeId, challenge_question, studChallQuest)
     #getting the matching questions of the challenge from database
     matchlist = []
     for match in MatchingAnswers.objects.filter(
@@ -255,10 +255,10 @@ def matchingqdict(question, i, challengeId, studChallQuest):
 
 #     return qdict
 
-def parsonsqdict(question, i, challengeId, studChallQuest):
+def parsonsqdict(question, i, challengeId, challenge_question,studChallQuest):
     from Instructors.views import parsonsView
-    qdict = staticqdict(question, i, challengeId, studChallQuest)
-    modelSolution = Answers.objects.filter(questionID=question)
+    qdict = staticqdict(question, i, challengeId, challenge_question, studChallQuest)
+    modelSolution = Answers.objects.filter(questionID=question.questionID)
     solution_string = modelSolution[0].answerText
 
     qdict['languageName'] = parsonsView.findLanguage(solution_string)
@@ -287,9 +287,9 @@ def parsonsqdict(question, i, challengeId, studChallQuest):
 
     return qdict
 
-def dynamicqdict(question, i, challengeId, studChallQuest):
+def dynamicqdict(question, i, challengeId, challenge_question, studChallQuest):
     dynamicQuestion = DynamicQuestions.objects.get(pk=question.questionID)
-    qdict = basicqdict(dynamicQuestion, i, challengeId, studChallQuest)
+    qdict = basicqdict(dynamicQuestion, i, challengeId, challenge_question, studChallQuest)
     if not lupa_available:
         qdict['questionText'] = "<B>Lupa not installed.  Please ask your server administrator to install it to enable dynamic problems.</B>"
     else:

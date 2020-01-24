@@ -169,6 +169,9 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.activitySubmission):
         eventEntry.objectType = ObjectTypes.form
         eventEntry.objectID = objectId
+    if(eventID == Event.virtualCurrencyEarned):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
 
     # Duels Events
     if(eventID == Event.duelAccepted):
@@ -195,6 +198,11 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
     if(eventID == Event.calloutWon):
+        eventEntry.objectType = ObjectTypes.none
+        eventEntry.objectID = objectId
+
+    # Badge Events
+    if(eventID == Event.badgeEarned):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
         
@@ -240,6 +248,7 @@ def register_event(eventID, request, student=None, objectId=None):
     return register_event_simple(eventID, make_smaller_serializable_request(request), student, objectId)
 
 def process_event_actual(eventID, minireq, studentpk, objectId):
+    print("Processing event with eventpk="+str(eventID))
     if studentpk is None:
         student = Student.objects.get(user__username=minireq['user'])
     else:
@@ -489,6 +498,11 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
             else:
                 break
         
+        mini_req = {
+            'currentCourseID': courseID.pk,
+            'user': studentID.user.username,
+        }
+        register_event_simple(Event.badgeEarned, mini_req, studentID, badgeId)
         #Test to make notifications 
         notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge', extra=json.dumps({"course": str(courseID.courseID)}))
         
@@ -570,6 +584,12 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
                         student.virtualCurrencyAmount += vcRuleAmount
                         student.save()
+                    
+                    mini_req = {
+                        'currentCourseID': courseID.pk,
+                        'user': studentID.user.username,
+                    }
+                    register_event_simple(Event.virtualCurrencyEarned, mini_req, studentID, vcRuleAmount)
                     notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
                 except OperationalError as e:
                     if e.__cause__.__class__ == TransactionRollbackError:

@@ -2,7 +2,7 @@ import os
 
 from django.db import models
 from django.contrib.auth.models import User
-from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles
+from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles, ChallengesQuestions
 from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking,  LeaderboardsConfig
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
@@ -13,6 +13,7 @@ from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
 from Instructors.views.instructorHomeView import instructorHome
+from django.utils import timezone
 
 # Create your models here.
  
@@ -75,8 +76,12 @@ class StudentChallenges(models.Model):
     def __str__(self):              
         return str(self.studentChallengeID) +"," + str(self.studentID) +","+str(self.challengeID)
     def getScore(self):
+        if self.testScore == 0:
+            return 0;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve    
     def getScoreWithBonus(self):
+        if self.testScore == 0:
+            return self.scoreAdjustment+self.bonusPointsAwarded;
         return self.testScore + self.scoreAdjustment + self.challengeID.curve + self.bonusPointsAwarded   
         
 
@@ -85,6 +90,7 @@ class StudentChallengeQuestions(models.Model):
     studentChallengeQuestionID = models.AutoField(primary_key=True)
     studentChallengeID = models.ForeignKey(StudentChallenges, on_delete=models.CASCADE, verbose_name="the related student_challenge", db_index=True)
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True) 
+    challengeQuestionID = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name="the related challenge_question", db_index=True) 
     questionScore = models.DecimalField(decimal_places=2, max_digits=6)
     questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
     usedHint = models.BooleanField(default=True)
@@ -147,11 +153,13 @@ class StudentGoalSetting(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
-    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for date the goal was created
+    timestamp = models.DateTimeField(default=timezone.now) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
+    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
+    recurringGoal = models.BooleanField(verbose_name='A boolean value to indicate whether goal has recurrence.', default=True)
 
     def __str__(self):              
-        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.vcRuleID) +"," + str(self.timestamp)
+        return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.timestamp)
 
 class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
@@ -299,12 +307,13 @@ class DuelChallenges(models.Model):
     hasStarted = models.BooleanField(default=False) # Indicates whether the challenge has begun
     hasEnded = models.BooleanField(default=False) # Indicates whether the challenge has ended
     evaluator = models.IntegerField(default=0) # The student who is going to evaluate the duel 0=unknown, 1=chanllenger, 2=challengee
+    hasExpired = models.BooleanField(default=False) # Indicates whether the challenge has expired
 
     def __str__(self):
         return "duelchallengeID: "+str(self.duelChallengeID)+ ", duelchallengeName: "+ str(self.duelChallengeName)+", courseID: "+str(self.courseID)+", challengeID: "+str(self.challengeID)+\
             ", isBetting: "+str(self.isBetting)+", vcBet: "+str(self.vcBet)+", challenger: "+str(self.challenger)+", challengee: "+str(self.challengee)+", sendTime: "+str(self.sendTime)+\
             ", acceptTime: "+str(self.acceptTime)+", startTime:"+str(self.startTime)+", timeLimit: "+str(self.timeLimit)+", customMessage: "+str(self.customMessage)+\
-            " status: "+str(self.status)+" hasStarted: "+str(self.hasStarted)+" hasEnded: "+str(self.hasEnded)
+            " status: "+str(self.status)+" hasStarted: "+str(self.hasStarted)+" hasEnded: "+str(self.hasEnded)+" hasExpired: "+str(self.hasExpired)
      
 # This table considers a tie as a win, it stores winners and those in ties
 class Winners(models.Model):
@@ -356,7 +365,7 @@ class StudentStreaks(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     streakStartDate = models.DateTimeField(null=True, blank=True, verbose_name="The date the streak reset on")
     streakType = models.IntegerField(default=0)
-    objectID = models.IntegerField(default=0)
+    objectID = models.IntegerField(default=0) #0 badge 1 vc
     currentStudentStreakLength = models.IntegerField(default=0)
     
     
@@ -371,3 +380,49 @@ class StudentProgressiveUnlocking(models.Model):
     
     def __str__(self):
         return "student:"+str(self.studentID)+" course:"+str(self.courseID)+" rule:"+str(self.pUnlockingRuleID)+" obj:"+str(self.objectID)+","+str(self.objectType)+" done:"+str(self.isFullfilled)
+
+class StudentActions(models.Model):
+    ''' Ultility model which will be used for thesis work. Collects infromation about each student
+        and what actions they have done (warmups/serious challenge attempts or duels/callouts) over 
+        some X time.
+    '''
+    studentActionsID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    json_data = models.TextField(blank=True, default='{}', verbose_name='Student JSON Results',
+            help_text='JSON encoded table of student results')
+    timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
+    def __str__(self):
+        return "{} : {} : {} : {}".format(self.studentActionsID, self.courseID, self.studentID, self.timestamp)
+
+class StudentActionsLoop(models.Model):
+    ''' Ultility model which will be used for thesis work. Collects infromation about each student
+        and what actions they have done (warmups/serious challenge attempts or duels/callouts) over 
+        some X time.
+    '''
+    studentActionsLoopID = models.AutoField(primary_key=True)
+    studentActionsID = models.ForeignKey(StudentActions, on_delete=models.CASCADE, verbose_name="the overall loop", db_index=True)
+    # Actions
+    warmups_attempted = models.IntegerField(default=0,verbose_name="# of Warmups Attempted")
+    serious_attempted = models.IntegerField(default=0,verbose_name="# of Serious Challenges Attempted")
+    duels_sent = models.IntegerField(default=0,verbose_name="# of Duels Sent")
+    duels_accepted = models.IntegerField(default=0,verbose_name="# of Duels Accepted")
+    callouts_sent = models.IntegerField(default=0,verbose_name="# of Callouts Accpeted")
+    callouts_participated = models.IntegerField(default=0,verbose_name="# of Callouts Participated")
+
+    # Postivie Feedback
+    high_score_challenges = models.IntegerField(default=0, verbose_name="# of High Score Challenges")
+    vc_earned = models.IntegerField(default=0, verbose_name="# of VC Earned")
+    badges_earned = models.IntegerField(default=0, verbose_name="# of Badges Earned")
+    on_leaderboard = models.BooleanField(default=False, verbose_name="Appeared on Leaderboard")
+    duels_won = models.IntegerField(default=0, verbose_name="# of Duels Won")
+    callouts_won = models.IntegerField(default=0, verbose_name="# of Callouts Won")
+
+    # Negative Feedback
+    low_score_challenges = models.IntegerField(default=0, verbose_name="# of Low Score Challenges")
+    duels_lost = models.IntegerField(default=0, verbose_name="# of Duels Lost")
+    callouts_lost = models.IntegerField(default=0, verbose_name="# of Callouts Lost")
+
+    timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
+    def __str__(self):
+        return "{} : {} : {}".format(self.studentActionsLoopID, self.studentActionsID, self.timestamp)

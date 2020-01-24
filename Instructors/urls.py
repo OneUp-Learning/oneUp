@@ -41,7 +41,7 @@ from Instructors.views.createStudentView import createStudentViewUnchecked, vali
 from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule
 
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
-from Instructors.views.importStudentsView import importStudents
+from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
 
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
@@ -74,7 +74,7 @@ from Instructors.views.views import index
 
 # Dynamic Questions Stuff
 from Instructors.views.dynamicQuestionView import dynamicQuestionForm
-from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm
+from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm, removeFileFromQuestion
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 from Instructors.views.luaTestView import luaTestView
 from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit, libDeleteConfirmView
@@ -99,6 +99,8 @@ urlpatterns = [
 
     url(r'^activityRemoveFile', removeFileFromActivty,
         name='removeFileFromActivty'),
+    url(r'^remQuestionFileTempQ', removeFileFromQuestion,
+        name="removeFileFromQuestion"),
     url(r'^activityAssignPointsForm', assignedPointsList,
         name='activityAssignPointsForm'),
     url(r'^activityAssignPoints', activityAssignPointsView,
@@ -172,6 +174,7 @@ urlpatterns = [
     url(r'^imageUpload', imageUpload, name='imageUpload'),
     url(r'^importChallenges', importChallenges, name='importChallenges'),
     url(r'^importStudents', importStudents, name='importStudents'),
+    url(r'^saveImportStudentsPasswords', saveImportStudentsPasswords, name='saveImportStudentsPasswords'),
     url(r'^instructorCourseHome', instructorCourseHome,
         name='instructorCourseHome'),
     url(r'^instructorHome', instructorHome, name='instructorHome'),

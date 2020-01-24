@@ -42,6 +42,12 @@ from oneUp.decorators import instructorsCheck
 # HELPER METHODS
 #############################################################
 
+model_lookup_table = {
+    'Model': {
+        'field': int,
+    }
+}
+
 def ensure_directory(directory):
     ''' Make sure the directory exists on the server (or locally) '''
 

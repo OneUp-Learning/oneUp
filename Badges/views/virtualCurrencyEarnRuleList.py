@@ -40,7 +40,7 @@ def virtualCurrencyEarnRuleList(request):
         
         if isRuleCustom == True:
             vcRulesCustom = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
-            vcRules = [r for r in vcRulesCustom if not hasattr(r, 'virtualcurrencyruleinfo')]
+            vcRules = [r for r in vcRulesCustom if not hasattr(r, 'virtualcurrencyruleinfo') and not hasattr(r, 'virtualcurrencyperiodicrule')]
             
             for rule in vcRules:
                 # Rules that are considered 'Earning' have vcRuleType as True

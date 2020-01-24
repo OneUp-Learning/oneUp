@@ -6,7 +6,9 @@
         $( document ).ready(function(){
             var endDate = $('#endTime').bootstrapMaterialDatePicker({
                 weekStart: 0, time: false, format: 'MMMM D, Y'
-            });
+            }).on('change', function(e, date) {
+                $('#startTime').bootstrapMaterialDatePicker('setMaxDate', date);
+            });;
             
             var startDate = $('#startTime').bootstrapMaterialDatePicker({
                 weekStart: 0, time: false, format: 'MMMM D, Y'
@@ -112,7 +114,7 @@
                     </div>
                 </div>
               </div>
-              <div class="row" style="margin-bottom: 0;">
+              <!-- <div class="row" style="margin-bottom: 0;">
                 <div class="col s12 m4 offset-m4">
                     <div class="card">
                         <div class="card-content">
@@ -133,7 +135,7 @@
                         </div>
                     </div>
                 </div>
-              </div>
+              </div> -->
             <div class="row">
                 <div class="col s12 m4 offset-m4">
                     <div class="card">

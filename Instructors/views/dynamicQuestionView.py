@@ -63,17 +63,23 @@ def dynamicQuestionForm(request):
             
             position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
             
-            if  'questionId' in request.POST:                         
-                challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
-                for chall_question in challenge_question:
-                    position = chall_question.questionPosition
+            positions = []
+            if  'questionId' in request.POST:      
+                # Delete challenge question (even duplicates)                     
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
+                for chall_question in challenge_questions:
+                    positions.append(chall_question.questionPosition)
                 
-                challenge_question.delete()
-                
+                challenge_questions.delete()
+
             challengeID = request.POST['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeID))
-
-            ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
+            if positions:
+                # Recreate challenge question (and duplicates)
+                for pos in positions:
+                    ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), pos)
+            else:
+                ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
             # save question-skill pair to db                    # 03/01/2015
             # first need to check whether a new skill is selected 
@@ -266,7 +272,7 @@ def dynamicQuestionPartAJAX(request):
             lupaQuestionTable[uniqid] = qdict
             qdict['submissionsAllowed'] = int(request.POST['_submissionsAllowed'])
             qdict['resubmissionPenalty'] = Decimal(request.POST['_resubmissionPenalty'])
-            qdict['point'] = Decimal(request.POST['_points'])
+            qdict['point'] = Decimal(request.POST.get('_points',10))
             qdict['total_points'] = qdict['point']
             
             # We also take a moment or two to clear out old dynamic questions we were trying out.  Anything more than a week old gets

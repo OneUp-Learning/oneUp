@@ -192,6 +192,39 @@ var testResultsVar;
             {% endif %}
         });
     </script>
+     <script>
+      $(document).ready(function(){
+        $('.add_more').click(function(e){
+          e.preventDefault();
+          $(fileupload1).after('<div id="fileupload1" class="file-field input-field">\n'+
+          '<div class="btn">\n'+'<span>File</span>\n'+'<input name="testFile" type="file" multiple />\n'+'</div>\n'+
+          '<div class="file-path-wrapper">\n'+'<input class="file-path validate" type="text" placeholder="choose a file"/>\n'+'</div>\n'+'</div>')
+          document.getElementById('fileupload1').id = 'fileupload'
+        });
+      });
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('.uploadedFiles').click(function(e){
+        	if(confirm("Are you sure you want to remove this file from the question?")){
+              e.currentTarget.parentElement.style.display = "none";
+              var fileID = e.currentTarget.id;
+              var fileName = e.currentTarget.name;
+              var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+              $.post("/oneUp/instructors/remQuestionFileTempQ",
+                    {
+                        fileID: fileID,
+                        fileName: fileName,
+                        csrfmiddlewaretoken: csrftoken,
+                    },
+                    function(data, status){
+                        console.log("Data: " + data + "\nStatus: " + status);
+                    });
+          }
+        });
+    });
+    </script>
     <style>
         #editor {
             position: relative;
@@ -220,7 +253,7 @@ var testResultsVar;
         </div>
         <div class="row">
             <div class="col s12 m10 offset-m1">
-                <form id="form" name="question" action="" method="POST">
+                <form id="form" enctype="multipart/form-data" name="question" action="" method="POST">
                     {% csrf_token %} {% if questionId %}
                     <input type="hidden" name="questionId" id="questionId" value="{{questionId}}"> {% endif %} {% if challengeID %}
                     <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}"> {% endif %}
@@ -335,6 +368,40 @@ var testResultsVar;
 								</div>
 							</div>	
                             {% include "Instructors/luaLibraryDependencies.html" %}
+
+                            <div class="row">
+                                <div class="col s12">
+                                    <h5>Program Files</h5>
+                                    
+                                    <div id="fileupload1" class="file-field input-field">
+                                        <div class="btn">
+                                            <span>File</span>
+                                            <input name="testFile" type="file" multiple>
+                                        </div>
+                                        <div class="file-path-wrapper">
+                                            <input class="file-path validate" type="text" placeholder="Choose a file">
+                                        </div>
+                                    </div>
+                                    
+                                    <a class="btn waves-effect waves-light add_more"><i class="material-icons left">add_circle</i>Add another file</a> 
+                                    
+                                </div>
+                            </div>
+                            {% if programmingFiles%}
+                                <div class="row">
+                                    <div class="col s12">
+                                        <h5>Uploaded Program Files</h5>
+                                        <blockquote style="margin-top: 0;">
+                                        {% for ID, testFileName in programmingFiles %}
+                                        <div class="row">
+                                            <a class="uploadedFiles" id="{{ID}}" name="{{testFileName}}" href="#!" >{{testFileName}}<i class="left material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Remove">close</i></a>
+                                        </div>
+                                        {% endfor %}
+                                        </blockquote>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
                             <div class="row">
                                 <div class="col s12">
                                     <h5>Set-Up Code</h5>
