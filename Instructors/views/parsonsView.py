@@ -27,6 +27,9 @@ from oneUp.ckeditorUtil import config_ck_editor
 
 import random
 
+##this file makes no sense without the attached questionTypes.py
+##questionTypes.py calls all the functions here in order.
+##look there to find out what to change here or you will make a mess.
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def parsonsForm(request):
@@ -85,10 +88,10 @@ def parsonsForm(request):
             instructorLine = languageName + indentationBoolean
             answer.answerText += instructorLine
             setUpCode = request.POST['setupCode']
-            print("setupcode", setUpCode)
+            #print("setupcode", setUpCode)
             ##setUpCode = re.sub("\r\n\s{4}", "\r\n\t", setUpCode)
             answer.answerText += setUpCode
-            print("Answer edit answer:", repr(answer.answerText))
+            #print("Answer edit answer:", repr(answer.answerText))
             answer.save()
             # no need to change correct answer
             #correctAnswerObject = CorrectAnswers.objects.filter(questionID=question)
@@ -110,10 +113,10 @@ def parsonsForm(request):
             
             answer.answerText += instructorLine
             setUpCode = request.POST['setupCode']
-            print("setupcode", setUpCode)
+            #print("setupcode", setUpCode)
             ##setUpCode = re.sub("\r\n\s{4}", "\t", setUpCode)
             answer.answerText += setUpCode
-            print("Answer new answer", answer.answerText)
+            #print("Answer new answer", answer.answerText)
             answer.save()
             # the answer is also the correct answer - model solution to be displayed to the student
             correctAnswerObject = CorrectAnswers()
@@ -194,8 +197,8 @@ def parsonsForm(request):
             answer = answer[0].answerText
             context_dict['languageName'] = re.search(r'Language:([^;]+)', answer).group(1).lower().lstrip()
             context_dict['indentation'] = re.search(r';Indentation:([^;]+);', answer).group(1)
-            print("language", context_dict['languageName'])
-            print("indentation", context_dict['indentation'])
+            #print("language", context_dict['languageName'])
+            #print("indentation", context_dict['indentation'])
             
             languageAndLanguageName = re.search(r'Language:([^;]+)', answer)
             intentationEnabledVariableAndValue = re.search(r';Indentation:([^;]+);', answer)
@@ -212,10 +215,10 @@ def parsonsForm(request):
             answer = [x.strip() for x in answer.split('¬')]
             
             #get how many spces there are in the first line
-            print("answer[0]",answer[0])
+            #print("answer[0]",answer[0])
             answer[0] = re.sub("☃"," ",answer[0])
             leadingSpacesCount = len(answer[0]) - len(answer[0].lstrip(' '))
-            print("leading spaces", leadingSpacesCount)
+            #print("leading spaces", leadingSpacesCount)
             
             #give each string the new line
             tabedanswer = []
@@ -249,7 +252,7 @@ def parsonsForm(request):
                     # Extract the skill                                        
                     context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)   
 
-            print("loaded feedback")
+            #print("loaded feedback")
             context_dict['incorrectAnswerFeedback'] = question.correctAnswerFeedback
             context_dict['incorrectAnswerFeedback'] = question.incorrectAnswerFeedback
 
@@ -313,7 +316,7 @@ def findDistractorLimit(solution_string, question):
 #for the indentation we should take 4 spaces to equal one Tab character known as \t
 def getIndentation(line):
     line = snowmanRemoval(line)
-    print("line indentation regular", repr(line), len(line) - len(line.lstrip(' ')))
+    #print("line indentation regular", repr(line), len(line) - len(line.lstrip(' ')))
     return len(line) - len(line.lstrip(' '))
 
 def getIndentationHash(line, solution_string):
@@ -327,7 +330,7 @@ def getIndentationHash(line, solution_string):
 
     difference = current_line_spacing - next_line_spacing
 
-    print("line indentation hash", repr(line), difference, current_line_spacing)
+    #print("line indentation hash", repr(line), difference, current_line_spacing)
     if(difference == 4):
         return next_line_spacing
     if(difference == -4 or difference == 0):
@@ -350,7 +353,7 @@ def generateIndenation(solution_string):
             else:
                 indentation.append(getIndentation(line))
     
-    print("indentaiton array", indentation)
+    #print("indentaiton array", indentation)
     return indentation
 
 #this model solution is used as the problem displayed to student
@@ -367,7 +370,7 @@ def getModelSolution(solution_string, distractor_limit):
     distractor_pattern = re.compile("#dist")
 
     for line in solution_string:
-        print("currentLine", line)
+        #print("currentLine", line)
         if(distractor_pattern.search(line)):
             distractors.append(line)
             continue
@@ -387,12 +390,12 @@ def getModelSolution(solution_string, distractor_limit):
 
             #this difference will allow us to know how indented they are
             difference = leading_space_count_current_line - leading_space_count_next_line
-            print("linediff", difference)
+            #print("linediff", difference)
             line = re.sub("##", "", line)
             skip_flag = 1
 
             if (difference == -4):
-                print("after")
+                #print("after")
                 #if indentation is after the line
                 #example:
                 #data++;
@@ -400,7 +403,7 @@ def getModelSolution(solution_string, distractor_limit):
                 next_element = re.sub("^", "\n&nbsp;", next_element)
                 line += next_element
             if (difference == 4 or difference == 8):
-                print("before \n")
+                #print("before \n")
                 next_element = re.sub("^", "\n", next_element)
                 line += next_element
                 #if indentation is before the line
@@ -408,11 +411,11 @@ def getModelSolution(solution_string, distractor_limit):
                 #   data++;
                 #index++;
             if(difference == 0):
-                print("zero diff\n")
+                #print("zero diff\n")
                 line = re.sub("^ *", "", line)
                 next_element = re.sub("^ *", "\n", next_element)
                 line += next_element
-            print("added line\n", line)
+            #print("added line\n", line)
         else:
             line = re.sub("☃ *", "", line)
 
@@ -422,14 +425,14 @@ def getModelSolution(solution_string, distractor_limit):
     distractor_counter = 0
     for distractor in distractors:
         if(distractor_counter < distractor_limit):
-            print("distractor", distractor)
+            #print("distractor", distractor)
             distractor = cleanseDistractor(distractor)
             model_solution.append({'line':distractor, 'hashVal':hash(distractor)})
             display_code.update({hash(distractor): re.sub("&nbsp;", "", distractor)})
         distractor_counter += 1
 
-    print("model solution", model_solution)
-    print("display_code", display_code)
+    #print("model solution", model_solution)
+    #print("display_code", display_code)
     random.shuffle(model_solution)
     formattedCode['model_solution'] = model_solution
     formattedCode['display_code'] = display_code
@@ -445,7 +448,7 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
     student_indentation = []
     student_trash = []
 
-    print("student_solution_JSON, student_trash_JSON", student_solution_JSON, student_trash_JSON)
+    #print("student_solution_JSON, student_trash_JSON", student_solution_JSON, student_trash_JSON)
     for code_fragment in student_solution_JSON:
         hash_value = str(code_fragment['id'])
         if hash_value != 'None':
@@ -471,7 +474,7 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
     student_solution_dict['student_trash'] = student_trash
     student_solution_dict['student_indentation'] = student_indentation
 
-    print("student solution string", student_solution_string)
+    #print("student solution string", student_solution_string)
     # print("student solution", student_solution)
     # print("student hashes ", student_hashes)
     # print("student trashes", student_trash)
@@ -482,18 +485,19 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
 def getCorrectCount(student_hashes, hash_solutions):
     correct_count = 0
     i = 0
-    print("length of submitted keys", len(student_hashes))
-    print("student keys submitted", student_hashes)
+    #print("length of submitted keys", len(student_hashes))
+    #print("student keys submitted", student_hashes)
     for key in hash_solutions.keys():
         try:
-            print("key ", key, "student hashes", student_hashes[i])
+            #print("key ", key, "student hashes", student_hashes[i])
             #while the range we are in is lower than student hashes
             if(i < len(student_hashes) and student_hashes[i] == key):
-                    correct_count += 1
+                correct_count += 1
+                #print("student hash", i, key, student_hashes[i])
             i += 1
         except IndexError:
             break    
-        
+    #print("correct count", correct_count)   
     return correct_count
 def getIndenationErrorCount(student_indentation, indentation_solution):
     errors = []
@@ -508,6 +512,7 @@ def getIndenationErrorCount(student_indentation, indentation_solution):
     #print("indentation error count", student_indentation, indentation_solution, errors)
     return errors
 def gradeParson(qdict, studentAnswerDict):
+    #print("studentAnswerDict['correct_line_count']", studentAnswerDict['correct_line_count'])
     if studentAnswerDict['student_solution'] == "" or  studentAnswerDict['student_solution'] == None:
         return 0
     if studentAnswerDict['correct_line_count'] == 0:
@@ -524,6 +529,7 @@ def gradeParson(qdict, studentAnswerDict):
 
     #print("Student solution line count", student_solution_line_count, studentAnswerDict['correct_line_count'],correct_lines_in_solution)
 
+    #student solution line count makes sure that the right number of lines were submitted
     if (student_solution_line_count < correct_lines_in_solution):
         penalties += Decimal((correct_lines_in_solution - student_solution_line_count) * (1 / correct_lines_in_solution))
         #print("Penalties too few!: ", penalties)
@@ -532,7 +538,8 @@ def gradeParson(qdict, studentAnswerDict):
         penalties += Decimal((student_solution_line_count - correct_lines_in_solution) * (1 / correct_lines_in_solution))
         #print("Penalties too many!: ", penalties)
 
-    error_count = correct_lines_in_solution - correct_lines_in_solution
+    #correcnt line count contains the number of correct lines that a student submitted
+    error_count = -(studentAnswerDict['correct_line_count'] - correct_lines_in_solution)
     penalties += Decimal(error_count * (1 / correct_lines_in_solution))
 
     student_solution_line_count 
@@ -581,7 +588,7 @@ def childFragmentFunction(children, level, line_dictionary, student_hashes, stud
         hash_value = child['id']
         student_hashes.append(hash_value)
         student_indentation.append(level)
-        print("hash value", line_dictionary[hash_value])
+        #print("hash value", line_dictionary[hash_value])
         line = line_dictionary[hash_value]
         line = re.sub(";\n",";\n    ",line)
         student_solution_string.append(" " * level + str(line) + "\n")
@@ -590,7 +597,7 @@ def childFragmentFunction(children, level, line_dictionary, student_hashes, stud
         if 'children' in child:
             childFragmentFunction(child, level+4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
     
-    print("student hashes, student indentation, student solution string, student solution", student_hashes, student_indentation, student_solution_string, student_solution)
+    #print("student hashes, student indentation, student solution string, student solution", student_hashes, student_indentation, student_solution_string, student_solution)
 
 # def getDisplayForCKE():
 #     solution_hashes.append(hash(line))
