@@ -5,7 +5,7 @@ from django.http import JsonResponse
 
 from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, StaticQuestions 
 from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
-from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills, CoursesSkills, Questions
+from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionProgrammingFiles, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills, CoursesSkills, Questions
 from Instructors.models import Activities, ActivitiesCategory
 from Instructors.models import Topics, CoursesTopics
 
@@ -48,7 +48,8 @@ model_lookup_table = {
             'topicName': None,
         },
         'Export': {
-            
+            'topicID': None,
+            'topicName': None,
         }
     },
     CoursesTopics: {
@@ -85,10 +86,7 @@ model_lookup_table = {
             'skillID': None,
             'courseID': None,
         },
-        'Export': {
-            'skillID': None,
-            'skillName': None,
-        }
+        'Export': {}
     },
     Activities: {
         'Import': {
@@ -118,6 +116,7 @@ model_lookup_table = {
         'Import': {
             'challengeName': None,
             'isGraded': None,
+            'isRandomized': None,
             'numberAttempts': None,
             'timeLimit': None,
             'displayCorrectAnswer': None,
@@ -135,6 +134,7 @@ model_lookup_table = {
             'challengeID': None,
             'challengeName': None,
             'isGraded': None,
+            'isRandomized': None,
             'numberAttempts': None,
             'timeLimit': None,
             'displayCorrectAnswer': None,
@@ -221,10 +221,24 @@ model_lookup_table = {
             'partNumber': None,
             'templateText': None,
             'dynamicQuestion': None,
+            'pointsInPart': None,
         },
         'Export': {
             'partNumber': None,
             'templateText': None,
+            'pointsInPart': None,
+        }
+    },
+    QuestionProgrammingFiles: {
+        'Import': {
+            'questionID': None,
+            'programmingFileName': None,
+            'programmingFileFolderName': None,
+            
+        },
+        'Export': {
+            'programmingFileName': None,
+            'programmingFileFolderName': None,
         }
     },
     QuestionLibrary: {
@@ -232,8 +246,12 @@ model_lookup_table = {
             'question': None,
             'library': None,
         },
+        'Export': {}
+    },
+    LuaLibrary: {
+        'Import': {},
         'Export': {
-            
+            'libraryName': None,
         }
     },
     StaticQuestions: {
@@ -269,7 +287,7 @@ model_lookup_table = {
             'questionID': None,
         },
         'Export': {
-            
+            'correctAnswer': None,
         }
     },
     MatchingAnswers: {
@@ -279,7 +297,7 @@ model_lookup_table = {
             'matchingAnswerText': None,
         },
         'Export': {
-            
+            'matchingAnswerText': None,
         }
     },
     QuestionsSkills: {
@@ -303,7 +321,7 @@ model_lookup_table = {
             'operand2Value': int,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     ConditionSet: {
@@ -312,7 +330,7 @@ model_lookup_table = {
             'conditionInSet': None,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     ActivitySet: {
@@ -321,7 +339,7 @@ model_lookup_table = {
             'condition': None,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     ChallengeSet: {
@@ -330,7 +348,7 @@ model_lookup_table = {
             'condition': None,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     TopicSet: {
@@ -339,7 +357,7 @@ model_lookup_table = {
             'condition': None,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     ActivityCategorySet: {
@@ -348,7 +366,7 @@ model_lookup_table = {
             'condition': None,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     StringConstants: {
@@ -356,7 +374,7 @@ model_lookup_table = {
             'stringValue': None,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     Dates: {
@@ -364,7 +382,7 @@ model_lookup_table = {
             'dateValue': None,
         },
         'Export': {
-            
+            # Done by databaseConditionToJSONString
         }
     },
     Rules: {
@@ -386,9 +404,7 @@ model_lookup_table = {
             'event': None,
             'inGlobalContext': None,
         },
-        'Export': {
-            
-        }
+        'Export': {}
     },
     Badges: {
         'Import': {
@@ -483,6 +499,7 @@ model_lookup_table = {
             'vcRuleDescription': None,
             'vcRuleType': None,
             'vcRuleAmount': None,
+            'vcAmountVaries': None,
             'vcRuleLimit': None,
             'isPeriodic': None,
             'courseID': None,
@@ -494,6 +511,7 @@ model_lookup_table = {
             'vcRuleDescription': None,
             'vcRuleType': None,
             'vcRuleAmount': None,
+            'vcAmountVaries': None,
             'vcRuleLimit': None,
             'isPeriodic': None,
 
@@ -507,6 +525,7 @@ model_lookup_table = {
             'vcRuleDescription': None,
             'vcRuleType': None,
             'vcRuleAmount': None,
+            'vcAmountVaries': None,
             'vcRuleLimit': None,
             'isPeriodic': None,
             'courseID': None,
@@ -528,6 +547,7 @@ model_lookup_table = {
             'vcRuleDescription': None,
             'vcRuleType': None,
             'vcRuleAmount': None,
+            'vcAmountVaries': None,
             'vcRuleLimit': None,
             'isPeriodic': None,
 
@@ -547,6 +567,7 @@ model_lookup_table = {
             'vcRuleDescription': None,
             'vcRuleType': None,
             'vcRuleAmount': None,
+            'vcAmountVaries': None,
             'vcRuleLimit': None,
             'isPeriodic': None,
             'courseID': None,
@@ -556,6 +577,7 @@ model_lookup_table = {
             'vcRuleDescription': None,
             'vcRuleType': None,
             'vcRuleAmount': None,
+            'vcAmountVaries': None,
             'vcRuleLimit': None,
             'isPeriodic': None,
         }
@@ -613,9 +635,7 @@ model_lookup_table = {
             'objectID': None,
             'objectType': None,
         },
-        'Export': {
-            
-        }
+        'Export': {}
     },
     AttendanceStreakConfiguration: {
         'Import': {
@@ -663,6 +683,9 @@ def create_item_node(query_object):
         field_to_save is list of tuples with value and cast specifier:
         ex. [("a", None), ("2", int), (4, str)]
     '''
+    if not query_object:
+        return {}
+
     node = {}
     model_type = type(query_object)
 
@@ -1422,7 +1445,8 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     if challenge_question.questionID.type == QuestionTypes.matching:                                               
                         matching_answer = MatchingAnswers.objects.get(answerID=answer, questionID=static_question) 
                         if matching_answer:
-                            answer_details['matchingAnswerText'] = matching_answer.matchingAnswerText
+                            answer_details.update(create_item_node(matching_answer))
+                            # answer_details['matchingAnswerText'] = matching_answer.matchingAnswerText
 
                     # Add answer detail to static question json list
                     static_question_answers_jsons.append(answer_details)
@@ -1463,14 +1487,25 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
 
                     # Add template dynamic question to dynamic question
                     dynamic_question_details['template-dynamic-question'] = template_dynamic_question_details
-        
+
+                # Add QuestionProgrammingFiles if any
+                question_programming_files = QuestionProgrammingFiles.objects.filter(questionID=question)
+                if question_programming_files.exists():
+                    question_programming_files_jsons = []
+                    for question_programming_file in question_programming_files:     
+                        question_programming_file_details = create_item_node(question_programming_file) # LuaLibrary model
+                        question_programming_files_jsons.append(question_programming_file_details)
+
+                    # Add question libraries to dynamic question details
+                    dynamic_question_details['question-programming-files'] = question_programming_files_jsons
+
                 # Add QuestionLibrary if any
                 question_libraries = QuestionLibrary.objects.filter(question=question)
                 if question_libraries.exists():
                     question_libraries_jsons = []
                     for question_library in question_libraries:     
-                        question_library_details = {}
-                        question_library_details['libraryName'] = question_library.library.libraryName                 
+                        question_library_details = create_item_node(question_library.library) # LuaLibrary model
+                        # question_library_details['libraryName'] = question_library.library.libraryName                 
                         question_libraries_jsons.append(question_library_details)
 
                     # Add question libraries to dynamic question details
@@ -2181,6 +2216,19 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
 
                 else:
                     question.save()
+
+                # Create QuestionProgrammingFiles if any
+                # TODO: Not sure if this is correct
+                if 'question-programming-files' in dynamic_question_json and context_dict:
+
+                    for question_programming_files_json in dynamic_question_json['question-programming-files']:
+                        # Get the user
+                        user = User.objects.get(username=context_dict['username'])
+                        
+                        question_programming_files_fields_to_save = {'questionID': question, 'programmingFileUploader': user}
+
+                        question_programming_file = create_model_instance(QuestionProgrammingFiles, question_programming_files_json, custom_fields_to_save=question_programming_files_fields_to_save)
+                        question_programming_file.save() 
 
                 # Create QuestionLibraries if any
                 if 'question-libraries' in dynamic_question_json:
