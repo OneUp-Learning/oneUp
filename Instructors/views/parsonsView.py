@@ -25,6 +25,8 @@ from django.template.defaultfilters import length
 from oneUp.decorators import instructorsCheck
 from oneUp.ckeditorUtil import config_ck_editor
 
+import random
+
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def parsonsForm(request):
@@ -415,7 +417,7 @@ def getModelSolution(solution_string, distractor_limit):
             line = re.sub("☃ *", "", line)
 
         model_solution.append({'line':line, 'hashVal':hash(line)})
-        display_code.update({hash(line): re.sub("&nbsp;", "", line)})
+        display_code.update({str(hash(line)): re.sub("&nbsp;", "", line)})
 
     distractor_counter = 0
     for distractor in distractors:
@@ -428,6 +430,7 @@ def getModelSolution(solution_string, distractor_limit):
 
     print("model solution", model_solution)
     print("display_code", display_code)
+    random.shuffle(model_solution)
     formattedCode['model_solution'] = model_solution
     formattedCode['display_code'] = display_code
     formattedCode['indentation'] = indentation
@@ -458,7 +461,8 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
 
     for code_fragment in student_trash_JSON:
         hash_value = code_fragment['id']
-        student_trash.append(str(line_dictionary[hash_value]))
+        if hash_value != 'None':
+            student_trash.append(str(line_dictionary[hash_value]))
 
     student_solution_string = "".join(student_solution_string)
     student_solution_dict['student_solution_string'] = student_solution_string

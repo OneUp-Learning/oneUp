@@ -27,12 +27,13 @@ db.sqlite3
 # Java class files.
 **/*.class
 
-# User uploaded images
+# User uploaded images and other files
 media/images/uploadedInstructorImages/*
 media/images/uploadedAvatarImages/*
 media/lua/uploadedLuaLibs/*
 media/textfiles/xmlfiles/*
 media/Instructors/instructorActivityFiles/*
+lua/problems/*
 
 # Deployment stuff which shouldn't be checked in
 oneUp/secret.key
