@@ -5,7 +5,7 @@ from django.http import JsonResponse
 
 from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, StaticQuestions 
 from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
-from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills, CoursesSkills
+from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills, CoursesSkills, Questions
 from Instructors.models import Activities, ActivitiesCategory
 from Instructors.models import Topics, CoursesTopics
 
@@ -44,290 +44,589 @@ from oneUp.decorators import instructorsCheck
 
 model_lookup_table = {
     Topics: {
-        'topicName': None,
+        'Import': {
+            'topicName': None,
+        },
+        'Export': {
+            
+        }
     },
     CoursesTopics: {
-        'topicID': None,
-        'courseID': None,
+        'Import': {
+            'topicID': None,
+            'courseID': None,
+        },
+        'Export': {
+            'topicID': None,
+            'topicName': None,
+        }
     },
     ActivitiesCategory: {
-        'name': None,
-        'courseID': None,
+        'Import': {
+            'name': None,
+            'courseID': None,
+        },
+        'Export': {
+            'name': None,
+            'categoryID': None,
+        }
     },
     Skills: {
-        'skillName': None,
+        'Import': {
+            'skillName': None,
+        },
+        'Export': {
+            'skillID': None,
+            'skillName': None,
+        }
     },
     CoursesSkills: {
-        'skillID': None,
-        'courseID': None,
+        'Import': {
+            'skillID': None,
+            'courseID': None,
+        },
+        'Export': {
+            'skillID': None,
+            'skillName': None,
+        }
     },
     Activities: {
-        'activityName': None,
-        'isGraded': None,
-        'description': None,
-        'points': Decimal,
-        'isFileAllowed': None,
-        'uploadAttempts': None,
-        'instructorNotes': None,
-        'author': None,
-        'courseID': None,
+        'Import': {
+            'activityName': None,
+            'isGraded': None,
+            'description': None,
+            'points': Decimal,
+            'isFileAllowed': None,
+            'uploadAttempts': None,
+            'instructorNotes': None,
+            'author': None,
+            'courseID': None,
+        },
+        'Export': {
+            'activityID': None,
+            'activityName': None,
+            'isGraded': None,
+            'description': None,
+            'points': str,
+            'isFileAllowed': None,
+            'uploadAttempts': None,
+            'instructorNotes': None,
+            'author': None,
+        }
     },
     Challenges: {
-        'challengeName': None,
-        'isGraded': None,
-        'numberAttempts': None,
-        'timeLimit': None,
-        'displayCorrectAnswer': None,
-        'displayCorrectAnswerFeedback': None,
-        'displayIncorrectAnswerFeedback': None,
-        'challengeAuthor': None,
-        'challengeDifficulty': None,
-        'challengePassword': None,
-        'startTimestamp': None,
-        'endTimestamp': None,
-        'dueDate': None,
-        'courseID': None,
+        'Import': {
+            'challengeName': None,
+            'isGraded': None,
+            'numberAttempts': None,
+            'timeLimit': None,
+            'displayCorrectAnswer': None,
+            'displayCorrectAnswerFeedback': None,
+            'displayIncorrectAnswerFeedback': None,
+            'challengeAuthor': None,
+            'challengeDifficulty': None,
+            'challengePassword': None,
+            'startTimestamp': None,
+            'endTimestamp': None,
+            'dueDate': None,
+            'courseID': None,
+        },
+        'Export': {
+            'challengeID': None,
+            'challengeName': None,
+            'isGraded': None,
+            'numberAttempts': None,
+            'timeLimit': None,
+            'displayCorrectAnswer': None,
+            'displayCorrectAnswerFeedback': None,
+            'displayIncorrectAnswerFeedback': None,
+            'challengeAuthor': None,
+            'challengeDifficulty': None,
+            'challengePassword': None,
+        }
     },
     ChallengesTopics: {
-        'topicID': None,
-        'challengeID': None,
+        'Import':{
+            'topicID': None,
+            'challengeID': None,
+        },
+        'Export': {
+            'topicID': None,
+            'topicName': None,
+        }
     },
     ChallengesQuestions: {
-        'points': Decimal,
-        'challengeID': None,
-        'questionID': None,
+        'Import': {
+            'points': Decimal,
+            'challengeID': None,
+            'questionID': None,
+        },
+        'Export': {
+            'points': str,
+        }
+    },
+    Questions: {
+        'Import': {},
+        'Export': {
+            'preview': None,
+            'instructorNotes': None,
+            'type': None,
+            'difficulty': None,
+            'author': None,
+        }
     }
     DynamicQuestions: {
-        'preview': None,
-        'instructorNotes': None,
-        'type': None,
-        'difficulty': None,
-        'author': None,
-        
-        'numParts': None,
-        'code': None,
-        'submissionsAllowed': None,
-        'resubmissionPenalty': None,
+        'Import': {
+            'preview': None,
+            'instructorNotes': None,
+            'type': None,
+            'difficulty': None,
+            'author': None,
+            
+            'numParts': None,
+            'code': None,
+            'submissionsAllowed': None,
+            'resubmissionPenalty': None,
+        },
+        'Export': {
+            'numParts': None,
+            'code': None,
+            'submissionsAllowed': None,
+            'resubmissionPenalty': None,
+        }
     },
     TemplateDynamicQuestions: {
-        'preview': None,
-        'instructorNotes': None,
-        'type': None,
-        'difficulty': None,
-        'author': None,
+        'Import': {
+            'preview': None,
+            'instructorNotes': None,
+            'type': None,
+            'difficulty': None,
+            'author': None,
 
-        'numParts': None,
-        'code': None,
-        'submissionsAllowed': None,
-        'resubmissionPenalty': None,
+            'numParts': None,
+            'code': None,
+            'submissionsAllowed': None,
+            'resubmissionPenalty': None,
 
-        'templateText': None,
-        'setupCode': None,
+            'templateText': None,
+            'setupCode': None,
+        },
+        'Export': {
+            'templateText': None,
+            'setupCode': None,
+        }
     },
     TemplateTextParts: {
-        'partNumber': None,
-        'templateText': None,
-        'dynamicQuestion': None,
+        'Import': {
+            'partNumber': None,
+            'templateText': None,
+            'dynamicQuestion': None,
+        },
+        'Export': {
+            'partNumber': None,
+            'templateText': None,
+        }
     },
     QuestionLibrary: {
-        'question': None,
-        'library': None,
+        'Import': {
+            'question': None,
+            'library': None,
+        },
+        'Export': {
+            
+        }
     },
     StaticQuestions: {
-        'preview': None,
-        'instructorNotes': None,
-        'type': None,
-        'difficulty': None,
-        'author': None,
-        
-        'questionText': None,
-        'correctAnswerFeedback': None,
-        'incorrectAnswerFeedback': None,
+        'Import': {
+            'preview': None,
+            'instructorNotes': None,
+            'type': None,
+            'difficulty': None,
+            'author': None,
+            
+            'questionText': None,
+            'correctAnswerFeedback': None,
+            'incorrectAnswerFeedback': None,
+        },
+        'Export': {
+            'questionText': None,
+            'correctAnswerFeedback': None,
+            'incorrectAnswerFeedback': None,
+        }
     },
     Answers: {
-        'answerText': None,
-        'questionID': None,
+        'Import': {
+            'answerText': None,
+            'questionID': None,
+        },
+        'Export': {
+            'answerText': None,
+        }
     },
     CorrectAnswers: {
-        'answerID': None,
-        'questionID': None,
+        'Import': {
+            'answerID': None,
+            'questionID': None,
+        },
+        'Export': {
+            
+        }
     },
     MatchingAnswers: {
-        'answerID': None,
-        'questionID': None,
-        'matchingAnswerText': None,
+        'Import': {
+            'answerID': None,
+            'questionID': None,
+            'matchingAnswerText': None,
+        },
+        'Export': {
+            
+        }
     },
     QuestionsSkills: {
-        'skillID': None,
-        'questionID': None,
-        'questionSkillPoints': None,
-        'courseID': None,
+        'Import': {
+            'skillID': None,
+            'questionID': None,
+            'questionSkillPoints': None,
+            'courseID': None,
+        },
+        'Export': {
+            'questionSkillPoints': None,
+        }
     },
     Conditions: {
-        'courseID': None,
-        'operation': None,
-        'operand1Type': None,
-        'operand1Value': int,
-        'operand2Type': None,
-        'operand2Value': int,
+        'Import': {
+            'courseID': None,
+            'operation': None,
+            'operand1Type': None,
+            'operand1Value': int,
+            'operand2Type': None,
+            'operand2Value': int,
+        },
+        'Export': {
+            
+        }
     },
     ConditionSet: {
-        'parentCondition': None,
-        'conditionInSet': None,
+        'Import': {
+            'parentCondition': None,
+            'conditionInSet': None,
+        },
+        'Export': {
+            
+        }
     },
     ActivitySet: {
-        'activity_id': int,
-        'condition': None,
+        'Import': {
+            'activity_id': int,
+            'condition': None,
+        },
+        'Export': {
+            
+        }
     },
     ChallengeSet: {
-        'challenge_id': int,
-        'condition': None,
+        'Import': {
+            'challenge_id': int,
+            'condition': None,
+        },
+        'Export': {
+            
+        }
     },
     TopicSet: {
-        'topic_id': int,
-        'condition': None,
+        'Import': {
+            'topic_id': int,
+            'condition': None,
+        },
+        'Export': {
+            
+        }
     },
     ActivityCategorySet: {
-        'category_id': int,
-        'condition': None,
+        'Import': {
+            'category_id': int,
+            'condition': None,
+        },
+        'Export': {
+            
+        }
     }
     StringConstants: {
-        'stringValue': None,
+        'Import': {
+            'stringValue': None,
+        },
+        'Export': {
+            
+        }
     },
     Dates: {
-        'dateValue': None,
+        'Import': {
+            'dateValue': None,
+        },
+        'Export': {
+            
+        }
     },
     Rules: {
-        'courseID': None,
-        'conditionID': None,
-        'actionID': None,
-        'objectSpecifier': None,
-        'awardFrequency': None,
+        'Import': {
+            'courseID': None,
+            'conditionID': None,
+            'actionID': None,
+            'objectSpecifier': None,
+            'awardFrequency': None,
+        },
+        'Export': {
+            'actionID': None,
+            'awardFrequency': None,
+        }
     },
     RuleEvents: {
-        'rule': None,
-        'event': None,
-        'inGlobalContext': None,
+        'Import': {
+            'rule': None,
+            'event': None,
+            'inGlobalContext': None,
+        },
+        'Export': {
+            
+        }
     },
     Badges: {
-        'badgeName': None,
-        'badgeDescription': None,
-        'badgeImage': None,
-        'manual': None,
-        'isPeriodic': None,
-        'courseID': None,
+        'Import': {
+            'badgeName': None,
+            'badgeDescription': None,
+            'badgeImage': None,
+            'manual': None,
+            'isPeriodic': None,
+            'courseID': None,
 
-        'ruleID': None,
+            'ruleID': None,
+        },
+        'Export': {
+            'badgeName': None,
+            'badgeDescription': None,
+            'badgeImage': None,
+            'manual': None,
+            'isPeriodic': None,
+
+            'actionID': None,
+            'awardFrequency': None,
+        }
     },
     PeriodicBadges: {
-        'badgeName': None,
-        'badgeDescription': None,
-        'badgeImage': None,
-        'manual': None,
-        'isPeriodic': None,
-        'courseID': None,
+        'Import': {
+            'badgeName': None,
+            'badgeDescription': None,
+            'badgeImage': None,
+            'manual': None,
+            'isPeriodic': None,
+            'courseID': None,
 
-        'periodicVariableID': None,
-        'timePeriodID': None,
-        'periodicType': None,
-        'numberOfAwards': None,
-        'threshold': None,
-        'operatorType': None,
-        'isRandom': None,
-        'resetStreak': None,
-        'lastModified': None,
+            'periodicVariableID': None,
+            'timePeriodID': None,
+            'periodicType': None,
+            'numberOfAwards': None,
+            'threshold': None,
+            'operatorType': None,
+            'isRandom': None,
+            'resetStreak': None,
+            'lastModified': None,
 
-        'periodicTask': None,
+            'periodicTask': None,
+        },
+        'Export': {
+            'badgeName': None,
+            'badgeDescription': None,
+            'badgeImage': None,
+            'manual': None,
+            'isPeriodic': None,
+
+            'periodicVariableID': None,
+            'timePeriodID': None,
+            'periodicType': None,
+            'numberOfAwards': None,
+            'threshold': None,
+            'operatorType': None,
+            'isRandom': None,
+            'resetStreak': None,
+        }
     },
     BadgesInfo: {
-        'badgeName': None,
-        'badgeDescription': None,
-        'badgeImage': None,
-        'manual': None,
-        'isPeriodic': None,
-        'courseID': None,
+        'Import': {
+            'badgeName': None,
+            'badgeDescription': None,
+            'badgeImage': None,
+            'manual': None,
+            'isPeriodic': None,
+            'courseID': None,
+        },
+        'Export': {
+            'badgeName': None,
+            'badgeDescription': None,
+            'badgeImage': None,
+            'manual': None,
+            'isPeriodic': None,
+        }
     },
     ActionArguments: {
-        'ruleID': None,
-        'sequenceNumber': None,
-        'argumentValue': str,
+        'Import': {
+            'ruleID': None,
+            'sequenceNumber': None,
+            'argumentValue': str,
+        },
+        'Export': {
+            
+        }
     },
     VirtualCurrencyRuleInfo: {
-        'vcRuleName': None,
-        'vcRuleDescription': None,
-        'vcRuleType': None,
-        'vcRuleAmount': None,
-        'vcRuleLimit': None,
-        'isPeriodic': None,
-        'courseID': None,
+        'Import': {
+            'vcRuleName': None,
+            'vcRuleDescription': None,
+            'vcRuleType': None,
+            'vcRuleAmount': None,
+            'vcRuleLimit': None,
+            'isPeriodic': None,
+            'courseID': None,
 
-        'ruleID': None,
+            'ruleID': None,
+        },
+        'Export': {
+            'vcRuleName': None,
+            'vcRuleDescription': None,
+            'vcRuleType': None,
+            'vcRuleAmount': None,
+            'vcRuleLimit': None,
+            'isPeriodic': None,
+
+            'actionID': None,
+            'awardFrequency': None,
+        }
     },
     VirtualCurrencyPeriodicRule: {
-        'vcRuleName': None,
-        'vcRuleDescription': None,
-        'vcRuleType': None,
-        'vcRuleAmount': None,
-        'vcRuleLimit': None,
-        'isPeriodic': None,
-        'courseID': None,
+        'Import': {
+            'vcRuleName': None,
+            'vcRuleDescription': None,
+            'vcRuleType': None,
+            'vcRuleAmount': None,
+            'vcRuleLimit': None,
+            'isPeriodic': None,
+            'courseID': None,
 
-        'periodicVariableID': None,
-        'timePeriodID': None,
-        'periodicType': None,
-        'numberOfAwards': None,
-        'threshold': None,
-        'operatorType': None,
-        'isRandom': None,
-        'resetStreak': None,
-        'lastModified': None,
+            'periodicVariableID': None,
+            'timePeriodID': None,
+            'periodicType': None,
+            'numberOfAwards': None,
+            'threshold': None,
+            'operatorType': None,
+            'isRandom': None,
+            'resetStreak': None,
+            'lastModified': None,
 
-        'periodicTask': None,
+            'periodicTask': None,
+        },
+        'Export': {
+            'vcRuleName': None,
+            'vcRuleDescription': None,
+            'vcRuleType': None,
+            'vcRuleAmount': None,
+            'vcRuleLimit': None,
+            'isPeriodic': None,
+
+            'periodicVariableID': None,
+            'timePeriodID': None,
+            'periodicType': None,
+            'numberOfAwards': None,
+            'threshold': None,
+            'operatorType': None,
+            'isRandom': None,
+            'resetStreak': None,
+        }
     },
     VirtualCurrencyCustomRuleInfo: {
-        'vcRuleName': None,
-        'vcRuleDescription': None,
-        'vcRuleType': None,
-        'vcRuleAmount': None,
-        'vcRuleLimit': None,
-        'isPeriodic': None,
-        'courseID': None,
+        'Import': {
+            'vcRuleName': None,
+            'vcRuleDescription': None,
+            'vcRuleType': None,
+            'vcRuleAmount': None,
+            'vcRuleLimit': None,
+            'isPeriodic': None,
+            'courseID': None,
+        },
+        'Export': {
+            'vcRuleName': None,
+            'vcRuleDescription': None,
+            'vcRuleType': None,
+            'vcRuleAmount': None,
+            'vcRuleLimit': None,
+            'isPeriodic': None,
+        }
     },
     LeaderboardsConfig: {
-        'leaderboardName': None, 
-        'leaderboardDescription': None,
-        'isContinous': None,
-        'isXpLeaderboard': None, 
-        'numStudentsDisplayed': None,
-        'periodicVariable': None, 
-        'timePeriodUpdateInterval': None, 
-        'displayOnCourseHomePage': None, 
-        'howFarBack': None,
-        'lastModified': None,
-        'courseID': None,
+        'Import': {
+            'leaderboardName': None, 
+            'leaderboardDescription': None,
+            'isContinous': None,
+            'isXpLeaderboard': None, 
+            'numStudentsDisplayed': None,
+            'periodicVariable': None, 
+            'timePeriodUpdateInterval': None, 
+            'displayOnCourseHomePage': None, 
+            'howFarBack': None,
+            'lastModified': None,
+            'courseID': None,
 
-        'periodicTask': None,
+            'periodicTask': None,
+        },
+        'Export': {
+            'leaderboardName': None, 
+            'leaderboardDescription': None,
+            'isContinous': None,
+            'isXpLeaderboard': None, 
+            'numStudentsDisplayed': None,
+            'periodicVariable': None, 
+            'timePeriodUpdateInterval': None, 
+            'displayOnCourseHomePage': None, 
+            'howFarBack': None,
+        }
     },
     ProgressiveUnlocking: {
-        'name': None,
-        'description': None,
-        'objectID': None,
-        'objectType': None,
-        'courseID': None,
+        'Import': {
+            'name': None,
+            'description': None,
+            'objectID': None,
+            'objectType': None,
+            'courseID': None,
 
-        'ruleID': None,
+            'ruleID': None,
+        },
+        'Export': {
+            'name': None,
+            'description': None,
+            'objectID': None,
+            'objectType': None,
+        }
     },
     StudentProgressiveUnlocking: {
-        'studentID': None,
-        'pUnlockingRuleID': None,
-        'courseID': None,
-        'objectID': None,
-        'objectType': None,
+        'Import': {
+            'studentID': None,
+            'pUnlockingRuleID': None,
+            'courseID': None,
+            'objectID': None,
+            'objectType': None,
+        },
+        'Export': {
+            
+        }
     },
     AttendanceStreakConfiguration: {
-        'daysofClass': None,
-        'daysDeselected': None,
-        'courseID': None
+        'Import': {
+            'daysofClass': None,
+            'daysDeselected': None,
+            'courseID': None,
+        },
+        'Export': {
+            'daysofClass': None,
+            'daysDeselected': None,
+        }
     }
 
 }
@@ -355,6 +654,28 @@ def create_item_node(query_object, fields_to_save):
                 value = field[1](value)
                 
             node[field[0]] = value
+    return node
+
+def create_item_node(query_object):
+    ''' Creates the key value pairs for json based on query object and
+        which fields to save.
+
+        field_to_save is list of tuples with value and cast specifier:
+        ex. [("a", None), ("2", int), (4, str)]
+    '''
+    node = {}
+    model_type = type(query_object)
+
+    for field_name, cast_specifier in model_lookup_table[model_type]['Export'].items():
+        # Add key-val if the query object has this attribute (field)
+        if hasattr(query_object, field_name):
+            value = getattr(query_object, field_name)
+            # Cast the value if the field requires some casting
+            if cast_specifier is not None:
+                value = cast_specifier(value)
+                
+            node[field_name] = value
+
     return node
 
 def create_model_instance(model, fields_to_save, modify=False):
@@ -402,7 +723,7 @@ def create_model_instance(model, fields_data, custom_fields_to_save=None, modify
         model_instance = model()
         model_type = model
 
-    for field_name, cast_specifier in model_lookup_table[model_type].items():
+    for field_name, cast_specifier in model_lookup_table[model_type]['Import'].items():
         if fields_data is None and custom_fields_to_save is None:
             continue
             
@@ -634,6 +955,9 @@ def validate_rule_json(rule_json, post_request, root_json=None, messages=[]):
     validate_condition_json(rule_json['condition'], post_request, root_json, messages=messages)       
 
 def validate_content_unlocking_rule_json(content_unlocking_rule_json, post_request, root_json=None, messages=[]):
+    ''' Validates a content unlocking rule to see if a 
+        object id is in the root_json
+    '''
     if not content_unlocking_rule_json:
         return
     
@@ -1010,14 +1334,14 @@ def challenges_to_json(challenges, current_course, include_topics=True, post_req
     if challenges.exists():
         # Select what fields to save from the model
         # Second element of tuple is what to cast the model field to
-        challenge_fields_to_save = [('challengeID', None), ('challengeName', None), ('isGraded', None), ('numberAttempts', None), 
-                                ('timeLimit', None), ('displayCorrectAnswer', None), 
-                                ('displayCorrectAnswerFeedback', None), ('displayIncorrectAnswerFeedback', None), 
-                                ('challengeAuthor', None), ('challengeDifficulty', None),
-                                ('challengePassword', None),]
+        # challenge_fields_to_save = [('challengeID', None), ('challengeName', None), ('isGraded', None), ('numberAttempts', None), 
+        #                         ('timeLimit', None), ('displayCorrectAnswer', None), 
+        #                         ('displayCorrectAnswerFeedback', None), ('displayIncorrectAnswerFeedback', None), 
+        #                         ('challengeAuthor', None), ('challengeDifficulty', None),
+        #                         ('challengePassword', None),]
         for challenge in challenges:
             # Get the challenge information
-            challenge_details = create_item_node(challenge, challenge_fields_to_save)
+            challenge_details = create_item_node(challenge)
 
             if include_topics:
                 # Add topics for this challenge if any
@@ -1044,30 +1368,30 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
 
     if challenge_questions.exists():
         # Cast the points field to a str after getting value from database since it is stored as Decimal
-        challenge_question_fields_to_save = [('points', str),]
+        # challenge_question_fields_to_save = [('points', str),]
 
         for challenge_question in challenge_questions:
             # Add the challenge question model details
-            challenge_question_details = create_item_node(challenge_question, challenge_question_fields_to_save)
+            challenge_question_details = create_item_node(challenge_question)
             
             # Add the question model details
             question = challenge_question.questionID
-            question_fields_to_save = [('preview', None), ('instructorNotes', None), ('type', None),
-                                        ('difficulty', None), ('author', None),]
-            question_details = create_item_node(question, question_fields_to_save)
+            # question_fields_to_save = [('preview', None), ('instructorNotes', None), ('type', None),
+            #                             ('difficulty', None), ('author', None),]
+            question_details = create_item_node(question)
 
             # Add the question skills if any
             question_skills = QuestionsSkills.objects.filter(questionID=question, courseID = current_course)
             if question_skills.exists():
                 question_skills_jsons = []
 
-                questions_skills_fields_to_save = [('questionSkillPoints', None),]
-                skills_fields_to_save = [('skillID', None),('skillName', None),]
+                # questions_skills_fields_to_save = [('questionSkillPoints', None),]
+                # skills_fields_to_save = [('skillID', None),('skillName', None),]
 
                 for skill in question_skills: 
-                    skill_details = create_item_node(skill, questions_skills_fields_to_save)
+                    skill_details = create_item_node(skill)
                     # Add the skill id and name
-                    skill_details.update(create_item_node(skill.skillID, skills_fields_to_save))
+                    skill_details.update(create_item_node(skill.skillID))
 
                     question_skills_jsons.append(skill_details)
 
@@ -1078,16 +1402,16 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
             static_questions = StaticQuestions.objects.filter(questionID=int(question.questionID))
             if static_questions.exists():
                 static_question = static_questions.first()
-                static_question_fields_to_save = [('questionText', None), ('correctAnswerFeedback', None), 
-                                                ('incorrectAnswerFeedback', None),]
-                static_question_details = create_item_node(static_question, static_question_fields_to_save)
+                # static_question_fields_to_save = [('questionText', None), ('correctAnswerFeedback', None), 
+                #                                 ('incorrectAnswerFeedback', None),]
+                static_question_details = create_item_node(static_question)
 
                 # Add Answers for Static Questions
                 static_question_answers = Answers.objects.filter(questionID=static_question)    
                 static_question_answers_jsons = []
-                static_question_answers_fields_to_save = [('answerText', None),]
+                # static_question_answers_fields_to_save = [('answerText', None),]
                 for answer in static_question_answers:            
-                    answer_details = create_item_node(answer, static_question_answers_fields_to_save)
+                    answer_details = create_item_node(answer)
                 
                     # Check if it is a correct answer
                     correct_answers = CorrectAnswers.objects.filter(questionID=static_question, answerID = answer)
@@ -1115,24 +1439,24 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
             if dynamic_questions.exists():
                 dynamic_question = dynamic_questions.first()
 
-                dynamic_question_fields_to_save = [('numParts', None), ('code', None),]
-                dynamic_question_details = create_item_node(dynamic_question, dynamic_question_fields_to_save)
+                # dynamic_question_fields_to_save = [('numParts', None), ('code', None),]
+                dynamic_question_details = create_item_node(dynamic_question)
         
                 # Add the TemplateDynamicQuestions if any
                 template_dynamic_questions = TemplateDynamicQuestions.objects.filter(questionID=int(question.questionID))
                 if template_dynamic_questions.exists():
                     template_dynamic_question = template_dynamic_questions.first()
 
-                    template_dynamic_question_fields_to_save = [('templateText', None), ('setupCode', None),]
-                    template_dynamic_question_details = create_item_node(template_dynamic_question, template_dynamic_question_fields_to_save)
+                    # template_dynamic_question_fields_to_save = [('templateText', None), ('setupCode', None),]
+                    template_dynamic_question_details = create_item_node(template_dynamic_question)
     
                     # Add the TemplateTextParts
                     template_text_parts = TemplateTextParts.objects.filter(dynamicQuestion=question)
                     if template_text_parts.exists():                        
                         template_text_parts_jsons = []
-                        template_text_parts_fields_to_save = [('partNumber', None), ('templateText', None),]
+                        # template_text_parts_fields_to_save = [('partNumber', None), ('templateText', None),]
                         for part in template_text_parts:    
-                            template_text_part_details = create_item_node(part, template_text_parts_fields_to_save)
+                            template_text_part_details = create_item_node(part)
                             template_text_parts_jsons.append(template_text_part_details)
                         # Add the template parts to the tempalte dyanmic question
                         template_dynamic_question_details['template-text-parts'] = template_text_parts_jsons
@@ -1171,19 +1495,19 @@ def activities_to_json(activities, current_course, include_categories=True, post
     if activities.exists():
         # Select what fields to save from the model
         # Second element of tuple is what to cast the model field to
-        activity_fields_to_save = [('activityID', None), ('activityName', None), ('isGraded', None), ('description', None), 
-                                ('points', str), ('isFileAllowed', None), 
-                                ('uploadAttempts', None), ('instructorNotes', None), 
-                                ('author', None),]
+        # activity_fields_to_save = [('activityID', None), ('activityName', None), ('isGraded', None), ('description', None), 
+        #                         ('points', str), ('isFileAllowed', None), 
+        #                         ('uploadAttempts', None), ('instructorNotes', None), 
+        #                         ('author', None),]
         for activity in activities:
             # Get the activity information
-            activity_details = create_item_node(activity, activity_fields_to_save)
+            activity_details = create_item_node(activity)
 
             # Note: we are also including Uncategorized category just in case to map the id  
             # if it has been used in conditions rules
             if include_categories:
                 # Save the activity category
-                activity_details['category'] = create_item_node(activity.category, [('categoryID', None), ('name', None),])
+                activity_details['category'] = create_item_node(activity.category)
 
             # Add the activity details to the activities json list
             activities_jsons.append(activity_details)
@@ -1196,13 +1520,13 @@ def activities_categories_to_json(activities_categories, current_course, post_re
     activities_categories_jsons = []
 
     if activities_categories.exists(): 
-        activity_category_fields_to_save = [('categoryID', None), ('name', None),]
+        # activity_category_fields_to_save = [('categoryID', None), ('name', None),]
         for category in activities_categories:
             # Note: we are also including Uncategorized category just in case to map the id  
             # if it has been used in conditions rules
             
             # Get category information
-            activity_category_details = create_item_node(category, activity_category_fields_to_save)
+            activity_category_details = create_item_node(category)
             
             activities_categories_jsons.append(activity_category_details)
 
@@ -1214,17 +1538,21 @@ def badges_to_json(badges, badge_type, current_course, post_request=None, root_j
     badges_jsons = []
 
     if badges.exists():
-        badges_fields_to_save = [('badgeName', None), ('badgeDescription', None), ('badgeImage', None), 
-                                ('manual', None), ('isPeriodic', None),]
+        # badges_fields_to_save = [('badgeName', None), ('badgeDescription', None), ('badgeImage', None), 
+        #                         ('manual', None), ('isPeriodic', None),]
         for badge in badges:
             # Get basic badge information
-            badge_details = create_item_node(badge, badges_fields_to_save)
+            badge_details = create_item_node(badge)
 
             if badge_type == 'automatic':
                 automatic_badge_rule = badge.ruleID
 
                 # Get the badge rule details
-                automatic_badge_rule_details = rule_model_to_json(automatic_badge_rule, post_request=post_request, root_json=root_json, messages=messages)
+                automatic_badge_rule_details = rule_model_to_json(automatic_badge_rule)
+
+                # Check to see if the conditions & specifier object ids are being exported as well
+                if post_request:
+                    validate_rule_json(automatic_badge_rule_details, post_request, root_json=root_json, messages=messages)
 
                 badge_details['rule'] = automatic_badge_rule_details
 
@@ -1245,17 +1573,21 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
     vc_rules_jsons = []
 
     if vc_rules.exists():
-        vc_rule_fields_to_save = [('vcRuleName', None), ('vcRuleDescription', None), ('vcRuleType', None), 
-                                ('vcRuleAmount', None), ('vcRuleLimit', None), ('isPeriodic', None),]
+        # vc_rule_fields_to_save = [('vcRuleName', None), ('vcRuleDescription', None), ('vcRuleType', None), 
+        #                         ('vcRuleAmount', None), ('vcRuleLimit', None), ('isPeriodic', None),]
         for vc_rule in vc_rules:
             # Get basic badge information
-            vc_rule_details = create_item_node(vc_rule, vc_rule_fields_to_save)
+            vc_rule_details = create_item_node(vc_rule)
 
             if vc_rule_type == 'automatic':
                 automatic_vc_rule = vc_rule.ruleID
 
                 # Get the vc rule details
-                automatic_vc_rule_details = rule_model_to_json(automatic_vc_rule, post_request=post_request, root_json=root_json, messages=messages)
+                automatic_vc_rule_details = rule_model_to_json(automatic_vc_rule)
+
+                # Check to see if the conditions & specifier object ids are being exported as well
+                if post_request:
+                    validate_rule_json(automatic_vc_rule_details, post_request, root_json=root_json, messages=messages)
 
                 vc_rule_details['rule'] = automatic_vc_rule_details
             
@@ -1269,12 +1601,14 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
 
     return vc_rules_jsons
 
-def rule_model_to_json(automatic_rule, automatic_rule_fields_to_save=[('actionID', None), ('awardFrequency', None),], post_request=None, root_json=None, messages=[]):
-    ''' Converts a Rule to json '''
+def rule_model_to_json(automatic_rule, automatic_rule_fields_to_save=[('actionID', None), ('awardFrequency', None),]):
+    ''' Converts a Rule to json for models:
+        Badges, VirtualCurrencyRuleInfo
+    '''
 
     if automatic_rule:
         # Get the rule information
-        automatic_rule_details = create_item_node(automatic_rule, automatic_rule_fields_to_save)
+        automatic_rule_details = create_item_node(automatic_rule)
 
         # Setup Object specifier
         automatic_rule_object_specifier = automatic_rule.objectSpecifier
@@ -1282,10 +1616,6 @@ def rule_model_to_json(automatic_rule, automatic_rule_fields_to_save=[('actionID
         # Get the rule condition string
         automatic_rule_condition = automatic_rule.conditionID
         automatic_rule_details['condition'] = json.loads(databaseConditionToJSONString(automatic_rule_condition))
-
-        # Check to see if the conditions & specifier object ids are being exported as well
-        if post_request:
-            validate_rule_json(automatic_rule_details, post_request, root_json=root_json, messages=messages)
 
         return automatic_rule_details
 
@@ -1300,7 +1630,7 @@ def periodic_model_to_json(periodic_object, periodic_fields_to_save=[('periodicV
         PeriodicBadges, VirtualCurrencyPeriodicRule
     '''
 
-    return create_item_node(periodic_object, periodic_fields_to_save)
+    return create_item_node(periodic_object)
 
 def topics_to_json(topics, current_course, post_request=None, root_json=None, messages=[]):
     ''' Converts topics (Course Topics or Challenge Topics) queryset to json '''
@@ -1308,14 +1638,14 @@ def topics_to_json(topics, current_course, post_request=None, root_json=None, me
     topics_jsons = []
 
     if topics.exists():
-        topics_fields_to_save = [('topicID', None), ('topicName', None),]
+        # topics_fields_to_save = [('topicID', None), ('topicName', None),]
         for course_topic in topics:
             # Note: we are also including Unspecified topic just in case to map the id 
             # if it has been used in conditions rules
 
             topic = course_topic.topicID
             # Get the topic information
-            topic_details = create_item_node(topic, topics_fields_to_save)
+            topic_details = create_item_node(topic)
 
             topics_jsons.append(topic_details)
 
@@ -1327,11 +1657,11 @@ def course_skills_to_json(course_skills, current_course, post_request=None, root
     course_skills_jsons = []
 
     if course_skills.exists():
-        skills_fields_to_save = [('skillID', None), ('skillName', None),]
+        # skills_fields_to_save = [('skillID', None), ('skillName', None),]
         for course_skill in course_skills: 
             skill = course_skill.skillID
             # Get the skills details into json
-            skill_details = create_item_node(skill, skills_fields_to_save)
+            skill_details = create_item_node(skill)
             # Add to json list
             course_skills_jsons.append(skill_details)
 
@@ -1343,13 +1673,13 @@ def leaderboards_to_json(leaderboards, current_course, post_request=None, root_j
     leaderboards_jsons = []
 
     if leaderboards.exists():
-        leaderboards_fields_to_save = [('leaderboardName', None), ('leaderboardDescription', None),
-                                        ('isContinous', None),('isXpLeaderboard', None), ('numStudentsDisplayed', None),
-                                        ('periodicVariable', None), ('timePeriodUpdateInterval', None), 
-                                        ('displayOnCourseHomePage', None), ('howFarBack', None),]
+        # leaderboards_fields_to_save = [('leaderboardName', None), ('leaderboardDescription', None),
+        #                                 ('isContinous', None),('isXpLeaderboard', None), ('numStudentsDisplayed', None),
+        #                                 ('periodicVariable', None), ('timePeriodUpdateInterval', None), 
+        #                                 ('displayOnCourseHomePage', None), ('howFarBack', None),]
         for leaderboard in leaderboards:
             # Get the leaderboard information
-            leaderboard_details = create_item_node(leaderboard, leaderboards_fields_to_save)
+            leaderboard_details = create_item_node(leaderboard)
 
             leaderboards_jsons.append(leaderboard_details)
 
@@ -1361,23 +1691,18 @@ def content_unlocking_rules_to_json(content_unlocking_rules, current_course, pos
     content_unlocking_rules_jsons = []
 
     if content_unlocking_rules.exists():
-        content_unlocking_rule_fields_to_save = [('name', None), ('description', None), ('objectID', None), 
-                                ('objectType', None),]
+        # content_unlocking_rule_fields_to_save = [('name', None), ('description', None), ('objectID', None), 
+        #                                         ('objectType', None),]
         for content_unlocking_rule in content_unlocking_rules:
             # Get basic badge information
-            content_unlocking_rule_details = create_item_node(content_unlocking_rule, content_unlocking_rule_fields_to_save)
+            content_unlocking_rule_details = create_item_node(content_unlocking_rule)
 
             rule = content_unlocking_rule.ruleID
-            rule_fields_to_save = [('actionID', None), ('awardFrequency', None),]
+
             # Get the rule information
-            rule_details = create_item_node(rule, rule_fields_to_save)
-
-            # Setup Object specifier
-            rule_details['objectSpecifier'] = json.loads(rule.objectSpecifier)
-            # Get the rule condition string
-            rule_condition = content_unlocking_rule.ruleID.conditionID
-            rule_details['condition'] = json.loads(databaseConditionToJSONString(rule_condition))
-
+            rule_details = rule_model_to_json(rule)
+            
+            # Check to see if the conditions & specifier object ids are being exported as well
             if post_request:
                 validate_content_unlocking_rule_json(content_unlocking_rule_details, post_request, root_json=root_json, messages=messages)
 
@@ -1393,10 +1718,10 @@ def streaks_to_json(streaks, current_course, post_request=None, root_json=None, 
     streaks_jsons = []
 
     if streaks.exists():
-        streaks_fields_to_save = [('daysofClass', None), ('daysDeselected', None),]
+        # streaks_fields_to_save = [('daysofClass', None), ('daysDeselected', None),]
         for streak in streaks:
             # Get the streak information
-            streak_details = create_item_node(streak, streaks_fields_to_save)
+            streak_details = create_item_node(streak)
 
             streaks_jsons.append(streak_details)
 
