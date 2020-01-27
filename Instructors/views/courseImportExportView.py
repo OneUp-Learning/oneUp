@@ -174,7 +174,7 @@ model_lookup_table = {
             'difficulty': None,
             'author': None,
         }
-    }
+    },
     DynamicQuestions: {
         'Import': {
             'preview': None,
@@ -350,7 +350,7 @@ model_lookup_table = {
         'Export': {
             
         }
-    }
+    },
     StringConstants: {
         'Import': {
             'stringValue': None,
@@ -2274,7 +2274,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
             # Save the challenge question
             # challenge_question_fields_to_modify = [('challengeID', challenge, None),
             #                                     ('questionID', question, None),]
-             challenge_question_fields_to_modify = {'challengeID': challenge, 'questionID': question}
+            challenge_question_fields_to_modify = {'challengeID': challenge, 'questionID': question}
             # challenge_question = create_model_instance(challenge_question, challenge_question_fields_to_modify, modify=True)
             challenge_question = create_model_instance(challenge_question, None, custom_fields_to_save=challenge_question_fields_to_modify, modify=True)
             challenge_question.save()
