@@ -19,8 +19,9 @@ from Badges.enums import Event
 from audioop import reverse
 
 from Students.models import StudentStreaks
-from Badges.models import  PeriodicBadges, VirtualCurrencyPeriodicRule
+from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
 from datetime import datetime, timedelta
+
 
 @login_required
 def achievements(request):
@@ -111,17 +112,25 @@ def achievements(request):
         badgeName.append(stud_badge.badgeID.badgeName)
         badgeImage.append(stud_badge.badgeID.badgeImage)
 
+    # Query serious challenges table to see if there is any serious challenges
+    if Challenges.objects.filter(courseID=currentCourse, isGraded=True):
+        context_dict["hasSeriousChallenges"] = True
+    else:
+        context_dict["hasSeriousChallenges"] = False
+
         # The range part is the index numbers.
     #context_dict['badgesInfo'] = zip(range(1,studentBadges.count()+1),badgeId,badgeName,badgeImage)
-    context_dict['badgesInfo'] = list(zip(range(1,len(studentCourseBadges)+1),badgeId,badgeName,badgeImage))
+    context_dict['badgesInfo'] = list(
+        zip(range(1, len(studentCourseBadges)+1), badgeId, badgeName, badgeImage))
     context_dict = displayStreaks(context_dict, studentId, currentCourse)
-    return render(request,'Students/Achievements.html', context_dict)
+    return render(request, 'Students/Achievements.html', context_dict)
+
 
 def convertTimePeriodToTimePrompt(streakObj):
-    daily = 1500 # Runs every day at midnight
-    weekly = 1501 # Runs every Sunday at midnight
-    biweekly = 1502 # Runs every two weeks on Sunday at midnight
-    beginning_of_time = 1503 # Runs only once
+    daily = 1500  # Runs every day at midnight
+    weekly = 1501  # Runs every Sunday at midnight
+    biweekly = 1502  # Runs every two weeks on Sunday at midnight
+    beginning_of_time = 1503  # Runs only once
     daily_test = 1599
 
     timePeriod = streakObj.timePeriodID
@@ -136,6 +145,8 @@ def convertTimePeriodToTimePrompt(streakObj):
         return nextRun
     else:
         return "Two Minutes"
+
+
 def findOutIfStreakChallengeOrAttendance(periodicVariableID):
     if periodicVariableID == 1407:
         return (1, "attendances")
@@ -143,18 +154,21 @@ def findOutIfStreakChallengeOrAttendance(periodicVariableID):
         return (2, "challenges")
     else:
         return (0, "None")
+
+
 def displayStreaks(context_dict, student, courseID):
     if StudentStreaks.objects.filter(studentID=student, courseID=courseID).exists():
-        studentStreaks = StudentStreaks.objects.filter(studentID=student, courseID=courseID)
+        studentStreaks = StudentStreaks.objects.filter(
+            studentID=student, courseID=courseID)
         badgeStreaks = []
         vcStreaks = []
-        
-        #find the streaks that are badges and VC
+
+        # find the streaks that are badges and VC
         for studentStreak in studentStreaks:
-            #badge
+            # badge
             if studentStreak.streakType == 0:
                 badgeStreaks.append(studentStreak)
-            #vc
+            # vc
             elif studentStreak.streakType == 1:
                 vcStreaks.append(studentStreak)
 
@@ -167,22 +181,28 @@ def displayStreaks(context_dict, student, courseID):
 
         print("badgeStreaks", badgeStreaks)
         print("vcStreaks", vcStreaks)
-        #find the display information for each streak in each list
+        # find the display information for each streak in each list
         for badgeStreak in badgeStreaks:
             print("badgeStreak", badgeStreak.objectID)
             print("exists", )
             if PeriodicBadges.objects.filter(badgeID=badgeStreak.objectID).exists():
-                periodicBadge = PeriodicBadges.objects.get(badgeID=badgeStreak.objectID)
+                periodicBadge = PeriodicBadges.objects.get(
+                    badgeID=badgeStreak.objectID)
                 badgeStreakName.append(periodicBadge.badgeName)
                 badgeTreshhold.append(periodicBadge.threshold)
-                badgeCurrentStreakLength.append(badgeStreak.currentStudentStreakLength)
+                badgeCurrentStreakLength.append(
+                    badgeStreak.currentStudentStreakLength)
 
-                badgeType.append(findOutIfStreakChallengeOrAttendance(periodicBadge.periodicVariableID)[1])
+                badgeType.append(findOutIfStreakChallengeOrAttendance(
+                    periodicBadge.periodicVariableID)[1])
                 badgeTime.append(convertTimePeriodToTimePrompt(periodicBadge))
                 badgeDescription.append(periodicBadge.badgeDescription)
-            print("data", badgeType, badgeStreakName, badgeDescription,badgeCurrentStreakLength, badgeTreshhold, badgeType, badgeTime)
-        context_dict['BadgeStreakInfo'] = list(zip(range(1,len(badgeType)+1), badgeStreakName, badgeDescription,badgeCurrentStreakLength, badgeTreshhold, badgeType, badgeTime))
-        print("context_dict['BadgeStreakInfo']",context_dict['BadgeStreakInfo'])
+            print("data", badgeType, badgeStreakName, badgeDescription,
+                  badgeCurrentStreakLength, badgeTreshhold, badgeType, badgeTime)
+        context_dict['BadgeStreakInfo'] = list(zip(range(1, len(
+            badgeType)+1), badgeStreakName, badgeDescription, badgeCurrentStreakLength, badgeTreshhold, badgeType, badgeTime))
+        print("context_dict['BadgeStreakInfo']",
+              context_dict['BadgeStreakInfo'])
 
         VCStreakName = []
         VCCurrentStreakLength = []
@@ -192,36 +212,42 @@ def displayStreaks(context_dict, student, courseID):
         vcDescription = []
         vcAmount = []
 
-        #find the display information for each streak in each list
+        # find the display information for each streak in each list
         for vcStreak in vcStreaks:
             if VirtualCurrencyPeriodicRule.objects.filter(vcRuleID=vcStreak.objectID).exists():
-                vcPeriodicRule = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=vcStreak.objectID)
+                vcPeriodicRule = VirtualCurrencyPeriodicRule.objects.get(
+                    vcRuleID=vcStreak.objectID)
                 VCStreakName.append(vcPeriodicRule.vcRuleName)
                 vcStreakTreshhold.append(vcPeriodicRule.threshold)
-                VCCurrentStreakLength.append(vcStreak.currentStudentStreakLength)
+                VCCurrentStreakLength.append(
+                    vcStreak.currentStudentStreakLength)
 
-                vcType.append(findOutIfStreakChallengeOrAttendance(vcPeriodicRule.periodicVariableID)[1])
+                vcType.append(findOutIfStreakChallengeOrAttendance(
+                    vcPeriodicRule.periodicVariableID)[1])
                 vcTime.append(convertTimePeriodToTimePrompt(vcPeriodicRule))
                 vcDescription.append(vcPeriodicRule.vcRuleDescription)
                 vcAmount.append(vcPeriodicRule.vcRuleAmount)
-        context_dict['VCStreakInfo'] = list(zip(range(1,len(vcType)+1), VCStreakName, vcDescription, vcAmount, VCCurrentStreakLength, vcStreakTreshhold, vcType, vcTime))
+        context_dict['VCStreakInfo'] = list(zip(range(1, len(
+            vcType)+1), VCStreakName, vcDescription, vcAmount, VCCurrentStreakLength, vcStreakTreshhold, vcType, vcTime))
         print("context_dict['VCStreakInfo']", context_dict['VCStreakInfo'])
     return context_dict
 
+
 @login_required
 def Track_class_avg_button_clicks(request):
-    ##this is used to track how many times the student clicks class average
-    ##we use ajax to track the information, otherwise they'd get the page refreshed on them
-    ##and it would be "wrong".
+    # this is used to track how many times the student clicks class average
+    # we use ajax to track the information, otherwise they'd get the page refreshed on them
+    # and it would be "wrong".
     from django.http import JsonResponse
 
-    context_dictionary,current_course = studentInitialContextDict(request)
+    context_dictionary, current_course = studentInitialContextDict(request)
     student_id = context_dictionary['student']
-    ##if we posted data with ajax, use it, otherwise just return.
+    # if we posted data with ajax, use it, otherwise just return.
     if request.POST:
-        register_event(Event.clickedViewAverageGrade, request, student_id, None)
-        
+        register_event(Event.clickedViewAverageGrade,
+                       request, student_id, None)
+
         print("ajax call", context_dictionary, student_id)
         return JsonResponse({})
-    
-    return render(request,'Students/Achievements.html', context_dictionary)
+
+    return render(request, 'Students/Achievements.html', context_dictionary)
