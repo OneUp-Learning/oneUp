@@ -32,6 +32,7 @@ from decimal import Decimal
 
 import os
 import json
+import zipfile
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.settings import MEDIA_ROOT
@@ -42,6 +43,8 @@ from oneUp.decorators import instructorsCheck
 # HELPER METHODS
 #############################################################
 
+# Import: Fields that needs to be set when creating the model
+# Export: Fields that needed to be exported to the json
 model_lookup_table = {
     Topics: {
         'Import': {
