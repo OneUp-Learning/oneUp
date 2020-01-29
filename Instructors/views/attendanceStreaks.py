@@ -87,7 +87,7 @@ def attendanceStreaks(request):
         print("post")
         streak.courseID = currentCourse
             
-        if 'daysOfWeek[]' in request.POST.get:
+        if 'daysOfWeek[]' in request.POST:
             print("request.post.getlistcheckboc", request.POST.getlist('daysOfWeek[]'))
             checkboxResult = request.POST.getlist('daysOfWeek[]')
             if not checkboxResult:
