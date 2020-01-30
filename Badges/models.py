@@ -481,3 +481,10 @@ class CeleryTaskLog(models.Model):
             help_text='The last time the celery task has run completely and was recorded')
     def __str__(self):
         return "Task ID: {} - Updated: {}".format(self.taskID, self.timestamp)
+    
+class CeleryTestResult(models.Model):
+    uniqid= models.CharField(max_length=200)
+    sequence = models.IntegerField()
+    def __str__(self):
+        return "Test "+self.sequence+":"+self.uniqid
+
