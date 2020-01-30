@@ -31,6 +31,7 @@ from Badges.views.timeBasedVirtualCurrencyView import timeBasedVirtualCurrencyVi
 from Badges.views.periodicBadgeView import PeriodicBadgeView
 from Badges.views.progressiveUnlocking import ProgressiveUnlockingRules, getObjs
 from Badges.views.periodicVirtualCurrencyEarnRuleList import periodicVirtualCurrencyEarnRuleList
+from Badges.views.celeryTestView import celeryTestView, celeryTestResultsView
 admin.autodiscover()
 
 urlpatterns = [    
@@ -61,4 +62,6 @@ urlpatterns = [
     url(r'^PeriodicVirtualCurrencyEarnRuleList',periodicVirtualCurrencyEarnRuleList, name="Periodic Virtual Currency Earn Rule List"),
     url(r'^ProgressiveUnlocking',ProgressiveUnlockingRules, name="Progressive Unlocking Rules"),
     url(r'^getObjsForPunlocking',getObjs, name="Progressive Unlocking Obj getter"),
+    url(r'^celeryTestView',celeryTestView, name="Celery Test"),
+    url(r'^celeryTestResultsView',celeryTestResultsView, name="Celery Results Test"),
 ]
