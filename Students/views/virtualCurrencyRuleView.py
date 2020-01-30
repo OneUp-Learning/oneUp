@@ -4,13 +4,13 @@ Created on Nov 3, 2016
 @author: Austin Hodge
 '''
 
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments
 from Badges.events import register_event
 from Badges.enums import Event
 from Instructors.constants import unlimited_constant
-
+from Badges.models import CourseConfigParams
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
 
@@ -19,6 +19,12 @@ def VirtualCurrencyDisplay(request):
 
     context_dict,currentCourse = studentInitialContextDict(request)
     
+      
+    #Redirects students from VC page if VC not enabled
+    config=CourseConfigParams.objects.get(courseID=currentCourse)
+    vcEnabled=config.virtualCurrencyUsed
+    if not vcEnabled:
+        return redirect('/oneUp/students/StudentCourseHome')
     studentId = context_dict['student']
     register_event(Event.visitedVCRulesInfoPage, request, studentId, None)
              
