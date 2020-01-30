@@ -2,7 +2,7 @@
 Created on Sep 14, 2016
 
 '''
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from Instructors.models import Courses
 from Students.models import StudentConfigParams,Student,StudentRegisteredCourses, StudentBadges
 from Instructors.views.announcementListView import createContextForAnnouncementList
@@ -17,12 +17,20 @@ from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
 from Instructors.models import CoursesSkills, Skills
 from Students.views.studentCourseHomeView import courseBadges
-
+from Students.views.utils import studentInitialContextDict
 
 @login_required
 
 
 def LeaderboardView(request):
+    
+    cd,currentCourse = studentInitialContextDict(request)
+      
+    #Redirects students from leaderboard page if leaderboard not enabled
+    config=CourseConfigParams.objects.get(courseID=currentCourse)
+    leaderboardEnabled=config.leaderboardUsed
+    if not leaderboardEnabled:
+        return redirect('/oneUp/students/StudentCourseHome')
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated
     if request.user.is_authenticated:

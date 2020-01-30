@@ -87,7 +87,9 @@
                               available Badges, and how to earn them.</span>
                            </div>
                         </li>
+                        {% if vcUsed%}
                         <li>
+                        
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>How Can I Earn Virtual Currency?
                            </div>
@@ -97,6 +99,7 @@
                               </span>
                            </div>
                         </li>
+                        
                         <li>
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>Where To Check How I Have Earned my Virtual Currency?
@@ -120,7 +123,7 @@
                               </span>
                            </div>
                         </li>
-
+						{%endif%}
                         <li>
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>What Is the Meaning of the Different Colors in My Progress Bar in the Achievement
@@ -217,10 +220,14 @@
             </div>
          </div>
          <div class="row">
+         {%if duelUsed %}
             <div class="col s12 m4">
+            
                <div class="card">
                   <div class="card-content">
+                   
                      <ul class="collapsible expandable">
+           
                         <li>
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>What is Dueling?
@@ -278,8 +285,10 @@
                            </div>
                         </li>
                      </ul>
+                     
                   </div>
                </div>
+               
             </div>
              <div class="col s12 m4">
                <div class="card">
@@ -336,6 +345,7 @@
                      </ul>
                   </div>
                </div>
+               {%endif%}
             </div>
             <div class="col s12 m4">
                <div class="card">

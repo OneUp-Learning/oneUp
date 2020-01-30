@@ -14,10 +14,14 @@ from Instructors.views.utils import utcDate
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
 from Students.views.utils import studentInitialContextDict
-
+from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required
 
 @login_required
 def studentQA(request):
-    context_dict, currentCourse = studentInitialContextDict(request)          
+    context_dict, currentCourse = studentInitialContextDict(request) 
+    config=CourseConfigParams.objects.get(courseID=currentCourse)
+    context_dict['duelUsed']=config.classmatesChallenges
+    context_dict['vcUsed']=config.virtualCurrencyUsed
+    context_dict['chatUsed']=config.chatUsed       
     return render(request,'Students/StudentQA.html',context_dict)
