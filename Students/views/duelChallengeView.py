@@ -21,6 +21,7 @@ from Instructors.constants import unspecified_topic_name, default_time_str
 from Badges.enums import Event
 from Badges.events import register_event, register_event_simple
 from oneUp.settings import DATABASES
+
 postgres_enabled = False
 if len([db for (name,db) in DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
     postgres_enabled = True
@@ -438,6 +439,11 @@ def callouts_list(request):
     context_dict,current_course = studentInitialContextDict(request)
     student_id = context_dict['student']
     context_dict['course_id'] = current_course.courseID
+    #Redirects students from duel page if duels not enabled
+    config=CourseConfigParams.objects.get(courseID=current_course)
+    duelEnabled=config.classmatesChallenges
+    if not duelEnabled:
+        return redirect('/oneUp/students/StudentCourseHome')
     
     #Get the duel challenges for challenger
     sent_duel_challenges = DuelChallenges.objects.filter(courseID=current_course, challenger=student_id)
