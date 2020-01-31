@@ -546,17 +546,18 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
 
         vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
-        
+        print("[TEST1] Begin reward student with VC")
         for retries in range(0,transaction_retry_count):
             try:
                 with transaction.atomic(): 
                     if actionID == Action.increaseVirtualCurrency:
+                        print("[TEST2] Checking if student was already awarded")
                         previousAwards = StudentVirtualCurrencyRuleBased.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
                         if rule.awardFrequency != AwardFrequency.justOnce:
                             previousAwards = previousAwards.filter(objectID = objID)
                         if previousAwards.exists():
                             # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
-                            print("In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
+                            print("[TEST3] In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
                             return
                                     
                         studVCRec = StudentVirtualCurrencyRuleBased()
@@ -568,6 +569,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             studVCRec.objectID = objID
                         studVCRec.vcRuleID = vcRule
                         studVCRec.save()
+                        print("[TEST4] StudentVirtualCurrencyRuleBased object was saved.")
             except OperationalError as e:
                 if e.__cause__.__class__ == TransactionRollbackError:
                     continue
@@ -577,6 +579,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                 break
         
         if actionID == Action.increaseVirtualCurrency:
+            print("[TEST5] About to increase student VC amount")
             # Increase the student virtual currency amount
             for retries in range(0,transaction_retry_count):
                 try:
@@ -584,13 +587,16 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
                         student.virtualCurrencyAmount += vcRuleAmount
                         student.save()
-                    
+
+                    print("[TEST6] Student VC amount increased.")
+
                     mini_req = {
                         'currentCourseID': courseID.pk,
                         'user': studentID.user.username,
                     }
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, studentID, vcRuleAmount)
                     notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID)}))
+                    print("[TEST7] End. VC earned event registered")
                 except OperationalError as e:
                     if e.__cause__.__class__ == TransactionRollbackError:
                         continue
@@ -599,7 +605,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                 else:
                     break
             return
-            
+        
         if actionID == Action.decreaseVirtualCurrency:
             # Decrease the student virtual currency amount
             
