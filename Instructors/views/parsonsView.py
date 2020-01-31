@@ -419,7 +419,7 @@ def getModelSolution(solution_string, distractor_limit):
         else:
             line = re.sub("☃ *", "", line)
 
-        model_solution.append({'line':line, 'hashVal':hash(line)})
+        model_solution.append({'line':line, 'hashVal':str(hash(line))})
         display_code.update({str(hash(line)): re.sub("&nbsp;", "", line)})
 
     distractor_counter = 0
