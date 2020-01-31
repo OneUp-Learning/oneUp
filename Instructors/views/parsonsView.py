@@ -427,8 +427,8 @@ def getModelSolution(solution_string, distractor_limit):
         if(distractor_counter < distractor_limit):
             #print("distractor", distractor)
             distractor = cleanseDistractor(distractor)
-            model_solution.append({'line':distractor, 'hashVal':hash(distractor)})
-            display_code.update({hash(distractor): re.sub("&nbsp;", "", distractor)})
+            model_solution.append({'line':distractor, 'hashVal':str(hash(distractor))})
+            display_code.update({str(hash(distractor)): re.sub("&nbsp;", "", distractor)})
         distractor_counter += 1
 
     #print("model solution", model_solution)
