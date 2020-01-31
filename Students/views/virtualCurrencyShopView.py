@@ -14,6 +14,7 @@ from Instructors.models import InstructorRegisteredCourses
 import logging
 import json
 import copy
+from Badges.models import CourseConfigParams
 
 
 @login_required
@@ -22,6 +23,11 @@ def virtualCurrencyShopView(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
 
+    # Redirects students from VC page if VC not enabled
+    config = CourseConfigParams.objects.get(courseID=currentCourse)
+    vcEnabled = config.virtualCurrencyUsed
+    if not vcEnabled:
+        return redirect('/oneUp/students/StudentCourseHome')
     if 'currentCourseID' in request.session:
 
         student = context_dict['student']

@@ -13,6 +13,8 @@ from Badges.enums import Event, dict_dict_to_zipped_list
 from Instructors.views.utils import utcDate
 from datetime import datetime, timedelta
 import pytz
+from Badges.models import CourseConfigParams
+from django.shortcuts import redirect
 #import logging
 
 
@@ -21,6 +23,11 @@ def transactionsView(request):
 
     context_dict, course = studentInitialContextDict(request)
     #logger = logging.getLogger(__name__)
+    # Redirects students from VC page if VC not enabled
+    config = CourseConfigParams.objects.get(courseID=course)
+    vcEnabled = config.virtualCurrencyUsed
+    if not vcEnabled:
+        return redirect('/oneUp/students/StudentCourseHome')
 
     student = context_dict['student']
 

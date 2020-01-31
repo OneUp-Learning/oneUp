@@ -13,8 +13,7 @@
          </div>
          <div class="row">
             <div class="col s12 m4">
-               <div class="card">
-                  <div class="card-content">
+               
                      <ul class="collapsible expandable">
                         <li>
                            <div class="collapsible-header">
@@ -70,12 +69,10 @@
                            </div>
                         </li>
                      </ul>
-                  </div>
-               </div>
+                
             </div>
             <div class="col s12 m4">
-               <div class="card">
-                  <div class="card-content">
+               
                      <ul class="collapsible expandable">
                         <li>
                            <div class="collapsible-header">
@@ -87,7 +84,9 @@
                               available Badges, and how to earn them.</span>
                            </div>
                         </li>
+                        {% if vcUsed%}
                         <li>
+                        
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>How Can I Earn Virtual Currency?
                            </div>
@@ -97,6 +96,7 @@
                               </span>
                            </div>
                         </li>
+                        
                         <li>
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>Where To Check How I Have Earned my Virtual Currency?
@@ -120,7 +120,7 @@
                               </span>
                            </div>
                         </li>
-
+						{%endif%}
                         <li>
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>What Is the Meaning of the Different Colors in My Progress Bar in the Achievement
@@ -144,12 +144,10 @@
                         
                         
                      </ul>
-                  </div>
-               </div>
+                
             </div>
             <div class="col s12 m4">
-               <div class="card">
-                  <div class="card-content">
+               
                      <ul class="collapsible expandable">
                         <li>
                            <div class="collapsible-header">
@@ -212,15 +210,17 @@
                            </div>
                         </li>
                      </ul>
-                  </div>
-               </div>
+                 
             </div>
          </div>
          <div class="row">
+         {%if duelUsed %}
             <div class="col s12 m4">
-               <div class="card">
-                  <div class="card-content">
+            
+             
+                   
                      <ul class="collapsible expandable">
+           
                         <li>
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>What is Dueling?
@@ -278,12 +278,12 @@
                            </div>
                         </li>
                      </ul>
-                  </div>
-               </div>
+                     
+               
+               
             </div>
              <div class="col s12 m4">
-               <div class="card">
-                  <div class="card-content">
+              
                      <ul class="collapsible expandable">
                         <li>
                            <div class="collapsible-header">
@@ -334,57 +334,11 @@
                            </div>
                         </li>
                      </ul>
-                  </div>
-               </div>
+                
+           
             </div>
-            <div class="col s12 m4">
-               <div class="card">
-                  <div class="card-content">
-                     <ul class="collapsible expandable">
-                        <li>
-                           <div class="collapsible-header">
-                              <i class="material-icons">question_answer</i>What is OneUp Chat?
-                           </div>
-                           <div class="collapsible-body">
-                              <span><a href="/oneUp/chat/api/">Oneup Chat</a> is a online chatroom for OneUp that allows Instructors and Students of a course to communicate outside of the classroom. The primary use of the Chat is for students, like yourself, to ask the Instructor questions outside of class. Instructors can also create live discussion channels, have students post questions to different channels be answered during class, and create channels for different groups for group projects.</span>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="collapsible-header">
-                              <i class="material-icons">question_answer</i>How do I access Chat?
-                           </div>
-                           <div class="collapsible-body">
-                              <span>The <a href="/oneUp/chat/api/">Chat</a> is course specific, so first make sure you are within a course. Then, click Chat on the OneUp toolbar to be taken to the course Chat.</span>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="collapsible-header">
-                              <i class="material-icons">question_answer</i>Can I create my own channel?
-                           </div>
-                           <div class="collapsible-body">
-                              <span>Currently, only Instructors can create channels for students. You can ask your Instructor if you wish for a channel to be created. Your cool channel for cool students will have to wait.</span>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="collapsible-header">
-                              <i class="material-icons">question_answer</i>Can other students tell who I am?
-                           </div>
-                           <div class="collapsible-body">
-                              <span>No, students are anonymous to each other. Only the Instructor can see student names in all channels. The only way for students to distinguish the difference between each other is their Avatars. If desired, you could reveal which Avatar you have to other students and abandon your anonymity.</span>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="collapsible-header">
-                              <i class="material-icons">question_answer</i>Are there Emojis?
-                           </div>
-                           <div class="collapsible-body">
-                              <span>Of course! We’re cool and hip with the kids these days! Yo! Yo!</span>
-                           </div>
-                        </li>
-                     </ul>
-                  </div>
-               </div>
-            </div>
+          {%endif%}
+            
          </div>
       </main>
       {% include 'footer.html' %}
