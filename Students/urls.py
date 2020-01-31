@@ -29,7 +29,7 @@ from Students.views.preferencesView import preferencesView
 from Students.views.resetPasswordView import resetPasswordView
 from Students.views.studentCourseHomeView import StudentCourseHome
 from Students.views.studentHomeView import StudentHome
-from Students.views.transactionsView import transactionsView, filterTransactions
+from Students.views.transactionsView import transactionsView, filterTransactions, save_transaction_reason
 from Students.views.transactionNotesView import transactionNotesView
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
@@ -104,10 +104,12 @@ urlpatterns = [
         name='IndividualCalloutQualifiedChallenges'),
     url(r'CalloutDescription', callout_description, name="CalloutDescription"),
     url(r'^ValidateResetPassword', validateResetPassword,
-        name='ValidateResetPassword'),  
+        name='ValidateResetPassword'),
     url(r'^Track_class_avg_button_clicks', Track_class_avg_button_clicks,
         name='Track_class_avg_button_clicks'),
     url(r'^doDynamicQuestion', dynamicQuestionPartAJAX,
         name="dynamic question engine AJAX"),
+    url(r'SaveTransactionReason', save_transaction_reason,
+        name="Save Transaction Reason")
 
 ]

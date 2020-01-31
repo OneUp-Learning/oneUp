@@ -238,9 +238,12 @@ class StudentVirtualCurrencyTransactions(models.Model):
     status = models.CharField(max_length=200, default='Requested')
     noteForStudent = models.CharField(max_length=600)
     instructorNote = models.CharField(max_length=600)
+    transactionReason = models.CharField(max_length=600, default="") # Reason for making the transaction
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="timestamp", db_index=True, blank=True, null=True)
+
     
     def __str__(self):
-        return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote)
+        return 'ID: '+ str(self.transactionID)+', Student: '+str(self.student)+ ' Course: '+str(self.course)+' Event: '+str(self.studentEvent)+'Object Type: '+str(self.objectType)+' ObjectID: '+str(self.objectID)+' Status: '+str(self.status)+' StudentNote: '+str(self.noteForStudent)+' InstructorNote: '+str(self.instructorNote) + ' transactionReason'+self.transactionReason
     
 
 
