@@ -303,14 +303,21 @@
 						{% endif %}
 					</ul>
 				</li>
+				{% if ccparams.warmupsUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/ChallengesWarmUpList">Warm-Ups</a></li>
+				{% endif %}
+				{% if ccparams.seriousChallengesUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/ChallengesList">Challenges</a></li>
+				{% endif %}
 				<li><a class="waves-effect" href="/oneUp/students/ActivityList">Activities</a></li>
+				{% if ccparams.gradebookUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/CoursePerformance">Grades</a></li>
+				{% endif %}
 				{%if ccparams.gamificationUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/achievements">Achievements</a></li>
 				{% endif %}
-				{% if ccparams.gamificationUsed or ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
+				{% if ccparams.gamificationUsed %} 
+					{% if ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
 					<ul id="coursetools" class="dropdown-content">
@@ -338,6 +345,7 @@
 						{% endif %}
 					</ul>
 				</li>
+					{% endif %}
 				{% endif %}
 				<li>
 					<a class="waves-effect" href="/oneUp/students/StudentQA">Help</a>
