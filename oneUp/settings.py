@@ -68,6 +68,8 @@ LOGGING = {
         'level': LOGGING_LEVEL
     },
 }
+LOGSTASH_HOST = 'localhost'
+LOGSTASH_PORT = 5959
 
 ALLOWED_HOSTS = ['oneup.wssu.edu','127.0.0.1']
 
@@ -309,3 +311,4 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_ENABLED = True
 
 CURRENTLY_MIGRATING = False
+
