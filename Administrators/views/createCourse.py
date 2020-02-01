@@ -8,7 +8,7 @@ from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 
-from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str, anonymous_avatar
+from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str, anonymous_avatar, unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
 from Instructors.views.utils import utcDate
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
@@ -241,6 +241,16 @@ def courseCreateView(request):
                 defaultActivityCategory.name = uncategorized_activity
                 defaultActivityCategory.courseID = course
                 defaultActivityCategory.save()
+
+                # Add a default manual earning VC rule
+                manual_earning_rule = VirtualCurrencyCustomRuleInfo()
+                manual_earning_rule.courseID = course
+                manual_earning_rule.vcRuleName = unspecified_vc_manual_rule_name
+                manual_earning_rule.vcRuleType = True
+                manual_earning_rule.vcRuleDescription = unspecified_vc_manual_rule_description
+                manual_earning_rule.vcRuleAmount = -1
+                manual_earning_rule.vcAmountVaries = True
+                manual_earning_rule.save()
             
             
     # Add users who are instructors to the instructors list (AH)
