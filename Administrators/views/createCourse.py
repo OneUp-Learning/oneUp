@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 
 from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics, ActivitiesCategory
 from Instructors.constants import uncategorized_activity
-from Badges.models import CourseConfigParams
+from Badges.models import CourseConfigParams, VirtualCurrencyCustomRuleInfo
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
