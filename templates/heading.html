@@ -409,7 +409,9 @@
                 <a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursereports">Course Reports</a>
                 <ul id="coursereports" class="dropdown-content">
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentAchievements">Students Scores</a></li>
+                    {% if ccparams.gradebookUsed %}
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/classAchievements">Class Scores</a></li>
+                    {% endif %}
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentSummary">Student Summary</a></li>
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentAttendanceReport">Student Attendance</a></li>
           {% if ccparams.gamificationUsed %}
