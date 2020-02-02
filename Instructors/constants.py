@@ -1,6 +1,8 @@
 unassigned_problems_challenge_name = "Unassigned Problems"
 unspecified_topic_name = "Unspecified"
 uncategorized_activity = "Uncategorized"
+unspecified_vc_manual_rule_name = "VC Adjustment"
+unspecified_vc_manual_rule_description = "For modifying student virtual currency"
 anonymous_avatar = "/static/images/avatars/anonymous.png"
 #default_time_str = "2999-12-31 23:59:59"
 default_time_str = "12/31/2999 11:59 PM"

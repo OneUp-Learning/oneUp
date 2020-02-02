@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments, Conditions, FloatConstants, StringConstants
 from Badges.enums import OperandTypes
+from Instructors.constants import unspecified_vc_manual_rule_name
 from Badges.systemVariables import SystemVariable
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
@@ -43,6 +44,8 @@ def virtualCurrencyEarnRuleList(request):
             vcRules = [r for r in vcRulesCustom if not hasattr(r, 'virtualcurrencyruleinfo') and not hasattr(r, 'virtualcurrencyperiodicrule')]
             
             for rule in vcRules:
+                if rule.vcRuleName == unspecified_vc_manual_rule_name and rule.vcRuleAmount == -1:
+                    continue
                 # Rules that are considered 'Earning' have vcRuleType as True
                 vcRuleID.append(rule.vcRuleID)
                 vcRuleName.append(rule.vcRuleName)
@@ -57,6 +60,8 @@ def virtualCurrencyEarnRuleList(request):
             vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
             
             for rule in vcRules:
+                if rule.vcRuleName == unspecified_vc_manual_rule_name and rule.vcRuleAmount == -1:
+                    continue
                 # Rules that are considered 'Earning' have vcRuleType as True
                 if rule.vcRuleType == True:
                     vcRuleID.append(rule.vcRuleID)
@@ -82,6 +87,8 @@ def reorderVirtualCurrencyEarnRules(request):
     if request.POST['isRuleCustom'] == 'true':
         vcRulesCustom = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
         for rule in vcRulesCustom:
+            if rule.vcRuleName == unspecified_vc_manual_rule_name and rule.vcRuleAmount == -1:
+                continue
             if str(rule.vcRuleID) in request.POST:
                 rule.vcRulePosition = request.POST[str(rule.vcRuleID)]
                 rule.save()
@@ -90,6 +97,8 @@ def reorderVirtualCurrencyEarnRules(request):
     else:
         vcRules = VirtualCurrencyRuleInfo.objects.filter(vcRuleType=True, courseID=currentCourse).order_by('vcRulePosition')
         for rule in vcRules:
+            if rule.vcRuleName == unspecified_vc_manual_rule_name and rule.vcRuleAmount == -1:
+                continue
             if str(rule.vcRuleID) in request.POST:
                 rule.vcRulePosition = request.POST[str(rule.vcRuleID)]
                 rule.save()
