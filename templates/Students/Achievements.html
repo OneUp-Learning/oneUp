@@ -831,8 +831,10 @@
                 <div class="card-panel">
                     <table class="responsive-table">
                         <thead>
-                            <th style="font-size: 1.64rem;font-weight: 400;">XP Points</th>
+                            <th style="font-size: 1.64rem;font-weight: 400;">Experience Points</th>
+                            {% if ccparams.warmupsUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Practice Points</th>
+                            {% endif %}
                             {% if virtualCurrencyUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Your Course Bucks</th>
                             {% endif %}
@@ -840,7 +842,9 @@
                         <tbody>
                             <tr>
                                 <td style="font-size:26px">{{studentXP_range}}</td>
+                                {% if ccparams.warmupsUsed %}
                                 <td style="font-size:26px"> {{totalWCEarnedPoints|floatformat}} / {{totalWCPossiblePoints|floatformat}}</td>
+                                {% endif %}
                                 {% if virtualCurrencyUsed %}
                                 <td style="font-size:26px"> {{course_Bucks}}</td>
                                 {% endif %}
@@ -868,7 +872,7 @@
                             {%else%}
                                 <span class="card-title">Upcoming (depending on your persistence)</span>
                             {%endif%}
-                            {%if BadgeStreakInfo %}
+                            {%if BadgeStreakInfo%}
                             <div class="row">
                                 <div class="col s6 m6">
                             <h5>Badges</h5>
@@ -960,6 +964,7 @@
         {% endif %}
         
         <!-- GGM your badges Bar moved right after progress bar -->
+      {% if ccparams.badgesUsed %}  
         {% if are_Badges_Displayed|lower %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
@@ -985,7 +990,7 @@
             </div>
         </div>
         {% endif %}
-        
+      {% endif %}  
         <!-- GGM added a switch to display class skills if the student toggles it on -->
         {% comment %}
         class skills displayed is the instructor toggle
@@ -1066,7 +1071,7 @@
 
             {% endif %}
 	{% else %}
-
+{% if ccparams.seriousChallengesUsed %}
     {% if hasSeriousChallenges %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
@@ -1107,8 +1112,9 @@
             </div>
         </div>
     {% endif %}
-
 {% endif %}
+{% endif %}
+{% if ccparams.warmupsUsed %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
@@ -1119,6 +1125,7 @@
                 </div>
             </div>
         </div>
+{% endif %}
     </main>
     {% include 'footer.html' %}
 

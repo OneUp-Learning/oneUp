@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
+from Instructors.constants import unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
 from Badges.systemVariables import logger
@@ -49,6 +50,18 @@ def addVirtualCurrencyForStudentWithRuleView(request):
             context_dict['students'] = list(zip(studentID, studentName, studentCurrencyVC))#, key=lambda tup: tup[1])
                                               
             context_dict['rules'] = list(zip(allRulesID, allRulesName,allRulesAmount))
+
+            # Create default manual earning rule if it doesn't exist in this course
+            if not VirtualCurrencyCustomRuleInfo.objects.filter(courseID= course, vcRuleName=unspecified_vc_manual_rule_name, vcRuleAmount=-1, vcRuleType=True).exists():
+                manual_earning_rule = VirtualCurrencyCustomRuleInfo()
+                manual_earning_rule.courseID = course
+                manual_earning_rule.vcRuleName = unspecified_vc_manual_rule_name
+                manual_earning_rule.vcRuleType = True
+                manual_earning_rule.vcRuleDescription = unspecified_vc_manual_rule_description
+                manual_earning_rule.vcRuleAmount = -1
+                manual_earning_rule.vcAmountVaries = True
+                manual_earning_rule.save()
+
             return render(request, 'Badges/AddVirtualCurrency.html', context_dict)
         elif request.method == 'POST':
             logger.debug(request.POST)
