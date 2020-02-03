@@ -36,6 +36,8 @@
                   </div>
                   </div>
                 </div>
+                
+           {% if ccparams.seriousChallengesUsed %}                
                 <div class="col s12 m6">
                   <div class="card-panel">
                   <table>
@@ -62,8 +64,9 @@
                   </div>
                   </div>
                 </div>
-            </div>      
-                       {% if badgesUsed and gamificationUsed %}                            
+            </div> 
+         {% endif %}     
+         {% if badgesUsed and gamificationUsed %}                            
             <div class="row">
                 <div class="col s12">
                   <div class="card-panel">
@@ -89,7 +92,7 @@
                   </div>
                 </div>
             </div>
-            {% endif %}
+          {% endif %}
             <div class="row">
             {% if leaderboardUsed and gamificationUsed %}    
                 <div class="col s12 m12">

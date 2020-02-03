@@ -9,7 +9,7 @@ from django.shortcuts import render,redirect
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments
 from Badges.events import register_event
 from Badges.enums import Event
-from Instructors.constants import unlimited_constant
+from Instructors.constants import unlimited_constant, unspecified_vc_manual_rule_name
 from Badges.models import CourseConfigParams
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
@@ -50,6 +50,9 @@ def VirtualCurrencyDisplay(request):
     x.extend([r for r in list(vcRules) if not hasattr(r, 'virtualcurrencyruleinfo') and  not hasattr(r, 'virtualcurrencyperiodicrule')])
     
     for rule in x:
+        if rule.vcRuleName == unspecified_vc_manual_rule_name and rule.vcRuleAmount == -1:
+            continue
+
         if rule.vcRuleType:
             # earning rule
             vcEarningRuleID.append(rule.vcRuleID)
