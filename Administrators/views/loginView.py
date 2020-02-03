@@ -24,4 +24,6 @@ def loginView(request):
 
 @csrf_exempt
 def login_interconnect(request):
-  return loginView(request)
+    from django.contrib.auth.views import LoginView
+    lv = LoginView.as_view(template_name='home.html')
+    return lv(request)
