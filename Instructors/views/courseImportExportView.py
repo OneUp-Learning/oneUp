@@ -289,9 +289,7 @@ model_lookup_table = {
             'answerID': None,
             'questionID': None,
         },
-        'Export': {
-            'correctAnswer': None,
-        }
+        'Export': {}
     },
     MatchingAnswers: {
         'Import': {
@@ -1442,7 +1440,7 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     # Check if it is a correct answer
                     correct_answers = CorrectAnswers.objects.filter(questionID=static_question, answerID = answer)
                     if correct_answers.exists():
-                        answer_details['correctAnswer'] = "yes"
+                        answer_details['correctAnswer'] = True
                         
                     # Check if this answer has a matching answer
                     if challenge_question.questionID.type == QuestionTypes.matching:                                               
