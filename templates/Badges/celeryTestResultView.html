@@ -1,0 +1,6 @@
+<HTML><HEAD><TITLE>Celery Test ResultView</TITLE></HEAD>
+<BODY>
+{% for result in results %}
+<p>{{result.num}} {% if result.present %} Present! {% else %} Absent! {% endif %}</p>
+{% endfor %}
+</BODY></HTML>

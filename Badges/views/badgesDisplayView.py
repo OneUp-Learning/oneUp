@@ -13,11 +13,17 @@ from Badges.enums import Event
 
 from django.contrib.auth.decorators import login_required
 from notify.models import NotificationQueryset, Notification
-
-
+from Badges.models import CourseConfigParams
+from django.shortcuts import redirect
 @login_required
 def BadgesDisplay(request):
- 
+    context_dict,current_course = studentInitialContextDict(request)
+    #Redirects students from badge page if badges not enabled
+    config=CourseConfigParams.objects.get(courseID=current_course)
+    badgesEnabled=config.badgesUsed
+    if not badgesEnabled:
+        return redirect('/oneUp/students/StudentCourseHome')
+    
     context_dict, currentCourse = studentInitialContextDict(request)
  
     studentId = context_dict['student']

@@ -1,11 +1,12 @@
 from django.conf import settings
 from Badges.celeryApp import app
 import Badges.datamine_tasks
+from Badges.models import CeleryTestResult
 
 @app.task
 def process_event_offline(eventpk, minireq, student, objectId):
     from Badges.events import process_event_actual
-    return process_event_actual(eventpk, minireq, student, objectId)
+    process_event_actual(eventpk, minireq, student, objectId)
 
 @app.task(ignore_result=True)
 def check_celery_tasks():
@@ -130,4 +131,12 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
             
 if settings.CELERY_ENABLED:
     schedule_celery_task_checker()
+    
+@app.task
+def testTask(uniqid,sequence):
+    ctr = CeleryTestResult()
+    ctr.uniqid=uniqid
+    ctr.sequence=sequence
+    ctr.save()
+    return uniqid,sequence
 

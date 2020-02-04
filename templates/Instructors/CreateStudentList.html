@@ -258,7 +258,10 @@
 
             let users_container = $("#users");
             users_container.empty();
-            users_container.append("<input type='hidden' name='users' value='"+ JSON.stringify(users)+"'/>\n");
+            if(file_type.value == 0)
+               users_container.append("<input type='hidden' name='users' value='"+ JSON.stringify(users)+"'>\n");
+            else
+               users_container.append("<input type='hidden' name='users' value="+ JSON.stringify(users)+">\n");
 
             // Add the users information to users container
             for (var index = 0; index < users.length; index++) {

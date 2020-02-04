@@ -367,7 +367,10 @@ class CourseConfigParams(models.Model):
     
     ## Student Goal Setting
     studCanChangeGoal = models.BooleanField(default = True)    ## Allows student to change the visibility of goals component
-    
+    #Options to disable Warmups, Serious Challenges, and the Gradebook
+    warmupsUsed = models.BooleanField(default=True)
+    seriousChallengesUsed = models.BooleanField(default=True)
+    gradebookUsed = models.BooleanField(default=True)
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -478,3 +481,10 @@ class CeleryTaskLog(models.Model):
             help_text='The last time the celery task has run completely and was recorded')
     def __str__(self):
         return "Task ID: {} - Updated: {}".format(self.taskID, self.timestamp)
+    
+class CeleryTestResult(models.Model):
+    uniqid= models.CharField(max_length=200)
+    sequence = models.IntegerField()
+    def __str__(self):
+        return "Test "+self.sequence+":"+self.uniqid
+

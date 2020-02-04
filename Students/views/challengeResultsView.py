@@ -106,6 +106,7 @@ def ChallengeResults(request):
                 is_call_out = False
                 context_dict['challengeName'] = challenge.challengeName
                 context_dict['showcorrect'] = challenge.displayCorrectAnswer
+                context_dict['challengeID'] = challengeId
                 if 'duelID' in request.POST:
                     duel_id = request.POST['duelID']
                     is_duel = True
@@ -127,8 +128,9 @@ def ChallengeResults(request):
                 #context_dict['instructorFeedback'] = challenge.instructorFeedback
 
                 if not challenge.isGraded:
-                    print("warmUp")
+                    #print("warmUp")
                     context_dict['warmUp'] = 1
+                    context_dict['isWarmUp'] = True
 
                 print("Start Time: "+request.POST['startTime'])
                 startTime = utcDate(
@@ -258,7 +260,6 @@ def ChallengeResults(request):
                 remove_old_challenge_session_entries(request.session)
 
         if request.GET:
-
             if 'warmUp' in request.GET:
                 context_dict['warmUp'] = True
             if 'all' in request.GET:

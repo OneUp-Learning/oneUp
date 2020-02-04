@@ -33,7 +33,9 @@ def courseConfigurationView(request):
         ccparams.seriousChallengesGrouped = "seriousChallengesGrouped" in request.POST
         ccparams.gamificationUsed = "gamificationUsed" in request.POST   
         ccparams.courseAvailable = "courseAvailable" in request.POST
-        
+        ccparams.warmupsUsed = "warmupsUsed" in request.POST
+        ccparams.seriousChallengesUsed = "seriousUsed" in request.POST
+        ccparams.gradebookUsed = "gradebookUsed" in request.POST
         logger.debug(request.POST['courseStartDate'])
         if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
             ccparams.courseStartDate = utcDate()
@@ -59,7 +61,10 @@ def courseConfigurationView(request):
             context_dict['chatUsed'] = ccparams.chatUsed
             context_dict['seriousChallengesGrouped'] = ccparams.seriousChallengesGrouped
             context_dict['courseAvailable'] = ccparams.courseAvailable
-
+            
+            context_dict['warmupsUsed'] = ccparams.warmupsUsed
+            context_dict['seriousUsed'] = ccparams.seriousChallengesUsed
+            context_dict['gradebookUsed'] = ccparams.gradebookUsed
             defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
             if(ccparams.courseStartDate.year < defaultTime.year):
                 context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")
