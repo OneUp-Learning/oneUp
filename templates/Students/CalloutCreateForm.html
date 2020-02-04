@@ -29,19 +29,30 @@
                         </div>
                         <div class="row"> 
                         {% endcomment %}
-
                       
                         <div class="row">
                            <div class="input-field col s18 m6">
                               <select  name="callout_type" id="callout_type" form="calloutForm" onChange="selectCalloutType(this.value)" required>
-                                 <option value="individual"  id="individual" name="individual" >Individual Call Out</option>
-                                 <option value="class_callout"  id="class_callout" name="class_callout" >Class Call Out</option>
+                                  {% if direct_warmup_callout %}
+                                    <option value="class_callout"  id="class_callout" name="class_callout" >Class Call Out</option>
+                                    <option value="individual"  id="individual" name="individual" >Individual Call Out</option>
+                                  {% else %}
+                                    <option value="individual"  id="individual" name="individual" >Individual Call Out</option>
+                                    <option value="class_callout"  id="class_callout" name="class_callout" >Class Call Out</option>
+                                  {% endif %}
                               </select>
                               <label for="callout_type_lable"><span class= "red-text">*</span> Select Call Out Type</label>
                            </div>
                         </div>
+
+                        {% if direct_warmup_callout %}
+                           <script>
+                              $(document).ready(function(){
+                                selectCalloutType("class_callout")
+                              });
+                           </script>
+                        {% endif %}
                         
-                     
                         <div class="row" id="participant_sel", name="participant_sel">
                            <div class="input-field col s2" id="participant_div" name="participant_div">
                               <select class="icons" name="participant_id" id="participant_id" form="calloutForm" onChange="selectAv('av', this.value), individual_callout_qualified_challenges()" required>
