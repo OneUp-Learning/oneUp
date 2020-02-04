@@ -453,6 +453,9 @@ def callout_create(request):
 
         return redirect('/oneUp/students/Callouts')
 
+    if "direct_warmup_callout" in request.GET:
+        context_dict["direct_warmup_callout"] = True
+
     # get list of participants randomly and exclude the sender and test students
     reg_students = StudentRegisteredCourses.objects.filter(courseID=current_course).exclude(
         studentID=student_id).exclude(studentID__isTestStudent=True).order_by('?')
@@ -499,7 +502,7 @@ def callout_create(request):
     # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
     sender_challenges = []
     seen_challenges = set()
-    for s_c in s_challenges:
+    for s_c in s_challenges[::-1]:
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
                 courseID=current_course, studentID=student_id, challengeID=s_c.challengeID, challengeID__isGraded=False).latest('testScore')
@@ -548,7 +551,7 @@ def callout_create(request):
 
 @login_required
 def get_class_callout_qualified_challenges(request):
-    ''' When sender wants to call out the whole class, this function is called and returns all sender taken warmup challenges'''
+    ''' When sender wants to call out the whole class, this function is called and returns all sender's taken warmup challenges'''
 
     c_d, current_course = studentInitialContextDict(request)
     student_id = c_d['student']
@@ -563,7 +566,7 @@ def get_class_callout_qualified_challenges(request):
     # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
     sender_challenges = []
     seen_challenges = set()
-    for s_c in s_challenges:
+    for s_c in s_challenges[::-1]:
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
                 courseID=current_course, studentID=student_id, challengeID=s_c.challengeID, challengeID__isGraded=False).latest('testScore')
@@ -619,7 +622,7 @@ def get_individual_callout_qualified_challenges(request):
     # Get unique warmp challenges that are completed and are equal or greater than 30% by sender
     sender_challenges = []
     seen_challenges = set()
-    for s_c in s_challenges:
+    for s_c in s_challenges[::-1]:
         if not s_c.challengeID in seen_challenges:
             s_chall = StudentChallenges.objects.filter(
                 courseID=current_course, studentID=student_id, challengeID=s_c.challengeID, challengeID__isGraded=False).latest('testScore')
