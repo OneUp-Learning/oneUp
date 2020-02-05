@@ -9,6 +9,7 @@ from django.utils.timezone import make_naive
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.utils import utcDate, initialContextDict, localizedDate
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
+from Badges.models import CourseConfigParams
 from Instructors.constants import default_time_str
 from datetime import datetime
 import os
@@ -146,6 +147,7 @@ def activityCreateView(request):
                 context_dict['activityID'] = request.GET['activityID']
                 for attr in string_attributes:
                     context_dict[attr] = getattr(activity, attr)
+                context_dict["points"] = int(context_dict["points"])
 
                 context_dict['currentCat'] = activity.category
                 context_dict['categories'] = ActivitiesCategory.objects.filter(
@@ -186,6 +188,18 @@ def activityCreateView(request):
                     context_dict['activityFiles'] = activityFiles
                 else:
                     print('No activity files found')
+        else:
+            ccp = CourseConfigParams.objects.get(courseID=currentCourse)
+            print("fjdfkdjfkd")
+            if ccp.courseStartDate < utcDate().now().date():
+                context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
+                    "%m/%d/%Y %I:%M %p")
+                print("kdkkdk")
+            if ccp.courseEndDate > utcDate().now().date():
+                context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
+                    "%m/%d/%Y %I:%M %p")
+                context_dict['deadLineTimestamp'] = ccp.courseEndDate.strftime(
+                    "%m/%d/%Y %I:%M %p")
 
     return render(request, 'Instructors/ActivityCreateForm.html', context_dict)
 

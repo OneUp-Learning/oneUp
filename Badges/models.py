@@ -314,11 +314,12 @@ class CourseConfigParams(models.Model):
     
     # Duels related
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
-    betVC = models.BooleanField(default=False)                         ## Allow the bet of virtual currency in duels
+    betVC = models.BooleanField(default=False)                        ## Allow the bet of virtual currency in duels
     vcDuelParticipants = models.IntegerField(default=0)               ## Amount of virtual currency rewarded to duel participants
     vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
     vcDuelMaxBet = models.IntegerField(default=3)                     ## Max Amount of betting virtual currency 
     vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
+    calloutAfterWarmup = models.BooleanField(default=True)            ## Allow students to callout other students after correctly solve a warm up 
      
     progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page
     
