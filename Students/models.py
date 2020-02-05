@@ -102,7 +102,7 @@ class StudentChallengeQuestions(models.Model):
 # This table has each question's answer that is answered by students for all the above table's questions    
 class StudentChallengeAnswers(models.Model):
     studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question", db_index=True)
-    studentAnswer = models.CharField(max_length=1000)
+    studentAnswer = models.CharField(max_length=10000)
     def __str__(self):              
         return str(self.studentChallengeQuestionID) +","+str(self.studentAnswer)
 
