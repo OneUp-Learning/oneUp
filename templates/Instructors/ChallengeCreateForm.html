@@ -5,6 +5,9 @@
    <!-- GGM added scripts to display model solution for parson -->
    {% include 'scripts.html' %}
    <link rel="stylesheet" href="/static/assets/css/questionStyle.css">
+   <link href="/static/ThirdParty/js-parsons-master/lib/prettify.css" rel="stylesheet" />
+   <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
+
    <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
@@ -325,4 +328,13 @@
       </main>
       {% include 'footer.html' %}
    </body>
+   <script>
+      // Prettify code lines
+	jQuery.fn.prettify = function () { 
+		for(var i = 0; i < this.length; i++){
+			$(this[i]).html(prettyPrintOne($(this[i]).html())); 
+		}
+	};
+   $('code[class*="language-"').prettify();
+   </script>
 </html>
