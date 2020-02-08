@@ -1490,6 +1490,8 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     dynamic_question_details['template-dynamic-question'] = template_dynamic_question_details
 
                 # Add QuestionProgrammingFiles if any
+                # problems in lua/problems
+                # Folder name is question problems id
                 question_programming_files = QuestionProgrammingFiles.objects.filter(questionID=question)
                 if question_programming_files.exists():
                     question_programming_files_jsons = []
