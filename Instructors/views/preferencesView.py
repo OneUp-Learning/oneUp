@@ -44,7 +44,7 @@ def preferencesView(request):
 
         # Progress Bar
         ccparams.progressBarUsed = "progressBarUsed" in request.POST
-        # ccparams.progressBarTotalPoints = request.POST.get('progressBarTotalPoints')
+        ccparams.progressBarTotalPoints = request.POST.get('progressBarTotalPoints')
 
         # Student Starting Page
         ccparams.displayStudentStartPageSummary = request.POST.get('displayStudentStartPageSummary')
@@ -163,11 +163,10 @@ def preferencesView(request):
 
             # Progress Bar
             context_dict["progressBarUsed"] = ccparams.progressBarUsed
-            # context_dict["progressBarTotalPoints"] = ccparams.progressBarTotalPoints
+            context_dict["progressBarTotalPoints"] = ccparams.progressBarTotalPoints
 
             # Student Start Page
-            # context_dict["displayStudentStartPageSummary"] = ccparams.displayStudentStartPageSummary
-            context_dict["displayStudentStartPageSummary"] = True
+            context_dict["displayStudentStartPageSummary"] = ccparams.displayStudentStartPageSummary
 
             # Leveling
             context_dict["levelingUsed"] = ccparams.levelingUsed

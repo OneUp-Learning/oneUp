@@ -104,8 +104,7 @@ def StudentCourseHome(request):
 	register_event(Event.userLogin, request, None, None)
 	print("User Login event was registered for the student in the request")
 	
-	# if context_dict['ccparams'].displayStudentStartPageSummary == True:
-	if 1 == True:
+	if context_dict['ccparams'].displayStudentStartPageSummary == True:
 		return render(request,'Students/StudentCourseHomeSummary.html', context_dict)
 	else:          
 		return render(request,'Students/StudentCourseHome.html', context_dict)        
