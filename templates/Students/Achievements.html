@@ -659,13 +659,8 @@
             };
             var ChallengesMaxPoints = function() {
 
-                var ChallengesMaxPointsDataArray1 = {{totalMilestonePoints}};
+                var ChallengesMaxPointsDataArray1 = {{progressBarTotalPoints}};
                 return ChallengesMaxPointsDataArray1;
-            };
-            var ChallengesTickPoints = function() {
-
-                var ChallengesTickPointsDataArray1 = {{projectedEarnedPoints}};
-                return ChallengesTickPointsDataArray1;
             };
             //Your Progress
             $('#p1').highcharts({
@@ -762,7 +757,7 @@
                     color: 'red', //darkred
                     data: [ChallengePointsmissed()]
                 }, {
-                    name: 'Points for Future Milestones',
+                    name: 'Points Unclaimed',
                     enableMouseTracking: true,
                     borderWidth: 0,
                     borderRadius: 0,
