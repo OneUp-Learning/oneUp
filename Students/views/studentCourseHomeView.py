@@ -43,6 +43,7 @@ def StudentCourseHome(request):
 			
 	if 'currentCourseID' in request.session:
 		currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
+		context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
 		context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
 		context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
 		context_dict['course_Name'] = currentCourse.courseName
@@ -62,8 +63,7 @@ def StudentCourseHome(request):
 
 		# PROGRESS BAR
 		# this is the max points that the student can earn in this course
-		# progressBarTotalPoints = ccparams.progressBarTotalPoints
-		progressBarTotalPoints = 100
+		progressBarTotalPoints = context_dict['ccparams'].progressBarTotalPoints
 
 		currentEarnedPoints = earnedSeriousChallengePoints + earnedActivityPoints
 		currentTotalPoints = totalPointsSeriousChallenges + totalPointsActivities
@@ -96,7 +96,7 @@ def StudentCourseHome(request):
 			context_dict["displayClassSkills"]=scparams.displayClassSkills
 			
 		
-		context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
+		
 		context_dict['badgesInfo'] = studentBadges(currentCourse)
 		context_dict['studentBadges'] = studentBadges(currentCourse, student=sID)
 	
