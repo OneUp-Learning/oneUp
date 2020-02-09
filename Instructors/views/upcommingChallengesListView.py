@@ -32,7 +32,7 @@ def createContextForUpcommingChallengesList(currentCourse, context_dict):
                     start_Timestamp.append(item.startTimestamp)
                     due_date.append(item.dueDate)
                     index += 1
-               
+    
     # The range part is the index numbers.
-    context_dict['challenge_range'] = zip(range(1,len(chall_ID)+1),chall_ID,chall_Name,start_Timestamp,due_date)  ##,chall_Category
+    context_dict['challenge_ranges'] = list(zip(range(1,len(chall_ID)+1),chall_ID, chall_Name, start_Timestamp, due_date))  ##,chall_Category
     return context_dict
