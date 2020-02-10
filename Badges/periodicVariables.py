@@ -1370,7 +1370,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     earnedActivityPoints = 0
     total = []
 
-    courseActivities = Activities.objects.filter(courseID=course)
+    courseActivities = Activities.objects.filter(courseID=course, isGraded=True)
     for activity in courseActivities:
         studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
         if not startOfTime and studentActivities.exists():
