@@ -3,6 +3,8 @@
 from django.shortcuts import redirect, render, HttpResponse
 from django.http import JsonResponse
 
+from django.contrib.auth.models import User
+
 from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, StaticQuestions 
 from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
 from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionProgrammingFiles, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills, CoursesSkills, Questions
@@ -33,15 +35,20 @@ from decimal import Decimal
 import os
 import json
 import zipfile
+from distutils.dir_util import copy_tree
+# from io import BytesIO
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.settings import MEDIA_ROOT
+from django.conf import settings
 from oneUp.decorators import instructorsCheck 
 
 
 #############################################################
 # HELPER METHODS
 #############################################################
+
+LUA_PROBLEMS_ROOT = os.path.join(settings.BASE_DIR, 'lua/problems/')
+VERSION = "1.0"
 
 # Import: Fields that needs to be set when creating the model
 # Export: Fields that needed to be exported to the json
@@ -171,6 +178,7 @@ model_lookup_table = {
     Questions: {
         'Import': {},
         'Export': {
+            'questionID': str,
             'preview': None,
             'instructorNotes': None,
             'type': None,
@@ -236,7 +244,7 @@ model_lookup_table = {
         'Import': {
             'questionID': None,
             'programmingFileName': None,
-            'programmingFileFolderName': None,
+            'programmingFileFolderName': str,
             
         },
         'Export': {
@@ -658,6 +666,24 @@ def ensure_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+def zip_directory(path, zip_handler, relative_path="lua/problems"):
+    ''' Places a directory with all its contents into a zip file.
+        
+        path: absolute path to a directory
+        relative_path: the directory to make inside the zip file 
+    '''
+
+    relative_path = os.path.join(relative_path, os.path.basename(path))
+    folder_name = os.path.basename(path)
+
+    for root, dirs, files in os.walk(path):
+        arc_path = os.path.join(relative_path, os.path.basename(root))
+        if os.path.basename(root) == folder_name:
+            arc_path = relative_path
+
+        for f in files:
+            zip_handler.write(os.path.join(root, f), arcname=os.path.join(arc_path, f))
+
 def create_item_node(query_object, fields_to_save):
     ''' Creates the key value pairs for json based on query object and
         which fields to save.
@@ -818,19 +844,33 @@ def exportCourse(request):
 
     context_dict, current_course = initialContextDict(request)
 
-    context_dict['version'] = "1.0"
+    context_dict['version'] = VERSION
 
     if request.method == 'GET':
         return render(request,'Instructors/CourseExport.html', context_dict)
     
     if request.method == 'POST':
+        
         root_json = json.loads(request.POST.get('exported-json', ''))
         # Only export json if the json contains items other than the version number
         if 'version' in root_json and len(root_json) > 1:
             ensure_directory('media/textfiles/course/json/')
-            with open('media/textfiles/course/json/course-{}-{}.json'.format(current_course.courseName, root_json['version']), 'w') as export_stream:
-                json.dump(root_json, export_stream)
+            with zipfile.ZipFile('media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION), 'a') as zip_file:
+                # Add the json for course
+                zip_file.writestr('course.json', json.dumps(root_json).encode('utf-8'))
+                
+                # Add the folders to the zip file
+                if 'code-paths' in root_json:
+                    for path in root_json['code-paths']:
+                        zip_directory(os.path.join(LUA_PROBLEMS_ROOT, path), zip_file)
 
+                # print(zip_file.printdir())
+
+            response = HttpResponse(open('media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION), 'rb'), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename=course-{}-{}.zip'.format(current_course.courseName, VERSION)
+
+            return response
+        
         return render(request,'Instructors/CourseExport.html', context_dict)
 
 def validateCourseExport(request):
@@ -871,7 +911,7 @@ def validateCourseExport(request):
             post_request = dict(request.POST)
 
             # Versioning
-            root_json['version'] = "1.0"
+            root_json['version'] = VERSION
 
             # Create the json based on which checkbox is selected
             if 'topics' in request.POST:
@@ -893,18 +933,18 @@ def validateCourseExport(request):
             if 'serious-challenges' in request.POST:
                 # Exclude unassigned challenge since that is created by default for every course
                 serious_challenges = Challenges.objects.filter(courseID=current_course, isGraded=True).exclude(challengeName=unassigned_problems_challenge_name)
-                root_json['serious-challenges'] = challenges_to_json(serious_challenges, current_course, include_topics='topics' in request.POST, messages=messages)
+                root_json['serious-challenges'] = challenges_to_json(serious_challenges, current_course, include_topics='topics' in request.POST, root_json=root_json, messages=messages)
 
             if 'warmup-challenges' in request.POST:
                 # Exclude unassigned challenge since that is created by default for every course
                 warmup_challenges = Challenges.objects.filter(courseID=current_course, isGraded=False).exclude(challengeName=unassigned_problems_challenge_name)
-                root_json['warmup-challenges'] = challenges_to_json(warmup_challenges, current_course, include_topics='topics' in request.POST, messages=messages)
+                root_json['warmup-challenges'] = challenges_to_json(warmup_challenges, current_course, include_topics='topics' in request.POST, root_json=root_json, messages=messages)
 
             if 'unassigned-problems' in request.POST:
                 unassigned_challenge = Challenges.objects.get(courseID=current_course, challengeName=unassigned_problems_challenge_name)
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=unassigned_challenge)
                 # Get only the challenge questions as json
-                root_json['unassigned-problems'] = challenge_questions_to_json(challenge_questions, current_course, messages=messages)
+                root_json['unassigned-problems'] = challenge_questions_to_json(challenge_questions, current_course, root_json=root_json, messages=messages)
             
             if 'automatic-badges' in request.POST:
                 automatic_badges = Badges.objects.filter(courseID=current_course, manual=False, isPeriodic=False)
@@ -1379,7 +1419,7 @@ def challenges_to_json(challenges, current_course, include_topics=True, post_req
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
 
             # Add the questions to the challenge object
-            challenge_details['challenge-questions'] = challenge_questions_to_json(challenge_questions, current_course, post_request=post_request, root_json=root_json, messages=[])
+            challenge_details['challenge-questions'] = challenge_questions_to_json(challenge_questions, current_course, root_json=root_json, post_request=post_request, messages=[])
 
             challenges_jsons.append(challenge_details)
 
@@ -1497,6 +1537,12 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     question_programming_files_jsons = []
                     for question_programming_file in question_programming_files:     
                         question_programming_file_details = create_item_node(question_programming_file) # LuaLibrary model
+                        
+                        if not 'code-paths' in root_json:
+                            root_json['code-paths'] = []
+
+                        root_json['code-paths'].append(question_programming_file.programmingFileFolderName)
+                        
                         question_programming_files_jsons.append(question_programming_file_details)
 
                     # Add question libraries to dynamic question details
@@ -1800,75 +1846,78 @@ def importCourse(request):
             # It is important we use uploaded_file.uploadedFile.name because
             # if there are two files with the same name, the file will
             # get renamed. This includes the rename
-            with open(uploaded_file.uploadedFile.name, 'r') as import_stream:
-                root_json = json.load(import_stream)
+            # with open(uploaded_file.uploadedFile.name, 'r') as import_stream:
+            #     root_json = json.load(import_stream)
+            with zipfile.ZipFile('media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION)) as zip_file:
+                with zip_file.open('course.json') as import_stream:
+                    root_json = json.load(import_stream)
 
-            if root_json:
+                if root_json:
 
-                id_map = initialize_id_map(root_json)
+                    id_map = initialize_id_map(root_json)
 
-                if 'activities' in root_json:
-                    # Notify user about fields not being exported 
-                    messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date fields was not set after importing'})
+                    if 'activities' in root_json:
+                        # Notify user about fields not being exported 
+                        messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date fields was not set after importing'})
 
-                if 'serious-challenges' in root_json or 'warmup-challenges' in root_json:
-                    # Notify user about field export decisions
-                    messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
-                
-                if 'topics' in root_json:
-                    import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
-
-                if 'activities-categories' in root_json:
-                    import_activities_categories_from_json(root_json['activities-categories'], current_course, id_map=id_map, messages=messages)
+                    if 'serious-challenges' in root_json or 'warmup-challenges' in root_json:
+                        # Notify user about field export decisions
+                        messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
                     
-                if 'skills' in root_json:
-                    import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map, messages=messages)
+                    if 'topics' in root_json:
+                        import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
 
-                if 'activities' in root_json:
-                    import_activities_from_json(root_json['activities'], current_course, id_map=id_map, messages=messages)
-                
-                if 'serious-challenges' in root_json:
-                    import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
-                
-                if 'warmup-challenges' in root_json:
-                    import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
-                
-                if 'unassigned-problems' in root_json:
-                    unassigned_challenge = Challenges.objects.get(courseID=current_course, challengeName=unassigned_problems_challenge_name)
-                    import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, id_map=id_map, messages=messages)
-                
-                if 'automatic-badges' in root_json:
-                    import_badges_from_json(root_json['automatic-badges'], 'automatic', current_course, id_map=id_map, messages=messages)
-            
-                if 'manual-badges' in root_json:
-                    import_badges_from_json(root_json['manual-badges'], 'manual', current_course, id_map=id_map, messages=messages)
-                
-                if 'periodic-badges' in root_json:
-                    import_badges_from_json(root_json['periodic-badges'], 'periodic', current_course, id_map=id_map, messages=messages)
-                
-                if 'automatic-vc-rules' in root_json:
-                    import_vc_rules_from_json(root_json['automatic-vc-rules'], 'automatic', current_course, id_map=id_map, messages=messages)
-                
-                if 'manual-vc-rules' in root_json:
-                    import_vc_rules_from_json(root_json['manual-vc-rules'], 'manual', current_course, id_map=id_map, messages=messages)
-                
-                if 'periodic-vc-rules' in root_json:
-                    import_vc_rules_from_json(root_json['periodic-vc-rules'], 'periodic', current_course, id_map=id_map, messages=messages)
-                
-                if 'spending-vc-rules' in root_json:
-                    import_vc_rules_from_json(root_json['spending-vc-rules'], 'spending', current_course, id_map=id_map, messages=messages)
+                    if 'activities-categories' in root_json:
+                        import_activities_categories_from_json(root_json['activities-categories'], current_course, id_map=id_map, messages=messages)
+                        
+                    if 'skills' in root_json:
+                        import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map, messages=messages)
 
-                if 'leaderboards' in root_json:
-                    import_leaderboards_from_json(root_json['leaderboards'], current_course, id_map=id_map, messages=messages)
-
-                if 'content-unlocking' in root_json:
-                    import_content_unlocking_rules_from_json(root_json['content-unlocking'], current_course, id_map=id_map, messages=messages)
-
-                if 'streaks' in root_json:
-                    import_streaks_from_json(root_json['streaks'], current_course, id_map=id_map, messages=messages)                    
+                    if 'activities' in root_json:
+                        import_activities_from_json(root_json['activities'], current_course, id_map=id_map, messages=messages)
+                    
+                    if 'serious-challenges' in root_json:
+                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                    
+                    if 'warmup-challenges' in root_json:
+                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                    
+                    if 'unassigned-problems' in root_json:
+                        unassigned_challenge = Challenges.objects.get(courseID=current_course, challengeName=unassigned_problems_challenge_name)
+                        import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                    
+                    if 'automatic-badges' in root_json:
+                        import_badges_from_json(root_json['automatic-badges'], 'automatic', current_course, id_map=id_map, messages=messages)
                 
-            else:
-                messages.append({'type': 'error', 'message': 'File: {} is empty or cannot be read'.format(uploaded_file.uploadedFile.name)})
+                    if 'manual-badges' in root_json:
+                        import_badges_from_json(root_json['manual-badges'], 'manual', current_course, id_map=id_map, messages=messages)
+                    
+                    if 'periodic-badges' in root_json:
+                        import_badges_from_json(root_json['periodic-badges'], 'periodic', current_course, id_map=id_map, messages=messages)
+                    
+                    if 'automatic-vc-rules' in root_json:
+                        import_vc_rules_from_json(root_json['automatic-vc-rules'], 'automatic', current_course, id_map=id_map, messages=messages)
+                    
+                    if 'manual-vc-rules' in root_json:
+                        import_vc_rules_from_json(root_json['manual-vc-rules'], 'manual', current_course, id_map=id_map, messages=messages)
+                    
+                    if 'periodic-vc-rules' in root_json:
+                        import_vc_rules_from_json(root_json['periodic-vc-rules'], 'periodic', current_course, id_map=id_map, messages=messages)
+                    
+                    if 'spending-vc-rules' in root_json:
+                        import_vc_rules_from_json(root_json['spending-vc-rules'], 'spending', current_course, id_map=id_map, messages=messages)
+
+                    if 'leaderboards' in root_json:
+                        import_leaderboards_from_json(root_json['leaderboards'], current_course, id_map=id_map, messages=messages)
+
+                    if 'content-unlocking' in root_json:
+                        import_content_unlocking_rules_from_json(root_json['content-unlocking'], current_course, id_map=id_map, messages=messages)
+
+                    if 'streaks' in root_json:
+                        import_streaks_from_json(root_json['streaks'], current_course, id_map=id_map, messages=messages)                    
+                    
+                else:
+                    messages.append({'type': 'error', 'message': 'File: {} is empty or cannot be read'.format(uploaded_file.uploadedFile.name)})
 
             uploaded_file.delete()  
 
@@ -1902,6 +1951,8 @@ def initialize_id_map(root_json):
         id_map['serious-challenges'] = {}
     if 'warmup-challenges' in root_json:
         id_map['warmup-challenges'] = {}
+    if 'code-paths' in root_json:
+        id_map['code-paths'] = {}
 
     return id_map
 
@@ -2223,15 +2274,24 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                 # Create QuestionProgrammingFiles if any
                 # TODO: Not sure if this is correct
                 if 'question-programming-files' in dynamic_question_json and context_dict:
-
+                    # Map the imported question id to the new question id
+                    if id_map:
+                        id_map['code-paths'][question_json['questionID']] = str(question.questionID)
+                    print("MAP", id_map['code-paths'])
                     for question_programming_files_json in dynamic_question_json['question-programming-files']:
                         # Get the user
                         user = User.objects.get(username=context_dict['username'])
                         
-                        question_programming_files_fields_to_save = {'questionID': question, 'programmingFileUploader': user}
+                        question_programming_files_fields_to_save = {'questionID': question, 'programmingFileUploader': user, 'programmingFileFolderName': question.questionID}
 
                         question_programming_file = create_model_instance(QuestionProgrammingFiles, question_programming_files_json, custom_fields_to_save=question_programming_files_fields_to_save)
                         question_programming_file.save() 
+
+                        # Move the folder from the zip to server
+                        # os.rename(os.path.join("lua/problems", question_json['questionID']), os.path.join("lua/problems", id_map['code-paths'][question_json['questionID']]))
+                        zip_folder = os.path.join("lua/problems", question_json['questionID'])
+                        destination = os.path.join(LUA_PROBLEMS_ROOT, id_map['code-paths'][question_json['questionID']])
+                        copy_tree(zip_folder, destination)
 
                 # Create QuestionLibraries if any
                 if 'question-libraries' in dynamic_question_json:
@@ -2276,7 +2336,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                             correct_answers_fields_to_save = {'answerID': static_question_answer, 'questionID': question}
 
                             # correct_answer = create_model_instance(CorrectAnswers, correct_answers_fields_to_save)
-                            correct_answer = create_model_instance(CorrectAnswers, custom_fields_to_save=correct_answers_fields_to_save)
+                            correct_answer = create_model_instance(CorrectAnswers, None, custom_fields_to_save=correct_answers_fields_to_save)
                             correct_answer.save()
                         
                         # Create matching answers if any
@@ -2285,7 +2345,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                             #                                     ('questionID', question, None),
                             #                                     ('matchingAnswerText', answer_json['matchingAnswerText'], None),]
                             
-                            matching_answers_fields_to_save = {'answerID', static_question_answer, 'questionID', question}
+                            matching_answers_fields_to_save = {'answerID': static_question_answer, 'questionID': question}
 
                             # matching_answer = create_model_instance(MatchingAnswers, matching_answers_fields_to_save)
                             matching_answer = create_model_instance(MatchingAnswers, answer_json, custom_fields_to_save=matching_answers_fields_to_save)
