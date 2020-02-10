@@ -52,15 +52,17 @@ def StudentCourseHome(request):
 			context_dict["username"]="Test Student"
 		context_dict['course_id'] = currentCourse.courseID
 		st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
-		context_dict['avatar'] =  st_crs.avatarImage    
+		context_dict['avatar'] =  st_crs.avatarImage  
+		context_dict['course_Bucks'] = str(st_crs.virtualCurrencyAmount)  
 		
 		context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True)  
 		context_dict['courseId']=currentCourse.courseID
 
 		# Progress Bar
-		_, _, _, _, _, _, earnedSeriousChallengePoints, _, earnedActivityPoints, _, totalPointsSeriousChallenges, totalPointsActivities = studentScore(
+		_, xp, _, _, _, _, earnedSeriousChallengePoints, _, earnedActivityPoints, _, totalPointsSeriousChallenges, totalPointsActivities = studentScore(
 		sID, currentCourse, 0, TimePeriods.timePeriods[1503], 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=context_dict)
 
+		context_dict['studentXP_range'] = xp
 		# PROGRESS BAR
 		# this is the max points that the student can earn in this course
 		progressBarTotalPoints = context_dict['ccparams'].progressBarTotalPoints
