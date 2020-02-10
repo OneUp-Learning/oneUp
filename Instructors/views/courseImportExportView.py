@@ -52,6 +52,7 @@ VERSION = "1.0"
 
 # Import: Fields that needs to be set when creating the model
 # Export: Fields that needed to be exported to the json
+# NOTE: If a model is a subclass you will need to also use the parent fields
 model_lookup_table = {
     Topics: {
         'Import': {
@@ -761,7 +762,7 @@ def create_model_instance(model, fields_data, custom_fields_to_save=None, modify
         custom_field_to_save is json with field name and value as key-value pairs:
         ex. {"a": "hello", "score": 4, "date": dt}
 
-        Note: use custom_field_to_save parameter if you need to modify/create the 
+        NOTE: use custom_field_to_save parameter if you need to modify/create the 
         model instance with a custom value that is not in the fields_data json.
         custom_field_to_save will override field_data for the same field name.
 
@@ -1396,13 +1397,7 @@ def challenges_to_json(challenges, current_course, include_topics=True, post_req
     challenges_jsons = []
 
     if challenges.exists():
-        # Select what fields to save from the model
-        # Second element of tuple is what to cast the model field to
-        # challenge_fields_to_save = [('challengeID', None), ('challengeName', None), ('isGraded', None), ('numberAttempts', None), 
-        #                         ('timeLimit', None), ('displayCorrectAnswer', None), 
-        #                         ('displayCorrectAnswerFeedback', None), ('displayIncorrectAnswerFeedback', None), 
-        #                         ('challengeAuthor', None), ('challengeDifficulty', None),
-        #                         ('challengePassword', None),]
+
         for challenge in challenges:
             # Get the challenge information
             challenge_details = create_item_node(challenge)
@@ -1431,8 +1426,6 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
     challenge_questions_jsons = []
 
     if challenge_questions.exists():
-        # Cast the points field to a str after getting value from database since it is stored as Decimal
-        # challenge_question_fields_to_save = [('points', str),]
 
         for challenge_question in challenge_questions:
             # Add the challenge question model details
@@ -1440,17 +1433,12 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
             
             # Add the question model details
             question = challenge_question.questionID
-            # question_fields_to_save = [('preview', None), ('instructorNotes', None), ('type', None),
-            #                             ('difficulty', None), ('author', None),]
             question_details = create_item_node(question)
 
             # Add the question skills if any
             question_skills = QuestionsSkills.objects.filter(questionID=question, courseID = current_course)
             if question_skills.exists():
                 question_skills_jsons = []
-
-                # questions_skills_fields_to_save = [('questionSkillPoints', None),]
-                # skills_fields_to_save = [('skillID', None),('skillName', None),]
 
                 for skill in question_skills: 
                     skill_details = create_item_node(skill)
@@ -1466,14 +1454,12 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
             static_questions = StaticQuestions.objects.filter(questionID=int(question.questionID))
             if static_questions.exists():
                 static_question = static_questions.first()
-                # static_question_fields_to_save = [('questionText', None), ('correctAnswerFeedback', None), 
-                #                                 ('incorrectAnswerFeedback', None),]
                 static_question_details = create_item_node(static_question)
 
                 # Add Answers for Static Questions
                 static_question_answers = Answers.objects.filter(questionID=static_question)    
+                
                 static_question_answers_jsons = []
-                # static_question_answers_fields_to_save = [('answerText', None),]
                 for answer in static_question_answers:            
                     answer_details = create_item_node(answer)
                 
@@ -1487,7 +1473,6 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                         matching_answer = MatchingAnswers.objects.get(answerID=answer, questionID=static_question) 
                         if matching_answer:
                             answer_details.update(create_item_node(matching_answer))
-                            # answer_details['matchingAnswerText'] = matching_answer.matchingAnswerText
 
                     # Add answer detail to static question json list
                     static_question_answers_jsons.append(answer_details)
@@ -1504,7 +1489,6 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
             if dynamic_questions.exists():
                 dynamic_question = dynamic_questions.first()
 
-                # dynamic_question_fields_to_save = [('numParts', None), ('code', None),]
                 dynamic_question_details = create_item_node(dynamic_question)
         
                 # Add the TemplateDynamicQuestions if any
@@ -1512,14 +1496,13 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                 if template_dynamic_questions.exists():
                     template_dynamic_question = template_dynamic_questions.first()
 
-                    # template_dynamic_question_fields_to_save = [('templateText', None), ('setupCode', None),]
                     template_dynamic_question_details = create_item_node(template_dynamic_question)
     
                     # Add the TemplateTextParts
                     template_text_parts = TemplateTextParts.objects.filter(dynamicQuestion=question)
-                    if template_text_parts.exists():                        
+                    if template_text_parts.exists():  
+                                              
                         template_text_parts_jsons = []
-                        # template_text_parts_fields_to_save = [('partNumber', None), ('templateText', None),]
                         for part in template_text_parts:    
                             template_text_part_details = create_item_node(part)
                             template_text_parts_jsons.append(template_text_part_details)
@@ -1529,15 +1512,15 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     # Add template dynamic question to dynamic question
                     dynamic_question_details['template-dynamic-question'] = template_dynamic_question_details
 
-                # Add QuestionProgrammingFiles if any
-                # problems in lua/problems
-                # Folder name is question problems id
+                # Add QuestionProgrammingFiles if any. problems stored in lua/problems
+                # Folder name is question id
                 question_programming_files = QuestionProgrammingFiles.objects.filter(questionID=question)
                 if question_programming_files.exists():
                     question_programming_files_jsons = []
                     for question_programming_file in question_programming_files:     
                         question_programming_file_details = create_item_node(question_programming_file) # LuaLibrary model
                         
+                        # Store which folder this question belongs too so we can find it when importing
                         if not 'code-paths' in root_json:
                             root_json['code-paths'] = []
 
@@ -1554,7 +1537,6 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     question_libraries_jsons = []
                     for question_library in question_libraries:     
                         question_library_details = create_item_node(question_library.library) # LuaLibrary model
-                        # question_library_details['libraryName'] = question_library.library.libraryName                 
                         question_libraries_jsons.append(question_library_details)
 
                     # Add question libraries to dynamic question details
@@ -1577,17 +1559,12 @@ def activities_to_json(activities, current_course, include_categories=True, post
     activities_jsons = []
 
     if activities.exists():
-        # Select what fields to save from the model
-        # Second element of tuple is what to cast the model field to
-        # activity_fields_to_save = [('activityID', None), ('activityName', None), ('isGraded', None), ('description', None), 
-        #                         ('points', str), ('isFileAllowed', None), 
-        #                         ('uploadAttempts', None), ('instructorNotes', None), 
-        #                         ('author', None),]
+
         for activity in activities:
             # Get the activity information
             activity_details = create_item_node(activity)
 
-            # Note: we are also including Uncategorized category just in case to map the id  
+            # NOTE: we are also including Uncategorized category just in case to map the id  
             # if it has been used in conditions rules
             if include_categories:
                 # Save the activity category
@@ -1604,9 +1581,8 @@ def activities_categories_to_json(activities_categories, current_course, post_re
     activities_categories_jsons = []
 
     if activities_categories.exists(): 
-        # activity_category_fields_to_save = [('categoryID', None), ('name', None),]
         for category in activities_categories:
-            # Note: we are also including Uncategorized category just in case to map the id  
+            # NOTE: we are also including Uncategorized category just in case to map the id  
             # if it has been used in conditions rules
             
             # Get category information
@@ -1622,8 +1598,7 @@ def badges_to_json(badges, badge_type, current_course, post_request=None, root_j
     badges_jsons = []
 
     if badges.exists():
-        # badges_fields_to_save = [('badgeName', None), ('badgeDescription', None), ('badgeImage', None), 
-        #                         ('manual', None), ('isPeriodic', None),]
+
         for badge in badges:
             # Get basic badge information
             badge_details = create_item_node(badge)
@@ -1642,7 +1617,7 @@ def badges_to_json(badges, badge_type, current_course, post_request=None, root_j
 
             elif badge_type == 'periodic':
                 # Add periodic badge details to badge details
-                perioidc_badge_details = periodic_model_to_json(badge)
+                perioidc_badge_details = create_item_node(badge)
 
                 badge_details.update(perioidc_badge_details)
             
@@ -1657,8 +1632,7 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
     vc_rules_jsons = []
 
     if vc_rules.exists():
-        # vc_rule_fields_to_save = [('vcRuleName', None), ('vcRuleDescription', None), ('vcRuleType', None), 
-        #                         ('vcRuleAmount', None), ('vcRuleLimit', None), ('isPeriodic', None),]
+       
         for vc_rule in vc_rules:
             # Get basic badge information
             vc_rule_details = create_item_node(vc_rule)
@@ -1677,7 +1651,7 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
             
             elif vc_rule_type == 'periodic':
                 # Add periodic vc rule details to vc rule details
-                perioidc_vc_rule_details = periodic_model_to_json(vc_rule)
+                perioidc_vc_rule_details = create_item_node(vc_rule)
 
                 vc_rule_details.update(perioidc_vc_rule_details)            
 
@@ -1685,7 +1659,7 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
 
     return vc_rules_jsons
 
-def rule_model_to_json(automatic_rule, automatic_rule_fields_to_save=[('actionID', None), ('awardFrequency', None),]):
+def rule_model_to_json(automatic_rule):
     ''' Converts a Rule to json for models:
         Badges, VirtualCurrencyRuleInfo
     '''
@@ -1705,26 +1679,15 @@ def rule_model_to_json(automatic_rule, automatic_rule_fields_to_save=[('actionID
 
     return None
 
-def periodic_model_to_json(periodic_object, periodic_fields_to_save=[('periodicVariableID', None), ('timePeriodID', None),
-                                    ('periodicType', None), ('numberOfAwards', None),
-                                    ('threshold', None), ('operatorType', None), 
-                                    ('isRandom', None), ('resetStreak', None),]):
-
-    ''' Takes a periodic query that is instance of a periodic model:
-        PeriodicBadges, VirtualCurrencyPeriodicRule
-    '''
-
-    return create_item_node(periodic_object)
-
 def topics_to_json(topics, current_course, post_request=None, root_json=None, messages=[]):
     ''' Converts topics (Course Topics or Challenge Topics) queryset to json '''
 
     topics_jsons = []
 
     if topics.exists():
-        # topics_fields_to_save = [('topicID', None), ('topicName', None),]
+
         for course_topic in topics:
-            # Note: we are also including Unspecified topic just in case to map the id 
+            # NOTE: we are also including Unspecified topic just in case to map the id 
             # if it has been used in conditions rules
 
             topic = course_topic.topicID
@@ -1741,7 +1704,7 @@ def course_skills_to_json(course_skills, current_course, post_request=None, root
     course_skills_jsons = []
 
     if course_skills.exists():
-        # skills_fields_to_save = [('skillID', None), ('skillName', None),]
+
         for course_skill in course_skills: 
             skill = course_skill.skillID
             # Get the skills details into json
@@ -1757,10 +1720,7 @@ def leaderboards_to_json(leaderboards, current_course, post_request=None, root_j
     leaderboards_jsons = []
 
     if leaderboards.exists():
-        # leaderboards_fields_to_save = [('leaderboardName', None), ('leaderboardDescription', None),
-        #                                 ('isContinous', None),('isXpLeaderboard', None), ('numStudentsDisplayed', None),
-        #                                 ('periodicVariable', None), ('timePeriodUpdateInterval', None), 
-        #                                 ('displayOnCourseHomePage', None), ('howFarBack', None),]
+
         for leaderboard in leaderboards:
             # Get the leaderboard information
             leaderboard_details = create_item_node(leaderboard)
@@ -1775,8 +1735,7 @@ def content_unlocking_rules_to_json(content_unlocking_rules, current_course, pos
     content_unlocking_rules_jsons = []
 
     if content_unlocking_rules.exists():
-        # content_unlocking_rule_fields_to_save = [('name', None), ('description', None), ('objectID', None), 
-        #                                         ('objectType', None),]
+       
         for content_unlocking_rule in content_unlocking_rules:
             # Get basic badge information
             content_unlocking_rule_details = create_item_node(content_unlocking_rule)
@@ -1802,7 +1761,7 @@ def streaks_to_json(streaks, current_course, post_request=None, root_json=None, 
     streaks_jsons = []
 
     if streaks.exists():
-        # streaks_fields_to_save = [('daysofClass', None), ('daysDeselected', None),]
+        
         for streak in streaks:
             # Get the streak information
             streak_details = create_item_node(streak)
@@ -1846,9 +1805,7 @@ def importCourse(request):
             # It is important we use uploaded_file.uploadedFile.name because
             # if there are two files with the same name, the file will
             # get renamed. This includes the rename
-            # with open(uploaded_file.uploadedFile.name, 'r') as import_stream:
-            #     root_json = json.load(import_stream)
-            with zipfile.ZipFile('media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION)) as zip_file:
+            with zipfile.ZipFile(uploaded_file.uploadedFile.name) as zip_file:
                 with zip_file.open('course.json') as import_stream:
                     root_json = json.load(import_stream)
 
@@ -1966,12 +1923,9 @@ def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_
     if topics_jsons:
         for topic_json in topics_jsons:
 
-            # Create a new topic
-            # topic_fields_to_save = [('topicName', topic_json['topicName'], None),]
-            # topic = create_model_instance(Topics, topic_fields_to_save)       
+            # Create a new topic       
             topic = create_model_instance(Topics, topic_json)           
             topic.save()
-
 
             course_topics = CoursesTopics.objects.filter(topicID__topicName=topic.topicName, courseID=current_course)
             # The imported topic is the same for this course
@@ -1979,9 +1933,7 @@ def import_topics_from_json(topics_jsons, current_course, context_dict=None, id_
                 course_topic = course_topics.first()                    
             else:
                 # Create a new course topic
-                # course_topic_fields_to_save = [('topicID', topic, None), ('courseID', current_course, None),]
                 course_topic_fields_to_save = {'topicID': topic, 'courseID': current_course}
-                # course_topic = create_model_instance(CoursesTopics, course_topic_fields_to_save)
                 course_topic = create_model_instance(CoursesTopics, None, custom_fields_to_save=course_topic_fields_to_save)                                    
                 course_topic.save()
             
@@ -2001,10 +1953,7 @@ def import_activities_categories_from_json(activities_categories_jsons, current_
                 activity_category = activities_categories.first()
             else:
                 # Create a new activity category
-                # activity_category_fields_to_save = [('name', activities_categories_json['name'], None),
-                #                                     ('courseID', current_course, None),]
                 activity_category_fields_to_save = {'courseID': current_course}
-                # activity_category = create_model_instance(ActivitiesCategory, activity_category_fields_to_save)
                 activity_category = create_model_instance(ActivitiesCategory, activities_categories_json, custom_fields_to_save=activity_category_fields_to_save)
                 activity_category.save()
 
@@ -2023,9 +1972,8 @@ def import_course_skills_from_json(skills_jsons, current_course, context_dict=No
             # if skills:
             #     skill = skills.first()
             # else: 
+
             # Create a new skill
-            # skill_fields_to_save = [('skillName', skill_json['skillName'], None),]
-            # skill = create_model_instance(Skills, skill_fields_to_save) 
             skill = create_model_instance(Skills, skill_json)                 
             skill.save()
 
@@ -2036,9 +1984,7 @@ def import_course_skills_from_json(skills_jsons, current_course, context_dict=No
                 course_skill = course_skills.first()     
             else:
                 # Create a new course skill
-                # course_skill_fields_to_save = [('skillID', skill, None), ('courseID', current_course, None),]
                 course_skill_fields_to_save = {'skillID': skill, 'courseID': current_course}
-                # course_skill = create_model_instance(CoursesSkills, course_skill_fields_to_save)
                 course_skill = create_model_instance(CoursesSkills, None, custom_fields_to_save=course_skill_fields_to_save)                  
                 course_skill.save()
             
@@ -2052,20 +1998,9 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
     if activities_jsons:
         for activity_json in activities_jsons:
             # Create the activity model instance
-            # activity_fields_to_save = [('activityName', activity_json['activityName'], None),
-            #                             ('isGraded', activity_json['isGraded'], None),
-            #                             ('description', activity_json['description'], None),
-            #                             ('points', activity_json['points'], Decimal),
-            #                             ('isFileAllowed', activity_json['isFileAllowed'], None),
-            #                             ('uploadAttempts', activity_json['uploadAttempts'], None),
-            #                             ('instructorNotes', activity_json['instructorNotes'], None),
-            #                             ('author', activity_json['author'], None),
-            #                             ('courseID', current_course, None),]
-            
             activity_fields_to_save = {'courseID': current_course}
-
-            # activity = create_model_instance(Activities, activity_fields_to_save)
             activity = create_model_instance(Activities, activity_json, custom_fields_to_save=activity_fields_to_save)
+            
             uncategorized_activity_category = ActivitiesCategory.objects.get(name=uncategorized_activity, courseID=current_course)
 
             # Setup category for this activity
@@ -2121,27 +2056,10 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                 return
 
             # Create the challenge model instance
-            # challenge_fields_to_save = [('challengeName', challenge_json['challengeName'], None),
-            #                             ('isGraded', challenge_json['isGraded'], None),
-            #                             ('numberAttempts', challenge_json['numberAttempts'], None),
-            #                             ('timeLimit', challenge_json['timeLimit'], None),
-            #                             ('displayCorrectAnswer', challenge_json['displayCorrectAnswer'], None),
-            #                             ('displayCorrectAnswerFeedback', challenge_json['displayCorrectAnswerFeedback'], None),
-            #                             ('displayIncorrectAnswerFeedback', challenge_json['displayIncorrectAnswerFeedback'], None),
-            #                             ('challengeAuthor', challenge_json['challengeAuthor'], None),
-            #                             ('challengeDifficulty', challenge_json['challengeDifficulty'], None),
-            #                             ('challengePassword', challenge_json['challengePassword'], None),
-            #                             ('startTimestamp', course_config_params.courseStartDate, None),
-            #                             ('endTimestamp', course_config_params.courseEndDate, None),
-            #                             ('dueDate', course_config_params.courseEndDate, None),
-            #                             ('courseID', current_course, None),]
-
             challenge_fields_to_save = {'startTimestamp': course_config_params.courseStartDate,
                                         'endTimestamp': course_config_params.courseEndDate,
                                         'dueDate': course_config_params.courseEndDate,
                                         'courseID': current_course}
-
-            # challenge = create_model_instance(Challenges, challenge_fields_to_save)
             challenge = create_model_instance(Challenges, challenge_json, custom_fields_to_save=challenge_fields_to_save)
 
             challenge.save()
@@ -2172,9 +2090,7 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                             messages.append({'type': 'warn', 'message': 'New topic object was not created. Challenges will not include this topic'})
                             continue
 
-                        # challenge_topic_fields_to_save = [('topicID', topic, None), ('challengeID', challenge, None),] 
                         challenge_topic_fields_to_save = {'topicID': topic, 'challengeID': challenge}         
-                        # challenge_topic = create_model_instance(ChallengesTopics, challenge_topic_fields_to_save)
                         challenge_topic = create_model_instance(ChallengesTopics, None, custom_fields_to_save=challenge_topic_fields_to_save)
                         challenge_topic.save()                
                 else:
@@ -2187,9 +2103,7 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                     messages.append({'type': 'error', 'message': 'Your Course does not have a unspecified topic. Challenges will not include this topic'})
                     return
 
-                # challenge_topic_fields_to_save = [('topicID', course_topic.topicID, None), ('challengeID', challenge, None),]
                 challenge_topic_fields_to_save = {'topicID': course_topic.topicID, 'challengeID': challenge}       
-                # challenge_topic = create_model_instance(ChallengesTopics, challenge_topic_fields_to_save)
                 challenge_topic = create_model_instance(ChallengesTopics, None, custom_fields_to_save=challenge_topic_fields_to_save)
                 challenge_topic.save()
 
@@ -2199,9 +2113,6 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
     if challenge_question_jsons:
         for challenge_question_json in challenge_question_jsons:
             # Create the challenge question model instance
-            # challenge_question_fields_to_save = [('points', challenge_question_json['points'], Decimal),]
-
-            # challenge_question = create_model_instance(ChallengesQuestions, challenge_question_fields_to_save)
             challenge_question = create_model_instance(ChallengesQuestions, challenge_question_json)
             
             question_json = challenge_question_json['question']
@@ -2217,23 +2128,12 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                 question_type_model = StaticQuestions
 
             # Create the generic question
-            # question_fields_to_save = [('preview', question_json['preview'], None), 
-            #                             ('instructorNotes', question_json['instructorNotes'], None), 
-            #                             ('type', question_json['type'], None),
-            #                             ('difficulty', question_json['difficulty'], None), 
-            #                             ('author', question_json['author'], None),]
-
-            # question = create_model_instance(question_type_model, question_fields_to_save)
             question = create_model_instance(question_type_model, question_json)
 
             if question_type == QuestionTypes.dynamic or question_type == QuestionTypes.templatedynamic:
                 dynamic_question_json = question_json['dynamic-question']
 
-                # dynamic_question_fields_to_modify = [('numParts', dynamic_question_json['numParts'], None), 
-                #                                     ('code', dynamic_question_json['code'], None),]
-
                 # Modify the question to add the dynamic question fields
-                # question = create_model_instance(question, dynamic_question_fields_to_modify, modify=True)
                 question = create_model_instance(question, dynamic_question_json, modify=True)
 
                 if question_type == QuestionTypes.templatedynamic:
@@ -2241,11 +2141,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                     if 'template-dynamic-question' in dynamic_question_json:
                         template_dynamic_question_json = dynamic_question_json['template-dynamic-question']
 
-                        # template_dynamic_question_fields_to_modify = [('templateText', template_dynamic_question_json['templateText'], None), 
-                        #                                             ('setupCode', template_dynamic_question_json['setupCode'], None),]
-
                         # Modify the question to add the template dynamic question fields
-                        # question = create_model_instance(question, template_dynamic_question_fields_to_modify, modify=True)
                         question = create_model_instance(question, template_dynamic_question_json, modify=True)
                         question.save()
 
@@ -2253,13 +2149,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                         if 'template-text-parts' in template_dynamic_question_json:
 
                             for template_text_part_json in template_dynamic_question_json['template-text-parts']:
-                                # template_text_part_fields_to_save = {'partNumber', template_text_part_json['partNumber'], None), 
-                                #                                     ('templateText', template_text_part_json['templateText'], None),
-                                #                                     ('dynamicQuestion', question, None),]
-
                                 template_text_part_fields_to_save = {'dynamicQuestion': question}
-
-                                # template_text_part = create_model_instance(TemplateTextParts, template_text_part_fields_to_save)
                                 template_text_part = create_model_instance(TemplateTextParts, template_text_part_json, custom_fields_to_save=template_text_part_fields_to_save)
                                 template_text_part.save()
                         else:
@@ -2272,23 +2162,20 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                     question.save()
 
                 # Create QuestionProgrammingFiles if any
-                # TODO: Not sure if this is correct
                 if 'question-programming-files' in dynamic_question_json and context_dict:
                     # Map the imported question id to the new question id
                     if id_map:
                         id_map['code-paths'][question_json['questionID']] = str(question.questionID)
-                    print("MAP", id_map['code-paths'])
+
                     for question_programming_files_json in dynamic_question_json['question-programming-files']:
                         # Get the user
                         user = User.objects.get(username=context_dict['username'])
                         
                         question_programming_files_fields_to_save = {'questionID': question, 'programmingFileUploader': user, 'programmingFileFolderName': question.questionID}
-
                         question_programming_file = create_model_instance(QuestionProgrammingFiles, question_programming_files_json, custom_fields_to_save=question_programming_files_fields_to_save)
                         question_programming_file.save() 
 
-                        # Move the folder from the zip to server
-                        # os.rename(os.path.join("lua/problems", question_json['questionID']), os.path.join("lua/problems", id_map['code-paths'][question_json['questionID']]))
+                        # Move the folder from the zip to server lua/problems directory
                         zip_folder = os.path.join("lua/problems", question_json['questionID'])
                         destination = os.path.join(LUA_PROBLEMS_ROOT, id_map['code-paths'][question_json['questionID']])
                         copy_tree(zip_folder, destination)
@@ -2299,55 +2186,34 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                     for question_library_json in dynamic_question_json['question-libraries']:
                         # Get the lua library and link it to the question
                         lua_library = LuaLibrary.objects.get(libarayName=question_library_json['libraryName'])
-                        # question_library_fields_to_save = [('question', question, None), ('library', lua_library, None),]
-                        question_library_fields_to_save = {'question': question, 'library': lua_library}
 
+                        question_library_fields_to_save = {'question': question, 'library': lua_library}
                         question_library = create_model_instance(QuestionLibrary, None, custom_fields_to_save=question_library_fields_to_save)
                         question_library.save() 
             else:
                 # Question type is static questions
                 static_question_json = question_json['static-question']
 
-                # static_question_fields_to_modify = [('questionText', static_question_json['questionText'], None), 
-                #                                 ('correctAnswerFeedback', static_question_json['correctAnswerFeedback'], None), 
-                #                                 ('incorrectAnswerFeedback', static_question_json['incorrectAnswerFeedback'], None),]
-
-                # question = create_model_instance(question, static_question_fields_to_modify, modify=True)
                 question = create_model_instance(question, static_question_json, modify=True)
                 question.save()
 
                 if 'answers' in static_question_json:
 
                     for answer_json in static_question_json['answers']:
-                        # static_question_answers_fields_to_save = [('answerText', answer_json['answerText'], None),
-                        #                                         ('questionID', question, None),]
-                        
-                        static_question_answers_fields_to_save = {'questionID': question}
 
-                        # static_question_answer = create_model_instance(Answers, static_question_answers_fields_to_save)
+                        static_question_answers_fields_to_save = {'questionID': question}
                         static_question_answer = create_model_instance(Answers, answer_json, custom_fields_to_save=static_question_answers_fields_to_save)
                         static_question_answer.save()
 
                         # Create the correct answer if this is the correct answer of the question
                         if 'correctAnswer' in answer_json:
-                            # correct_answers_fields_to_save = [('answerID', static_question_answer, None),
-                            #                                     ('questionID', question, None),]
-                            
                             correct_answers_fields_to_save = {'answerID': static_question_answer, 'questionID': question}
-
-                            # correct_answer = create_model_instance(CorrectAnswers, correct_answers_fields_to_save)
                             correct_answer = create_model_instance(CorrectAnswers, None, custom_fields_to_save=correct_answers_fields_to_save)
                             correct_answer.save()
                         
                         # Create matching answers if any
                         if 'matchingAnswerText' in answer_json:
-                            # matching_answers_fields_to_save = [('answerID', static_question_answer, None),
-                            #                                     ('questionID', question, None),
-                            #                                     ('matchingAnswerText', answer_json['matchingAnswerText'], None),]
-                            
                             matching_answers_fields_to_save = {'answerID': static_question_answer, 'questionID': question}
-
-                            # matching_answer = create_model_instance(MatchingAnswers, matching_answers_fields_to_save)
                             matching_answer = create_model_instance(MatchingAnswers, answer_json, custom_fields_to_save=matching_answers_fields_to_save)
                             matching_answer.save()
                 else:
@@ -2370,23 +2236,14 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                             messages.append({'type': 'warn', 'message': 'New skill object was not created. Challenge questions will not include this skill'})
                             continue
 
-                        # question_skill_fields_to_save = [('skillID', skill, None), ('questionID', question, None),
-                        #                                 ('questionSkillPoints', question_skill_json['questionSkillPoints'], None),
-                        #                                 ('courseID', current_course, None),] 
-
                         question_skill_fields_to_save = {'skillID': skill, 'questionID': question, 'courseID': current_course}
-
-                        # question_skill = create_model_instance(QuestionsSkills, question_skill_fields_to_save)
                         question_skill = create_model_instance(QuestionsSkills, question_skill_json, custom_fields_to_save=question_skill_fields_to_save)
                         question_skill.save()                
                 else:
                     messages.append({'type': 'error', 'message': 'Unable to add skills to challenge questions. id map not providied'})
 
             # Save the challenge question
-            # challenge_question_fields_to_modify = [('challengeID', challenge, None),
-            #                                     ('questionID', question, None),]
             challenge_question_fields_to_modify = {'challengeID': challenge, 'questionID': question}
-            # challenge_question = create_model_instance(challenge_question, challenge_question_fields_to_modify, modify=True)
             challenge_question = create_model_instance(challenge_question, None, custom_fields_to_save=challenge_question_fields_to_modify, modify=True)
             challenge_question.save()
 
@@ -2560,18 +2417,12 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
 
     if condition_json:
         if condition_json['type'] == 'ATOM':
-            # condition_fields_to_save = [('courseID', current_course, None),
-            #                             ('operation', condition_json['op'], None),
-            #                             ('operand1Type', OperandTypes.systemVariable, None),
-            #                             ('operand1Value', condition_json['lhs'], int),]
 
             condition_fields_to_save = {'courseID': current_course,
                                         'operation': condition_json['op'],
                                         'operand1Type': OperandTypes.systemVariable,
                                         'operand1Value': condition_json['lhs']}
 
-
-            # condition = create_model_instance(Conditions, condition_fields_to_save)
             condition = create_model_instance(Conditions, None, custom_fields_to_save=condition_fields_to_save)
 
             operand_2_type = condition_json['rhstype']
@@ -2583,45 +2434,31 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                 operand_2_value = value_to_save
             elif operand_2_type == "T":
                 # String Constant
-                # string_constant = create_model_instance(StringConstants, [('stringValue', value_to_save, None),])
                 string_constant = create_model_instance(StringConstants, None, custom_fields_to_save={'stringValue': value_to_save})
                 string_constant.save()
                 operand_2_value = string_constant.stringID
             elif operand_2_type == "Y":
                 # Date Constant
-                # date_constant = create_model_instance(Dates, [('dateValue', utcDate(value_to_save, '%Y-%M-%d').date(), None),])
                 date_constant = create_model_instance(Dates, None, custom_fields_to_save={'dateValue': utcDate(value_to_save, '%Y-%M-%d').date()})
                 date_constant.save()
                 operand_2_value = date_constant.dateID
-            
-            # condition_fields_to_update = [('operand2Type', char_operand_types_map[operand_2_type], None),
-            #                             ('operand2Value', operand_2_value, int),]
 
             condition_fields_to_update = {'operand2Type': char_operand_types_map[operand_2_type],
                                         'operand2Value': operand_2_value}
             # Modify condition to add the two fields
-            # Note operand_2_value will be converted to int before saving
-            # condition = create_model_instance(condition, condition_fields_to_update, modify=True)
+            # NOTE: operand_2_value will be converted to int before saving
             condition = create_model_instance(condition, None, custom_fields_to_save=condition_fields_to_update, modify=True)
             condition.save()
 
             return condition
         elif condition_json['type'] == 'AND' or condition_json['type'] == 'OR':
             # Create the condition to hold the children conditions
-            # condition_fields_to_save = [('courseID', current_course, None),
-            #                             ('operation', condition_json['type'], None),
-            #                             ('operand1Type', OperandTypes.conditionSet, None),
-            #                             ('operand1Value', 0, None),
-            #                             ('operand2Type', OperandTypes.noOperand, None),
-            #                             ('operand2Value', 0, None),]
-            
             condition_fields_to_save = {'courseID': current_course,
                                         'operand1Type': OperandTypes.conditionSet,
                                         'operand1Value': 0,
                                         'operand2Type': OperandTypes.noOperand,
                                         'operand2Value': 0}
 
-            # condition = create_model_instance(Conditions, condition_fields_to_save)
             condition = create_model_instance(Conditions, condition_json, custom_fields_to_save=condition_fields_to_save)
             condition.save()
             
@@ -2630,9 +2467,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                 # Create sub condition from json
                 sub_condition = import_condition_from_json(sub_condition_json, current_course, id_map=id_map)
                 if sub_condition:
-                    # condition_set_fields_to_save = [('parentCondition', condition, None), ('conditionInSet', sub_condition, None),]
                     condition_set_fields_to_save = {'parentCondition': condition, 'conditionInSet': sub_condition}
-                    # condition_set = create_model_instance(ConditionSet, condition_set_fields_to_save)
                     condition_set = create_model_instance(ConditionSet, None, custom_fields_to_save=condition_set_fields_to_save)
                     condition_set.save()
 
@@ -2658,13 +2493,6 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
             operand_2_type = OperandTypes.condition
             operand_2_value = import_condition_from_json(condition_json['subCond'], current_course, id_map=id_map).conditionID
 
-            # condition_fields_to_save = [('courseID', current_course, None),
-            #                             ('operation', operation, None),
-            #                             ('operand1Type', operand_1_type, None),
-            #                             ('operand1Value', not condition_json['allObjects'], int), # This has a not since when exported True values actually mean 0 (see conditions_utils.py)
-            #                             ('operand2Type', operand_2_type, None),
-            #                             ('operand2Value', operand_2_value, int),]
-
             condition_fields_to_save = {'courseID': current_course,
                                         'operation': operation,
                                         'operand1Type': operand_1_type,
@@ -2672,7 +2500,6 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                                         'operand2Type': operand_2_type,
                                         'operand2Value': operand_2_value}
 
-            # condition = create_model_instance(Conditions, condition_fields_to_save)
             condition = create_model_instance(Conditions, None, custom_fields_to_save=condition_fields_to_save)
             condition.save()
 
@@ -2686,9 +2513,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                             messages.append({'type': 'error', 'message': 'Unable to find activity id in mapped ids dictionary for conditions'})
                             continue
 
-                        # activity_set_fields_to_save = [('activity_id', mapped_activity_id, int), ('condition', condition, None),]
                         activity_set_fields_to_save = {'activity_id': mapped_activity_id, 'condition': condition}
-                        # activity_set = create_model_instance(ActivitySet, activity_set_fields_to_save)
                         activity_set = create_model_instance(ActivitySet, None, custom_fields_to_save=activity_set_fields_to_save)
                         activity_set.save()
 
@@ -2705,9 +2530,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                             messages.append({'type': 'error', 'message': 'Unable to find challenge id in mapped ids dictionary for conditions'})
                             continue
 
-                        # challenge_set_fields_to_save = [('challenge_id', mapped_challenge_id, int), ('condition', condition, None),]
                         challenge_set_fields_to_save = {'challenge_id': mapped_challenge_id, 'condition': condition}
-                        # challenge_set = create_model_instance(ChallengeSet, challenge_set_fields_to_save)
                         challenge_set = create_model_instance(ChallengeSet, None, custom_fields_to_save=challenge_set_fields_to_save)
                         challenge_set.save()
                         
@@ -2719,9 +2542,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                             messages.append({'type': 'error', 'message': 'Unable to find topic id in mapped ids dictionary for conditions'})
                             continue
 
-                        # topic_set_fields_to_save = [('topic_id', mapped_topic_id, int), ('condition', condition, None),]
                         topic_set_fields_to_save = {'topic_id': mapped_topic_id, 'condition': condition}
-                        # topic_set = create_model_instance(TopicSet, topic_set_fields_to_save)
                         topic_set = create_model_instance(TopicSet, None, custom_fields_to_save=topic_set_fields_to_save)
                         topic_set.save()
 
@@ -2733,9 +2554,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                             messages.append({'type': 'error', 'message': 'Unable to find activity category id in mapped ids dictionary for conditions'})
                             continue
 
-                        # activity_category_set_fields_to_save = [('category_id', mapped_activity_category_id, int), ('condition', condition, None),]
                         activity_category_set_fields_to_save = {'category_id': mapped_activity_category_id, 'condition': condition}
-                        # activity_category_set = create_model_instance(ActivityCategorySet, activity_category_set_fields_to_save)
                         activity_category_set = create_model_instance(ActivityCategorySet, None, custom_fields_to_save=activity_category_set_fields_to_save)
                         activity_category_set.save()
                 else:
@@ -2765,21 +2584,14 @@ def import_rule_json(rule_json, current_course, id_map=None, messages=[]):
         object_type = AwardFrequency.awardFrequency[rule_json['awardFrequency']]['objectType']
         object_specifier = json.dumps(update_object_specifier_json(rule_json['objectSpecifier'], object_type, id_map=id_map))
 
-        # rule_fields_to_save = [('courseID', current_course, None), ('conditionID', condition, None), ('actionID', rule_json['actionID'], None),
-        #                         ('objectSpecifier', object_specifier, None), ('awardFrequency', rule_json['awardFrequency'], None),]
-
         rule_fields_to_save = {'courseID': current_course, 'conditionID': condition, 'objectSpecifier': object_specifier}
-
-        # rule = create_model_instance(Rules, rule_fields_to_save)
         rule = create_model_instance(Rules, rule_json, custom_fields_to_save=rule_fields_to_save)
         rule.save()
 
         # Create rule events
         events = get_events_for_condition(condition, object_type)
         for event, isGlobal in events:
-            # rule_event_fields_to_save = [('rule', rule, None), ('event', event, None), ('inGlobalContext', isGlobal, None),]
             rule_event_fields_to_save = {'rule': rule, 'event': event, 'inGlobalContext': isGlobal}
-            # rule_event = create_model_instance(RuleEvents, rule_event_fields_to_save)
             rule_event = create_model_instance(RuleEvents, None, custom_fields_to_save=rule_event_fields_to_save)
             rule_event.save()
 
@@ -2801,16 +2613,7 @@ def import_badges_from_json(badges_jsons, badge_type, current_course, context_di
             else:
                 badge_type_model = BadgesInfo
 
-            # badge_fields_to_save = [('badgeName', badge_json['badgeName'], None), 
-            #                                     ('badgeDescription', badge_json['badgeDescription'], None), 
-            #                                     ('badgeImage', badge_json['badgeImage'], None), 
-            #                                     ('manual', badge_json['manual'], None), 
-            #                                     ('isPeriodic', badge_json['isPeriodic'], None),
-            #                                     ('courseID', current_course, None),]
-
             badge_fields_to_save = {'courseID': current_course}
-
-            # badge = create_model_instance(badge_type_model, badge_fields_to_save)
             badge = create_model_instance(badge_type_model, badge_json, custom_fields_to_save=badge_fields_to_save)
 
             if badge_type == 'automatic':
@@ -2824,45 +2627,29 @@ def import_badges_from_json(badges_jsons, badge_type, current_course, context_di
                     continue
 
                 # Set the badge rule
-                # badge = create_model_instance(badge, [('ruleID', rule, None)], modify=True)
                 badge = create_model_instance(badge, None, custom_fields_to_save={'ruleID': rule}, modify=True)
                 badge.save()
 
-                # Create action argument for badge
-                # action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', badge.badgeID, str),]
-                
+                # Create action argument for badge                
                 action_argument_fields_to_save = {'ruleID': rule, 'sequenceNumber': 1, 'argumentValue': badge.badgeID}
-
-                # action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
                 action_argument = create_model_instance(ActionArguments, None, custom_fields_to_save=action_argument_fields_to_save)
                 action_argument.save() 
 
             elif badge_type == 'periodic':
                 # Add the periodic fields to badge
-                # periodic_badge_fields_to_update = [('periodicVariableID', badge_json['periodicVariableID'], None), ('timePeriodID', badge_json['timePeriodID'], None),
-                #                                 ('periodicType', badge_json['periodicType'], None), ('numberOfAwards', badge_json['numberOfAwards'], None), 
-                #                                 ('threshold', badge_json['threshold'], None), ('operatorType', badge_json['operatorType'], None),
-                #                                 ('isRandom', badge_json['isRandom'], None), ('resetStreak', badge_json['resetStreak'], None),
-                #                                 ('lastModified', utcDate(), None),]
-
                 periodic_badge_fields_to_update = {'lastModified': utcDate()}
-                
-                # badge = create_model_instance(badge, periodic_badge_fields_to_update, modify=True)
                 badge = create_model_instance(badge, badge_json, custom_fields_to_save=periodic_badge_fields_to_update, modify=True)
                 badge.save()
                 
                 # Create the periodic task 
                 if badge_json['periodicType'] == 0:
                     # TopN
-                    # badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), number_of_top_students=int(badge.numberOfAwards), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
                     badge = create_model_instance(badge, None, custom_fields_to_save={'periodicTask': setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), number_of_top_students=int(badge.numberOfAwards), threshold=int(badge.threshold), operator_type=badge.operatorType)}, modify=True)
                 elif badge_json['periodicType'] == 2:
                     # Random
-                    # badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType, is_random=badge.isRandom), None),], modify=True)
                     badge = create_model_instance(badge, None, custom_fields_to_save={'periodicTask': setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType, is_random=badge.isRandom)}, modify=True)
                 else:
                     # All (1)
-                    # badge = create_model_instance(badge, [('periodicTask', setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType), None),], modify=True)
                     badge = create_model_instance(badge, None, custom_fields_to_save={'periodicTask': setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType)}, modify=True)
                 badge.save()
             else:
@@ -2882,15 +2669,8 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
                 vc_rule_type_model = VirtualCurrencyPeriodicRule
             else:
                 vc_rule_type_model = VirtualCurrencyCustomRuleInfo
-
-            # vc_rule_fields_to_save = [('vcRuleName', vc_rule_json['vcRuleName'], None), ('vcRuleDescription', vc_rule_json['vcRuleDescription'], None), 
-            #                         ('vcRuleType', vc_rule_json['vcRuleType'], None), ('vcRuleAmount', vc_rule_json['vcRuleAmount'], None), 
-            #                         ('vcRuleLimit', vc_rule_json['vcRuleLimit'], None), ('isPeriodic', vc_rule_json['isPeriodic'], None),
-            #                         ('courseID', current_course, None),]
             
             vc_rule_fields_to_save = {'courseID': current_course}
-
-            # vc_rule = create_model_instance(vc_rule_type_model, vc_rule_fields_to_save)
             vc_rule = create_model_instance(vc_rule_type_model, vc_rule_json, custom_fields_to_save=vc_rule_fields_to_save)
 
             if vc_rule_type == 'automatic':
@@ -2904,90 +2684,58 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
                     continue
 
                 # Set the vc rule to include new rule
-                # vc_rule = create_model_instance(vc_rule, [('ruleID', rule, None)], modify=True)
                 vc_rule = create_model_instance(vc_rule, None, custom_fields_to_save={'ruleID': rule}, modify=True)
                 vc_rule.save()
 
                 # Create action argument for vc rule
                 # NOTE: Argument value is set to same as when saving virtual currency earning rule (see saveVirtualCurrencyRule.py)
                 # if this value is changed, it needs to be updated here as well
-                # action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', 0, str),]
-                action_argument_fields_to_save = {'ruleID': rule, 'sequenceNumber': 1, 'argumentValue': 0}
-                
-                # action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
+                action_argument_fields_to_save = {'ruleID': rule, 'sequenceNumber': 1, 'argumentValue': rule_json['vcRuleAmount']}
                 action_argument = create_model_instance(ActionArguments, None, custom_fields_to_save=action_argument_fields_to_save)
                 action_argument.save() 
 
             elif vc_rule_type == 'periodic':
                 # Add the periodic fields to vc rule
-                # periodic_vc_rule_fields_to_update = [('periodicVariableID', vc_rule_json['periodicVariableID'], None), ('timePeriodID', vc_rule_json['timePeriodID'], None),
-                #                                 ('periodicType', vc_rule_json['periodicType'], None), ('numberOfAwards', vc_rule_json['numberOfAwards'], None), 
-                #                                 ('threshold', vc_rule_json['threshold'], None), ('operatorType', vc_rule_json['operatorType'], None),
-                #                                 ('isRandom', vc_rule_json['isRandom'], None), ('resetStreak', vc_rule_json['resetStreak'], None),
-                #                                 ('lastModified', utcDate(), None),]
-
                 periodic_vc_rule_fields_to_update = {'lastModified': utcDate()}
-                
-                # vc_rule = create_model_instance(vc_rule, periodic_vc_rule_fields_to_update, modify=True)
                 vc_rule = create_model_instance(vc_rule, vc_rule_json, custom_fields_to_save=periodic_vc_rule_fields_to_update, modify=True)
                 vc_rule.save()
                 
                 # Create the periodic task 
                 if vc_rule_json['periodicType'] == 0:
                     # TopN
-                    # vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), number_of_top_students=int(vc_rule.numberOfAwards), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType), None),], modify=True)
                     vc_rule = create_model_instance(vc_rule, None, custom_fields_to_save={'periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), number_of_top_students=int(vc_rule.numberOfAwards), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType)}, modify=True)
                 elif vc_rule_json['periodicType'] == 2:
                     # Random
-                    # vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType, is_random=vc_rule.isRandom), None),], modify=True)
                     vc_rule = create_model_instance(vc_rule, None, custom_fields_to_save={'periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType, is_random=vc_rule.isRandom)}, modify=True)
                 else:
                     # All (1)
-                    # vc_rule = create_model_instance(vc_rule, [('periodicTask', setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType), None),], modify=True)
                     vc_rule = create_model_instance(vc_rule, None, custom_fields_to_save={'periodicTask': setup_periodic_vc(unique_id=int(vc_rule.vcRuleID), virtual_currency_amount=int(vc_rule.vcRuleAmount), variable_index=int(vc_rule.periodicVariableID), course=current_course, period_index=int(vc_rule.timePeriodID), threshold=int(vc_rule.threshold), operator_type=vc_rule.operatorType)}, modify=True)
                 
                 vc_rule.save()
             elif vc_rule_type == 'spending':
                 # Create the default spending condition
-                # condition_fields_to_save = [('operation', '=', None), ('operand1Type', OperandTypes.immediateInteger, None),
-                #                             ('operand1Value', 1, None), ('operand2Type', OperandTypes.immediateInteger, None),
-                #                             ('operand2Value', 1, None), ('courseID', current_course, None),]
-
                 condition_fields_to_save = {'operation': '=', 'operand1Type': OperandTypes.immediateInteger,
                                             'operand1Value': 1, 'operand2Type': OperandTypes.immediateInteger,
                                             'operand2Value': 1, 'courseID': current_course}
-
-                # condition = create_model_instance(Conditions, condition_fields_to_save)
                 condition = create_model_instance(Conditions, None, custom_fields_to_save=condition_fields_to_save)
                 condition.save()
 
-                # rule_fields_to_save = [('courseID', current_course, None), ('conditionID', condition, None), 
-                #                         ('actionID', Action.decreaseVirtualCurrency, None),]
-
                 rule_fields_to_save = {'courseID': current_course, 'conditionID': condition, 
                                         'actionID': Action.decreaseVirtualCurrency}
-
-                # rule = create_model_instance(Rules, rule_fields_to_save)
                 rule = create_model_instance(Rules, None, custom_fields_to_save=rule_fields_to_save)
                 rule.save()
 
                 # Create rule event
-                # rule_event_fields_to_save = [('rule', rule, None), ('event', Event.spendingVirtualCurrency, None),]
                 rule_event_fields_to_save = {'rule': rule, 'event': Event.spendingVirtualCurrency}
-                # rule_event = create_model_instance(RuleEvents, rule_event_fields_to_save)
                 rule_event = create_model_instance(RuleEvents, None, custom_fields_to_save=rule_event_fields_to_save)
                 rule_event.save()
 
                 # Set the vc rule to include new rule
-                # vc_rule = create_model_instance(vc_rule, [('ruleID', rule, None)], modify=True)
                 vc_rule = create_model_instance(vc_rule, None, custom_fields_to_save={'ruleID': rule}, modify=True)
                 vc_rule.save()
 
                 # Create action argument for vc rule
-                # action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', vc_rule_json['vcRuleAmount'], str),]
                 action_argument_fields_to_save = {'ruleID': rule, 'sequenceNumber': 1, 'argumentValue': vc_rule_json['vcRuleAmount']}
-                
-                # action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
                 action_argument = create_model_instance(ActionArguments, None, custom_fields_to_save=action_argument_fields_to_save)
                 action_argument.save()
 
@@ -3002,26 +2750,11 @@ def import_leaderboards_from_json(leaderboards_jsons, current_course, id_map=Non
         for leaderboard_json in leaderboards_jsons:
 
             # Create the leaderboard model instance
-            # leaderboard_fields_to_save = [('leaderboardName', leaderboard_json['leaderboardName'], None), 
-            #                             ('leaderboardDescription', leaderboard_json['leaderboardDescription'], None),
-            #                             ('isContinous', leaderboard_json['isContinous'], None),
-            #                             ('isXpLeaderboard', leaderboard_json['isXpLeaderboard'], None), 
-            #                             ('numStudentsDisplayed', leaderboard_json['numStudentsDisplayed'], None),
-            #                             ('periodicVariable', leaderboard_json['periodicVariable'], None), 
-            #                             ('timePeriodUpdateInterval', leaderboard_json['timePeriodUpdateInterval'], None), 
-            #                             ('displayOnCourseHomePage', leaderboard_json['displayOnCourseHomePage'], None), 
-            #                             ('howFarBack', leaderboard_json['howFarBack'], None),
-            #                             ('lastModified', utcDate(), None),
-            #                             ('courseID', current_course, None),]
-
             leaderboard_fields_to_save = {'lastModified': utcDate(), 'courseID': current_course}
-
-            # leaderboard = create_model_instance(LeaderboardsConfig, leaderboard_fields_to_save)
             leaderboard = create_model_instance(LeaderboardsConfig, leaderboard_json, custom_fields_to_save=leaderboard_fields_to_save)
             leaderboard.save()
 
             # Create periodic task for leaderboard
-            # leaderboard = create_model_instance(leaderboard, [('periodicTask', setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None), None),], modify=True)
             leaderboard = create_model_instance(leaderboard, None, custom_fields_to_save={'periodicTask': setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)}, modify=True)
             leaderboard.save()
 
@@ -3032,15 +2765,7 @@ def import_content_unlocking_rules_from_json(content_unlocking_rules_jsons, curr
         for content_unlocking_rule_json in content_unlocking_rules_jsons:
 
             # Create the badge model instance for type
-            # content_unlocking_rule_fields_to_save = [('name', content_unlocking_rule_json['name'], None), 
-            #                                         ('description', content_unlocking_rule_json['description'], None), 
-            #                                         ('objectID', content_unlocking_rule_json['objectID'], None), 
-            #                                         ('objectType', content_unlocking_rule_json['objectType'], None),
-            #                                         ('courseID', current_course, None),]
-            
             content_unlocking_rule_fields_to_save = {'courseID': current_course}
-
-            # content_unlocking_rule = create_model_instance(ProgressiveUnlocking, content_unlocking_rule_fields_to_save)
             content_unlocking_rule = create_model_instance(ProgressiveUnlocking, content_unlocking_rule_json, custom_fields_to_save=content_unlocking_rule_fields_to_save)
 
             rule_json = content_unlocking_rule_json['rule']
@@ -3053,15 +2778,11 @@ def import_content_unlocking_rules_from_json(content_unlocking_rules_jsons, curr
                 continue
 
             # Set the content unlocking rule to include new rule
-            # content_unlocking_rule = create_model_instance(content_unlocking_rule, [('ruleID', rule, None)], modify=True)
             content_unlocking_rule = create_model_instance(content_unlocking_rule, None, custom_fields_to_save={'ruleID': rule}, modify=True)
             content_unlocking_rule.save()
 
             # Create action argument for content unlocking rule
-            # action_argument_fields_to_save = [('ruleID', rule, None), ('sequenceNumber', 1, None), ('argumentValue', content_unlocking_rule.pk, str),]
             action_argument_fields_to_save = {'ruleID': rule, 'sequenceNumber': 1, 'argumentValue': content_unlocking_rule.pk}
-            
-            # action_argument = create_model_instance(ActionArguments, action_argument_fields_to_save)
             action_argument = create_model_instance(ActionArguments, None, custom_fields_to_save=action_argument_fields_to_save)
             action_argument.save() 
 
@@ -3069,14 +2790,8 @@ def import_content_unlocking_rules_from_json(content_unlocking_rules_jsons, curr
             students_registered_courses = StudentRegisteredCourses.objects.filter(courseID=current_course)
             for students_registered_course in students_registered_courses:
                 
-                # student_content_unlocking_fields_to_save = [('studentID', students_registered_course.studentID, None), ('pUnlockingRuleID', content_unlocking_rule, None), 
-                #                                             ('courseID', current_course, None), ('objectID', content_unlocking_rule_json['objectID'], None),
-                #                                             ('objectType', content_unlocking_rule_json['objectType'], None),]
-
                 student_content_unlocking_fields_to_save = {'studentID': students_registered_course.studentID, 'pUnlockingRuleID': content_unlocking_rule,
                                                             'courseID': current_course}
-
-                # student_content_unlocking =  create_model_instance(StudentProgressiveUnlocking, student_content_unlocking_fields_to_save)
                 student_content_unlocking =  create_model_instance(StudentProgressiveUnlocking, content_unlocking_rule_json, custom_fields_to_save=student_content_unlocking_fields_to_save)
                 student_content_unlocking.save()
 
@@ -3087,12 +2802,6 @@ def import_streaks_from_json(streaks_jsons, current_course, id_map=None, message
         for streak_json in streaks_jsons:
             
             # Create the streak model instance
-            # streaks_fields_to_save = [('daysofClass', streak_json['daysofClass'], None), 
-            #                         ('daysDeselected', streak_json['daysDeselected'], None),
-            #                         ('courseID', current_course, None),]
-            
             streaks_fields_to_save = {'courseID': current_course}
-            
-            # streak = create_model_instance(AttendanceStreakConfiguration, streaks_fields_to_save)
             streak = create_model_instance(AttendanceStreakConfiguration, streak_json, custom_fields_to_save=streaks_fields_to_save)
             streak.save()
