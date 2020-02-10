@@ -691,7 +691,7 @@ def calculate_number_of_days_of_2_unique_warmups_greater_than_80(course, student
     ''' This will return the number of days of unique warmup challenges that a student completed with a 
         score >= 80%'''
 
-    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 90.0, 2, last_ran, unique_id, award_type, result_only)
+    return calculate_number_of_days_of_unique_warmups(course, student, periodic_variable, time_period, 80.0, 2, last_ran, unique_id, award_type, result_only)
 
 def calculate_unique_warmups(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the number of unique Warm-up challenges the student has completed

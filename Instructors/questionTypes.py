@@ -276,7 +276,7 @@ def parsonsqdict(question, i, challengeId, challenge_question,studChallQuest):
     distractor_limit = qdict['distractor_limit']
 
     #tokenizer characters ☃ and ¬
-    solution_string = re.sub("\n", "\n¬☃", qdict['answerText'])
+    solution_string = re.sub("\n", "\n¬☃", qdict['answerText'].strip())
     solution_string = [x.strip() for x in solution_string.split('¬')]
     qdict['answerText'] = solution_string
 
