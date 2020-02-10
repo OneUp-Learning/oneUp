@@ -320,9 +320,13 @@ class CourseConfigParams(models.Model):
     vcDuelMaxBet = models.IntegerField(default=3)                     ## Max Amount of betting virtual currency 
     vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
     calloutAfterWarmup = models.BooleanField(default=True)            ## Allow students to callout other students after correctly solve a warm up 
-     
-    progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page
     
+    # Progress bar
+    progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page and student course home page
+    progressBarTotalPoints = models.IntegerField(default=100)         ## This is the default maximum points on the progress bar
+
+    displayStudentStartPageSummary = models.BooleanField(default=False) ## This toggles the view on the student course home page to show class achievements or student achievements summary
+
     chatUsed = models.BooleanField(default=False)                      ## This will enable or disable the chat feature 
     
     seriousChallengesGrouped = models.BooleanField(default=False)     ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side

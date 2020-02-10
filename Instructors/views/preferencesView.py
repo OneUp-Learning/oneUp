@@ -28,9 +28,9 @@ def preferencesView(request):
                 pk=int(request.POST['ccpID']))
             print("POST Edit Mode", ccparams)
         else:
-            # Create new Config Parameters
-            ccparams = CourseConfigParams()
-            ccparams.courseID = currentCourse
+            # Creation of course config parameters is when creating a new course
+            redirect('/oneUp/instructors/instructorCourseHome', "", "")
+
 
         # Badges
         ccparams.badgesUsed = "badgesUsed" in request.POST
@@ -41,6 +41,13 @@ def preferencesView(request):
         else:
             ccparams.studCanChangeBadgeVis = False
             ccparams.numBadgesDisplayed = 0
+
+        # Progress Bar
+        ccparams.progressBarUsed = "progressBarUsed" in request.POST
+        ccparams.progressBarTotalPoints = request.POST.get('progressBarTotalPoints')
+
+        # Student Starting Page
+        ccparams.displayStudentStartPageSummary = request.POST.get('displayStudentStartPageSummary')
 
         # Leveling
         ccparams.levelingUsed = "levelingUsed" in request.POST
@@ -153,6 +160,13 @@ def preferencesView(request):
             context_dict["badgesUsed"] = ccparams.badgesUsed
             context_dict["numBadgesDisplayed"] = ccparams.numBadgesDisplayed
             context_dict["studCanChangeBadgeVis"] = ccparams.studCanChangeBadgeVis
+
+            # Progress Bar
+            context_dict["progressBarUsed"] = ccparams.progressBarUsed
+            context_dict["progressBarTotalPoints"] = ccparams.progressBarTotalPoints
+
+            # Student Start Page
+            context_dict["displayStudentStartPageSummary"] = ccparams.displayStudentStartPageSummary
 
             # Leveling
             context_dict["levelingUsed"] = ccparams.levelingUsed

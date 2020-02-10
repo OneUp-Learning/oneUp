@@ -15,7 +15,6 @@ from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
 from Instructors.models import CoursesSkills, Skills
-from Students.views.studentCourseHomeView import courseBadges
 from Instructors.views.utils import initialContextDict
 
 

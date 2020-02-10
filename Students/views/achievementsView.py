@@ -28,6 +28,8 @@ def achievements(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
 
+    ccparams = CourseConfigParams.objects.get(courseID = currentCourse)
+
     context_dict["logged_in"] = request.user.is_authenticated
 
     studentId = context_dict['student']
@@ -59,26 +61,22 @@ def achievements(request):
     context_dict['studentUngradedChallengesPPoints_range'] = weightedSkillPoints
     # End Vendhan Changes
 
- # PROGRESS BAR
-
-    # MILESTONES
+    # PROGRESS BAR
     # this is the max points that the student can earn in this course
-    totalMilestonePoints = 0
-    milestones = Milestones.objects.filter(courseID=currentCourse)
-    for stone in milestones:
-        totalMilestonePoints += stone.points
+    # progressBarTotalPoints = ccparams.progressBarTotalPoints
+    progressBarTotalPoints = 100
 
     currentEarnedPoints = earnedSeriousChallengePoints + earnedActivityPoints
     currentTotalPoints = totalPointsSeriousChallenges + totalPointsActivities
     missedPoints = currentTotalPoints - currentEarnedPoints
     if not currentTotalPoints == 0:
         projectedEarnedPoints = round(
-            currentEarnedPoints * totalMilestonePoints/currentTotalPoints)
+            currentEarnedPoints * progressBarTotalPoints/currentTotalPoints)
     else:
         projectedEarnedPoints = 0
-    remainingPointsToEarn = totalMilestonePoints - currentTotalPoints
+    remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
 
-    print("totalMilestonePoints", totalMilestonePoints)
+    print("progressBarTotalPoints", progressBarTotalPoints)
     print("currentEarnedPoints", currentEarnedPoints)
     print("currentTotalPoints", currentTotalPoints)
     print("missedPoints", missedPoints)
@@ -88,7 +86,7 @@ def achievements(request):
     context_dict['currentEarnedPoints'] = currentEarnedPoints
     context_dict['missedPoints'] = missedPoints
     context_dict['projectedEarnedPoints'] = projectedEarnedPoints
-    context_dict['totalMilestonePoints'] = totalMilestonePoints
+    context_dict['progressBarTotalPoints'] = progressBarTotalPoints
     context_dict['remainingPointsToEarn'] = remainingPointsToEarn
 
     # Extract Badges data for the current student

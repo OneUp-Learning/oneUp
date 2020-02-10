@@ -273,8 +273,9 @@ def generateLeaderboards(currentCourse, displayHomePage):
     leaderboardNames = []
     leaderboardDescriptions = []
     leaderboardRankings = []
-    
+    print(leaderboardsConfigs, "CONFIGS")
     for leaderboard in leaderboardsConfigs:
+
         points = []
         studentFirstNameLastName = []
         avatarImages = []
@@ -309,10 +310,10 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 studentRegisteredCoursesObject = StudentRegisteredCourses.objects.get(studentID=leaderboardRecord.studentID, courseID=currentCourse)
                 avatarImages.append(studentRegisteredCoursesObject.avatarImage)
                     
-        if hasRecords:
-            leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
-            leaderboardNames.append(leaderboard.leaderboardName)
-            leaderboardDescriptions.append(leaderboard.leaderboardDescription)
+        # if hasRecords:
+        leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
+        leaderboardNames.append(leaderboard.leaderboardName)
+        leaderboardDescriptions.append(leaderboard.leaderboardDescription)
     return zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)  
 def createTimePeriodContext(context_dict):
     context_dict['periodicVariables'] = [variable for _, variable in PeriodicVariables.periodicVariables.items()]

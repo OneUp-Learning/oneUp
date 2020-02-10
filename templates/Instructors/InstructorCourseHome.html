@@ -45,7 +45,7 @@
                       <th>Upcoming Serious Challenges</th>
                     </thead>
                     <tbody>
-                        {% for i,chall_ID,chall_Name,start_Timestamp,due_date in challenge_range %}
+                        {% for i,chall_ID,chall_Name,start_Timestamp,due_date in challenge_ranges %}
                         <tr>
                             <td style="max-width:24vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
                             <td>{{due_date}}</td>

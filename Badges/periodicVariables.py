@@ -695,7 +695,7 @@ def calculate_number_of_days_of_2_unique_warmups_greater_than_80(course, student
 
 def calculate_unique_warmups(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     ''' This calculates the number of unique Warm-up challenges the student has completed
-        with a score greater than 70%.
+        with a score greater than or equal to 70%.
     '''
     print("Calculating Unique Warmups with a Score > 70%") 
     from Instructors.models import Challenges
@@ -749,7 +749,7 @@ def calculate_unique_warmups(course, student, periodic_variable, time_period, la
             # Calculate the percentage
             percentage = (highest_score/total_score_possible) * Decimal(100)
             # Say this challenge is counted for if the student score percentage is greater than 70%
-            if percentage > Decimal(70.0):
+            if percentage >= Decimal(70.0):
                 unique_warmups += 1
 
     print("Course: {}".format(course))
@@ -1596,7 +1596,7 @@ class PeriodicVariables:
         unique_warmups: {
             'index': unique_warmups,
             'name': 'unique_warmups',
-            'displayName': 'Warmup Challenges Score (greater than 70% correct)',
+            'displayName': 'Unique Warmup Challenges Completed (greater than or equal to 70% correct)',
             'description': 'The number of unique warmup challenges a student has completed with a score greater than 70%. The student score only includes the student challenge score, adjustment, and curve.',
             'function': calculate_unique_warmups,
         },
