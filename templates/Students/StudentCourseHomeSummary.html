@@ -4,23 +4,203 @@
       {% include 'scripts.html' %}
       <script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
       <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
-      <!-- <style>
-      main {
-         padding-left: 300px;
-      }
-      </style> -->
+      <style>
+        
+      @media only screen and (max-width : 992px) {
+            #sidenav-desktop {
+                display: none;
+            }
+        }
+      </style>
    </head>
    <body>
       {% include 'stheading.html' %}
-      <!-- <div id="sidenav-1" class="sidenav sidenav-fixed">
-         <div class="row">
-            <p>Hello</p>
-         </div>
-      </div>
-      <script>
+   
       
-      </script> -->
-      <main>
+      <main style="display: flex;">
+        <div id="sidenav-desktop" class="side-nav fixed" style="position: relative; height: auto; min-width: 300px; width: 350px; max-width: 400px; padding-bottom: 16px;">
+            <div class="user-view" style="padding: 16px; display: flex;">
+                <div class="background">
+                  <img src="/static/images/pic01.jpg" style="
+                  background-position: center;
+                  background-repeat: no-repeat;
+                  background-size: cover;
+                  filter: blur(1px);
+                  transform: scale(1.1);
+              ">
+                </div>
+                <div style="display: flex; width:100%; flex-direction: column;">
+                {% if ccparams.gamificationUsed and ccparams.avatarUsed %}
+                <img src="{{avatar}}" style="width: 96px; height: 96px; margin-right: auto; margin-left: auto; border-radius: 50%;">
+                {% endif %}
+                <div style="text-align: center; margin-top: 8px;">
+                    <!-- <div style="font-size: 1.6em;font-weight: 400;">Austin Hodge</div> -->
+                    <div style="font-size: 1.3em;font-weight: 300;">{{username}}</div>
+                    <div style="font-size: 0.95em;font-weight: 300;">Course: {{course_Name}}</div>
+                </div>
+                </div>
+            </div>
+           
+            <div style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly;">
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        20
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Experience Points
+                    </div>
+                </div>
+                {% if ccparams.warmupsUsed %}
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        100
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Practice Points
+                    </div>
+                </div>
+                {% endif %}
+                {% if virtualCurrencyUsed %}
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        20001
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Current VC
+                    </div>
+                </div>
+                {% endif %}
+                <!-- <div class="subheader" style="color: black; font-size: 1.64rem;font-weight: 400;">Experience Points</div>
+                <div style="font-size: 1.3em;font-weight: 300;">100</div> -->
+            </div>
+            {% if challengeClassmates %}
+            <div class="divider" style="margin-bottom: 8px;"></div>
+            <div style="padding-left: 16px; padding-right: 8px; margin-bottom: 8px; font-size: 1.4rem;">
+                Duels
+            </div>
+            <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        20
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Wins
+                    </div>
+                </div>
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        100
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Losses
+                    </div>
+                </div>
+                <a id="drop-duels" class="waves-effect waves-light" style="color: black; max-width: 80px; min-width: fit-content; align-self: center;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        <i id="duels-drop-icon" class="material-icons">arrow_drop_up</i>
+                    </div>
+                </a>
+                
+            </div>
+            
+            <div id="duels-info" style="display: none; padding-left: 32px; padding-right: 8px; background-color: #039be50d;">
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Sent</div>
+                    <div style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">10123123123123123123231210</div>
+                </div>
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Accepted</div>
+                    <div style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">100</div>
+                </div>
+            </div>
+
+            <div class="divider" style="margin-bottom: 8px; margin-top: 0;"></div>
+            <div style="padding-left: 16px; padding-right: 8px; margin-bottom: 8px; font-size: 1.4rem;">
+                Callouts
+            </div>
+            <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        20
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Wins
+                    </div>
+                </div>
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        100
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Losses
+                    </div>
+                </div>
+                <a id="drop-callouts" class="waves-effect waves-light" style="color: black; max-width: 80px; min-width: fit-content; align-self: center;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        <i id="callouts-drop-icon" class="material-icons">arrow_drop_up</i>
+                    </div>
+                </a>
+                
+            </div>
+            
+            <div id="callouts-info" style="display: none; padding-left: 32px; padding-right: 8px; background-color: #039be50d;">
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Sent</div>
+                    <div style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">12</div>
+                </div>
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Requested</div>
+                    <div style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">100</div>
+                </div>
+            </div>
+            
+            {% endif %}
+
+            <!-- {% if challengeClassmates %}
+            <div class="divider" style="margin-bottom: 8px; margin-top: 0;"></div>
+            <div  style="padding-left: 32px; padding-right: 8px;">
+                <div class="subheader" style="color: black; font-size: 1.64rem;font-weight: 400;">Duel Wins & Losses</div>
+                <div style="font-size: 1.3em;font-weight: 300;">100</div>
+                <div style="font-size: 1.3em;font-weight: 300;">1</div>
+            </div>
+            {% endif %} -->
+            <script>
+                $("#drop-duels").click(function () {
+
+                    $header = $(this);
+                    // Getting the element to toggle
+                    $content = $("#duels-info");
+                    // Update icon
+                    $("#duels-drop-icon").text(function(){
+                        return $content.is(":visible") ? "arrow_drop_up" : "arrow_drop_down";
+                    })
+                    // Open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+                    $content.slideToggle(500, function () {
+                        // Execute this after slideToggle is done
+                        
+                    });
+
+                });
+                $("#drop-callouts").click(function () {
+
+                    $header = $(this);
+                    // Getting the element to toggle
+                    $content = $("#callouts-info");
+                    // Update icon
+                    $("#callouts-drop-icon").text(function(){
+                        return $content.is(":visible") ? "arrow_drop_up" : "arrow_drop_down";
+                    })
+                    // Open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+                    $content.slideToggle(500, function () {
+                        // Execute this after slideToggle is done
+                        
+                    });
+
+                });
+            </script>
+        </div>
+
+        <div id="content" style="width: 100%;">
          {% if ccparams.progressBarUsed and ccparams.gamificationUsed %}
          <div class="row">
             <div class="col s12 m10 offset-m1">
@@ -293,7 +473,7 @@
             </div>
          </div>
          {% endif %}
-    
+         </div>
       </main>
       {% include 'footer.html' %}
    </body>
