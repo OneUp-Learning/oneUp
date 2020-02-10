@@ -16,7 +16,7 @@ from Badges.models import  CourseConfigParams
 from Badges.events import register_event
 from django.contrib.auth.decorators import login_required
 from Instructors.models import CoursesSkills, Skills
-from Students.views.studentCourseHomeView import courseBadges
+from Students.views.studentCourseHomeView import studentBadges
 from Students.views.utils import studentInitialContextDict
 
 @login_required
@@ -27,10 +27,11 @@ def LeaderboardView(request):
     cd,currentCourse = studentInitialContextDict(request)
       
     #Redirects students from leaderboard page if leaderboard not enabled
-    config=CourseConfigParams.objects.get(courseID=currentCourse)
-    leaderboardEnabled=config.leaderboardUsed
+    ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
+    leaderboardEnabled=ccparams.leaderboardUsed
     if not leaderboardEnabled:
         return redirect('/oneUp/students/StudentCourseHome')
+
     context_dict = { }
     context_dict["logged_in"]=request.user.is_authenticated
     if request.user.is_authenticated:
@@ -50,6 +51,14 @@ def LeaderboardView(request):
         context_dict['course_Name'] = currentCourse.courseName
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
 
+        context_dict["gamificationUsed"] = ccparams.gamificationUsed
+        context_dict["badgesUsed"]=ccparams.badgesUsed
+        context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
+        context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
+        context_dict["numStudentsDisplayed"]=ccparams.numStudentsDisplayed
+        context_dict["numStudentBestSkillsDisplayed"] = ccparams.numStudentBestSkillsDisplayed
+        context_dict["numBadgesDisplayed"]=ccparams.numBadgesDisplayed
+
         context_dict['avatar'] =  checkIfAvatarExist(st_crs)  
    
         context_dict['is_test_student'] = sID.isTestStudent
@@ -65,12 +74,12 @@ def LeaderboardView(request):
         context_dict["displayClassSkills"]=scparams.displayClassSkills
             
         
-        context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
+        context_dict['ccparams'] = ccparams
         ##GGM determine if student has leaderboard enabled
         studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
         context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
         context_dict["classSkillsDisplayed"]= studentConfigParams.displayClassSkills
-        context_dict['courseBadges'] = courseBadges(currentCourse, context_dict)
+        context_dict['courseBadges'] = studentBadges(currentCourse)
            
     #Trigger Student login event here so that it can be associated with a particular Course
     if not sID.isTestStudent:
