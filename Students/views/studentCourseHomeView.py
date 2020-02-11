@@ -22,6 +22,7 @@ from Students.views.avatarView import checkIfAvatarExist
 from Badges.periodicVariables import studentScore, TimePeriods
 
 from collections import defaultdict
+import json
 
 @login_required
 def StudentCourseHome(request):
@@ -123,8 +124,12 @@ def progressBarData(request):
 	response = defaultdict(int)
 	if request.method == 'GET':
 		if context_dict['ccparams'].progressBarUsed:
-			class_scores = True
-			metric_average = False
+			# class_scores = True
+			# metric_average = False
+
+			class_scores = json.loads(request.GET.get('class_scores', 'true'))
+			metric_average = json.loads(request.GET.get('metric_average', 'false'))
+			
 			# this is the max points that the student can earn in this course
 			progressBarTotalPoints = context_dict['ccparams'].progressBarTotalPoints
 

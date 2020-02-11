@@ -253,13 +253,14 @@
                            margin: [0],
                            events: {
                                 load: function () {
-                                    // set up the updating of the chart every 5 minutes
+                                    // set up the updating of the chart every 10 minutes
                                     var earned_series = this.series[1];
                                     var unclaimed_series = this.series[0];
                                     setInterval(function () {
                                         $.ajax({
                                             type: "GET",
                                             url: "/oneUp/students/progressBarData",
+                                            data: {'class_scores': true, 'metric_average': false},
                                             success: function (response) {     
                                                 if(response['status'] == 'success'){
                                                     var earned_value = response['currentEarnedPoints'];
@@ -272,7 +273,7 @@
                                                 console.table(response)
                                             }
                                         });
-                                    }, 300000);
+                                    }, 600000);
                                     // }, 1000);
                                 }
                             }
