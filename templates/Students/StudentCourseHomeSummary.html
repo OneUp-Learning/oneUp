@@ -222,7 +222,7 @@
                    var PointsEarnedData = function() {
        
                        var PointsEarnedDataArray1 = {{currentEarnedPoints}};
-                       return {{currentEarnedPoints}};
+                       return 50;
                    };
                    var RemainingChallengePoints = function() {
        
@@ -263,8 +263,8 @@
                                             data: {'class_scores': true, 'metric_average': false},
                                             success: function (response) {     
                                                 if(response['status'] == 'success'){
-                                                    var earned_value = response['currentEarnedPoints'];
-                                                    // var earned_value = Math.round(Math.random() * 100);
+                                                    // var earned_value = response['currentEarnedPoints'];
+                                                    var earned_value = Math.round(Math.random() * 100);
                                                     var max = response['progressBarTotalPoints'];
                                                     var rest = max - earned_value;
                                                     earned_series.setData([earned_value], false, false);
