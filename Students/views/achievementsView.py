@@ -38,13 +38,11 @@ def achievements(request):
         if context_dict["is_student"] == True:
             register_event(Event.visitedDashboard, request, studentId, None)
 
-    st_crs = StudentRegisteredCourses.objects.get(
-        studentID=studentId, courseID=currentCourse)
-    context_dict['avatar'] = st_crs.avatarImage
+    st_crs = context_dict['student_registered_course']
+    # context_dict['avatar'] = st_crs.avatarImage
     context_dict['course_Bucks'] = str(st_crs.virtualCurrencyAmount)
 
-    curentStudentConfigParams = StudentConfigParams.objects.get(
-        courseID=currentCourse, studentID=studentId)
+    curentStudentConfigParams = context_dict['scparams']
     context_dict['is_ClassAverage_Displayed'] = str(
         curentStudentConfigParams.displayClassAverage)
     context_dict['are_Badges_Displayed'] = str(

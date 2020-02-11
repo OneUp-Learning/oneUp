@@ -728,6 +728,7 @@
                 },
                 tooltip: {
                     useHTML: true,
+                    headerFormat: '',
                 },
                 plotOptions: {
                     bar: {
@@ -737,14 +738,14 @@
                         pointPadding: .25,
                         groupPadding: 0
                     },
-                    scatter: {
-                        marker: {
-                            symbol: 'line',
-                            lineWidth: 0,
-                            radius: 9,
-                            lineColor: '#333'
-                        }
-                    }
+                    // scatter: {
+                    //     marker: {
+                    //         symbol: 'line',
+                    //         lineWidth: 0,
+                    //         radius: 9,
+                    //         lineColor: '#333'
+                    //     }
+                    // }
                 },
                 series: [{
                     name: 'Points Already Lost',
@@ -786,28 +787,6 @@
                     pointRange: .5,
                     zIndex: 1,
                     data: [ChallengePointsProjected()]
-                }, {
-                    name: 'Warnings',
-                    type: 'scatter',
-                    marker: {
-                        symbol: 'circle',
-                        radius: 0,
-                        color: '#FF5050',
-                        lineWidth: 0,
-                        lineColor: '#fff',
-                        states: {
-                            hover: {
-                                enabled: false
-                            }
-                        }
-                    },
-                    data: [{
-                        x: 0,
-                        y: 0,
-                        marker: {
-                            fillColor: 'red'
-                        }
-                    }]
                 }]
             });
         });

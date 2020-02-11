@@ -19,6 +19,7 @@ def studentInitialContextDict(request):
       
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
     context_dict['student'] = student
+    context_dict['student_registered_course'] = st_crs
     print(context_dict)
     
     context_dict['avatar'] = checkIfAvatarExist(st_crs)
@@ -31,7 +32,7 @@ def studentInitialContextDict(request):
     studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
     context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
     context_dict['displayClassSkills'] = studentConfigParams.displayClassSkills
-
+    context_dict['scparams'] = studentConfigParams
         
     return context_dict,currentCourse
 
