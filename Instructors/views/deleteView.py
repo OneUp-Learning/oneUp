@@ -266,6 +266,7 @@ def deleteActivity(request):
     context_dict, currentCourse = initialContextDict(request)
     if request.POST:
         print("Deleting Activity")
+        message = ""
         try:
             if request.POST['activityID']:
                 activity = Activities.objects.get(pk=int(request.POST['activityID']))            
