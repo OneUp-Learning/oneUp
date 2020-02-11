@@ -615,9 +615,9 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 				$(ui.item[0]).css("margin-left", padding); 
 				$(ui.item[0]).css("margin-right", -padding); 
 			}  
-			// console.log(ui.position); 
-			// console.log(ui.originalPosition); 
-			// console.log(ui.offset); 
+			console.log(ui.position); 
+			console.log(ui.originalPosition); 
+			console.log(ui.offset); 
 		},
 	}); 
 
@@ -654,7 +654,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 		}
 
     	$.each($(box).children() ,function (index,item) {
-    		// console.log($(item).attr('data-depth'), previous_depth);
+      console.log($(item).attr('data-depth'), previous_depth);
 			let depth = parseInt($(item).attr('data-depth'));
 
 			if (depth < previous_depth){ 
