@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 {% endif %}
-                {% if virtualCurrencyUsed %}
+                {% if ccparams.virtualCurrencyUsed %}
                 <div style="max-width: 80px; min-width: 80px;">
                     <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{course_Bucks}}
@@ -211,7 +211,11 @@
             <div class="col s12 m10 offset-m1">
                 <div class="card">
                     <div class="card-content">
+                        {% if ccparams.progressBarGroupUsed %}
+                        <span class="card-title">Group Progress</span>
+                        {% else %}
                         <span class="card-title">Your Progress</span>
+                        {% endif %}
                         <div id="progressbar" style="height: 80px"></div>
                     </div>
                 </div>
@@ -222,7 +226,7 @@
                    var PointsEarnedData = function() {
        
                        var PointsEarnedDataArray1 = {{currentEarnedPoints}};
-                       return PointsEarnedDataArray1;
+                       return {{currentEarnedPoints}};
                    };
                    var RemainingChallengePoints = function() {
        
@@ -247,17 +251,41 @@
                    //Your Progress
                    $('#progressbar').highcharts({
                        chart: {
-                           renderTo: 'p1',
                            type: 'bar',
                            borderWidth: 0,
                            borderColor: '#333300',
                            margin: [0],
+                           events: {
+                                load: function () {
+                                    // set up the updating of the chart every 10 minutes
+                                    var earned_series = this.series[1];
+                                    var unclaimed_series = this.series[0];
+                                    var y_axis_max = this.yAxis[0];
+                                    setInterval(function () {
+                                        $.ajax({
+                                            type: "GET",
+                                            url: "/oneUp/students/progressBarData",
+                                            // data: {'class_scores': true, 'metric_average': false},
+                                            success: function (response) {     
+                                                if(response['status'] == 'success'){
+                                                    var earned_value = response['currentEarnedPoints'];
+                                                    // var earned_value = Math.round(Math.random() * 100);
+                                                    var max = response['progressBarTotalPoints'];
+                                                    var rest = max - earned_value;
+                                                    
+                                                    y_axis_max.setExtremes(0, max);
+                                                    earned_series.setData([earned_value], false, false);
+                                                    unclaimed_series.setData([rest], true, true);
+                                                }
+                                                console.table(response)
+                                            }
+                                        });
+                                    }, 600000);
+                                    // }, 1000);
+                                }
+                            }
                        },
-       
                        credits: {
-                           enabled: false
-                       },
-                       exporting: {
                            enabled: false
                        },
                        title: {
@@ -277,7 +305,7 @@
                            tickLength: 0
                        },
                        yAxis: {
-                           tickInterval: 5,
+                        //    tickInterval: 5,
                            allowDecimals: false,
                            tickColor: '#ccc',
                            tickWidth: 0,
@@ -290,18 +318,10 @@
                            title: {
                                text: ''
                            },
-                           //gridZIndex:4,
                            min: 0,
                            max: [ChallengesMaxPoints()],
                            endOnTick: true,
                            startOnTick: false,
-                           plotLines: [{
-                               value: [ChallengePointsProjected()],
-                               width: 2,
-                               zIndex: 4,
-                               //Progressbar marker black color
-                               color: 'darkblue'
-                           }],
                            labels: {
                                style: {
                                    fontSize: '9px'
@@ -310,6 +330,7 @@
                        },
                        tooltip: {
                            useHTML: true,
+                           headerFormat: '',
                        },
                        plotOptions: {
                            bar: {
@@ -318,27 +339,9 @@
                                borderWidth: 0,
                                pointPadding: .25,
                                groupPadding: 0
-                           },
-                           scatter: {
-                               marker: {
-                                   symbol: 'line',
-                                   lineWidth: 0,
-                                   radius: 9,
-                                   lineColor: '#333'
-                               }
                            }
                        },
                        series: [{
-                           name: 'Points Already Lost',
-                           enableMouseTracking: true,
-                           borderWidth: 0,
-                           borderRadius: 0,
-                           stacking: 'normal',
-                           grouping: false,
-                           //progress bar red color points already lost
-                           color: 'red', //darkred
-                           data: [ChallengePointsmissed()]
-                       }, {
                            name: 'Points Unclaimed',
                            enableMouseTracking: true,
                            borderWidth: 0,
@@ -346,8 +349,10 @@
                            stacking: 'normal',
                            grouping: false,
                            //Progress bar yellow color points remaining.
-                           color: '#FFFF33', //yellow
-                           data: [ChallengesMaxPoints() - ChallengePointsmissed() - PointsEarnedData()]
+                           //color: '#a7daff', 
+                           color: '#FFEB42',
+                           //color: '#9966FF',
+                           data: [ChallengesMaxPoints() - PointsEarnedData()]
                        }, {
                            //pointRange:1.1,
                            name: 'Points Earned',
@@ -357,46 +362,17 @@
                            stacking: 'normal',
                            grouping: false,
                            //Progressbar purple color points earned.
-                           color: '#9966FF', //purple
-                           //color:'#3399ff',//blue
+                           color: '#3f51b5', 
+                           //color:'#FFEB42',
+                           //color: '#FFFF33',
                            data: [PointsEarnedData()]
-                       }, {
-                           name: 'Projected Total Points',
-                           //Progress bar total projected points black color.
-                           color: 'darkblue',
-                           //color:'#9966FF',
-                           pointRange: .5,
-                           zIndex: 1,
-                           data: [ChallengePointsProjected()]
-                       }, {
-                           name: 'Warnings',
-                           type: 'scatter',
-                           marker: {
-                               symbol: 'circle',
-                               radius: 0,
-                               color: '#FF5050',
-                               lineWidth: 0,
-                               lineColor: '#fff',
-                               states: {
-                                   hover: {
-                                       enabled: false
-                                   }
-                               }
-                           },
-                           data: [{
-                               x: 0,
-                               y: 0,
-                               marker: {
-                                   fillColor: 'red'
-                               }
-                           }]
                        }]
                    });
                });
            </script>
          </div>
         {% endif %}
-        {% if displayBadges and ccparams.gamificationUsed and ccparams.badgesUsed %}                            
+        {% if scparams.displayBadges and ccparams.gamificationUsed and ccparams.badgesUsed %}                            
         <div class="row">
            <div class="col s12 m10 offset-m1">
               <div class="card">
@@ -438,7 +414,7 @@
             </div>
          </div>
          {% endif %}  
-         {% if displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
+         {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
          <div class="row">
             <div class="col s12 s12 m10 offset-m1">
                <div class="row" style="display: flex;">

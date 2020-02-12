@@ -903,16 +903,24 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     return (student, student_total)
 
 def calculate_student_xp_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
+    result = studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, gradeActivity=False, award_type=award_type)
+    xp = result['xp']
+    return (student, xp)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=True, gradeSerious=False, seriousPlusActivity=False, award_type=award_type)
+    result = studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=True, gradeSerious=False, gradeActivity=False, award_type=award_type)
+    xp = result['xp']
+    return (student, xp)
     
 def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=True, seriousPlusActivity=False, award_type=award_type)
+    result = studentScore(student, course, periodic_variable, time_period, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=True, gradeActivity=False, award_type=award_type)
+    xp = result['xp']
+    return (student, xp)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    return studentScore(student, course, periodic_variable, time_period, unique_id , last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=True, award_type=award_type)
+    result = studentScore(student, course, periodic_variable, time_period, unique_id , last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, gradeActivity=True, award_type=award_type)
+    xp = result['xp']
+    return (student, xp)
 
 def calculate_student_challenge_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type="leaderboard", result_only=False):
     print("Calculating student challenge streak") 
@@ -1163,12 +1171,14 @@ def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
 
-def studentScore(studentId, course, periodic_variable, time_period, unique_id, last_ran=None, result_only=False,gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict = None, award_type=None):
+def studentScore(studentId, course, periodic_variable, time_period, unique_id, last_ran=None, result_only=False, gradeWarmup=False, gradeSerious=False, gradeActivity=False, award_type=None):
     
     from Badges.models import CourseConfigParams, LeaderboardsConfig
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
     from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
     from Students.views import classResults
+
+    result = {}
 
     xp = 0  
     xpWeightSP = 0
@@ -1214,42 +1224,26 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     xpSeriousMaxScore = True 
     xpWarmupMaxScore = True
     challengeClassmates = False
-    if len(ccparamsList) >0:
+    if len(ccparamsList) > 0:
         cparams = ccparamsList[0]
-        xpWeightSP=cparams.xpWeightSP
-        xpWeightSChallenge=cparams.xpWeightSChallenge
-        xpWeightWChallenge=cparams.xpWeightWChallenge
-        xpWeightAPoints=cparams.xpWeightAPoints
+        xpWeightSP = cparams.xpWeightSP
+        xpWeightSChallenge = cparams.xpWeightSChallenge
+        xpWeightWChallenge = cparams.xpWeightWChallenge
+        xpWeightAPoints = cparams.xpWeightAPoints
         xpSeriousMaxScore = cparams.xpCalculateSeriousByMaxScore 
         xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore
+
         if cparams.classmatesChallenges:
             challengeClassmates = True
-
-    ###
-    ### The last parameter, context_dict, was added to provide the extra 
-    ### information needed by acheievementsView.py for the achievements page.
-    ### One may want to exclude the last parameter when calling this function 
-    ### for calculating only xp.
-    ### Oumar
-    ###
-    if not context_dict is None:
-        cparams = ccparamsList[0]
-        context_dict['badgesUsed'] = str(cparams.badgesUsed)
-        context_dict['levelingUsed'] = str(cparams.levelingUsed)
-        context_dict['leaderboardUsed'] = str(cparams.leaderboardUsed)
-        context_dict['classSkillsDisplayed'] = str(cparams.classSkillsDisplayed)
-        context_dict['virtualCurrencyUsed'] = cparams.virtualCurrencyUsed
        
     # SERIOUS CHALLENGES
     # Get the earned points
     earnedSeriousChallengePoints = 0 
-
-    if not context_dict is None:
-        print("context dict is not none")
-        chall_name = []
-        score = []
-        total = []
-        challavg = []
+    
+    chall_name = []
+    score = []
+    total = []
+    challavg = []
 
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition')
     for challenge in courseChallenges:
@@ -1273,7 +1267,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
             earnedSeriousChallengePoints += float(seriousChallenge.first().getScoreWithBonus())
 
         # Setup data for rendering this challenge in html (bar graph stuff)
-        if not context_dict is None and gradeID:
+        if gradeID:
             chall_name.append(challenge.challengeName)
             challavg.append(classResults.classAverChallengeScore(
                     course, challenge.challengeID))
@@ -1293,23 +1287,22 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
     print("total score points serious", weightedSeriousChallengePoints)
     
-    if not context_dict is None:
-        totalPointsSeriousChallenges = sum(total)
-        context_dict['challenge_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total))
-        context_dict['challengeWithAverage_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total, challavg))
+    
+    totalPointsSeriousChallenges = sum(total)
+    result['challenge_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total))
+    result['challengeWithAverage_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total, challavg))
 
     # WARMUP CHALLENGES
     # Get the earned points
     earnedWarmupChallengePoints = 0 
 
-    if not context_dict is None:
-        chall_Name = []
-        total = []
-        noOfAttempts = []
-        warmUpMaxScore = []
-        warmUpMinScore = []
-        warmUpSumScore = []
-        warmUpSumPossibleScore = []
+    chall_Name = []
+    total = []
+    noOfAttempts = []
+    warmUpMaxScore = []
+    warmUpMinScore = []
+    warmUpSumScore = []
+    warmUpSumPossibleScore = []
     
     courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False)
     for challenge in courseChallenges:
@@ -1335,7 +1328,7 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
             earnedWarmupChallengePoints += float(warmupChallenge.first().testScore)
 
         # Setup data for rendering this challenge in html (bar graph stuff)
-        if not context_dict is None and warmupChallenge:
+        if warmupChallenge:
             chall_Name.append(challenge.challengeName)
             # total possible points for challenge
             total.append(warmupChallenge[0].challengeID.totalScore)
@@ -1356,14 +1349,14 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
     print("points warmup chal xp weighted", weightedWarmupChallengePoints) 
 
-    if not context_dict is None:
-        totalWCEarnedPoints = sum(warmUpSumScore)
-        totalWCPossiblePoints = sum(warmUpSumPossibleScore)
-        context_dict['warmUpContainerHeight'] = 100+60*len(chall_Name)
-        context_dict['studentWarmUpChallenges_range'] = list(zip(range(1, len(
-            chall_Name)+1), chall_Name, total, noOfAttempts, warmUpMaxScore, warmUpMinScore))
-        context_dict['totalWCEarnedPoints'] = totalWCEarnedPoints
-        context_dict['totalWCPossiblePoints'] = totalWCPossiblePoints
+    
+    totalWCEarnedPoints = sum(warmUpSumScore)
+    totalWCPossiblePoints = sum(warmUpSumPossibleScore)
+    result['warmUpContainerHeight'] = 100+60*len(chall_Name)
+    result['studentWarmUpChallenges_range'] = list(zip(range(1, len(
+        chall_Name)+1), chall_Name, total, noOfAttempts, warmUpMaxScore, warmUpMinScore))
+    result['totalWCEarnedPoints'] = totalWCEarnedPoints
+    result['totalWCPossiblePoints'] = totalWCPossiblePoints
 
     # ACTIVITIES
     # Get the earned points
@@ -1429,13 +1422,12 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
             skill_ClassAvg.append(classResults.skillClassAvg(
                 skill.skillID, course))
     
-    if not context_dict is None:
-        context_dict['skill_range'] = list(
-            zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
-        context_dict['nondefskill_range'] = list(
-            zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
-        context_dict['skillWithAverage_range'] = list(
-            zip(range(1, len(skill_Name)+1), skill_Name, skill_ClassAvg))
+    result['skill_range'] = list(
+        zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
+    result['nondefskill_range'] = list(
+        zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
+    result['skillWithAverage_range'] = list(
+        zip(range(1, len(skill_Name)+1), skill_Name, skill_ClassAvg))
 
 
     # Weighting the total skill points to be used in calculation of the XP Points     
@@ -1443,34 +1435,43 @@ def studentScore(studentId, course, periodic_variable, time_period, unique_id, l
     weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
     
     # Return the xp and/or required variables rounded to 1 decimal place
+    xp = 0
     if gradeWarmup:
-        xp = round(weightedWarmupChallengePoints,1)
+        xp += weightedWarmupChallengePoints
         print("warmup ran")
-    elif gradeSerious:
-        xp = round(weightedSeriousChallengePoints,1)
+    if gradeSerious:
+        xp += weightedSeriousChallengePoints
         print("serious ran")
-    elif seriousPlusActivity:
-        xp = round((weightedSeriousChallengePoints  + weightedActivityPoints),1)
-        print("serious plus activity ran")
-    else:
-        xp = round((weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints),1)
-        print("xp has ran")
-
-    if not context_dict is None and challengeClassmates:
-        context_dict["challengeClassmates"] = challengeClassmates
-        context_dict["numOfDuelSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=872).count()
-        context_dict["numOfDuelAccepted"] = StudentEventLog.objects.filter(student=studentId, course=course, event=873).count()
-        context_dict["numOfDuelWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=874).count()
-        context_dict["numOfDuelLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=875).count()
-        context_dict["numOfCalloutSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=876).count()
-        context_dict["numOfCalloutRequest"] = StudentEventLog.objects.filter(student=studentId, course=course, event=877).count()
-        context_dict["numOfCalloutWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=878).count()
-        context_dict["numOfCalloutLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=879).count()
-        
-    if not context_dict is None:
-        return context_dict , xp, weightedSeriousChallengePoints, weightedWarmupChallengePoints, weightedActivityPoints, weightedSkillPoints, earnedSeriousChallengePoints, earnedWarmupChallengePoints, earnedActivityPoints, earnedSkillPoints, totalPointsSeriousChallenges, totalPointsActivities
+    if gradeActivity:
+        xp += weightedActivityPoints
+    if not gradeSerious and not gradeWarmup and not gradeActivity:
+        xp += weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints
     
-    return (studentId,xp)
+    xp = round(xp, 1)
+
+    result["challengeClassmates"] = challengeClassmates
+    result["numOfDuelSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=872).count()
+    result["numOfDuelAccepted"] = StudentEventLog.objects.filter(student=studentId, course=course, event=873).count()
+    result["numOfDuelWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=874).count()
+    result["numOfDuelLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=875).count()
+    result["numOfCalloutSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=876).count()
+    result["numOfCalloutRequest"] = StudentEventLog.objects.filter(student=studentId, course=course, event=877).count()
+    result["numOfCalloutWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=878).count()
+    result["numOfCalloutLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=879).count()
+        
+    result['xp'] = xp
+    result['weightedSeriousChallengePoints'] = weightedSeriousChallengePoints
+    result['weightedWarmupChallengePoints'] = weightedWarmupChallengePoints
+    result['weightedActivityPoints'] = weightedActivityPoints
+    result['weightedSkillPoints'] = weightedSkillPoints
+    result['earnedSeriousChallengePoints'] = earnedSeriousChallengePoints
+    result['earnedWarmupChallengePoints'] = earnedWarmupChallengePoints
+    result['earnedActivityPoints'] = earnedActivityPoints
+    result['earnedSkillPoints'] = earnedSkillPoints
+    result['totalPointsSeriousChallenges'] = totalPointsSeriousChallenges
+    result['totalPointsActivities'] = totalPointsActivities
+
+    return result
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*', tz=settings.TIME_ZONE):
     ''' This will get the crontab schedule if it exists and if not it will create it and return it '''

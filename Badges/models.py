@@ -324,6 +324,8 @@ class CourseConfigParams(models.Model):
     # Progress bar
     progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page and student course home page
     progressBarTotalPoints = models.IntegerField(default=100)         ## This is the default maximum points on the progress bar
+    progressBarGroupUsed = models.BooleanField(default=False)          ## This will make the progress bar show data for the class instead of a student
+    progressBarGroupAverage = models.BooleanField(default=True)       ## When the group progress bar is enabled, this will calculate the class values as a sum (total) or average
 
     displayStudentStartPageSummary = models.BooleanField(default=False) ## This toggles the view on the student course home page to show class achievements or student achievements summary
 

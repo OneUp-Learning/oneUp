@@ -45,6 +45,8 @@ def preferencesView(request):
         # Progress Bar
         ccparams.progressBarUsed = "progressBarUsed" in request.POST
         ccparams.progressBarTotalPoints = request.POST.get('progressBarTotalPoints')
+        ccparams.progressBarGroupUsed = "progressBarGroupUsed" in request.POST
+        ccparams.progressBarGroupAverage = request.POST.get('progressBarGroupAverage')
 
         # Student Starting Page
         ccparams.displayStudentStartPageSummary = request.POST.get('displayStudentStartPageSummary')
@@ -164,6 +166,9 @@ def preferencesView(request):
             # Progress Bar
             context_dict["progressBarUsed"] = ccparams.progressBarUsed
             context_dict["progressBarTotalPoints"] = ccparams.progressBarTotalPoints
+            context_dict["progressBarGroupUsed"] = ccparams.progressBarGroupUsed
+            context_dict["progressBarGroupAverage"] = ccparams.progressBarGroupAverage
+
 
             # Student Start Page
             context_dict["displayStudentStartPageSummary"] = ccparams.displayStudentStartPageSummary
