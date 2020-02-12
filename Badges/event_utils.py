@@ -10,9 +10,8 @@ def updateLeaderboard(course):
 
     for studentrc in studentrcs:
         time_period = TimePeriods.timePeriods[1503]
-        s_id, xp = studentScore(studentrc.studentID, course, 0, time_period, 0, result_only=True,
-                                gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
-
+        result = studentScore(studentrc.studentID, course, 0, time_period, 0, result_only=True)
+        xp = result['xp']
         # get all the students that have xp
         if xp > 0:
             studentLeaders[studentrc] = xp

@@ -26,86 +26,41 @@ import json
 
 @login_required
 def StudentCourseHome(request):
-	context_dict = { }
-	context_dict["logged_in"]=request.user.is_authenticated
-	if request.user.is_authenticated:
-		context_dict["username"]=request.user.username
-		sID = Student.objects.get(user=request.user)
+	context_dict, currentCourse = studentInitialContextDict(request)
 
-	if request.POST:
-		request.session['currentCourseID'] = request.POST['courseID']
-		context_dict['course_id']=request.POST['courseID']
-		context_dict['is_test_student'] = sID.isTestStudent
-		if sID.isTestStudent:
-			context_dict["username"]="Test Student"
+	if context_dict['is_test_student']:
+		context_dict["username"] = "Test Student"
 	
-	if request.GET:
-		request.session['currentCourseID'] = request.GET['courseID']
-		context_dict['course_id']=request.GET['courseID']
-		context_dict['is_test_student'] = sID.isTestStudent
-		if sID.isTestStudent:
-			context_dict["username"]="Test Student"
-			
-	if 'currentCourseID' in request.session:
-		currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
-		context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
-		context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
-		context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
-		context_dict['course_Name'] = currentCourse.courseName
-		context_dict['is_test_student'] = sID.isTestStudent
-		if sID.isTestStudent:
-			context_dict["username"]="Test Student"
-		context_dict['course_id'] = currentCourse.courseID
-		st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
-		context_dict['avatar'] =  st_crs.avatarImage  
-		context_dict['course_Bucks'] = str(st_crs.virtualCurrencyAmount)  
-		
-		context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True)  
-		context_dict['courseId']=currentCourse.courseID
+	context_dict['course_Bucks'] = str(context_dict['student_registered_course'].virtualCurrencyAmount)  
 
-		# Progress Bar
-		_, xp, _, _, _, _, earnedSeriousChallengePoints, _, earnedActivityPoints, _, totalPointsSeriousChallenges, totalPointsActivities = studentScore(
-		sID, currentCourse, 0, TimePeriods.timePeriods[1503], 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=context_dict)
+	context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
+	context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
 
-		context_dict['studentXP_range'] = xp
-		# PROGRESS BAR
-		# this is the max points that the student can earn in this course
-		progressBarTotalPoints = context_dict['ccparams'].progressBarTotalPoints
+	progress_data = progress_bar_data(currentCourse, context_dict['ccparams'], for_student=context_dict['student'])
 
-		currentEarnedPoints = earnedSeriousChallengePoints + earnedActivityPoints
-		currentTotalPoints = totalPointsSeriousChallenges + totalPointsActivities
-		missedPoints = currentTotalPoints - currentEarnedPoints
-		if not currentTotalPoints == 0:
-			projectedEarnedPoints = round(
-				currentEarnedPoints * progressBarTotalPoints/currentTotalPoints)
-		else:
-			projectedEarnedPoints = 0
-		remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
+	context_dict['currentEarnedPoints'] = progress_data['currentEarnedPoints']
+	context_dict['missedPoints'] = progress_data['missedPoints']
+	context_dict['projectedEarnedPoints'] = progress_data['projectedEarnedPoints']
+	context_dict['progressBarTotalPoints'] = progress_data['progressBarTotalPoints']
+	context_dict['remainingPointsToEarn'] = progress_data['remainingPointsToEarn']
 
-		context_dict['currentEarnedPoints'] = currentEarnedPoints
-		context_dict['missedPoints'] = missedPoints
-		context_dict['projectedEarnedPoints'] = projectedEarnedPoints
-		context_dict['progressBarTotalPoints'] = progressBarTotalPoints
-		context_dict['remainingPointsToEarn'] = remainingPointsToEarn
+	context_dict['studentXP_range'] = progress_data['xp']
+	context_dict['totalWCEarnedPoints'] = progress_data['data']['totalWCEarnedPoints']
+	context_dict['totalWCPossiblePoints'] = progress_data['data']['totalWCPossiblePoints']
 
-		   
-		scparamsList = StudentConfigParams.objects.filter(courseID=currentCourse, studentID=sID)   
-		##GGM determine if student has leaderboard enabled
-
-		studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
-		context_dict['displayLeaderBoard'] = studentConfigParams.displayLeaderBoard
-		 
-		if len(scparamsList) > 0:
-			scparams = scparamsList[0]
-			context_dict["displayBadges"]=scparams.displayBadges
-			context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
-			context_dict["displayClassAverage"]=scparams.displayClassAverage
-			context_dict["displayClassSkills"]=scparams.displayClassSkills
-			
-		
-		
-		context_dict['badgesInfo'] = studentBadges(currentCourse)
-		context_dict['studentBadges'] = studentBadges(currentCourse, student=sID)
+	context_dict["challengeClassmates"] = progress_data['data']["challengeClassmates"] 
+	context_dict["numOfDuelSent"] = progress_data['data']["numOfDuelSent"] 
+	context_dict["numOfDuelAccepted"] = progress_data['data']["numOfDuelAccepted"] 
+	context_dict["numOfDuelWon"] = progress_data['data']["numOfDuelWon"] 
+	context_dict["numOfDuelLost"] = progress_data['data']["numOfDuelLost"] 
+	context_dict["numOfCalloutSent"] = progress_data['data']["numOfCalloutSent"] 
+	context_dict["numOfCalloutRequest"] = progress_data['data']["numOfCalloutRequest"] 
+	context_dict["numOfCalloutWon"] = progress_data['data']["numOfCalloutWon"]
+	context_dict["numOfCalloutLost"] = progress_data['data']["numOfCalloutLost"]
+	
+	context_dict['badgesInfo'] = studentBadges(currentCourse)
+	context_dict['studentBadges'] = studentBadges(currentCourse, student=context_dict['student'])
+	context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True) 
 	
 	#Trigger Student login event here so that it can be associated with a particular Course
 	register_event(Event.userLogin, request, None, None)
@@ -123,61 +78,53 @@ def progressBarData(request):
 
 	response = defaultdict(int)
 	if request.method == 'GET':
-		if context_dict['ccparams'].progressBarUsed:
-			# class_scores = True
-			# metric_average = False
-
+		# If these options are none then use the ccparams options
+		class_scores = None
+		metric_average = None
+		# Use the options that were passed through the request
+		if 'class_scores' in request.GET and 'metric_average' in request.GET:
 			class_scores = json.loads(request.GET.get('class_scores', 'true'))
 			metric_average = json.loads(request.GET.get('metric_average', 'false'))
-			
-			# this is the max points that the student can earn in this course
-			progressBarTotalPoints = context_dict['ccparams'].progressBarTotalPoints
 
-			if class_scores:
-				students = StudentRegisteredCourses.objects.filter(courseID= currentCourse, studentID__isTestStudent=False)
-				for student in students:
-					# Get latest data
-					_, xp, _, _, _, _, earnedSeriousChallengePoints, _, earnedActivityPoints, _, totalPointsSeriousChallenges, totalPointsActivities = studentScore(
-					context_dict['student'], currentCourse, 0, TimePeriods.timePeriods[1503], 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=context_dict)
-				
-					response['xp'] += xp
+		response = progress_bar_data(currentCourse, context_dict['ccparams'], class_scores=class_scores, metric_average=metric_average, for_student=context_dict['student'])
+	else:
+		response['status'] = "failure"
 
-					# currentEarnedPoints = earnedSeriousChallengePoints + earnedActivityPoints
-					currentEarnedPoints = earnedActivityPoints
-					currentTotalPoints = totalPointsSeriousChallenges + totalPointsActivities
-					missedPoints = currentTotalPoints - currentEarnedPoints
-					if not currentTotalPoints == 0:
-						projectedEarnedPoints = round(
-							currentEarnedPoints * progressBarTotalPoints/currentTotalPoints)
-					else:
-						projectedEarnedPoints = 0
-					remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
+	return JsonResponse(response)
 
-					response['currentEarnedPoints'] += currentEarnedPoints
-					response['missedPoints'] += missedPoints
-					response['projectedEarnedPoints'] += projectedEarnedPoints
-					response['progressBarTotalPoints'] += progressBarTotalPoints
-					response['remainingPointsToEarn'] += remainingPointsToEarn
+def progress_bar_data(current_course, ccparams, class_scores=None, metric_average=None, for_student=None):
+	''' Gets the progress bar data for a class or student.
+		If for_student is passed, class_scores needs to be set to False or 
+		the course configuration variable should be False.
 
-				if metric_average and students:
-					response['xp'] = response['xp'] / len(students)
-					response['currentEarnedPoints'] = response['currentEarnedPoints'] / len(students)
-					response['missedPoints'] = response['missedPoints'] / len(students)
-					response['projectedEarnedPoints'] = response['projectedEarnedPoints'] / len(students)
-					response['progressBarTotalPoints'] = response['progressBarTotalPoints'] / len(students)
-					response['remainingPointsToEarn'] = response['remainingPointsToEarn'] / len(students)
+		This will also return the studentScore results for "for_student" in the key "data"
+	'''
 
-			else:
+	response = defaultdict(int)
+	if ccparams.progressBarUsed:
+		# Determine how to process the data for the progress bar
+		if class_scores is None and metric_average is None:
+			class_scores = ccparams.progressBarGroupUsed
+			metric_average = ccparams.progressBarGroupAverage
+		
+		# this is the max points that the student can earn in this course
+		progressBarTotalPoints = ccparams.progressBarTotalPoints
+
+		if class_scores:
+			students = StudentRegisteredCourses.objects.filter(courseID= current_course, studentID__isTestStudent=False)
+			for student in students:
+				print("STU", student, " : ", for_student)
 				# Get latest data
-				_, xp, _, _, _, _, earnedSeriousChallengePoints, _, earnedActivityPoints, _, totalPointsSeriousChallenges, totalPointsActivities = studentScore(
-				context_dict['student'], currentCourse, 0, TimePeriods.timePeriods[1503], 0, result_only=True, gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=context_dict)
+				data = studentScore(student.studentID, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
 			
-				response['xp'] = xp
+				response['xp'] += data['xp']
+				if for_student == student.studentID:
+					response['data'] = data
 
-				# currentEarnedPoints = earnedSeriousChallengePoints + earnedActivityPoints
-				currentEarnedPoints = earnedActivityPoints
-				currentTotalPoints = totalPointsSeriousChallenges + totalPointsActivities
+				currentEarnedPoints = data['earnedSeriousChallengePoints'] + data['earnedActivityPoints']
+				currentTotalPoints = data['totalPointsSeriousChallenges'] + data['totalPointsActivities']
 				missedPoints = currentTotalPoints - currentEarnedPoints
+				
 				if not currentTotalPoints == 0:
 					projectedEarnedPoints = round(
 						currentEarnedPoints * progressBarTotalPoints/currentTotalPoints)
@@ -185,19 +132,54 @@ def progressBarData(request):
 					projectedEarnedPoints = 0
 				remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
 
-				response['currentEarnedPoints'] = currentEarnedPoints
-				response['missedPoints'] = missedPoints
-				response['projectedEarnedPoints'] = projectedEarnedPoints
-				response['progressBarTotalPoints'] = progressBarTotalPoints
-				response['remainingPointsToEarn'] = remainingPointsToEarn
+				print("EARNED: ",currentEarnedPoints)
+				print("Current Total: ", currentTotalPoints)
+				print("MISSED: ", missedPoints)
+				print("PROJECTED: ", projectedEarnedPoints)
 
-			response['status'] = "success"
+				response['currentEarnedPoints'] += currentEarnedPoints
+				response['missedPoints'] += missedPoints
+				response['projectedEarnedPoints'] += projectedEarnedPoints
+				response['remainingPointsToEarn'] += remainingPointsToEarn
+
+			if metric_average and students:
+				response['xp'] = response['xp'] / len(students)
+				response['currentEarnedPoints'] = response['currentEarnedPoints'] / len(students)
+				response['missedPoints'] = response['missedPoints'] / len(students)
+				response['projectedEarnedPoints'] = response['projectedEarnedPoints'] / len(students)
+				response['remainingPointsToEarn'] = response['remainingPointsToEarn'] / len(students)
+			
+			response['progressBarTotalPoints'] = progressBarTotalPoints
+			
 		else:
-			response['status'] = "failure"
+			# Get latest data
+			data = studentScore(for_student, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+		
+			response['xp'] = data['xp']
+			response['data'] = data
+
+			currentEarnedPoints = data['earnedSeriousChallengePoints'] + data['earnedActivityPoints']				
+			currentTotalPoints = data['totalPointsSeriousChallenges'] + data['totalPointsActivities']
+			missedPoints = currentTotalPoints - currentEarnedPoints
+
+			if not currentTotalPoints == 0:
+				projectedEarnedPoints = round(
+					currentEarnedPoints * progressBarTotalPoints/currentTotalPoints)
+			else:
+				projectedEarnedPoints = 0
+			remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
+
+			response['currentEarnedPoints'] = currentEarnedPoints
+			response['missedPoints'] = missedPoints
+			response['projectedEarnedPoints'] = projectedEarnedPoints
+			response['progressBarTotalPoints'] = progressBarTotalPoints
+			response['remainingPointsToEarn'] = remainingPointsToEarn
+
+		response['status'] = "success"
 	else:
 		response['status'] = "failure"
 
-	return JsonResponse(response)
+	return response
 
 def studentBadges(currentCourse, student=None):
 	

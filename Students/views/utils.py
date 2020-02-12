@@ -6,7 +6,6 @@ import glob
 def studentInitialContextDict(request):    
     context_dict, currentCourse = initialContextDict(request)
     
-    #student = Student.objects.get(user=request.user) 
     if 'userID' in request.GET:    
         stud = User.objects.get(username=request.GET['userID'])
         student = Student.objects.get(user=stud)
@@ -20,18 +19,13 @@ def studentInitialContextDict(request):
     st_crs = StudentRegisteredCourses.objects.get(studentID=student,courseID=currentCourse)
     context_dict['student'] = student
     context_dict['student_registered_course'] = st_crs
-    print(context_dict)
     
     context_dict['avatar'] = checkIfAvatarExist(st_crs)
     
     if not currentCourse:
         context_dict['course_notselected'] = 'Please select a course'
         
-        
-    ##GGM determine if student has leaderboard enabled
     studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
-    context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
-    context_dict['displayClassSkills'] = studentConfigParams.displayClassSkills
     context_dict['scparams'] = studentConfigParams
         
     return context_dict,currentCourse

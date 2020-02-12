@@ -100,6 +100,40 @@
                                         <label for="progressBarTotalPoints">Total points on the Progress Bar</label>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Set Group Progress Bar
+                                            {% if progressBarGroupUsed %}
+                                            <input name="progressBarGroupUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="progressBarGroupUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Set Group Progress Bar Calculation</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="progressBarGroupAverage" type="radio"
+                                                id="progressBarGroupAverage" value="True"
+                                                {% if progressBarGroupAverage == True %} checked {%endif%} />
+                                            <label for="progressBarGroupAverage">Calculate as Average</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="progressBarGroupAverage" type="radio"
+                                                value="False" id="progressBarGroupTotal"
+                                                {% if progressBarGroupAverage == False %} checked {%endif%} />
+                                            <label for="progressBarGroupTotal">Calculate as Total</label>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
