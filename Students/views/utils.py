@@ -21,9 +21,6 @@ def studentInitialContextDict(request):
     context_dict['student_registered_course'] = st_crs
     
     context_dict['avatar'] = checkIfAvatarExist(st_crs)
-    
-    if not currentCourse:
-        context_dict['course_notselected'] = 'Please select a course'
         
     studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
     context_dict['scparams'] = studentConfigParams

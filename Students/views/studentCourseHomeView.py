@@ -113,7 +113,6 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		if class_scores:
 			students = StudentRegisteredCourses.objects.filter(courseID= current_course, studentID__isTestStudent=False)
 			for student in students:
-				print("STU", student, " : ", for_student)
 				# Get latest data
 				data = studentScore(student.studentID, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
 			
@@ -131,11 +130,6 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 				else:
 					projectedEarnedPoints = 0
 				remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
-
-				print("EARNED: ",currentEarnedPoints)
-				print("Current Total: ", currentTotalPoints)
-				print("MISSED: ", missedPoints)
-				print("PROJECTED: ", projectedEarnedPoints)
 
 				response['currentEarnedPoints'] += currentEarnedPoints
 				response['missedPoints'] += missedPoints
