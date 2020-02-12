@@ -89,8 +89,8 @@ def parsonsForm(request):
             answer.answerText += instructorLine
             setUpCode = request.POST['setupCode']
             #print("setupcode", setUpCode)
-            ##setUpCode = re.sub("\r\n\s{4}", "\r\n\t", setUpCode)
-            answer.answerText += setUpCode
+            setUpCode = re.sub("\r\n\r\n", "\r\n", setUpCode)
+            answer.answerText += setUpCode.strip()
             #print("Answer edit answer:", repr(answer.answerText))
             answer.save()
             # no need to change correct answer
