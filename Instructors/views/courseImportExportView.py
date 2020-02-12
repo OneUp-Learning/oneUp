@@ -5,11 +5,13 @@ from django.http import JsonResponse
 
 from django.contrib.auth.models import User
 
-from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, StaticQuestions 
+from Instructors.models import Courses, Challenges, ChallengesQuestions, StaticQuestions, Questions
 from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
-from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionProgrammingFiles, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills, CoursesSkills, Questions
+from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionProgrammingFiles, QuestionLibrary, LuaLibrary
+from Instructors.models import QuestionsSkills, Skills, CoursesSkills
 from Instructors.models import Activities, ActivitiesCategory
-from Instructors.models import Topics, CoursesTopics
+from Instructors.models import Topics, CoursesTopics, ChallengesTopics
+from Instructors.models import Tags, ResourceTags, ChallengeTags
 
 from Badges.models import BadgesInfo, Badges, PeriodicBadges
 from Badges.models import RuleEvents, Rules, Conditions, ActionArguments, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet, ActivityCategorySet, TopicSet
