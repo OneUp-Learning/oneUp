@@ -38,7 +38,7 @@
                            <div class="collapsible-header">
                               <i class="material-icons">question_answer</i>How Can I View the Leaderboard?
                            </div>
-                           {%if studentLeaderboardToggle %}
+                           {%if scparams.displayLeaderBoard %}
                            <div class="collapsible-body">
                               <span>If you wish to view the class Leaderboard you can go to Course Information menu and select
                               <a href="/oneUp/students/Leaderboard">Leaderboard.</a> Here you will find the class Leaderboard, if enabled.</span>
@@ -84,7 +84,7 @@
                               available Badges, and how to earn them.</span>
                            </div>
                         </li>
-                        {% if vcUsed%}
+                        {% if ccparams.virtualCurrencyUsed%}
                         <li>
                         
                            <div class="collapsible-header">
@@ -214,7 +214,7 @@
             </div>
          </div>
          <div class="row">
-         {%if duelUsed %}
+         {%if ccparams.classmatesChallenges %}
             <div class="col s12 m4">
             
              

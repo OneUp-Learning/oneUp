@@ -33,9 +33,7 @@
             </div>
          </div>
          <!-- GGM added ifs to remove Targeted skills  -->
-         {%if ccparams.gamificationUsed %}
-          {%if studentClassSkillsToggle %}
-          {%if displayClassSkills %}
+         {%if ccparams.gamificationUsed and ccparams.classSkillsDisplayed and scparams.displayClassSkills %}
          <div class="row">
             <div class="col s12 m6 offset-m3">
                <div class="card">
@@ -57,8 +55,6 @@
                </div>
             </div>
          </div>
-         {%endif%}
-         {%endif%}
          {%endif%}
       </main>
       {% include 'footer.html' %}

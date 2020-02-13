@@ -389,12 +389,6 @@
                 return nondefskillsAvgPointsArray;
             };
 
-
-            var nondefskilltotalpoints = function() {
-                var skillArray5 = [{% for i,skill_ID,skill_Name,skillTotal_Points in nondefskillTotalpoints_range %}['{{skill_Name}}', {{skillTotal_Points}}] {% if not forloop.last %}, {% endif %} {% endfor %}];
-                return skillArray5;
-            };
-
             var nondefskillName = function() {
                 var dataArray4 = [{% for i,skill_Name,skill_Points in nondefskill_range %}'{{skill_Name}}' {% if not forloop.last %}, {% endif %} {% endfor %}];
                 return dataArray4;
@@ -663,9 +657,9 @@
                 return ChallengesMaxPointsDataArray1;
             };
             //Your Progress
-            $('#p1').highcharts({
+            $('#progressbar').highcharts({
                 chart: {
-                    renderTo: 'p1',
+                    renderTo: 'progressbar',
                     type: 'bar',
                     borderWidth: 0,
                     borderColor: '#333300',
@@ -695,7 +689,7 @@
                     tickLength: 0
                 },
                 yAxis: {
-                    tickInterval: 5,
+                    // tickInterval: 5,
                     allowDecimals: false,
                     tickColor: '#ccc',
                     tickWidth: 0,
@@ -728,6 +722,7 @@
                 },
                 tooltip: {
                     useHTML: true,
+                    headerFormat: '',
                 },
                 plotOptions: {
                     bar: {
@@ -786,28 +781,6 @@
                     pointRange: .5,
                     zIndex: 1,
                     data: [ChallengePointsProjected()]
-                }, {
-                    name: 'Warnings',
-                    type: 'scatter',
-                    marker: {
-                        symbol: 'circle',
-                        radius: 0,
-                        color: '#FF5050',
-                        lineWidth: 0,
-                        lineColor: '#fff',
-                        states: {
-                            hover: {
-                                enabled: false
-                            }
-                        }
-                    },
-                    data: [{
-                        x: 0,
-                        y: 0,
-                        marker: {
-                            fillColor: 'red'
-                        }
-                    }]
                 }]
             });
         });
@@ -830,7 +803,7 @@
                             {% if ccparams.warmupsUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Practice Points</th>
                             {% endif %}
-                            {% if virtualCurrencyUsed %}
+                            {% if ccparams.virtualCurrencyUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Your Course Bucks</th>
                             {% endif %}
                         </thead>
@@ -840,7 +813,7 @@
                                 {% if ccparams.warmupsUsed %}
                                 <td style="font-size:26px"> {{totalWCEarnedPoints|floatformat}} / {{totalWCPossiblePoints|floatformat}}</td>
                                 {% endif %}
-                                {% if virtualCurrencyUsed %}
+                                {% if ccparams.virtualCurrencyUsed %}
                                 <td style="font-size:26px"> {{course_Bucks}}</td>
                                 {% endif %}
                             </tr>
@@ -859,7 +832,7 @@
             {%endif%}
                     <div class="card">
                         <div class="card-content">
-                            {% if VCStreakInfo%}
+                            {% if VCStreakInfo %}
                             
                             <div class="row center-align">
                                 <span class="card-title">Upcoming (depending on your persistence)</span>
@@ -867,7 +840,7 @@
                             {%else%}
                                 <span class="card-title">Upcoming (depending on your persistence)</span>
                             {%endif%}
-                            {%if BadgeStreakInfo%}
+                            {%if BadgeStreakInfo %}
                             <div class="row">
                                 <div class="col s6 m6">
                             <h5>Badges</h5>
@@ -882,7 +855,7 @@
                             </div>
                             {% endif%}
 
-                            {% if VCStreakInfo%}
+                            {% if VCStreakInfo %}
                                 <div class="col s6 m6">
                             <h5>Virtual Currency</h5>
                             {% for i, VCRuleName, description, awardAmount,StreakLength, treshold, vcType, vcTime in VCStreakInfo %}
@@ -906,7 +879,7 @@
                 <div class="card">
                     <div class="card-content">
                         <span class="card-title">Your Progress</span>
-                        <div id="p1" style="height: 110px"></div>
+                        <div id="progressbar" style="height: 110px"></div>
                     </div>
                 </div>
             </div>
@@ -915,52 +888,46 @@
 
         {% if challengeClassmates %}
 
-            <div class="row">
-              <div class="col s12 m10 offset-m1 cards-container" style="height: 207px;">
-                <div 
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid; margin-right: 5px" >
-                    <div class="card">
-                      <div class="card-content">
-                        <h5 style="text-align: center">Duel </h5>
-                        <div style="text-align: center">
-                            <label style="white-space: pre-wrap; font-size:16px">    Wins                   Losses</label>
-                        </div>
-                        <div style="text-align: center;">
-                            <label style="font-size:26px">{{numOfDuelWon}} - {{numOfDuelLost}}<label>
-                        </div>
-                        <div style="text-align: center; margin-top:10px">
-                            <label style="white-space: pre-wrap; font-size:16px;">            {{numOfDuelSent}} sent                                {{numOfDuelAccepted}} accepted </label>
-                        </div>
-                      </div>
+        <div class="row">
+            <div class="col s12 m5 l4 offset-m1 offset-l2" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid; margin-right: 5px" >
+                <div class="card" style="transform: translateZ(0);">
+                    <div class="card-content">
+                    <h5 style="text-align: center">Duel </h5>
+                    <div style="text-align: center">
+                        <label style="white-space: pre-wrap; font-size:16px">    Wins                   Losses</label>
+                    </div>
+                    <div style="text-align: center;">
+                        <label style="font-size:26px">{{numOfDuelWon}} - {{numOfDuelLost}}<label>
+                    </div>
+                    <div style="text-align: center; margin-top:10px">
+                        <label style="white-space: pre-wrap; font-size:16px;">            {{numOfDuelSent}} sent                                {{numOfDuelAccepted}} accepted </label>
+                    </div>
                     </div>
                 </div>
-                
-                <div 
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                    <div class="card">
-                      <div class="card-content">
-                      
-                        <h5 style="text-align: center">Callout </h5>
-                        <div style="text-align: center">
-                            <label style="font-size:16px">Wins</label>
-                        </div>
-                        <div style="text-align: center;">
-                            <label style="font-size:26px">{{numOfCalloutWon}}<label>
-                        </div>
-                        <div style="text-align: center; margin-top:10px">
-                            <label style="white-space: pre-wrap; font-size:16px;">     {{numOfCalloutSent}} sent        {{numOfDuelAccepted}} requested        {{numOfCalloutLost}} lost</label>
-                        </div>
-                      </div>
-                    </div>
-                </div>
-                        
             </div>
-           </div>
+            
+            <div class="col s12 m5 l4" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                <div class="card" style="transform: translateZ(0);">
+                    <div class="card-content">
+                    
+                    <h5 style="text-align: center">Callout </h5>
+                    <div style="text-align: center">
+                        <label style="font-size:16px">Wins</label>
+                    </div>
+                    <div style="text-align: center;">
+                        <label style="font-size:26px">{{numOfCalloutWon}}<label>
+                    </div>
+                    <div style="text-align: center; margin-top:10px">
+                        <label style="white-space: pre-wrap; font-size:16px;">     {{numOfCalloutSent}} sent        {{numOfCalloutRequest}} requested        {{numOfCalloutLost}} lost</label>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endif %}
         
         <!-- GGM your badges Bar moved right after progress bar -->
-      {% if ccparams.badgesUsed %}  
-        {% if are_Badges_Displayed|lower %}
+      {% if ccparams.badgesUsed and scparams.displayBadges%}  
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
@@ -984,16 +951,15 @@
                 </div>
             </div>
         </div>
-        {% endif %}
       {% endif %}  
         <!-- GGM added a switch to display class skills if the student toggles it on -->
         {% comment %}
         class skills displayed is the instructor toggle
         display class skills is the student toggle
         {% endcomment %}
-        {% if classSkillsDisplayed == "True"%}
-       		{% if displayClassSkills %}
- <div class="row">
+
+        {% if ccparams.classSkillsDisplayed and scparams.displayClassSkills %}
+        <div class="row">
             <div class="col s12 m5 offset-m1">
                 <div class="card">
                     <div class="card-content">
@@ -1003,7 +969,7 @@
                     </div>
                     <div class="card-action right-align">
                         <script>
-                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
+                            var isClassAvgAvailable = {{scparams.displayClassAverage | lower}};
                             if (isClassAvgAvailable) {
                                 var selectScript = "<a id='points' class='waves-effect btn-flat'>Points</a>";
                                 selectScript += "<a id='classAvg' class='waves-effect btn-flat'>Class Average</a>";
@@ -1027,47 +993,9 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col s12 m5">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Challenges</span>
-                        <div id='container1' class="js-box"></div>
-                        <div id='container2' class="js-box"></div>
-                    </div>
-                    <div class="card-action right-align">
-                        <script>
-                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
-                            if (isClassAvgAvailable) {
-                                var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
-                                selectScript += "<a id='classAvg2' class='waves-effect btn-flat'>Class Average</a>";
-                                document.write(selectScript);
-                            } else {
-                                var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
-                                selectScript += "<a id='classAvg2' class='waves-effect btn-flat disabled'>Class Average</a>";
-                                document.write(selectScript);
-                            }
-
-                            $('#points2').click(function() {
-                                $('.js-box').hide();
-                                $('#container1').show();
-                            });
-                            $('#classAvg2').click(function() {
-                                $('.js-box').hide();
-                                $('#container2').show();
-                                console.log("Class average clicked");
-                            });
-                            $('#points2').click();
-                        </script>
-                    </div>
-                </div>
-            </div>
         </div>
-
-            {% endif %}
-	{% else %}
-{% if ccparams.seriousChallengesUsed %}
-    {% if hasSeriousChallenges %}
+	    {% endif %}
+        {% if ccparams.seriousChallengesUsed and hasSeriousChallenges %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
@@ -1078,8 +1006,7 @@
                     </div>
                     <div class="card-action right-align">
                         <script>
-                            //{{is_ClassAverage_Displayed | lower}};
-                            var isClassAvgAvailable = {{is_ClassAverage_Displayed | lower}};
+                            var isClassAvgAvailable = {{scparams.displayClassAverage | lower}};
                             if (isClassAvgAvailable) {
                                 var selectScript = "<a id='points2' class='waves-effect btn-flat'>Points</a>";
                                 selectScript += "<a id='classAvg2' class='waves-effect btn-flat'>Class Average</a>";
@@ -1106,10 +1033,8 @@
                 </div>
             </div>
         </div>
-    {% endif %}
-{% endif %}
-{% endif %}
-{% if ccparams.warmupsUsed %}
+        {% endif %}
+        {% if ccparams.warmupsUsed %}
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card">
@@ -1120,7 +1045,7 @@
                 </div>
             </div>
         </div>
-{% endif %}
+        {% endif %}
     </main>
     {% include 'footer.html' %}
 
@@ -1179,18 +1104,12 @@
     </script>
 
 <script>
-    function track_get_class_avg_click()
-   {    
-       var student_id = "{{student}}";
-       console.log(student_id);
-
+    function track_get_class_avg_click(){    
        $.ajax({
-                url: "/oneUp/students/Track_class_avg_button_clicks", 
-                dataType: 'json',
-                async: true,
-                type: 'POST',
-                data: {student_id: "student_id"}
-            });
-
-   }
+            url: "/oneUp/students/Track_class_avg_button_clicks", 
+            dataType: 'json',
+            async: true,
+            type: 'POST',
+        });
+    }
 </script>

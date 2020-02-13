@@ -89,8 +89,8 @@ def parsonsForm(request):
             answer.answerText += instructorLine
             setUpCode = request.POST['setupCode']
             #print("setupcode", setUpCode)
-            ##setUpCode = re.sub("\r\n\s{4}", "\r\n\t", setUpCode)
-            answer.answerText += setUpCode
+            setUpCode = re.sub("\r\n\r\n", "\r\n", setUpCode)
+            answer.answerText += setUpCode.strip()
             #print("Answer edit answer:", repr(answer.answerText))
             answer.save()
             # no need to change correct answer
@@ -276,7 +276,7 @@ def parsonDynamicGrader(request):
     ##if we posted data with ajax, use it, otherwise just return.
     if request.POST:
         #gradeParson()
-        print("ajax call", context_dictionary, student_id)
+        #print("ajax call", context_dictionary, student_id)
         return JsonResponse({})
 
 
@@ -333,6 +333,8 @@ def getIndentationHash(line, solution_string):
     #print("line indentation hash", repr(line), difference, current_line_spacing)
     if(difference == 4):
         return next_line_spacing
+        if(current_line_spacing == 8):
+            return 8
     if(difference == -4 or difference == 0):
         return current_line_spacing
 
@@ -402,14 +404,19 @@ def getModelSolution(solution_string, distractor_limit):
                 #   index++;
                 next_element = re.sub("^", "\n&nbsp;", next_element)
                 line += next_element
-            if (difference == 4 or difference == 8):
-                #print("before \n")
-                next_element = re.sub("^", "\n", next_element)
-                line += next_element
+            if (difference == 4):
+                next_element = re.sub("^    ", "", next_element)
                 #if indentation is before the line
                 #example:
                 #   data++;
                 #index++;
+                line = re.sub("^    ", "", line)
+                line = re.sub("$", "\n", line)
+                #print("line before", line)
+                line = re.sub("(?=return.*;)", "    ", line)
+                #print("line after", line)
+                line += next_element
+                #print("generated line", line)
             if(difference == 0):
                 #print("zero diff\n")
                 line = re.sub("^ *", "", line)
@@ -475,10 +482,10 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
     student_solution_dict['student_indentation'] = student_indentation
 
     #print("student solution string", student_solution_string)
-    # print("student solution", student_solution)
-    # print("student hashes ", student_hashes)
-    # print("student trashes", student_trash)
-    # print("student indentation", student_indentation)
+    #print("student solution", student_solution)
+    #print("student hashes ", student_hashes)
+    #print("student trashes", student_trash)
+    #print("student indentation", student_indentation)
 
     return student_solution_dict
 
@@ -487,11 +494,12 @@ def getCorrectCount(student_hashes, hash_solutions):
     i = 0
     #print("length of submitted keys", len(student_hashes))
     #print("student keys submitted", student_hashes)
+    #print("lengh of hash solutions", len(hash_solutions))
+    #print("hash solutions", hash_solutions)
     for key in hash_solutions.keys():
         try:
-            #print("key ", key, "student hashes", student_hashes[i])
             #while the range we are in is lower than student hashes
-            if(i < len(student_hashes) and student_hashes[i] == key):
+            if(student_hashes[i] == key):
                 correct_count += 1
                 #print("student hash", i, key, student_hashes[i])
             i += 1
@@ -527,7 +535,9 @@ def gradeParson(qdict, studentAnswerDict):
     student_solution_line_count = len(studentAnswerDict['student_solution'])
     correct_lines_in_solution = len(qdict['display_code']) - qdict['distractor_limit']
 
-    #print("Student solution line count", student_solution_line_count, studentAnswerDict['correct_line_count'],correct_lines_in_solution)
+    #print("Student solution line count", student_solution_line_count)
+    #print("studentAnswerDict['correct_line_count']", studentAnswerDict['correct_line_count'])
+    #print("correct_lines_in_solution", correct_lines_in_solution)
 
     #student solution line count makes sure that the right number of lines were submitted
     if (student_solution_line_count < correct_lines_in_solution):
@@ -558,7 +568,9 @@ def gradeParson(qdict, studentAnswerDict):
     student_grade = float(max_available_points) - (float(max_available_points) * float(penalties))
     if student_grade < 0:
         student_grade = 0
-    #print("student_grade", student_grade, max_available_points, penalties)
+    #print("student_grade", student_grade)
+    #print("max available points", max_available_points)
+    #print("penalties", penalties)
     return round(Decimal(student_grade), 2)
 
 #function that cleans the disctractor of the #distractor and of the ☃(snowman) symbol
@@ -584,14 +596,31 @@ def convertTabsToSpaces(solution_string):
 
 #mystical code that uses refraction to do a deep dive into the child nodes and retreieve them.
 def childFragmentFunction(children, level, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution):
+    ending_curly_pattern = re.compile("}\n")
+    semicolon_curly_pattern = re.compile("; \n")
+    return_pattern = re.compile("(?=return.*;\n)")
+    spacer = " " * level
     for child in children['children']:
         hash_value = child['id']
         student_hashes.append(hash_value)
         student_indentation.append(level)
-        #print("hash value", line_dictionary[hash_value])
+        #print("line before", repr(line_dictionary[hash_value]))
         line = line_dictionary[hash_value]
-        line = re.sub(";\n",";\n    ",line)
-        student_solution_string.append(" " * level + str(line) + "\n")
+
+        is_ending_curly = ending_curly_pattern.search(line)
+        is_semicolon_curly_pattern = semicolon_curly_pattern.search(line)
+        is_return_pattern = return_pattern.search(line)
+        if(is_ending_curly or is_semicolon_curly_pattern):
+            line = re.sub("; \n",";\n" + spacer,line)
+            line = re.sub("}\n", "}\n" + spacer, line)
+
+        if(is_return_pattern):
+            line = re.sub("(?=return.*;\n)", spacer, line)
+        #print("line after", repr(line))
+
+        if(not is_ending_curly or not is_semicolon_curly_pattern or not is_return_pattern):
+            student_solution_string.append(" " * level + str(line) + "\n")
+
         student_solution.append(line_dictionary[hash_value])
 
         if 'children' in child:
