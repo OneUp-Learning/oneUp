@@ -260,6 +260,10 @@
                                     // set up the updating of the chart every 10 minutes
                                     var earned_series = this.series[1];
                                     var unclaimed_series = this.series[0];
+                                    {% if not ccparams.progressBarGroupUsed %}
+                                    var missed_series = this.series[2];
+                                    var projected_series = this.series[3];
+                                    {% endif %}
                                     var y_axis_max = this.yAxis[0];
                                     setInterval(function () {
                                         $.ajax({
@@ -272,7 +276,14 @@
                                                     // var earned_value = Math.round(Math.random() * 100);
                                                     var max = response['progressBarTotalPoints'];
                                                     var rest = max - earned_value;
-                                                    
+
+                                                    {% if not ccparams.progressBarGroupUsed %}
+                                                    var missed_value = response['missedPoints'];
+                                                    var projected_value = response['projectedEarnedPoints'];
+                                                    missed_series.setData([missed_value], false, false);
+                                                    projected_series.setData([projected_value], false, false);
+                                                    {% endif %}
+                                                                    
                                                     y_axis_max.setExtremes(0, max);
                                                     earned_series.setData([earned_value], false, false);
                                                     unclaimed_series.setData([rest], true, true);
@@ -326,7 +337,16 @@
                                style: {
                                    fontSize: '9px'
                                }
-                           }
+                           },
+                           {% if not ccparams.progressBarGroupUsed %}
+                           plotLines: [{
+                                value: [ChallengePointsProjected()],
+                                width: 2,
+                                zIndex: 4,
+                                //Progressbar marker black color
+                                color: 'darkblue'
+                            }],
+                            {% endif %}
                        },
                        tooltip: {
                            useHTML: true,
@@ -339,7 +359,17 @@
                                borderWidth: 0,
                                pointPadding: .25,
                                groupPadding: 0
-                           }
+                           },
+                           {% if not ccparams.progressBarGroupUsed %}
+                           scatter: {
+                                marker: {
+                                    symbol: 'line',
+                                    lineWidth: 0,
+                                    radius: 9,
+                                    lineColor: '#333'
+                                }
+                            }
+                            {% endif %}
                        },
                        series: [{
                            name: 'Points Unclaimed',
@@ -366,7 +396,30 @@
                            //color:'#FFEB42',
                            //color: '#FFFF33',
                            data: [PointsEarnedData()]
-                       }]
+                       },
+                       {% if not ccparams.progressBarGroupUsed %}
+                       {
+                            name: 'Points Already Lost',
+                            enableMouseTracking: true,
+                            borderWidth: 0,
+                            borderRadius: 0,
+                            stacking: 'normal',
+                            grouping: false,
+                            //progress bar red color points already lost
+                            color: 'red', //darkred
+                            data: [ChallengePointsmissed()]
+                        },
+                        {
+                            name: 'Projected Total Points',
+                            //Progress bar total projected points black color.
+                            color: 'darkblue',
+                            //color:'#9966FF',
+                            pointRange: .5,
+                            zIndex: 1,
+                            data: [ChallengePointsProjected()]
+                        }
+                        {% endif %}
+                    ]
                    });
                });
            </script>
