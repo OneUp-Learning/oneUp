@@ -143,6 +143,9 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 			response['remainingPointsToEarn'] = response['remainingPointsToEarn'] / len(students)
 		
 		response['progressBarTotalPoints'] = progressBarTotalPoints
+		if response['data'] == 0:
+			data = studentScore(for_student, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+			response['data'] = data
 		
 	else:
 		# Get latest data
@@ -169,6 +172,8 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		response['remainingPointsToEarn'] = remainingPointsToEarn
 
 	response['status'] = "success"
+
+	
 
 	return response
 
