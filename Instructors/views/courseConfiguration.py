@@ -28,7 +28,6 @@ def courseConfigurationView(request):
             ccparams = CourseConfigParams()
             ccparams.courseID = currentCourse
             
-        ccparams.progressBarUsed = "progressBarUsed" in request.POST
         ccparams.chatUsed = "chatUsed" in request.POST
         ccparams.seriousChallengesGrouped = "seriousChallengesGrouped" in request.POST
         ccparams.gamificationUsed = "gamificationUsed" in request.POST   
@@ -36,6 +35,9 @@ def courseConfigurationView(request):
         ccparams.warmupsUsed = "warmupsUsed" in request.POST
         ccparams.seriousChallengesUsed = "seriousUsed" in request.POST
         ccparams.gradebookUsed = "gradebookUsed" in request.POST
+        ccparams.activitiesUsed = "activitiesUsed" in request.POST
+        ccparams.skillsUsed = "skillsUsed" in request.POST
+        ccparams.announcementsUsed = "announcementsUsed" in request.POST
         logger.debug(request.POST['courseStartDate'])
         if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
             ccparams.courseStartDate = utcDate()
@@ -49,7 +51,7 @@ def courseConfigurationView(request):
 
         
         ccparams.save()
-
+        print(ccparams.announcementsUsed,"%%%%%%%%%%")
         return redirect('/oneUp/instructors/instructorCourseHome')
                 
     elif request.method == 'GET':
@@ -57,7 +59,6 @@ def courseConfigurationView(request):
         if ccparams:
             context_dict['ccpID'] = ccparams.ccpID
             context_dict['gamificationUsed'] = ccparams.gamificationUsed
-            context_dict['progressBarUsed'] = ccparams.progressBarUsed
             context_dict['chatUsed'] = ccparams.chatUsed
             context_dict['seriousChallengesGrouped'] = ccparams.seriousChallengesGrouped
             context_dict['courseAvailable'] = ccparams.courseAvailable
@@ -65,6 +66,10 @@ def courseConfigurationView(request):
             context_dict['warmupsUsed'] = ccparams.warmupsUsed
             context_dict['seriousUsed'] = ccparams.seriousChallengesUsed
             context_dict['gradebookUsed'] = ccparams.gradebookUsed
+            
+            context_dict['skillsUsed'] = ccparams.skillsUsed
+            context_dict['announcementsUsed'] = ccparams.announcementsUsed
+            context_dict['activitiesUsed'] = ccparams.activitiesUsed
             defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
             if(ccparams.courseStartDate.year < defaultTime.year):
                 context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")

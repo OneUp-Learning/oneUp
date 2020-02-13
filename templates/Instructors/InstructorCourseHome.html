@@ -10,6 +10,7 @@
           <div class="row">
               <div class="col s12 m12 l10 offset-l1">
             <div class="row">
+            {% if ccparams.announcementsUsed %}
                 <div class="col s12 m6">
                   <div class="card-panel">
                   <table>
@@ -36,7 +37,7 @@
                   </div>
                   </div>
                 </div>
-                
+                {% endif %}
            {% if ccparams.seriousChallengesUsed %}                
                 <div class="col s12 m6">
                   <div class="card-panel">
@@ -66,8 +67,9 @@
                 </div>
             </div> 
          {% endif %}     
-         {% if badgesUsed and gamificationUsed %}                            
+                               
             <div class="row">
+             {% if badgesUsed and gamificationUsed %}     
                 <div class="col s12">
                   <div class="card-panel">
                   <table>
@@ -91,8 +93,9 @@
                   </table>
                   </div>
                 </div>
+                {% endif %}
             </div>
-          {% endif %}
+        
             <div class="row">
             {% if leaderboardUsed and gamificationUsed %}    
                 <div class="col s12 m12">

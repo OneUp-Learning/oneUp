@@ -324,7 +324,7 @@ class CourseConfigParams(models.Model):
     # Progress bar
     progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page and student course home page
     progressBarTotalPoints = models.IntegerField(default=100)         ## This is the default maximum points on the progress bar
-
+    
     displayStudentStartPageSummary = models.BooleanField(default=False) ## This toggles the view on the student course home page to show class achievements or student achievements summary
 
     chatUsed = models.BooleanField(default=False)                      ## This will enable or disable the chat feature 
@@ -376,6 +376,10 @@ class CourseConfigParams(models.Model):
     warmupsUsed = models.BooleanField(default=True)
     seriousChallengesUsed = models.BooleanField(default=True)
     gradebookUsed = models.BooleanField(default=True)
+    #Options to disable activities, skills, and announcements
+    activitiesUsed = models.BooleanField(default=True)  
+    skillsUsed = models.BooleanField(default=False)
+    announcementsUsed = models.BooleanField(default=True)
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -412,7 +416,13 @@ class CourseConfigParams(models.Model):
         +str(self.vcDuel)+","\
         +str(self.vcDuelMaxBet)+","\
         +str(self.vcDuelParticipants)+","\
-        +str(self.studCanChangeGoal)+","
+        +str(self.studCanChangeGoal)+","\
+        +str(self.warmupsUsed)+","\
+        +str(self.seriousChallengesUsed)+","\
+        +str(self.gradebookUsed)+","\
+        +str(self.activitiesUsed)+","\
+        +str(self.skillsUsed)+","\
+        +str(self.announcementsUsed)+","
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
