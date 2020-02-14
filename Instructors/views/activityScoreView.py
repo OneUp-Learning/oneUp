@@ -44,7 +44,7 @@ def activityScore(request):
             
             else: 
                 points.append("-")
-                feedbacks.append("No feedback yet")
+                feedbacks.append("")
             
         context_dict['activity_range'] = zip(activityNames,maxPoints,points, feedbacks)           
     

@@ -224,29 +224,19 @@
                // PROGRESS BAR
                $(function() {
                    var PointsEarnedData = function() {
-       
-                       var PointsEarnedDataArray1 = {{currentEarnedPoints}};
                        return {{currentEarnedPoints}};
                    };
                    var RemainingChallengePoints = function() {
-       
-                       var RemainingChallengePointsDataArray1 = {{remainingPointsToEarn}};
-                       return RemainingChallengePointsDataArray1;
+                       return {{remainingPointsToEarn}};
                    };
                    var ChallengePointsmissed = function() {
-       
-                       var ChallengePointsmissedDataArray1 = {{missedPoints}};
-                       return ChallengePointsmissedDataArray1;
+                       return {{missedPoints}};
                    };
                    var ChallengePointsProjected = function() {
-       
-                       var ChallengePointsProjectedDataArray1 = {{projectedEarnedPoints}};
-                       return ChallengePointsProjectedDataArray1;
+                       return {{projectedEarnedPoints}};
                    };
                    var ChallengesMaxPoints = function() {
-       
-                       var ChallengesMaxPointsDataArray1 = {{progressBarTotalPoints}};
-                       return ChallengesMaxPointsDataArray1;
+                       return {{progressBarTotalPoints}};
                    };
                    //Your Progress
                    $('#progressbar').highcharts({
@@ -258,11 +248,15 @@
                            events: {
                                 load: function () {
                                     // set up the updating of the chart every 10 minutes
-                                    var earned_series = this.series[1];
-                                    var unclaimed_series = this.series[0];
+                                    
                                     {% if not ccparams.progressBarGroupUsed %}
-                                    var missed_series = this.series[2];
+                                    var earned_series = this.series[2];
+                                    var unclaimed_series = this.series[1];
+                                    var missed_series = this.series[0];
                                     var projected_series = this.series[3];
+                                    {% else %}
+                                    var unclaimed_series = this.series[0];
+                                    var earned_series = this.series[1];
                                     {% endif %}
                                     var y_axis_max = this.yAxis[0];
                                     setInterval(function () {
@@ -277,16 +271,24 @@
                                                     var max = response['progressBarTotalPoints'];
                                                     var rest = max - earned_value;
 
+                                                    y_axis_max.setExtremes(0, max);
+
                                                     {% if not ccparams.progressBarGroupUsed %}
                                                     var missed_value = response['missedPoints'];
                                                     var projected_value = response['projectedEarnedPoints'];
+                                                    rest = max - missed_value - earned_value;
+                                                    
                                                     missed_series.setData([missed_value], false, false);
                                                     projected_series.setData([projected_value], false, false);
+                                                    earned_series.setData([earned_value], false, false);
+                                                    unclaimed_series.setData([rest], true, true)
+                                                    {% else %}
+                                                    earned_series.setData([earned_value], false, false);
+                                                    unclaimed_series.setData([rest], true, true)
                                                     {% endif %}
                                                                     
-                                                    y_axis_max.setExtremes(0, max);
-                                                    earned_series.setData([earned_value], false, false);
-                                                    unclaimed_series.setData([rest], true, true);
+                                                    
+                                                    
                                                 }
                                                 console.table(response)
                                             }
@@ -371,32 +373,7 @@
                             }
                             {% endif %}
                        },
-                       series: [{
-                           name: 'Points Unclaimed',
-                           enableMouseTracking: true,
-                           borderWidth: 0,
-                           borderRadius: 0,
-                           stacking: 'normal',
-                           grouping: false,
-                           //Progress bar yellow color points remaining.
-                           //color: '#a7daff', 
-                           color: '#FFEB42',
-                           //color: '#9966FF',
-                           data: [ChallengesMaxPoints() - PointsEarnedData()]
-                       }, {
-                           //pointRange:1.1,
-                           name: 'Points Earned',
-                           enableMouseTracking: true,
-                           borderWidth: 0,
-                           borderRadius: 0,
-                           stacking: 'normal',
-                           grouping: false,
-                           //Progressbar purple color points earned.
-                           color: '#3f51b5', 
-                           //color:'#FFEB42',
-                           //color: '#FFFF33',
-                           data: [PointsEarnedData()]
-                       },
+                       series: [
                        {% if not ccparams.progressBarGroupUsed %}
                        {
                             name: 'Points Already Lost',
@@ -409,6 +386,38 @@
                             color: 'red', //darkred
                             data: [ChallengePointsmissed()]
                         },
+                        {% endif %}    
+                       {
+                           name: 'Points Unclaimed',
+                           enableMouseTracking: true,
+                           borderWidth: 0,
+                           borderRadius: 0,
+                           stacking: 'normal',
+                           grouping: false,
+                           //Progress bar yellow color points remaining.
+                           //color: '#a7daff', 
+                           color: '#FFEB42',
+                           //color: '#9966FF',
+                           {% if not ccparams.progressBarGroupUsed %}
+                           data: [ChallengesMaxPoints() - ChallengePointsmissed() - PointsEarnedData()]
+                           {% else %}
+                           data: [ChallengesMaxPoints() - PointsEarnedData()]
+                           {% endif %}
+                       }, {
+                           //pointRange:1.1,
+                           name: 'Points Earned',
+                           enableMouseTracking: true,
+                           borderWidth: 0,
+                           borderRadius: 0,
+                           stacking: 'normal',
+                           grouping: false,
+                           //Progressbar purple color points earned.
+                           color: '#9966FF', 
+                           //color:'#3f51b5',
+                           //color: '#FFFF33',
+                           data: [PointsEarnedData()]
+                       },
+                       {% if not ccparams.progressBarGroupUsed %}
                         {
                             name: 'Projected Total Points',
                             //Progress bar total projected points black color.
