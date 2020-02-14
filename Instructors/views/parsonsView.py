@@ -553,7 +553,8 @@ def gradeParson(qdict, studentAnswerDict):
     penalties += Decimal(error_count * (1 / correct_lines_in_solution))
 
     student_solution_line_count 
-    if qdict['indentation_flag']:
+    if str2bool(qdict['indentation_flag']):
+        #print("Indentation flag exists", qdict['indentation_flag'])
         if len(studentAnswerDict['indentation_errors']) > 0:
             ##we multiply by 1/2 because each wrong is half of 1/n
             penalties += Decimal((len(studentAnswerDict['indentation_errors']) / correct_lines_in_solution) * (1/2))
@@ -627,7 +628,8 @@ def childFragmentFunction(children, level, line_dictionary, student_hashes, stud
             childFragmentFunction(child, level+4, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution)
     
     #print("student hashes, student indentation, student solution string, student solution", student_hashes, student_indentation, student_solution_string, student_solution)
-
+def str2bool(v):
+  return v.lower() in ("yes", "true", "t", "1")    
 # def getDisplayForCKE():
 #     solution_hashes.append(hash(line))
 #         line_array.update({hash(line):line})
