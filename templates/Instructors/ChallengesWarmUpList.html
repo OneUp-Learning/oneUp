@@ -54,16 +54,14 @@
 										<tbody>
 											{% for j, chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
 											<input type="hidden" name="challengeID" value="{{chall_ID}}">
-											<tr>
-												<td style="max-width: 60vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
-												<td>{{chall_visible}}</td>
-												<td>
-													<div class="input-field col s12">
+											<tr class="row">
+												<td class="no-padding" style="max-width: 60vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
+												<td class="no-padding">{{chall_visible}}</td>
+												<td class="no-padding">
 														<input placeholder="Points" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4"
 														 type="number" class="validate" min="0" required>
-													</div>
 												</td>
-												<td>
+												<td class="no-padding">
 													<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 													 data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50"
 													 data-tooltip="Options">
