@@ -24,7 +24,7 @@ def createStudentListView(request):
     user_Email = []  
     user_Action = []   
     user_Avatar = []  
-
+    student_pk = []
     
 
     courseStudents = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)
@@ -36,10 +36,11 @@ def createStudentListView(request):
         last_action = StudentEventLog.objects.filter(course=currentCourse, student = s, event__in = studentEvents).order_by('-timestamp').first()
         
         userID.append(s.user)
-        print(s)
+        #print(s)
         first_Name.append(s.user.first_name)
         last_Name.append(s.user.last_name)
         user_Email.append(s.user.email)
+        student_pk.append(s.pk)
         if last_action:
             user_Action.append(last_action.timestamp)
         else:
@@ -48,7 +49,7 @@ def createStudentListView(request):
         user_Avatar.append(checkIfAvatarExist(cs))
                
     # The range part is the index numbers.
-    context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Action, user_Avatar)), key=lambda tup: tup[3])
+    context_dict['user_range'] = sorted(list(zip(range(1,courseStudents.count()+1),userID,first_Name,last_Name,user_Email,user_Action, user_Avatar,student_pk)), key=lambda tup: tup[3])
     context_dict['file_types'] = CSV.information.items()
     return render(request,'Instructors/CreateStudentList.html', context_dict)
 

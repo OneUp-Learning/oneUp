@@ -120,6 +120,7 @@ def createStudentViewUnchecked(request):
             context_dict['firstname'] = studentID.first_name
             context_dict['lastname'] = studentID.last_name
             context_dict['email'] = studentID.email
+            context_dict['pk'] = Student.objects.get(user=studentID).pk
             
         return render(request,"Administrators/createUser.html", context_dict)
     
