@@ -45,9 +45,15 @@
                      	<th></th>
                         <th>First Name</th>
                         <th>Last Name</th>
+                       {% if seriousUsed %}
                         <th>Serious Challenge Points</th>
+                       {% endif %}
+                       {% if activitiesUsed %}
                         <th>Activity Points</th>
-                        <th>#WarmUps/#Attempts</th>
+                       {% endif %}
+                      {% if warmupsUsed %}
+                        <th>#WarmUps / #Attempts</th>
+                       {% endif %}
                         <th>XP</th>
                         <th class='vc'>VC</th>
                         <th>Last Action</th>
@@ -58,9 +64,15 @@
                            <td><img class="circle" alt="Avatar Image" width="36" height="36" src="{{user_Avatar}}"></td> 
                            <td>{{first_Name}}</td>
                            <td>{{last_Name}}</td>
+                           {% if seriousUsed %}
                            <td>{{sc_totalStudentScore}} / {{sc_totalStudentPossibleScore}}</td>
+                           {% endif %}
+                           {% if activitiesUsed %}
                            <td>{{act_totalStudentScore}} / {{act_totalStudentPossibleScore}}</td>
+                           {% endif %}
+                           {% if warmupsUsed %}
                            <td>{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
+                           {% endif %}
                            <td>{{user_XP}}</td>
                            <td class='vc'>{{user_VC}}</td>
                            <td>{{user_Action}}</td>

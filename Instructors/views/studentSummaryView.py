@@ -42,6 +42,9 @@ def studentSummary(request):
     user_XP = []
     user_VC = []
     context_dict['isVCUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).virtualCurrencyUsed
+    context_dict['warmupsUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).warmupsUsed
+    context_dict['seriousUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).seriousChallengesUsed
+    context_dict['activitiesUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).activitiesUsed
     
     
     courseStudents = StudentRegisteredCourses.objects.filter(
