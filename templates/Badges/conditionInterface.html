@@ -187,6 +187,7 @@
 		white-space: pre-wrap;
 	}
  </style>
+ 
  <!-- Hidden prototypes which will be copied to make the actual nodes in the boolean expression. -->
  <div id="condOrPrototype" class="cond-prototype">
 		<div class="cond-or cond-item" data-cond-type="or" draggable="true">
@@ -774,6 +775,8 @@ function condAddThingieToList(select) {
 
 function condChangeForAllType(select) {
     var currentType = select.options[select.selectedIndex].value;
+    console.log("here")
+    console.log(currentType)
     var oldType = select.dataset.condOldType;
     if (currentType == oldType) {
         return;
@@ -946,9 +949,13 @@ function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) 
     if (context == "none") {
         context = "global";
     }
-    context = context.charAt(0).toUpperCase() + context.slice(1);
+    
+    context = context.charAt(0).toUpperCase() + context.slice(1).toLowerCase();
 
     var contextAttributeName = "condContext" + context;
+
+    console.log("catego")
+    console.log(contextAttributeName)
 
     function updateThisSelect(targetSelect, contextAttributeName, showGlobals) {
         var inputs = targetSelect.getElementsByTagName("option");
@@ -1378,8 +1385,10 @@ function condFillCondString() {
 
 {% if initialCond %}
 var initialCond = {{initialCond|safe}};
+console.log(initialCond)
 {% else %}
 var initialCond = "empty";
+
 {% endif %}
 
 var initialEmpty = document.getElementsByClassName("cond-container")[0].getElementsByClassName("cond-empty")[0]
@@ -1468,6 +1477,8 @@ function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
         selectOptionByValue(typeSelector, cond.objectType);
         var listDiv = forDiv.querySelector('div.cond-' + cond.objectType + '-selected-list');
         for (var i = 0; i < cond.objects.length; i++) {
+            console.log(cond.objectType)
+            console.log(cond.objects[i])
             condAddThingieToListByNameAndId(listDiv, condObjectsIdToName[cond.objectType][cond.objects[i]], cond.objects[i])
         }
         var empty = forDiv.getElementsByClassName("cond-empty")[0];
